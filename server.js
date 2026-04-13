@@ -283,6 +283,8 @@ document.getElementById('app').innerHTML=h;
 if(S.user){load();chk();setInterval(load,10000)}else render();
 </script></body></html>`;
 
+app.get('/manifest.json',(_,res)=>res.json({name:"TaskFlow",short_name:"TaskFlow",description:"Smart task manager with WhatsApp integration",start_url:"/",display:"standalone",background_color:"#F5F2ED",theme_color:"#1A1816",icons:[{src:"https://ui-avatars.com/api/?name=TF&background=1A1816&color=F5F2ED&size=512&bold=true&format=png",sizes:"512x512",type:"image/png",purpose:"any maskable"}]}));
+app.get('/sw.js',(_,res)=>res.type('application/javascript').send('self.addEventListener("install",e=>{self.skipWaiting()});self.addEventListener("fetch",e=>{});'));
 app.get('/',(_,res)=>res.type('html').send(HTML));
 app.get('*',(_,res)=>res.type('html').send(HTML));
 const PORT=process.env.PORT||3000;
