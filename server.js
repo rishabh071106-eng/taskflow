@@ -2,7 +2,10 @@ require('dotenv').config();
 const express=require('express'),cors=require('cors'),Database=require('better-sqlite3'),twilio=require('twilio'),path=require('path'),crypto=require('crypto');
 const app=express();app.use(cors());app.use(express.json());app.use(express.urlencoded({extended:true}));
 
-const db=new Database(path.join(__dirname,'taskflow.db'));db.pragma('journal_mode=WAL');
+const DB_PATH=process.env.DB_PATH||path.join(__dirname,'taskflow.db');
+try{require('fs').mkdirSync(path.dirname(DB_PATH),{recursive:true})}catch(e){}
+console.log('[db] using',DB_PATH);
+const db=new Database(DB_PATH);db.pragma('journal_mode=WAL');
 db.exec(`CREATE TABLE IF NOT EXISTS users(phone TEXT PRIMARY KEY,name TEXT DEFAULT'',token TEXT,created_at TEXT DEFAULT(datetime('now')));
 CREATE TABLE IF NOT EXISTS tasks(id TEXT PRIMARY KEY,user_phone TEXT NOT NULL,title TEXT NOT NULL,notes TEXT DEFAULT'',priority TEXT DEFAULT'medium',status TEXT DEFAULT'pending',due_date TEXT DEFAULT'',reminder_time TEXT DEFAULT'',reminded INTEGER DEFAULT 0,source TEXT DEFAULT'app',created_at TEXT DEFAULT(datetime('now')),updated_at TEXT DEFAULT(datetime('now')));
 CREATE TABLE IF NOT EXISTS otps(phone TEXT PRIMARY KEY,code TEXT,expires_at TEXT);`);
