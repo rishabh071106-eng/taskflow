@@ -146,6 +146,9 @@ app.post('/api/send-all',auth,async(req,res)=>{
 });
 app.get('/api/health',(_,res)=>res.json({status:'ok',twilio:!!tw,email:!!process.env.RESEND_API_KEY,users:db.prepare('SELECT COUNT(*)as c FROM users').get().c,tasks:db.prepare('SELECT COUNT(*)as c FROM tasks').get().c}));
 
+// Inject Twilio sandbox code into the HTML so frontend can build the wa.me link
+app.get('/api/config',(_,res)=>res.json({sandboxCode:process.env.TWILIO_SANDBOX_CODE||''}));
+
 // ═══ PROFILE (/api/me) ═══
 app.get('/api/me',auth,(req,res)=>{
   const u=db.prepare('SELECT phone,name,created_at FROM users WHERE phone=?').get(req.user.phone);
@@ -458,7 +461,7 @@ function rotateMoral(){S.moralIdx=(S.moralIdx+1)%MORALS.length;render()}
 setInterval(()=>{if(S.user)rotateMoral()},45000);
 
 async function loadBooks(cat){S.booksCat=cat;S.booksLoading=true;render();try{const q=cat==='all'?'collection:librivoxaudio AND mediatype:audio':'collection:librivoxaudio AND mediatype:audio AND subject:'+cat;const url='https://archive.org/advancedsearch.php?q='+encodeURIComponent(q)+'&fl[]=identifier&fl[]=title&fl[]=creator&fl[]=downloads&rows=30&output=json&sort[]=downloads+desc';const r=await fetch(url);const j=await r.json();S.books=j.response.docs;}catch(e){S.books=[];toast('\\u26A0\\uFE0F Failed to load books','err')}S.booksLoading=false;render()}
-async function playBook(id){const b=S.books.find(x=>x.identifier===id);if(!b){toast('\\u26A0\\uFE0F Book not found','err');return}const title=Array.isArray(b.title)?b.title[0]:b.title;const author=Array.isArray(b.creator)?b.creator[0]:(b.creator||'Unknown');S.playing={id,title,author,loading:true};render();try{const r=await fetch('https://archive.org/metadata/'+encodeURIComponent(id));if(!r.ok)throw new Error('metadata '+r.status);const j=await r.json();if(!j.files||!j.files.length){toast('\\u26A0\\uFE0F This book has no files. Opening on archive.org...','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render();return}let mp3=j.files.find(f=>/_64kb\\.mp3$/i.test(f.name));if(!mp3)mp3=j.files.find(f=>/\\.mp3$/i.test(f.name)&&!/sample|test|spoken/i.test(f.name));if(!mp3)mp3=j.files.find(f=>/\\.(mp3|m4a|ogg)$/i.test(f.name));if(mp3){const server=j.server||'archive.org';const dir=j.dir||('/'+id);const url='https://'+server+dir+'/'+mp3.name.split('/').map(encodeURIComponent).join('/');S.playing={id,title,author,url,external:'https://archive.org/details/'+id};render();setTimeout(()=>{const a=document.getElementById('audioEl');if(a){a.load();const p=a.play();if(p&&p.catch)p.catch(()=>toast('\\u25B6\\uFE0F Tap play on the bar below','err'))}},200)}else{toast('\\u26A0\\uFE0F No audio \\u2014 opening archive.org','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render()}}catch(e){toast('\\u26A0\\uFE0F '+e.message,'err');S.playing={id,title,author,url:null,external:'https://archive.org/details/'+id,error:e.message};render()}}
+async function playBook(id){const b=S.books.find(x=>x.identifier===id);if(!b){toast('\\u26A0\\uFE0F Book not found','err');return}const title=Array.isArray(b.title)?b.title[0]:b.title;const author=Array.isArray(b.creator)?b.creator[0]:(b.creator||'Unknown');S.playing={id,title,author,loading:true};render();try{const r=await fetch('https://archive.org/metadata/'+encodeURIComponent(id));if(!r.ok)throw new Error('metadata '+r.status);const j=await r.json();if(!j.files||!j.files.length){toast('\\u26A0\\uFE0F No files \\u2014 opening archive.org','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render();return}let mp3=j.files.find(f=>/_64kb\\.mp3$/i.test(f.name));if(!mp3)mp3=j.files.find(f=>/_32kb\\.mp3$/i.test(f.name));if(!mp3)mp3=j.files.find(f=>/\\.mp3$/i.test(f.name)&&!/sample|test|spoken/i.test(f.name));if(!mp3)mp3=j.files.find(f=>/\\.(mp3|m4a|ogg)$/i.test(f.name));if(mp3){const server=j.server||'archive.org';const dir=j.dir||('/'+id);const directUrl='https://'+server+dir+'/'+mp3.name.split('/').map(encodeURIComponent).join('/');const dlUrl='https://archive.org/download/'+encodeURIComponent(id)+'/'+mp3.name.split('/').map(encodeURIComponent).join('/');S.playing={id,title,author,url:directUrl,altUrl:dlUrl,external:'https://archive.org/details/'+id};render();setTimeout(()=>{const a=document.getElementById('audioEl');if(!a)return;a.setAttribute('playsinline','');a.setAttribute('webkit-playsinline','');a.preload='auto';a.addEventListener('error',function onErr(){a.removeEventListener('error',onErr);if(a.src!==dlUrl){a.src=dlUrl;a.load()}},{once:true});a.load();const p=a.play();if(p&&p.catch)p.catch(()=>toast('\\u25B6\\uFE0F Tap the play button on the bar','err'))},250)}else{toast('\\u26A0\\uFE0F No audio \\u2014 opening archive.org','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render()}}catch(e){toast('\\u26A0\\uFE0F '+e.message,'err');S.playing={id,title,author,url:null,external:'https://archive.org/details/'+id,error:e.message};render()}}
 function closePlayer(){S.playing=null;render()}
 
 function render(){
@@ -475,7 +478,10 @@ else h+='<input type="tel" placeholder="+91 98765 43210" value="'+esc(S.loginPho
 if(S.loginError)h+='<div style="color:#E8453C;font-size:13px;font-weight:600;margin:8px 0">'+S.loginError+'</div>';
 h+='<button class="login-btn" onclick="sendOTP()"'+(S.loginLoading?' disabled':'')+'>'+(S.loginLoading?'Sending code...':(S.loginMethod==='email'?'\\u2709\\uFE0F Send code to email':'\\u{1F4F1} Send code on WhatsApp'))+'</button>';
 if(S.loginMethod==='email')h+='<div class="login-hint">We\\'ll email a 6-digit code. Check your inbox (and spam folder).</div>';
-else h+='<div class="login-hint">We\\'ll send a 6-digit code to your WhatsApp.<br><b>First time?</b> Join the sandbox: send "join &lt;code&gt;" to <b>+1 415 523 8886</b></div>';
+else{h+='<div class="login-hint" style="margin-top:10px">First time? You must join WhatsApp first (one-time, 3 sec):</div>';
+const sb=window.__TWILIO_SANDBOX_CODE||'your-code';
+h+='<a href="https://wa.me/14155238886?text='+encodeURIComponent('join '+sb)+'" target="_blank" class="login-btn" style="background:#25D366;color:#fff;text-decoration:none;display:block;margin-top:8px;text-align:center">\\u{1F4F1} Tap to Join WhatsApp Sandbox</a>';
+h+='<div class="login-hint" style="margin-top:10px">After joining, come back and tap <b>Send OTP</b>.</div>';}
 }else if(S.loginStep==='otp'){
 h+='<div class="login-sub">Enter the code sent to<br><strong>'+esc(S.loginMethod==='email'?S.loginEmail:S.loginPhone)+'</strong></div>';
 h+='<div class="step-dots"><div class="step-dot on"></div><div class="step-dot on"></div><div class="step-dot"></div></div>';
@@ -720,6 +726,7 @@ h+='</div></div>';}
 
 document.getElementById('app').innerHTML=h;
 }
+fetch('/api/config').then(r=>r.json()).then(c=>{window.__TWILIO_SANDBOX_CODE=c.sandboxCode||'';render()}).catch(()=>{});
 if(S.user){refreshSession();load();chk();setInterval(load,10000)}else render();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
 </script></body></html>`;
