@@ -431,7 +431,7 @@ async function verifyOTP(){const code=S.loginOTP.join('');if(code.length<6){S.lo
 function otpInput(i,v){S.loginOTP[i]=v.slice(-1);render();if(v&&i<5)setTimeout(()=>{const el=document.getElementById('otp'+(i+1));if(el)el.focus()},10)}
 function otpKey(i,e){if(e.key==='Backspace'&&!S.loginOTP[i]&&i>0){S.loginOTP[i-1]='';render();setTimeout(()=>{const el=document.getElementById('otp'+(i-1));if(el)el.focus()},10)}}
 function logout(){token=null;S.user=null;S.tasks=[];S.loginStep='phone';S.loginOTP=['','','','','',''];localStorage.removeItem('tf_token');localStorage.removeItem('tf_phone');localStorage.removeItem('tf_name');render()}
-async function load(){const t=await api('/tasks');if(t){S.tasks=t;render()}}
+async function load(){const a=document.getElementById('audioEl');if(a&&!a.paused)return;const t=await api('/tasks');if(!t)return;const h=JSON.stringify(t);if(h===S._lastTasksHash)return;S._lastTasksHash=h;S.tasks=t;render()}
 async function chk(){const h=await api('/health');if(h)S.waOk=h.twilio;render()}
 async function addT(){if(!S.form.title.trim())return;const r=await api('/tasks',{method:'POST',body:JSON.stringify({title:S.form.title,notes:S.form.notes,priority:S.form.priority,status:'pending',due_date:S.form.dueDate,reminder_time:S.form.reminderTime})});if(r?.id){S.tasks.unshift(r);clM();toast('\\u2705 Task added!')}}
 async function savE(){if(!S.form.title.trim()||!S.editing)return;const r=await api('/tasks/'+S.editing,{method:'PUT',body:JSON.stringify({title:S.form.title,notes:S.form.notes,priority:S.form.priority,status:S.form.status,due_date:S.form.dueDate,reminder_time:S.form.reminderTime})});if(r){const i=S.tasks.findIndex(t=>t.id===S.editing);if(i>-1)S.tasks[i]=r;clM();toast('\\u2705 Updated!')}}
@@ -460,7 +460,7 @@ function calPrev(){const d=new Date(S.calMonth);d.setMonth(d.getMonth()-1);S.cal
 function calNext(){const d=new Date(S.calMonth);d.setMonth(d.getMonth()+1);S.calMonth=d;render()}
 function calSelect(d){S.calSelectedDate=d;render()}
 function calAddForDate(){S.form={title:'',notes:'',priority:'medium',dueDate:S.calSelectedDate||'',reminderTime:'',status:'pending'};S.editing=null;S.showAdd=true;render();setTimeout(()=>{const e=document.getElementById('ft');if(e)e.focus()},100)}
-function rotateMoral(){S.moralIdx=(S.moralIdx+1)%MORALS.length;render()}
+function rotateMoral(){const a=document.getElementById('audioEl');if(a&&!a.paused)return;S.moralIdx=(S.moralIdx+1)%MORALS.length;render()}
 setInterval(()=>{if(S.user)rotateMoral()},45000);
 
 async function loadBooks(cat){S.booksCat=cat;S.booksLoading=true;render();try{const q=cat==='all'?'collection:librivoxaudio AND mediatype:audio':'collection:librivoxaudio AND mediatype:audio AND subject:'+cat;const url='https://archive.org/advancedsearch.php?q='+encodeURIComponent(q)+'&fl[]=identifier&fl[]=title&fl[]=creator&fl[]=downloads&rows=30&output=json&sort[]=downloads+desc';const r=await fetch(url);const j=await r.json();S.books=j.response.docs;}catch(e){S.books=[];toast('\\u26A0\\uFE0F Failed to load books','err')}S.booksLoading=false;render()}
