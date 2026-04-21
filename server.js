@@ -12,6 +12,8 @@ CREATE TABLE IF NOT EXISTS otps(phone TEXT PRIMARY KEY,code TEXT,expires_at TEXT
 // email column + unique index (idempotent)
 try{db.exec("ALTER TABLE users ADD COLUMN email TEXT")}catch(e){}
 try{db.exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email) WHERE email IS NOT NULL AND email!=''")}catch(e){}
+try{db.exec("CREATE TABLE IF NOT EXISTS steps(id INTEGER PRIMARY KEY AUTOINCREMENT,user_phone TEXT NOT NULL,date TEXT NOT NULL,count INTEGER NOT NULL DEFAULT 0,source TEXT DEFAULT'manual',updated_at TEXT DEFAULT(datetime('now')))")}catch(e){}
+try{db.exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_steps_user_date ON steps(user_phone,date)")}catch(e){}
 
 let tw=null;const TW_FROM=process.env.TWILIO_WHATSAPP_FROM||'whatsapp:+14155238886';
 try{if(process.env.TWILIO_ACCOUNT_SID&&process.env.TWILIO_AUTH_TOKEN){tw=twilio(process.env.TWILIO_ACCOUNT_SID,process.env.TWILIO_AUTH_TOKEN);console.log('✅ Twilio connected')}}catch(e){console.log('⚠️',e.message)}
@@ -137,6 +139,19 @@ app.put('/api/tasks/:id',auth,(req,res)=>{
   res.json(db.prepare('SELECT * FROM tasks WHERE id=?').get(req.params.id));
 });
 app.delete('/api/tasks/:id',auth,(req,res)=>{db.prepare('DELETE FROM tasks WHERE id=? AND user_phone=?').run(req.params.id,req.user.phone);res.json({ok:true})});
+// ═══ STEPS API ═══
+app.get('/api/steps',auth,(req,res)=>{
+  const days=Math.min(Math.max(parseInt(req.query.days)||30,1),365);
+  const since=new Date(Date.now()-(days-1)*864e5).toISOString().slice(0,10);
+  res.json(db.prepare('SELECT date,count,source FROM steps WHERE user_phone=? AND date>=? ORDER BY date').all(req.user.phone,since));
+});
+app.post('/api/steps',auth,(req,res)=>{
+  const{date,count,source}=req.body;
+  if(!date||typeof count!=='number'||!isFinite(count)||count<0||count>200000)return res.status(400).json({error:'Bad input'});
+  const d=String(date).slice(0,10),n=Math.floor(count),src=(source||'manual').slice(0,20);
+  db.prepare("INSERT INTO steps(user_phone,date,count,source,updated_at)VALUES(?,?,?,?,datetime('now'))ON CONFLICT(user_phone,date)DO UPDATE SET count=excluded.count,source=excluded.source,updated_at=excluded.updated_at").run(req.user.phone,d,n,src);
+  res.json({ok:true,date:d,count:n,source:src});
+});
 app.post('/api/send-task/:id',auth,async(req,res)=>{
   const t=db.prepare('SELECT * FROM tasks WHERE id=? AND user_phone=?').get(req.params.id,req.user.phone);if(!t)return res.status(404).json({error:'Not found'});
   let msg=`📋 *Task Reminder*\n\n${PRI[t.priority]||'🟠'} *${t.title}*`;if(t.notes)msg+='\n'+t.notes;if(t.due_date)msg+='\n📅 Due: '+fmtD(t.due_date);
@@ -247,6 +262,34 @@ input:focus,textarea:focus{outline:none;border-color:#2D2A26}textarea{resize:ver
 .kc-mv{font-size:10px;padding:3px 8px;border-radius:6px;background:#F5F2ED;color:#6B665E;font-weight:600;border:1px solid transparent;transition:all .1s}
 .kc-mv:active{background:#2D2A26;color:#fff}
 @media (min-width: 700px){.board{padding-left:0;padding-right:0;margin:0 0 14px}.col{flex:1 1 0;max-width:none}}
+/* Steps */
+.steps-hero{display:flex;gap:18px;background:#FFFDF9;border:1px solid #E8E4DD;border-radius:14px;padding:18px;margin-bottom:14px;align-items:center;flex-wrap:wrap}
+.steps-ring{position:relative;width:130px;height:130px;flex-shrink:0}
+.steps-ring svg{width:100%;height:100%}
+.ring-v{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;pointer-events:none}
+.ring-v b{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:#2D2A26;line-height:1}
+.ring-v small{font-size:10px;color:#9C968D;margin-top:3px;text-transform:uppercase;letter-spacing:.3px}
+.steps-main{flex:1;min-width:180px}
+.steps-main h2{font-family:'Space Mono',monospace;font-size:16px;margin-bottom:4px}
+.pct-lbl{font-size:12px;color:#9C968D;margin-bottom:10px}
+.btn-tr{background:#3DAE5C;color:#fff;padding:9px 14px;border-radius:9px;font-size:13px;font-weight:600;margin-right:6px;margin-bottom:6px;display:inline-flex;align-items:center;gap:6px}
+.btn-tr.stop{background:#E8453C}
+.btn-log{background:#F5F2ED;color:#6B665E;padding:9px 14px;border-radius:9px;font-size:13px;font-weight:600;border:1px solid #DDD8D1;display:inline-flex;align-items:center;gap:6px}
+.live-ind{display:flex;align-items:center;gap:6px;font-size:12px;color:#3DAE5C;font-weight:700;margin-bottom:10px}
+.pulse-d{width:9px;height:9px;border-radius:50%;background:#3DAE5C;animation:pulse-dot 1.4s ease-in-out infinite}
+@keyframes pulse-dot{0%,100%{transform:scale(.9);opacity:.6}50%{transform:scale(1.25);opacity:1}}
+.step-bars{display:flex;gap:5px;align-items:flex-end;height:130px;margin-top:10px;padding:0 4px}
+.sb{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+.sb-bar{flex:1;width:100%;background:#F0EDEA;border-radius:5px;display:flex;align-items:flex-end;overflow:hidden;min-height:4px}
+.sb-fill{width:100%;background:#3B82F6;border-radius:5px 5px 0 0;transition:height .4s cubic-bezier(.2,.8,.2,1);min-height:2px}
+.sb-fill.met{background:#3DAE5C}
+.sb-fill.today{background:#E8912C;box-shadow:0 0 0 2px rgba(232,145,44,.15)}
+.sb-fill.today.met{background:#3DAE5C}
+.sb-c{font-size:9px;color:#9C968D;font-weight:600;font-family:'Space Mono',monospace;line-height:1}
+.sb-d{font-size:10px;color:#6B665E;font-weight:700}
+.sb-d.today{color:#E8912C}
+.goal-row{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid #F0EDEA;font-size:12px;color:#6B665E}
+.goal-row input{width:90px;padding:5px 8px;border-radius:7px;border:1px solid #DDD8D1;font-size:12px;text-align:center;background:#fff}
 /* Calendar */
 .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding:0 4px}
 .cal-head h3{font-family:'Space Mono',monospace;font-size:17px;font-weight:700}
@@ -435,6 +478,8 @@ let S={tasks:[],view:'all',search:'',tab:'tasks',showAdd:false,editing:null,list
 books:[],booksLoading:false,booksCat:'all',bookSearch:'',playing:null,moralIdx:Math.floor(Math.random()*MORALS.length),
 calcExpr:'',calcResult:'0',calcHistory:[],calcSci:false,
 calMonth:new Date(),calSelectedDate:new Date().toISOString().slice(0,10),
+steps:[],stepGoal:parseInt(localStorage.getItem('step_goal')||'10000',10),stepLive:{active:false,count:0},
+
 loginStep:'phone',loginMethod:'email',loginPhone:'',loginEmail:'',loginName:'',loginOTP:['','','','','',''],loginLoading:false,loginError:'',emailOk:false,
 form:{title:'',notes:'',priority:'medium',dueDate:'',reminderTime:'',status:'pending'}};
 let rec=null,token=localStorage.getItem('tf_token');
@@ -470,7 +515,14 @@ function opE(id){const t=S.tasks.find(x=>x.id===id);if(!t)return;S.form={title:t
 function clM(){S.showAdd=false;S.editing=null;if(rec)try{rec.stop()}catch(e){}S.listening=false;render()}
 function stV(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){toast('\\u26A0\\uFE0F Voice not supported','err');return}rec=new SR();rec.continuous=false;rec.interimResults=true;rec.lang='en-US';rec.onresult=e=>{let t='';for(let i=0;i<e.results.length;i++)t+=e.results[i][0].transcript;if(e.results[0].isFinal){S.form.title=t;const l=t.toLowerCase();if(/urgent|important|asap/.test(l)){S.form.priority='high';S.form.title=S.form.title.replace(/urgent|important|asap/gi,'').trim()}if(/\\btoday\\b/.test(l))S.form.dueDate=new Date().toISOString().split('T')[0];else if(/\\btomorrow\\b/.test(l)){const d=new Date();d.setDate(d.getDate()+1);S.form.dueDate=d.toISOString().split('T')[0]}}else S.form.title=t;render()};rec.onend=()=>{S.listening=false;render()};rec.onerror=e=>{S.listening=false;toast('\\u26A0\\uFE0F '+e.error,'err');render()};rec.start();S.listening=true;render()}
 
-function switchTab(t){S.tab=t;if(t==='books'&&!S.books.length)loadBooks('all');render()}
+function switchTab(t){S.tab=t;if(t==='books'&&!S.books.length)loadBooks('all');if(t==='steps')loadSteps();render()}
+async function loadSteps(){const r=await api('/steps?days=30');if(Array.isArray(r)){S.steps=r;render()}}
+function setStepGoal(v){const n=parseInt(v,10);if(isFinite(n)&&n>=500&&n<=100000){S.stepGoal=n;localStorage.setItem('step_goal',String(n));render()}}
+async function logSteps(){const today=new Date().toISOString().slice(0,10);const current=(S.steps.find(s=>s.date===today)?.count)||0;const v=prompt('Enter today\\'s steps (from Samsung Health, Apple Health, or any tracker):',current||'');if(v===null)return;const n=parseInt(String(v).replace(/[^0-9]/g,''),10);if(!isFinite(n)||n<0){toast('\\u26A0\\uFE0F Enter a positive number','err');return}await postSteps(today,n,'manual')}
+async function postSteps(date,count,source){const r=await api('/steps',{method:'POST',body:JSON.stringify({date,count,source})});if(r?.ok){const i=S.steps.findIndex(s=>s.date===date);const rec={date,count,source};if(i>=0)S.steps[i]=rec;else S.steps.push(rec);toast('\\u2705 '+count.toLocaleString()+' steps saved');render()}else toast('\\u26A0\\uFE0F Save failed','err')}
+let _ped=null,_pedT=null;
+async function startPed(){if(typeof DeviceMotionEvent==='undefined'){toast('\\u26A0\\uFE0F Motion sensor unavailable','err');return}if(typeof DeviceMotionEvent.requestPermission==='function'){try{const p=await DeviceMotionEvent.requestPermission();if(p!=='granted'){toast('\\u26A0\\uFE0F Permission denied','err');return}}catch(e){toast('\\u26A0\\uFE0F '+e.message,'err');return}}S.stepLive={active:true,count:0,lastPeak:0,lastMag:9.8,_pending:false};_ped=function(e){if(!S.stepLive.active)return;const a=e.accelerationIncludingGravity||e.acceleration;if(!a)return;const mag=Math.sqrt((a.x||0)**2+(a.y||0)**2+(a.z||0)**2);const now=Date.now(),delta=mag-S.stepLive.lastMag;S.stepLive.lastMag=mag;if(delta>2.5&&(now-S.stepLive.lastPeak)>280){S.stepLive.count++;S.stepLive.lastPeak=now;if(!S.stepLive._pending){S.stepLive._pending=true;setTimeout(()=>{S.stepLive._pending=false;if(S.tab==='steps')render()},600)}}};window.addEventListener('devicemotion',_ped);toast('\\u{1F6B6} Tracking \\u2014 keep Brodoit open while walking');render()}
+async function stopPed(){if(_ped){window.removeEventListener('devicemotion',_ped);_ped=null}const added=S.stepLive.count||0;S.stepLive={active:false,count:0};if(added>0){const today=new Date().toISOString().slice(0,10);const current=(S.steps.find(s=>s.date===today)?.count)||0;await postSteps(today,current+added,'device')}else{toast('\\u23F8 Stopped \\u2014 no steps detected');render()}}
 let _drag=null;
 function dragS(e,id){_drag=id;if(e.dataTransfer){e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',id)}setTimeout(()=>{const el=document.querySelector('[data-tid="'+id+'"]');if(el)el.classList.add('drag')},0)}
 function dragE(){if(_drag){const el=document.querySelector('[data-tid="'+_drag+'"]');if(el)el.classList.remove('drag')}_drag=null;document.querySelectorAll('.col.over').forEach(c=>c.classList.remove('over'))}
@@ -547,7 +599,7 @@ const m=MORALS[S.moralIdx];
 h+='<div class="moral"><div class="moral-emoji">\\u{1F4A1}</div><div class="moral-body"><div class="moral-lbl">Moral of the Day</div><div class="moral-txt">"'+esc(m.t)+'"</div><div class="moral-by">\\u2014 '+esc(m.a)+'</div></div><button class="moral-ref" onclick="rotateMoral()" title="New quote">\\u21BB</button></div>';
 
 // Tabs
-h+='<div class="tabs page-t"><button class="tab'+(S.tab==='tasks'?' on':'')+'" onclick="switchTab(\\'tasks\\')">\\u{1F4CB} Tasks</button><button class="tab'+(S.tab==='board'?' on':'')+'" onclick="switchTab(\\'board\\')">\\u{1F9E9} Board</button><button class="tab'+(S.tab==='cal'?' on':'')+'" onclick="switchTab(\\'cal\\')">\\u{1F4C5} Calendar</button><button class="tab'+(S.tab==='dash'?' on':'')+'" onclick="switchTab(\\'dash\\')">\\u{1F4CA} Stats</button><button class="tab'+(S.tab==='books'?' on':'')+'" onclick="switchTab(\\'books\\')">\\u{1F4DA} Books</button><button class="tab'+(S.tab==='calc'?' on':'')+'" onclick="switchTab(\\'calc\\')">\\u{1F9EE} Calc</button></div>';
+h+='<div class="tabs page-t"><button class="tab'+(S.tab==='tasks'?' on':'')+'" onclick="switchTab(\\'tasks\\')">\\u{1F4CB} Tasks</button><button class="tab'+(S.tab==='board'?' on':'')+'" onclick="switchTab(\\'board\\')">\\u{1F9E9} Board</button><button class="tab'+(S.tab==='cal'?' on':'')+'" onclick="switchTab(\\'cal\\')">\\u{1F4C5} Calendar</button><button class="tab'+(S.tab==='dash'?' on':'')+'" onclick="switchTab(\\'dash\\')">\\u{1F4CA} Stats</button><button class="tab'+(S.tab==='books'?' on':'')+'" onclick="switchTab(\\'books\\')">\\u{1F4DA} Books</button><button class="tab'+(S.tab==='steps'?' on':'')+'" onclick="switchTab(\\'steps\\')">\\u{1F463} Steps</button><button class="tab'+(S.tab==='calc'?' on':'')+'" onclick="switchTab(\\'calc\\')">\\u{1F9EE} Calc</button></div>';
 
 h+='<div class="user-bar" style="cursor:pointer" onclick="openProfile()"><span>\\u{1F464} '+esc(S.user.name||S.user.phone)+' <span style="color:#9C968D;font-size:11px">\\u203A Profile</span></span><button onclick="event.stopPropagation();logout()">Logout</button></div>';
 
@@ -596,6 +648,55 @@ else if(S.tab==='board'){
   });
   h+='</div>';
   h+='<button class="fab" onclick="opA()">+</button>';
+}
+
+// STEPS TAB (motion sensor + manual log + dashboard)
+else if(S.tab==='steps'){
+  const today=new Date().toISOString().slice(0,10);
+  const todayRec=S.steps.find(s=>s.date===today);
+  const baseToday=todayRec?.count||0;
+  const liveAdd=S.stepLive.active?(S.stepLive.count||0):0;
+  const todayCount=baseToday+liveAdd;
+  const goal=S.stepGoal||10000;
+  const pct=Math.min(100,Math.round(100*todayCount/goal));
+  const kcal=Math.round(todayCount*0.04);
+  const km=(todayCount*0.00076).toFixed(2);
+  const activeMin=Math.round(todayCount/100);
+  const last7=[...Array(7)].map((_,i)=>{const d=new Date(Date.now()-(6-i)*864e5).toISOString().slice(0,10);const r=S.steps.find(s=>s.date===d);return{date:d,count:(d===today?todayCount:(r?.count||0)),today:d===today}});
+  const wkTotal=last7.reduce((a,b)=>a+b.count,0);
+  const wkAvg=Math.round(wkTotal/7);
+  const best=last7.reduce((a,b)=>b.count>a.count?b:a,{count:0,date:''});
+  const max=Math.max(goal,...last7.map(d=>d.count),1);
+  let streak=0;for(let i=0;i<60;i++){const d=new Date(Date.now()-i*864e5).toISOString().slice(0,10);const cc=d===today?todayCount:((S.steps.find(s=>s.date===d)||{}).count||0);if(cc>=goal)streak++;else if(i>0)break}
+  const goalDays=last7.filter(d=>d.count>=goal).length;
+  const fmt=n=>n>=10000?(n/1000).toFixed(1)+'k':n>=1000?(n/1000).toFixed(1)+'k':String(n);
+  const C=2*Math.PI*52;
+  h+='<div class="board-hd"><h3>\\u{1F463} Steps & Health</h3><span class="hint">'+new Date().toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'})+'</span></div>';
+  // Hero
+  h+='<div class="steps-hero">';
+  h+='<div class="steps-ring"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="#F0EDEA" stroke-width="9"/><circle cx="60" cy="60" r="52" fill="none" stroke="'+(pct>=100?'#3DAE5C':'#3B82F6')+'" stroke-width="9" stroke-dasharray="'+C.toFixed(2)+'" stroke-dashoffset="'+(C*(1-pct/100)).toFixed(2)+'" stroke-linecap="round" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .6s"/></svg><div class="ring-v"><b>'+todayCount.toLocaleString()+'</b><small>of '+goal.toLocaleString()+'</small></div></div>';
+  h+='<div class="steps-main"><h2>Today\\'s Steps</h2><div class="pct-lbl">'+pct+'% of daily goal \\u2022 '+(goal-todayCount>0?fmt(goal-todayCount)+' to go':'goal smashed \\u{1F389}')+'</div>';
+  if(S.stepLive.active){h+='<div class="live-ind"><span class="pulse-d"></span>LIVE \\u2014 '+(S.stepLive.count||0).toLocaleString()+' tracked in-session</div><button class="btn-tr stop" onclick="stopPed()">\\u23F8 Stop tracking</button>'}
+  else{h+='<button class="btn-tr" onclick="startPed()">\\u25B6 Start live tracking</button>'}
+  h+='<button class="btn-log" onclick="logSteps()">\\u270F\\uFE0F Log manually</button>';
+  h+='</div></div>';
+  // Stat cards
+  h+='<div class="dash-grid">';
+  h+='<div class="dash-card"><div class="lbl">\\u{1F525} Calories</div><div class="v">'+kcal+'</div><div class="sub">kcal burned today</div></div>';
+  h+='<div class="dash-card"><div class="lbl">\\u{1F4CF} Distance</div><div class="v">'+km+'</div><div class="sub">km walked</div></div>';
+  h+='<div class="dash-card"><div class="lbl">\\u23F1 Active</div><div class="v">'+activeMin+'</div><div class="sub">minutes moving</div></div>';
+  h+='<div class="dash-card"><div class="lbl">\\u{1F3C6} Streak</div><div class="v">'+streak+'</div><div class="sub">days hitting goal</div></div>';
+  h+='</div>';
+  // Weekly chart
+  h+='<div class="dash-card" style="margin-bottom:14px"><div class="lbl">\\u{1F4C8} Last 7 days</div><div class="step-bars">';
+  last7.forEach(d=>{const pc=Math.max(2,Math.round(100*d.count/max)),met=d.count>=goal,cls=(d.today?' today':'')+(met?' met':'');const lbl=new Date(d.date+'T00:00:00').toLocaleDateString('en-US',{weekday:'short'}).slice(0,3);h+='<div class="sb"><div class="sb-bar"><div class="sb-fill'+cls+'" style="height:'+pc+'%"></div></div><div class="sb-c">'+fmt(d.count)+'</div><div class="sb-d'+(d.today?' today':'')+'">'+lbl+'</div></div>'});
+  h+='</div></div>';
+  // Weekly stats strip
+  h+='<div class="stats" style="margin-bottom:14px"><div class="st"><b>'+fmt(wkTotal)+'</b><small>Week</small></div><div class="st"><b>'+fmt(wkAvg)+'</b><small>Avg/day</small></div><div class="st"><b>'+fmt(best.count)+'</b><small>Best</small></div><div class="st"><b>'+goalDays+'/7</b><small>Goal days</small></div></div>';
+  // Goal setter
+  h+='<div class="dash-card" style="margin-bottom:14px"><div class="lbl">\\u{1F3AF} Daily Goal</div><div class="goal-row">Walk <input type="number" value="'+goal+'" min="500" max="100000" step="500" onchange="setStepGoal(this.value)"> steps per day. Common targets: 5k (start), 8k, 10k (WHO), 12k+ (active).</div></div>';
+  // Integration note
+  h+='<div class="dash-card" style="background:#FFF8EE;border-color:#F3D9A0;margin-bottom:14px"><div class="lbl" style="color:#B57B00">\\u{1F4F1} Samsung Health / Apple Health</div><div style="font-size:12px;color:#6B665E;line-height:1.55;margin-top:6px">Brodoit is a web app, so it can\\'t directly pull from Samsung Health or Apple Health (those are locked to native apps). Three ways to track:<br><br><b>1.</b> <b>Live tracking</b> \\u2014 uses your phone\\'s motion sensor while Brodoit is open. Accurate while walking with phone in pocket or hand.<br><b>2.</b> <b>Manual log</b> \\u2014 open Samsung Health or Apple Health, read today\\'s count, tap \\u201CLog manually\\u201D here. Takes 5 seconds.<br><b>3.</b> <b>Coming next:</b> Google Fit auto-sync (Samsung Health \\u2192 Google Fit \\u2192 Brodoit) and a native Android companion for full Health Connect access.</div></div>';
 }
 
 // DASHBOARD TAB
@@ -796,7 +897,7 @@ h+='</div></div>';}
 document.getElementById('app').innerHTML=h;
 }
 fetch('/api/config').then(r=>r.json()).then(c=>{window.__TWILIO_SANDBOX_CODE=c.sandboxCode||'';render()}).catch(()=>{});
-if(S.user){refreshSession();load();chk();setInterval(load,10000)}else render();
+if(S.user){refreshSession();load();loadSteps();chk();setInterval(load,10000)}else render();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
 </script></body></html>`;
 
