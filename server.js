@@ -222,6 +222,31 @@ input:focus,textarea:focus{outline:none;border-color:#2D2A26}textarea{resize:ver
 .tabs::-webkit-scrollbar{display:none}
 .tab{flex:1 0 auto;padding:9px 10px;border-radius:9px;font-size:11px;font-weight:600;color:#6B665E;transition:all .15s;white-space:nowrap}
 .tab.on{background:#2D2A26;color:#F5F2ED;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+/* Kanban Board */
+.board-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding:0 2px}
+.board-hd h3{font-family:'Space Mono',monospace;font-size:15px;font-weight:700}
+.board-hd .hint{font-size:11px;color:#9C968D}
+.board{display:flex;gap:10px;overflow-x:auto;padding-bottom:14px;margin:0 -16px 14px;padding-left:16px;padding-right:16px;scroll-snap-type:x mandatory;scrollbar-width:none}
+.board::-webkit-scrollbar{display:none}
+.col{flex:0 0 82%;max-width:340px;background:#FFFDF9;border:1px solid #E8E4DD;border-radius:14px;padding:12px;scroll-snap-align:start;display:flex;flex-direction:column;min-height:340px;transition:background .15s,border-color .15s}
+.col.over{background:#FFF8EE;border-color:#E8912C;border-style:dashed}
+.col-h{display:flex;align-items:center;justify-content:space-between;padding:0 2px 9px;border-bottom:1px solid #F0EDEA;margin-bottom:9px}
+.col-h h3{font-family:'Space Mono',monospace;font-size:12px;font-weight:700;display:flex;align-items:center;gap:6px;text-transform:uppercase;letter-spacing:.5px}
+.col-h .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.col-h .cnt{background:#F5F2ED;color:#6B665E;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;min-width:22px;text-align:center}
+.col-body{flex:1;overflow-y:auto;max-height:60vh;padding:2px}
+.col-empty{text-align:center;padding:24px 10px;color:#C4BFB7;font-size:11px;border:1.5px dashed #E8E4DD;border-radius:10px}
+.kc{background:#fff;border-radius:10px;padding:10px 11px;border:1px solid #E8E4DD;border-left:3px solid;margin-bottom:7px;cursor:grab;user-select:none;transition:transform .12s,box-shadow .12s}
+.kc:hover{box-shadow:0 2px 10px rgba(0,0,0,.06);transform:translateY(-1px)}
+.kc.drag{opacity:.4;cursor:grabbing;transform:rotate(-1deg)}
+.kc-t{font-size:13px;font-weight:600;line-height:1.3;word-break:break-word;color:#2D2A26}
+.kc-m{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;align-items:center;font-size:10px;color:#9C968D}
+.kc-m .pri{padding:1px 6px;border-radius:8px;font-weight:700;color:#fff;text-transform:uppercase;font-size:9px;letter-spacing:.3px}
+.kc-m .due{font-weight:600}
+.kc-acts{display:flex;gap:4px;margin-top:7px;flex-wrap:wrap}
+.kc-mv{font-size:10px;padding:3px 8px;border-radius:6px;background:#F5F2ED;color:#6B665E;font-weight:600;border:1px solid transparent;transition:all .1s}
+.kc-mv:active{background:#2D2A26;color:#fff}
+@media (min-width: 700px){.board{padding-left:0;padding-right:0;margin:0 0 14px}.col{flex:1 1 0;max-width:none}}
 /* Calendar */
 .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding:0 4px}
 .cal-head h3{font-family:'Space Mono',monospace;font-size:17px;font-weight:700}
@@ -446,6 +471,13 @@ function clM(){S.showAdd=false;S.editing=null;if(rec)try{rec.stop()}catch(e){}S.
 function stV(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){toast('\\u26A0\\uFE0F Voice not supported','err');return}rec=new SR();rec.continuous=false;rec.interimResults=true;rec.lang='en-US';rec.onresult=e=>{let t='';for(let i=0;i<e.results.length;i++)t+=e.results[i][0].transcript;if(e.results[0].isFinal){S.form.title=t;const l=t.toLowerCase();if(/urgent|important|asap/.test(l)){S.form.priority='high';S.form.title=S.form.title.replace(/urgent|important|asap/gi,'').trim()}if(/\\btoday\\b/.test(l))S.form.dueDate=new Date().toISOString().split('T')[0];else if(/\\btomorrow\\b/.test(l)){const d=new Date();d.setDate(d.getDate()+1);S.form.dueDate=d.toISOString().split('T')[0]}}else S.form.title=t;render()};rec.onend=()=>{S.listening=false;render()};rec.onerror=e=>{S.listening=false;toast('\\u26A0\\uFE0F '+e.error,'err');render()};rec.start();S.listening=true;render()}
 
 function switchTab(t){S.tab=t;if(t==='books'&&!S.books.length)loadBooks('all');render()}
+let _drag=null;
+function dragS(e,id){_drag=id;if(e.dataTransfer){e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',id)}setTimeout(()=>{const el=document.querySelector('[data-tid="'+id+'"]');if(el)el.classList.add('drag')},0)}
+function dragE(){if(_drag){const el=document.querySelector('[data-tid="'+_drag+'"]');if(el)el.classList.remove('drag')}_drag=null;document.querySelectorAll('.col.over').forEach(c=>c.classList.remove('over'))}
+function dragO(e){e.preventDefault();if(e.dataTransfer)e.dataTransfer.dropEffect='move';e.currentTarget.classList.add('over')}
+function dragL(e){if(!e.currentTarget.contains(e.relatedTarget))e.currentTarget.classList.remove('over')}
+async function dragD(e,status){e.preventDefault();e.currentTarget.classList.remove('over');const id=_drag||(e.dataTransfer?e.dataTransfer.getData('text/plain'):null);if(!id)return;await mvT(id,status)}
+async function mvT(id,status){const t=S.tasks.find(x=>x.id===id);if(!t||t.status===status)return;const oldStatus=t.status;t.status=status;render();const r=await api('/tasks/'+id,{method:'PUT',body:JSON.stringify({status})});if(r){const i=S.tasks.findIndex(x=>x.id===id);if(i>-1)S.tasks[i]=r;render();toast('\\u2705 Moved to '+(status==='pending'?'To Do':status==='in-progress'?'Doing':'Done'))}else{t.status=oldStatus;render();toast('\\u26A0\\uFE0F Move failed','err')}}
 function calcAppend(v){S.calcExpr=(S.calcExpr||'')+v;calcEval();render()}
 function calcClear(){S.calcExpr='';S.calcResult='0';render()}
 function calcBack(){S.calcExpr=(S.calcExpr||'').slice(0,-1);calcEval();render()}
@@ -515,7 +547,7 @@ const m=MORALS[S.moralIdx];
 h+='<div class="moral"><div class="moral-emoji">\\u{1F4A1}</div><div class="moral-body"><div class="moral-lbl">Moral of the Day</div><div class="moral-txt">"'+esc(m.t)+'"</div><div class="moral-by">\\u2014 '+esc(m.a)+'</div></div><button class="moral-ref" onclick="rotateMoral()" title="New quote">\\u21BB</button></div>';
 
 // Tabs
-h+='<div class="tabs page-t"><button class="tab'+(S.tab==='tasks'?' on':'')+'" onclick="switchTab(\\'tasks\\')">\\u{1F4CB} Tasks</button><button class="tab'+(S.tab==='cal'?' on':'')+'" onclick="switchTab(\\'cal\\')">\\u{1F4C5} Calendar</button><button class="tab'+(S.tab==='dash'?' on':'')+'" onclick="switchTab(\\'dash\\')">\\u{1F4CA} Stats</button><button class="tab'+(S.tab==='books'?' on':'')+'" onclick="switchTab(\\'books\\')">\\u{1F4DA} Books</button><button class="tab'+(S.tab==='calc'?' on':'')+'" onclick="switchTab(\\'calc\\')">\\u{1F9EE} Calc</button></div>';
+h+='<div class="tabs page-t"><button class="tab'+(S.tab==='tasks'?' on':'')+'" onclick="switchTab(\\'tasks\\')">\\u{1F4CB} Tasks</button><button class="tab'+(S.tab==='board'?' on':'')+'" onclick="switchTab(\\'board\\')">\\u{1F9E9} Board</button><button class="tab'+(S.tab==='cal'?' on':'')+'" onclick="switchTab(\\'cal\\')">\\u{1F4C5} Calendar</button><button class="tab'+(S.tab==='dash'?' on':'')+'" onclick="switchTab(\\'dash\\')">\\u{1F4CA} Stats</button><button class="tab'+(S.tab==='books'?' on':'')+'" onclick="switchTab(\\'books\\')">\\u{1F4DA} Books</button><button class="tab'+(S.tab==='calc'?' on':'')+'" onclick="switchTab(\\'calc\\')">\\u{1F9EE} Calc</button></div>';
 
 h+='<div class="user-bar" style="cursor:pointer" onclick="openProfile()"><span>\\u{1F464} '+esc(S.user.name||S.user.phone)+' <span style="color:#9C968D;font-size:11px">\\u203A Profile</span></span><button onclick="event.stopPropagation();logout()">Logout</button></div>';
 
@@ -534,6 +566,36 @@ if(S.tab==='tasks'){
     h+='<div class="tc'+(d?' dn':'')+'" style="border-left-color:'+p.c+'"><div class="tc-top"><button class="chk'+(d?' on':'')+'" onclick="tog(\\''+t.id+'\\')">'+(d?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>':'')+'</button><div style="flex:1;min-width:0"><div class="tc-t'+(d?' dn':'')+'">'+esc(t.title)+'</div>'+(t.notes?'<div class="tc-n">'+esc(t.notes)+'</div>':'')+'<div class="tc-m"><button class="badge" style="background:'+st.bg+';color:'+st.c+'" onclick="cyc(\\''+t.id+'\\')">'+st.l+'</button>'+(t.due_date?'<span style="font-size:12px;font-weight:500;color:'+(isOD(t.due_date,t.status)?'#E8453C':isTd(t.due_date)?'#E8912C':'#9C968D')+'">\\u{1F4C5} '+fD(t.due_date)+(isOD(t.due_date,t.status)?' overdue':'')+'</span>':'')+(t.reminder_time&&!d?'<span style="font-size:11px;color:#3B82F6;font-weight:600">\\u{1F514} '+fT(t.reminder_time)+'</span>':'')+(t.source==='whatsapp'?'<span style="font-size:10px;color:#C4BFB7">via WA</span>':'')+'</div></div></div>';
     h+='<div class="tc-acts"><button class="ib" onclick="opE(\\''+t.id+'\\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="ib" onclick="sWA(\\''+t.id+'\\')">'+WI+'</button><button class="ib" style="color:#E8453C" onclick="del(\\''+t.id+'\\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button></div></div>'});
   h+='</div><button class="fab" onclick="opA()">+</button>';
+}
+
+// BOARD TAB (Kanban: To Do / Doing / Done with drag-and-drop)
+else if(S.tab==='board'){
+  h+='<button class="add-bar" onclick="opA()"><span class="plus">+</span><span class="txt"><b>Add a new task</b><small>It will land in To Do</small></span></button>';
+  h+='<div class="board-hd"><h3>\\u{1F9E9} Task Board</h3><span class="hint">Drag cards between columns \\u2022 or tap a button</span></div>';
+  const cols=[{k:'pending',l:'To Do',i:'\\u{1F4E5}',c:'#7A756E'},{k:'in-progress',l:'Doing',i:'\\u26A1',c:'#3B82F6'},{k:'done',l:'Done',i:'\\u2705',c:'#3DAE5C'}];
+  h+='<div class="board">';
+  cols.forEach(col=>{
+    const items=ts.filter(t=>t.status===col.k);
+    h+='<div class="col" ondragover="dragO(event)" ondragleave="dragL(event)" ondrop="dragD(event,\\''+col.k+'\\')">';
+    h+='<div class="col-h"><h3><span class="dot" style="background:'+col.c+'"></span>'+col.i+' '+col.l+'</h3><span class="cnt">'+items.length+'</span></div>';
+    h+='<div class="col-body">';
+    if(!items.length)h+='<div class="col-empty">'+(col.k==='done'?'Nothing finished yet':col.k==='in-progress'?'Nothing in progress':'Inbox empty \\u2728')+'<br><span style="font-size:10px;opacity:.7">Drop a card here</span></div>';
+    else items.forEach(t=>{
+      const p=P[t.priority]||P.medium;
+      h+='<div class="kc" draggable="true" data-tid="'+t.id+'" ondragstart="dragS(event,\\''+t.id+'\\')" ondragend="dragE()" style="border-left-color:'+p.c+'">';
+      h+='<div onclick="opE(\\''+t.id+'\\')" style="cursor:pointer"><div class="kc-t'+(t.status==='done'?'" style="text-decoration:line-through;color:#9C968D':'')+'">'+esc(t.title)+'</div>';
+      h+='<div class="kc-m"><span class="pri" style="background:'+p.c+'">'+t.priority+'</span>';
+      if(t.due_date)h+='<span class="due" style="color:'+(isOD(t.due_date,t.status)?'#E8453C':isTd(t.due_date)?'#E8912C':'#9C968D')+'">\\u{1F4C5} '+fD(t.due_date)+'</span>';
+      if(t.reminder_time&&t.status!=='done')h+='<span style="color:#3B82F6;font-weight:600">\\u{1F514} '+fT(t.reminder_time)+'</span>';
+      h+='</div></div>';
+      h+='<div class="kc-acts">';
+      cols.filter(c2=>c2.k!==col.k).forEach(c2=>{h+='<button class="kc-mv" onclick="event.stopPropagation();mvT(\\''+t.id+'\\',\\''+c2.k+'\\')">'+(c2.k==='pending'?'\\u2190 To Do':c2.k==='in-progress'?'\\u2192 Doing':'\\u2192 Done')+'</button>'});
+      h+='</div></div>';
+    });
+    h+='</div></div>';
+  });
+  h+='</div>';
+  h+='<button class="fab" onclick="opA()">+</button>';
 }
 
 // DASHBOARD TAB
