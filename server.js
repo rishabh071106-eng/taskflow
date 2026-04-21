@@ -232,7 +232,7 @@ input:focus,textarea:focus{outline:none;border-color:#0F172A}textarea{resize:ver
 .hdr-st{font-size:11px;font-weight:700;padding:8px 14px;border-radius:10px;background:#FFFFFF;border:1px solid #E8E9EF;display:flex;align-items:center;gap:7px;letter-spacing:.8px;box-shadow:0 2px 6px rgba(0,0,0,.04)}
 .dot{width:9px;height:9px;border-radius:50%;display:inline-block;animation:pulse-dot 2s ease-in-out infinite}
 .hdr-sub{font-size:13px;color:#94A3B8;margin-top:2px;font-weight:500}
-.moral{display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#FFFFFF,#F5E6C4);border:1px solid #F3D9A0;border-radius:16px;padding:16px 18px;margin-bottom:14px;position:relative;overflow:hidden;animation:slideIn .4s ease;box-shadow:0 2px 10px rgba(232,145,44,.06)}
+.moral{display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#FFFFFF,#F5E6C4);border:1px solid #F3D9A0;border-radius:16px;padding:16px 18px;margin-bottom:14px;position:relative;overflow:hidden;box-shadow:0 2px 10px rgba(232,145,44,.06)}
 .moral::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:linear-gradient(180deg,#E8912C,#3DAE5C)}
 .moral-emoji{font-size:26px;flex-shrink:0;filter:drop-shadow(0 2px 4px rgba(232,145,44,.3))}.moral-body{flex:1;min-width:0}
 .moral-lbl{font-size:10px;font-weight:700;color:#B57B00;text-transform:uppercase;letter-spacing:1.2px}
@@ -407,7 +407,7 @@ body:not([data-theme=aurora]) .chk.on{background:linear-gradient(135deg,#10B981,
 }
 
 @keyframes bounceIn{0%{opacity:0;transform:scale(.9) translateY(10px)}60%{transform:scale(1.03) translateY(-2px)}100%{opacity:1;transform:scale(1) translateY(0)}}
-body:not([data-theme=aurora]) .tc,body:not([data-theme=aurora]) .kc,body:not([data-theme=aurora]) .dash-card,body:not([data-theme=aurora]) .book-card,body:not([data-theme=aurora]) .insight{animation:bounceIn .4s cubic-bezier(.2,.8,.2,1) both}
+/* (removed) per-card bounceIn \u2014 was replaying on every tab switch */
 
 .hdr-actions{display:flex;align-items:center;gap:10px}
 .theme-tg{width:38px;height:38px;border-radius:50%;background:#FFFFFF;border:1px solid #E8E9EF;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;transition:all .3s cubic-bezier(.4,1.5,.5,1);box-shadow:0 2px 8px rgba(0,0,0,.05)}
@@ -550,9 +550,9 @@ body[data-theme=aurora] .ai-badge{background:linear-gradient(135deg,#A78BFA,#F47
 body[data-theme=aurora] .goal-row input{background:rgba(255,255,255,.06);color:#F5F5FA;border-color:rgba(255,255,255,.15)}
 body[data-theme=aurora] .srch input{background:rgba(255,255,255,.05);color:#F5F5FA;border:1px solid rgba(255,255,255,.1)}
 /* Entrance animations (both themes) */
-.tc,.kc,.dash-card,.book-card,.insight{animation:cardPop .35s cubic-bezier(.2,.8,.2,1) both}
+/* (removed) cardPop entrance \u2014 was replaying on every render */
 @keyframes cardPop{0%{opacity:0;transform:translateY(10px) scale(.98)}100%{opacity:1;transform:translateY(0) scale(1)}}
-.main-col{animation:fadeInUp .4s ease both}
+/* (removed) main-col fadeInUp \u2014 caused flicker on every tab switch */
 @keyframes fadeInUp{0%{opacity:0;transform:translateY(12px)}100%{opacity:1;transform:translateY(0)}}
 /* Number gradient shimmer on Aurora hero */
 body[data-theme=aurora] .dash-hero .big{background:linear-gradient(90deg,#fff,#F0ABFC,#fff);background-size:200% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 4s linear infinite}
@@ -711,15 +711,7 @@ body[data-theme=aurora] .dash-hero .big{background:linear-gradient(90deg,#fff,#F
 .bg-blob.d{width:180px;height:180px;background:#E8453C;top:30%;left:40%;animation-delay:-4s;opacity:.15}
 @keyframes float{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(50px,-40px) scale(1.12)}66%{transform:translate(-40px,30px) scale(.92)}}
 .app{position:relative;z-index:1}
-/* staggered card appearance */
-.tc,.book-card{animation:cardIn .4s ease both}
-.tc:nth-child(1),.book-card:nth-child(1){animation-delay:.04s}.tc:nth-child(2),.book-card:nth-child(2){animation-delay:.08s}
-.tc:nth-child(3),.book-card:nth-child(3){animation-delay:.12s}.tc:nth-child(4),.book-card:nth-child(4){animation-delay:.16s}
-.tc:nth-child(5),.book-card:nth-child(5){animation-delay:.2s}.tc:nth-child(6),.book-card:nth-child(6){animation-delay:.24s}
-@keyframes cardIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
-/* page transition */
-.page-t{animation:pageIn .32s ease}
-@keyframes pageIn{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:translateX(0)}}
+/* (removed) staggered card entrance + page transition \u2014 caused flicker on every tab switch */
 /* FAB subtle pulse */
 .fab{animation:fabPulse 3.2s ease-in-out infinite;transition:transform .15s}
 .fab:hover{transform:scale(1.08)}
@@ -776,7 +768,7 @@ body[data-theme=aurora] .dash-hero .big{background:linear-gradient(90deg,#fff,#F
 .prio-bars{display:flex;gap:4px;margin-top:8px;height:20px}
 .prio-bars .b{flex:1;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;font-weight:700}
 .insights{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
-.insight{background:#FFFFFF;border:1px solid #E8E9EF;border-radius:12px;padding:12px 14px;border-left:4px solid #3DAE5C;font-size:13px;line-height:1.5;animation:cardIn .4s ease both}
+.insight{background:#FFFFFF;border:1px solid #E8E9EF;border-radius:12px;padding:12px 14px;border-left:4px solid #3DAE5C;font-size:13px;line-height:1.5}
 .insight.warn{border-left-color:#E8912C;background:#FFF8EE}
 .insight.alert{border-left-color:#E8453C;background:#FEF1F0}
 .ai-badge{display:inline-block;font-size:9px;background:linear-gradient(135deg,#7C3AED,#3DAE5C);color:#fff;padding:2px 8px;border-radius:8px;font-weight:700;letter-spacing:.5px;margin-right:6px;text-transform:uppercase}
