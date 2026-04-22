@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink: #0f0f10;
+  --cream: #fdf8f3;
+}
+
+html, body {
+  background: var(--cream);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.pill {
+  @apply inline-flex items-center gap-1 rounded-full border border-ink/10 bg-white px-3 py-1 text-xs font-medium text-ink/70;
+}
+
+.btn-primary {
+  @apply inline-flex items-center justify-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-semibold text-cream transition hover:bg-ink/85;
+}
+
+.btn-amazon {
+  @apply inline-flex items-center justify-center gap-2 rounded-full bg-mango px-5 py-3 text-sm font-semibold text-white transition hover:bg-mangoDark;
+}
