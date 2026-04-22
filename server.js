@@ -14,6 +14,7 @@ try{db.exec("ALTER TABLE users ADD COLUMN email TEXT")}catch(e){}
 try{db.exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email) WHERE email IS NOT NULL AND email!=''")}catch(e){}
 try{db.exec("CREATE TABLE IF NOT EXISTS steps(id INTEGER PRIMARY KEY AUTOINCREMENT,user_phone TEXT NOT NULL,date TEXT NOT NULL,count INTEGER NOT NULL DEFAULT 0,source TEXT DEFAULT'manual',updated_at TEXT DEFAULT(datetime('now')))")}catch(e){}
 try{db.exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_steps_user_date ON steps(user_phone,date)")}catch(e){}
+try{db.exec("CREATE TABLE IF NOT EXISTS book_listens(user_phone TEXT NOT NULL,date TEXT NOT NULL,seconds INTEGER DEFAULT 120,PRIMARY KEY(user_phone,date))")}catch(e){}
 
 let tw=null;const TW_FROM=process.env.TWILIO_WHATSAPP_FROM||'whatsapp:+14155238886';
 try{if(process.env.TWILIO_ACCOUNT_SID&&process.env.TWILIO_AUTH_TOKEN){tw=twilio(process.env.TWILIO_ACCOUNT_SID,process.env.TWILIO_AUTH_TOKEN);console.log('✅ Twilio connected')}}catch(e){console.log('⚠️',e.message)}
@@ -151,6 +152,38 @@ app.post('/api/steps',auth,(req,res)=>{
   const d=String(date).slice(0,10),n=Math.floor(count),src=(source||'manual').slice(0,20);
   db.prepare("INSERT INTO steps(user_phone,date,count,source,updated_at)VALUES(?,?,?,?,datetime('now'))ON CONFLICT(user_phone,date)DO UPDATE SET count=excluded.count,source=excluded.source,updated_at=excluded.updated_at").run(req.user.phone,d,n,src);
   res.json({ok:true,date:d,count:n,source:src});
+});
+// ═══ BOOK LISTENING STREAK ═══
+function calcStreak(rows){
+  // rows: [{date}] sorted DESC
+  if(!rows.length)return 0;
+  const today=new Date().toISOString().slice(0,10);
+  const yest=new Date(Date.now()-864e5).toISOString().slice(0,10);
+  // Streak only continues if last listen was today or yesterday
+  if(rows[0].date!==today&&rows[0].date!==yest)return 0;
+  let streak=0;
+  let cur=new Date(rows[0].date);
+  for(const r of rows){
+    const expected=cur.toISOString().slice(0,10);
+    if(r.date===expected){streak++;cur.setDate(cur.getDate()-1)}
+    else if(r.date<expected)break;
+  }
+  return streak;
+}
+app.get('/api/book-streak',auth,(req,res)=>{
+  const rows=db.prepare('SELECT date FROM book_listens WHERE user_phone=? ORDER BY date DESC LIMIT 365').all(req.user.phone);
+  const today=new Date().toISOString().slice(0,10);
+  res.json({streak:calcStreak(rows),total:rows.length,today:rows.some(r=>r.date===today),days:rows.slice(0,30).map(r=>r.date)});
+});
+app.post('/api/book-streak',auth,(req,res)=>{
+  const d=String(req.body?.date||new Date().toISOString().slice(0,10)).slice(0,10);
+  const sec=Math.min(Math.max(parseInt(req.body?.seconds)||120,60),24*3600);
+  // Insert if missing; otherwise sum the seconds (cap at 24h)
+  const ex=db.prepare('SELECT seconds FROM book_listens WHERE user_phone=? AND date=?').get(req.user.phone,d);
+  if(ex){db.prepare('UPDATE book_listens SET seconds=MIN(seconds+?,86400) WHERE user_phone=? AND date=?').run(sec,req.user.phone,d)}
+  else{db.prepare('INSERT INTO book_listens(user_phone,date,seconds)VALUES(?,?,?)').run(req.user.phone,d,sec)}
+  const rows=db.prepare('SELECT date FROM book_listens WHERE user_phone=? ORDER BY date DESC LIMIT 365').all(req.user.phone);
+  res.json({ok:true,streak:calcStreak(rows),total:rows.length});
 });
 app.post('/api/send-task/:id',auth,async(req,res)=>{
   const t=db.prepare('SELECT * FROM tasks WHERE id=? AND user_phone=?').get(req.params.id,req.user.phone);if(!t)return res.status(404).json({error:'Not found'});
@@ -366,12 +399,40 @@ button{transition:all .15s cubic-bezier(.2,.8,.2,1)}
 input,textarea,select{transition:all .15s}
 @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
 /* News Shorts feed */
-.news-hero{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
-.news-hero h2{font-family:'Space Mono',monospace;font-size:20px;font-weight:700;letter-spacing:-.3px;margin-bottom:2px}
+/* Listening streak card (Books tab) */
+.streak-card{display:flex;align-items:center;gap:16px;padding:18px 20px;border-radius:18px;background:linear-gradient(135deg,#FFF7ED 0%,#FED7AA 100%);border:1px solid rgba(249,115,22,.25);margin-bottom:16px;box-shadow:0 4px 16px rgba(249,115,22,.1)}
+.streak-ico{display:flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#F97316,#EA580C);color:#fff;flex-shrink:0;box-shadow:0 4px 12px rgba(249,115,22,.35)}
+.streak-body{flex:1;min-width:0}
+.streak-n{font-family:'Space Mono',monospace;font-size:34px;font-weight:800;letter-spacing:-1px;color:#7C2D12;line-height:1}
+.streak-n span{font-size:14px;font-weight:600;color:#9A3412;margin-left:4px;letter-spacing:0}
+.streak-lbl{font-size:12px;font-weight:600;color:#9A3412;margin-top:3px;letter-spacing:.2px}
+.streak-tot{text-align:center;flex-shrink:0;padding-left:16px;border-left:1px solid rgba(249,115,22,.3)}
+.streak-tot b{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;display:block;color:#7C2D12;line-height:1}
+.streak-tot small{font-size:9px;color:#9A3412;text-transform:uppercase;letter-spacing:.5px;font-weight:700}
+body[data-theme=aurora] .streak-card{background:linear-gradient(135deg,rgba(249,115,22,.18),rgba(217,119,6,.12));border-color:rgba(251,146,60,.3);box-shadow:0 4px 20px rgba(249,115,22,.2)}
+body[data-theme=aurora] .streak-n,body[data-theme=aurora] .streak-tot b{color:#FDBA74}
+body[data-theme=aurora] .streak-n span,body[data-theme=aurora] .streak-lbl,body[data-theme=aurora] .streak-tot small{color:#FB923C}
+body[data-theme=aurora] .streak-tot{border-left-color:rgba(251,146,60,.3)}
+/* Section header (uniform across Books/Steps/Board/News tabs) */
+.section-hd{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+.section-ic{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:12px;background:#0F172A;color:#fff;flex-shrink:0}
+.section-hd h3{font-size:22px;font-weight:700;letter-spacing:-.5px;color:#0F172A;margin-bottom:2px}
+.section-hd p{font-size:13px;color:#64748B}
+body[data-theme=aurora] .section-ic{background:linear-gradient(135deg,#8B5CF6,#EC4899)}
+body[data-theme=aurora] .section-hd h3{color:#F5F5FA}
+body[data-theme=aurora] .section-hd p{color:#9999B5}
+body[data-theme=aurora] .news-hero-ic{background:linear-gradient(135deg,#8B5CF6,#EC4899)}
+body[data-theme=aurora] .news-hero h2{color:#F5F5FA}
+.news-hero{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.news-hero-l{display:flex;align-items:center;gap:14px}
+.news-hero-ic{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:12px;background:#0F172A;color:#fff;flex-shrink:0}
+.news-hero h2{font-size:22px;font-weight:700;letter-spacing:-.5px;margin-bottom:2px;color:#0F172A}
 .news-hero p{font-size:13px;color:#64748B}
-.news-refresh{width:42px;height:42px;border-radius:50%;background:#fff;border:1px solid #E8E9EF;color:#6366F1;font-size:20px;flex-shrink:0;cursor:pointer;box-shadow:0 1px 3px rgba(15,23,42,.04),0 4px 12px rgba(15,23,42,.05);transition:all .3s cubic-bezier(.4,1.5,.5,1)}
-.news-refresh:hover{background:#6366F1;color:#fff;transform:rotate(180deg)}
-.news-refresh:active{transform:scale(.92)}
+.news-refresh{width:42px;height:42px;border-radius:12px;background:#fff;border:1px solid #E8E9EF;color:#475569;flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(15,23,42,.04),0 4px 12px rgba(15,23,42,.05);transition:all .25s ease}
+.news-refresh:hover{border-color:#0F172A;color:#0F172A;background:#F8FAFC}
+.news-refresh:active{transform:scale(.93)}
+.flt-icons .fb{display:inline-flex;align-items:center;gap:6px}
+.fb-ic{display:inline-flex;align-items:center;color:inherit;opacity:.85}
 .news-feed{display:flex;flex-direction:column;gap:14px}
 .news-card{background:#fff;border:1px solid rgba(15,23,42,.06);border-radius:18px;overflow:hidden;box-shadow:0 1px 3px rgba(15,23,42,.04),0 4px 14px rgba(15,23,42,.06);transition:all .25s cubic-bezier(.2,.8,.2,1)}
 .news-card:hover{transform:translateY(-3px);box-shadow:0 6px 12px rgba(15,23,42,.06),0 16px 32px rgba(15,23,42,.1);border-color:rgba(99,102,241,.25)}
@@ -428,7 +489,7 @@ body:not([data-theme=aurora]) .moral-ref:hover{background:#6366F1;color:#fff}
 body:not([data-theme=aurora]) .tabs{background:#fff;border-color:#E8E9EF;box-shadow:0 1px 3px rgba(15,23,42,.04),0 4px 12px rgba(15,23,42,.06)}
 body:not([data-theme=aurora]) .tab{color:#64748B}
 body:not([data-theme=aurora]) .tab:hover:not(.on){background:#F1F5F9;color:#0F172A}
-body:not([data-theme=aurora]) .tab.on{background:linear-gradient(135deg,#6366F1 0%,#8B5CF6 60%,#EC4899 100%);color:#fff;box-shadow:0 4px 14px rgba(99,102,241,.4)}
+body:not([data-theme=aurora]) .tab.on{background:#0F172A;color:#fff;box-shadow:0 2px 8px rgba(15,23,42,.2)}
 body:not([data-theme=aurora]) .add-bar{background:linear-gradient(135deg,#6366F1 0%,#8B5CF6 60%,#EC4899 100%);box-shadow:0 8px 28px rgba(99,102,241,.35)}
 body:not([data-theme=aurora]) .add-bar .plus{background:rgba(255,255,255,.2);color:#fff}
 body:not([data-theme=aurora]) .fab{background:linear-gradient(135deg,#6366F1,#EC4899);box-shadow:0 10px 28px rgba(99,102,241,.45),0 0 0 8px rgba(99,102,241,.1);animation:fabPulseClassic 3.2s ease-in-out infinite}
@@ -900,6 +961,7 @@ calMonth:new Date(),calSelectedDate:new Date().toISOString().slice(0,10),
 steps:[],stepGoal:parseInt(localStorage.getItem('step_goal')||'10000',10),stepLive:{active:false,count:0},
 theme:localStorage.getItem('theme')||'classic',
 news:{},newsCat:'technology',newsLoading:false,
+bookStreak:{streak:0,total:0,today:false,days:[]},_bkSec:0,
 
 loginStep:'phone',loginMethod:'email',loginPhone:'',loginEmail:'',loginName:'',loginOTP:['','','','','',''],loginLoading:false,loginError:'',emailOk:false,
 form:{title:'',notes:'',priority:'medium',dueDate:'',reminderTime:'',status:'pending'}};
@@ -908,6 +970,27 @@ if(token){S.user={phone:localStorage.getItem('tf_phone'),name:localStorage.getIt
 
 const api=async(p,o={})=>{try{const h={'Content-Type':'application/json'};if(token)h['x-token']=token;const r=await fetch('/api'+p,{headers:h,...o});if(r.status===401){logout();return null}return await r.json()}catch(e){return null}};
 const P={high:{c:'#E8453C',d:'\\u{1F534}'},medium:{c:'#E8912C',d:'\\u{1F7E0}'},low:{c:'#3DAE5C',d:'\\u{1F7E2}'}};
+function ic(n,sz){sz=sz||20;const s='width="'+sz+'" height="'+sz+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';const m={
+tasks:'<svg '+s+'><rect x="3" y="4" width="18" height="18" rx="2.5"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/><path d="M9 16l2 2 4-4"/></svg>',
+board:'<svg '+s+'><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>',
+cal:'<svg '+s+'><rect x="3" y="4" width="18" height="18" rx="2.5"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>',
+dash:'<svg '+s+'><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>',
+news:'<svg '+s+'><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8z"/></svg>',
+books:'<svg '+s+'><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>',
+steps:'<svg '+s+'><path d="M4 16v-2.4C4 11.5 3 10.5 3 8c0-2.7 1.5-6 4.5-6C9.4 2 10 3.8 10 5.5c0 3.1-2 5.7-2 8.7V16a2 2 0 1 1-4 0z"/><path d="M20 20v-2.4c0-2.1 1-3.1 1-5.6 0-2.7-1.5-6-4.5-6-1.9 0-2.5 1.8-2.5 3.5 0 3.1 2 5.7 2 8.7V20a2 2 0 1 0 4 0z"/></svg>',
+calc:'<svg '+s+'><rect x="4" y="2" width="16" height="20" rx="2.5"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16" y2="18"/><circle cx="8" cy="10" r=".8" fill="currentColor"/><circle cx="12" cy="10" r=".8" fill="currentColor"/><circle cx="16" cy="10" r=".8" fill="currentColor"/><circle cx="8" cy="14" r=".8" fill="currentColor"/><circle cx="12" cy="14" r=".8" fill="currentColor"/><circle cx="8" cy="18" r=".8" fill="currentColor"/><circle cx="12" cy="18" r=".8" fill="currentColor"/></svg>',
+ai:'<svg '+s+'><path d="M12 8V4H8"/><rect x="4" y="8" width="16" height="12" rx="2.5"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>',
+sport:'<svg '+s+'><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20"/><path d="M12 2a14.5 14.5 0 0 1 0 20"/><path d="M2 12h20"/></svg>',
+tech:'<svg '+s+'><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>',
+movies:'<svg '+s+'><rect x="3" y="3" width="18" height="18" rx="2.5"/><line x1="3" y1="8" x2="7" y2="8"/><line x1="3" y1="16" x2="7" y2="16"/><line x1="17" y1="8" x2="21" y2="8"/><line x1="17" y1="16" x2="21" y2="16"/><polygon points="10 9 15 12 10 15"/></svg>',
+globe:'<svg '+s+'><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
+share:'<svg '+s+'><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg>',
+play:'<svg '+s+'><polygon points="6 4 20 12 6 20 6 4" fill="currentColor"/></svg>',
+flame:'<svg '+s+'><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.4-.5-2.4-1.5-3.5C8 7 7 5.5 7 3c0 0 6 4.5 6 11.5A4.5 4.5 0 0 1 8.5 14.5z"/><path d="M16 18a3 3 0 0 1-2-5c1-1 2-2 2-4.5C16 8.5 19 9 19 12c0 3.5-1.5 6-3 6z"/></svg>',
+moon:'<svg '+s+'><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor"/></svg>',
+sun:'<svg '+s+'><circle cx="12" cy="12" r="4" fill="currentColor"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.07" y2="4.93"/></svg>',
+refresh:'<svg '+s+'><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/><path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14"/></svg>',
+plus:'<svg '+s+'><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'};return m[n]||''}
 const ST={pending:{l:'To Do',c:'#94A3B8',bg:'#F1F5F9'},'in-progress':{l:'Doing',c:'#3B82F6',bg:'#EFF6FF'},done:{l:'Done',c:'#3DAE5C',bg:'#F2FBF4'}};
 const fD=d=>d?new Date(d+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
 const fT=t=>{if(!t)return'';const[h,m]=t.split(':');const hr=+h;return(hr>12?hr-12:hr||12)+':'+m+' '+(hr>=12?'PM':'AM')};
@@ -979,8 +1062,12 @@ function rotateMoral(){const a=document.getElementById('audioEl');if(a&&!a.pause
 setInterval(()=>{if(S.user)rotateMoral()},45000);
 
 async function loadBooks(cat){S.booksCat=cat;S.booksLoading=true;render();try{const q=cat==='all'?'collection:librivoxaudio AND mediatype:audio':'collection:librivoxaudio AND mediatype:audio AND subject:'+cat;const url='https://archive.org/advancedsearch.php?q='+encodeURIComponent(q)+'&fl[]=identifier&fl[]=title&fl[]=creator&fl[]=downloads&rows=30&output=json&sort[]=downloads+desc';const r=await fetch(url);const j=await r.json();S.books=j.response.docs;}catch(e){S.books=[];toast('\\u26A0\\uFE0F Failed to load books','err')}S.booksLoading=false;render()}
-async function playBook(id){const b=S.books.find(x=>x.identifier===id);if(!b){toast('\\u26A0\\uFE0F Book not found','err');return}const title=Array.isArray(b.title)?b.title[0]:b.title;const author=Array.isArray(b.creator)?b.creator[0]:(b.creator||'Unknown');S.playing={id,title,author,loading:true};render();try{const r=await fetch('https://archive.org/metadata/'+encodeURIComponent(id));if(!r.ok)throw new Error('metadata '+r.status);const j=await r.json();if(!j.files||!j.files.length){toast('\\u26A0\\uFE0F No files \\u2014 opening archive.org','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render();return}let mp3=j.files.find(f=>/_64kb\\.mp3$/i.test(f.name));if(!mp3)mp3=j.files.find(f=>/_32kb\\.mp3$/i.test(f.name));if(!mp3)mp3=j.files.find(f=>/\\.mp3$/i.test(f.name)&&!/sample|test|spoken/i.test(f.name));if(!mp3)mp3=j.files.find(f=>/\\.(mp3|m4a|ogg)$/i.test(f.name));if(mp3){const server=j.server||'archive.org';const dir=j.dir||('/'+id);const directUrl='https://'+server+dir+'/'+mp3.name.split('/').map(encodeURIComponent).join('/');const dlUrl='https://archive.org/download/'+encodeURIComponent(id)+'/'+mp3.name.split('/').map(encodeURIComponent).join('/');S.playing={id,title,author,url:directUrl,altUrl:dlUrl,external:'https://archive.org/details/'+id};render();setTimeout(()=>{const a=document.getElementById('audioEl');if(!a)return;a.setAttribute('playsinline','');a.setAttribute('webkit-playsinline','');a.preload='auto';a.addEventListener('error',function onErr(){a.removeEventListener('error',onErr);if(a.src!==dlUrl){a.src=dlUrl;a.load()}},{once:true});a.load();const p=a.play();if(p&&p.catch)p.catch(()=>toast('\\u25B6\\uFE0F Tap the play button on the bar','err'))},250)}else{toast('\\u26A0\\uFE0F No audio \\u2014 opening archive.org','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render()}}catch(e){toast('\\u26A0\\uFE0F '+e.message,'err');S.playing={id,title,author,url:null,external:'https://archive.org/details/'+id,error:e.message};render()}}
-function closePlayer(){S.playing=null;render()}
+async function playBook(id){const b=S.books.find(x=>x.identifier===id);if(!b){toast('\\u26A0\\uFE0F Book not found','err');return}const title=Array.isArray(b.title)?b.title[0]:b.title;const author=Array.isArray(b.creator)?b.creator[0]:(b.creator||'Unknown');S.playing={id,title,author,loading:true};render();try{const r=await fetch('https://archive.org/metadata/'+encodeURIComponent(id));if(!r.ok)throw new Error('metadata '+r.status);const j=await r.json();if(!j.files||!j.files.length){toast('\\u26A0\\uFE0F No files \\u2014 opening archive.org','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render();return}let mp3=j.files.find(f=>/_64kb\\.mp3$/i.test(f.name));if(!mp3)mp3=j.files.find(f=>/_32kb\\.mp3$/i.test(f.name));if(!mp3)mp3=j.files.find(f=>/\\.mp3$/i.test(f.name)&&!/sample|test|spoken/i.test(f.name));if(!mp3)mp3=j.files.find(f=>/\\.(mp3|m4a|ogg)$/i.test(f.name));if(mp3){const server=j.server||'archive.org';const dir=j.dir||('/'+id);const directUrl='https://'+server+dir+'/'+mp3.name.split('/').map(encodeURIComponent).join('/');const dlUrl='https://archive.org/download/'+encodeURIComponent(id)+'/'+mp3.name.split('/').map(encodeURIComponent).join('/');S.playing={id,title,author,url:directUrl,altUrl:dlUrl,external:'https://archive.org/details/'+id};render();setTimeout(()=>{const a=document.getElementById('audioEl');if(!a)return;a.setAttribute('playsinline','');a.setAttribute('webkit-playsinline','');a.preload='auto';a.addEventListener('error',function onErr(){a.removeEventListener('error',onErr);if(a.src!==dlUrl){a.src=dlUrl;a.load()}},{once:true});a.load();a.addEventListener('play',startBookListenTimer);a.addEventListener('pause',()=>{/* keep timer; checks paused itself */});const p=a.play();if(p&&p.catch)p.catch(()=>toast('\\u25B6\\uFE0F Tap the play button on the bar','err'))},250)}else{toast('\\u26A0\\uFE0F No audio \\u2014 opening archive.org','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render()}}catch(e){toast('\\u26A0\\uFE0F '+e.message,'err');S.playing={id,title,author,url:null,external:'https://archive.org/details/'+id,error:e.message};render()}}
+function closePlayer(){stopBookListenTimer();S.playing=null;render()}
+let _bkTimer=null;
+function startBookListenTimer(){if(_bkTimer)return;S._bkSec=0;_bkTimer=setInterval(async()=>{const a=document.getElementById('audioEl');if(!a||a.paused||a.ended)return;S._bkSec+=5;if(S._bkSec===120&&S.user&&!S.bookStreak.today){const r=await api('/book-streak',{method:'POST',body:JSON.stringify({date:new Date().toISOString().slice(0,10),seconds:120})});if(r?.ok){S.bookStreak={streak:r.streak,total:r.total,today:true,days:S.bookStreak.days};toast('\\u{1F389} '+r.streak+'-day listening streak!');render()}}},5000)}
+function stopBookListenTimer(){if(_bkTimer){clearInterval(_bkTimer);_bkTimer=null}}
+async function loadBookStreak(){if(!S.user)return;const r=await api('/book-streak');if(r)S.bookStreak={streak:r.streak||0,total:r.total||0,today:!!r.today,days:r.days||[]}}
 
 function render(){
 // Preserve focus + cursor across re-renders so typing isn't interrupted
@@ -1023,14 +1110,14 @@ document.getElementById('app').innerHTML=h;return;
 const ts=S.tasks,f=ts.filter(t=>{if(S.search){const q=S.search.toLowerCase();if(!t.title.toLowerCase().includes(q)&&!(t.notes||'').toLowerCase().includes(q))return false}if(S.view==='all')return true;if(S.view==='today')return isTd(t.due_date);if(S.view==='overdue')return isOD(t.due_date,t.status);return t.status===S.view});
 const s={total:ts.length,pend:ts.filter(t=>t.status==='pending').length,act:ts.filter(t=>t.status==='in-progress').length,dn:ts.filter(t=>t.status==='done').length,od:ts.filter(t=>isOD(t.due_date,t.status)).length};
 
-let h='<div class="hdr"><div><div class="logo">Bro<span class="k">Do</span>it</div><div class="hdr-sub">'+new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})+'</div></div><div class="hdr-actions"><button class="theme-tg" onclick="toggleTheme()" title="Switch theme">'+(S.theme==='aurora'?'\\u2600\\uFE0F':'\\u{1F319}')+'</button><div class="hdr-st"><span class="dot" style="background:'+(S.waOk?'#3DAE5C':'#D4D0CA')+'"></span>'+(S.waOk?'LIVE':'OFF')+'</div></div></div>';
+let h='<div class="hdr"><div><div class="logo">Bro<span class="k">Do</span>it</div><div class="hdr-sub">'+new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})+'</div></div><div class="hdr-actions"><button class="theme-tg" onclick="toggleTheme()" title="Switch theme">'+(S.theme==='aurora'?ic('sun',18):ic('moon',18))+'</button><div class="hdr-st"><span class="dot" style="background:'+(S.waOk?'#10B981':'#CBD5E1')+'"></span>'+(S.waOk?'LIVE':'OFF')+'</div></div></div>';
 
 // Moral chip
 const m=MORALS[S.moralIdx];
 h+='<div class="moral"><div class="moral-emoji">\\u{1F4A1}</div><div class="moral-body"><div class="moral-lbl">Moral of the Day</div><div class="moral-txt">"'+esc(m.t)+'"</div><div class="moral-by">\\u2014 '+esc(m.a)+'</div></div><button class="moral-ref" onclick="rotateMoral()" title="New quote">\\u21BB</button></div>';
 
 // Tabs
-h+='<nav class="tabs page-t">'+[{k:'tasks',i:'\\u{1F4CB}',l:'Tasks'},{k:'board',i:'\\u{1F9E9}',l:'Board'},{k:'cal',i:'\\u{1F4C5}',l:'Calendar'},{k:'dash',i:'\\u{1F4CA}',l:'Stats'},{k:'news',i:'\\u{1F4F0}',l:'News'},{k:'books',i:'\\u{1F4DA}',l:'Books'},{k:'steps',i:'\\u{1F463}',l:'Steps'},{k:'calc',i:'\\u{1F9EE}',l:'Calc'}].map(x=>'<button class="tab'+(S.tab===x.k?' on':'')+'" onclick="switchTab(\\''+x.k+'\\')"><span class="ti">'+x.i+'</span><span class="tl">'+x.l+'</span></button>').join('')+'</nav>';
+h+='<nav class="tabs page-t">'+[{k:'tasks',l:'Tasks'},{k:'board',l:'Board'},{k:'cal',l:'Calendar'},{k:'dash',l:'Stats'},{k:'news',l:'News'},{k:'books',l:'Books'},{k:'steps',l:'Steps'},{k:'calc',l:'Calc'}].map(x=>'<button class="tab'+(S.tab===x.k?' on':'')+'" onclick="switchTab(\\''+x.k+'\\')"><span class="ti">'+ic(x.k,20)+'</span><span class="tl">'+x.l+'</span></button>').join('')+'</nav>';
 
 h+='<main class="main-col">';
 h+='<div class="user-bar" style="cursor:pointer" onclick="openProfile()"><span>\\u{1F464} '+esc(S.user.name||S.user.phone)+' <span style="color:#94A3B8;font-size:11px">\\u203A Profile</span></span><button onclick="event.stopPropagation();logout()">Logout</button></div>';
@@ -1055,7 +1142,7 @@ if(S.tab==='tasks'){
 // BOARD TAB (Kanban: To Do / Doing / Done with drag-and-drop)
 else if(S.tab==='board'){
   h+='<button class="add-bar" onclick="opA()"><span class="plus">+</span><span class="txt"><b>Add a new task</b><small>It will land in To Do</small></span></button>';
-  h+='<div class="board-hd"><h3>\\u{1F9E9} Task Board</h3><span class="hint">Drag cards between columns \\u2022 or tap a button</span></div>';
+  h+='<div class="section-hd"><span class="section-ic">'+ic('board',22)+'</span><div><h3>Task Board</h3><p>Drag cards between columns or tap a move button</p></div></div>';
   const cols=[{k:'pending',l:'To Do',i:'\\u{1F4E5}',c:'#94A3B8'},{k:'in-progress',l:'Doing',i:'\\u26A1',c:'#3B82F6'},{k:'done',l:'Done',i:'\\u2705',c:'#3DAE5C'}];
   h+='<div class="board">';
   cols.forEach(col=>{
@@ -1103,7 +1190,7 @@ else if(S.tab==='steps'){
   const goalDays=last7.filter(d=>d.count>=goal).length;
   const fmt=n=>n>=10000?(n/1000).toFixed(1)+'k':n>=1000?(n/1000).toFixed(1)+'k':String(n);
   const C=2*Math.PI*52;
-  h+='<div class="board-hd"><h3>\\u{1F463} Steps & Health</h3><span class="hint">'+new Date().toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'})+'</span></div>';
+  h+='<div class="section-hd"><span class="section-ic">'+ic('steps',22)+'</span><div><h3>Steps &amp; Health</h3><p>'+new Date().toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'})+'</p></div></div>';
   // Hero
   h+='<div class="steps-hero">';
   h+='<div class="steps-ring"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="#F1F5F9" stroke-width="9"/><circle cx="60" cy="60" r="52" fill="none" stroke="'+(pct>=100?'#3DAE5C':'#3B82F6')+'" stroke-width="9" stroke-dasharray="'+C.toFixed(2)+'" stroke-dashoffset="'+(C*(1-pct/100)).toFixed(2)+'" stroke-linecap="round" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .6s"/></svg><div class="ring-v"><b>'+todayCount.toLocaleString()+'</b><small>of '+goal.toLocaleString()+'</small></div></div>';
@@ -1242,10 +1329,10 @@ else if(S.tab==='cal'){
 
 // NEWS TAB (shorts feed with categories + share)
 else if(S.tab==='news'){
-  const cats=[{k:'ai',l:'AI',i:'\\u{1F916}'},{k:'sports',l:'Sports',i:'\\u26BD'},{k:'technology',l:'Tech',i:'\\u{1F4BB}'},{k:'movies',l:'Movies',i:'\\u{1F3AC}'},{k:'global',l:'World',i:'\\u{1F30D}'}];
-  h+='<div class="news-hero"><div><h2>\\u{1F4F0} News Shorts</h2><p>Fresh headlines \\u2022 Tap share to send to any app</p></div><button class="news-refresh" onclick="loadNews(S.newsCat)" title="Refresh">\\u21BB</button></div>';
-  h+='<div class="flt">';
-  cats.forEach(c=>{h+='<button class="fb'+(S.newsCat===c.k?' on':'')+'" onclick="loadNews(\\''+c.k+'\\')">'+c.i+' '+c.l+'</button>'});
+  const cats=[{k:'ai',l:'AI',ic:'ai'},{k:'sports',l:'Sports',ic:'sport'},{k:'technology',l:'Tech',ic:'tech'},{k:'movies',l:'Movies',ic:'movies'},{k:'global',l:'World',ic:'globe'}];
+  h+='<div class="news-hero"><div class="news-hero-l"><span class="news-hero-ic">'+ic('news',22)+'</span><div><h2>News</h2><p>Fresh headlines \\u2022 Tap share to send to any app</p></div></div><button class="news-refresh" onclick="loadNews(S.newsCat)" title="Refresh">'+ic('refresh',18)+'</button></div>';
+  h+='<div class="flt flt-icons">';
+  cats.forEach(c=>{h+='<button class="fb'+(S.newsCat===c.k?' on':'')+'" onclick="loadNews(\\''+c.k+'\\')"><span class="fb-ic">'+ic(c.ic,15)+'</span>'+c.l+'</button>'});
   h+='</div>';
   if(S.newsLoading&&!(S.news[S.newsCat]||[]).length){
     h+='<div class="loading">\\u{1F4E1} Fetching latest '+esc((cats.find(c=>c.k===S.newsCat)||{}).l||'')+' stories\\u2026</div>';
@@ -1275,6 +1362,9 @@ else if(S.tab==='news'){
 
 // BOOKS TAB
 else if(S.tab==='books'){
+  const bs=S.bookStreak||{streak:0,total:0,today:false};
+  h+='<div class="section-hd"><span class="section-ic">'+ic('books',22)+'</span><div><h3>Audiobooks</h3><p>Free LibriVox library \\u2022 listen 2 minutes a day to keep your streak</p></div></div>';
+  h+='<div class="streak-card"><div class="streak-ico">'+ic('flame',24)+'</div><div class="streak-body"><div class="streak-n">'+bs.streak+'<span>day'+(bs.streak===1?'':'s')+'</span></div><div class="streak-lbl">Listening streak'+(bs.today?' \\u2022 done today \\u2705':'')+'</div></div><div class="streak-tot"><b>'+bs.total+'</b><small>total days</small></div></div>';
   h+='<div class="srch"><input placeholder="Search audiobooks..." value="'+esc(S.bookSearch)+'" oninput="S.bookSearch=this.value;render()"></div>';
   h+='<div class="flt">'+['all','fiction','mystery','philosophy','adventure','kids'].map(c=>'<button class="fb'+(S.booksCat===c?' on':'')+'" onclick="loadBooks(\\''+c+'\\')">'+c.charAt(0).toUpperCase()+c.slice(1)+'</button>').join('')+'</div>';
   if(S.booksLoading)h+='<div class="loading">Loading audiobooks...</div>';
@@ -1364,7 +1454,7 @@ document.getElementById('app').innerHTML=h;
 }
 fetch('/api/config').then(r=>r.json()).then(c=>{window.__TWILIO_SANDBOX_CODE=c.sandboxCode||'';render()}).catch(()=>{});
 applyTheme();
-if(S.user){refreshSession();load();loadSteps();chk();setInterval(load,10000)}else render();
+if(S.user){refreshSession();load();loadSteps();loadBookStreak();chk();setInterval(load,10000)}else render();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
 </script></body></html>`;
 
