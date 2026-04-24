@@ -1080,17 +1080,14 @@ h+='<div class="login-logo">Bro<span class="k">Do</span>it</div>';
 if(S.loginStep==='phone'){
 h+='<div class="login-sub">Tasks + Books + Wisdom, all in one place.</div>';
 h+='<div class="step-dots"><div class="step-dot on"></div><div class="step-dot"></div><div class="step-dot"></div></div>';
-h+='<div class="tabs" style="max-width:320px;margin:0 auto 14px"><button class="tab'+(S.loginMethod==='email'?' on':'')+'" onclick="S.loginMethod=\\'email\\';S.loginError=\\'\\';render()">\\u2709\\uFE0F Email</button><button class="tab'+(S.loginMethod==='whatsapp'?' on':'')+'" onclick="S.loginMethod=\\'whatsapp\\';S.loginError=\\'\\';render()">\\u{1F4F1} WhatsApp</button></div>';
+// Force email-only login. WhatsApp Sandbox blocks new users (Twilio limitation).
+S.loginMethod='email';
 h+='<input type="text" placeholder="Your name" value="'+esc(S.loginName)+'" oninput="S.loginName=this.value" style="font-size:15px;letter-spacing:0">';
-if(S.loginMethod==='email')h+='<input type="email" placeholder="you@example.com" value="'+esc(S.loginEmail)+'" oninput="S.loginEmail=this.value" autocomplete="email" style="font-size:15px;letter-spacing:0">';
-else h+='<input type="tel" placeholder="+91 98765 43210" value="'+esc(S.loginPhone)+'" oninput="S.loginPhone=this.value" autocomplete="tel" style="font-family:\\'Space Mono\\',monospace">';
+h+='<input type="email" placeholder="you@example.com" value="'+esc(S.loginEmail)+'" oninput="S.loginEmail=this.value" autocomplete="email" style="font-size:15px;letter-spacing:0">';
 if(S.loginError)h+='<div style="color:#E8453C;font-size:13px;font-weight:600;margin:8px 0">'+S.loginError+'</div>';
-h+='<button class="login-btn" onclick="sendOTP()"'+(S.loginLoading?' disabled':'')+'>'+(S.loginLoading?'Sending code...':(S.loginMethod==='email'?'\\u2709\\uFE0F Send code to email':'\\u{1F4F1} Send code on WhatsApp'))+'</button>';
-if(S.loginMethod==='email')h+='<div class="login-hint">We\\'ll email a 6-digit code. Check your inbox (and spam folder).</div>';
-else{h+='<div class="login-hint" style="margin-top:10px">First time? You must join WhatsApp first (one-time, 3 sec):</div>';
-const sb=window.__TWILIO_SANDBOX_CODE||'your-code';
-h+='<a href="https://wa.me/14155238886?text='+encodeURIComponent('join '+sb)+'" target="_blank" class="login-btn" style="background:#25D366;color:#fff;text-decoration:none;display:block;margin-top:8px;text-align:center">\\u{1F4F1} Tap to Join WhatsApp Sandbox</a>';
-h+='<div class="login-hint" style="margin-top:10px">After joining, come back and tap <b>Send OTP</b>.</div>';}
+h+='<button class="login-btn" onclick="sendOTP()"'+(S.loginLoading?' disabled':'')+'>'+(S.loginLoading?'Sending code...':'\\u2709\\uFE0F Send code to email')+'</button>';
+h+='<div class="login-hint">We\\'ll email a 6-digit code. Check your inbox (and spam folder).</div>';
+h+='<div class="login-hint" style="margin-top:14px;font-size:11px;opacity:.6">WhatsApp login coming soon \\u2014 awaiting Meta Business approval.</div>';
 }else if(S.loginStep==='otp'){
 h+='<div class="login-sub">Enter the code sent to<br><strong>'+esc(S.loginMethod==='email'?S.loginEmail:S.loginPhone)+'</strong></div>';
 h+='<div class="step-dots"><div class="step-dot on"></div><div class="step-dot on"></div><div class="step-dot"></div></div>';
