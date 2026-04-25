@@ -759,15 +759,18 @@ body[data-theme=aurora] .news-ticker-row:hover{background:rgba(255,255,255,.08)}
 body[data-theme=aurora] .news-ticker-link{color:#F5F5FA}
 body[data-theme=aurora] .news-ticker-row:hover .news-ticker-link{color:#A78BFA}
 body[data-theme=aurora] .news-ticker-src{color:#A78BFA;background:rgba(167,139,250,.16)}
-/* World clocks at the bottom of the right column */
-.world-clocks{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;background:linear-gradient(135deg,rgba(99,102,241,.05),rgba(232,145,44,.03));border:1px solid rgba(99,102,241,.12);border-radius:10px;padding:8px}
-.world-clocks .wc-item{display:flex;flex-direction:column;align-items:center;gap:1px;line-height:1.1}
+/* World clocks at the bottom of the right column — 6 cities west to east */
+.world-clocks{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;background:linear-gradient(135deg,rgba(99,102,241,.05),rgba(232,145,44,.03));border:1px solid rgba(99,102,241,.12);border-radius:10px;padding:8px}
+.world-clocks .wc-item{display:flex;flex-direction:column;align-items:center;gap:1px;line-height:1.1;padding:2px 0}
+.world-clocks .wc-item:not(:last-child){border-right:1px dashed rgba(99,102,241,.16)}
 .world-clocks .wc-item b{font-size:9px;font-weight:800;color:#6366F1;letter-spacing:1.1px}
 .world-clocks .wc-time{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#0F172A;letter-spacing:-.02em}
 body[data-theme=aurora] .world-clocks{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(232,145,44,.04));border-color:rgba(167,139,250,.18)}
+body[data-theme=aurora] .world-clocks .wc-item:not(:last-child){border-right-color:rgba(167,139,250,.2)}
 body[data-theme=aurora] .world-clocks .wc-item b{color:#A78BFA}
 body[data-theme=aurora] .world-clocks .wc-time{color:#F5F5FA}
-@media (max-width:600px){.world-clocks{padding:6px;gap:4px}.world-clocks .wc-time{font-size:12px}}
+@media (max-width:900px){.world-clocks{grid-template-columns:repeat(3,1fr);gap:6px}.world-clocks .wc-item:nth-child(3n){border-right:none}}
+@media (max-width:480px){.world-clocks{grid-template-columns:repeat(2,1fr)}.world-clocks .wc-item{border-right:none!important}.world-clocks .wc-time{font-size:12px}}
 .top-strip .side-now-row-w{transition:opacity .15s ease;user-select:none}
 .top-strip .side-now-row-w:hover{opacity:.85}
 .top-strip .weather-pin{font-size:11px}
@@ -2453,9 +2456,16 @@ const m=MORALS[S.moralIdx];
   let ticker='<div class="news-ticker-stack" id="newsTickerStack">';
   visible.forEach((ti,i)=>{ticker+='<a class="news-ticker-row" style="animation-delay:'+(i*0.08)+'s" href="'+esc(ti.link||'#')+'" target="_blank" rel="noopener" title="'+esc(ti.title||'')+'"><span class="news-ticker-pulse"></span><span class="news-ticker-src">'+esc((ti.source||'').toUpperCase())+'</span><span class="news-ticker-link">'+esc((ti.title||'').slice(0,120))+'</span></a>'});
   ticker+='</div>';
-  // World clocks at the bottom of the right column
+  // World clocks at the bottom of the right column — west to east
   const fmtTZ2=(tz)=>{try{return new Date().toLocaleTimeString('en-US',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false})}catch(e){return '--:--'}};
-  const CITIES2=[{l:'NYC',tz:'America/New_York'},{l:'LAX',tz:'America/Los_Angeles'},{l:'LDN',tz:'Europe/London'},{l:'SGP',tz:'Asia/Singapore'}];
+  const CITIES2=[
+    {l:'NYC',tz:'America/New_York'},
+    {l:'LDN',tz:'Europe/London'},
+    {l:'SGP',tz:'Asia/Singapore'},
+    {l:'SHA',tz:'Asia/Shanghai'},
+    {l:'TYO',tz:'Asia/Tokyo'},
+    {l:'SYD',tz:'Australia/Sydney'}
+  ];
   const wc='<div class="world-clocks" id="worldClocks">'+CITIES2.map(c=>'<span class="wc-item"><b>'+c.l+'</b><span class="wc-time" data-tz="'+c.tz+'">'+fmtTZ2(c.tz)+'</span></span>').join('')+'</div>';
   h+='<div class="moral-wrap">'+mWrap+ticker+wc+'</div>';
 }
