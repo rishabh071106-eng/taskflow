@@ -489,7 +489,9 @@ input:focus,textarea:focus{outline:none;border-color:#0F172A}textarea{resize:ver
 .hdr-sub{font-size:13px;color:#94A3B8;margin-top:2px;font-weight:500}
 .moral{display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#FFFBF1 0%,#FEF3E0 50%,#EAF6EE 100%);border:1px solid #F3D9A0;border-radius:18px;padding:20px 22px;margin-bottom:14px;position:relative;overflow:hidden;min-height:96px;box-shadow:0 4px 16px rgba(232,145,44,.08)}
 .moral::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:linear-gradient(180deg,#E8912C,#3DAE5C);z-index:2}
-.moral-doodle{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:.85}
+.moral-doodle{position:absolute;top:0;right:0;bottom:0;width:50%;max-width:480px;height:100%;pointer-events:none;z-index:0;opacity:1}
+.moral::after{content:'';position:absolute;top:0;left:0;bottom:0;width:55%;background:linear-gradient(90deg,rgba(255,251,241,.95) 0%,rgba(254,243,224,.85) 60%,rgba(254,243,224,0) 100%);pointer-events:none;z-index:0}
+@media (max-width:600px){.moral-doodle{width:42%}.moral::after{width:62%}}
 .moral-emoji{font-size:26px;flex-shrink:0;filter:drop-shadow(0 2px 4px rgba(232,145,44,.3));position:relative;z-index:1}
 .moral-body{flex:1;min-width:0;position:relative;z-index:1}
 .moral-lbl{font-size:10px;font-weight:700;color:#B57B00;text-transform:uppercase;letter-spacing:1.2px}
@@ -1366,19 +1368,30 @@ if(token){S.user={phone:localStorage.getItem('tf_phone'),name:localStorage.getIt
 const api=async(p,o={})=>{try{const h={'Content-Type':'application/json'};if(token)h['x-token']=token;const r=await fetch('/api'+p,{headers:h,...o});if(r.status===401){logout();return null}return await r.json()}catch(e){return null}};
 const P={high:{c:'#E8453C',d:'\\u{1F534}'},medium:{c:'#E8912C',d:'\\u{1F7E0}'},low:{c:'#3DAE5C',d:'\\u{1F7E2}'}};
 // Scenic Unsplash hero banners per tab (free, hot-link friendly)
-// Hand-drawn SVG doodle: exponential growth — 3 figures climbing the curve, +1 marks, star at peak
-const MORAL_DOODLE='<svg class="moral-doodle" viewBox="0 0 1200 240" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">'
-+'<path d="M 30 210 C 280 208 420 200 580 175 S 820 110 1050 35" stroke="#6366F1" stroke-width="2.4" fill="none" stroke-linecap="round" opacity="0.32" stroke-dasharray="0"/>'
-+'<path d="M 30 210 C 280 208 420 200 580 175 S 820 110 1050 35" stroke="#E8912C" stroke-width="2.4" fill="none" stroke-linecap="round" opacity="0.18" stroke-dasharray="3 6" transform="translate(0 4)"/>'
-+'<g stroke="#6366F1" stroke-width="1" opacity="0.18"><line x1="30" y1="218" x2="1100" y2="218"/><line x1="200" y1="216" x2="200" y2="222"/><line x1="400" y1="216" x2="400" y2="222"/><line x1="600" y1="216" x2="600" y2="222"/><line x1="800" y1="216" x2="800" y2="222"/><line x1="1000" y1="216" x2="1000" y2="222"/></g>'
-+'<g stroke="#0F172A" stroke-width="2" fill="none" opacity="0.32" stroke-linecap="round"><circle cx="200" cy="172" r="6"/><line x1="200" y1="178" x2="200" y2="194"/><line x1="193" y1="186" x2="207" y2="186"/><line x1="200" y1="194" x2="194" y2="206"/><line x1="200" y1="194" x2="206" y2="206"/></g>'
-+'<g stroke="#3DAE5C" stroke-width="2" fill="none" opacity="0.55" stroke-linecap="round" stroke-linejoin="round"><circle cx="560" cy="140" r="7"/><line x1="560" y1="147" x2="560" y2="166"/><line x1="551" y1="155" x2="569" y2="155"/><line x1="560" y1="166" x2="552" y2="180"/><line x1="560" y1="166" x2="568" y2="180"/><path d="M 552 118 l 5 5 9 -11" stroke-width="2.6"/></g>'
-+'<g stroke="#E8912C" stroke-width="2.2" fill="none" opacity="0.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="960" cy="58" r="8"/><line x1="960" y1="66" x2="960" y2="92"/><line x1="949" y1="76" x2="971" y2="76"/><line x1="960" y1="92" x2="950" y2="110"/><line x1="960" y1="92" x2="970" y2="110"/></g>'
-+'<path d="M 960 28 l 4 -10 4 10 10 1 -8 7 3 11 -9 -6 -9 6 3 -11 -8 -7 z" fill="#E8912C" opacity="0.7"/>'
-+'<g stroke="#6366F1" stroke-width="2.4" fill="none" opacity="0.5" stroke-linecap="round" stroke-linejoin="round"><line x1="1060" y1="40" x2="1095" y2="10"/><polyline points="1080 10 1095 10 1095 25"/></g>'
-+'<g font-family="Inter, sans-serif" font-weight="700" font-size="13" fill="#3DAE5C" opacity="0.45"><text x="320" y="170">+1</text><text x="445" y="156">+1</text><text x="690" y="118">+1</text><text x="820" y="92">+1</text></g>'
-+'<g fill="#E8912C" opacity="0.5"><circle cx="120" cy="186" r="2"/><circle cx="380" cy="160" r="2"/><circle cx="680" cy="115" r="2.5"/><circle cx="880" cy="78" r="2"/><circle cx="1020" cy="48" r="2.6"/></g>'
-+'<g stroke="#64748B" stroke-width="1.4" fill="none" opacity="0.28" stroke-linecap="round"><rect x="80" y="170" width="14" height="18" rx="1.5"/><line x1="84" y1="176" x2="90" y2="176"/><line x1="84" y1="180" x2="90" y2="180"/><line x1="84" y1="184" x2="88" y2="184"/></g>'
+// One clean doodle illustrating the "1% Better Every Day" law — confined to the right side of the chip
+const MORAL_DOODLE='<svg class="moral-doodle" viewBox="0 0 480 200" preserveAspectRatio="xMaxYMid meet" xmlns="http://www.w3.org/2000/svg">'
+// soft chart frame (axes)
++'<g stroke="#94A3B8" stroke-width="1" opacity="0.35" stroke-linecap="round"><line x1="40" y1="170" x2="450" y2="170"/><line x1="40" y1="170" x2="40" y2="20"/></g>'
+// axis labels
++'<g font-family="Inter, sans-serif" font-size="9" fill="#64748B" opacity="0.7" font-weight="600"><text x="40" y="186" text-anchor="middle">Day 1</text><text x="245" y="186" text-anchor="middle">Day 180</text><text x="450" y="186" text-anchor="middle">Day 365</text></g>'
+// dashed shadow curve under main curve (hand-drawn vibe)
++'<path d="M 40 168 C 180 166 280 158 360 130 S 440 50 450 28" stroke="#E8912C" stroke-width="2" fill="none" stroke-linecap="round" stroke-dasharray="2 5" opacity="0.35" transform="translate(2 3)"/>'
+// main exponential curve
++'<path d="M 40 168 C 180 166 280 158 360 130 S 440 50 450 28" stroke="#6366F1" stroke-width="2.6" fill="none" stroke-linecap="round" opacity="0.6"/>'
+// subtle area fill under curve
++'<path d="M 40 168 C 180 166 280 158 360 130 S 440 50 450 28 L 450 170 L 40 170 Z" fill="#6366F1" opacity="0.06"/>'
+// "+1% daily" tag near the start with leader line
++'<g><line x1="60" y1="155" x2="80" y2="135" stroke="#3DAE5C" stroke-width="1" opacity="0.55"/><rect x="78" y="120" width="68" height="20" rx="10" fill="#3DAE5C" opacity="0.18"/><text x="112" y="134" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#1A9E47" text-anchor="middle" opacity="0.85">+1% daily</text></g>'
+// "37× growth" tag near the peak with leader line
++'<g><line x1="430" y1="40" x2="380" y2="60" stroke="#E8912C" stroke-width="1" opacity="0.55"/><rect x="290" y="50" width="92" height="22" rx="11" fill="#E8912C" opacity="0.18"/><text x="336" y="65" font-family="Inter, sans-serif" font-size="11.5" font-weight="800" fill="#B57B00" text-anchor="middle" opacity="0.95">37× in a year</text></g>'
+// stick figure with a flag at the peak
++'<g stroke="#0F172A" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"><circle cx="450" cy="20" r="3.5" fill="#0F172A"/><line x1="450" y1="23" x2="450" y2="33"/><line x1="446" y1="28" x2="454" y2="28"/><line x1="450" y1="33" x2="446" y2="40"/><line x1="450" y1="33" x2="454" y2="40"/></g>'
+// flag pole
++'<g stroke="#E8453C" stroke-width="1.6" fill="none" stroke-linecap="round"><line x1="455" y1="6" x2="455" y2="20"/><path d="M 455 6 L 470 10 L 455 14 Z" fill="#E8453C" opacity="0.85" stroke="none"/></g>'
+// little dots tracking each day (sparse, on the curve)
++'<g fill="#6366F1" opacity="0.55"><circle cx="100" cy="167" r="1.6"/><circle cx="170" cy="165" r="1.6"/><circle cx="240" cy="160" r="1.8"/><circle cx="310" cy="148" r="2"/><circle cx="370" cy="118" r="2.2"/><circle cx="410" cy="78" r="2.4"/></g>'
+// tiny attribution label
++'<text x="245" y="14" font-family="Inter, sans-serif" font-size="9" font-weight="700" fill="#6366F1" text-anchor="middle" opacity="0.55" letter-spacing="1">THE 1% RULE</text>'
 +'</svg>';
 const TAB_HERO={
   tasks:{img:'1499951360447-b19be8fe80f5',h:'Make today count',s:'Small wins, stacked daily'},
