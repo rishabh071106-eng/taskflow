@@ -1208,7 +1208,8 @@ body[data-theme=aurora] .gcal-card p,body[data-theme=aurora] .gcal-evt-time{colo
 .inshort-feed{display:flex;flex-direction:column;gap:18px;padding-bottom:8px}
 .inshort{background:rgba(255,255,255,.96);border:1px solid rgba(15,23,42,.06);border-radius:22px;overflow:hidden;box-shadow:0 8px 32px rgba(15,23,42,.06);transition:transform .25s ease,box-shadow .25s ease;display:flex;flex-direction:row;align-items:stretch}
 .inshort:hover{transform:translateY(-3px);box-shadow:0 14px 38px rgba(15,23,42,.1)}
-.inshort-img{position:relative;flex:0 0 38%;width:38%;align-self:stretch;min-height:180px;aspect-ratio:auto;background-size:cover;background-position:center;background-color:#0F172A}
+.inshort-img{position:relative;flex:0 0 38%;width:38%;align-self:stretch;min-height:180px;aspect-ratio:auto;background-color:#0F172A;overflow:hidden}
+.inshort-img img{width:100%;height:100%;object-fit:cover;display:block}
 .inshort-img-placeholder{display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#6366F1,#EC4899)}
 .inshort-src{position:absolute;top:12px;left:12px;background:rgba(15,23,42,.85);color:#fff;font-size:11px;font-weight:700;padding:5px 10px;border-radius:30px;letter-spacing:.3px;backdrop-filter:blur(10px)}
 .inshort-body{padding:18px 20px 16px;flex:1;min-width:0;display:flex;flex-direction:column}
@@ -1270,44 +1271,6 @@ body[data-theme=aurora] .med-player-hd h2{color:#F5F5FA}
 body[data-theme=aurora] .med-player-hd p{color:#9999B5}
 body[data-theme=aurora] .med-tip{color:#9999B5;background:rgba(167,139,250,.1)}
 body[data-theme=aurora] .med-foot{color:#9999B5}
-
-/* LinkedIn microfrontend tab */
-.li-card{background:#fff;border:1px solid rgba(15,23,42,.06);border-radius:18px;padding:18px;box-shadow:0 1px 3px rgba(15,23,42,.04),0 4px 14px rgba(15,23,42,.06);display:flex;flex-direction:column;gap:14px}
-.li-acc{display:flex;align-items:center;gap:12px;padding:12px 14px;background:#F8FAFC;border:1px solid #E8E9EF;border-radius:12px}
-.li-acc-ic{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#4285F4,#34A853,#FBBC05,#EA4335);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;flex-shrink:0}
-.li-acc-body{flex:1;min-width:0}
-.li-acc-lbl{font-size:11px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.6px;margin-bottom:2px}
-.li-acc-email{font-size:14px;font-weight:600;color:#0F172A;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.li-acc-tag{font-size:11px;font-weight:700;color:#1A9E47;background:#EDFCF2;padding:4px 9px;border-radius:7px;text-transform:uppercase;letter-spacing:.5px}
-.li-acc-empty{flex-wrap:wrap}
-.li-connect{font-size:13px;font-weight:700;color:#fff;background:#0A66C2;padding:8px 14px;border-radius:9px;border:none;cursor:pointer}
-.li-connect:hover{background:#004182}
-.li-launch{border-radius:14px;background:linear-gradient(135deg,#F8FAFC,#EEF2FF);border:1px solid #E8E9EF;padding:36px 28px;display:flex;flex-direction:column;align-items:center;text-align:center}
-.li-launch-art{width:88px;height:88px;border-radius:22px;background:#0A66C2;color:#fff;display:flex;align-items:center;justify-content:center;margin-bottom:18px;box-shadow:0 12px 30px rgba(10,102,194,.32)}
-.li-launch-ttl{font-family:'Instrument Serif',Georgia,serif;font-size:26px;letter-spacing:-.01em;color:#0F172A;margin-bottom:8px;line-height:1.2}
-.li-launch-desc{font-size:14px;color:#64748B;line-height:1.55;max-width:460px;margin-bottom:14px}
-.li-steps{list-style:decimal;margin:0 0 22px 22px;padding:0;text-align:left;max-width:420px;font-size:13.5px;color:#475569;line-height:1.6}
-.li-steps li{margin-bottom:5px}
-.li-steps b{color:#0F172A}
-body[data-theme=aurora] .li-steps{color:#9999B5}
-body[data-theme=aurora] .li-steps b{color:#F5F5FA}
-.li-launch-acts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
-.li-cta{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:11px;background:#0A66C2;color:#fff;font-size:14px;font-weight:700;text-decoration:none;box-shadow:0 6px 18px rgba(10,102,194,.3);transition:transform .15s,box-shadow .15s}
-.li-cta:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(10,102,194,.4);background:#004182}
-.li-cta-sec{display:inline-flex;align-items:center;padding:12px 18px;border-radius:11px;background:#fff;color:#0A66C2;font-size:14px;font-weight:700;text-decoration:none;border:1.5px solid #CBD5E1;transition:border-color .15s,color .15s}
-.li-cta-sec:hover{border-color:#0A66C2;color:#004182}
-.li-foot{font-size:12px;color:#94A3B8;text-align:center;line-height:1.5}
-body[data-theme=aurora] .li-card{background:rgba(26,26,44,.7);border-color:rgba(255,255,255,.08)}
-body[data-theme=aurora] .li-acc{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08)}
-body[data-theme=aurora] .li-acc-lbl{color:#9999B5}
-body[data-theme=aurora] .li-acc-email{color:#F5F5FA}
-body[data-theme=aurora] .li-launch{background:linear-gradient(135deg,rgba(255,255,255,.03),rgba(167,139,250,.08));border-color:rgba(255,255,255,.08)}
-body[data-theme=aurora] .li-launch-ttl{color:#F5F5FA}
-body[data-theme=aurora] .li-launch-desc{color:#9999B5}
-body[data-theme=aurora] .li-cta-sec{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.15);color:#A78BFA}
-body[data-theme=aurora] .li-cta-sec:hover{border-color:#A78BFA;color:#fff}
-body[data-theme=aurora] .li-foot{color:#6B6B85}
-@media (max-width:600px){.li-launch{padding:28px 20px}.li-launch-ttl{font-size:22px}}
 
 /* Refined editorial tab nav */
 .tabs.page-t .tab{font-size:14px;font-weight:500;letter-spacing:-.005em;transition:color .15s ease,background .15s ease;color:var(--ink-3)}
@@ -1389,8 +1352,7 @@ flame:'<svg '+s+'><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.4-.5-2.4-1.5-3.5C8 
 moon:'<svg '+s+'><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor"/></svg>',
 sun:'<svg '+s+'><circle cx="12" cy="12" r="4" fill="currentColor"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.07" y2="4.93"/></svg>',
 refresh:'<svg '+s+'><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/><path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14"/></svg>',
-plus:'<svg '+s+'><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
-linkedin:'<svg width="'+sz+'" height="'+sz+'" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.852 3.37-1.852 3.601 0 4.267 2.37 4.267 5.455v6.288zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.063 2.063 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>'};return m[n]||''}
+plus:'<svg '+s+'><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'};return m[n]||''}
 const ST={pending:{l:'To Do',c:'#94A3B8',bg:'#F1F5F9'},'in-progress':{l:'Doing',c:'#3B82F6',bg:'#EFF6FF'},done:{l:'Done',c:'#3DAE5C',bg:'#F2FBF4'}};
 const fD=d=>d?new Date(d+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
 const fT=t=>{if(!t)return'';const[h,m]=t.split(':');const hr=+h;return(hr>12?hr-12:hr||12)+':'+m+' '+(hr>=12?'PM':'AM')};
@@ -1440,7 +1402,7 @@ function opE(id){const t=S.tasks.find(x=>x.id===id);if(!t)return;S.form={title:t
 function clM(){S.showAdd=false;S.editing=null;if(rec)try{rec.stop()}catch(e){}S.listening=false;render()}
 function stV(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){toast('\\u26A0\\uFE0F Voice not supported','err');return}rec=new SR();rec.continuous=false;rec.interimResults=true;rec.lang='en-US';rec.onresult=e=>{let t='';for(let i=0;i<e.results.length;i++)t+=e.results[i][0].transcript;if(e.results[0].isFinal){S.form.title=t;const l=t.toLowerCase();if(/urgent|important|asap/.test(l)){S.form.priority='high';S.form.title=S.form.title.replace(/urgent|important|asap/gi,'').trim()}if(/\\btoday\\b/.test(l))S.form.dueDate=new Date().toISOString().split('T')[0];else if(/\\btomorrow\\b/.test(l)){const d=new Date();d.setDate(d.getDate()+1);S.form.dueDate=d.toISOString().split('T')[0]}}else S.form.title=t;render()};rec.onend=()=>{S.listening=false;render()};rec.onerror=e=>{S.listening=false;toast('\\u26A0\\uFE0F '+e.error,'err');render()};rec.start();S.listening=true;render()}
 
-function switchTab(t){if(t==='steps')t='tasks';S.tab=t;if(t==='books'&&!S.books.length)loadBooks('all');if(t==='meditation'&&!S.meditations)loadMeditations();if(t==='news'&&!S.news[S.newsCat])loadNews(S.newsCat);if(t==='linkedin'&&!S.google.loaded)loadGoogleStatus();if(t==='cal'){if(!S.google.loaded)loadGoogleStatus();else if(S.google.accounts.length&&!S.gcalEvents.length&&!S.gcalLoading)loadGcalEvents()}render()}
+function switchTab(t){if(t==='steps')t='tasks';S.tab=t;if(t==='books'&&!S.books.length)loadBooks('all');if(t==='meditation'&&!S.meditations)loadMeditations();if(t==='news'&&!S.news[S.newsCat])loadNews(S.newsCat);if(t==='cal'){if(!S.google.loaded)loadGoogleStatus();else if(S.google.accounts.length&&!S.gcalEvents.length&&!S.gcalLoading)loadGcalEvents()}render()}
 async function loadNews(cat){S.newsCat=cat;S.newsLoading=true;render();try{const r=await fetch('/api/news?cat='+encodeURIComponent(cat),{cache:'no-store'});const j=await r.json();S.news[cat]=j.items||[]}catch(e){S.news[cat]=[]}S.newsLoading=false;render()}
 function shareNews(idx){const item=(S.news[S.newsCat]||[])[idx];if(!item)return;const url=item.link,title=item.title,text=(item.desc||'').slice(0,140);if(navigator.share){navigator.share({title,text,url}).catch(()=>{})}else{navigator.clipboard?.writeText(title+'\\n\\n'+url).then(()=>toast('\\u{1F517} Link copied')).catch(()=>toast('\\u26A0\\uFE0F Share unavailable','err'))}}
 function timeAgo(ds){if(!ds)return '';const d=new Date(ds);if(isNaN(d))return '';const s=(Date.now()-d.getTime())/1000;if(s<60)return 'just now';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';if(s<604800)return Math.floor(s/86400)+'d ago';return d.toLocaleDateString()}
@@ -1584,7 +1546,7 @@ const m=MORALS[S.moralIdx];
 h+='<div class="moral"><div class="moral-emoji">\\u{1F4A1}</div><div class="moral-body"><div class="moral-lbl">Moral of the Day</div><div class="moral-txt">"'+esc(m.t)+'"</div><div class="moral-by">\\u2014 '+esc(m.a)+'</div></div><button class="moral-ref" onclick="rotateMoral()" title="New quote">\\u21BB</button></div>';
 
 // Tabs
-h+='<nav class="tabs page-t">'+[{k:'tasks',l:'Tasks'},{k:'board',l:'Board'},{k:'cal',l:'Calendar'},{k:'dash',l:'Stats'},{k:'news',l:'News'},{k:'books',l:'Books'},{k:'meditation',l:'Meditate'},{k:'linkedin',l:'LinkedIn'}].map(x=>'<button class="tab'+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+ic(x.k,24)+'</span><span class="tl">'+x.l+'</span></button>').join('')+'</nav>';
+h+='<nav class="tabs page-t">'+[{k:'tasks',l:'Tasks'},{k:'board',l:'Board'},{k:'cal',l:'Calendar'},{k:'dash',l:'Stats'},{k:'news',l:'News'},{k:'books',l:'Books'},{k:'meditation',l:'Meditate'}].map(x=>'<button class="tab'+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+ic(x.k,24)+'</span><span class="tl">'+x.l+'</span></button>').join('')+'</nav>';
 
 h+='<main class="main-col">';
 h+='<div class="user-bar" style="cursor:pointer" onclick="openProfile()"><span>\\u{1F464} '+esc(S.user.name||S.user.phone)+' <span style="color:#94A3B8;font-size:11px">\\u203A Profile</span></span><button onclick="event.stopPropagation();logout()">Logout</button></div>';
@@ -1807,7 +1769,7 @@ else if(S.tab==='news'){
         const when=timeAgo(it.date);
         const srcName=(it.source||'').charAt(0).toUpperCase()+(it.source||'').slice(1);
         h+='<article class="inshort">';
-        if(img)h+='<div class="inshort-img" style="background-image:url(&quot;'+esc(img)+'&quot;)"><div class="inshort-src">'+esc(srcName)+'</div></div>';
+        if(img)h+='<div class="inshort-img"><img src="'+esc(img)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.classList.add(\\'inshort-img-placeholder\\');this.remove()"><div class="inshort-src">'+esc(srcName)+'</div></div>';
         else h+='<div class="inshort-img inshort-img-placeholder"><div class="inshort-src">'+esc(srcName)+'</div><div style="font-size:64px;opacity:.25">\\u{1F4F0}</div></div>';
         h+='<div class="inshort-body">';
         h+='<h3 class="inshort-title">'+esc(it.title||'')+'</h3>';
@@ -1858,36 +1820,6 @@ else if(S.tab==='meditation'){
   h+='<div class="med-foot">\\u{1F50A} Use headphones, find a quiet spot, and let the guide lead you.</div>';
 }
 
-// LINKEDIN TAB (microfrontend with default Gmail login)
-else if(S.tab==='linkedin'){
-  const def=(S.google.accounts||[]).find(a=>a.is_default)||(S.google.accounts||[])[0];
-  const gmail=def?def.email:'';
-  h+='<div class="section-hd"><span class="section-ic" style="background:#0A66C2">'+ic('linkedin',22)+'</span><div><h3>LinkedIn</h3><p>Microfrontend \\u2022 sign in with your default Gmail</p></div></div>';
-  h+='<div class="li-card">';
-  if(gmail){
-    h+='<div class="li-acc"><span class="li-acc-ic">G</span><div class="li-acc-body"><div class="li-acc-lbl">Default Google account</div><div class="li-acc-email">'+esc(gmail)+'</div></div><span class="li-acc-tag">in use</span></div>';
-  }else{
-    h+='<div class="li-acc li-acc-empty"><div class="li-acc-body"><div class="li-acc-lbl">No Google account connected</div><div class="li-acc-email">Connect Gmail in the Calendar tab to use it as your default LinkedIn login.</div></div><button class="li-connect" onclick="switchTab(\\'cal\\')">Connect Gmail</button></div>';
-  }
-  const liLogin='https://www.linkedin.com/login';
-  const liFeed='https://www.linkedin.com/feed/';
-  h+='<div class="li-launch">';
-  h+='<div class="li-launch-art">'+ic('linkedin',56)+'</div>';
-  h+='<div class="li-launch-ttl">Continue to LinkedIn</div>';
-  if(gmail){
-    h+='<div class="li-launch-desc">LinkedIn blocks in-app embedding for security, so we open it in a new tab. On the LinkedIn page, tap <b>"Continue with Google"</b> and pick <b>'+esc(gmail)+'</b> to sign in.</div>';
-    h+='<ol class="li-steps"><li>Tap the button below \\u2014 LinkedIn opens in a new tab.</li><li>On LinkedIn, choose <b>Continue with Google</b>.</li><li>Pick <b>'+esc(gmail)+'</b> in the Google chooser.</li></ol>';
-  }else{
-    h+='<div class="li-launch-desc">LinkedIn blocks in-app embedding, so we open it in a new tab. Connect a Google account in the Calendar tab to use it as your default LinkedIn login.</div>';
-  }
-  h+='<div class="li-launch-acts">';
-  h+='<a class="li-cta" href="'+liLogin+'" target="_blank" rel="noopener">'+ic('linkedin',18)+'<span>'+(gmail?'Open LinkedIn login':'Sign in to LinkedIn')+'</span></a>';
-  h+='<a class="li-cta-sec" href="'+liFeed+'" target="_blank" rel="noopener">Open feed \\u2197</a>';
-  h+='</div>';
-  h+='</div>';
-  h+='<div class="li-foot">Brodoit never sees your LinkedIn password. Authentication happens directly on linkedin.com.</div>';
-  h+='</div>';
-}
 
 
 h+='</main>';
