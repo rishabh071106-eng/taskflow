@@ -448,12 +448,14 @@ app.get('/api/weather',async(req,res)=>{
     if(!place)return res.json({error:'city_not_found',city});
     const lat=place.latitude,lon=place.longitude,cityName=place.name,country=place.country_code||'';
     const [wxR,aqR]=await Promise.all([
-      fetch('https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&current=temperature_2m,weather_code&temperature_unit=celsius').then(r=>r.json()).catch(()=>({})),
+      fetch('https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&current_weather=true').then(r=>r.json()).catch(()=>({})),
       fetch('https://air-quality-api.open-meteo.com/v1/air-quality?latitude='+lat+'&longitude='+lon+'&current=us_aqi').then(r=>r.json()).catch(()=>({}))
     ]);
-    const temp=Math.round(((wxR.current||{}).temperature_2m)||0);
-    const code=(wxR.current||{}).weather_code;
-    const aqi=Math.round(((aqR.current||{}).us_aqi)||0);
+    const cw=wxR&&wxR.current_weather;
+    const temp=cw&&typeof cw.temperature==='number'?Math.round(cw.temperature):null;
+    const code=cw?cw.weathercode:null;
+    const aqRaw=aqR&&aqR.current&&aqR.current.us_aqi;
+    const aqi=typeof aqRaw==='number'?Math.round(aqRaw):null;
     const data={city:cityName,country,lat,lon,temp,aqi,weatherCode:code};
     weatherCache[key]={ts:Date.now(),data};
     res.json(data);
@@ -824,7 +826,7 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
 @media (max-width:600px){.tabs{padding:4px;gap:4px}.tab{padding:11px 12px;font-size:12px}.tab .ti{font-size:15px}.tab .tl{font-size:11.5px}}
 /* Desktop sidebar layout */
 @media (min-width:1024px){
-  .app{max-width:1440px;padding:24px 32px 56px;display:grid;grid-template-columns:240px 1fr 1fr;grid-template-areas:"hdr hdr hdr" "topstrip moral moral" "nav main main";column-gap:24px;row-gap:14px}
+  .app{max-width:1440px;padding:24px 32px 56px;display:grid;grid-template-columns:240px 1.2fr 1fr;grid-template-areas:"hdr hdr hdr" "topstrip topstrip moral" "nav main main";column-gap:24px;row-gap:14px}
   .app>.hdr{grid-area:hdr;margin-bottom:0}
   .app>.top-strip{grid-area:topstrip;margin-bottom:0}
   .app>.moral{grid-area:moral;margin-bottom:0}
@@ -1217,7 +1219,14 @@ body:not([data-theme=aurora]) .chk.on{background:linear-gradient(135deg,#10B981,
 @keyframes bounceIn{0%{opacity:0;transform:scale(.9) translateY(10px)}60%{transform:scale(1.03) translateY(-2px)}100%{opacity:1;transform:scale(1) translateY(0)}}
 /* (removed) per-card bounceIn \u2014 was replaying on every tab switch */
 
-.hdr-actions{display:flex;align-items:center;gap:10px}
+.hdr-actions{display:flex;align-items:center;gap:8px}
+.hdr-profile{display:inline-flex;align-items:center;gap:7px;padding:7px 12px 7px 9px;border-radius:99px;background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.2);color:#0F172A;font-size:13px;font-weight:600;cursor:pointer;transition:transform .15s ease,background .15s ease;font-family:inherit}
+.hdr-profile:hover{background:rgba(99,102,241,.14);transform:translateY(-1px)}
+.hdr-profile svg{color:#6366F1}
+.hdr-profile-name{font-size:13px;letter-spacing:-.01em}
+@media (max-width:600px){.hdr-profile-name{display:none}.hdr-profile{padding:7px 8px}}
+body[data-theme=aurora] .hdr-profile{background:rgba(167,139,250,.14);border-color:rgba(167,139,250,.3);color:#F5F5FA}
+body[data-theme=aurora] .hdr-profile svg{color:#A78BFA}
 .theme-tg{width:38px;height:38px;border-radius:50%;background:#FFFFFF;border:1px solid #E8E9EF;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;transition:all .3s cubic-bezier(.4,1.5,.5,1);box-shadow:0 2px 8px rgba(0,0,0,.05)}
 .theme-tg:hover{transform:rotate(25deg) scale(1.1);box-shadow:0 4px 14px rgba(0,0,0,.1)}
 .theme-tg:active{transform:scale(.92)}
@@ -1567,7 +1576,8 @@ body[data-theme=aurora] .tc-added{color:#6B6B85;background:rgba(255,255,255,.04)
 .player{position:fixed;bottom:0;left:0;right:0;background:#0F172A;color:#F8FAFC;padding:10px 14px;box-shadow:0 -4px 20px rgba(0,0,0,.3);display:none;z-index:80}
 .player.on{display:flex;align-items:center;gap:10px}
 .player-info{flex:1;min-width:0}.player-title{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.player-author{font-size:11px;color:#94A3B8}
-.player audio{height:36px;max-width:220px}.player-close{padding:4px 10px;border-radius:6px;background:rgba(255,255,255,.1);font-size:11px;font-weight:600;color:#fff}
+.player audio{height:36px;max-width:220px}.player-close{padding:6px 12px;border-radius:8px;background:rgba(255,255,255,.18);font-size:14px;font-weight:700;color:#fff;border:1px solid rgba(255,255,255,.25);transition:background .15s ease}
+.player-close:hover{background:rgba(232,69,60,.85);border-color:rgba(232,69,60,.9)}
 .guide-card{background:#FFFFFF;border:1px solid #E8E9EF;border-radius:12px;padding:14px;margin-bottom:10px;border-left:4px solid #3DAE5C}
 .guide-card h3{font-size:14px;font-weight:700;margin-bottom:6px;color:#0F172A;display:flex;align-items:center;gap:8px}
 .guide-card h3 .num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:#3DAE5C;color:#fff;border-radius:50%;font-size:12px;font-family:'Space Mono',monospace}
@@ -1963,6 +1973,7 @@ books:[],booksLoading:false,booksCat:'all',bookSearch:'',playing:null,moralIdx:M
 knowledge:{loading:false,loaded:{},articles:{},events:[],topic:'history',sec:'today'},
 game:{active:false,board:Array(9).fill(null),turn:'X',status:'idle',winLine:null,wins:Number(localStorage.getItem('tf_ttt_wins')||0),losses:Number(localStorage.getItem('tf_ttt_losses')||0),draws:Number(localStorage.getItem('tf_ttt_draws')||0)},
 weather:{city:localStorage.getItem('tf_city')||'Bangalore',temp:null,aqi:null,country:'',loaded:false,loading:false,error:null},
+medCat:localStorage.getItem('tf_medcat')||'vipassana',
 waConnected:localStorage.getItem('wa_connected')==='1',showWAOnboard:false,activeMeditation:null,
 google:{configured:false,accounts:[],loaded:false},gcalEvents:[],gcalLoading:false,showGcalAdd:false,gcalForm:{title:'',date:'',time:'',duration:30,notes:'',email:''},
 calMonth:new Date(),calSelectedDate:new Date().toISOString().slice(0,10),
@@ -2221,15 +2232,23 @@ function openWAJoin(){const code=window.__TWILIO_SANDBOX_CODE||'along-wool';wind
 function saveBroDoitContact(){const a=document.createElement('a');a.href='/brodoit.vcf';a.download='BroDoit.vcf';document.body.appendChild(a);a.click();setTimeout(()=>document.body.removeChild(a),1000);toast('\\u{1F4D2} Downloading BroDoit contact \\u2014 open it to save')}
 function confirmWAJoined(){S.waConnected=true;localStorage.setItem('wa_connected','1');S.showWAOnboard=false;toast('\\u2705 WhatsApp connected');render()}
 function disconnectWA(){S.waConnected=false;localStorage.removeItem('wa_connected');toast('\\u23F8 WhatsApp disconnected');render()}
-// Vipassana-focused guided meditations with verified Internet Archive identifiers (audio plays directly)
+// Three categories x two durations = six English-language meditation audios verified on Internet Archive
 const MED_SLOTS=[
-{mins:10,title:'Mini Anāpāna',desc:'Goenka 10-min breath awareness — a calm starting point',color:'#06B6D4',directId:'MiniAnapanaTel'},
-{mins:15,title:'Anāpāna + Mettā',desc:'Breath awareness followed by loving-kindness',color:'#3B82F6',directId:'AnapanaEnglishMetta'},
-{mins:30,title:'Vipassana Body Scan',desc:'Full body sweep, observing sensations equanimously',color:'#8B5CF6',directId:'intro-practice-francais-mini-anapana-various-2017'},
-{mins:45,title:'Vipassana Standard Sit',desc:'Classic 45-minute body sweep — the core practice',color:'#EC4899',directId:'VipassanaBodyScanMeditation'},
-{mins:60,title:'Vipassana Long Sit',desc:'Extended seated practice — work seriously, work patiently',color:'#F59E0B',directId:'OshoOnVipassanaMeditation01'}
+{cat:'vipassana',mins:10,title:'Anāpāna + Mettā',desc:'English breath-awareness intro, ~12 min',color:'#06B6D4',directId:'AnapanaEnglishMetta'},
+{cat:'vipassana',mins:20,title:'Anāpāna · Long Sit',desc:'Extended breath-awareness practice',color:'#3B82F6',directId:'70_Minutes_Anapana_Part_1'},
+{cat:'music',mins:10,title:'Calming Music',desc:'Beautiful instrumental for a quick reset',color:'#8B5CF6',directId:'SleepMeditationCalming'},
+{cat:'music',mins:20,title:'Ambient Soundbath',desc:'Drift on slow, layered tones',color:'#EC4899',directId:'AmbientSoundbathPodcast'},
+{cat:'guided',mins:10,title:'Body Scan',desc:'Guided body scan led by Judith',color:'#10B981',directId:'JR12-2015-10-03-RTR-CIW-body-scan-meditation-judith'},
+{cat:'guided',mins:20,title:'Loving-Kindness',desc:'Guided practice with Ajahn Brahm',color:'#F59E0B',directId:'BSWA-Meditation'}
 ];
-async function loadMeditations(){if(S.medLoading)return;S.medLoading=true;S.meditations=S.meditations||{};render();await Promise.all(MED_SLOTS.map(async s=>{if(S.meditations[s.mins])return;if(s.directId){S.meditations[s.mins]={identifier:s.directId,title:s.title};return}try{const url='https://archive.org/advancedsearch.php?q='+encodeURIComponent(s.q)+'&fl[]=identifier&fl[]=title&fl[]=creator&fl[]=downloads&rows=1&output=json&sort[]=downloads+desc';const r=await fetch(url);const j=await r.json();S.meditations[s.mins]=(j.response&&j.response.docs&&j.response.docs[0])||null}catch(e){S.meditations[s.mins]=null}}));S.medLoading=false;render()}
+const MED_CATEGORIES=[
+  {k:'vipassana',l:'Vipassana',e:'\\u{1F9D8}\\u200D\\u2642\\uFE0F'},
+  {k:'music',l:'Music',e:'\\u{1F3B5}'},
+  {k:'guided',l:'Guided',e:'\\u{1F50A}'}
+];
+async function loadMeditations(){if(S.medLoading)return;S.medLoading=true;S.meditations=S.meditations||{};MED_SLOTS.forEach(s=>{if(s.directId&&!S.meditations[s.directId])S.meditations[s.directId]={identifier:s.directId,title:s.title}});S.medLoading=false;render()}
+function setMedCat(k){S.medCat=k;render()}
+function playMedDirect(id,title,mins){playMeditation(id,title,mins)}
 async function loadGoogleStatus(){const r=await api('/google/status');if(r){S.google={configured:!!r.configured,accounts:r.accounts||[],loaded:true};render();if(S.google.accounts.length&&S.tab==='cal')loadGcalEvents()}}
 async function connectGoogle(){const r=await api('/google/auth-url');if(!r||!r.url){toast('\\u26A0\\uFE0F Google integration is not configured yet. Ask admin to set GOOGLE_CLIENT_ID/SECRET.','err');return}const w=window.open(r.url,'_blank','width=520,height=640');if(!w){location.href=r.url;return}window.addEventListener('message',function onMsg(e){if(e.data&&e.data.type==='google-connected'){window.removeEventListener('message',onMsg);toast('\\u2705 Connected '+e.data.email);loadGoogleStatus()}},{once:false});const poll=setInterval(()=>{if(w.closed){clearInterval(poll);loadGoogleStatus()}},900)}
 async function disconnectGoogle(email){if(!confirm('Disconnect '+(email||'all Google accounts')+' from Brodoit Calendar?'))return;const r=await api('/google/disconnect',{method:'POST',body:JSON.stringify({email:email||''})});if(r&&r.ok){toast('\\u23F8 Disconnected');S.gcalEvents=[];loadGoogleStatus()}}
@@ -2387,7 +2406,8 @@ const PHONE_BANNER='<div class="phone-banner" aria-hidden="true">'
   +'<div class="phone-banner-img" style="background-image:url(&quot;https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=900&q=70&auto=format&fit=crop&quot;)"></div>'
   +'<div class="phone-banner-tag">\\u2022  T A S K S  \\u2022  B O O K S  \\u2022  W I S D O M  \\u2022  C A L M  \\u2022</div>'
 +'</div>';
-let h=PHONE_BANNER+'<div class="hdr"><div><div class="logo">Bro<span class="k">Do</span>it</div><div class="hdr-tagline">tasks &middot; books &middot; wisdom &middot; calm</div><div class="hdr-sub">'+JUMPER+HDR_TIME+'</div></div><div class="hdr-actions"><button class="theme-tg" onclick="toggleTheme()" title="Switch theme">'+(S.theme==='aurora'?ic('sun',18):ic('moon',18))+'</button></div></div>';
+const PROFILE_BTN='<button class="hdr-profile" onclick="openProfile()" title="'+esc(S.user.name||S.user.phone||'Profile')+'" aria-label="Profile"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg><span class="hdr-profile-name">'+esc((S.user.name||S.user.phone||'').split(' ')[0])+'</span></button>';
+let h=PHONE_BANNER+'<div class="hdr"><div><div class="logo">Bro<span class="k">Do</span>it</div><div class="hdr-tagline">tasks &middot; books &middot; wisdom &middot; calm</div><div class="hdr-sub">'+JUMPER+HDR_TIME+'</div></div><div class="hdr-actions">'+PROFILE_BTN+'<button class="theme-tg" onclick="toggleTheme()" title="Switch theme">'+(S.theme==='aurora'?ic('sun',18):ic('moon',18))+'</button></div></div>';
 
 // Moral chip
 const m=MORALS[S.moralIdx];
@@ -2461,7 +2481,7 @@ h+='<div class="moral">'+MORAL_DOODLE+'<div class="moral-emoji">\\u{1F4A1}</div>
 }
 
 h+='<main class="main-col">';
-h+='<div class="user-bar" style="cursor:pointer" onclick="openProfile()"><span>\\u{1F464} '+esc(S.user.name||S.user.phone)+' <span style="color:#94A3B8;font-size:11px">\\u203A Profile</span></span><button onclick="event.stopPropagation();logout()">Logout</button></div>';
+// User-bar removed from main column — Profile lives in the header top-right; Logout is reachable via the profile modal
 h+='<div class="section-div" aria-hidden="true"></div>';
 
 // Scenic tab hero — rendered at top of every tab EXCEPT Tasks (where it moves to the bottom of the list)
@@ -2742,21 +2762,23 @@ else if(S.tab==='books'){
   }
 }
 
-// MEDITATION TAB
+// MEDITATION TAB — three categories with 2 audios each (10 + 20 min)
 else if(S.tab==='meditation'){
-  h+='<div class="section-hd"><span class="section-ic">'+ic('meditation',22)+'</span><div><h3>Vipassana Meditation</h3><p>Guided sittings from Anāpāna to a full hour \\u2022 standard durations</p></div></div>';
-  if(S.medLoading&&!S.meditations)h+='<div class="loading">Finding guided meditations...</div>';
+  const cat=S.medCat||'vipassana';
+  h+='<div class="section-hd"><span class="section-ic">'+ic('meditation',22)+'</span><div><h3>Meditation</h3><p>Vipassana \\u2022 Music \\u2022 Guided \\u2022 short sittings in English</p></div></div>';
+  // Category pills
+  h+='<div class="mag-pills" style="margin-bottom:14px">';
+  MED_CATEGORIES.forEach(c=>{h+='<button class="mag-pill'+(cat===c.k?' on':'')+'" onclick="setMedCat(\\''+c.k+'\\')"><span class="mag-pill-e">'+c.e+'</span>'+esc(c.l)+'</button>'});
+  h+='</div>';
+  if(S.medLoading&&!S.meditations)h+='<div class="loading">Finding meditations...</div>';
   h+='<div class="med-grid">';
-  MED_SLOTS.forEach(x=>{
-    const doc=(S.meditations||{})[x.mins];
+  MED_SLOTS.filter(s=>s.cat===cat).forEach(x=>{
+    const doc=(S.meditations||{})[x.directId];
     const ready=!!doc;
-    const id=ready?doc.identifier:'';
-    const realTitle=ready?(Array.isArray(doc.title)?doc.title[0]:doc.title):'';
-    const subtitle=ready?(realTitle.length>72?realTitle.slice(0,72)+'\\u2026':realTitle):x.desc;
-    const onclick=ready?('playMedSlot('+x.mins+')'):'toast(\\'\\u23F3 Loading audio...\\',\\'err\\')';
+    const onclick=ready?('playMedDirect(\\''+x.directId+'\\',\\''+esc(x.title).replace(/\\\\u/g,'\\\\\\\\u')+'\\','+x.mins+')'):'toast(\\'\\u23F3 Loading audio...\\',\\'err\\')';
     h+='<button class="med-card'+(ready?'':' loading')+'" onclick="'+onclick+'" style="--mc:'+x.color+'">';
     h+='<div class="med-card-mins"><b>'+x.mins+'</b><small>min</small></div>';
-    h+='<div class="med-card-body"><div class="med-card-title">'+esc(x.title)+'</div><div class="med-card-desc">'+esc(subtitle)+'</div></div>';
+    h+='<div class="med-card-body"><div class="med-card-title">'+esc(x.title)+'</div><div class="med-card-desc">'+esc(x.desc)+'</div></div>';
     h+='<div class="med-card-play">'+(ready?'<svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>':'<div class="med-load-dot"></div>')+'</div>';
     h+='</button>';
   });
