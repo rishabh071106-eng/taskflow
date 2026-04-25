@@ -1280,24 +1280,27 @@ body[data-theme=aurora] .med-foot{color:#9999B5}
 .li-acc-empty{flex-wrap:wrap}
 .li-connect{font-size:13px;font-weight:700;color:#fff;background:#0A66C2;padding:8px 14px;border-radius:9px;border:none;cursor:pointer}
 .li-connect:hover{background:#004182}
-.li-frame-wrap{position:relative;border-radius:14px;overflow:hidden;background:#F1F5F9;border:1px solid #E8E9EF;min-height:420px;display:flex;align-items:center;justify-content:center}
-.li-frame{width:100%;height:520px;border:0;display:block;background:#fff;position:relative;z-index:1}
-.li-frame-fallback{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;background:linear-gradient(135deg,#F8FAFC,#EEF2FF);z-index:0}
-.li-fb-ttl{font-family:'Instrument Serif',Georgia,serif;font-size:22px;color:#0F172A;margin-bottom:6px}
-.li-fb-desc{font-size:13.5px;color:#64748B;line-height:1.5;max-width:380px;margin-bottom:16px}
-.li-cta{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:11px;background:#0A66C2;color:#fff;font-size:14px;font-weight:700;text-decoration:none;box-shadow:0 6px 18px rgba(10,102,194,.3);transition:transform .15s,box-shadow .15s}
+.li-launch{border-radius:14px;background:linear-gradient(135deg,#F8FAFC,#EEF2FF);border:1px solid #E8E9EF;padding:36px 28px;display:flex;flex-direction:column;align-items:center;text-align:center}
+.li-launch-art{width:88px;height:88px;border-radius:22px;background:#0A66C2;color:#fff;display:flex;align-items:center;justify-content:center;margin-bottom:18px;box-shadow:0 12px 30px rgba(10,102,194,.32)}
+.li-launch-ttl{font-family:'Instrument Serif',Georgia,serif;font-size:26px;letter-spacing:-.01em;color:#0F172A;margin-bottom:8px;line-height:1.2}
+.li-launch-desc{font-size:14px;color:#64748B;line-height:1.55;max-width:440px;margin-bottom:22px}
+.li-launch-acts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.li-cta{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:11px;background:#0A66C2;color:#fff;font-size:14px;font-weight:700;text-decoration:none;box-shadow:0 6px 18px rgba(10,102,194,.3);transition:transform .15s,box-shadow .15s}
 .li-cta:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(10,102,194,.4);background:#004182}
+.li-cta-sec{display:inline-flex;align-items:center;padding:12px 18px;border-radius:11px;background:#fff;color:#0A66C2;font-size:14px;font-weight:700;text-decoration:none;border:1.5px solid #CBD5E1;transition:border-color .15s,color .15s}
+.li-cta-sec:hover{border-color:#0A66C2;color:#004182}
 .li-foot{font-size:12px;color:#94A3B8;text-align:center;line-height:1.5}
 body[data-theme=aurora] .li-card{background:rgba(26,26,44,.7);border-color:rgba(255,255,255,.08)}
 body[data-theme=aurora] .li-acc{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08)}
 body[data-theme=aurora] .li-acc-lbl{color:#9999B5}
 body[data-theme=aurora] .li-acc-email{color:#F5F5FA}
-body[data-theme=aurora] .li-frame-wrap{background:#15152A;border-color:rgba(255,255,255,.08)}
-body[data-theme=aurora] .li-frame-fallback{background:linear-gradient(135deg,rgba(255,255,255,.03),rgba(167,139,250,.08))}
-body[data-theme=aurora] .li-fb-ttl{color:#F5F5FA}
-body[data-theme=aurora] .li-fb-desc{color:#9999B5}
+body[data-theme=aurora] .li-launch{background:linear-gradient(135deg,rgba(255,255,255,.03),rgba(167,139,250,.08));border-color:rgba(255,255,255,.08)}
+body[data-theme=aurora] .li-launch-ttl{color:#F5F5FA}
+body[data-theme=aurora] .li-launch-desc{color:#9999B5}
+body[data-theme=aurora] .li-cta-sec{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.15);color:#A78BFA}
+body[data-theme=aurora] .li-cta-sec:hover{border-color:#A78BFA;color:#fff}
 body[data-theme=aurora] .li-foot{color:#6B6B85}
-@media (max-width:600px){.li-frame{height:420px}.li-frame-wrap{min-height:340px}}
+@media (max-width:600px){.li-launch{padding:28px 20px}.li-launch-ttl{font-size:22px}}
 
 /* Refined editorial tab nav */
 .tabs.page-t .tab{font-size:14px;font-weight:500;letter-spacing:-.005em;transition:color .15s ease,background .15s ease;color:var(--ink-3)}
@@ -1860,8 +1863,17 @@ else if(S.tab==='linkedin'){
     h+='<div class="li-acc li-acc-empty"><div class="li-acc-body"><div class="li-acc-lbl">No Google account connected</div><div class="li-acc-email">Connect Gmail in the Calendar tab to use it as your default LinkedIn login.</div></div><button class="li-connect" onclick="switchTab(\\'cal\\')">Connect Gmail</button></div>';
   }
   const liUrl='https://www.linkedin.com/login'+(gmail?'?session_redirect=%2Ffeed%2F&loginAttempt=true&email='+encodeURIComponent(gmail):'');
-  h+='<div class="li-frame-wrap"><iframe class="li-frame" src="https://www.linkedin.com/embed/feed/" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox" referrerpolicy="origin" loading="lazy" title="LinkedIn"></iframe><div class="li-frame-fallback"><div class="li-fb-ttl">LinkedIn embed blocked by the browser</div><div class="li-fb-desc">LinkedIn restricts in-app embedding. Continue in a new tab \\u2014 your Gmail is pre-filled.</div><a class="li-cta" href="'+liUrl+'" target="_blank" rel="noopener">'+ic('linkedin',18)+'<span>Continue '+(gmail?'as '+esc(gmail.split('@')[0]):'to LinkedIn')+'</span></a></div></div>';
-  h+='<div class="li-foot">Brodoit never sees your LinkedIn password. Auth happens directly on linkedin.com.</div>';
+  const liFeed='https://www.linkedin.com/feed/';
+  h+='<div class="li-launch">';
+  h+='<div class="li-launch-art">'+ic('linkedin',56)+'</div>';
+  h+='<div class="li-launch-ttl">Open LinkedIn'+(gmail?' as '+esc(gmail.split('@')[0]):'')+'</div>';
+  h+='<div class="li-launch-desc">LinkedIn doesn\\'t allow other apps to embed its feed for security. Tap below to launch LinkedIn in a new tab \\u2014 '+(gmail?'your Gmail is pre-filled so you can sign in with one tap.':'sign in with any account.')+'</div>';
+  h+='<div class="li-launch-acts">';
+  h+='<a class="li-cta" href="'+liUrl+'" target="_blank" rel="noopener">'+ic('linkedin',18)+'<span>'+(gmail?'Sign in with Gmail':'Sign in to LinkedIn')+'</span></a>';
+  h+='<a class="li-cta-sec" href="'+liFeed+'" target="_blank" rel="noopener">Open feed \\u2197</a>';
+  h+='</div>';
+  h+='</div>';
+  h+='<div class="li-foot">Brodoit never sees your LinkedIn password. Authentication happens directly on linkedin.com.</div>';
   h+='</div>';
 }
 
