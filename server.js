@@ -338,11 +338,20 @@ app.get('/brodoit.vcf',(_,res)=>{
 
 // ═══ NEWS (shorts feed, RSS aggregator, 15-min server cache) ═══
 const NEWS_FEEDS={
-  ai:['https://techcrunch.com/category/artificial-intelligence/feed/','https://venturebeat.com/category/ai/feed/','https://www.theverge.com/rss/ai-artificial-intelligence/index.xml'],
+  ai:['https://techcrunch.com/category/artificial-intelligence/feed/','https://venturebeat.com/category/ai/feed/','https://www.theverge.com/rss/ai-artificial-intelligence/index.xml','https://www.technologyreview.com/feed/','https://openai.com/blog/rss.xml'],
   sports:['https://feeds.bbci.co.uk/sport/rss.xml','https://www.espn.com/espn/rss/news','https://www.skysports.com/rss/12040'],
   technology:['https://techcrunch.com/feed/','https://www.theverge.com/rss/index.xml','https://feeds.arstechnica.com/arstechnica/index','https://www.wired.com/feed/rss'],
   movies:['https://variety.com/v/film/feed/','https://www.hollywoodreporter.com/c/movies/movie-news/feed/','https://www.indiewire.com/c/film/feed/'],
   global:['https://feeds.bbci.co.uk/news/world/rss.xml','https://feeds.reuters.com/reuters/topNews','https://rss.nytimes.com/services/xml/rss/nyt/World.xml','https://feeds.npr.org/1004/rss.xml']
+};
+// Scenic Unsplash fallbacks (hot-link friendly CDN) — used when an article has no image
+const UNSPLASH=(id)=>'https://images.unsplash.com/photo-'+id+'?w=900&q=80&auto=format&fit=crop';
+const FALLBACK_IMAGES={
+  ai:[UNSPLASH('1677442136019-21780ecad995'),UNSPLASH('1620712943543-bcc4688e7485'),UNSPLASH('1488229297570-58520851e868'),UNSPLASH('1518770660439-4636190af475'),UNSPLASH('1551434678-e076c223a692'),UNSPLASH('1485827404703-89b55fcc595e')],
+  sports:[UNSPLASH('1461896836934-ffe607ba8211'),UNSPLASH('1517649763962-0c623066013b'),UNSPLASH('1556056504-5c7696c4c28d'),UNSPLASH('1431324155629-1a6deb1dec8d'),UNSPLASH('1574629810360-7efbbe195018'),UNSPLASH('1552674605-db6ffd4facb5')],
+  technology:[UNSPLASH('1518770660439-4636190af475'),UNSPLASH('1451187580459-43490279c0fa'),UNSPLASH('1531297484001-80022131f5a1'),UNSPLASH('1550751827-4bd374c3f58b'),UNSPLASH('1581091226825-a6a2a5aee158'),UNSPLASH('1460925895917-afdab827c52f')],
+  movies:[UNSPLASH('1489599849927-2ee91cede3ba'),UNSPLASH('1536440136628-849c177e76a1'),UNSPLASH('1517604931442-7e0c8ed2963c'),UNSPLASH('1542204165-65bf26472b9b'),UNSPLASH('1485846234645-a62644f84728'),UNSPLASH('1440404653325-ab127d49abc1')],
+  global:[UNSPLASH('1506905925346-21bda4d32df4'),UNSPLASH('1469854523086-cc02fe5d8800'),UNSPLASH('1501785888041-af3ef285b470'),UNSPLASH('1502602898657-3e91760cbb34'),UNSPLASH('1480714378408-67cf0d13bc1b'),UNSPLASH('1564507592333-c60657eea523')]
 };
 const newsCache={};
 function stripXmlTags(s){return (s||'').replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g,'$1').replace(/<[^>]+>/g,'').replace(/&#(\d+);/g,(_,n)=>String.fromCharCode(+n)).replace(/&#x([0-9a-f]+);/gi,(_,n)=>String.fromCharCode(parseInt(n,16))).replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&apos;/g,"'").replace(/&nbsp;/g,' ').replace(/\s+/g,' ').trim()}
@@ -368,6 +377,9 @@ function parseRSS(xml,sourceUrl){
 async function fetchFeed(url){
   try{const ctrl=new AbortController();const t=setTimeout(()=>ctrl.abort(),9000);const r=await fetch(url,{signal:ctrl.signal,headers:{'User-Agent':'Brodoit/1.0 (+https://brodoit.com)','Accept':'application/rss+xml,application/atom+xml,application/xml,text/xml,*/*'}});clearTimeout(t);if(!r.ok)return [];const x=await r.text();return parseRSS(x,url)}catch(e){return []}
 }
+async function fetchOgImage(url){
+  try{const ctrl=new AbortController();const t=setTimeout(()=>ctrl.abort(),3500);const r=await fetch(url,{signal:ctrl.signal,headers:{'User-Agent':'Mozilla/5.0 (compatible; Brodoit/1.0; +https://brodoit.com)','Accept':'text/html,application/xhtml+xml'}});clearTimeout(t);if(!r.ok)return null;const html=await r.text();const head=html.slice(0,80000);const patterns=[/<meta[^>]+property=["']og:image(?::secure_url)?["'][^>]+content=["']([^"']+)["']/i,/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image(?::secure_url)?["']/i,/<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["']/i,/<meta[^>]+content=["']([^"']+)["'][^>]+name=["']twitter:image["']/i];for(const p of patterns){const m=head.match(p);if(m&&m[1])return m[1].replace(/&amp;/g,'&')}return null;}catch(e){return null}
+}
 app.get('/api/news',async(req,res)=>{
   const cat=(req.query.cat||'technology').toLowerCase();
   const feeds=NEWS_FEEDS[cat];
@@ -379,6 +391,18 @@ app.get('/api/news',async(req,res)=>{
   all.sort((a,b)=>{const da=new Date(a.date||0).getTime()||0,db=new Date(b.date||0).getTime()||0;return db-da});
   const seen=new Set();const dedup=[];
   for(const it of all){const k=(it.title||'').toLowerCase().slice(0,60);if(seen.has(k))continue;seen.add(k);dedup.push(it);if(dedup.length>=25)break}
+  // Enrich items missing img by scraping og:image (top 12 in parallel, ~3.5s each, capped overall)
+  const toEnrich=dedup.filter(it=>!it.img&&it.link).slice(0,12);
+  if(toEnrich.length){
+    await Promise.race([
+      Promise.all(toEnrich.map(async it=>{const og=await fetchOgImage(it.link);if(og)it.img=og})),
+      new Promise(r=>setTimeout(r,7000))
+    ]);
+  }
+  // Anything still without an image gets a curated scenic Unsplash fallback
+  const fb=FALLBACK_IMAGES[cat]||FALLBACK_IMAGES.global;
+  let fbIdx=0;
+  for(const it of dedup){if(!it.img){it.img=fb[fbIdx%fb.length];it.imgFallback=true;fbIdx++}}
   newsCache[cat]={ts:Date.now(),items:dedup};
   res.json({items:dedup,cat,cached:false});
 });
