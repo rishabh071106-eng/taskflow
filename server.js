@@ -538,6 +538,13 @@ body[data-theme=aurora] .top-strip .side-now-date{color:#9999B5}
 .climber-2{color:#3DAE5C;animation-delay:5.3s}
 .climber-3{color:#E8453C;animation-delay:10.6s}
 .climb-peak{position:absolute;top:6px;right:10px;width:18px;height:18px;color:#E8912C;animation:peakBlink 1.8s ease-in-out infinite;z-index:2}
+.walker{position:absolute;width:14px;height:20px;animation:walkAcross 14s linear infinite;will-change:left;z-index:1;opacity:.55}
+.walker-a{color:#94A3B8;bottom:4%;animation-delay:0s}
+.walker-b{color:#6366F1;bottom:4%;animation-delay:7s;animation-duration:11s}
+.walker-c{color:#3DAE5C;bottom:32%;animation-delay:3.5s;animation-duration:13s}
+@keyframes walkAcross{from{left:-6%}to{left:104%}}
+.celebrator{position:absolute;top:6px;right:36px;width:20px;height:24px;color:#E8912C;z-index:2;animation:celebrate 1.1s ease-in-out infinite;transform-origin:50% 100%}
+@keyframes celebrate{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-4px) rotate(4deg)}}
 .section-div::before{content:'';position:absolute;top:50%;left:50%;width:8px;height:8px;border-radius:50%;background:#fff;border:2px solid rgba(99,102,241,.55);transform:translate(-50%,-50%);box-shadow:0 0 0 0 rgba(99,102,241,.45);animation:nodePulse 3s ease-in-out infinite}
 @keyframes nodePulse{0%,100%{box-shadow:0 0 0 0 rgba(99,102,241,.45)}50%{box-shadow:0 0 0 8px rgba(99,102,241,0)}}
 body[data-theme=aurora] .section-div{background:linear-gradient(90deg,transparent 0%,rgba(167,139,250,.22) 50%,transparent 100%)}
@@ -673,6 +680,14 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
   /* Sparkle trail at the top of the climb scene */
   .climb-peak{position:absolute;top:6px;right:10px;width:18px;height:18px;color:#E8912C;animation:peakBlink 1.8s ease-in-out infinite;z-index:2}
   @keyframes peakBlink{0%,100%{opacity:.4;transform:scale(.9)}50%{opacity:1;transform:scale(1.15)}}
+  /* Ambient horizontal walkers + celebrator at the peak (extra people moving around) */
+  .walker{position:absolute;width:14px;height:20px;animation:walkAcross 14s linear infinite;will-change:left;z-index:1;opacity:.55}
+  .walker-a{color:#94A3B8;bottom:4%;animation-delay:0s}
+  .walker-b{color:#6366F1;bottom:4%;animation-delay:7s;animation-duration:11s}
+  .walker-c{color:#3DAE5C;bottom:32%;animation-delay:3.5s;animation-duration:13s}
+  @keyframes walkAcross{from{left:-6%}to{left:104%}}
+  .celebrator{position:absolute;top:6px;right:36px;width:20px;height:24px;color:#E8912C;z-index:2;animation:celebrate 1.1s ease-in-out infinite;transform-origin:50% 100%}
+  @keyframes celebrate{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-4px) rotate(4deg)}}
   body[data-theme=aurora] .app>.tabs.page-t .climb-scene{background:linear-gradient(180deg,rgba(167,139,250,.06) 0%,rgba(232,145,44,.05) 100%);border-color:rgba(167,139,250,.2)}
   body[data-theme=aurora] .climb-caption{color:#A78BFA}
   body[data-theme=aurora] .app>.tabs.page-t .side-now{background:linear-gradient(135deg,rgba(167,139,250,.12),rgba(232,145,44,.08));border-color:rgba(167,139,250,.2)}
@@ -1545,33 +1560,71 @@ news:'<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://
 books:'<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 8 C 16 8 11 5 4 6 L 4 25 C 11 24 16 27 16 27 L 16 8 Z" fill="currentColor" opacity="0.55"/><path d="M16 8 C 16 8 21 5 28 6 L 28 25 C 21 24 16 27 16 27 L 16 8 Z" fill="currentColor" opacity="0.85"/><line x1="8" y1="11" x2="13" y2="11.6" stroke="#fff" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/><line x1="8" y1="15" x2="13" y2="15.6" stroke="#fff" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/><line x1="19" y1="11.6" x2="24" y2="11" stroke="#fff" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/><line x1="19" y1="15.6" x2="24" y2="15" stroke="#fff" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/></svg>',
 meditation:'<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="13" fill="currentColor" opacity="0.14"/><circle cx="16" cy="16" r="9" fill="currentColor" opacity="0.18"/><circle cx="16" cy="9.5" r="3" fill="currentColor"/><path d="M9 22 C 11 17 14 16 16 16 C 18 16 21 17 23 22 C 22 23.5 18.5 24 16 24 C 13.5 24 10 23.5 9 22 Z" fill="currentColor"/><path d="M5 19 C 8 22 11 22 12 21" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.75"/><path d="M27 19 C 24 22 21 22 20 21" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.75"/></svg>'
 };
-// "Rise Together" doodle — a chain of 4 people climbing the same curve, helping each other up
+// "Rise Together" doodle — 4 animated figures climbing the same curve, holding hands; full SMIL animation
 const MORAL_DOODLE='<svg class="moral-doodle" viewBox="0 0 520 200" preserveAspectRatio="xMaxYMid meet" xmlns="http://www.w3.org/2000/svg">'
 // dashed shadow under curve (hand-drawn vibe)
 +'<path d="M 30 175 C 150 172 240 162 330 130 S 460 40 510 18" stroke="#E8912C" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-dasharray="2 6" opacity="0.55" transform="translate(2 3)"/>'
-// soft area fill below curve (gives the slope visual weight)
 +'<path d="M 30 175 C 150 172 240 162 330 130 S 460 40 510 18 L 510 180 L 30 180 Z" fill="url(#grow)" opacity="0.22"/>'
 +'<defs><linearGradient id="grow" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" stop-color="#3DAE5C"/><stop offset="100%" stop-color="#E8912C"/></linearGradient></defs>'
-// main rising curve
-+'<path d="M 30 175 C 150 172 240 162 330 130 S 460 40 510 18" stroke="#6366F1" stroke-width="3.2" fill="none" stroke-linecap="round" opacity="0.85"/>'
-// chain of hands connecting all 4 figures (a wavy line passing through their hands)
-+'<path d="M 95 152 Q 175 148 215 132 T 320 102 T 415 60 T 490 22" stroke="#0F172A" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0.55" stroke-dasharray="0"/>'
-// FIGURE 1 (purple) — bottom of the climb, lifting arm forward
-+'<g stroke="#6366F1" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="105" cy="148" r="6" fill="#6366F1"/><line x1="105" y1="154" x2="105" y2="170"/><line x1="105" y1="160" x2="93" y2="166"/><line x1="105" y1="160" x2="118" y2="152"/><line x1="105" y1="170" x2="98" y2="180"/><line x1="105" y1="170" x2="112" y2="180"/></g>'
-// FIGURE 2 (green) — bit higher, reaching back and forward
-+'<g stroke="#3DAE5C" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="215" cy="128" r="6.5" fill="#3DAE5C"/><line x1="215" y1="135" x2="215" y2="152"/><line x1="215" y1="142" x2="200" y2="138"/><line x1="215" y1="142" x2="232" y2="132"/><line x1="215" y1="152" x2="208" y2="164"/><line x1="215" y1="152" x2="222" y2="164"/></g>'
-// FIGURE 3 (orange) — higher, pulling figure 4 up
-+'<g stroke="#E8912C" stroke-width="2.7" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="320" cy="98" r="7" fill="#E8912C"/><line x1="320" y1="105" x2="320" y2="124"/><line x1="320" y1="112" x2="305" y2="108"/><line x1="320" y1="112" x2="338" y2="100"/><line x1="320" y1="124" x2="312" y2="138"/><line x1="320" y1="124" x2="328" y2="138"/></g>'
-// FIGURE 4 (red) — at the top, arms raised in celebration with a flag
-+'<g stroke="#E8453C" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="490" cy="22" r="7" fill="#E8453C"/><line x1="490" y1="29" x2="490" y2="48"/><line x1="490" y1="34" x2="478" y2="22"/><line x1="490" y1="34" x2="502" y2="22"/><line x1="490" y1="48" x2="482" y2="60"/><line x1="490" y1="48" x2="498" y2="60"/></g>'
-// flag held by figure 4
-+'<g><line x1="502" y1="22" x2="502" y2="4" stroke="#0F172A" stroke-width="1.8" stroke-linecap="round"/><path d="M 502 4 L 520 8 L 502 14 Z" fill="#E8453C" opacity="0.95"/></g>'
-// sparkle stars around the celebrating figure
-+'<g fill="#E8912C" opacity="0.85"><path d="M 460 10 l 1.5 -4 1.5 4 4 0 -3 2.5 1.2 4 -3.7 -2.4 -3.7 2.4 1.2 -4 -3 -2.5 z"/><path d="M 510 50 l 1.2 -3 1.2 3 3.2 0 -2.4 2 1 3.2 -3 -2 -3 2 1 -3.2 -2.4 -2 z"/></g>'
-// "+1% daily" pill near figure 1 with leader line
-+'<g><line x1="120" y1="140" x2="142" y2="118" stroke="#1A9E47" stroke-width="1.4" opacity="0.7"/><rect x="138" y="100" width="76" height="22" rx="11" fill="#3DAE5C" opacity="0.95"/><text x="176" y="115" font-family="Inter, sans-serif" font-size="11.5" font-weight="800" fill="#FFFFFF" text-anchor="middle">+1% daily</text></g>'
-// "Rise Together" pill near top with leader line
-+'<g><line x1="445" y1="42" x2="380" y2="62" stroke="#B57B00" stroke-width="1.4" opacity="0.7"/><rect x="270" y="62" width="118" height="24" rx="12" fill="#E8912C" opacity="0.95"/><text x="329" y="78" font-family="Inter, sans-serif" font-size="12" font-weight="800" fill="#FFFFFF" text-anchor="middle">Rise together \\u2197</text></g>'
+// main rising curve — animate stroke draw on a slow loop
++'<path d="M 30 175 C 150 172 240 162 330 130 S 460 40 510 18" stroke="#6366F1" stroke-width="3.2" fill="none" stroke-linecap="round" opacity="0.85" stroke-dasharray="700" stroke-dashoffset="0"><animate attributeName="stroke-dashoffset" values="700;0;0;-700" keyTimes="0;0.45;0.55;1" dur="6s" repeatCount="indefinite"/></path>'
+// chain of hands connecting figures — animate dashoffset to look like it\\'s being drawn between climbs
++'<path d="M 95 152 Q 175 148 215 132 T 320 102 T 415 60 T 490 22" stroke="#0F172A" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0.55" stroke-dasharray="6 4"><animate attributeName="stroke-dashoffset" values="0;-40" dur="2.2s" repeatCount="indefinite"/></path>'
+// FIGURE 1 (purple) — bobs as it climbs, with swinging legs
++'<g stroke="#6366F1" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round">'
+  +'<circle cx="105" cy="148" r="6" fill="#6366F1"/><line x1="105" y1="154" x2="105" y2="170"/><line x1="105" y1="160" x2="93" y2="166"/><line x1="105" y1="160" x2="118" y2="152"/>'
+  +'<line x1="105" y1="170" x2="98" y2="180"><animate attributeName="x2" values="98;112;98" dur=".6s" repeatCount="indefinite"/><animate attributeName="y2" values="180;176;180" dur=".6s" repeatCount="indefinite"/></line>'
+  +'<line x1="105" y1="170" x2="112" y2="180"><animate attributeName="x2" values="112;98;112" dur=".6s" repeatCount="indefinite"/><animate attributeName="y2" values="180;176;180" dur=".6s" repeatCount="indefinite"/></line>'
+  +'<animateTransform attributeName="transform" type="translate" values="0 0;0 -2;0 0" dur=".6s" repeatCount="indefinite"/>'
++'</g>'
+// FIGURE 2 (green) — same walk-bob, slightly offset
++'<g stroke="#3DAE5C" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round">'
+  +'<circle cx="215" cy="128" r="6.5" fill="#3DAE5C"/><line x1="215" y1="135" x2="215" y2="152"/><line x1="215" y1="142" x2="200" y2="138"/><line x1="215" y1="142" x2="232" y2="132"/>'
+  +'<line x1="215" y1="152" x2="208" y2="164"><animate attributeName="x2" values="208;222;208" dur=".55s" repeatCount="indefinite"/><animate attributeName="y2" values="164;160;164" dur=".55s" repeatCount="indefinite"/></line>'
+  +'<line x1="215" y1="152" x2="222" y2="164"><animate attributeName="x2" values="222;208;222" dur=".55s" repeatCount="indefinite"/><animate attributeName="y2" values="164;160;164" dur=".55s" repeatCount="indefinite"/></line>'
+  +'<animateTransform attributeName="transform" type="translate" values="0 0;0 -2.5;0 0" dur=".55s" begin="0.15s" repeatCount="indefinite"/>'
++'</g>'
+// FIGURE 3 (orange) — also bobs
++'<g stroke="#E8912C" stroke-width="2.7" fill="none" stroke-linecap="round" stroke-linejoin="round">'
+  +'<circle cx="320" cy="98" r="7" fill="#E8912C"/><line x1="320" y1="105" x2="320" y2="124"/><line x1="320" y1="112" x2="305" y2="108"/><line x1="320" y1="112" x2="338" y2="100"/>'
+  +'<line x1="320" y1="124" x2="312" y2="138"><animate attributeName="x2" values="312;328;312" dur=".58s" repeatCount="indefinite"/><animate attributeName="y2" values="138;134;138" dur=".58s" repeatCount="indefinite"/></line>'
+  +'<line x1="320" y1="124" x2="328" y2="138"><animate attributeName="x2" values="328;312;328" dur=".58s" repeatCount="indefinite"/><animate attributeName="y2" values="138;134;138" dur=".58s" repeatCount="indefinite"/></line>'
+  +'<animateTransform attributeName="transform" type="translate" values="0 0;0 -3;0 0" dur=".58s" begin="0.3s" repeatCount="indefinite"/>'
++'</g>'
+// FIGURE 4 (red) — celebration at the peak with raised arms; small jubilant bounce
++'<g stroke="#E8453C" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round">'
+  +'<circle cx="490" cy="22" r="7" fill="#E8453C"/><line x1="490" y1="29" x2="490" y2="48"/><line x1="490" y1="34" x2="478" y2="22"/><line x1="490" y1="34" x2="502" y2="22"/><line x1="490" y1="48" x2="482" y2="60"/><line x1="490" y1="48" x2="498" y2="60"/>'
+  +'<animateTransform attributeName="transform" type="translate" values="0 0;0 -4;0 0" dur=".5s" repeatCount="indefinite"/>'
++'</g>'
+// flag — waves
++'<g><line x1="502" y1="22" x2="502" y2="4" stroke="#0F172A" stroke-width="1.8" stroke-linecap="round"/>'
+  +'<path d="M 502 4 L 520 8 L 502 14 Z" fill="#E8453C" opacity="0.95"><animate attributeName="d" values="M 502 4 L 520 8 L 502 14 Z;M 502 4 L 516 6 L 502 14 Z;M 502 4 L 520 8 L 502 14 Z" dur="1.4s" repeatCount="indefinite"/></path>'
++'</g>'
+// sparkle stars — rotate + pulse
++'<g fill="#E8912C">'
+  +'<path d="M 460 10 l 1.5 -4 1.5 4 4 0 -3 2.5 1.2 4 -3.7 -2.4 -3.7 2.4 1.2 -4 -3 -2.5 z" opacity="0.85"><animateTransform attributeName="transform" type="rotate" from="0 463 12" to="360 463 12" dur="9s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite"/></path>'
+  +'<path d="M 510 50 l 1.2 -3 1.2 3 3.2 0 -2.4 2 1 3.2 -3 -2 -3 2 1 -3.2 -2.4 -2 z" opacity="0.85"><animateTransform attributeName="transform" type="rotate" from="0 511 50" to="-360 511 50" dur="7s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0.3;1" dur="2.4s" repeatCount="indefinite"/></path>'
++'</g>'
+// "+1% daily" pill — breathes
++'<g>'
+  +'<line x1="120" y1="140" x2="142" y2="118" stroke="#1A9E47" stroke-width="1.4" opacity="0.7"/>'
+  +'<rect x="138" y="100" width="76" height="22" rx="11" fill="#3DAE5C" opacity="0.95"><animate attributeName="opacity" values="0.85;1;0.85" dur="2.2s" repeatCount="indefinite"/></rect>'
+  +'<text x="176" y="115" font-family="Inter, sans-serif" font-size="11.5" font-weight="800" fill="#FFFFFF" text-anchor="middle">+1% daily</text>'
+  +'<animateTransform attributeName="transform" type="translate" values="0 0;0 -1.5;0 0" dur="2.4s" repeatCount="indefinite"/>'
++'</g>'
+// "Rise Together" pill — breathes opposite phase
++'<g>'
+  +'<line x1="445" y1="42" x2="380" y2="62" stroke="#B57B00" stroke-width="1.4" opacity="0.7"/>'
+  +'<rect x="270" y="62" width="118" height="24" rx="12" fill="#E8912C" opacity="0.95"><animate attributeName="opacity" values="0.85;1;0.85" dur="2.2s" begin="1.1s" repeatCount="indefinite"/></rect>'
+  +'<text x="329" y="78" font-family="Inter, sans-serif" font-size="12" font-weight="800" fill="#FFFFFF" text-anchor="middle">Rise together \\u2197</text>'
+  +'<animateTransform attributeName="transform" type="translate" values="0 0;0 -1.5;0 0" dur="2.4s" begin="1.1s" repeatCount="indefinite"/>'
++'</g>'
+// rising "+1" floaters from each step (motivational)
++'<g font-family="Inter, sans-serif" font-size="10" font-weight="800" fill="#3DAE5C">'
+  +'<text x="115" y="140" text-anchor="middle" opacity="0">+1<animate attributeName="y" values="140;115" dur="2s" begin="0s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;0.85;0" dur="2s" begin="0s" repeatCount="indefinite"/></text>'
+  +'<text x="225" y="120" text-anchor="middle" opacity="0">+1<animate attributeName="y" values="120;90" dur="2s" begin="0.6s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;0.85;0" dur="2s" begin="0.6s" repeatCount="indefinite"/></text>'
+  +'<text x="330" y="92" text-anchor="middle" opacity="0">+1<animate attributeName="y" values="92;60" dur="2s" begin="1.2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;0.85;0" dur="2s" begin="1.2s" repeatCount="indefinite"/></text>'
++'</g>'
 // caption at top
 +'<text x="270" y="14" font-family="Inter, sans-serif" font-size="9.5" font-weight="800" fill="#6366F1" text-anchor="middle" letter-spacing="1.4">GROW \\u2022 TOGETHER \\u2022 TRACK \\u2022 REPEAT</text>'
 // Comet — a glowing dot that travels along the growth curve every 8s
@@ -1849,9 +1902,13 @@ h+='<div class="moral">'+MORAL_DOODLE+'<div class="moral-emoji">\\u{1F4A1}</div>
     +  '<g fill="#E8912C" opacity="0.5"><circle cx="20" cy="160" r="1.2"/><circle cx="64" cy="130" r="1.2"/><circle cx="105" cy="100" r="1.2"/><circle cx="142" cy="70" r="1.2"/><circle cx="180" cy="40" r="1.4"/></g>'
     +'</svg>'
     +'<svg class="climb-peak" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L14.5 9 L22 9 L16 13.5 L18.5 21 L12 16.5 L5.5 21 L8 13.5 L2 9 L9.5 9 Z"/></svg>'
+    +'<div class="celebrator">'+STICK+'</div>'
     +'<div class="climber climber-1">'+STICK+'</div>'
     +'<div class="climber climber-2">'+STICK+'</div>'
     +'<div class="climber climber-3">'+STICK+'</div>'
+    +'<div class="walker walker-a">'+STICK+'</div>'
+    +'<div class="walker walker-b">'+STICK+'</div>'
+    +'<div class="walker walker-c">'+STICK+'</div>'
     +'</div>';
   const sideNow='<div class="side-now" aria-hidden="true">'
     +'<div class="side-now-lbl">Local time</div>'
