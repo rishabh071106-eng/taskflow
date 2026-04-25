@@ -486,7 +486,34 @@ input:focus,textarea:focus{outline:none;border-color:#0F172A}textarea{resize:ver
 .hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding:4px 2px}.logo{font-family:'Space Mono',monospace;font-size:30px;font-weight:700;letter-spacing:-.8px;line-height:1.1}.logo .k{color:#3DAE5C;display:inline-block;transition:transform .4s cubic-bezier(.4,1.5,.5,1)}.logo:hover .k{transform:scale(1.15) rotate(-6deg)}
 .hdr-st{font-size:11px;font-weight:700;padding:8px 14px;border-radius:10px;background:#FFFFFF;border:1px solid #E8E9EF;display:flex;align-items:center;gap:7px;letter-spacing:.8px;box-shadow:0 2px 6px rgba(0,0,0,.04)}
 .dot{width:9px;height:9px;border-radius:50%;display:inline-block;animation:pulse-dot 2s ease-in-out infinite}
-.hdr-sub{font-size:13px;color:#94A3B8;margin-top:2px;font-weight:500}
+.hdr-sub{font-size:13px;color:#94A3B8;margin-top:2px;font-weight:500;display:flex;align-items:center;gap:10px;font-family:'Instrument Serif',Georgia,serif;font-size:15px;letter-spacing:.02em}
+.hdr-orbit{width:24px;height:24px;flex-shrink:0;color:#6366F1}
+.hdr-orbit .orbit-ring{opacity:.28}
+.hdr-orbit .orbit-1{transform-origin:12px 12px;animation:orbitSpin 9s linear infinite}
+.hdr-orbit .orbit-2{transform-origin:12px 12px;animation:orbitSpin 5.5s linear infinite reverse}
+.hdr-orbit .orbit-core{animation:corePulse 2.6s ease-in-out infinite}
+@keyframes orbitSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes corePulse{0%,100%{transform-origin:12px 12px;transform:scale(1);opacity:1}50%{transform-origin:12px 12px;transform:scale(1.45);opacity:.6}}
+/* Section dividers — thin gradient line with a pulsing centered node */
+.section-div{height:1px;background:linear-gradient(90deg,transparent 0%,rgba(99,102,241,.18) 30%,rgba(232,145,44,.22) 50%,rgba(99,102,241,.18) 70%,transparent 100%);margin:18px 0;position:relative}
+.section-div::before{content:'';position:absolute;top:50%;left:50%;width:8px;height:8px;border-radius:50%;background:#fff;border:2px solid rgba(99,102,241,.55);transform:translate(-50%,-50%);box-shadow:0 0 0 0 rgba(99,102,241,.45);animation:nodePulse 3s ease-in-out infinite}
+@keyframes nodePulse{0%,100%{box-shadow:0 0 0 0 rgba(99,102,241,.45)}50%{box-shadow:0 0 0 8px rgba(99,102,241,0)}}
+body[data-theme=aurora] .section-div{background:linear-gradient(90deg,transparent 0%,rgba(167,139,250,.22) 50%,transparent 100%)}
+body[data-theme=aurora] .section-div::before{background:#1A1A2E;border-color:rgba(167,139,250,.7)}
+/* Tab hero floating particles — drift up over 6-9s with staggered delays */
+.tab-hero{isolation:isolate}
+.tab-hero-particles{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0;opacity:.85}
+.tab-hero-particles span{position:absolute;display:block;width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.85);box-shadow:0 0 12px rgba(255,255,255,.6);animation:rise 7s ease-out infinite;bottom:-10px}
+.tab-hero-particles span:nth-child(1){left:8%;width:4px;height:4px;animation-duration:8s;animation-delay:0s}
+.tab-hero-particles span:nth-child(2){left:18%;width:3px;height:3px;animation-duration:6s;animation-delay:1.2s}
+.tab-hero-particles span:nth-child(3){left:32%;width:5px;height:5px;animation-duration:9s;animation-delay:.4s}
+.tab-hero-particles span:nth-child(4){left:45%;width:3px;height:3px;animation-duration:7s;animation-delay:2.5s}
+.tab-hero-particles span:nth-child(5){left:58%;width:4px;height:4px;animation-duration:8.5s;animation-delay:1.8s}
+.tab-hero-particles span:nth-child(6){left:72%;width:5px;height:5px;animation-duration:6.5s;animation-delay:.9s}
+.tab-hero-particles span:nth-child(7){left:85%;width:3px;height:3px;animation-duration:7.5s;animation-delay:3.2s}
+.tab-hero-particles span:nth-child(8){left:92%;width:4px;height:4px;animation-duration:8s;animation-delay:2s}
+@keyframes rise{0%{transform:translateY(0);opacity:0}10%{opacity:.95}80%{opacity:.55}100%{transform:translateY(-260px) translateX(var(--drift,8px));opacity:0}}
+@media (prefers-reduced-motion:reduce){.hdr-orbit *,.tab-hero-particles *,.section-div::before,.moral-comet{animation:none!important}}
 .moral{display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#FFFBF1 0%,#FEF3E0 50%,#EAF6EE 100%);border:1px solid #F3D9A0;border-radius:18px;padding:24px 26px;margin-bottom:14px;position:relative;overflow:hidden;min-height:140px;box-shadow:0 4px 16px rgba(232,145,44,.08)}
 .moral::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:linear-gradient(180deg,#E8912C,#3DAE5C);z-index:2}
 .moral-doodle{position:absolute;top:0;right:0;bottom:0;width:62%;max-width:640px;height:100%;pointer-events:none;z-index:0;opacity:1;filter:drop-shadow(0 1px 2px rgba(15,23,42,.05))}
@@ -1431,6 +1458,9 @@ const MORAL_DOODLE='<svg class="moral-doodle" viewBox="0 0 520 200" preserveAspe
 +'<g><line x1="445" y1="42" x2="380" y2="62" stroke="#B57B00" stroke-width="1.4" opacity="0.7"/><rect x="270" y="62" width="118" height="24" rx="12" fill="#E8912C" opacity="0.95"/><text x="329" y="78" font-family="Inter, sans-serif" font-size="12" font-weight="800" fill="#FFFFFF" text-anchor="middle">Rise together \\u2197</text></g>'
 // caption at top
 +'<text x="270" y="14" font-family="Inter, sans-serif" font-size="9.5" font-weight="800" fill="#6366F1" text-anchor="middle" letter-spacing="1.4">GROW \\u2022 TOGETHER \\u2022 TRACK \\u2022 REPEAT</text>'
+// Comet — a glowing dot that travels along the growth curve every 8s
++'<g class="moral-comet"><circle r="3.5" fill="#FFFFFF" stroke="#6366F1" stroke-width="1.4" filter="url(#cometGlow)"><animateMotion dur="8s" repeatCount="indefinite" rotate="auto" path="M 30 175 C 150 172 240 162 330 130 S 460 40 510 18"/></circle></g>'
++'<defs><filter id="cometGlow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur in="SourceGraphic" stdDeviation="2.4"/><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>'
 +'</svg>';
 const TAB_HERO={
   tasks:{img:'1499951360447-b19be8fe80f5',h:'Make today count',s:'Small wins, stacked daily'},
@@ -1649,7 +1679,8 @@ return;
 const ts=S.tasks,f=ts.filter(t=>{if(S.search){const q=S.search.toLowerCase();if(!t.title.toLowerCase().includes(q)&&!(t.notes||'').toLowerCase().includes(q))return false}if(S.view==='all')return true;if(S.view==='today')return isTd(t.due_date);if(S.view==='overdue')return isOD(t.due_date,t.status);return t.status===S.view});
 const s={total:ts.length,pend:ts.filter(t=>t.status==='pending').length,act:ts.filter(t=>t.status==='in-progress').length,dn:ts.filter(t=>t.status==='done').length,od:ts.filter(t=>isOD(t.due_date,t.status)).length};
 
-let h='<div class="hdr"><div><div class="logo">Bro<span class="k">Do</span>it</div><div class="hdr-sub">'+new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})+'</div></div><div class="hdr-actions"><button class="theme-tg" onclick="toggleTheme()" title="Switch theme">'+(S.theme==='aurora'?ic('sun',18):ic('moon',18))+'</button><div class="hdr-st"><span class="dot" style="background:'+(S.waConnected&&S.waOk?'#10B981':'#CBD5E1')+'"></span>'+(S.waConnected&&S.waOk?'LIVE':'OFF')+'</div></div></div>';
+const ORBIT='<svg class="hdr-orbit" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle class="orbit-ring" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1"/><circle class="orbit-ring" cx="12" cy="12" r="6" stroke="currentColor" stroke-width="1"/><g class="orbit-1"><circle cx="12" cy="2" r="2" fill="#6366F1"/></g><g class="orbit-2"><circle cx="12" cy="6" r="1.6" fill="#E8912C"/></g><circle class="orbit-core" cx="12" cy="12" r="1.8" fill="currentColor"/></svg>';
+let h='<div class="hdr"><div><div class="logo">Bro<span class="k">Do</span>it</div><div class="hdr-sub">'+ORBIT+'<span>'+new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})+'</span></div></div><div class="hdr-actions"><button class="theme-tg" onclick="toggleTheme()" title="Switch theme">'+(S.theme==='aurora'?ic('sun',18):ic('moon',18))+'</button><div class="hdr-st"><span class="dot" style="background:'+(S.waConnected&&S.waOk?'#10B981':'#CBD5E1')+'"></span>'+(S.waConnected&&S.waOk?'LIVE':'OFF')+'</div></div></div>';
 
 // Moral chip
 const m=MORALS[S.moralIdx];
@@ -1660,13 +1691,14 @@ h+='<nav class="tabs page-t">'+[{k:'tasks',l:'Tasks'},{k:'board',l:'Board'},{k:'
 
 h+='<main class="main-col">';
 h+='<div class="user-bar" style="cursor:pointer" onclick="openProfile()"><span>\\u{1F464} '+esc(S.user.name||S.user.phone)+' <span style="color:#94A3B8;font-size:11px">\\u203A Profile</span></span><button onclick="event.stopPropagation();logout()">Logout</button></div>';
+h+='<div class="section-div" aria-hidden="true"></div>';
 
 // Scenic tab hero — sets the mood for the section
 {
   const hero=TAB_HERO[S.tab];
   if(hero){
     const url='https://images.unsplash.com/photo-'+hero.img+'?w=1400&q=80&auto=format&fit=crop';
-    h+='<div class="tab-hero" style="background-image:linear-gradient(135deg,rgba(15,23,42,.62) 0%,rgba(15,23,42,.32) 55%,rgba(15,23,42,.18) 100%),url(&quot;'+url+'&quot;)"><div class="tab-hero-body"><h2 class="tab-hero-h">'+hero.h+'</h2><p class="tab-hero-s">'+hero.s+'</p></div><div class="tab-hero-credit">photo \\u00b7 unsplash</div></div>';
+    h+='<div class="tab-hero" style="background-image:linear-gradient(135deg,rgba(15,23,42,.62) 0%,rgba(15,23,42,.32) 55%,rgba(15,23,42,.18) 100%),url(&quot;'+url+'&quot;)"><div class="tab-hero-particles"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><div class="tab-hero-body"><h2 class="tab-hero-h">'+hero.h+'</h2><p class="tab-hero-s">'+hero.s+'</p></div><div class="tab-hero-credit">photo \\u00b7 unsplash</div></div>';
   }
 }
 
