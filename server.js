@@ -566,6 +566,23 @@ input:focus,textarea:focus{outline:none;border-color:#0F172A}textarea{resize:ver
 .hdr-time-date{font-size:14px;color:#64748B;font-style:italic}
 body[data-theme=aurora] .hdr-time-hm{color:#F5F5FA}
 body[data-theme=aurora] .hdr-time-date{color:#9999B5}
+@media (max-width:700px){
+  .hdr-jumper{width:38px;height:38px}
+  .hdr-sub{gap:10px;flex-wrap:wrap;font-size:13px}
+  .hdr-time{gap:4px}
+  .hdr-time-hm{font-size:20px}
+  .hdr-time-sec{font-size:12px}
+  .hdr-time-sep{font-size:14px;margin:0 2px}
+  .hdr-time-date{font-size:12px}
+}
+@media (max-width:480px){
+  .hdr-jumper{width:32px;height:32px}
+  .hdr-time-hm{font-size:18px}
+  .hdr-time-sec{font-size:11px}
+  .hdr-time-sep{display:none}
+  .hdr-time-date{display:none}
+  .hdr-sub{gap:8px}
+}
 /* Section dividers — thin gradient line with a pulsing centered node */
 .section-div{height:1px;background:linear-gradient(90deg,transparent 0%,rgba(99,102,241,.18) 30%,rgba(232,145,44,.22) 50%,rgba(99,102,241,.18) 70%,transparent 100%);margin:18px 0;position:relative}
 /* Top strip + climb + side-now base styles (work on all viewports) */
@@ -581,7 +598,18 @@ body[data-theme=aurora] .hdr-time-date{color:#9999B5}
 .top-strip .side-now-fill::after{content:'';position:absolute;top:0;left:-30%;width:30%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);animation:fillShine 2.6s ease-in-out infinite}
 .top-strip .side-now-foot{font-size:10px;color:#94A3B8;font-weight:700;letter-spacing:.6px;display:flex;justify-content:space-between;margin-top:2px}
 .top-strip .side-now-wave{position:absolute;bottom:0;left:0;right:0;height:30px;opacity:.15;pointer-events:none}
-@media (max-width:900px){.top-strip{flex-direction:column}.top-strip .side-now{flex:0 0 auto;border-left:none;border-top:1px dashed rgba(99,102,241,.25)}.top-strip .side-now-time{font-size:32px}.top-strip .side-now-time .sec{font-size:19px}}
+@media (max-width:900px){.top-strip{flex-direction:column;min-height:auto}.top-strip .climb-scene{min-height:140px;padding:6px 0}.top-strip .side-now{flex:0 0 auto;border-left:none;border-top:1px dashed rgba(99,102,241,.25)}.top-strip .side-now-time{font-size:30px}.top-strip .side-now-time .sec{font-size:18px}}
+@media (max-width:600px){
+  /* Hide the climb scene on phones — keep just the time card */
+  .top-strip .climb-scene{display:none}
+  .top-strip{border-radius:14px;min-height:auto}
+  .top-strip .side-now{padding:14px 16px;border-top:none}
+  .top-strip .side-now-time{font-size:28px}
+  .top-strip .side-now-time .sec{font-size:16px}
+  .top-strip .side-now-lbl{font-size:9.5px;letter-spacing:1.2px}
+  .top-strip .side-now-bar{margin-top:6px}
+  .top-strip .side-now-foot{font-size:9.5px}
+}
 body[data-theme=aurora] .top-strip{background:linear-gradient(135deg,rgba(167,139,250,.08) 0%,rgba(232,145,44,.06) 100%);border-color:rgba(167,139,250,.18)}
 body[data-theme=aurora] .top-strip .side-now{background:linear-gradient(135deg,rgba(167,139,250,.06),rgba(232,145,44,.04));border-left-color:rgba(167,139,250,.2)}
 body[data-theme=aurora] .top-strip .side-now-time{color:#F5F5FA}
@@ -623,7 +651,8 @@ body[data-theme=aurora] .section-div::before{background:#1A1A2E;border-color:rgb
 .moral::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:linear-gradient(180deg,#E8912C,#3DAE5C);z-index:2}
 .moral-doodle{position:absolute;top:0;right:0;bottom:0;width:62%;max-width:640px;height:100%;pointer-events:none;z-index:0;opacity:1;filter:drop-shadow(0 1px 2px rgba(15,23,42,.05))}
 .moral::after{content:'';position:absolute;top:0;left:0;bottom:0;width:38%;background:linear-gradient(90deg,rgba(255,251,241,.96) 0%,rgba(254,243,224,.65) 75%,rgba(254,243,224,0) 100%);pointer-events:none;z-index:0}
-@media (max-width:600px){.moral-doodle{width:50%}.moral::after{width:52%}.moral{min-height:120px}}
+@media (max-width:700px){.moral-doodle{width:36%;opacity:.8}.moral::after{width:64%}.moral{min-height:auto;padding:18px 18px 16px}.moral-txt{font-size:14.5px;line-height:1.4}.moral-by{font-size:12px}.moral-emoji{font-size:22px}}
+@media (max-width:480px){.moral-doodle{display:none}.moral::after{display:none}.moral-txt{font-size:14px}}
 body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,20,40,.9) 0%,rgba(20,20,40,.65) 70%,rgba(20,20,40,0) 100%)}
 .moral-emoji{font-size:26px;flex-shrink:0;filter:drop-shadow(0 2px 4px rgba(232,145,44,.3));position:relative;z-index:1}
 .moral-body{flex:1;min-width:0;position:relative;z-index:1}
@@ -1718,6 +1747,7 @@ body[data-theme=aurora] .hist-link a:hover{color:#C4B5FD}
 <div class="app" id="app"></div>
 <noscript><div style="text-align:center;padding:40px 20px"><h1>Brodoit</h1><p>Brodoit needs JavaScript to run. Please enable JavaScript in your browser.</p><p><a href="/privacy">Privacy Policy</a> &middot; <a href="/terms">Terms of Service</a></p></div></noscript>
 <footer id="seo-foot" style="position:fixed;bottom:8px;left:50%;transform:translateX(-50%);font-size:11px;color:rgba(100,116,139,.7);z-index:1;pointer-events:auto;display:flex;gap:8px;background:rgba(255,255,255,.6);backdrop-filter:blur(8px);padding:4px 10px;border-radius:8px"><a href="/privacy" style="color:inherit;text-decoration:none">Privacy</a><span>&middot;</span><a href="/terms" style="color:inherit;text-decoration:none">Terms</a></footer>
+<style>@media (max-width:1023px){#seo-foot{display:none!important}}</style>
 <script>
 const MORALS=[{t:"The secret of getting ahead is getting started.",a:"Mark Twain"},{t:"It does not matter how slowly you go as long as you do not stop.",a:"Confucius"},{t:"Small daily improvements are the key to staggering long-term results.",a:"Robin Sharma"},{t:"Discipline is choosing between what you want now and what you want most.",a:"Abraham Lincoln"},{t:"Don't count the days. Make the days count.",a:"Muhammad Ali"},{t:"The best way to predict the future is to create it.",a:"Peter Drucker"},{t:"Focus on being productive instead of busy.",a:"Tim Ferriss"},{t:"You don't have to be great to start, but you have to start to be great.",a:"Zig Ziglar"},{t:"The journey of a thousand miles begins with a single step.",a:"Lao Tzu"},{t:"Either you run the day or the day runs you.",a:"Jim Rohn"},{t:"A year from now you may wish you had started today.",a:"Karen Lamb"},{t:"Success is the sum of small efforts repeated day in and day out.",a:"Robert Collier"},{t:"Done is better than perfect.",a:"Sheryl Sandberg"},{t:"The way to get started is to quit talking and begin doing.",a:"Walt Disney"},{t:"You cannot escape the responsibility of tomorrow by evading it today.",a:"Abraham Lincoln"},{t:"Motivation gets you going, but discipline keeps you growing.",a:"John C. Maxwell"},{t:"Do something today that your future self will thank you for.",a:"Sean Patrick Flanery"},{t:"The harder I work, the luckier I get.",a:"Samuel Goldwyn"},{t:"Don't watch the clock; do what it does. Keep going.",a:"Sam Levenson"},{t:"Great things never come from comfort zones.",a:"Neil Strauss"},{t:"Sometimes later becomes never. Do it now.",a:"Anonymous"},{t:"Wake up with determination. Go to bed with satisfaction.",a:"Anonymous"},{t:"A goal without a plan is just a wish.",a:"Antoine de Saint-Exupéry"},{t:"Little by little, day by day, what is meant for you will find its way.",a:"Anonymous"},{t:"Success doesn't just find you — you have to go out and get it.",a:"Anonymous"},{t:"Push yourself, because no one else is going to do it for you.",a:"Anonymous"},{t:"Dream big. Start small. Act now.",a:"Robin Sharma"},{t:"Hard work beats talent when talent doesn't work hard.",a:"Tim Notke"},{t:"The only impossible journey is the one you never begin.",a:"Tony Robbins"},{t:"Opportunities don't happen. You create them.",a:"Chris Grosser"}];
 let S={tasks:[],view:'all',search:'',tab:'tasks',showAdd:false,editing:null,listening:false,toast:null,toastType:'ok',waOk:false,sending:{},user:null,
