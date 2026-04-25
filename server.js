@@ -487,7 +487,7 @@ input:focus,textarea:focus{outline:none;border-color:#0F172A}textarea{resize:ver
 .hdr-st{font-size:11px;font-weight:700;padding:8px 14px;border-radius:10px;background:#FFFFFF;border:1px solid #E8E9EF;display:flex;align-items:center;gap:7px;letter-spacing:.8px;box-shadow:0 2px 6px rgba(0,0,0,.04)}
 .dot{width:9px;height:9px;border-radius:50%;display:inline-block;animation:pulse-dot 2s ease-in-out infinite}
 .hdr-sub{font-size:13px;color:#94A3B8;margin-top:2px;font-weight:500;display:flex;align-items:center;gap:10px;font-family:'Instrument Serif',Georgia,serif;font-size:15px;letter-spacing:.02em}
-.hdr-orbit{width:24px;height:24px;flex-shrink:0;color:#6366F1}
+.hdr-orbit{width:36px;height:36px;flex-shrink:0;color:#6366F1;filter:drop-shadow(0 2px 8px rgba(99,102,241,.35))}
 .hdr-orbit .orbit-ring{opacity:.28}
 .hdr-orbit .orbit-1{transform-origin:12px 12px;animation:orbitSpin 9s linear infinite}
 .hdr-orbit .orbit-2{transform-origin:12px 12px;animation:orbitSpin 5.5s linear infinite reverse}
@@ -545,7 +545,10 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
   .app>.hdr{grid-area:hdr;margin-bottom:0}
   .app>.moral{grid-area:moral;margin-bottom:0}
   .app>.tabs.page-t{grid-area:nav;flex-direction:column;align-self:stretch;position:sticky;top:28px;padding:16px;gap:8px;overflow:visible;min-height:calc(100vh - 56px);max-height:calc(100vh - 56px);margin-bottom:0;justify-content:flex-start}
-  .app>.tabs.page-t .tab{width:100%;flex:0 0 auto;min-height:78px;padding:14px 16px;font-size:16px;font-weight:600;justify-content:flex-start;border-radius:14px;gap:14px;align-items:center}
+  .app>.tabs.page-t .tab{width:100%;flex:0 0 auto;min-height:78px;padding:14px 16px;font-size:16px;font-weight:600;justify-content:flex-start;border-radius:14px;gap:14px;align-items:center;border:1px solid transparent;border-bottom:1px solid rgba(15,23,42,.06)}
+  .app>.tabs.page-t .tab:last-of-type{border-bottom-color:transparent}
+  .app>.tabs.page-t .tab.on{border-color:rgba(15,23,42,.08);border-bottom-color:rgba(15,23,42,.08)}
+  body[data-theme=aurora] .app>.tabs.page-t .tab{border-bottom-color:rgba(255,255,255,.06)}
   .app>.tabs.page-t .tab .ti{width:60px;height:60px;border-radius:14px;background-size:cover;background-position:center;background-color:#0F172A;background-repeat:no-repeat;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:0;transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s ease;position:relative;overflow:hidden;box-shadow:0 4px 14px rgba(15,23,42,.18)}
   .app>.tabs.page-t .tab .ti::after{content:'';position:absolute;inset:0;background:var(--tab-tint,linear-gradient(135deg,rgba(99,102,241,.55),rgba(15,23,42,.35)));z-index:0;transition:opacity .2s ease}
   .app>.tabs.page-t .tab .ti svg{width:28px;height:28px;position:relative;z-index:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.45))}
@@ -591,6 +594,43 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
   @keyframes fillShine{0%{left:-30%}100%{left:130%}}
   .app>.tabs.page-t .side-now-foot{font-size:10px;color:#94A3B8;font-weight:700;letter-spacing:.6px;display:flex;justify-content:space-between;margin-top:2px}
   .app>.tabs.page-t .side-now-wave{position:absolute;bottom:0;left:0;right:0;height:30px;opacity:.15;pointer-events:none}
+  /* Climb scene — stick figures climbing stairs, fills the visible blank space */
+  .app>.tabs.page-t .climb-scene{position:relative;width:100%;height:170px;border-radius:14px;background:linear-gradient(180deg,rgba(99,102,241,.04) 0%,rgba(232,145,44,.06) 100%);border:1px dashed rgba(99,102,241,.22);overflow:hidden;flex-shrink:0;margin-top:auto}
+  .app>.tabs.page-t .side-now{margin-top:0!important}
+  .climb-stairs{position:absolute;inset:0;width:100%;height:100%;opacity:.55}
+  .climb-caption{position:absolute;top:8px;left:0;right:0;text-align:center;font-size:9.5px;font-weight:800;color:#6366F1;letter-spacing:1.4px;opacity:.7;z-index:2}
+  .climber{position:absolute;width:18px;height:24px;color:#0F172A;animation:climbStairs 16s linear infinite;will-change:left,bottom;z-index:1}
+  .climber-1{color:#6366F1;animation-delay:0s}
+  .climber-2{color:#3DAE5C;animation-delay:5.3s}
+  .climber-3{color:#E8453C;animation-delay:10.6s}
+  @keyframes climbStairs{
+    0%{left:4%;bottom:6%;opacity:0}
+    3%{opacity:1}
+    14%{left:24%;bottom:6%}
+    17%{left:24%;bottom:24%}
+    31%{left:43%;bottom:24%}
+    34%{left:43%;bottom:42%}
+    48%{left:62%;bottom:42%}
+    51%{left:62%;bottom:60%}
+    65%{left:80%;bottom:60%}
+    68%{left:80%;bottom:78%}
+    82%{left:90%;bottom:78%}
+    97%{opacity:1}
+    100%{left:92%;bottom:78%;opacity:0}
+  }
+  .climber .leg-l{transform-origin:9px 14px;animation:legL .5s linear infinite}
+  .climber .leg-r{transform-origin:9px 14px;animation:legR .5s linear infinite}
+  @keyframes legL{0%,100%{transform:rotate(-22deg)}50%{transform:rotate(22deg)}}
+  @keyframes legR{0%,100%{transform:rotate(22deg)}50%{transform:rotate(-22deg)}}
+  .climber .arm-l{transform-origin:9px 9px;animation:armL .5s linear infinite}
+  .climber .arm-r{transform-origin:9px 9px;animation:armR .5s linear infinite}
+  @keyframes armL{0%,100%{transform:rotate(18deg)}50%{transform:rotate(-18deg)}}
+  @keyframes armR{0%,100%{transform:rotate(-18deg)}50%{transform:rotate(18deg)}}
+  /* Sparkle trail at the top of the climb scene */
+  .climb-peak{position:absolute;top:6px;right:10px;width:18px;height:18px;color:#E8912C;animation:peakBlink 1.8s ease-in-out infinite;z-index:2}
+  @keyframes peakBlink{0%,100%{opacity:.4;transform:scale(.9)}50%{opacity:1;transform:scale(1.15)}}
+  body[data-theme=aurora] .app>.tabs.page-t .climb-scene{background:linear-gradient(180deg,rgba(167,139,250,.06) 0%,rgba(232,145,44,.05) 100%);border-color:rgba(167,139,250,.2)}
+  body[data-theme=aurora] .climb-caption{color:#A78BFA}
   body[data-theme=aurora] .app>.tabs.page-t .side-now{background:linear-gradient(135deg,rgba(167,139,250,.12),rgba(232,145,44,.08));border-color:rgba(167,139,250,.2)}
   body[data-theme=aurora] .app>.tabs.page-t .side-now-time{color:#F5F5FA}
   body[data-theme=aurora] .app>.tabs.page-t .side-now-date{color:#9999B5}
@@ -1718,6 +1758,24 @@ h+='<div class="moral">'+MORAL_DOODLE+'<div class="moral-emoji">\\u{1F4A1}</div>
   const yearPct=Math.round(dayOfYear/365*100);
   const dateStr=now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
   const tabsHtml=[{k:'tasks',l:'Tasks'},{k:'board',l:'Board'},{k:'cal',l:'Calendar'},{k:'news',l:'News'},{k:'books',l:'Books'},{k:'meditation',l:'Meditate'}].map(x=>'<button class="tab tab-'+x.k+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(ID[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
+  const STICK='<svg viewBox="0 0 18 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="3.5" r="2.6" fill="currentColor"/><line x1="9" y1="6" x2="9" y2="14"/><g class="arm-l"><line x1="9" y1="9" x2="4" y2="11"/></g><g class="arm-r"><line x1="9" y1="9" x2="14" y2="7"/></g><g class="leg-l"><line x1="9" y1="14" x2="5" y2="22"/></g><g class="leg-r"><line x1="9" y1="14" x2="13" y2="22"/></g></svg>';
+  const climbScene='<div class="climb-scene" aria-hidden="true">'
+    +'<div class="climb-caption">RISE \\u2022 STEP \\u2022 BY \\u2022 STEP</div>'
+    +'<svg class="climb-stairs" viewBox="0 0 200 170" preserveAspectRatio="none">'
+    +  '<g stroke="#6366F1" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0.65">'
+    +    '<line x1="0" y1="160" x2="48" y2="160"/><line x1="48" y1="160" x2="48" y2="130"/>'
+    +    '<line x1="48" y1="130" x2="86" y2="130"/><line x1="86" y1="130" x2="86" y2="100"/>'
+    +    '<line x1="86" y1="100" x2="124" y2="100"/><line x1="124" y1="100" x2="124" y2="70"/>'
+    +    '<line x1="124" y1="70" x2="160" y2="70"/><line x1="160" y1="70" x2="160" y2="40"/>'
+    +    '<line x1="160" y1="40" x2="200" y2="40"/>'
+    +  '</g>'
+    +  '<g fill="#E8912C" opacity="0.5"><circle cx="20" cy="160" r="1.2"/><circle cx="64" cy="130" r="1.2"/><circle cx="105" cy="100" r="1.2"/><circle cx="142" cy="70" r="1.2"/><circle cx="180" cy="40" r="1.4"/></g>'
+    +'</svg>'
+    +'<svg class="climb-peak" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L14.5 9 L22 9 L16 13.5 L18.5 21 L12 16.5 L5.5 21 L8 13.5 L2 9 L9.5 9 Z"/></svg>'
+    +'<div class="climber climber-1">'+STICK+'</div>'
+    +'<div class="climber climber-2">'+STICK+'</div>'
+    +'<div class="climber climber-3">'+STICK+'</div>'
+    +'</div>';
   const sideNow='<div class="side-now" aria-hidden="true">'
     +'<div class="side-now-lbl">Local time</div>'
     +'<div class="side-now-time" id="sideNowTime">'+now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false})+'<span class="sec" id="sideNowSec">'+String(now.getSeconds()).padStart(2,'0')+'</span></div>'
@@ -1726,7 +1784,7 @@ h+='<div class="moral">'+MORAL_DOODLE+'<div class="moral-emoji">\\u{1F4A1}</div>
     +'<div class="side-now-foot"><span>YEAR PROGRESS</span><span>Day '+dayOfYear+' / 365</span></div>'
     +'<svg class="side-now-wave" viewBox="0 0 100 30" preserveAspectRatio="none"><path d="M 0 15 Q 12.5 5 25 15 T 50 15 T 75 15 T 100 15" stroke="#6366F1" stroke-width="1.6" fill="none"><animate attributeName="d" dur="4s" repeatCount="indefinite" values="M 0 15 Q 12.5 5 25 15 T 50 15 T 75 15 T 100 15;M 0 15 Q 12.5 25 25 15 T 50 15 T 75 15 T 100 15;M 0 15 Q 12.5 5 25 15 T 50 15 T 75 15 T 100 15"/></path></svg>'
     +'</div>';
-  h+='<nav class="tabs page-t">'+tabsHtml+sideNow+'</nav>';
+  h+='<nav class="tabs page-t">'+tabsHtml+climbScene+sideNow+'</nav>';
 }
 
 h+='<main class="main-col">';
