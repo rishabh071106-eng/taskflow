@@ -43,10 +43,10 @@ function waErrorMessage(r){
   const c=r.code;
   if(c===21211||c===21214||c===21217)return 'Phone number format is invalid. Include the country code (e.g. +91 9876543210 for India).';
   if(c===63007)return 'WhatsApp number not registered for this account.';
-  if(c===63015||c===63016)return 'WhatsApp Sandbox connection has expired. Send "join along-wool" to +1 415 523 8886 again (sessions expire after 72h of inactivity).';
-  if(c===63018)return 'Twilio daily limit reached for this number. Try again tomorrow or use email login.';
-  if(c===21610)return 'This number unsubscribed from messages. Reply START to +1 415 523 8886 first.';
-  return 'WhatsApp delivery failed. Make sure you sent "join along-wool" to +1 415 523 8886 within the last 72 hours.';
+  if(c===63015||c===63016)return 'WhatsApp link to BroDoit has expired. Tap "Re-send join code" below to refresh it (links expire after 72h of inactivity).';
+  if(c===63018)return 'Daily message limit reached. Try again in a few hours or use email login.';
+  if(c===21610)return 'This number opted out of BroDoit messages. Tap "Re-send join code" below to opt back in.';
+  return 'WhatsApp delivery failed. Tap "Re-send join code" below \\u2014 you may need to reconnect to BroDoit on WhatsApp.';
 }
 
 // Email via Resend (free tier: 3000/mo, 100/day)
@@ -328,6 +328,13 @@ app.get('/api/health',(_,res)=>res.json({status:'ok',twilio:!!tw,email:!!process
 
 // Inject Twilio sandbox code into the HTML so frontend can build the wa.me link
 app.get('/api/config',(_,res)=>res.json({sandboxCode:process.env.TWILIO_SANDBOX_CODE||''}));
+app.get('/brodoit.vcf',(_,res)=>{
+  const num=(process.env.TWILIO_WHATSAPP_FROM||'whatsapp:+14155238886').replace(/^whatsapp:/,'');
+  const vcf=['BEGIN:VCARD','VERSION:3.0','FN:BroDoit','N:BroDoit;;;;','ORG:BroDoit','TITLE:Productivity Assistant','TEL;TYPE=CELL,VOICE,WHATSAPP:'+num,'EMAIL:hello@brodoit.com','URL:https://brodoit.com','NOTE:Your BroDoit assistant. Send tasks here and get reminders.','END:VCARD'].join('\\r\\n');
+  res.setHeader('Content-Type','text/vcard; charset=utf-8');
+  res.setHeader('Content-Disposition','attachment; filename="BroDoit.vcf"');
+  res.send(vcf);
+});
 
 // ═══ NEWS (shorts feed, RSS aggregator, 15-min server cache) ═══
 const NEWS_FEEDS={
@@ -968,6 +975,8 @@ body[data-theme=aurora] .dash-hero .big{background:linear-gradient(90deg,#fff,#F
 .wa-step-desc{font-size:12.5px;color:#475569;line-height:1.5}
 .wa-join-btn{margin-top:10px;display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;border:none;padding:11px 14px;border-radius:10px;font-weight:700;font-size:13.5px;cursor:pointer;width:100%;justify-content:center;box-shadow:0 4px 14px rgba(37,211,102,.3);transition:transform .15s ease}
 .wa-join-btn:hover{transform:translateY(-1px)}
+.wa-save-btn{margin-top:10px;display:flex;align-items:center;gap:8px;background:#FFFFFF;color:#166534;border:1.5px solid #BBF7D0;padding:10px 14px;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;width:100%;justify-content:center;transition:all .15s ease}
+.wa-save-btn:hover{background:#F0FDF4;border-color:#86EFAC}
 .wa-login-step input{margin-bottom:0!important;text-align:left!important}
 .login-err{background:#FEF2F2;border:1px solid #FCA5A5;border-radius:12px;padding:12px 14px;margin:12px 0;text-align:left}
 .login-err-msg{font-size:13px;font-weight:600;color:#B91C1C;line-height:1.5}
@@ -1371,6 +1380,7 @@ function renderBookCards(fb){if(!fb.length)return '<div class="empty"><div style
 function openWAOnboard(){S.showWAOnboard=true;render()}
 function closeWAOnboard(){S.showWAOnboard=false;render()}
 function openWAJoin(){const code=window.__TWILIO_SANDBOX_CODE||'along-wool';window.open('https://wa.me/14155238886?text='+encodeURIComponent('join '+code),'_blank')}
+function saveBroDoitContact(){const a=document.createElement('a');a.href='/brodoit.vcf';a.download='BroDoit.vcf';document.body.appendChild(a);a.click();setTimeout(()=>document.body.removeChild(a),1000);toast('\\u{1F4D2} Downloading BroDoit contact \\u2014 open it to save')}
 function confirmWAJoined(){S.waConnected=true;localStorage.setItem('wa_connected','1');S.showWAOnboard=false;toast('\\u2705 WhatsApp connected');render()}
 function disconnectWA(){S.waConnected=false;localStorage.removeItem('wa_connected');toast('\\u23F8 WhatsApp disconnected');render()}
 const MED_SLOTS=[
@@ -1432,8 +1442,9 @@ if(S.loginMethod==='email'){
   h+='<button class="login-btn" onclick="sendOTP()"'+(S.loginLoading?' disabled':'')+'>'+(S.loginLoading?'Sending code...':'\\u2709\\uFE0F Send code to email')+'</button>';
   h+='<div class="login-hint">We\\'ll email a 6-digit code. Check your inbox (and spam folder).</div>';
 }else{
-  h+='<div class="wa-login-step"><div class="wa-step-num">1</div><div class="wa-step-body"><div class="wa-step-title">Say hi to Brodoit on WhatsApp</div><div class="wa-step-desc">Tap below \\u2014 we\\'ll open WhatsApp with a pre-filled message. Just hit <b>Send</b>.</div><button class="wa-join-btn" onclick="openWAJoin()"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>Open WhatsApp &amp; tap Send</button></div></div>';
-  h+='<div class="wa-login-step"><div class="wa-step-num">2</div><div class="wa-step-body"><div class="wa-step-title">Enter your WhatsApp number</div><div class="wa-step-desc">Include your country code. Examples: <b>+91</b> India, <b>+1</b> US/Canada, <b>+44</b> UK.</div><input id="loginPhone" type="tel" placeholder="+91 98765 43210" value="'+esc(S.loginPhone)+'" oninput="S.loginPhone=this.value;persistLoginState();updatePhonePreview()" autocomplete="tel" style="font-size:15px;letter-spacing:0;margin-top:8px;margin-bottom:0">';
+  h+='<div class="wa-login-step"><div class="wa-step-num">1</div><div class="wa-step-body"><div class="wa-step-title">Save BroDoit on WhatsApp</div><div class="wa-step-desc">First save BroDoit to your contacts \\u2014 then sending the message feels safe and familiar.</div><button class="wa-save-btn" onclick="saveBroDoitContact()">\\u{1F4C7} Save BroDoit to contacts</button></div></div>';
+  h+='<div class="wa-login-step"><div class="wa-step-num">2</div><div class="wa-step-body"><div class="wa-step-title">Say hi to BroDoit</div><div class="wa-step-desc">Tap below \\u2014 WhatsApp opens with a pre-filled message to BroDoit. Just hit <b>Send</b>.</div><button class="wa-join-btn" onclick="openWAJoin()"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>Open WhatsApp &amp; tap Send</button></div></div>';
+  h+='<div class="wa-login-step"><div class="wa-step-num">3</div><div class="wa-step-body"><div class="wa-step-title">Enter your WhatsApp number</div><div class="wa-step-desc">Include your country code. Examples: <b>+91</b> India, <b>+1</b> US/Canada, <b>+44</b> UK.</div><input id="loginPhone" type="tel" placeholder="+91 98765 43210" value="'+esc(S.loginPhone)+'" oninput="S.loginPhone=this.value;persistLoginState();updatePhonePreview()" autocomplete="tel" style="font-size:15px;letter-spacing:0;margin-top:8px;margin-bottom:0">';
   h+='<div id="phPreview" style="font-size:12px;margin-top:6px;font-weight:600;min-height:16px"></div>';
   h+='</div></div>';
   if(S.loginError)h+='<div class="login-err"><div class="login-err-msg">'+S.loginError+'</div>'+(S.loginErrorCode?'<div class="login-err-code">Twilio code '+S.loginErrorCode+(S.loginErrorDetail?' \\u2014 '+esc(S.loginErrorDetail.slice(0,140)):'')+'</div>':'')+'<div class="login-err-acts"><button onclick="openWAJoin()">\\u{1F501} Re-send join code</button><button onclick="S.loginMethod=\\'email\\';S.loginError=\\'\\';render()">\\u2709\\uFE0F Use email instead</button></div></div>';
@@ -1765,7 +1776,8 @@ if(S.showWAOnboard){
     h+='<li style="display:flex;align-items:center;gap:10px"><span style="width:28px;height:28px;border-radius:50%;background:#F0F9FF;color:#0284C7;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:800">\\u270D\\uFE0F</span><span><b>Add tasks by texting Brodoit</b> \\u2014 no app needed</span></li>';
     h+='<li style="display:flex;align-items:center;gap:10px"><span style="width:28px;height:28px;border-radius:50%;background:#FEF3C7;color:#B45309;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:800">\\u{1F510}</span><span><b>One-time setup</b>, takes 10 seconds</span></li>';
     h+='</ul>';
-    h+='<div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:14px;padding:14px;margin-bottom:16px"><div style="font-size:12px;font-weight:700;color:#94A3B8;letter-spacing:.5px;margin-bottom:8px">HOW IT WORKS</div><div style="font-size:13.5px;color:#334155;line-height:1.6">Tap below to open WhatsApp with a pre-filled message. Just hit <b>Send</b> \\u2014 we\\'ll connect your number instantly. Your phone stays private.</div></div>';
+    h+='<div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:14px;padding:14px;margin-bottom:14px"><div style="font-size:12px;font-weight:700;color:#94A3B8;letter-spacing:.5px;margin-bottom:8px">HOW IT WORKS</div><div style="font-size:13.5px;color:#334155;line-height:1.6">Save BroDoit to your contacts, then say hi on WhatsApp. We\\'ll connect your number instantly. Your phone stays private.</div></div>';
+    h+='<button class="mb" style="width:100%;background:#FFFFFF;border:1.5px solid #25D366;color:#0F172A;font-size:14px;padding:12px;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;font-weight:700;cursor:pointer;border-radius:12px" onclick="saveBroDoitContact()">\\u{1F4C7} Save BroDoit to contacts</button>';
     h+='<button class="mb mb-s" style="width:100%;background:linear-gradient(135deg,#25D366,#128C7E);border:none;color:#fff;font-size:15px;padding:14px;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 8px 22px rgba(37,211,102,.32)" onclick="openWAJoin()">'+WI+' Open WhatsApp &amp; tap Send</button>';
     h+='<div class="macts" style="margin-top:12px"><button class="mb mb-c" onclick="closeWAOnboard()">Maybe later</button><button class="mb mb-s" style="background:#0F172A" onclick="confirmWAJoined()">I\\'ve sent it \\u2014 connect me</button></div>';
   }else{
