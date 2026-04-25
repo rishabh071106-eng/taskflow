@@ -676,20 +676,34 @@ body[data-theme=aurora] .bro-mascot .bro-figure line{stroke:#A78BFA}
 .top-strip .side-now{flex:0 0 auto;background:linear-gradient(135deg,rgba(99,102,241,.04),rgba(232,145,44,.04));border-top:1px dashed rgba(99,102,241,.25);border-left:none;padding:5px 10px 6px;display:flex;flex-direction:column;justify-content:center;gap:0;position:relative;overflow:hidden;margin-top:0}
 .top-strip .side-now-lbl{font-size:9px;font-weight:800;color:#6366F1;letter-spacing:1.2px;text-transform:uppercase}
 .top-strip .side-now-time{font-family:'Instrument Serif',Georgia,serif;font-size:17px;font-weight:400;color:#0F172A;line-height:1;letter-spacing:-.03em;margin-top:0}
-.top-strip .side-now-time .sec{color:#E8453C;animation:secBlink 1s steps(2) infinite;font-size:11px;margin-left:2px;display:inline-block;vertical-align:top;margin-top:3px}
+.top-strip .side-now-time .sec{color:#E8453C;animation:secBlink 1s steps(2) infinite;font-size:11px;margin-left:1px;font-family:'Instrument Serif',Georgia,serif}
+.top-strip .side-now-row{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;line-height:1}
+.top-strip .side-now-sep{color:#CBD5E1;font-size:11px}
+.top-strip .side-now-date{font-size:11px;color:#64748B;font-weight:600;font-style:italic}
+.top-strip .side-now-days{font-size:11px;color:#475569;font-weight:600}
+.top-strip .side-now-days b{font-family:'Instrument Serif',Georgia,serif;color:#E8453C;font-weight:400;font-size:14px;letter-spacing:-.02em}
+.top-strip .side-now-walker{position:absolute;top:50%;width:14px;height:18px;transform:translate(-50%,-58%);z-index:2;pointer-events:none;transition:left .8s ease-out}
+.top-strip .side-now-walker svg{width:100%;height:100%;filter:drop-shadow(0 1px 2px rgba(15,23,42,.3))}
+.top-strip .side-now-walker .snw-leg-l{transform-origin:7px 11px;animation:snwLegL .42s ease-in-out infinite}
+.top-strip .side-now-walker .snw-leg-r{transform-origin:7px 11px;animation:snwLegR .42s ease-in-out infinite}
+.top-strip .side-now-walker .snw-arm-l{transform-origin:7px 7px;animation:snwArmL .42s ease-in-out infinite}
+.top-strip .side-now-walker .snw-arm-r{transform-origin:7px 7px;animation:snwArmR .42s ease-in-out infinite}
+@keyframes snwLegL{0%,100%{transform:rotate(-25deg)}50%{transform:rotate(25deg)}}
+@keyframes snwLegR{0%,100%{transform:rotate(25deg)}50%{transform:rotate(-25deg)}}
+@keyframes snwArmL{0%,100%{transform:rotate(20deg)}50%{transform:rotate(-20deg)}}
+@keyframes snwArmR{0%,100%{transform:rotate(-20deg)}50%{transform:rotate(20deg)}}
+body[data-theme=aurora] .top-strip .side-now-walker svg circle,body[data-theme=aurora] .top-strip .side-now-walker svg line{stroke:#A78BFA!important;fill:#A78BFA}
 .top-strip .side-now-date{font-size:12px;color:#64748B;font-weight:600}
 .top-strip .side-now-stat{font-size:10px;color:#475569;font-weight:600;margin-top:2px;display:flex;align-items:center;gap:4px}
 .top-strip .side-now-stat b{font-family:'Instrument Serif',Georgia,serif;font-size:12px;font-weight:400;color:#E8453C;letter-spacing:-.02em;line-height:1}
 .top-strip .side-now-date{font-size:10.5px}
-.top-strip .side-now-bar{height:4px;border-radius:99px;background:rgba(99,102,241,.14);overflow:hidden;margin-top:4px;position:relative}
+.top-strip .side-now-bar{height:5px;border-radius:99px;background:rgba(99,102,241,.14);overflow:visible;margin:14px 0 8px;position:relative}
 .top-strip .side-now-fill{height:100%;background:linear-gradient(90deg,#6366F1,#8B5CF6,#EC4899,#E8912C);background-size:200% 100%;border-radius:99px;position:relative;overflow:hidden;animation:gradientShift 4s ease-in-out infinite}
 @keyframes gradientShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
 .top-strip .side-now-fill::after{content:'';position:absolute;top:0;left:-30%;width:30%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);animation:fillShine 2.6s ease-in-out infinite}
-/* Comet that travels the full year-progress bar */
-.top-strip .side-now-comet{position:absolute;top:50%;left:0;width:10px;height:10px;border-radius:50%;background:#fff;box-shadow:0 0 12px rgba(255,255,255,.85),0 0 20px rgba(99,102,241,.6);transform:translate(-50%,-50%);animation:cometRun 6s linear infinite;z-index:2;pointer-events:none}
-@keyframes cometRun{from{left:0%}to{left:100%}}
-body[data-theme=aurora] .top-strip .side-now-stat{color:#9999B5}
-body[data-theme=aurora] .top-strip .side-now-stat b{color:#F472B6}
+body[data-theme=aurora] .top-strip .side-now-days{color:#9999B5}
+body[data-theme=aurora] .top-strip .side-now-days b{color:#F472B6}
+body[data-theme=aurora] .top-strip .side-now-date{color:#9999B5}
 .top-strip .side-now-foot{font-size:9px;color:#94A3B8;font-weight:700;letter-spacing:.5px;display:flex;justify-content:space-between;margin-top:2px}
 .top-strip .side-now-wave{position:absolute;bottom:0;left:0;right:0;height:30px;opacity:.15;pointer-events:none}
 @media (max-width:900px){.top-strip{flex-direction:column;min-height:auto}.top-strip .bro-mascot{min-height:120px;padding:4px 8px}.top-strip .side-now{flex:0 0 auto;border-left:none;border-top:1px dashed rgba(99,102,241,.25)}.top-strip .side-now-time{font-size:30px}.top-strip .side-now-time .sec{font-size:18px}}
@@ -1100,7 +1114,7 @@ body:not([data-theme=aurora]) .chk.on{background:linear-gradient(135deg,#10B981,
   .tabs.page-t .tab.on .ti{transform:translateY(-2px) scale(1.18)}
   .tabs.page-t .tab.on::before{content:'';position:absolute;top:-9px;left:35%;right:35%;height:3px;border-radius:0 0 4px 4px;background:linear-gradient(90deg,#6366F1,#EC4899)}
   body[data-theme=aurora] .tabs.page-t .tab.on::before{background:linear-gradient(90deg,#A78BFA,#F472B6)}
-  .fab{bottom:calc(96px + env(safe-area-inset-bottom));right:18px;width:62px;height:62px;font-size:30px;z-index:65;display:flex!important}
+  .fab{bottom:calc(96px + env(safe-area-inset-bottom));right:18px;width:62px;height:62px;font-size:30px;z-index:100;display:flex!important;position:fixed!important}
   .player{bottom:calc(80px + env(safe-area-inset-bottom))}
 }
 
@@ -1484,9 +1498,10 @@ body[data-theme=aurora] .tc-added{color:#6B6B85;background:rgba(255,255,255,.04)
 .app{position:relative;z-index:1}
 /* (removed) staggered card entrance + page transition \u2014 caused flicker on every tab switch */
 /* FAB subtle pulse */
-.fab{animation:fabPulse 3.2s ease-in-out infinite;transition:transform .15s}
+.fab{animation:fabPulse 2.4s ease-in-out infinite,fabBounce 1.6s ease-in-out infinite;transition:transform .15s}
+@keyframes fabBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
 .fab:hover{transform:scale(1.08)}
-@keyframes fabPulse{0%,100%{box-shadow:0 4px 20px rgba(0,0,0,.3)}50%{box-shadow:0 4px 28px rgba(61,174,92,.45),0 4px 20px rgba(0,0,0,.3)}}
+@keyframes fabPulse{0%,100%{box-shadow:0 8px 22px rgba(61,174,92,.5),0 0 0 0 rgba(61,174,92,.55),0 4px 20px rgba(0,0,0,.25)}50%{box-shadow:0 12px 30px rgba(61,174,92,.65),0 0 0 14px rgba(61,174,92,0),0 4px 20px rgba(0,0,0,.25)}}
 /* moral chip hover lift */
 .moral{transition:transform .2s,box-shadow .2s}.moral:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(0,0,0,.08)}
 /* stats cards hover */
@@ -2074,7 +2089,7 @@ const KNOWLEDGE_TOPICS=[
 ];
 function getKnowledgeTopic(k){return KNOWLEDGE_TOPICS.find(t=>t.k===k)||KNOWLEDGE_TOPICS[0]}
 function getKnowledgeSec(topicK,secK){const t=getKnowledgeTopic(topicK);return t.sections.find(s=>s.k===secK)||t.sections[0]}
-function switchTab(t){if(t==='steps'||t==='dash')t='tasks';if(t==='history'||t==='geography')t='knowledge';S.tab=t;if(t==='books'&&!S.books.length)loadBooks('all');if(t==='meditation'&&!S.meditations)loadMeditations();if(t==='news'&&!S.news[S.newsCat])loadNews(S.newsCat);if(t==='knowledge'){const tk=S.knowledge.topic||'history';const sk=S.knowledge.sec||'today';if(!S.knowledge.loaded[tk+':'+sk])loadKnowledge(tk,sk)}if(t==='cal'){if(!S.google.loaded)loadGoogleStatus();else if(S.google.accounts.length&&!S.gcalEvents.length&&!S.gcalLoading)loadGcalEvents()}render()}
+function switchTab(t){if(t==='steps'||t==='dash'||t==='history'||t==='geography'||t==='knowledge')t='tasks';S.tab=t;if(t==='books'&&!S.books.length)loadBooks('all');if(t==='meditation'&&!S.meditations)loadMeditations();if(t==='news'&&!S.news[S.newsCat])loadNews(S.newsCat);if(t==='cal'){if(!S.google.loaded)loadGoogleStatus();else if(S.google.accounts.length&&!S.gcalEvents.length&&!S.gcalLoading)loadGcalEvents()}render()}
 async function loadKnowledge(topicK,secK){S.knowledge.topic=topicK;S.knowledge.sec=secK;S.knowledge.loading=true;render();const cacheKey=topicK+':'+secK;try{if(topicK==='history'&&secK==='today'){const r=await fetch('/api/history/today');const j=await r.json();S.knowledge.events=j.events||[]}else{const tObj=KNOWLEDGE_TOPICS.find(t=>t.k===topicK);const sObj=tObj&&tObj.sections.find(s=>s.k===secK);if(!sObj||!sObj.titles){S.knowledge.loaded[cacheKey]=true;S.knowledge.loading=false;render();return}const r=await fetch('/api/wiki/summaries?titles='+encodeURIComponent(sObj.titles.join(',')));const j=await r.json();S.knowledge.articles[cacheKey]=j.summaries||[]}}catch(e){}S.knowledge.loaded[cacheKey]=true;S.knowledge.loading=false;render()}
 function switchKnowledgeTopic(k){S.knowledge.topic=k;const tObj=KNOWLEDGE_TOPICS.find(t=>t.k===k);const sk=(tObj&&tObj.sections[0]&&tObj.sections[0].k)||'today';loadKnowledge(k,sk)}
 async function loadNews(cat){S.newsCat=cat;S.newsLoading=true;render();try{const r=await fetch('/api/news?cat='+encodeURIComponent(cat),{cache:'no-store'});const j=await r.json();S.news[cat]=j.items||[]}catch(e){S.news[cat]=[]}S.newsLoading=false;render()}
@@ -2189,7 +2204,7 @@ function tttFinish(result){
 }
 function gameEnd(){S.game.active=false;S.game.status='idle';render()}
 // Live-tick the sidebar AND header clocks without re-rendering the whole tree
-setInterval(()=>{const n=new Date();const hm=n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false});const sec=String(n.getSeconds()).padStart(2,'0');const t=document.getElementById('sideNowTime');const s=document.getElementById('sideNowSec');if(t&&s){if(t.firstChild&&t.firstChild.nodeValue!==hm)t.firstChild.nodeValue=hm;s.textContent=sec}const ht=document.getElementById('hdrTimeHm');const hs=document.getElementById('hdrTimeSec');if(ht&&hs){if(ht.textContent!==hm)ht.textContent=hm;hs.textContent=':'+sec}},1000);
+setInterval(()=>{const n=new Date();const hm=n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false});const sec=String(n.getSeconds()).padStart(2,'0');const t=document.getElementById('sideNowTime');const s=document.getElementById('sideNowSec');if(t&&s){if(t.firstChild&&t.firstChild.nodeValue!==hm)t.firstChild.nodeValue=hm;s.textContent=':'+sec}const ht=document.getElementById('hdrTimeHm');const hs=document.getElementById('hdrTimeSec');if(ht&&hs){if(ht.textContent!==hm)ht.textContent=hm;hs.textContent=':'+sec}},1000);
 
 async function loadBooks(cat){S.booksCat=cat;S.booksLoading=true;render();try{const subjectMap={'self-help':'(subject:"self-help" OR subject:"self help" OR subject:"self improvement" OR subject:"non-fiction")'};const subj=subjectMap[cat]||('subject:'+cat);const q=cat==='all'?'collection:librivoxaudio AND mediatype:audio':'collection:librivoxaudio AND mediatype:audio AND '+subj;const url='https://archive.org/advancedsearch.php?q='+encodeURIComponent(q)+'&fl[]=identifier&fl[]=title&fl[]=creator&fl[]=downloads&rows=30&output=json&sort[]=downloads+desc';const r=await fetch(url);const j=await r.json();S.books=j.response.docs;}catch(e){S.books=[];toast('\\u26A0\\uFE0F Failed to load books','err')}S.booksLoading=false;render()}
 async function playBook(id){const b=S.books.find(x=>x.identifier===id);if(!b){toast('\\u26A0\\uFE0F Book not found','err');return}const title=Array.isArray(b.title)?b.title[0]:b.title;const author=Array.isArray(b.creator)?b.creator[0]:(b.creator||'Unknown');S.playing={id,title,author,loading:true};render();try{const r=await fetch('https://archive.org/metadata/'+encodeURIComponent(id));if(!r.ok)throw new Error('metadata '+r.status);const j=await r.json();if(!j.files||!j.files.length){toast('\\u26A0\\uFE0F No files \\u2014 opening archive.org','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render();return}let mp3=j.files.find(f=>/_64kb\\.mp3$/i.test(f.name));if(!mp3)mp3=j.files.find(f=>/_32kb\\.mp3$/i.test(f.name));if(!mp3)mp3=j.files.find(f=>/\\.mp3$/i.test(f.name)&&!/sample|test|spoken/i.test(f.name));if(!mp3)mp3=j.files.find(f=>/\\.(mp3|m4a|ogg)$/i.test(f.name));if(mp3){const server=j.server||'archive.org';const dir=j.dir||('/'+id);const directUrl='https://'+server+dir+'/'+mp3.name.split('/').map(encodeURIComponent).join('/');const dlUrl='https://archive.org/download/'+encodeURIComponent(id)+'/'+mp3.name.split('/').map(encodeURIComponent).join('/');S.playing={id,title,author,url:directUrl,altUrl:dlUrl,external:'https://archive.org/details/'+id};render();setTimeout(()=>{const a=document.getElementById('audioEl');if(!a)return;a.setAttribute('playsinline','');a.setAttribute('webkit-playsinline','');a.preload='auto';a.addEventListener('error',function onErr(){a.removeEventListener('error',onErr);if(a.src!==dlUrl){a.src=dlUrl;a.load()}},{once:true});a.load();a.addEventListener('play',startBookListenTimer);a.addEventListener('pause',()=>{/* keep timer; checks paused itself */});const p=a.play();if(p&&p.catch)p.catch(()=>toast('\\u25B6\\uFE0F Tap the play button on the bar','err'))},250)}else{toast('\\u26A0\\uFE0F No audio \\u2014 opening archive.org','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render()}}catch(e){toast('\\u26A0\\uFE0F '+e.message,'err');S.playing={id,title,author,url:null,external:'https://archive.org/details/'+id,error:e.message};render()}}
@@ -2285,7 +2300,7 @@ const PHONE_BANNER='<div class="phone-banner" aria-hidden="true">'
   +'<div class="phone-banner-img" style="background-image:url(&quot;https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=900&q=70&auto=format&fit=crop&quot;)"></div>'
   +'<div class="phone-banner-tag">\\u2022  T A S K S  \\u2022  B O O K S  \\u2022  W I S D O M  \\u2022  C A L M  \\u2022</div>'
 +'</div>';
-let h=PHONE_BANNER+'<div class="hdr"><div><div class="logo">Bro<span class="k">Do</span>it</div><div class="hdr-tagline">tasks &middot; books &middot; wisdom &middot; calm</div><div class="hdr-sub">'+JUMPER+HDR_TIME+'</div></div><div class="hdr-actions"><button class="theme-tg" onclick="toggleTheme()" title="Switch theme">'+(S.theme==='aurora'?ic('sun',18):ic('moon',18))+'</button><div class="hdr-st"><span class="dot" style="background:'+(S.waConnected&&S.waOk?'#10B981':'#CBD5E1')+'"></span>'+(S.waConnected&&S.waOk?'LIVE':'OFF')+'</div></div></div>';
+let h=PHONE_BANNER+'<div class="hdr"><div><div class="logo">Bro<span class="k">Do</span>it</div><div class="hdr-tagline">tasks &middot; books &middot; wisdom &middot; calm</div><div class="hdr-sub">'+JUMPER+HDR_TIME+'</div></div><div class="hdr-actions"><button class="theme-tg" onclick="toggleTheme()" title="Switch theme">'+(S.theme==='aurora'?ic('sun',18):ic('moon',18))+'</button></div></div>';
 
 // Moral chip
 const m=MORALS[S.moralIdx];
@@ -2298,7 +2313,7 @@ h+='<div class="moral">'+MORAL_DOODLE+'<div class="moral-emoji">\\u{1F4A1}</div>
   const dayOfYear=Math.floor((now-yStart)/86400000);
   const yearPct=Math.round(dayOfYear/365*100);
   const dateStr=now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-  const tabsHtml=[{k:'tasks',l:'Tasks'},{k:'board',l:'Board'},{k:'cal',l:'Calendar'},{k:'news',l:'News'},{k:'knowledge',l:'Knowledge'},{k:'books',l:'Books'},{k:'meditation',l:'Meditate'}].map(x=>'<button class="tab tab-'+x.k+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(ID[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
+  const tabsHtml=[{k:'tasks',l:'Tasks'},{k:'board',l:'Board'},{k:'cal',l:'Calendar'},{k:'news',l:'News'},{k:'books',l:'Books'},{k:'meditation',l:'Meditate'}].map(x=>'<button class="tab tab-'+x.k+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(ID[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
   // "Bro, do it!" mascot — a character with a speech bubble that animates
   const climbScene='<div class="bro-mascot" aria-hidden="true">'
     +'<svg class="bro-svg" viewBox="0 0 340 130" xmlns="http://www.w3.org/2000/svg">'
@@ -2324,12 +2339,24 @@ h+='<div class="moral">'+MORAL_DOODLE+'<div class="moral-emoji">\\u{1F4A1}</div>
     +'</div>';
   const daysLeft=365-dayOfYear;
   const sideNow='<div class="side-now" aria-hidden="true">'
-    +'<div class="side-now-lbl">Local time</div>'
-    +'<div class="side-now-time" id="sideNowTime">'+now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false})+'<span class="sec" id="sideNowSec">'+String(now.getSeconds()).padStart(2,'0')+'</span></div>'
-    +'<div class="side-now-date">'+dateStr+'</div>'
-    +'<div class="side-now-stat">\\u23F3 <b>'+daysLeft+'</b> days left in '+now.getFullYear()+'</div>'
-    +'<div class="side-now-bar"><div class="side-now-fill" style="width:'+yearPct+'%"></div><div class="side-now-comet"></div></div>'
-    +'<div class="side-now-foot"><span>YEAR PROGRESS \\u2022 '+yearPct+'%</span><span>Day '+dayOfYear+' / 365</span></div>'
+    +'<div class="side-now-row">'
+      +'<span class="side-now-time" id="sideNowTime">'+now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false})+'<span class="sec" id="sideNowSec">:'+String(now.getSeconds()).padStart(2,'0')+'</span></span>'
+      +'<span class="side-now-sep">\\u2022</span>'
+      +'<span class="side-now-date">'+dateStr+'</span>'
+      +'<span class="side-now-sep">\\u2022</span>'
+      +'<span class="side-now-days"><b>'+daysLeft+'</b>d left</span>'
+    +'</div>'
+    +'<div class="side-now-bar"><div class="side-now-fill" style="width:'+yearPct+'%"></div><div class="side-now-walker" style="left:'+yearPct+'%">'
+      +'<svg viewBox="0 0 14 18" xmlns="http://www.w3.org/2000/svg" fill="none" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">'
+        +'<circle cx="7" cy="3" r="2" fill="#6366F1"/>'
+        +'<line x1="7" y1="5" x2="7" y2="11" stroke="#6366F1"/>'
+        +'<g class="snw-arm-l"><line x1="7" y1="7" x2="3" y2="9" stroke="#6366F1"/></g>'
+        +'<g class="snw-arm-r"><line x1="7" y1="7" x2="11" y2="6" stroke="#6366F1"/></g>'
+        +'<g class="snw-leg-l"><line x1="7" y1="11" x2="4" y2="16" stroke="#6366F1"/></g>'
+        +'<g class="snw-leg-r"><line x1="7" y1="11" x2="10" y2="16" stroke="#6366F1"/></g>'
+      +'</svg>'
+    +'</div></div>'
+    +'<div class="side-now-foot"><span>'+yearPct+'%</span><span>Day '+dayOfYear+' / 365</span></div>'
     +'<svg class="side-now-wave" viewBox="0 0 100 30" preserveAspectRatio="none"><path d="M 0 15 Q 12.5 5 25 15 T 50 15 T 75 15 T 100 15" stroke="#6366F1" stroke-width="1.6" fill="none"><animate attributeName="d" dur="4s" repeatCount="indefinite" values="M 0 15 Q 12.5 5 25 15 T 50 15 T 75 15 T 100 15;M 0 15 Q 12.5 25 25 15 T 50 15 T 75 15 T 100 15;M 0 15 Q 12.5 5 25 15 T 50 15 T 75 15 T 100 15"/></path></svg>'
     +'</div>';
   h+='<nav class="tabs page-t">'+tabsHtml+'</nav>';
@@ -2388,7 +2415,6 @@ if(S.tab==='tasks'){
     }
     h+='</div>';
   }
-  h+='<button class="fab" onclick="opA()">+</button>';
 }
 
 // BOARD TAB (Kanban: To Do / Doing / Done with drag-and-drop)
@@ -2418,7 +2444,6 @@ else if(S.tab==='board'){
     h+='</div></div>';
   });
   h+='</div>';
-  h+='<button class="fab" onclick="opA()">+</button>';
 }
 
 
@@ -2642,8 +2667,8 @@ else if(S.tab==='meditation'){
   h+='<div class="med-foot">\\u{1F50A} Use headphones, find a quiet spot, and let the guide lead you.</div>';
 }
 
-// KNOWLEDGE TAB — combined History + Geography + Space + Karma with two-level navigation
-else if(S.tab==='knowledge'){
+// KNOWLEDGE TAB removed at user request (kept stub so saved state doesn't break)
+else if(S.tab==='__obsolete_knowledge__'){
   const kn=S.knowledge;
   const today=new Date();
   const topicK=kn.topic||'history';
@@ -2705,6 +2730,14 @@ else if(S.tab==='knowledge'){
 
 
 h+='</main>';
+// Global FAB+ — always rendered, fixed-position, bouncy animation. Adapts behavior per tab.
+{
+  const isTaskTab=S.tab==='tasks'||S.tab==='board';
+  const isCalTab=S.tab==='cal';
+  const action=isTaskTab?'opA()':(isCalTab?'calAddForDate()':"switchTab('tasks');setTimeout(opA,80)");
+  const lbl=isTaskTab?'Add a new task':(isCalTab?'Add to calendar':'Add a task');
+  h+='<button class="fab fab-global" onclick="'+action+'" aria-label="'+lbl+'" title="'+lbl+'">+</button>';
+}
 
 // Player bar (any tab)
 if(S.playing){
