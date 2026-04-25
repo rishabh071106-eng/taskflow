@@ -540,6 +540,27 @@ input:focus,textarea:focus{outline:none;border-color:#0F172A}textarea{resize:ver
 .app{max-width:520px;margin:0 auto;padding:18px 18px 120px;position:relative;z-index:1}
 .main-col{display:block}
 .hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding:4px 2px}.logo{font-family:'Space Mono',monospace;font-size:30px;font-weight:700;letter-spacing:-.8px;line-height:1.1}.logo .k{color:#3DAE5C;display:inline-block;transition:transform .4s cubic-bezier(.4,1.5,.5,1)}.logo:hover .k{transform:scale(1.15) rotate(-6deg)}
+.hdr-tagline{display:none;font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-size:13px;color:#94A3B8;margin-top:2px;letter-spacing:.04em}
+/* Phone scenic masthead — desktop hidden by default */
+.phone-banner{display:none}
+@media (max-width:700px){
+  .phone-banner{display:block;position:relative;width:calc(100% + 36px);height:120px;margin:-18px -18px 14px;overflow:hidden;border-radius:0 0 18px 18px;background:#0F172A}
+  .phone-banner-img{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;animation:phoneCycle 18s ease-in-out infinite}
+  .phone-banner-img:nth-child(1){animation-delay:0s}
+  .phone-banner-img:nth-child(2){animation-delay:6s}
+  .phone-banner-img:nth-child(3){animation-delay:12s}
+  @keyframes phoneCycle{
+    0%,30%{opacity:.85;transform:scale(1)}
+    33%,100%{opacity:0;transform:scale(1.12)}
+  }
+  .phone-banner::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,23,42,.15) 0%,rgba(15,23,42,.55) 100%);pointer-events:none;z-index:1}
+  .phone-banner-tag{position:absolute;bottom:8px;left:0;right:0;text-align:center;font-size:9.5px;font-weight:800;letter-spacing:2.5px;color:rgba(255,255,255,.85);z-index:2;text-shadow:0 1px 4px rgba(0,0,0,.5)}
+  .hdr-tagline{display:block}
+  .hdr{padding:0 2px;margin-bottom:14px}
+}
+@media (max-width:380px){.phone-banner{height:96px}}
+body[data-theme=aurora] .phone-banner{background:#0A0A14}
+body[data-theme=aurora] .hdr-tagline{color:#9999B5}
 .hdr-st{font-size:11px;font-weight:700;padding:8px 14px;border-radius:10px;background:#FFFFFF;border:1px solid #E8E9EF;display:flex;align-items:center;gap:7px;letter-spacing:.8px;box-shadow:0 2px 6px rgba(0,0,0,.04)}
 .dot{width:9px;height:9px;border-radius:50%;display:inline-block;animation:pulse-dot 2s ease-in-out infinite}
 .hdr-sub{margin-top:4px;font-weight:500;display:flex;align-items:center;gap:14px;font-family:'Instrument Serif',Georgia,serif;font-size:15px;letter-spacing:.02em;color:#64748B}
@@ -567,21 +588,10 @@ input:focus,textarea:focus{outline:none;border-color:#0F172A}textarea{resize:ver
 body[data-theme=aurora] .hdr-time-hm{color:#F5F5FA}
 body[data-theme=aurora] .hdr-time-date{color:#9999B5}
 @media (max-width:700px){
-  .hdr-jumper{width:38px;height:38px}
+  /* Single timer on phone: drop the header time entirely; LOCAL TIME card below is enough */
+  .hdr-time{display:none}
+  .hdr-jumper{width:42px;height:42px}
   .hdr-sub{gap:10px;flex-wrap:wrap;font-size:13px}
-  .hdr-time{gap:4px}
-  .hdr-time-hm{font-size:20px}
-  .hdr-time-sec{font-size:12px}
-  .hdr-time-sep{font-size:14px;margin:0 2px}
-  .hdr-time-date{font-size:12px}
-}
-@media (max-width:480px){
-  .hdr-jumper{width:32px;height:32px}
-  .hdr-time-hm{font-size:18px}
-  .hdr-time-sec{font-size:11px}
-  .hdr-time-sep{display:none}
-  .hdr-time-date{display:none}
-  .hdr-sub{gap:8px}
 }
 /* Section dividers — thin gradient line with a pulsing centered node */
 .section-div{height:1px;background:linear-gradient(90deg,transparent 0%,rgba(99,102,241,.18) 30%,rgba(232,145,44,.22) 50%,rgba(99,102,241,.18) 70%,transparent 100%);margin:18px 0;position:relative}
@@ -593,9 +603,17 @@ body[data-theme=aurora] .hdr-time-date{color:#9999B5}
 .top-strip .side-now-time{font-family:'Instrument Serif',Georgia,serif;font-size:38px;font-weight:400;color:#0F172A;line-height:1;letter-spacing:-.03em;margin-top:2px}
 .top-strip .side-now-time .sec{color:#E8453C;animation:secBlink 1s steps(2) infinite;font-size:22px;margin-left:2px;display:inline-block;vertical-align:top;margin-top:8px}
 .top-strip .side-now-date{font-size:12px;color:#64748B;font-weight:600}
-.top-strip .side-now-bar{height:6px;border-radius:99px;background:rgba(99,102,241,.14);overflow:hidden;margin-top:8px;position:relative}
-.top-strip .side-now-fill{height:100%;background:linear-gradient(90deg,#6366F1,#E8912C);border-radius:99px;position:relative;overflow:hidden}
+.top-strip .side-now-stat{font-size:13px;color:#475569;font-weight:600;margin-top:6px;display:flex;align-items:center;gap:6px}
+.top-strip .side-now-stat b{font-family:'Instrument Serif',Georgia,serif;font-size:22px;font-weight:400;color:#E8453C;letter-spacing:-.02em;line-height:1}
+.top-strip .side-now-bar{height:8px;border-radius:99px;background:rgba(99,102,241,.14);overflow:hidden;margin-top:10px;position:relative}
+.top-strip .side-now-fill{height:100%;background:linear-gradient(90deg,#6366F1,#8B5CF6,#EC4899,#E8912C);background-size:200% 100%;border-radius:99px;position:relative;overflow:hidden;animation:gradientShift 4s ease-in-out infinite}
+@keyframes gradientShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
 .top-strip .side-now-fill::after{content:'';position:absolute;top:0;left:-30%;width:30%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);animation:fillShine 2.6s ease-in-out infinite}
+/* Comet that travels the full year-progress bar */
+.top-strip .side-now-comet{position:absolute;top:50%;left:0;width:10px;height:10px;border-radius:50%;background:#fff;box-shadow:0 0 12px rgba(255,255,255,.85),0 0 20px rgba(99,102,241,.6);transform:translate(-50%,-50%);animation:cometRun 6s linear infinite;z-index:2;pointer-events:none}
+@keyframes cometRun{from{left:0%}to{left:100%}}
+body[data-theme=aurora] .top-strip .side-now-stat{color:#9999B5}
+body[data-theme=aurora] .top-strip .side-now-stat b{color:#F472B6}
 .top-strip .side-now-foot{font-size:10px;color:#94A3B8;font-weight:700;letter-spacing:.6px;display:flex;justify-content:space-between;margin-top:2px}
 .top-strip .side-now-wave{position:absolute;bottom:0;left:0;right:0;height:30px;opacity:.15;pointer-events:none}
 @media (max-width:900px){.top-strip{flex-direction:column;min-height:auto}.top-strip .climb-scene{min-height:140px;padding:6px 0}.top-strip .side-now{flex:0 0 auto;border-left:none;border-top:1px dashed rgba(99,102,241,.25)}.top-strip .side-now-time{font-size:30px}.top-strip .side-now-time .sec{font-size:18px}}
@@ -2129,7 +2147,14 @@ const HDR_TIME='<div class="hdr-time">'
   +'<span class="hdr-time-sep">|</span>'
   +'<span class="hdr-time-date">'+_date+'</span>'
 +'</div>';
-let h='<div class="hdr"><div><div class="logo">Bro<span class="k">Do</span>it</div><div class="hdr-sub">'+JUMPER+HDR_TIME+'</div></div><div class="hdr-actions"><button class="theme-tg" onclick="toggleTheme()" title="Switch theme">'+(S.theme==='aurora'?ic('sun',18):ic('moon',18))+'</button><div class="hdr-st"><span class="dot" style="background:'+(S.waConnected&&S.waOk?'#10B981':'#CBD5E1')+'"></span>'+(S.waConnected&&S.waOk?'LIVE':'OFF')+'</div></div></div>';
+// Phone-only scenic masthead — three Ken-Burns-zooming photos cycling above the logo
+const PHONE_BANNER='<div class="phone-banner" aria-hidden="true">'
+  +'<div class="phone-banner-img" style="background-image:url(&quot;https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=900&q=70&auto=format&fit=crop&quot;)"></div>'
+  +'<div class="phone-banner-img" style="background-image:url(&quot;https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?w=900&q=70&auto=format&fit=crop&quot;)"></div>'
+  +'<div class="phone-banner-img" style="background-image:url(&quot;https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=900&q=70&auto=format&fit=crop&quot;)"></div>'
+  +'<div class="phone-banner-tag">\\u2022  T A S K S  \\u2022  B O O K S  \\u2022  W I S D O M  \\u2022  C A L M  \\u2022</div>'
++'</div>';
+let h=PHONE_BANNER+'<div class="hdr"><div><div class="logo">Bro<span class="k">Do</span>it</div><div class="hdr-tagline">tasks &middot; books &middot; wisdom &middot; calm</div><div class="hdr-sub">'+JUMPER+HDR_TIME+'</div></div><div class="hdr-actions"><button class="theme-tg" onclick="toggleTheme()" title="Switch theme">'+(S.theme==='aurora'?ic('sun',18):ic('moon',18))+'</button><div class="hdr-st"><span class="dot" style="background:'+(S.waConnected&&S.waOk?'#10B981':'#CBD5E1')+'"></span>'+(S.waConnected&&S.waOk?'LIVE':'OFF')+'</div></div></div>';
 
 // Moral chip
 const m=MORALS[S.moralIdx];
@@ -2165,12 +2190,14 @@ h+='<div class="moral">'+MORAL_DOODLE+'<div class="moral-emoji">\\u{1F4A1}</div>
     +'<div class="walker walker-b">'+STICK+'</div>'
     +'<div class="walker walker-c">'+STICK+'</div>'
     +'</div>';
+  const daysLeft=365-dayOfYear;
   const sideNow='<div class="side-now" aria-hidden="true">'
     +'<div class="side-now-lbl">Local time</div>'
     +'<div class="side-now-time" id="sideNowTime">'+now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false})+'<span class="sec" id="sideNowSec">'+String(now.getSeconds()).padStart(2,'0')+'</span></div>'
     +'<div class="side-now-date">'+dateStr+'</div>'
-    +'<div class="side-now-bar"><div class="side-now-fill" style="width:'+yearPct+'%"></div></div>'
-    +'<div class="side-now-foot"><span>YEAR PROGRESS</span><span>Day '+dayOfYear+' / 365</span></div>'
+    +'<div class="side-now-stat">\\u23F3 <b>'+daysLeft+'</b> days left in '+now.getFullYear()+'</div>'
+    +'<div class="side-now-bar"><div class="side-now-fill" style="width:'+yearPct+'%"></div><div class="side-now-comet"></div></div>'
+    +'<div class="side-now-foot"><span>YEAR PROGRESS \\u2022 '+yearPct+'%</span><span>Day '+dayOfYear+' / 365</span></div>'
     +'<svg class="side-now-wave" viewBox="0 0 100 30" preserveAspectRatio="none"><path d="M 0 15 Q 12.5 5 25 15 T 50 15 T 75 15 T 100 15" stroke="#6366F1" stroke-width="1.6" fill="none"><animate attributeName="d" dur="4s" repeatCount="indefinite" values="M 0 15 Q 12.5 5 25 15 T 50 15 T 75 15 T 100 15;M 0 15 Q 12.5 25 25 15 T 50 15 T 75 15 T 100 15;M 0 15 Q 12.5 5 25 15 T 50 15 T 75 15 T 100 15"/></path></svg>'
     +'</div>';
   h+='<nav class="tabs page-t">'+tabsHtml+'</nav>';
