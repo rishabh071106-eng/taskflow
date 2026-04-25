@@ -487,16 +487,17 @@ input:focus,textarea:focus{outline:none;border-color:#0F172A}textarea{resize:ver
 .hdr-st{font-size:11px;font-weight:700;padding:8px 14px;border-radius:10px;background:#FFFFFF;border:1px solid #E8E9EF;display:flex;align-items:center;gap:7px;letter-spacing:.8px;box-shadow:0 2px 6px rgba(0,0,0,.04)}
 .dot{width:9px;height:9px;border-radius:50%;display:inline-block;animation:pulse-dot 2s ease-in-out infinite}
 .hdr-sub{font-size:13px;color:#94A3B8;margin-top:2px;font-weight:500}
-.moral{display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#FFFBF1 0%,#FEF3E0 50%,#EAF6EE 100%);border:1px solid #F3D9A0;border-radius:18px;padding:20px 22px;margin-bottom:14px;position:relative;overflow:hidden;min-height:96px;box-shadow:0 4px 16px rgba(232,145,44,.08)}
+.moral{display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#FFFBF1 0%,#FEF3E0 50%,#EAF6EE 100%);border:1px solid #F3D9A0;border-radius:18px;padding:24px 26px;margin-bottom:14px;position:relative;overflow:hidden;min-height:140px;box-shadow:0 4px 16px rgba(232,145,44,.08)}
 .moral::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:linear-gradient(180deg,#E8912C,#3DAE5C);z-index:2}
-.moral-doodle{position:absolute;top:0;right:0;bottom:0;width:58%;max-width:560px;height:100%;pointer-events:none;z-index:0;opacity:1;filter:drop-shadow(0 1px 2px rgba(15,23,42,.05))}
-.moral::after{content:'';position:absolute;top:0;left:0;bottom:0;width:42%;background:linear-gradient(90deg,rgba(255,251,241,.96) 0%,rgba(254,243,224,.78) 70%,rgba(254,243,224,0) 100%);pointer-events:none;z-index:0}
-@media (max-width:600px){.moral-doodle{width:48%}.moral::after{width:55%}}
+.moral-doodle{position:absolute;top:0;right:0;bottom:0;width:62%;max-width:640px;height:100%;pointer-events:none;z-index:0;opacity:1;filter:drop-shadow(0 1px 2px rgba(15,23,42,.05))}
+.moral::after{content:'';position:absolute;top:0;left:0;bottom:0;width:38%;background:linear-gradient(90deg,rgba(255,251,241,.96) 0%,rgba(254,243,224,.65) 75%,rgba(254,243,224,0) 100%);pointer-events:none;z-index:0}
+@media (max-width:600px){.moral-doodle{width:50%}.moral::after{width:52%}.moral{min-height:120px}}
+body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,20,40,.9) 0%,rgba(20,20,40,.65) 70%,rgba(20,20,40,0) 100%)}
 .moral-emoji{font-size:26px;flex-shrink:0;filter:drop-shadow(0 2px 4px rgba(232,145,44,.3));position:relative;z-index:1}
 .moral-body{flex:1;min-width:0;position:relative;z-index:1}
-.moral-lbl{font-size:10px;font-weight:700;color:#B57B00;text-transform:uppercase;letter-spacing:1.2px}
-.moral-txt{font-size:15px;line-height:1.45;color:#0F172A;font-weight:600;margin-top:3px;letter-spacing:-.1px}
-.moral-by{font-size:12px;color:#94A3B8;margin-top:4px;font-style:italic;font-weight:500}
+.moral-lbl{font-size:11px;font-weight:700;color:#B57B00;text-transform:uppercase;letter-spacing:1.4px}
+.moral-txt{font-size:17px;line-height:1.45;color:#0F172A;font-weight:600;margin-top:5px;letter-spacing:-.1px}
+.moral-by{font-size:13px;color:#94A3B8;margin-top:6px;font-style:italic;font-weight:500}
 .moral-ref{width:34px;height:34px;border-radius:50%;background:#FFFFFF;color:#B57B00;font-size:15px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border:1.5px solid #F3D9A0;transition:all .3s cubic-bezier(.4,1.5,.5,1);position:relative;z-index:1}
 .moral-ref:hover{background:#B57B00;color:#fff;transform:rotate(180deg) scale(1.1)}
 .moral-ref:hover{transform:rotate(180deg);background:#0F172A;color:#F8FAFC}
@@ -516,11 +517,25 @@ input:focus,textarea:focus{outline:none;border-color:#0F172A}textarea{resize:ver
   .app{max-width:1280px;padding:28px 36px 60px;display:grid;grid-template-columns:290px 1fr;grid-template-areas:"hdr hdr" "moral moral" "nav main";column-gap:36px;row-gap:20px}
   .app>.hdr{grid-area:hdr;margin-bottom:0}
   .app>.moral{grid-area:moral;margin-bottom:0}
-  .app>.tabs.page-t{grid-area:nav;flex-direction:column;align-self:start;position:sticky;top:28px;padding:14px;gap:6px;overflow:visible;max-height:calc(100vh - 56px);margin-bottom:0}
-  .app>.tabs.page-t .tab{width:100%;flex:0 0 auto;padding:18px 20px;font-size:16px;font-weight:600;justify-content:flex-start;border-radius:14px;gap:14px}
-  .app>.tabs.page-t .tab .ti{font-size:24px;margin-right:6px}
-  .app>.tabs.page-t .tab .ti svg{width:24px;height:24px}
+  .app>.tabs.page-t{grid-area:nav;flex-direction:column;align-self:stretch;position:sticky;top:28px;padding:16px;gap:10px;overflow:visible;min-height:calc(100vh - 56px);max-height:calc(100vh - 56px);margin-bottom:0;justify-content:flex-start}
+  .app>.tabs.page-t .tab{width:100%;flex:1 1 0;min-height:74px;padding:14px 16px;font-size:16px;font-weight:600;justify-content:flex-start;border-radius:14px;gap:14px;align-items:center}
+  .app>.tabs.page-t .tab .ti{width:46px;height:46px;border-radius:13px;background:var(--tab-bg,#F1F5F9);color:var(--tab-fg,#0F172A);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:0;transition:all .2s ease}
+  .app>.tabs.page-t .tab .ti svg{width:26px;height:26px}
   .app>.tabs.page-t .tab .tl{font-size:16px;letter-spacing:-.01em}
+  .app>.tabs.page-t .tab.tab-tasks{--tab-bg:#EEF2FF;--tab-fg:#4F46E5}
+  .app>.tabs.page-t .tab.tab-board{--tab-bg:#FEF3C7;--tab-fg:#B45309}
+  .app>.tabs.page-t .tab.tab-cal{--tab-bg:#FCE7F3;--tab-fg:#BE185D}
+  .app>.tabs.page-t .tab.tab-news{--tab-bg:#CCFBF1;--tab-fg:#0D9488}
+  .app>.tabs.page-t .tab.tab-books{--tab-bg:#D1FAE5;--tab-fg:#047857}
+  .app>.tabs.page-t .tab.tab-meditation{--tab-bg:#EDE9FE;--tab-fg:#7C3AED}
+  .app>.tabs.page-t .tab.on .ti{background:rgba(255,255,255,.18);color:#fff}
+  .app>.tabs.page-t .tab:hover:not(.on) .ti{transform:scale(1.05)}
+  body[data-theme=aurora] .app>.tabs.page-t .tab.tab-tasks{--tab-bg:rgba(99,102,241,.16);--tab-fg:#A5B4FC}
+  body[data-theme=aurora] .app>.tabs.page-t .tab.tab-board{--tab-bg:rgba(232,145,44,.16);--tab-fg:#FCD34D}
+  body[data-theme=aurora] .app>.tabs.page-t .tab.tab-cal{--tab-bg:rgba(236,72,153,.16);--tab-fg:#F9A8D4}
+  body[data-theme=aurora] .app>.tabs.page-t .tab.tab-news{--tab-bg:rgba(13,148,136,.18);--tab-fg:#5EEAD4}
+  body[data-theme=aurora] .app>.tabs.page-t .tab.tab-books{--tab-bg:rgba(5,150,105,.18);--tab-fg:#6EE7B7}
+  body[data-theme=aurora] .app>.tabs.page-t .tab.tab-meditation{--tab-bg:rgba(139,92,246,.18);--tab-fg:#C4B5FD}
   .app>.main-col{grid-area:main;min-width:0}
   .fab{display:none}
   /* Wider hero elements on desktop */
@@ -1369,6 +1384,15 @@ if(token){S.user={phone:localStorage.getItem('tf_phone'),name:localStorage.getIt
 const api=async(p,o={})=>{try{const h={'Content-Type':'application/json'};if(token)h['x-token']=token;const r=await fetch('/api'+p,{headers:h,...o});if(r.status===401){logout();return null}return await r.json()}catch(e){return null}};
 const P={high:{c:'#E8453C',d:'\\u{1F534}'},medium:{c:'#E8912C',d:'\\u{1F7E0}'},low:{c:'#3DAE5C',d:'\\u{1F7E2}'}};
 // Scenic Unsplash hero banners per tab (free, hot-link friendly)
+// Per-tab illustrated doodles (sidebar) — colorful filled SVGs that read as illustrations
+const ID={
+tasks:'<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="4" width="20" height="24" rx="3.5" fill="currentColor" opacity="0.18"/><rect x="11" y="2.5" width="10" height="4" rx="1.5" fill="currentColor" opacity="0.5"/><circle cx="11" cy="12" r="1.6" fill="currentColor"/><circle cx="11" cy="18" r="1.6" fill="currentColor"/><circle cx="11" cy="24" r="1.6" fill="currentColor" opacity="0.45"/><line x1="15" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="15" y1="18" x2="22" y2="18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="15" y1="24" x2="20" y2="24" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity="0.45"/></svg>',
+board:'<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="6" width="7.5" height="20" rx="2" fill="currentColor" opacity="0.5"/><rect x="12.25" y="6" width="7.5" height="13" rx="2" fill="currentColor" opacity="0.85"/><rect x="21.5" y="6" width="7.5" height="9" rx="2" fill="currentColor" opacity="0.3"/><circle cx="6.75" cy="10.5" r="1.2" fill="#fff"/><circle cx="16" cy="10.5" r="1.2" fill="#fff"/><circle cx="25.25" cy="10.5" r="1.2" fill="#fff"/></svg>',
+cal:'<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="6" width="24" height="22" rx="3" fill="currentColor" opacity="0.18"/><rect x="4" y="6" width="24" height="6.5" rx="3" fill="currentColor" opacity="0.55"/><rect x="9" y="3" width="2" height="6" rx="1" fill="currentColor"/><rect x="21" y="3" width="2" height="6" rx="1" fill="currentColor"/><path d="M16 18.5l-1.4 2.8-3.1.45 2.25 2.2-.53 3.1L16 25.6l2.78 1.45-.53-3.1 2.25-2.2-3.1-.45z" fill="currentColor"/></svg>',
+news:'<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="5" width="22" height="22" rx="2.5" fill="currentColor" opacity="0.18"/><rect x="25" y="10" width="4" height="17" rx="1.5" fill="currentColor" opacity="0.4"/><rect x="6" y="9" width="9" height="6" rx="1" fill="currentColor" opacity="0.55"/><line x1="17" y1="10" x2="22" y2="10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="17" y1="13.5" x2="22" y2="13.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="6" y1="19" x2="22" y2="19" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="6" y1="22.5" x2="20" y2="22.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity="0.7"/></svg>',
+books:'<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 8 C 16 8 11 5 4 6 L 4 25 C 11 24 16 27 16 27 L 16 8 Z" fill="currentColor" opacity="0.55"/><path d="M16 8 C 16 8 21 5 28 6 L 28 25 C 21 24 16 27 16 27 L 16 8 Z" fill="currentColor" opacity="0.85"/><line x1="8" y1="11" x2="13" y2="11.6" stroke="#fff" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/><line x1="8" y1="15" x2="13" y2="15.6" stroke="#fff" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/><line x1="19" y1="11.6" x2="24" y2="11" stroke="#fff" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/><line x1="19" y1="15.6" x2="24" y2="15" stroke="#fff" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/></svg>',
+meditation:'<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="13" fill="currentColor" opacity="0.14"/><circle cx="16" cy="16" r="9" fill="currentColor" opacity="0.18"/><circle cx="16" cy="9.5" r="3" fill="currentColor"/><path d="M9 22 C 11 17 14 16 16 16 C 18 16 21 17 23 22 C 22 23.5 18.5 24 16 24 C 13.5 24 10 23.5 9 22 Z" fill="currentColor"/><path d="M5 19 C 8 22 11 22 12 21" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.75"/><path d="M27 19 C 24 22 21 22 20 21" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.75"/></svg>'
+};
 // "Rise Together" doodle — a chain of 4 people climbing the same curve, helping each other up
 const MORAL_DOODLE='<svg class="moral-doodle" viewBox="0 0 520 200" preserveAspectRatio="xMaxYMid meet" xmlns="http://www.w3.org/2000/svg">'
 // dashed shadow under curve (hand-drawn vibe)
@@ -1623,7 +1647,7 @@ const m=MORALS[S.moralIdx];
 h+='<div class="moral">'+MORAL_DOODLE+'<div class="moral-emoji">\\u{1F4A1}</div><div class="moral-body"><div class="moral-lbl">Moral of the Day</div><div class="moral-txt">"'+esc(m.t)+'"</div><div class="moral-by">\\u2014 '+esc(m.a)+'</div></div><button class="moral-ref" onclick="rotateMoral()" title="New quote">\\u21BB</button></div>';
 
 // Tabs
-h+='<nav class="tabs page-t">'+[{k:'tasks',l:'Tasks'},{k:'board',l:'Board'},{k:'cal',l:'Calendar'},{k:'news',l:'News'},{k:'books',l:'Books'},{k:'meditation',l:'Meditate'}].map(x=>'<button class="tab'+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+ic(x.k,28)+'</span><span class="tl">'+x.l+'</span></button>').join('')+'</nav>';
+h+='<nav class="tabs page-t">'+[{k:'tasks',l:'Tasks'},{k:'board',l:'Board'},{k:'cal',l:'Calendar'},{k:'news',l:'News'},{k:'books',l:'Books'},{k:'meditation',l:'Meditate'}].map(x=>'<button class="tab tab-'+x.k+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(ID[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('')+'</nav>';
 
 h+='<main class="main-col">';
 h+='<div class="user-bar" style="cursor:pointer" onclick="openProfile()"><span>\\u{1F464} '+esc(S.user.name||S.user.phone)+' <span style="color:#94A3B8;font-size:11px">\\u203A Profile</span></span><button onclick="event.stopPropagation();logout()">Logout</button></div>';
