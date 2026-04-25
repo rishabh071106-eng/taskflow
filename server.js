@@ -599,7 +599,23 @@ body[data-theme=aurora] .hdr-time-date{color:#9999B5}
 .section-div{height:1px;background:linear-gradient(90deg,transparent 0%,rgba(99,102,241,.18) 30%,rgba(232,145,44,.22) 50%,rgba(99,102,241,.18) 70%,transparent 100%);margin:18px 0;position:relative}
 /* Top strip + climb + side-now base styles (work on all viewports) */
 .top-strip{display:flex;flex-direction:column;align-items:stretch;background:linear-gradient(135deg,rgba(99,102,241,.06) 0%,rgba(232,145,44,.06) 100%);border:1px solid rgba(99,102,241,.18);border-radius:16px;min-height:auto;position:relative;overflow:hidden;margin-bottom:0;box-shadow:0 4px 16px rgba(15,23,42,.04)}
-.top-strip .climb-scene{position:relative;flex:1;border-radius:0;background:transparent;border:none;min-height:130px;overflow:hidden;padding:6px 0}
+.top-strip .climb-scene,.top-strip .bro-mascot{position:relative;flex:1;border-radius:0;background:transparent;border:none;min-height:140px;overflow:hidden;padding:8px 14px;display:flex;align-items:center;justify-content:center}
+.top-strip .bro-svg{width:100%;height:auto;max-height:130px}
+.bro-mascot .bro-figure{transform-origin:48px 110px;animation:broNod 2.4s ease-in-out infinite}
+@keyframes broNod{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-3px) rotate(1.5deg)}}
+.bro-mascot .bro-arm-r{transform-origin:48px 72px;animation:broWave 1.4s ease-in-out infinite}
+@keyframes broWave{0%,100%{transform:rotate(0deg)}50%{transform:rotate(-12deg)}}
+.bro-mascot .bro-bubble{transform-origin:216px 50px;animation:broBubble 3s ease-in-out infinite}
+@keyframes broBubble{0%,100%{transform:scale(1)}50%{transform:scale(1.035)}}
+.bro-mascot .bro-spark{transform-origin:323px 38px;animation:broSpin 6s linear infinite}
+@keyframes broSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.bro-mascot .bro-spark2{animation:broTwinkle 1.6s ease-in-out infinite}
+@keyframes broTwinkle{0%,100%{opacity:.3;transform:scale(.7)}50%{opacity:1;transform:scale(1.1)}}
+body[data-theme=aurora] .bro-mascot .bro-bubble path{fill:rgba(255,255,255,.06);stroke:rgba(167,139,250,.6)}
+body[data-theme=aurora] .bro-mascot .bro-bubble text:first-of-type{fill:#F5F5FA}
+body[data-theme=aurora] .bro-mascot .bro-bubble text:last-of-type{fill:#A78BFA}
+body[data-theme=aurora] .bro-mascot .bro-figure circle:first-child{fill:#A78BFA}
+body[data-theme=aurora] .bro-mascot .bro-figure line{stroke:#A78BFA}
 .top-strip .side-now{flex:0 0 auto;background:linear-gradient(135deg,rgba(99,102,241,.04),rgba(232,145,44,.04));border-top:1px dashed rgba(99,102,241,.25);border-left:none;padding:14px 18px;display:flex;flex-direction:column;justify-content:center;gap:4px;position:relative;overflow:hidden;margin-top:0}
 .top-strip .side-now-lbl{font-size:10px;font-weight:800;color:#6366F1;letter-spacing:1.4px;text-transform:uppercase}
 .top-strip .side-now-time{font-family:'Instrument Serif',Georgia,serif;font-size:30px;font-weight:400;color:#0F172A;line-height:1;letter-spacing:-.03em;margin-top:0}
@@ -618,28 +634,17 @@ body[data-theme=aurora] .top-strip .side-now-stat{color:#9999B5}
 body[data-theme=aurora] .top-strip .side-now-stat b{color:#F472B6}
 .top-strip .side-now-foot{font-size:10px;color:#94A3B8;font-weight:700;letter-spacing:.6px;display:flex;justify-content:space-between;margin-top:2px}
 .top-strip .side-now-wave{position:absolute;bottom:0;left:0;right:0;height:30px;opacity:.15;pointer-events:none}
-@media (max-width:900px){.top-strip{flex-direction:column;min-height:auto}.top-strip .climb-scene{min-height:140px;padding:6px 0}.top-strip .side-now{flex:0 0 auto;border-left:none;border-top:1px dashed rgba(99,102,241,.25)}.top-strip .side-now-time{font-size:30px}.top-strip .side-now-time .sec{font-size:18px}}
+@media (max-width:900px){.top-strip{flex-direction:column;min-height:auto}.top-strip .bro-mascot{min-height:120px;padding:4px 8px}.top-strip .side-now{flex:0 0 auto;border-left:none;border-top:1px dashed rgba(99,102,241,.25)}.top-strip .side-now-time{font-size:30px}.top-strip .side-now-time .sec{font-size:18px}}
 @media (max-width:600px){
-  /* Keep a compact climb scene above the time card on phones */
+  /* Hide the bro-mascot on phones — the masthead photo banner above already gives the visual hook */
+  .top-strip .bro-mascot{display:none}
   .top-strip{border-radius:14px;min-height:auto}
-  .top-strip .climb-scene{min-height:0;height:96px;padding:4px 0}
-  .top-strip .climb-caption{font-size:8.5px;top:5px;letter-spacing:1.1px}
-  .top-strip .climber{width:14px;height:18px}
-  .top-strip .climber-2{display:none} /* keep just two climbers + a walker so it's not cluttered */
-  .top-strip .walker-c{display:none}
-  .top-strip .climb-peak{width:14px;height:14px;top:4px;right:8px}
-  .top-strip .celebrator{width:16px;height:18px;top:4px;right:26px}
-  .top-strip .side-now{padding:14px 16px;border-top:1px dashed rgba(99,102,241,.22)}
+  .top-strip .side-now{padding:14px 16px;border-top:none}
   .top-strip .side-now-time{font-size:28px}
   .top-strip .side-now-time .sec{font-size:16px}
   .top-strip .side-now-lbl{font-size:9.5px;letter-spacing:1.2px}
   .top-strip .side-now-bar{margin-top:6px}
   .top-strip .side-now-foot{font-size:9.5px}
-}
-@media (max-width:380px){
-  .top-strip .climb-scene{height:78px}
-  .top-strip .climber-3{display:none} /* on very narrow phones, just one climber + the celebrator */
-  .top-strip .walker-b{display:none}
 }
 body[data-theme=aurora] .top-strip{background:linear-gradient(135deg,rgba(167,139,250,.08) 0%,rgba(232,145,44,.06) 100%);border-color:rgba(167,139,250,.18)}
 body[data-theme=aurora] .top-strip .side-now{background:linear-gradient(135deg,rgba(167,139,250,.06),rgba(232,145,44,.04));border-left-color:rgba(167,139,250,.2)}
@@ -2170,27 +2175,28 @@ h+='<div class="moral">'+MORAL_DOODLE+'<div class="moral-emoji">\\u{1F4A1}</div>
   const yearPct=Math.round(dayOfYear/365*100);
   const dateStr=now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
   const tabsHtml=[{k:'tasks',l:'Tasks'},{k:'board',l:'Board'},{k:'cal',l:'Calendar'},{k:'news',l:'News'},{k:'history',l:'History'},{k:'geography',l:'Geography'},{k:'books',l:'Books'},{k:'meditation',l:'Meditate'}].map(x=>'<button class="tab tab-'+x.k+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(ID[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
-  const STICK='<svg viewBox="0 0 18 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="3.5" r="2.6" fill="currentColor"/><line x1="9" y1="6" x2="9" y2="14"/><g class="arm-l"><line x1="9" y1="9" x2="4" y2="11"/></g><g class="arm-r"><line x1="9" y1="9" x2="14" y2="7"/></g><g class="leg-l"><line x1="9" y1="14" x2="5" y2="22"/></g><g class="leg-r"><line x1="9" y1="14" x2="13" y2="22"/></g></svg>';
-  const climbScene='<div class="climb-scene" aria-hidden="true">'
-    +'<div class="climb-caption">RISE \\u2022 STEP \\u2022 BY \\u2022 STEP</div>'
-    +'<svg class="climb-stairs" viewBox="0 0 200 170" preserveAspectRatio="none">'
-    +  '<g stroke="#6366F1" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0.65">'
-    +    '<line x1="0" y1="160" x2="48" y2="160"/><line x1="48" y1="160" x2="48" y2="130"/>'
-    +    '<line x1="48" y1="130" x2="86" y2="130"/><line x1="86" y1="130" x2="86" y2="100"/>'
-    +    '<line x1="86" y1="100" x2="124" y2="100"/><line x1="124" y1="100" x2="124" y2="70"/>'
-    +    '<line x1="124" y1="70" x2="160" y2="70"/><line x1="160" y1="70" x2="160" y2="40"/>'
-    +    '<line x1="160" y1="40" x2="200" y2="40"/>'
+  // "Bro, do it!" mascot — a character with a speech bubble that animates
+  const climbScene='<div class="bro-mascot" aria-hidden="true">'
+    +'<svg class="bro-svg" viewBox="0 0 340 130" xmlns="http://www.w3.org/2000/svg">'
+    +  '<defs><filter id="broShadow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur in="SourceGraphic" stdDeviation="2"/></filter></defs>'
+    +  '<g class="bro-figure">'
+    +    '<circle cx="48" cy="44" r="16" fill="#6366F1"/>'
+    +    '<circle cx="42" cy="42" r="2.2" fill="#fff"/><circle cx="54" cy="42" r="2.2" fill="#fff"/>'
+    +    '<path d="M 42 50 Q 48 54 54 50" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/>'
+    +    '<line x1="48" y1="60" x2="48" y2="92" stroke="#6366F1" stroke-width="3.4" stroke-linecap="round"/>'
+    +    '<g class="bro-arm-r"><line x1="48" y1="72" x2="76" y2="58" stroke="#6366F1" stroke-width="3.2" stroke-linecap="round"/></g>'
+    +    '<line x1="48" y1="72" x2="28" y2="84" stroke="#6366F1" stroke-width="3.2" stroke-linecap="round"/>'
+    +    '<line x1="48" y1="92" x2="36" y2="118" stroke="#6366F1" stroke-width="3.2" stroke-linecap="round"/>'
+    +    '<line x1="48" y1="92" x2="60" y2="118" stroke="#6366F1" stroke-width="3.2" stroke-linecap="round"/>'
     +  '</g>'
-    +  '<g fill="#E8912C" opacity="0.5"><circle cx="20" cy="160" r="1.2"/><circle cx="64" cy="130" r="1.2"/><circle cx="105" cy="100" r="1.2"/><circle cx="142" cy="70" r="1.2"/><circle cx="180" cy="40" r="1.4"/></g>'
+    +  '<g class="bro-bubble">'
+    +    '<path d="M 100 18 Q 100 4 116 4 L 316 4 Q 332 4 332 18 L 332 78 Q 332 92 316 92 L 130 92 L 110 110 L 116 92 L 116 92 Q 100 92 100 78 Z" fill="#FFFFFF" stroke="#6366F1" stroke-width="2.2" filter="drop-shadow(0 4px 10px rgba(99,102,241,0.18))"/>'
+    +    '<text x="216" y="42" text-anchor="middle" font-family="Instrument Serif, Georgia, serif" font-size="26" font-style="italic" fill="#0F172A">Bro,</text>'
+    +    '<text x="216" y="74" text-anchor="middle" font-family="Instrument Serif, Georgia, serif" font-size="32" font-weight="400" fill="#6366F1">do it!</text>'
+    +  '</g>'
+    +  '<g class="bro-spark"><path d="M 320 38 l 1.5 -4 1.5 4 4 0 -3 2.5 1.2 4 -3.7 -2.4 -3.7 2.4 1.2 -4 -3 -2.5 z" fill="#E8912C"/></g>'
+    +  '<g class="bro-spark2"><circle cx="86" cy="14" r="2.4" fill="#3DAE5C"/></g>'
     +'</svg>'
-    +'<svg class="climb-peak" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L14.5 9 L22 9 L16 13.5 L18.5 21 L12 16.5 L5.5 21 L8 13.5 L2 9 L9.5 9 Z"/></svg>'
-    +'<div class="celebrator">'+STICK+'</div>'
-    +'<div class="climber climber-1">'+STICK+'</div>'
-    +'<div class="climber climber-2">'+STICK+'</div>'
-    +'<div class="climber climber-3">'+STICK+'</div>'
-    +'<div class="walker walker-a">'+STICK+'</div>'
-    +'<div class="walker walker-b">'+STICK+'</div>'
-    +'<div class="walker walker-c">'+STICK+'</div>'
     +'</div>';
   const daysLeft=365-dayOfYear;
   const sideNow='<div class="side-now" aria-hidden="true">'
