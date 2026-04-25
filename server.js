@@ -985,7 +985,11 @@ body[data-theme=aurora] .ocean{opacity:.4}
 .med-card-desc{font-size:12.5px;color:#64748B;line-height:1.4}
 .med-card-play{flex:0 0 auto;width:38px;height:38px;border-radius:50%;background:rgba(15,23,42,.06);color:var(--mc,#6366F1);display:flex;align-items:center;justify-content:center;transition:transform .2s ease,background .2s ease}
 .med-card:hover .med-card-play{transform:scale(1.1);background:var(--mc,#6366F1);color:#fff}
-.med-foot{font-size:12px;color:#64748B;text-align:center;margin-top:8px;opacity:.85}
+.med-foot{font-size:13px;color:#64748B;text-align:center;margin-top:10px;opacity:.85}
+.med-card.loading{cursor:wait;opacity:.85}
+.med-card.loading .med-card-play{background:transparent}
+.med-load-dot{width:18px;height:18px;border-radius:50%;border:2.5px solid rgba(99,102,241,.25);border-top-color:var(--mc,#6366F1);animation:medSpin .9s linear infinite}
+@keyframes medSpin{to{transform:rotate(360deg)}}
 
 .med-player{background:rgba(255,255,255,.94);border:1.5px solid rgba(15,23,42,.06);border-radius:20px;padding:16px;margin-bottom:14px;box-shadow:0 12px 38px rgba(15,23,42,.06)}
 .med-back{font-size:13px;font-weight:700;color:#6366F1;background:rgba(99,102,241,.1);border:none;padding:8px 14px;border-radius:10px;cursor:pointer;margin-bottom:14px}
@@ -1009,22 +1013,27 @@ body[data-theme=aurora] .med-tip{color:#9999B5;background:rgba(167,139,250,.1)}
 body[data-theme=aurora] .med-foot{color:#9999B5}
 
 /* Bigger Monday-style tab nav */
-.tabs.page-t .tab{font-size:14px;font-weight:700;letter-spacing:.1px}
-.tabs.page-t .tab .ti svg{width:24px;height:24px}
+.tabs.page-t .tab{font-size:15px;font-weight:700;letter-spacing:.1px}
+.tabs.page-t .tab .ti svg{width:28px;height:28px}
 .tabs.page-t .tab.on{background:linear-gradient(135deg,#6366F1,#8B5CF6,#EC4899)!important;color:#fff!important;box-shadow:0 8px 22px rgba(99,102,241,.38),0 0 0 1px rgba(255,255,255,.1) inset!important;transform:translateY(-2px)}
 .tabs.page-t .tab.on .ti{transform:scale(1.15)}
 @media (max-width:600px){
-  .tabs.page-t .tab{padding:9px 4px 6px;min-width:62px}
-  .tabs.page-t .tab .ti svg{width:26px!important;height:26px!important}
-  .tabs.page-t .tab .tl{font-size:11px;font-weight:700}
+  .tabs.page-t .tab{padding:10px 4px 8px;min-width:64px}
+  .tabs.page-t .tab .ti svg{width:30px!important;height:30px!important}
+  .tabs.page-t .tab .tl{font-size:12px;font-weight:700;letter-spacing:.2px}
   .tabs.page-t .tab.on{background:transparent!important;color:#6366F1!important;box-shadow:none!important;transform:none!important}
-  .tabs.page-t .tab.on .ti{filter:drop-shadow(0 4px 10px rgba(99,102,241,.5))}
-  .tabs.page-t .tab.on::after{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:18px;height:3px;border-radius:3px;background:linear-gradient(90deg,#6366F1,#EC4899)}
+  .tabs.page-t .tab.on .ti{filter:drop-shadow(0 4px 10px rgba(99,102,241,.55))}
+  .tabs.page-t .tab.on::after{content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:24px;height:4px;border-radius:4px;background:linear-gradient(90deg,#6366F1,#EC4899)}
 }
 @media (min-width:992px){
-  .app>.tabs.page-t .tab{padding:14px 16px;font-size:15px;font-weight:700}
-  .app>.tabs.page-t .tab .ti svg{width:24px;height:24px}
+  .app>.tabs.page-t .tab{padding:15px 18px;font-size:16px;font-weight:700;gap:12px}
+  .app>.tabs.page-t .tab .ti svg{width:28px;height:28px}
+  .app>.tabs.page-t{padding:14px;gap:5px}
 }
+.section-hd{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.section-hd h3{font-size:22px;font-weight:700;letter-spacing:-.3px}
+.section-hd p{font-size:14px;color:#64748B;margin-top:2px}
+.section-ic{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#6366F1,#8B5CF6);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 6px 18px rgba(99,102,241,.32)}
 
 </style></head><body>
 <div class="bg-blob a"></div><div class="bg-blob b"></div><div class="bg-blob c"></div><div class="bg-blob d"></div>
@@ -1106,7 +1115,7 @@ function opE(id){const t=S.tasks.find(x=>x.id===id);if(!t)return;S.form={title:t
 function clM(){S.showAdd=false;S.editing=null;if(rec)try{rec.stop()}catch(e){}S.listening=false;render()}
 function stV(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){toast('\\u26A0\\uFE0F Voice not supported','err');return}rec=new SR();rec.continuous=false;rec.interimResults=true;rec.lang='en-US';rec.onresult=e=>{let t='';for(let i=0;i<e.results.length;i++)t+=e.results[i][0].transcript;if(e.results[0].isFinal){S.form.title=t;const l=t.toLowerCase();if(/urgent|important|asap/.test(l)){S.form.priority='high';S.form.title=S.form.title.replace(/urgent|important|asap/gi,'').trim()}if(/\\btoday\\b/.test(l))S.form.dueDate=new Date().toISOString().split('T')[0];else if(/\\btomorrow\\b/.test(l)){const d=new Date();d.setDate(d.getDate()+1);S.form.dueDate=d.toISOString().split('T')[0]}}else S.form.title=t;render()};rec.onend=()=>{S.listening=false;render()};rec.onerror=e=>{S.listening=false;toast('\\u26A0\\uFE0F '+e.error,'err');render()};rec.start();S.listening=true;render()}
 
-function switchTab(t){if(t==='steps')t='tasks';S.tab=t;if(t==='books'&&!S.books.length)loadBooks('all');if(t==='news'&&!S.news[S.newsCat])loadNews(S.newsCat);render()}
+function switchTab(t){if(t==='steps')t='tasks';S.tab=t;if(t==='books'&&!S.books.length)loadBooks('all');if(t==='meditation'&&!S.meditations)loadMeditations();if(t==='news'&&!S.news[S.newsCat])loadNews(S.newsCat);render()}
 async function loadNews(cat){S.newsCat=cat;S.newsLoading=true;render();try{const r=await fetch('/api/news?cat='+encodeURIComponent(cat),{cache:'no-store'});const j=await r.json();S.news[cat]=j.items||[]}catch(e){S.news[cat]=[]}S.newsLoading=false;render()}
 function shareNews(idx){const item=(S.news[S.newsCat]||[])[idx];if(!item)return;const url=item.link,title=item.title,text=(item.desc||'').slice(0,140);if(navigator.share){navigator.share({title,text,url}).catch(()=>{})}else{navigator.clipboard?.writeText(title+'\\n\\n'+url).then(()=>toast('\\u{1F517} Link copied')).catch(()=>toast('\\u26A0\\uFE0F Share unavailable','err'))}}
 function timeAgo(ds){if(!ds)return '';const d=new Date(ds);if(isNaN(d))return '';const s=(Date.now()-d.getTime())/1000;if(s<60)return 'just now';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';if(s<604800)return Math.floor(s/86400)+'d ago';return d.toLocaleDateString()}
@@ -1150,8 +1159,16 @@ function closeWAOnboard(){S.showWAOnboard=false;render()}
 function openWAJoin(){const code=window.__TWILIO_SANDBOX_CODE||'along-wool';window.open('https://wa.me/14155238886?text='+encodeURIComponent('join '+code),'_blank')}
 function confirmWAJoined(){S.waConnected=true;localStorage.setItem('wa_connected','1');S.showWAOnboard=false;toast('\\u2705 WhatsApp connected');render()}
 function disconnectWA(){S.waConnected=false;localStorage.removeItem('wa_connected');toast('\\u23F8 WhatsApp disconnected');render()}
-function openMeditation(yt,title,desc,mins){S.activeMeditation={yt:yt,title:title,desc:desc,mins:mins};render()}
-function closeMeditation(){S.activeMeditation=null;render()}
+const MED_SLOTS=[
+{mins:1,title:'1-Minute Reset',desc:'Quick breath reset for a busy moment',color:'#06B6D4',q:'title:"1 minute" AND title:meditation AND mediatype:audio AND format:"VBR MP3"'},
+{mins:5,title:'5-Minute Calm',desc:'Short guided meditation to settle',color:'#3B82F6',q:'title:"5 minute" AND title:meditation AND mediatype:audio AND format:"VBR MP3"'},
+{mins:10,title:'10-Minute Mindfulness',desc:'Classic guided session for stillness',color:'#8B5CF6',q:'title:"10 minute" AND title:meditation AND mediatype:audio AND format:"VBR MP3"'},
+{mins:20,title:'20-Minute Deep Breath',desc:'A longer, deeper sit',color:'#EC4899',q:'title:"20 minute" AND title:meditation AND mediatype:audio AND format:"VBR MP3"'},
+{mins:30,title:'30-Minute Body Scan',desc:'Full guided body scan to unwind',color:'#F59E0B',q:'(title:"30 minute" OR title:"30-minute") AND title:meditation AND mediatype:audio AND format:"VBR MP3"'}
+];
+async function loadMeditations(){if(S.medLoading)return;S.medLoading=true;S.meditations=S.meditations||{};render();await Promise.all(MED_SLOTS.map(async s=>{if(S.meditations[s.mins])return;try{const url='https://archive.org/advancedsearch.php?q='+encodeURIComponent(s.q)+'&fl[]=identifier&fl[]=title&fl[]=creator&fl[]=downloads&rows=1&output=json&sort[]=downloads+desc';const r=await fetch(url);const j=await r.json();S.meditations[s.mins]=(j.response&&j.response.docs&&j.response.docs[0])||null}catch(e){S.meditations[s.mins]=null}}));S.medLoading=false;render()}
+function playMedSlot(mins){const doc=(S.meditations||{})[mins];if(!doc){toast('\\u23F3 Loading audio...','err');return}const t=Array.isArray(doc.title)?doc.title[0]:doc.title;playMeditation(doc.identifier,t,mins)}
+async function playMeditation(id,title,mins){S.playing={id,title:title||(mins+'-minute meditation'),author:'Guided meditation \\u2022 Internet Archive',loading:true};render();try{const r=await fetch('https://archive.org/metadata/'+encodeURIComponent(id));if(!r.ok)throw new Error('metadata '+r.status);const j=await r.json();if(!j.files||!j.files.length){toast('\\u26A0\\uFE0F No audio \\u2014 opening archive.org','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render();return}let mp3=j.files.find(f=>/\\.mp3$/i.test(f.name)&&!/sample|preview/i.test(f.name));if(!mp3)mp3=j.files.find(f=>/\\.(mp3|m4a|ogg)$/i.test(f.name));if(mp3){const server=j.server||'archive.org';const dir=j.dir||('/'+id);const directUrl='https://'+server+dir+'/'+mp3.name.split('/').map(encodeURIComponent).join('/');const dlUrl='https://archive.org/download/'+encodeURIComponent(id)+'/'+mp3.name.split('/').map(encodeURIComponent).join('/');S.playing={id,title:title||mins+'-min meditation',author:'\\u{1F9D8} Guided meditation \\u2022 Archive.org',url:directUrl,altUrl:dlUrl,external:'https://archive.org/details/'+id};render();setTimeout(()=>{const a=document.getElementById('audioEl');if(!a)return;a.setAttribute('playsinline','');a.preload='auto';a.addEventListener('error',function onErr(){a.removeEventListener('error',onErr);if(a.src!==dlUrl){a.src=dlUrl;a.load()}},{once:true});a.load();const p=a.play();if(p&&p.catch)p.catch(()=>toast('\\u25B6\\uFE0F Tap play on the bar','err'))},250)}else{toast('\\u26A0\\uFE0F No mp3 \\u2014 opening archive.org','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render()}}catch(e){toast('\\u26A0\\uFE0F '+e.message,'err');S.playing=null;render()}}
 async function openProfile(){S.showProfile=true;render();const me=await api('/me');if(me&&!me.error)S.profile=me;render()}
 function closeProfile(){S.showProfile=false;render()}
 async function saveName(){const n=(document.getElementById('pfName')||{}).value;if(!n||!n.trim())return;const r=await api('/me',{method:'PUT',body:JSON.stringify({name:n.trim()})});if(r&&r.name){S.user.name=r.name;localStorage.setItem('tf_name',r.name);S.profile=Object.assign(S.profile||{},{name:r.name});toast('\\u2705 Name updated');render()}}
@@ -1434,25 +1451,24 @@ else if(S.tab==='books'){
 
 // MEDITATION TAB
 else if(S.tab==='meditation'){
-  h+='<div class="section-hd"><span class="section-ic">'+ic('meditation',22)+'</span><div><h3>Meditation</h3><p>Guided sessions \\u2022 pause, breathe, return calmer</p></div></div>';
-  const sessions=[
-    {mins:'1',title:'1-Minute Reset',desc:'Quick breath reset for a busy moment',q:'1 minute guided meditation breathing',color:'#06B6D4'},
-    {mins:'5',title:'5-Minute Calm',desc:'Short guided meditation to settle',q:'5 minute guided meditation calm',color:'#3B82F6'},
-    {mins:'10',title:'10-Minute Mindfulness',desc:'Classic guided session for stillness',q:'10 minute guided meditation mindfulness',color:'#8B5CF6'},
-    {mins:'20',title:'20-Minute Deep Breath',desc:'A longer, deeper sit',q:'20 minute guided meditation',color:'#EC4899'},
-    {mins:'30',title:'30-Minute Body Scan',desc:'Full guided body scan to unwind',q:'30 minute guided meditation body scan',color:'#F59E0B'}
-  ];
+  h+='<div class="section-hd"><span class="section-ic">'+ic('meditation',26)+'</span><div><h3>Meditation</h3><p>Guided audio sessions \\u2022 pause, breathe, return calmer</p></div></div>';
+  if(S.medLoading&&!S.meditations)h+='<div class="loading">Finding guided meditations...</div>';
   h+='<div class="med-grid">';
-  sessions.forEach(x=>{
-    const url='https://www.youtube.com/results?search_query='+encodeURIComponent(x.q);
-    h+='<a class="med-card" href="'+url+'" target="_blank" rel="noopener" style="--mc:'+x.color+';text-decoration:none">';
+  MED_SLOTS.forEach(x=>{
+    const doc=(S.meditations||{})[x.mins];
+    const ready=!!doc;
+    const id=ready?doc.identifier:'';
+    const realTitle=ready?(Array.isArray(doc.title)?doc.title[0]:doc.title):'';
+    const subtitle=ready?(realTitle.length>72?realTitle.slice(0,72)+'\\u2026':realTitle):x.desc;
+    const onclick=ready?('playMedSlot('+x.mins+')'):'toast(\\'\\u23F3 Loading audio...\\',\\'err\\')';
+    h+='<button class="med-card'+(ready?'':' loading')+'" onclick="'+onclick+'" style="--mc:'+x.color+'">';
     h+='<div class="med-card-mins"><b>'+x.mins+'</b><small>min</small></div>';
-    h+='<div class="med-card-body"><div class="med-card-title">'+esc(x.title)+'</div><div class="med-card-desc">'+esc(x.desc)+'</div></div>';
-    h+='<div class="med-card-play"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div>';
-    h+='</a>';
+    h+='<div class="med-card-body"><div class="med-card-title">'+esc(x.title)+'</div><div class="med-card-desc">'+esc(subtitle)+'</div></div>';
+    h+='<div class="med-card-play">'+(ready?'<svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>':'<div class="med-load-dot"></div>')+'</div>';
+    h+='</button>';
   });
   h+='</div>';
-  h+='<div class="med-foot">\\u{1F1FE} Tap a session to open a fresh selection of guided videos on YouTube. Pick whichever voice and style feels right for you today.</div>';
+  h+='<div class="med-foot">\\u{1F50A} Audio streams from the free Internet Archive. Use headphones, find a quiet spot, and let the guide lead you.</div>';
 }
 
 
