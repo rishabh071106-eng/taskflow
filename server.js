@@ -956,7 +956,7 @@ body[data-theme=aurora] .dash-hero .big{background:linear-gradient(90deg,#fff,#F
 const MORALS=[{t:"The secret of getting ahead is getting started.",a:"Mark Twain"},{t:"It does not matter how slowly you go as long as you do not stop.",a:"Confucius"},{t:"Small daily improvements are the key to staggering long-term results.",a:"Robin Sharma"},{t:"Discipline is choosing between what you want now and what you want most.",a:"Abraham Lincoln"},{t:"Don't count the days. Make the days count.",a:"Muhammad Ali"},{t:"The best way to predict the future is to create it.",a:"Peter Drucker"},{t:"Focus on being productive instead of busy.",a:"Tim Ferriss"},{t:"You don't have to be great to start, but you have to start to be great.",a:"Zig Ziglar"},{t:"The journey of a thousand miles begins with a single step.",a:"Lao Tzu"},{t:"Either you run the day or the day runs you.",a:"Jim Rohn"},{t:"A year from now you may wish you had started today.",a:"Karen Lamb"},{t:"Success is the sum of small efforts repeated day in and day out.",a:"Robert Collier"},{t:"Done is better than perfect.",a:"Sheryl Sandberg"},{t:"The way to get started is to quit talking and begin doing.",a:"Walt Disney"},{t:"You cannot escape the responsibility of tomorrow by evading it today.",a:"Abraham Lincoln"},{t:"Motivation gets you going, but discipline keeps you growing.",a:"John C. Maxwell"},{t:"Do something today that your future self will thank you for.",a:"Sean Patrick Flanery"},{t:"The harder I work, the luckier I get.",a:"Samuel Goldwyn"},{t:"Don't watch the clock; do what it does. Keep going.",a:"Sam Levenson"},{t:"Great things never come from comfort zones.",a:"Neil Strauss"},{t:"Sometimes later becomes never. Do it now.",a:"Anonymous"},{t:"Wake up with determination. Go to bed with satisfaction.",a:"Anonymous"},{t:"A goal without a plan is just a wish.",a:"Antoine de Saint-Exupéry"},{t:"Little by little, day by day, what is meant for you will find its way.",a:"Anonymous"},{t:"Success doesn't just find you — you have to go out and get it.",a:"Anonymous"},{t:"Push yourself, because no one else is going to do it for you.",a:"Anonymous"},{t:"Dream big. Start small. Act now.",a:"Robin Sharma"},{t:"Hard work beats talent when talent doesn't work hard.",a:"Tim Notke"},{t:"The only impossible journey is the one you never begin.",a:"Tony Robbins"},{t:"Opportunities don't happen. You create them.",a:"Chris Grosser"}];
 let S={tasks:[],view:'all',search:'',tab:'tasks',showAdd:false,editing:null,listening:false,toast:null,toastType:'ok',waOk:false,sending:{},user:null,
 books:[],booksLoading:false,booksCat:'all',bookSearch:'',playing:null,moralIdx:Math.floor(Math.random()*MORALS.length),
-calcExpr:'',calcResult:'0',calcHistory:[],calcSci:false,
+waConnected:localStorage.getItem('wa_connected')==='1',showWAOnboard:false,
 calMonth:new Date(),calSelectedDate:new Date().toISOString().slice(0,10),
 steps:[],stepGoal:parseInt(localStorage.getItem('step_goal')||'10000',10),stepLive:{active:false,count:0},
 theme:localStorage.getItem('theme')||'classic',
@@ -1044,12 +1044,24 @@ function dragO(e){e.preventDefault();if(e.dataTransfer)e.dataTransfer.dropEffect
 function dragL(e){if(!e.currentTarget.contains(e.relatedTarget))e.currentTarget.classList.remove('over')}
 async function dragD(e,status){e.preventDefault();e.currentTarget.classList.remove('over');const id=_drag||(e.dataTransfer?e.dataTransfer.getData('text/plain'):null);if(!id)return;await mvT(id,status)}
 async function mvT(id,status){const t=S.tasks.find(x=>x.id===id);if(!t||t.status===status)return;const oldStatus=t.status;t.status=status;render();const r=await api('/tasks/'+id,{method:'PUT',body:JSON.stringify({status})});if(r){const i=S.tasks.findIndex(x=>x.id===id);if(i>-1)S.tasks[i]=r;render();toast('\\u2705 Moved to '+(status==='pending'?'To Do':status==='in-progress'?'Doing':'Done'))}else{t.status=oldStatus;render();toast('\\u26A0\\uFE0F Move failed','err')}}
-function calcAppend(v){S.calcExpr=(S.calcExpr||'')+v;calcEval();render()}
-function calcClear(){S.calcExpr='';S.calcResult='0';render()}
-function calcBack(){S.calcExpr=(S.calcExpr||'').slice(0,-1);calcEval();render()}
-function calcEnter(){if(S.calcExpr&&S.calcResult!=='...'&&S.calcResult!=='0'){S.calcHistory=[{expr:S.calcExpr,result:S.calcResult},...(S.calcHistory||[])].slice(0,8);S.calcExpr=S.calcResult;calcEval()}render()}
-function calcEval(){if(!S.calcExpr){S.calcResult='0';return}try{let e=S.calcExpr.replace(/\\u00D7/g,'*').replace(/\\u00F7/g,'/').replace(/\\u2212/g,'-');e=e.replace(/(\\d+\\.?\\d*)\\s*%\\s*of\\s*(\\d+\\.?\\d*)/gi,(_,a,b)=>'('+a+'/100)*'+b);e=e.replace(/(\\d+\\.?\\d*)%/g,'($1/100)');e=e.replace(/\\bsqrt\\b/g,'Math.sqrt').replace(/\\bsin\\b/g,'Math.sin').replace(/\\bcos\\b/g,'Math.cos').replace(/\\btan\\b/g,'Math.tan').replace(/\\blog\\b/g,'Math.log10').replace(/\\bln\\b/g,'Math.log').replace(/\\babs\\b/g,'Math.abs');e=e.replace(/\\bpi\\b/gi,'Math.PI').replace(/\\be\\b/g,'Math.E').replace(/\\^/g,'**');if(!/^[\\d\\s\\+\\-\\*\\/\\(\\)\\.,\\w]+$/.test(e))throw 0;const r=Function('"use strict";return ('+e+')')();if(isNaN(r)||!isFinite(r))throw 0;S.calcResult=String(+(+r).toFixed(10)).replace(/\\.?0+$/,'')||'0'}catch(e){S.calcResult='\\u2026'}}
-function calcTyped(v){S.calcExpr=v;calcEval();render()}
+const TAB_INTROS={
+tasks:"Welcome to Tasks. Add and organize your daily to-dos. Tap the plus button to create a task, or use the voice button to speak your task out loud.",
+board:"This is the Kanban board. Drag your cards between To Do, Doing, and Done columns to track your progress visually.",
+cal:"Your calendar view. Tap any date to see scheduled tasks or add new ones for that day.",
+dash:"Your productivity dashboard. See completed tasks, streaks, and your progress over time.",
+news:"Stay informed with daily curated news. Browse different categories like technology, sports, and entertainment.",
+books:"Free audiobook library from Libri Vox. Search, browse, and listen. Keep a streak by listening for two minutes a day.",
+steps:"Track your daily steps. Use your phone's motion sensor for live tracking, or log manually from any health app."
+};
+function speakIntro(){try{if(!('speechSynthesis' in window)){toast('\\u26A0\\uFE0F Voice not supported on this device','err');return}const t=TAB_INTROS[S.tab];if(!t)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=1;u.pitch=1;u.volume=1;speechSynthesis.speak(u);toast('\\u{1F50A} Playing intro')}catch(e){toast('\\u26A0\\uFE0F Voice error','err')}}
+function stopSpeak(){try{speechSynthesis.cancel()}catch(e){}}
+function filterBooks(v){S.bookSearch=v;const grid=document.getElementById('books-grid');if(!grid){render();return}const q=(v||'').toLowerCase().trim();const fb=!q?S.books:S.books.filter(b=>{const t=(Array.isArray(b.title)?b.title[0]:b.title||'').toLowerCase();const a=(Array.isArray(b.creator)?b.creator[0]:b.creator||'').toLowerCase();return t.includes(q)||a.includes(q)});grid.innerHTML=renderBookCards(fb)}
+function renderBookCards(fb){if(!fb.length)return '<div class="empty"><div style="font-size:36px">\\u{1F4DA}</div><div style="font-size:14px;margin-top:8px">No books found</div></div>';let h='<div class="book-list">';fb.forEach(b=>{const id=b.identifier;const cover='https://archive.org/services/img/'+id;const author=Array.isArray(b.creator)?b.creator[0]:(b.creator||'Unknown');const title=Array.isArray(b.title)?b.title[0]:b.title;h+='<div class="book-card"><div class="book-cover"><img src="'+cover+'" loading="lazy" onerror="this.style.display=\\'none\\'"/></div><div class="book-info"><div class="book-title">'+esc(title)+'</div><div class="book-author">'+esc(author)+'</div><div class="book-meta"><span>\\u{1F3A7} '+(b.downloads?(+b.downloads).toLocaleString():'\\u2014')+' plays</span><span>\\u{1F4D6} LibriVox</span></div></div><button class="book-play" onclick="playBook(\\''+id+'\\')">\\u25B6</button></div>'});h+='</div>';return h}
+function openWAOnboard(){S.showWAOnboard=true;render()}
+function closeWAOnboard(){S.showWAOnboard=false;render()}
+function openWAJoin(){const code=window.__TWILIO_SANDBOX_CODE||'along-wool';window.open('https://wa.me/14155238886?text='+encodeURIComponent('join '+code),'_blank')}
+function confirmWAJoined(){S.waConnected=true;localStorage.setItem('wa_connected','1');S.showWAOnboard=false;toast('\\u2705 WhatsApp connected');render()}
+function disconnectWA(){S.waConnected=false;localStorage.removeItem('wa_connected');toast('\\u23F8 WhatsApp disconnected');render()}
 async function openProfile(){S.showProfile=true;render();const me=await api('/me');if(me&&!me.error)S.profile=me;render()}
 function closeProfile(){S.showProfile=false;render()}
 async function saveName(){const n=(document.getElementById('pfName')||{}).value;if(!n||!n.trim())return;const r=await api('/me',{method:'PUT',body:JSON.stringify({name:n.trim()})});if(r&&r.name){S.user.name=r.name;localStorage.setItem('tf_name',r.name);S.profile=Object.assign(S.profile||{},{name:r.name});toast('\\u2705 Name updated');render()}}
@@ -1072,7 +1084,7 @@ async function loadBookStreak(){if(!S.user)return;const r=await api('/book-strea
 function render(){
 // Preserve focus + cursor across re-renders so typing isn't interrupted
 const _fs=(function(){try{const a=document.activeElement;if(!a||(a.tagName!=='INPUT'&&a.tagName!=='TEXTAREA'))return null;return{id:a.id,name:a.name,type:a.type,placeholder:a.placeholder,start:a.selectionStart,end:a.selectionEnd}}catch(e){return null}})();
-const _restore=function(){if(!_fs)return;try{let el=null;if(_fs.id)el=document.getElementById(_fs.id);if(!el){const inputs=document.querySelectorAll('input,textarea');for(const i of inputs){if((_fs.placeholder&&i.placeholder===_fs.placeholder)||(_fs.name&&i.name===_fs.name)){el=i;break}}}if(el){el.focus();if(typeof _fs.start==='number'&&el.setSelectionRange){try{el.setSelectionRange(_fs.start,_fs.end)}catch(e){}}}}catch(e){}};
+const _restore=function(){if(!_fs)return;try{let el=null;if(_fs.id)el=document.getElementById(_fs.id);if(!el){const inputs=document.querySelectorAll('input,textarea');for(const i of inputs){if((_fs.placeholder&&i.placeholder===_fs.placeholder)||(_fs.name&&i.name===_fs.name)){el=i;break}}}if(el){try{el.focus({preventScroll:true})}catch(e){el.focus()}if(typeof _fs.start==='number'&&el.setSelectionRange){try{el.setSelectionRange(_fs.start,_fs.end)}catch(e){}}}}catch(e){}};
 setTimeout(_restore,0);
 if(!S.user){let h='<div class="login">';
 h+='<svg class="hero" viewBox="0 0 220 160" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3DAE5C"/><stop offset="100%" stop-color="#E8912C"/></linearGradient><linearGradient id="g2" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#7C3AED"/><stop offset="100%" stop-color="#E8453C"/></linearGradient></defs><circle cx="110" cy="80" r="62" fill="url(#g1)" opacity=".15"/><rect x="42" y="40" width="86" height="90" rx="10" fill="#FFFFFF" stroke="#0F172A" stroke-width="2"/><line x1="54" y1="58" x2="116" y2="58" stroke="#CBD5E1" stroke-width="2" stroke-linecap="round"/><line x1="54" y1="72" x2="100" y2="72" stroke="#CBD5E1" stroke-width="2" stroke-linecap="round"/><line x1="54" y1="86" x2="110" y2="86" stroke="#CBD5E1" stroke-width="2" stroke-linecap="round"/><line x1="54" y1="100" x2="90" y2="100" stroke="#CBD5E1" stroke-width="2" stroke-linecap="round"/><circle cx="46" cy="58" r="4" fill="#3DAE5C"/><circle cx="46" cy="72" r="4" fill="#3DAE5C"/><circle cx="46" cy="86" r="4" fill="#E8912C"/><circle cx="46" cy="100" r="4" fill="#CBD5E1"/><rect x="138" y="30" width="60" height="84" rx="6" fill="url(#g2)" transform="rotate(8 168 72)"/><rect x="144" y="38" width="48" height="4" rx="2" fill="#fff" opacity=".8" transform="rotate(8 168 72)"/><rect x="144" y="48" width="38" height="4" rx="2" fill="#fff" opacity=".6" transform="rotate(8 168 72)"/><circle cx="168" cy="88" r="10" fill="#fff" opacity=".9" transform="rotate(8 168 72)"/><polygon points="165,84 165,92 172,88" fill="#7C3AED" transform="rotate(8 168 72)"/><circle cx="30" cy="30" r="6" fill="#E8912C"><animate attributeName="cy" values="30;26;30" dur="2.5s" repeatCount="indefinite"/></circle><circle cx="190" cy="140" r="5" fill="#3DAE5C"><animate attributeName="cy" values="140;136;140" dur="3s" repeatCount="indefinite"/></circle><circle cx="20" cy="130" r="4" fill="#7C3AED" opacity=".7"><animate attributeName="cy" values="130;126;130" dur="2.8s" repeatCount="indefinite"/></circle></svg>';
@@ -1087,7 +1099,7 @@ h+='<input type="email" placeholder="you@example.com" value="'+esc(S.loginEmail)
 if(S.loginError)h+='<div style="color:#E8453C;font-size:13px;font-weight:600;margin:8px 0">'+S.loginError+'</div>';
 h+='<button class="login-btn" onclick="sendOTP()"'+(S.loginLoading?' disabled':'')+'>'+(S.loginLoading?'Sending code...':'\\u2709\\uFE0F Send code to email')+'</button>';
 h+='<div class="login-hint">We\\'ll email a 6-digit code. Check your inbox (and spam folder).</div>';
-h+='<div class="login-hint" style="margin-top:14px;font-size:11px;opacity:.6">WhatsApp login coming soon \\u2014 awaiting Meta Business approval.</div>';
+h+='<div class="login-hint" style="margin-top:14px;font-size:11px;opacity:.6">Sign in with email \\u2014 you can connect WhatsApp later from inside the app.</div>';
 }else if(S.loginStep==='otp'){
 h+='<div class="login-sub">Enter the code sent to<br><strong>'+esc(S.loginMethod==='email'?S.loginEmail:S.loginPhone)+'</strong></div>';
 h+='<div class="step-dots"><div class="step-dot on"></div><div class="step-dot on"></div><div class="step-dot"></div></div>';
@@ -1107,32 +1119,33 @@ document.getElementById('app').innerHTML=h;return;
 const ts=S.tasks,f=ts.filter(t=>{if(S.search){const q=S.search.toLowerCase();if(!t.title.toLowerCase().includes(q)&&!(t.notes||'').toLowerCase().includes(q))return false}if(S.view==='all')return true;if(S.view==='today')return isTd(t.due_date);if(S.view==='overdue')return isOD(t.due_date,t.status);return t.status===S.view});
 const s={total:ts.length,pend:ts.filter(t=>t.status==='pending').length,act:ts.filter(t=>t.status==='in-progress').length,dn:ts.filter(t=>t.status==='done').length,od:ts.filter(t=>isOD(t.due_date,t.status)).length};
 
-let h='<div class="hdr"><div><div class="logo">Bro<span class="k">Do</span>it</div><div class="hdr-sub">'+new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})+'</div></div><div class="hdr-actions"><button class="theme-tg" onclick="toggleTheme()" title="Switch theme">'+(S.theme==='aurora'?ic('sun',18):ic('moon',18))+'</button><div class="hdr-st"><span class="dot" style="background:'+(S.waOk?'#10B981':'#CBD5E1')+'"></span>'+(S.waOk?'LIVE':'OFF')+'</div></div></div>';
+let h='<div class="hdr"><div><div class="logo">Bro<span class="k">Do</span>it</div><div class="hdr-sub">'+new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})+'</div></div><div class="hdr-actions"><button class="theme-tg" onclick="speakIntro()" title="Hear what this tab does" aria-label="Play voice introduction"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button><button class="theme-tg" onclick="toggleTheme()" title="Switch theme">'+(S.theme==='aurora'?ic('sun',18):ic('moon',18))+'</button><div class="hdr-st"><span class="dot" style="background:'+(S.waConnected&&S.waOk?'#10B981':'#CBD5E1')+'"></span>'+(S.waConnected&&S.waOk?'LIVE':'OFF')+'</div></div></div>';
 
 // Moral chip
 const m=MORALS[S.moralIdx];
 h+='<div class="moral"><div class="moral-emoji">\\u{1F4A1}</div><div class="moral-body"><div class="moral-lbl">Moral of the Day</div><div class="moral-txt">"'+esc(m.t)+'"</div><div class="moral-by">\\u2014 '+esc(m.a)+'</div></div><button class="moral-ref" onclick="rotateMoral()" title="New quote">\\u21BB</button></div>';
 
 // Tabs
-h+='<nav class="tabs page-t">'+[{k:'tasks',l:'Tasks'},{k:'board',l:'Board'},{k:'cal',l:'Calendar'},{k:'dash',l:'Stats'},{k:'news',l:'News'},{k:'books',l:'Books'},{k:'steps',l:'Steps'},{k:'calc',l:'Calc'}].map(x=>'<button class="tab'+(S.tab===x.k?' on':'')+'" onclick="switchTab(\\''+x.k+'\\')"><span class="ti">'+ic(x.k,20)+'</span><span class="tl">'+x.l+'</span></button>').join('')+'</nav>';
+h+='<nav class="tabs page-t">'+[{k:'tasks',l:'Tasks'},{k:'board',l:'Board'},{k:'cal',l:'Calendar'},{k:'dash',l:'Stats'},{k:'news',l:'News'},{k:'books',l:'Books'},{k:'steps',l:'Steps'}].map(x=>'<button class="tab'+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+ic(x.k,20)+'</span><span class="tl">'+x.l+'</span></button>').join('')+'</nav>';
 
 h+='<main class="main-col">';
 h+='<div class="user-bar" style="cursor:pointer" onclick="openProfile()"><span>\\u{1F464} '+esc(S.user.name||S.user.phone)+' <span style="color:#94A3B8;font-size:11px">\\u203A Profile</span></span><button onclick="event.stopPropagation();logout()">Logout</button></div>';
 
 // TASKS TAB
 if(S.tab==='tasks'){
-  h+='<button class="add-bar" onclick="opA()"><span class="plus">+</span><span class="txt"><b>Add a new task</b><small>Type, speak, or send via WhatsApp</small></span></button>';
-  if(S.waOk)h+='<div class="al" style="background:#EDFCF2;border:1px solid #B7E8C4;color:#1A9E47">\\u{1F4F1} WhatsApp connected</div>';
+  h+='<button class="add-bar" onclick="opA()"><span class="plus">+</span><span class="txt"><b>Add a new task</b><small>'+(S.waConnected?'Type, speak, or send via WhatsApp':'Type or use voice input')+'</small></span></button>';
+  if(S.waConnected&&S.waOk)h+='<div class="al" style="background:#EDFCF2;border:1px solid #B7E8C4;color:#1A9E47">\\u{1F4F1} WhatsApp connected</div>';
+  else h+='<div class="al" style="background:#F0F9FF;border:1px solid #BAE6FD;color:#0369A1;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px" onclick="openWAOnboard()"><span>'+WI+' &nbsp;Connect WhatsApp for reminders <small style="opacity:.8">(optional)</small></span><span style="font-weight:700">\\u203A</span></div>';
   h+='<div class="stats">'+[{l:'Total',v:s.total,c:'#0F172A'},{l:'To Do',v:s.pend,c:'#94A3B8'},{l:'Active',v:s.act,c:'#3B82F6'},{l:'Done',v:s.dn,c:'#3DAE5C'}].map(x=>'<div class="st"><b style="color:'+x.c+'">'+x.v+'</b><small>'+x.l+'</small></div>').join('')+'</div>';
   if(s.od>0)h+='<div class="al" style="background:#FEF1F0;border:1px solid #F5C6C2;color:#E8453C;cursor:pointer" onclick="S.view=\\'overdue\\';render()">\\u26A0\\uFE0F '+s.od+' overdue</div>';
   h+='<div class="srch"><input placeholder="Search tasks..." value="'+esc(S.search)+'" oninput="S.search=this.value;render()"></div>';
   h+='<div class="flt">'+[{k:'all',l:'All'},{k:'pending',l:'To Do'},{k:'in-progress',l:'Doing'},{k:'done',l:'Done'},{k:'today',l:'Today'}].map(x=>'<button class="fb'+(S.view===x.k?' on':'')+'" onclick="S.view=\\''+x.k+'\\';render()">'+x.l+'</button>').join('')+'</div>';
-  if((s.pend+s.act)>0&&S.waOk)h+='<button class="bwa" onclick="sAll()">'+WI+' Send all to WhatsApp</button>';
+  if((s.pend+s.act)>0&&S.waConnected&&S.waOk)h+='<button class="bwa" onclick="sAll()">'+WI+' Send all to WhatsApp</button>';
   h+='<div>';
-  if(!f.length)h+='<div class="empty"><div style="font-size:36px;margin-bottom:8px">\\u2728</div><div style="font-size:15px;font-weight:600">No tasks yet</div><div style="font-size:13px;margin-top:4px">Tap + or send via WhatsApp</div></div>';
+  if(!f.length)h+='<div class="empty"><div style="font-size:36px;margin-bottom:8px">\\u2728</div><div style="font-size:15px;font-weight:600">No tasks yet</div><div style="font-size:13px;margin-top:4px">Tap + to add your first task</div></div>';
   else f.forEach(t=>{const p=P[t.priority]||P.medium,st=ST[t.status]||ST.pending,d=t.status==='done';
     h+='<div class="tc'+(d?' dn':'')+'" style="border-left-color:'+p.c+'"><div class="tc-top"><button class="chk'+(d?' on':'')+'" onclick="tog(\\''+t.id+'\\')">'+(d?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>':'')+'</button><div style="flex:1;min-width:0"><div class="tc-t'+(d?' dn':'')+'">'+esc(t.title)+'</div>'+(t.notes?'<div class="tc-n">'+esc(t.notes)+'</div>':'')+'<div class="tc-m"><button class="badge" style="background:'+st.bg+';color:'+st.c+'" onclick="cyc(\\''+t.id+'\\')">'+st.l+'</button>'+(t.due_date?'<span style="font-size:12px;font-weight:500;color:'+(isOD(t.due_date,t.status)?'#E8453C':isTd(t.due_date)?'#E8912C':'#94A3B8')+'">\\u{1F4C5} '+fD(t.due_date)+(isOD(t.due_date,t.status)?' overdue':'')+'</span>':'')+(t.reminder_time&&!d?'<span style="font-size:11px;color:#3B82F6;font-weight:600">\\u{1F514} '+fT(t.reminder_time)+'</span>':'')+(t.source==='whatsapp'?'<span style="font-size:10px;color:#CBD5E1">via WA</span>':'')+'</div></div></div>';
-    h+='<div class="tc-acts"><button class="ib" onclick="opE(\\''+t.id+'\\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="ib" onclick="sWA(\\''+t.id+'\\')">'+WI+'</button><button class="ib" style="color:#E8453C" onclick="del(\\''+t.id+'\\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button></div></div>'});
+    h+='<div class="tc-acts"><button class="ib" onclick="opE(\\''+t.id+'\\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>'+(S.waConnected?'<button class="ib" onclick="sWA(\\''+t.id+'\\')">'+WI+'</button>':'')+'<button class="ib" style="color:#E8453C" onclick="del(\\''+t.id+'\\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button></div></div>'});
   h+='</div><button class="fab" onclick="opA()">+</button>';
 }
 
@@ -1362,48 +1375,16 @@ else if(S.tab==='books'){
   const bs=S.bookStreak||{streak:0,total:0,today:false};
   h+='<div class="section-hd"><span class="section-ic">'+ic('books',22)+'</span><div><h3>Audiobooks</h3><p>Free LibriVox library \\u2022 listen 2 minutes a day to keep your streak</p></div></div>';
   h+='<div class="streak-card"><div class="streak-ico">'+ic('flame',24)+'</div><div class="streak-body"><div class="streak-n">'+bs.streak+'<span>day'+(bs.streak===1?'':'s')+'</span></div><div class="streak-lbl">Listening streak'+(bs.today?' \\u2022 done today \\u2705':'')+'</div></div><div class="streak-tot"><b>'+bs.total+'</b><small>total days</small></div></div>';
-  h+='<div class="srch"><input placeholder="Search audiobooks..." value="'+esc(S.bookSearch)+'" oninput="S.bookSearch=this.value;render()"></div>';
+  h+='<div class="srch"><input id="bsearch" placeholder="Search audiobooks..." value="'+esc(S.bookSearch)+'" oninput="filterBooks(this.value)"></div>';
   h+='<div class="flt">'+['all','fiction','mystery','philosophy','adventure','kids'].map(c=>'<button class="fb'+(S.booksCat===c?' on':'')+'" onclick="loadBooks(\\''+c+'\\')">'+c.charAt(0).toUpperCase()+c.slice(1)+'</button>').join('')+'</div>';
   if(S.booksLoading)h+='<div class="loading">Loading audiobooks...</div>';
   else{
     const q=S.bookSearch.toLowerCase().trim();
     const fb=!q?S.books:S.books.filter(b=>{const t=(Array.isArray(b.title)?b.title[0]:b.title||'').toLowerCase();const a=(Array.isArray(b.creator)?b.creator[0]:b.creator||'').toLowerCase();return t.includes(q)||a.includes(q)});
-    if(!fb.length)h+='<div class="empty"><div style="font-size:36px">\\u{1F4DA}</div><div style="font-size:14px;margin-top:8px">No books found</div></div>';
-    else{h+='<div class="book-list">';fb.forEach(b=>{const id=b.identifier;const cover='https://archive.org/services/img/'+id;const author=Array.isArray(b.creator)?b.creator[0]:(b.creator||'Unknown');const title=Array.isArray(b.title)?b.title[0]:b.title;h+='<div class="book-card"><div class="book-cover"><img src="'+cover+'" loading="lazy" onerror="this.style.display=\\'none\\'"/></div><div class="book-info"><div class="book-title">'+esc(title)+'</div><div class="book-author">'+esc(author)+'</div><div class="book-meta"><span>\\u{1F3A7} '+(b.downloads?(+b.downloads).toLocaleString():'—')+' plays</span><span>\\u{1F4D6} LibriVox</span></div></div><button class="book-play" onclick="playBook(\\''+id+'\\')">\\u25B6</button></div>';});h+='</div>'}
+    h+='<div id="books-grid">'+renderBookCards(fb)+'</div>';
   }
 }
 
-// CALCULATOR TAB
-else if(S.tab==='calc'){
-  h+='<div class="smart-hint">\\u{1F4A1} <b>Smart mode:</b> type expressions like <code>15% of 200</code>, <code>sqrt(144)</code>, <code>5*3+2</code>, or <code>pi*4</code> — live-evaluated.</div>';
-  h+='<div class="calc-input-row"><input placeholder="Type expression..." value="'+esc(S.calcExpr)+'" oninput="calcTyped(this.value)"/></div>';
-  h+='<div class="calc-screen"><div class="calc-expr">'+(esc(S.calcExpr)||'&nbsp;')+'</div><div class="calc-result">'+esc(S.calcResult)+'</div></div>';
-  h+='<div class="calc-tgl"><button class="'+(!S.calcSci?'on':'')+'" onclick="S.calcSci=false;render()">Basic</button><button class="'+(S.calcSci?'on':'')+'" onclick="S.calcSci=true;render()">Scientific</button></div>';
-  if(S.calcSci){
-    h+='<div class="calc-grid"><button class="ck sci" onclick="calcAppend(\\'sqrt(\\')">\\u221A</button><button class="ck sci" onclick="calcAppend(\\'sin(\\')">sin</button><button class="ck sci" onclick="calcAppend(\\'cos(\\')">cos</button><button class="ck sci" onclick="calcAppend(\\'tan(\\')">tan</button><button class="ck sci" onclick="calcAppend(\\'log(\\')">log</button><button class="ck sci" onclick="calcAppend(\\'ln(\\')">ln</button><button class="ck sci" onclick="calcAppend(\\'pi\\')">π</button><button class="ck sci" onclick="calcAppend(\\'^\\')">xʸ</button></div>';
-  }
-  h+='<div class="calc-grid">';
-  h+='<button class="ck sp" onclick="calcClear()">C</button>';
-  h+='<button class="ck sp" onclick="calcBack()">\\u232B</button>';
-  h+='<button class="ck op" onclick="calcAppend(\\'%\\')">%</button>';
-  h+='<button class="ck op" onclick="calcAppend(\\'/\\')">\\u00F7</button>';
-  ['7','8','9'].forEach(n=>h+='<button class="ck" onclick="calcAppend(\\''+n+'\\')">'+n+'</button>');
-  h+='<button class="ck op" onclick="calcAppend(\\'*\\')">\\u00D7</button>';
-  ['4','5','6'].forEach(n=>h+='<button class="ck" onclick="calcAppend(\\''+n+'\\')">'+n+'</button>');
-  h+='<button class="ck op" onclick="calcAppend(\\'-\\')">\\u2212</button>';
-  ['1','2','3'].forEach(n=>h+='<button class="ck" onclick="calcAppend(\\''+n+'\\')">'+n+'</button>');
-  h+='<button class="ck op" onclick="calcAppend(\\'+\\')">+</button>';
-  h+='<button class="ck" onclick="calcAppend(\\'(\\')">(</button>';
-  h+='<button class="ck" onclick="calcAppend(\\'0\\')">0</button>';
-  h+='<button class="ck" onclick="calcAppend(\\'.\\')">.</button>';
-  h+='<button class="ck eq" onclick="calcEnter()">=</button>';
-  h+='</div>';
-  if(S.calcHistory&&S.calcHistory.length){
-    h+='<div class="calc-hist"><h4>\\u{1F4DC} History</h4>';
-    S.calcHistory.forEach(x=>{h+='<div class="hi" onclick="S.calcExpr=\\''+esc(x.expr).replace(/'/g,"\\\\'")+'\\';calcEval();render()">'+esc(x.expr)+' = <b>'+esc(x.result)+'</b></div>'});
-    h+='</div>';
-  }
-}
 
 h+='</main>';
 
@@ -1417,6 +1398,23 @@ if(S.playing){
 }
 
 if(S.toast)h+='<div class="toast toast-'+(S.toastType==='err'?'err':'ok')+'">'+S.toast+'</div>';
+
+if(S.showWAOnboard){
+  h+='<div class="ov" onclick="closeWAOnboard()"><div class="mdl" onclick="event.stopPropagation()" style="max-width:420px">';
+  h+='<div style="text-align:center;margin-bottom:14px"><div style="width:64px;height:64px;border-radius:50%;background:#25D366;display:inline-flex;align-items:center;justify-content:center;margin-bottom:10px">'+WI+'</div><h2 style="margin:0">Connect WhatsApp</h2><div style="font-size:13px;color:#94A3B8;margin-top:4px">Optional \\u2014 enables WhatsApp reminders &amp; quick task creation</div></div>';
+  if(!S.waConnected){
+    h+='<div style="background:#F0F9FF;border:1px solid #BAE6FD;border-radius:10px;padding:12px;font-size:13px;color:#0369A1;margin-bottom:14px"><b>While in beta, Brodoit uses Twilio\\'s WhatsApp Sandbox.</b> Each tester must opt in once.</div>';
+    h+='<div style="font-size:13px;font-weight:600;margin-bottom:8px">Step 1 \\u2014 Send the join code on WhatsApp</div>';
+    h+='<button class="mb mb-s" style="width:100%;background:#25D366;border-color:#25D366" onclick="openWAJoin()">Open WhatsApp &amp; send <code style="background:rgba(255,255,255,.25);padding:2px 6px;border-radius:4px;margin-left:4px">join along-wool</code></button>';
+    h+='<div style="font-size:12px;color:#64748B;margin:8px 0 14px;text-align:center">to <b>+1 415 523 8886</b> \\u2014 you should get a "Sandbox: Connected" reply</div>';
+    h+='<div style="font-size:13px;font-weight:600;margin-bottom:8px">Step 2 \\u2014 Confirm you\\'re connected</div>';
+    h+='<div class="macts"><button class="mb mb-c" onclick="closeWAOnboard()">Maybe later</button><button class="mb mb-s" onclick="confirmWAJoined()">I\\'ve sent the message</button></div>';
+  }else{
+    h+='<div style="background:#EDFCF2;border:1px solid #B7E8C4;border-radius:10px;padding:12px;font-size:13px;color:#1A9E47;margin-bottom:14px"><b>\\u2705 WhatsApp is connected.</b> You\\'ll receive reminders and can send tasks via WhatsApp.</div>';
+    h+='<div class="macts"><button class="mb mb-d" onclick="disconnectWA()">Disconnect</button><button class="mb mb-s" onclick="closeWAOnboard()">Done</button></div>';
+  }
+  h+='</div></div>';
+}
 
 if(S.showProfile){
   const p=S.profile||{phone:S.user.phone,name:S.user.name,created_at:''};
