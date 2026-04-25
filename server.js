@@ -743,18 +743,21 @@ body[data-theme=aurora] .top-strip .side-now-date{color:#9999B5}
 body[data-theme=aurora] .top-strip .side-now-cities{color:#9999B5}
 body[data-theme=aurora] .top-strip .city-clock{color:#C4B5FD}
 body[data-theme=aurora] .top-strip .city-clock b{color:#A78BFA}
-/* News ticker — floating headlines below the moral chip */
-.news-ticker{background:linear-gradient(135deg,rgba(99,102,241,.04),rgba(236,72,153,.04));border:1px solid rgba(99,102,241,.14);border-radius:10px;padding:6px 12px;font-size:12.5px;line-height:1.35;overflow:hidden;position:relative;min-height:30px}
-.news-ticker-inner{display:flex;align-items:center;gap:10px;opacity:0;transform:translateY(6px);transition:opacity .4s ease,transform .4s ease}
-.news-ticker-inner.show{opacity:1;transform:translateY(0)}
-.news-ticker-pulse{width:7px;height:7px;border-radius:50%;background:#E8453C;flex-shrink:0;box-shadow:0 0 0 0 rgba(232,69,60,.6);animation:tickerLive 1.6s ease-in-out infinite}
+/* News ticker — 3 stacked headlines below the moral chip, rotates every 9s */
+.news-ticker-stack{flex:1;display:flex;flex-direction:column;gap:5px;background:linear-gradient(135deg,rgba(99,102,241,.04),rgba(236,72,153,.04));border:1px solid rgba(99,102,241,.14);border-radius:10px;padding:8px;overflow:hidden}
+.news-ticker-row{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:7px;background:rgba(255,255,255,.55);text-decoration:none;font-size:12px;line-height:1.3;transition:background .2s ease,transform .2s ease;opacity:0;animation:tickerRowIn .4s ease forwards}
+.news-ticker-row:hover{background:rgba(255,255,255,.85);transform:translateX(2px)}
+@keyframes tickerRowIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.news-ticker-pulse{width:6px;height:6px;border-radius:50%;background:#E8453C;flex-shrink:0;box-shadow:0 0 0 0 rgba(232,69,60,.6);animation:tickerLive 1.6s ease-in-out infinite}
 @keyframes tickerLive{0%,100%{box-shadow:0 0 0 0 rgba(232,69,60,.6)}50%{box-shadow:0 0 0 5px rgba(232,69,60,0)}}
-.news-ticker-src{font-size:9.5px;font-weight:800;color:#6366F1;letter-spacing:1.2px;text-transform:uppercase;flex-shrink:0;background:rgba(99,102,241,.1);padding:2px 7px;border-radius:6px}
-.news-ticker-link{font-weight:600;color:#0F172A;text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0;transition:color .15s ease}
-.news-ticker-link:hover{color:#6366F1}
-body[data-theme=aurora] .news-ticker{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(244,114,182,.06));border-color:rgba(167,139,250,.18)}
+.news-ticker-src{font-size:9px;font-weight:800;color:#6366F1;letter-spacing:1.1px;text-transform:uppercase;flex-shrink:0;background:rgba(99,102,241,.1);padding:2px 6px;border-radius:5px}
+.news-ticker-link{font-weight:600;color:#0F172A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0;transition:color .15s ease}
+.news-ticker-row:hover .news-ticker-link{color:#6366F1}
+body[data-theme=aurora] .news-ticker-stack{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(244,114,182,.06));border-color:rgba(167,139,250,.18)}
+body[data-theme=aurora] .news-ticker-row{background:rgba(255,255,255,.04)}
+body[data-theme=aurora] .news-ticker-row:hover{background:rgba(255,255,255,.08)}
 body[data-theme=aurora] .news-ticker-link{color:#F5F5FA}
-body[data-theme=aurora] .news-ticker-link:hover{color:#A78BFA}
+body[data-theme=aurora] .news-ticker-row:hover .news-ticker-link{color:#A78BFA}
 body[data-theme=aurora] .news-ticker-src{color:#A78BFA;background:rgba(167,139,250,.16)}
 .top-strip .side-now-row-w{transition:opacity .15s ease;user-select:none}
 .top-strip .side-now-row-w:hover{opacity:.85}
@@ -2330,7 +2333,7 @@ function gameEnd(){S.game.active=false;S.game.status='idle';render()}
 async function loadWeather(){if(S.weather.loading)return;S.weather.loading=true;S.weather.error=null;render();try{const r=await fetch('/api/weather?city='+encodeURIComponent(S.weather.city||'Bangalore'));const j=await r.json();if(j.error){S.weather.error=j.error}else{S.weather.city=j.city||S.weather.city;S.weather.country=j.country||'';S.weather.temp=j.temp;S.weather.aqi=j.aqi}}catch(e){S.weather.error=String(e)}S.weather.loaded=true;S.weather.loading=false;render()}
 async function loadTicker(){try{const r=await fetch('/api/news?cat=technology',{cache:'no-store'});const j=await r.json();S.ticker={items:(j.items||[]).slice(0,12),idx:0,loaded:true};render();_startTicker()}catch(e){}}
 let _tickerTimer=null;
-function _startTicker(){if(_tickerTimer)clearInterval(_tickerTimer);if(!S.ticker.items.length)return;_tickerTimer=setInterval(()=>{if(!S.ticker.items.length)return;S.ticker.idx=(S.ticker.idx+1)%S.ticker.items.length;const el=document.getElementById('newsTickerInner');if(el){const it=S.ticker.items[S.ticker.idx];el.classList.remove('show');setTimeout(()=>{const a=document.getElementById('newsTickerLink');if(a){a.textContent=(it.title||'').slice(0,140);a.href=it.link||'#';a.title=it.title||''}const src=document.getElementById('newsTickerSrc');if(src)src.textContent=(it.source||'').toUpperCase();el.classList.add('show')},420)}},5000)}
+function _startTicker(){if(_tickerTimer)clearInterval(_tickerTimer);if(!S.ticker.items.length)return;_tickerTimer=setInterval(()=>{if(!S.ticker.items.length)return;S.ticker.idx=(S.ticker.idx+3)%S.ticker.items.length;const stack=document.getElementById('newsTickerStack');if(stack)render()},9000)}
 function setCity(){const c=prompt('Set your city',S.weather.city||'Bangalore');if(!c)return;const t=c.trim();if(!t)return;localStorage.setItem('tf_city',t);S.weather.city=t;S.weather.loaded=false;loadWeather()}
 // Live-tick the sidebar, header clocks AND world clocks without re-rendering the whole tree
 setInterval(()=>{const n=new Date();const hm=n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false});const sec=String(n.getSeconds()).padStart(2,'0');const t=document.getElementById('sideNowTime');const s=document.getElementById('sideNowSec');if(t&&s){if(t.firstChild&&t.firstChild.nodeValue!==hm)t.firstChild.nodeValue=hm;s.textContent=':'+sec}const ht=document.getElementById('hdrTimeHm');const hs=document.getElementById('hdrTimeSec');if(ht&&hs){if(ht.textContent!==hm)ht.textContent=hm;hs.textContent=':'+sec}const cities=document.querySelectorAll('#sideNowCities [data-tz]');cities.forEach(el=>{try{const tz=el.getAttribute('data-tz');const t2=new Date().toLocaleTimeString('en-US',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false});if(el.textContent!==t2)el.textContent=t2}catch(e){}})},1000);
@@ -2436,9 +2439,11 @@ let h=PHONE_BANNER+'<div class="hdr"><div><div class="logo">Bro<span class="k">D
 const m=MORALS[S.moralIdx];
 {
   const mWrap='<div class="moral">'+MORAL_DOODLE+'<div class="moral-emoji">\\u{1F4A1}</div><div class="moral-body"><div class="moral-lbl">Moral of the Day</div><div class="moral-txt">"'+esc(m.t)+'"</div><div class="moral-by">\\u2014 '+esc(m.a)+'</div></div><button class="moral-ref" onclick="rotateMoral()" title="New quote">\\u21BB</button></div>';
-  // News ticker — floating headlines below the moral chip, fading in/out every 5s
-  const ti=(S.ticker.items||[])[S.ticker.idx]||{title:'',link:'#',source:''};
-  const ticker='<div class="news-ticker"><div class="news-ticker-inner show" id="newsTickerInner"><span class="news-ticker-pulse"></span><span class="news-ticker-src" id="newsTickerSrc">'+esc((ti.source||'').toUpperCase())+'</span><a class="news-ticker-link" id="newsTickerLink" href="'+esc(ti.link||'#')+'" target="_blank" rel="noopener" title="'+esc(ti.title||'')+'">'+esc((ti.title||'Loading latest news\\u2026').slice(0,140))+'</a></div></div>';
+  // News ticker — 3 stacked headlines that rotate every 7s; fills the empty column space below the moral chip
+  const items=S.ticker.items||[];const baseIdx=S.ticker.idx||0;const visible=[0,1,2].map(o=>items[(baseIdx+o)%(items.length||1)]||{title:'Loading\\u2026',link:'#',source:''});
+  let ticker='<div class="news-ticker-stack" id="newsTickerStack">';
+  visible.forEach((ti,i)=>{ticker+='<a class="news-ticker-row" style="animation-delay:'+(i*0.08)+'s" href="'+esc(ti.link||'#')+'" target="_blank" rel="noopener" title="'+esc(ti.title||'')+'"><span class="news-ticker-pulse"></span><span class="news-ticker-src">'+esc((ti.source||'').toUpperCase())+'</span><span class="news-ticker-link">'+esc((ti.title||'').slice(0,120))+'</span></a>'});
+  ticker+='</div>';
   h+='<div class="moral-wrap">'+mWrap+ticker+'</div>';
 }
 
