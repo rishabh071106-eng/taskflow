@@ -15,6 +15,8 @@ try{db.exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email) W
 try{db.exec("CREATE TABLE IF NOT EXISTS steps(id INTEGER PRIMARY KEY AUTOINCREMENT,user_phone TEXT NOT NULL,date TEXT NOT NULL,count INTEGER NOT NULL DEFAULT 0,source TEXT DEFAULT'manual',updated_at TEXT DEFAULT(datetime('now')))")}catch(e){}
 try{db.exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_steps_user_date ON steps(user_phone,date)")}catch(e){}
 try{db.exec("CREATE TABLE IF NOT EXISTS book_listens(user_phone TEXT NOT NULL,date TEXT NOT NULL,seconds INTEGER DEFAULT 120,PRIMARY KEY(user_phone,date))")}catch(e){}
+try{db.exec("CREATE TABLE IF NOT EXISTS google_tokens(user_phone TEXT NOT NULL,email TEXT NOT NULL,access_token TEXT NOT NULL,refresh_token TEXT,expires_at INTEGER NOT NULL,scope TEXT,is_default INTEGER DEFAULT 1,created_at TEXT DEFAULT(datetime('now')),PRIMARY KEY(user_phone,email))")}catch(e){}
+try{db.exec("CREATE TABLE IF NOT EXISTS oauth_states(state TEXT PRIMARY KEY,user_phone TEXT NOT NULL,created_at INTEGER NOT NULL)")}catch(e){}
 
 let tw=null;const TW_FROM=process.env.TWILIO_WHATSAPP_FROM||'whatsapp:+14155238886';
 try{if(process.env.TWILIO_ACCOUNT_SID&&process.env.TWILIO_AUTH_TOKEN){tw=twilio(process.env.TWILIO_ACCOUNT_SID,process.env.TWILIO_AUTH_TOKEN);console.log('✅ Twilio connected')}}catch(e){console.log('⚠️',e.message)}
@@ -185,6 +187,113 @@ app.post('/api/book-streak',auth,(req,res)=>{
   const rows=db.prepare('SELECT date FROM book_listens WHERE user_phone=? ORDER BY date DESC LIMIT 365').all(req.user.phone);
   res.json({ok:true,streak:calcStreak(rows),total:rows.length});
 });
+
+// ═══ GOOGLE CALENDAR INTEGRATION (OAuth 2.0) ═══
+const G_CLIENT_ID=process.env.GOOGLE_CLIENT_ID||'';
+const G_CLIENT_SECRET=process.env.GOOGLE_CLIENT_SECRET||'';
+const G_REDIRECT=process.env.GOOGLE_REDIRECT_URI||(process.env.PUBLIC_URL?process.env.PUBLIC_URL.replace(/\/$/,'')+'/api/google/callback':'https://brodoit.com/api/google/callback');
+const G_SCOPES=['https://www.googleapis.com/auth/calendar.events','https://www.googleapis.com/auth/userinfo.email','openid'].join(' ');
+const googleConfigured=()=>!!(G_CLIENT_ID&&G_CLIENT_SECRET);
+app.get('/api/google/status',auth,(req,res)=>{
+  const accounts=db.prepare('SELECT email,is_default,created_at FROM google_tokens WHERE user_phone=? ORDER BY is_default DESC,created_at ASC').all(req.user.phone);
+  res.json({configured:googleConfigured(),accounts,redirectUri:G_REDIRECT});
+});
+app.get('/api/google/auth-url',auth,(req,res)=>{
+  if(!googleConfigured())return res.status(503).json({error:'Google integration not configured. Admin must set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET.'});
+  const state=crypto.randomBytes(24).toString('hex');
+  db.prepare('INSERT INTO oauth_states(state,user_phone,created_at)VALUES(?,?,?)').run(state,req.user.phone,Date.now());
+  // expire old states (>10 min)
+  db.prepare('DELETE FROM oauth_states WHERE created_at<?').run(Date.now()-10*60*1000);
+  const params=new URLSearchParams({client_id:G_CLIENT_ID,redirect_uri:G_REDIRECT,response_type:'code',scope:G_SCOPES,access_type:'offline',prompt:'consent select_account',state,include_granted_scopes:'true'});
+  res.json({url:'https://accounts.google.com/o/oauth2/v2/auth?'+params.toString()});
+});
+app.get('/api/google/callback',async(req,res)=>{
+  const{code,state,error:authErr}=req.query;
+  if(authErr)return res.send('<html><body style="font-family:system-ui;padding:40px;text-align:center"><h2>Connection cancelled</h2><p>'+String(authErr).replace(/[<>]/g,'')+'</p><a href="/">Back to Brodoit</a></body></html>');
+  if(!code||!state)return res.status(400).send('Missing code or state');
+  const row=db.prepare('SELECT user_phone FROM oauth_states WHERE state=?').get(state);
+  if(!row)return res.status(400).send('Invalid or expired state');
+  db.prepare('DELETE FROM oauth_states WHERE state=?').run(state);
+  try{
+    const tokenResp=await fetch('https://oauth2.googleapis.com/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({code,client_id:G_CLIENT_ID,client_secret:G_CLIENT_SECRET,redirect_uri:G_REDIRECT,grant_type:'authorization_code'}).toString()});
+    const tj=await tokenResp.json();
+    if(!tj.access_token)return res.status(400).send('<html><body style="font-family:system-ui;padding:40px;text-align:center"><h2>Token exchange failed</h2><pre>'+JSON.stringify(tj).replace(/[<>]/g,'')+'</pre></body></html>');
+    const ui=await fetch('https://openidconnect.googleapis.com/v1/userinfo',{headers:{Authorization:'Bearer '+tj.access_token}}).then(r=>r.json()).catch(()=>({}));
+    const email=(ui.email||'').toLowerCase();
+    if(!email)return res.status(400).send('Could not read your Google email.');
+    const expires_at=Date.now()+(tj.expires_in||3600)*1000;
+    const existing=db.prepare('SELECT email FROM google_tokens WHERE user_phone=?').all(row.user_phone);
+    const isFirst=existing.length===0?1:0;
+    db.prepare("INSERT INTO google_tokens(user_phone,email,access_token,refresh_token,expires_at,scope,is_default)VALUES(?,?,?,?,?,?,?)ON CONFLICT(user_phone,email) DO UPDATE SET access_token=excluded.access_token,refresh_token=COALESCE(excluded.refresh_token,google_tokens.refresh_token),expires_at=excluded.expires_at,scope=excluded.scope").run(row.user_phone,email,tj.access_token,tj.refresh_token||null,expires_at,tj.scope||'',isFirst);
+    res.send('<html><head><title>Brodoit \\u2014 Google connected</title></head><body style="font-family:system-ui;padding:40px;text-align:center;background:linear-gradient(135deg,#EDFCF2,#FFF);min-height:100vh;display:flex;align-items:center;justify-content:center"><div><div style="font-size:72px">\\u2705</div><h2 style="margin:8px 0;font-size:26px">Google Calendar connected</h2><p style="color:#64748B;font-size:15px;margin-bottom:24px"><b>'+email.replace(/[<>]/g,'')+'</b> is now linked. Closing this tab\\u2026</p><a href="/" style="display:inline-block;padding:12px 24px;background:#0F172A;color:#fff;border-radius:10px;text-decoration:none;font-weight:600">Open Brodoit</a><script>setTimeout(()=>{try{if(window.opener){window.opener.postMessage({type:"google-connected",email:"'+email.replace(/[^a-z0-9@._-]/gi,'')+'"},"*");window.close()}else{location.href="/?google=connected"}}catch(e){location.href="/?google=connected"}},1500);<\\/script></div></body></html>');
+  }catch(e){res.status(500).send('Auth error: '+String(e.message).replace(/[<>]/g,''))}
+});
+async function gAccessToken(user_phone,email){
+  const row=email?db.prepare('SELECT * FROM google_tokens WHERE user_phone=? AND email=?').get(user_phone,email):db.prepare('SELECT * FROM google_tokens WHERE user_phone=? ORDER BY is_default DESC LIMIT 1').get(user_phone);
+  if(!row)return null;
+  if(Date.now()<row.expires_at-30000)return{token:row.access_token,email:row.email};
+  if(!row.refresh_token)return null;
+  try{
+    const r=await fetch('https://oauth2.googleapis.com/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({client_id:G_CLIENT_ID,client_secret:G_CLIENT_SECRET,refresh_token:row.refresh_token,grant_type:'refresh_token'}).toString()});
+    const j=await r.json();
+    if(!j.access_token)return null;
+    const expires_at=Date.now()+(j.expires_in||3600)*1000;
+    db.prepare('UPDATE google_tokens SET access_token=?,expires_at=? WHERE user_phone=? AND email=?').run(j.access_token,expires_at,user_phone,row.email);
+    return{token:j.access_token,email:row.email};
+  }catch(e){return null}
+}
+app.post('/api/google/disconnect',auth,(req,res)=>{
+  const email=(req.body.email||'').toLowerCase();
+  if(email)db.prepare('DELETE FROM google_tokens WHERE user_phone=? AND email=?').run(req.user.phone,email);
+  else db.prepare('DELETE FROM google_tokens WHERE user_phone=?').run(req.user.phone);
+  res.json({ok:true});
+});
+app.post('/api/google/set-default',auth,(req,res)=>{
+  const email=(req.body.email||'').toLowerCase();if(!email)return res.status(400).json({error:'email required'});
+  const exists=db.prepare('SELECT 1 FROM google_tokens WHERE user_phone=? AND email=?').get(req.user.phone,email);
+  if(!exists)return res.status(404).json({error:'not connected'});
+  db.prepare('UPDATE google_tokens SET is_default=0 WHERE user_phone=?').run(req.user.phone);
+  db.prepare('UPDATE google_tokens SET is_default=1 WHERE user_phone=? AND email=?').run(req.user.phone,email);
+  res.json({ok:true});
+});
+app.get('/api/calendar/events',auth,async(req,res)=>{
+  const email=req.query.email;const ga=await gAccessToken(req.user.phone,email);
+  if(!ga)return res.status(400).json({error:'Google Calendar not connected'});
+  const now=new Date();const from=req.query.from||new Date(now.getFullYear(),now.getMonth()-1,1).toISOString();const to=req.query.to||new Date(now.getFullYear(),now.getMonth()+2,0).toISOString();
+  const url='https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin='+encodeURIComponent(from)+'&timeMax='+encodeURIComponent(to)+'&singleEvents=true&orderBy=startTime&maxResults=100';
+  try{
+    const r=await fetch(url,{headers:{Authorization:'Bearer '+ga.token}});
+    const j=await r.json();
+    if(j.error)return res.status(400).json({error:j.error.message||'fetch failed'});
+    const items=(j.items||[]).map(e=>({id:e.id,title:e.summary||'(no title)',start:e.start?.dateTime||e.start?.date||'',end:e.end?.dateTime||e.end?.date||'',allDay:!!(e.start&&e.start.date&&!e.start.dateTime),link:e.htmlLink,location:e.location||''}));
+    res.json({email:ga.email,events:items});
+  }catch(e){res.status(500).json({error:e.message})}
+});
+app.post('/api/calendar/events',auth,async(req,res)=>{
+  const{title,date,time,duration,notes,email}=req.body;
+  if(!title||!date)return res.status(400).json({error:'title and date required'});
+  const ga=await gAccessToken(req.user.phone,email);if(!ga)return res.status(400).json({error:'Google Calendar not connected'});
+  const tz=Intl.DateTimeFormat().resolvedOptions().timeZone||'UTC';
+  let body;
+  if(time){const startISO=date+'T'+time+':00';const endTime=new Date(new Date(startISO).getTime()+(duration||30)*60000).toISOString().slice(0,19);body={summary:title,description:notes||'Created via Brodoit',start:{dateTime:startISO,timeZone:tz},end:{dateTime:endTime,timeZone:tz}}}
+  else body={summary:title,description:notes||'Created via Brodoit',start:{date},end:{date}};
+  try{
+    const r=await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events',{method:'POST',headers:{Authorization:'Bearer '+ga.token,'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const j=await r.json();
+    if(j.error)return res.status(400).json({error:j.error.message});
+    res.json({ok:true,event:{id:j.id,title:j.summary,link:j.htmlLink,start:j.start?.dateTime||j.start?.date}});
+  }catch(e){res.status(500).json({error:e.message})}
+});
+app.delete('/api/calendar/events/:id',auth,async(req,res)=>{
+  const ga=await gAccessToken(req.user.phone,req.query.email);if(!ga)return res.status(400).json({error:'not connected'});
+  try{
+    const r=await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events/'+encodeURIComponent(req.params.id),{method:'DELETE',headers:{Authorization:'Bearer '+ga.token}});
+    if(r.status===204||r.ok)return res.json({ok:true});
+    const j=await r.json().catch(()=>({}));
+    res.status(400).json({error:j.error?.message||'delete failed'});
+  }catch(e){res.status(500).json({error:e.message})}
+});
+
 app.post('/api/send-task/:id',auth,async(req,res)=>{
   const t=db.prepare('SELECT * FROM tasks WHERE id=? AND user_phone=?').get(req.params.id,req.user.phone);if(!t)return res.status(404).json({error:'Not found'});
   let msg=`📋 *Task Reminder*\n\n${PRI[t.priority]||'🟠'} *${t.title}*`;if(t.notes)msg+='\n'+t.notes;if(t.due_date)msg+='\n📅 Due: '+fmtD(t.due_date);
@@ -972,6 +1081,68 @@ body[data-theme=aurora] .dash-hero .big{background:linear-gradient(90deg,#fff,#F
 body[data-theme=aurora] .ocean{opacity:.4}
 .app{position:relative;z-index:1}
 
+/* Google Calendar integration */
+.gcal-card{background:rgba(255,255,255,.96);border:1px solid rgba(15,23,42,.06);border-radius:18px;padding:16px;margin-bottom:14px;box-shadow:0 6px 24px rgba(15,23,42,.05)}
+.gcal-card.gcal-loading{text-align:center;color:#94A3B8;padding:14px;font-size:13px}
+.gcal-card.gcal-cta{display:flex;gap:14px;align-items:flex-start;padding:18px;background:linear-gradient(135deg,#FFFFFF,#EEF6FF)}
+.gcal-icon{flex-shrink:0;width:54px;height:54px;border-radius:14px;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(66,133,244,.15)}
+.gcal-card h3{font-size:17px;margin-bottom:6px}
+.gcal-card p{font-size:13.5px;color:#64748B;line-height:1.5;margin-bottom:12px}
+.gcal-acc-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.gcal-acc-l{display:flex;align-items:center;gap:10px}
+.gcal-acc-list{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.gcal-chip{font-size:11.5px;background:rgba(66,133,244,.08);color:#1A56DB;border:1px solid rgba(66,133,244,.18);padding:5px 10px;border-radius:30px;font-weight:600;cursor:pointer;transition:all .15s}
+.gcal-chip:hover{background:rgba(66,133,244,.15)}
+.gcal-chip.on{background:#4285F4;color:#fff;border-color:#4285F4}
+.gcal-chip-add{background:rgba(15,23,42,.04);color:#64748B;border-color:rgba(15,23,42,.08)}
+.gcal-acc-foot{display:flex;flex-wrap:wrap;gap:14px;padding-top:10px;border-top:1px solid rgba(15,23,42,.06);margin-top:10px}
+.gcal-link{font-size:12px;color:#4285F4;background:none;border:none;cursor:pointer;font-weight:600;padding:0}
+.gcal-link:hover{text-decoration:underline}
+.gcal-link-d{color:#E8453C}
+.gcal-day-list{margin-top:14px;padding:12px;background:rgba(66,133,244,.04);border:1px solid rgba(66,133,244,.12);border-radius:12px}
+.gcal-day-h{font-size:11.5px;font-weight:700;color:#4285F4;letter-spacing:.4px;text-transform:uppercase;display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.gcal-evt{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(15,23,42,.05)}
+.gcal-evt:last-child{border-bottom:none}
+.gcal-evt-time{font-family:'Space Mono',monospace;font-size:12px;color:#64748B;min-width:64px;font-weight:600;display:flex;flex-direction:column;line-height:1.3}
+.gcal-evt-time small{font-size:10.5px;opacity:.85}
+.gcal-evt-body{flex:1;min-width:0}
+.gcal-evt-title{font-size:13.5px;font-weight:600;color:#0F172A}
+.gcal-evt-loc{font-size:11px;color:#94A3B8;margin-top:2px}
+.gcal-evt-open{font-size:11.5px;color:#4285F4;text-decoration:none;font-weight:600;flex-shrink:0}
+.gcal-evt-open:hover{text-decoration:underline}
+.gcal-upcoming{margin-top:14px;padding:14px 16px;background:rgba(255,255,255,.96);border:1px solid rgba(15,23,42,.06);border-radius:16px}
+.gcal-upcoming h4{font-size:13px;font-weight:700;margin-bottom:8px;color:#0F172A}
+.gcal-add-bar{background:linear-gradient(135deg,#FFFFFF,#EEF6FF)!important;border-color:rgba(66,133,244,.2)!important}
+.gcal-add-bar .plus{background:#4285F4!important;color:#fff!important}
+body[data-theme=aurora] .gcal-card,body[data-theme=aurora] .gcal-upcoming{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.08)}
+body[data-theme=aurora] .gcal-card h3,body[data-theme=aurora] .gcal-evt-title,body[data-theme=aurora] .gcal-upcoming h4{color:#F5F5FA}
+body[data-theme=aurora] .gcal-card p,body[data-theme=aurora] .gcal-evt-time{color:#9999B5}
+
+/* Inshorts-style news cards */
+.inshort-feed{display:flex;flex-direction:column;gap:18px;padding-bottom:8px}
+.inshort{background:rgba(255,255,255,.96);border:1px solid rgba(15,23,42,.06);border-radius:22px;overflow:hidden;box-shadow:0 8px 32px rgba(15,23,42,.06);transition:transform .25s ease,box-shadow .25s ease}
+.inshort:hover{transform:translateY(-3px);box-shadow:0 14px 38px rgba(15,23,42,.1)}
+.inshort-img{position:relative;width:100%;aspect-ratio:16/9;background-size:cover;background-position:center;background-color:#0F172A}
+.inshort-img-placeholder{display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#6366F1,#EC4899)}
+.inshort-src{position:absolute;top:14px;left:14px;background:rgba(15,23,42,.85);color:#fff;font-size:12px;font-weight:700;padding:6px 12px;border-radius:30px;letter-spacing:.3px;backdrop-filter:blur(10px)}
+.inshort-body{padding:18px 20px 16px}
+.inshort-title{font-size:20px;font-weight:800;line-height:1.25;color:#0F172A;margin-bottom:10px;letter-spacing:-.3px}
+.inshort-desc{font-size:14.5px;line-height:1.55;color:#475569;margin-bottom:14px}
+.inshort-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:12px;border-top:1px solid rgba(15,23,42,.06)}
+.inshort-time{font-size:12px;color:#94A3B8;font-weight:600}
+.inshort-share{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#6366F1;background:rgba(99,102,241,.1);border:none;padding:8px 14px;border-radius:10px;cursor:pointer;transition:all .15s}
+.inshort-share:hover{background:#6366F1;color:#fff}
+@media (max-width:600px){
+  .inshort-title{font-size:18px}
+  .inshort-desc{font-size:14px}
+  .inshort-body{padding:16px 16px 14px}
+}
+body[data-theme=aurora] .inshort{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.08)}
+body[data-theme=aurora] .inshort-title{color:#F5F5FA}
+body[data-theme=aurora] .inshort-desc{color:#9999B5}
+body[data-theme=aurora] .inshort-foot{border-top-color:rgba(255,255,255,.08)}
+body[data-theme=aurora] .inshort-share{background:rgba(167,139,250,.18);color:#A78BFA}
+
 /* Meditation tab */
 .med-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:14px}
 .med-card{display:flex;align-items:center;gap:14px;padding:18px 18px;border-radius:18px;background:linear-gradient(135deg,rgba(255,255,255,.92),rgba(255,255,255,.78));border:1.5px solid rgba(15,23,42,.06);text-align:left;cursor:pointer;transition:transform .2s ease,box-shadow .25s ease,border-color .2s ease;position:relative;overflow:hidden;width:100%;color:#0F172A}
@@ -1052,6 +1223,7 @@ const MORALS=[{t:"The secret of getting ahead is getting started.",a:"Mark Twain
 let S={tasks:[],view:'all',search:'',tab:'tasks',showAdd:false,editing:null,listening:false,toast:null,toastType:'ok',waOk:false,sending:{},user:null,
 books:[],booksLoading:false,booksCat:'all',bookSearch:'',playing:null,moralIdx:Math.floor(Math.random()*MORALS.length),
 waConnected:localStorage.getItem('wa_connected')==='1',showWAOnboard:false,activeMeditation:null,
+google:{configured:false,accounts:[],loaded:false},gcalEvents:[],gcalLoading:false,showGcalAdd:false,gcalForm:{title:'',date:'',time:'',duration:30,notes:'',email:''},
 calMonth:new Date(),calSelectedDate:new Date().toISOString().slice(0,10),
 steps:[],stepGoal:parseInt(localStorage.getItem('step_goal')||'10000',10),stepLive:{active:false,count:0},
 theme:localStorage.getItem('theme')||'classic',
@@ -1115,7 +1287,7 @@ function opE(id){const t=S.tasks.find(x=>x.id===id);if(!t)return;S.form={title:t
 function clM(){S.showAdd=false;S.editing=null;if(rec)try{rec.stop()}catch(e){}S.listening=false;render()}
 function stV(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){toast('\\u26A0\\uFE0F Voice not supported','err');return}rec=new SR();rec.continuous=false;rec.interimResults=true;rec.lang='en-US';rec.onresult=e=>{let t='';for(let i=0;i<e.results.length;i++)t+=e.results[i][0].transcript;if(e.results[0].isFinal){S.form.title=t;const l=t.toLowerCase();if(/urgent|important|asap/.test(l)){S.form.priority='high';S.form.title=S.form.title.replace(/urgent|important|asap/gi,'').trim()}if(/\\btoday\\b/.test(l))S.form.dueDate=new Date().toISOString().split('T')[0];else if(/\\btomorrow\\b/.test(l)){const d=new Date();d.setDate(d.getDate()+1);S.form.dueDate=d.toISOString().split('T')[0]}}else S.form.title=t;render()};rec.onend=()=>{S.listening=false;render()};rec.onerror=e=>{S.listening=false;toast('\\u26A0\\uFE0F '+e.error,'err');render()};rec.start();S.listening=true;render()}
 
-function switchTab(t){if(t==='steps')t='tasks';S.tab=t;if(t==='books'&&!S.books.length)loadBooks('all');if(t==='meditation'&&!S.meditations)loadMeditations();if(t==='news'&&!S.news[S.newsCat])loadNews(S.newsCat);render()}
+function switchTab(t){if(t==='steps')t='tasks';S.tab=t;if(t==='books'&&!S.books.length)loadBooks('all');if(t==='meditation'&&!S.meditations)loadMeditations();if(t==='news'&&!S.news[S.newsCat])loadNews(S.newsCat);if(t==='cal'){if(!S.google.loaded)loadGoogleStatus();else if(S.google.accounts.length&&!S.gcalEvents.length&&!S.gcalLoading)loadGcalEvents()}render()}
 async function loadNews(cat){S.newsCat=cat;S.newsLoading=true;render();try{const r=await fetch('/api/news?cat='+encodeURIComponent(cat),{cache:'no-store'});const j=await r.json();S.news[cat]=j.items||[]}catch(e){S.news[cat]=[]}S.newsLoading=false;render()}
 function shareNews(idx){const item=(S.news[S.newsCat]||[])[idx];if(!item)return;const url=item.link,title=item.title,text=(item.desc||'').slice(0,140);if(navigator.share){navigator.share({title,text,url}).catch(()=>{})}else{navigator.clipboard?.writeText(title+'\\n\\n'+url).then(()=>toast('\\u{1F517} Link copied')).catch(()=>toast('\\u26A0\\uFE0F Share unavailable','err'))}}
 function timeAgo(ds){if(!ds)return '';const d=new Date(ds);if(isNaN(d))return '';const s=(Date.now()-d.getTime())/1000;if(s<60)return 'just now';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';if(s<604800)return Math.floor(s/86400)+'d ago';return d.toLocaleDateString()}
@@ -1167,6 +1339,14 @@ const MED_SLOTS=[
 {mins:30,title:'30-Minute Body Scan',desc:'Full guided body scan to unwind',color:'#F59E0B',q:'(title:"30 minute" OR title:"30-minute") AND title:meditation AND mediatype:audio AND format:"VBR MP3"'}
 ];
 async function loadMeditations(){if(S.medLoading)return;S.medLoading=true;S.meditations=S.meditations||{};render();await Promise.all(MED_SLOTS.map(async s=>{if(S.meditations[s.mins])return;try{const url='https://archive.org/advancedsearch.php?q='+encodeURIComponent(s.q)+'&fl[]=identifier&fl[]=title&fl[]=creator&fl[]=downloads&rows=1&output=json&sort[]=downloads+desc';const r=await fetch(url);const j=await r.json();S.meditations[s.mins]=(j.response&&j.response.docs&&j.response.docs[0])||null}catch(e){S.meditations[s.mins]=null}}));S.medLoading=false;render()}
+async function loadGoogleStatus(){const r=await api('/google/status');if(r){S.google={configured:!!r.configured,accounts:r.accounts||[],loaded:true};render();if(S.google.accounts.length&&S.tab==='cal')loadGcalEvents()}}
+async function connectGoogle(){const r=await api('/google/auth-url');if(!r||!r.url){toast('\\u26A0\\uFE0F Google integration is not configured yet. Ask admin to set GOOGLE_CLIENT_ID/SECRET.','err');return}const w=window.open(r.url,'_blank','width=520,height=640');if(!w){location.href=r.url;return}window.addEventListener('message',function onMsg(e){if(e.data&&e.data.type==='google-connected'){window.removeEventListener('message',onMsg);toast('\\u2705 Connected '+e.data.email);loadGoogleStatus()}},{once:false});const poll=setInterval(()=>{if(w.closed){clearInterval(poll);loadGoogleStatus()}},900)}
+async function disconnectGoogle(email){if(!confirm('Disconnect '+(email||'all Google accounts')+' from Brodoit Calendar?'))return;const r=await api('/google/disconnect',{method:'POST',body:JSON.stringify({email:email||''})});if(r&&r.ok){toast('\\u23F8 Disconnected');S.gcalEvents=[];loadGoogleStatus()}}
+async function setDefaultGoogle(email){const r=await api('/google/set-default',{method:'POST',body:JSON.stringify({email})});if(r&&r.ok){toast('\\u2705 Default account set to '+email);loadGoogleStatus()}}
+async function loadGcalEvents(){if(!S.google.accounts.length)return;S.gcalLoading=true;render();const def=S.google.accounts.find(a=>a.is_default)||S.google.accounts[0];const r=await api('/calendar/events?email='+encodeURIComponent(def.email));S.gcalLoading=false;if(r&&r.events){S.gcalEvents=r.events;render()}else{S.gcalEvents=[];render();if(r&&r.error)toast('\\u26A0\\uFE0F '+r.error,'err')}}
+function openGcalAdd(){const def=S.google.accounts.find(a=>a.is_default)||S.google.accounts[0];S.gcalForm={title:'',date:S.calSelectedDate||new Date().toISOString().slice(0,10),time:'',duration:30,notes:'',email:def?def.email:''};S.showGcalAdd=true;render()}
+function closeGcalAdd(){S.showGcalAdd=false;render()}
+async function saveGcalEvent(){const f=S.gcalForm;if(!f.title.trim()){toast('\\u26A0\\uFE0F Title required','err');return}const r=await api('/calendar/events',{method:'POST',body:JSON.stringify({title:f.title.trim(),date:f.date,time:f.time||null,duration:f.duration||30,notes:f.notes,email:f.email})});if(r&&r.ok){toast('\\u2705 Event added to '+(f.email||'Google Calendar'));S.showGcalAdd=false;loadGcalEvents()}else if(r&&r.error){toast('\\u26A0\\uFE0F '+r.error,'err')}}
 function playMedSlot(mins){const doc=(S.meditations||{})[mins];if(!doc){toast('\\u23F3 Loading audio...','err');return}const t=Array.isArray(doc.title)?doc.title[0]:doc.title;playMeditation(doc.identifier,t,mins)}
 async function playMeditation(id,title,mins){S.playing={id,title:title||(mins+'-minute meditation'),author:'Guided meditation \\u2022 Internet Archive',loading:true};render();try{const r=await fetch('https://archive.org/metadata/'+encodeURIComponent(id));if(!r.ok)throw new Error('metadata '+r.status);const j=await r.json();if(!j.files||!j.files.length){toast('\\u26A0\\uFE0F No audio \\u2014 opening archive.org','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render();return}let mp3=j.files.find(f=>/\\.mp3$/i.test(f.name)&&!/sample|preview/i.test(f.name));if(!mp3)mp3=j.files.find(f=>/\\.(mp3|m4a|ogg)$/i.test(f.name));if(mp3){const server=j.server||'archive.org';const dir=j.dir||('/'+id);const directUrl='https://'+server+dir+'/'+mp3.name.split('/').map(encodeURIComponent).join('/');const dlUrl='https://archive.org/download/'+encodeURIComponent(id)+'/'+mp3.name.split('/').map(encodeURIComponent).join('/');S.playing={id,title:title||mins+'-min meditation',author:'\\u{1F9D8} Guided meditation \\u2022 Archive.org',url:directUrl,altUrl:dlUrl,external:'https://archive.org/details/'+id};render();setTimeout(()=>{const a=document.getElementById('audioEl');if(!a)return;a.setAttribute('playsinline','');a.preload='auto';a.addEventListener('error',function onErr(){a.removeEventListener('error',onErr);if(a.src!==dlUrl){a.src=dlUrl;a.load()}},{once:true});a.load();const p=a.play();if(p&&p.catch)p.catch(()=>toast('\\u25B6\\uFE0F Tap play on the bar','err'))},250)}else{toast('\\u26A0\\uFE0F No mp3 \\u2014 opening archive.org','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render()}}catch(e){toast('\\u26A0\\uFE0F '+e.message,'err');S.playing=null;render()}}
 async function openProfile(){S.showProfile=true;render();const me=await api('/me');if(me&&!me.error)S.profile=me;render()}
@@ -1220,7 +1400,7 @@ h+='</div>';
 if(S.loginError)h+='<div style="color:#E8453C;font-size:13px;font-weight:600;margin:8px 0">'+S.loginError+'</div>';
 h+='<button class="login-btn" onclick="verifyOTP()"'+(S.loginLoading?' disabled':'')+'>'+(S.loginLoading?'Verifying...':'Verify & Login')+'</button>';
 h+='<button class="login-btn sec" onclick="S.loginStep=\\'phone\\';S.loginError=\\'\\';render()">\\u2190 Change number</button>';
-h+='<div class="login-hint">Didn\\'t get the code? '+(S.loginMethod==='email'?'Check your spam folder or click "Change number" to retry.':'Make sure you joined the WhatsApp sandbox first.')+'</div>';
+h+='<div class="login-hint">Didn\\'t get the code? Check your spam folder or click "Change number" to retry.</div>';
 }
 h+='</div>';
 if(S.toast)h+='<div class="toast toast-'+(S.toastType==='err'?'err':'ok')+'">'+S.toast+'</div>';
@@ -1230,7 +1410,7 @@ document.getElementById('app').innerHTML=h;return;
 const ts=S.tasks,f=ts.filter(t=>{if(S.search){const q=S.search.toLowerCase();if(!t.title.toLowerCase().includes(q)&&!(t.notes||'').toLowerCase().includes(q))return false}if(S.view==='all')return true;if(S.view==='today')return isTd(t.due_date);if(S.view==='overdue')return isOD(t.due_date,t.status);return t.status===S.view});
 const s={total:ts.length,pend:ts.filter(t=>t.status==='pending').length,act:ts.filter(t=>t.status==='in-progress').length,dn:ts.filter(t=>t.status==='done').length,od:ts.filter(t=>isOD(t.due_date,t.status)).length};
 
-let h='<div class="hdr"><div><div class="logo">Bro<span class="k">Do</span>it</div><div class="hdr-sub">'+new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})+'</div></div><div class="hdr-actions"><button class="theme-tg" onclick="speakIntro()" title="Hear what this tab does" aria-label="Play voice introduction"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button><button class="theme-tg" onclick="toggleTheme()" title="Switch theme">'+(S.theme==='aurora'?ic('sun',18):ic('moon',18))+'</button><div class="hdr-st"><span class="dot" style="background:'+(S.waConnected&&S.waOk?'#10B981':'#CBD5E1')+'"></span>'+(S.waConnected&&S.waOk?'LIVE':'OFF')+'</div></div></div>';
+let h='<div class="hdr"><div><div class="logo">Bro<span class="k">Do</span>it</div><div class="hdr-sub">'+new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})+'</div></div><div class="hdr-actions"><button class="theme-tg" onclick="toggleTheme()" title="Switch theme">'+(S.theme==='aurora'?ic('sun',18):ic('moon',18))+'</button><div class="hdr-st"><span class="dot" style="background:'+(S.waConnected&&S.waOk?'#10B981':'#CBD5E1')+'"></span>'+(S.waConnected&&S.waOk?'LIVE':'OFF')+'</div></div></div>';
 
 // Moral chip
 const m=MORALS[S.moralIdx];
@@ -1246,7 +1426,7 @@ h+='<div class="user-bar" style="cursor:pointer" onclick="openProfile()"><span>\
 if(S.tab==='tasks'){
   h+='<button class="add-bar" onclick="opA()"><span class="plus">+</span><span class="txt"><b>Add a new task</b><small>'+(S.waConnected?'Type, speak, or send via WhatsApp':'Type or use voice input')+'</small></span></button>';
   if(S.waConnected&&S.waOk)h+='<div class="al" style="background:#EDFCF2;border:1px solid #B7E8C4;color:#1A9E47">\\u{1F4F1} WhatsApp connected</div>';
-  else h+='<div class="al" style="background:#F0F9FF;border:1px solid #BAE6FD;color:#0369A1;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px" onclick="openWAOnboard()"><span>'+WI+' &nbsp;Connect WhatsApp for reminders <small style="opacity:.8">(optional)</small></span><span style="font-weight:700">\\u203A</span></div>';
+  else h+='<div class="al" style="background:linear-gradient(135deg,#EDFCF2,#DCFCE7);border:1px solid #86EFAC;color:#166534;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 14px" onclick="openWAOnboard()"><span style="display:flex;align-items:center;gap:10px;line-height:1.4">'+WI+'<span><b style="font-size:14px">Reminders on WhatsApp</b><div style="font-size:12px;opacity:.85;font-weight:500">10-second setup \\u2014 never miss a task again</div></span></span><span style="font-weight:800;font-size:18px;color:#15803D">\\u203A</span></div>';
   h+='<div class="stats">'+[{l:'Total',v:s.total,c:'#0F172A'},{l:'To Do',v:s.pend,c:'#94A3B8'},{l:'Active',v:s.act,c:'#3B82F6'},{l:'Done',v:s.dn,c:'#3DAE5C'}].map(x=>'<div class="st"><b style="color:'+x.c+'">'+x.v+'</b><small>'+x.l+'</small></div>').join('')+'</div>';
   if(s.od>0)h+='<div class="al" style="background:#FEF1F0;border:1px solid #F5C6C2;color:#E8453C;cursor:pointer" onclick="S.view=\\'overdue\\';render()">\\u26A0\\uFE0F '+s.od+' overdue</div>';
   h+='<div class="srch"><input placeholder="Search tasks..." value="'+esc(S.search)+'" oninput="S.search=this.value;render()"></div>';
@@ -1343,6 +1523,24 @@ else if(S.tab==='dash'){
 
 // CALENDAR TAB
 else if(S.tab==='cal'){
+  // Google Calendar integration banner / accounts
+  if(!S.google.loaded)h+='<div class="gcal-card gcal-loading">Connecting to Google\\u2026</div>';
+  else if(!S.google.accounts.length){
+    h+='<div class="gcal-card gcal-cta"><div class="gcal-icon"><svg width="38" height="38" viewBox="0 0 48 48"><path fill="#fbbc04" d="M37 6h-3V4a2 2 0 1 0-4 0v2H18V4a2 2 0 1 0-4 0v2h-3a5 5 0 0 0-5 5v26a5 5 0 0 0 5 5h26a5 5 0 0 0 5-5V11a5 5 0 0 0-5-5z"/><path fill="#fff" d="M11 18h26v18H11z"/><path fill="#1a73e8" d="M16 22h6v6h-6zm10 0h6v6h-6zm-10 8h6v6h-6zm10 0h6v6h-6z"/></svg></div><div class="gcal-body"><h3>Sync with Google Calendar</h3><p>See your Gmail events here, and let Brodoit add new ones to your calendar with one tap.</p><button class="mb mb-s" style="background:linear-gradient(135deg,#4285F4,#34A853);border:none;color:#fff" onclick="connectGoogle()">'+(S.google.configured?'\\u{1F517} Connect Google Calendar':'Set up Google integration')+'</button>'+(!S.google.configured?'<div style="font-size:11px;color:#94A3B8;margin-top:8px">Admin needs to set GOOGLE_CLIENT_ID/SECRET first.</div>':'')+'</div></div>';
+  } else {
+    const def=S.google.accounts.find(a=>a.is_default)||S.google.accounts[0];
+    h+='<div class="gcal-card gcal-connected"><div class="gcal-acc-row">';
+    h+='<div class="gcal-acc-l"><svg width="22" height="22" viewBox="0 0 48 48"><path fill="#fbbc04" d="M37 6h-3V4a2 2 0 1 0-4 0v2H18V4a2 2 0 1 0-4 0v2h-3a5 5 0 0 0-5 5v26a5 5 0 0 0 5 5h26a5 5 0 0 0 5-5V11a5 5 0 0 0-5-5z"/><path fill="#fff" d="M11 18h26v18H11z"/><path fill="#1a73e8" d="M16 22h6v6h-6zm10 0h6v6h-6zm-10 8h6v6h-6zm10 0h6v6h-6z"/></svg><div><b style="font-size:13.5px">Google Calendar synced</b><div style="font-size:12px;color:#64748B">'+esc(def.email)+(S.google.accounts.length>1?' +'+(S.google.accounts.length-1)+' more':'')+'</div></div></div>';
+    h+='<div class="gcal-acc-r"><button class="mb mb-s" style="padding:8px 14px;font-size:13px" onclick="openGcalAdd()">+ New event</button></div></div>';
+    if(S.google.accounts.length>1){
+      h+='<div class="gcal-acc-list">';
+      S.google.accounts.forEach(a=>{h+='<button class="gcal-chip'+(a.is_default?' on':'')+'" onclick="setDefaultGoogle(\\''+esc(a.email)+'\\')" title="Set as default">'+esc(a.email)+(a.is_default?' \\u2713':'')+'</button>'});
+      h+='<button class="gcal-chip gcal-chip-add" onclick="connectGoogle()" title="Add another account">+ Add account</button>';
+      h+='</div>';
+    }
+    h+='<div class="gcal-acc-foot"><button class="gcal-link" onclick="connectGoogle()">+ Add another Gmail</button><button class="gcal-link" onclick="loadGcalEvents()">\\u21BB Refresh</button><button class="gcal-link gcal-link-d" onclick="disconnectGoogle(\\''+esc(def.email)+'\\')">Disconnect '+esc(def.email)+'</button></div>';
+    h+='</div>';
+  }
   const cm=S.calMonth instanceof Date?S.calMonth:new Date();
   const year=cm.getFullYear(),month=cm.getMonth();
   const monthName=cm.toLocaleDateString('en-US',{month:'long',year:'numeric'});
@@ -1359,6 +1557,9 @@ else if(S.tab==='cal'){
   // tasks-by-date index
   const byDate={};
   ts.forEach(t=>{if(t.due_date){(byDate[t.due_date]=byDate[t.due_date]||[]).push(t)}});
+  // gcal events by date
+  const gByDate={};
+  (S.gcalEvents||[]).forEach(e=>{const k=(e.start||'').slice(0,10);if(k)(gByDate[k]=gByDate[k]||[]).push(e)});
   const todayK=new Date().toISOString().slice(0,10);
   const sel=S.calSelectedDate;
   h+='<div class="cal-head"><button class="cal-nav" onclick="calPrev()">\\u2039</button><h3>'+esc(monthName)+'</h3><button class="cal-nav" onclick="calNext()">\\u203A</button></div>';
@@ -1367,6 +1568,7 @@ else if(S.tab==='cal'){
   cells.forEach(c=>{
     const dk=c.y+'-'+String(c.m+1).padStart(2,'0')+'-'+String(c.d).padStart(2,'0');
     const tasksHere=byDate[dk]||[];
+    const gHere=gByDate[dk]||[];
     let cls='cal-day';
     if(c.other)cls+=' other';
     if(dk===todayK)cls+=' today';
@@ -1380,6 +1582,7 @@ else if(S.tab==='cal'){
       if(me)dots+='<i style="background:#E8912C"></i>';
       if(lo)dots+='<i style="background:#3DAE5C"></i>';
     }
+    if(gHere.length)dots+='<i style="background:#4285F4" title="Google Calendar"></i>';
     h+='<button class="'+cls+'" onclick="calSelect(\\''+dk+'\\')">'+c.d+'<span class="ind">'+dots+'</span></button>';
   });
   h+='</div>';
@@ -1396,8 +1599,25 @@ else if(S.tab==='cal'){
         h+='<div class="tc'+(d?' dn':'')+'" style="border-left-color:'+p.c+';margin-bottom:6px"><div class="tc-top"><button class="chk'+(d?' on':'')+'" onclick="tog(\\''+t.id+'\\')">'+(d?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>':'')+'</button><div style="flex:1;min-width:0"><div class="tc-t'+(d?' dn':'')+'">'+esc(t.title)+'</div>'+(t.notes?'<div class="tc-n">'+esc(t.notes)+'</div>':'')+'<div class="tc-m"><button class="badge" style="background:'+st.bg+';color:'+st.c+'" onclick="cyc(\\''+t.id+'\\')">'+st.l+'</button>'+(t.reminder_time&&!d?'<span style="font-size:11px;color:#3B82F6;font-weight:600">\\u{1F514} '+fT(t.reminder_time)+'</span>':'')+'</div></div></div></div>';
       });
     }
-    h+='<button class="add-bar" style="margin-top:10px;margin-bottom:0" onclick="calAddForDate()"><span class="plus">+</span><span class="txt"><b>Add task / note for this date</b><small>'+esc(selLabel)+'</small></span></button>';
+    const gSelHere=gByDate[sel]||[];
+    if(gSelHere.length){
+      h+='<div class="gcal-day-list"><div class="gcal-day-h"><svg width="14" height="14" viewBox="0 0 48 48"><path fill="#4285F4" d="M37 6h-3V4a2 2 0 1 0-4 0v2H18V4a2 2 0 1 0-4 0v2h-3a5 5 0 0 0-5 5v26a5 5 0 0 0 5 5h26a5 5 0 0 0 5-5V11a5 5 0 0 0-5-5z"/></svg> Google Calendar events</div>';
+      gSelHere.forEach(e=>{const tm=e.allDay?'All day':(e.start?new Date(e.start).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'');h+='<div class="gcal-evt"><div class="gcal-evt-time">'+esc(tm)+'</div><div class="gcal-evt-body"><div class="gcal-evt-title">'+esc(e.title)+'</div>'+(e.location?'<div class="gcal-evt-loc">\\u{1F4CD} '+esc(e.location)+'</div>':'')+'</div><a class="gcal-evt-open" href="'+esc(e.link||'#')+'" target="_blank" rel="noopener">Open \\u2197</a></div>'});
+      h+='</div>';
+    }
+    h+='<div class="cal-add-row" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px"><button class="add-bar" style="margin:0" onclick="calAddForDate()"><span class="plus">+</span><span class="txt"><b>Brodoit task</b><small>'+esc(selLabel)+'</small></span></button>';
+    if(S.google.accounts.length)h+='<button class="add-bar gcal-add-bar" style="margin:0" onclick="openGcalAdd()"><span class="plus" style="background:#4285F4">G</span><span class="txt"><b>Google Calendar</b><small>Adds event to Gmail</small></span></button>';
     h+='</div>';
+    h+='</div>';
+  }
+  // Upcoming Google events list
+  if(S.google.accounts.length){
+    const upcoming=(S.gcalEvents||[]).filter(e=>(e.start||'')>=todayK).slice(0,8);
+    if(upcoming.length){
+      h+='<div class="gcal-upcoming"><h4>\\u{1F4C5} Upcoming on Google Calendar</h4>';
+      upcoming.forEach(e=>{const dt=e.start?new Date(e.start):null;const dlbl=dt?dt.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}):'';const tlbl=e.allDay?'All day':(dt?dt.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'');h+='<div class="gcal-evt"><div class="gcal-evt-time"><b>'+esc(dlbl)+'</b><small>'+esc(tlbl)+'</small></div><div class="gcal-evt-body"><div class="gcal-evt-title">'+esc(e.title)+'</div></div><a class="gcal-evt-open" href="'+esc(e.link||'#')+'" target="_blank" rel="noopener">Open \\u2197</a></div>'});
+      h+='</div>';
+    } else if(S.gcalLoading) h+='<div class="muted" style="margin-top:10px;text-align:center">Loading Google events\\u2026</div>';
   }
 }
 
@@ -1414,19 +1634,19 @@ else if(S.tab==='news'){
     const items=S.news[S.newsCat]||[];
     if(!items.length){h+='<div class="empty"><div style="font-size:44px">\\u{1F914}</div><div style="font-size:15px;margin-top:10px;font-weight:600">No headlines right now</div><div style="font-size:12px;margin-top:4px">Try a different category or refresh</div></div>'}
     else{
-      h+='<div class="news-feed">';
+      h+='<div class="inshort-feed">';
       items.forEach((it,i)=>{
         const img=it.img||'';
         const when=timeAgo(it.date);
         const srcName=(it.source||'').charAt(0).toUpperCase()+(it.source||'').slice(1);
-        h+='<article class="news-card">';
-        if(img){h+='<a class="news-img" href="'+esc(it.link||'#')+'" target="_blank" rel="noopener" style="background-image:url(\\''+esc(img).replace(/\\\\/g,"\\\\").replace(/\\'/g,"\\\\\\'")+'\\')"><div class="news-src-chip">'+esc(srcName)+'</div></a>'}
-        h+='<div class="news-body">';
-        if(!img)h+='<div class="news-meta"><span class="news-src">'+esc(srcName)+'</span>'+(when?'<span class="news-time">'+esc(when)+'</span>':'')+'</div>';
-        else if(when)h+='<div class="news-meta" style="margin-bottom:6px"><span class="news-time">\\u{1F552} '+esc(when)+'</span></div>';
-        h+='<h3 class="news-title"><a href="'+esc(it.link||'#')+'" target="_blank" rel="noopener">'+esc(it.title||'')+'</a></h3>';
-        if(it.desc)h+='<p class="news-desc">'+esc(it.desc)+'</p>';
-        h+='<div class="news-acts"><button class="news-share" onclick="shareNews('+i+')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Share</button><a class="news-read" href="'+esc(it.link||'#')+'" target="_blank" rel="noopener">Read full story \\u2197</a></div>';
+        h+='<article class="inshort">';
+        if(img)h+='<div class="inshort-img" style="background-image:url(&quot;'+esc(img)+'&quot;)"><div class="inshort-src">'+esc(srcName)+'</div></div>';
+        else h+='<div class="inshort-img inshort-img-placeholder"><div class="inshort-src">'+esc(srcName)+'</div><div style="font-size:64px;opacity:.25">\\u{1F4F0}</div></div>';
+        h+='<div class="inshort-body">';
+        h+='<h3 class="inshort-title">'+esc(it.title||'')+'</h3>';
+        if(it.desc)h+='<p class="inshort-desc">'+esc(it.desc)+'</p>';
+        h+='<div class="inshort-foot"><span class="inshort-time">'+(when?'\\u{1F552} '+esc(when):'')+'</span>';
+        h+='<button class="inshort-share" onclick="shareNews('+i+')" aria-label="Share"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Share</button></div>';
         h+='</div></article>';
       });
       h+='</div>';
@@ -1486,22 +1706,38 @@ if(S.playing){
 if(S.toast)h+='<div class="toast toast-'+(S.toastType==='err'?'err':'ok')+'">'+S.toast+'</div>';
 
 if(S.showWAOnboard){
-  h+='<div class="ov" onclick="closeWAOnboard()"><div class="mdl" onclick="event.stopPropagation()" style="max-width:420px">';
-  h+='<div style="text-align:center;margin-bottom:14px"><div style="width:64px;height:64px;border-radius:50%;background:#25D366;display:inline-flex;align-items:center;justify-content:center;margin-bottom:10px">'+WI+'</div><h2 style="margin:0">Connect WhatsApp</h2><div style="font-size:13px;color:#94A3B8;margin-top:4px">Optional \\u2014 enables WhatsApp reminders &amp; quick task creation</div></div>';
+  h+='<div class="ov" onclick="closeWAOnboard()"><div class="mdl" onclick="event.stopPropagation()" style="max-width:440px">';
+  h+='<div style="text-align:center;margin-bottom:18px"><div style="width:78px;height:78px;border-radius:50%;background:linear-gradient(135deg,#25D366,#128C7E);display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px;box-shadow:0 12px 30px rgba(37,211,102,.35)"><svg width="42" height="42" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></div><h2 style="margin:0;font-size:22px">Get reminders on WhatsApp</h2><div style="font-size:14px;color:#64748B;margin-top:6px;line-height:1.5">Send and receive tasks the easy way \\u2014 without leaving your favorite chat app.</div></div>';
   if(!S.waConnected){
-    h+='<div style="background:#F0F9FF;border:1px solid #BAE6FD;border-radius:10px;padding:12px;font-size:13px;color:#0369A1;margin-bottom:14px"><b>While in beta, Brodoit uses Twilio\\'s WhatsApp Sandbox.</b> Each tester must opt in once.</div>';
-    h+='<div style="font-size:13px;font-weight:600;margin-bottom:8px">Step 1 \\u2014 Send the join code on WhatsApp</div>';
-    h+='<button class="mb mb-s" style="width:100%;background:#25D366;border-color:#25D366" onclick="openWAJoin()">Open WhatsApp &amp; send <code style="background:rgba(255,255,255,.25);padding:2px 6px;border-radius:4px;margin-left:4px">join along-wool</code></button>';
-    h+='<div style="font-size:12px;color:#64748B;margin:8px 0 14px;text-align:center">to <b>+1 415 523 8886</b> \\u2014 you should get a "Sandbox: Connected" reply</div>';
-    h+='<div style="font-size:13px;font-weight:600;margin-bottom:8px">Step 2 \\u2014 Confirm you\\'re connected</div>';
-    h+='<div class="macts"><button class="mb mb-c" onclick="closeWAOnboard()">Maybe later</button><button class="mb mb-s" onclick="confirmWAJoined()">I\\'ve sent the message</button></div>';
+    h+='<ul style="list-style:none;padding:0;margin:0 0 18px;display:flex;flex-direction:column;gap:10px;font-size:13.5px;color:#334155">';
+    h+='<li style="display:flex;align-items:center;gap:10px"><span style="width:28px;height:28px;border-radius:50%;background:#EDFCF2;color:#1A9E47;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:800">\\u23F0</span><span><b>Smart reminders</b> the moment your task is due</span></li>';
+    h+='<li style="display:flex;align-items:center;gap:10px"><span style="width:28px;height:28px;border-radius:50%;background:#F0F9FF;color:#0284C7;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:800">\\u270D\\uFE0F</span><span><b>Add tasks by texting Brodoit</b> \\u2014 no app needed</span></li>';
+    h+='<li style="display:flex;align-items:center;gap:10px"><span style="width:28px;height:28px;border-radius:50%;background:#FEF3C7;color:#B45309;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:800">\\u{1F510}</span><span><b>One-time setup</b>, takes 10 seconds</span></li>';
+    h+='</ul>';
+    h+='<div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:14px;padding:14px;margin-bottom:16px"><div style="font-size:12px;font-weight:700;color:#94A3B8;letter-spacing:.5px;margin-bottom:8px">HOW IT WORKS</div><div style="font-size:13.5px;color:#334155;line-height:1.6">Tap below to open WhatsApp with a pre-filled message. Just hit <b>Send</b> \\u2014 we\\'ll connect your number instantly. Your phone stays private.</div></div>';
+    h+='<button class="mb mb-s" style="width:100%;background:linear-gradient(135deg,#25D366,#128C7E);border:none;color:#fff;font-size:15px;padding:14px;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 8px 22px rgba(37,211,102,.32)" onclick="openWAJoin()">'+WI+' Open WhatsApp &amp; tap Send</button>';
+    h+='<div class="macts" style="margin-top:12px"><button class="mb mb-c" onclick="closeWAOnboard()">Maybe later</button><button class="mb mb-s" style="background:#0F172A" onclick="confirmWAJoined()">I\\'ve sent it \\u2014 connect me</button></div>';
   }else{
-    h+='<div style="background:#EDFCF2;border:1px solid #B7E8C4;border-radius:10px;padding:12px;font-size:13px;color:#1A9E47;margin-bottom:14px"><b>\\u2705 WhatsApp is connected.</b> You\\'ll receive reminders and can send tasks via WhatsApp.</div>';
+    h+='<div style="background:#EDFCF2;border:1px solid #B7E8C4;border-radius:12px;padding:14px;font-size:13.5px;color:#1A9E47;margin-bottom:16px;display:flex;align-items:center;gap:10px"><span style="font-size:22px">\\u2705</span><span><b>You\\'re connected.</b> Reminders and quick task creation are now active.</span></div>';
     h+='<div class="macts"><button class="mb mb-d" onclick="disconnectWA()">Disconnect</button><button class="mb mb-s" onclick="closeWAOnboard()">Done</button></div>';
   }
   h+='</div></div>';
 }
 
+if(S.showGcalAdd){
+  const f=S.gcalForm;
+  h+='<div class="ov" onclick="closeGcalAdd()"><div class="mdl" onclick="event.stopPropagation()" style="max-width:440px">';
+  h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px"><svg width="32" height="32" viewBox="0 0 48 48"><path fill="#fbbc04" d="M37 6h-3V4a2 2 0 1 0-4 0v2H18V4a2 2 0 1 0-4 0v2h-3a5 5 0 0 0-5 5v26a5 5 0 0 0 5 5h26a5 5 0 0 0 5-5V11a5 5 0 0 0-5-5z"/><path fill="#fff" d="M11 18h26v18H11z"/><path fill="#1a73e8" d="M16 22h6v6h-6zm10 0h6v6h-6zm-10 8h6v6h-6zm10 0h6v6h-6z"/></svg><h2 style="margin:0">New Google Calendar event</h2></div>';
+  if(S.google.accounts.length>1){h+='<label class="lbl">Add to</label><select onchange="S.gcalForm.email=this.value">';S.google.accounts.forEach(a=>{h+='<option value="'+esc(a.email)+'"'+(a.email===f.email?' selected':'')+'>'+esc(a.email)+'</option>'});h+='</select>'}
+  else h+='<div style="font-size:12px;color:#94A3B8;margin-bottom:10px">Adding to <b>'+esc(f.email)+'</b></div>';
+  h+='<label class="lbl">Title</label><input value="'+esc(f.title)+'" placeholder="What\\'s happening?" oninput="S.gcalForm.title=this.value">';
+  h+='<div class="row"><div><label class="lbl">Date</label><input type="date" value="'+esc(f.date)+'" onchange="S.gcalForm.date=this.value"></div>';
+  h+='<div><label class="lbl">Time (optional)</label><input type="time" value="'+esc(f.time)+'" onchange="S.gcalForm.time=this.value"></div></div>';
+  if(f.time)h+='<label class="lbl">Duration (minutes)</label><input type="number" value="'+(f.duration||30)+'" min="5" max="600" step="5" onchange="S.gcalForm.duration=parseInt(this.value)||30">';
+  h+='<label class="lbl">Notes</label><textarea oninput="S.gcalForm.notes=this.value" placeholder="Optional details">'+esc(f.notes||'')+'</textarea>';
+  h+='<div class="macts"><button class="mb mb-c" onclick="closeGcalAdd()">Cancel</button><button class="mb mb-s" style="background:linear-gradient(135deg,#4285F4,#34A853);border:none" onclick="saveGcalEvent()">Add to Calendar</button></div>';
+  h+='</div></div>';
+}
 if(S.showProfile){
   const p=S.profile||{phone:S.user.phone,name:S.user.name,created_at:''};
   const initials=((S.user.name||S.user.phone).match(/\\b\\w/g)||['U']).slice(0,2).join('').toUpperCase();
@@ -1535,7 +1771,7 @@ document.getElementById('app').innerHTML=h;
 }
 fetch('/api/config').then(r=>r.json()).then(c=>{window.__TWILIO_SANDBOX_CODE=c.sandboxCode||'';render()}).catch(()=>{});
 applyTheme();
-if(S.user){refreshSession();load();loadBookStreak();chk();setInterval(load,10000)}else render();
+if(S.user){refreshSession();load();loadBookStreak();loadGoogleStatus();chk();setInterval(load,10000)}else render();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
 </script></body></html>`;
 
