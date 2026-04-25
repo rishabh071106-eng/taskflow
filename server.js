@@ -598,7 +598,7 @@ body[data-theme=aurora] .hdr-time-date{color:#9999B5}
 /* Section dividers — thin gradient line with a pulsing centered node */
 .section-div{height:1px;background:linear-gradient(90deg,transparent 0%,rgba(99,102,241,.18) 30%,rgba(232,145,44,.22) 50%,rgba(99,102,241,.18) 70%,transparent 100%);margin:18px 0;position:relative}
 /* Tap Sprint mini-game */
-.game-card{background:linear-gradient(135deg,rgba(99,102,241,.06),rgba(236,72,153,.05));border:1px solid rgba(99,102,241,.18);border-radius:16px;padding:18px 22px 20px;margin-bottom:18px;display:flex;flex-direction:column;gap:12px;position:relative;overflow:hidden}
+.game-card{background:linear-gradient(135deg,rgba(99,102,241,.06),rgba(236,72,153,.05));border:1px solid rgba(99,102,241,.18);border-radius:16px;padding:18px 22px 20px;margin-bottom:18px;display:flex;flex-direction:column;gap:10px;position:relative;overflow:hidden;min-height:440px}
 .game-card.game-idle .game-grid{opacity:.55;filter:saturate(.6);pointer-events:none}
 .game-card.game-idle .game-status-line{opacity:.6}
 .game-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(255,251,247,.85) 0%,rgba(254,243,231,.78) 100%);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);z-index:5;border-radius:16px;animation:overlayFade .25s ease-out}
@@ -620,7 +620,8 @@ body[data-theme=aurora] .game-overlay .game-prompt{color:#9999B5}
 .game-btn{font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,#6366F1,#EC4899);border:none;padding:10px 20px;border-radius:11px;cursor:pointer;box-shadow:0 6px 18px rgba(99,102,241,.3);transition:transform .15s ease,box-shadow .15s ease}
 .game-btn:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(99,102,241,.4)}
 .game-btn:active{transform:scale(.96)}
-.game-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:260px;margin:0 auto}
+.game-grid{display:grid;grid-template-columns:repeat(3,96px);grid-template-rows:repeat(3,96px);gap:10px;width:max-content;margin:14px auto;justify-content:center}
+@media (max-width:600px){.game-grid{grid-template-columns:repeat(3,80px);grid-template-rows:repeat(3,80px);gap:8px}}
 .game-cell{aspect-ratio:1;border-radius:14px;background:rgba(255,255,255,.85);border:2px solid rgba(99,102,241,.14);cursor:pointer;transition:border-color .15s ease,background .15s ease,transform .12s ease;position:relative;font-family:'Instrument Serif',Georgia,serif;font-size:42px;font-weight:400;color:#0F172A;line-height:1;display:flex;align-items:center;justify-content:center;padding:0}
 .game-cell:focus{outline:none}
 .game-cell:focus-visible{outline:2px solid rgba(99,102,241,.4);outline-offset:2px}
@@ -636,7 +637,7 @@ body[data-theme=aurora] .game-overlay .game-prompt{color:#9999B5}
 .status-you{color:#E8453C}
 .status-bot{color:#3B82F6}
 .game-best b{color:#0F172A;font-family:'Space Mono',monospace;font-weight:700;margin:0 1px;font-size:13px}
-.ttt-grid{max-width:320px}
+.ttt-grid{}
 .game-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12.5px;font-weight:700;margin-top:2px}
 .game-hint{color:#94A3B8;font-weight:600;letter-spacing:.4px}
 .game-score{font-family:'Instrument Serif',Georgia,serif;font-size:20px;color:#6366F1;font-weight:400}
@@ -652,11 +653,11 @@ body[data-theme=aurora] .game-cell{background:rgba(255,255,255,.05);border-color
 body[data-theme=aurora] .game-time{color:#F5F5FA}
 body[data-theme=aurora] .game-score{color:#A78BFA}
 body[data-theme=aurora] .game-stop{background:rgba(255,255,255,.05);color:#9999B5}
-@media (max-width:600px){.game-grid{max-width:220px;gap:6px}.game-ttl{font-size:18px}.game-prompt{font-size:12px;min-width:0}.game-btn{padding:9px 16px;font-size:12.5px}}
+@media (max-width:600px){.game-ttl{font-size:18px}.game-prompt{font-size:12px;min-width:0}.game-btn{padding:9px 16px;font-size:12.5px}}
 /* Top strip + climb + side-now base styles (work on all viewports) */
 .top-strip{display:flex;flex-direction:column;align-items:stretch;background:linear-gradient(135deg,rgba(99,102,241,.06) 0%,rgba(232,145,44,.06) 100%);border:1px solid rgba(99,102,241,.18);border-radius:14px;min-height:auto;position:relative;overflow:hidden;margin-bottom:0;box-shadow:0 4px 16px rgba(15,23,42,.04)}
-.top-strip .climb-scene,.top-strip .bro-mascot{position:relative;flex:0 0 auto;border-radius:0;background:transparent;border:none;min-height:36px;overflow:hidden;padding:4px 10px;display:flex;align-items:center;justify-content:center}
-.top-strip .bro-svg{width:100%;height:auto;max-height:34px}
+.top-strip .climb-scene,.top-strip .bro-mascot{position:relative;flex:0 0 auto;border-radius:0;background:transparent;border:none;min-height:24px;overflow:hidden;padding:3px 8px;display:flex;align-items:center;justify-content:center}
+.top-strip .bro-svg{width:100%;height:auto;max-height:22px}
 .bro-mascot .bro-figure{transform-origin:48px 110px;animation:broNod 2.4s ease-in-out infinite}
 @keyframes broNod{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-3px) rotate(1.5deg)}}
 .bro-mascot .bro-arm-r{transform-origin:48px 72px;animation:broWave 1.4s ease-in-out infinite}
@@ -672,7 +673,7 @@ body[data-theme=aurora] .bro-mascot .bro-bubble text:first-of-type{fill:#F5F5FA}
 body[data-theme=aurora] .bro-mascot .bro-bubble text:last-of-type{fill:#A78BFA}
 body[data-theme=aurora] .bro-mascot .bro-figure circle:first-child{fill:#A78BFA}
 body[data-theme=aurora] .bro-mascot .bro-figure line{stroke:#A78BFA}
-.top-strip .side-now{flex:0 0 auto;background:linear-gradient(135deg,rgba(99,102,241,.04),rgba(232,145,44,.04));border-top:1px dashed rgba(99,102,241,.25);border-left:none;padding:6px 12px 8px;display:flex;flex-direction:column;justify-content:center;gap:1px;position:relative;overflow:hidden;margin-top:0}
+.top-strip .side-now{flex:0 0 auto;background:linear-gradient(135deg,rgba(99,102,241,.04),rgba(232,145,44,.04));border-top:1px dashed rgba(99,102,241,.25);border-left:none;padding:5px 10px 6px;display:flex;flex-direction:column;justify-content:center;gap:0;position:relative;overflow:hidden;margin-top:0}
 .top-strip .side-now-lbl{font-size:9px;font-weight:800;color:#6366F1;letter-spacing:1.2px;text-transform:uppercase}
 .top-strip .side-now-time{font-family:'Instrument Serif',Georgia,serif;font-size:17px;font-weight:400;color:#0F172A;line-height:1;letter-spacing:-.03em;margin-top:0}
 .top-strip .side-now-time .sec{color:#E8453C;animation:secBlink 1s steps(2) infinite;font-size:11px;margin-left:2px;display:inline-block;vertical-align:top;margin-top:3px}
@@ -1046,9 +1047,9 @@ body:not([data-theme=aurora]) .tab:hover:not(.on){background:#F1F5F9;color:#0F17
 body:not([data-theme=aurora]) .tab.on{background:#0F172A;color:#fff;box-shadow:0 2px 8px rgba(15,23,42,.2)}
 body:not([data-theme=aurora]) .add-bar{background:var(--bg-elev);border:1px solid var(--line);color:var(--ink);box-shadow:var(--shadow-1)}
 body:not([data-theme=aurora]) .add-bar:hover{border-color:var(--line-2);box-shadow:var(--shadow-2)}
-body:not([data-theme=aurora]) .add-bar .plus{background:var(--ink);color:#FAFAF7}
 body:not([data-theme=aurora]) .add-bar .txt small{color:var(--ink-3)}
-body:not([data-theme=aurora]) .add-bar .plus{background:rgba(255,255,255,.2);color:#fff}
+/* Keep the green gradient + visible — the editorial overrides above were making it transparent white */
+body:not([data-theme=aurora]) .add-bar .plus{background:linear-gradient(135deg,#3DAE5C,#2D8A4E);color:#fff;box-shadow:0 3px 10px rgba(61,174,92,.4)}
 body:not([data-theme=aurora]) .fab{background:var(--ink);color:#FAFAF7;box-shadow:0 8px 24px rgba(0,0,0,.18);animation:none}
 body:not([data-theme=aurora]) .fab:hover{background:#000;transform:scale(1.05)}
 @keyframes fabPulseClassic{0%,100%{box-shadow:0 10px 28px rgba(99,102,241,.45),0 0 0 8px rgba(99,102,241,.1)}50%{box-shadow:0 14px 34px rgba(236,72,153,.5),0 0 0 14px rgba(236,72,153,.08)}}
