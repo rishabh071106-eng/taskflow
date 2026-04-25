@@ -938,6 +938,17 @@ body[data-theme=aurora] .dash-hero .big{background:linear-gradient(90deg,#fff,#F
 @keyframes featIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 .login-feature{animation:featIn .5s ease backwards}
 .login-feature:nth-child(1){animation-delay:.05s}.login-feature:nth-child(2){animation-delay:.15s}.login-feature:nth-child(3){animation-delay:.25s}
+.login-tabs{display:flex;gap:8px;margin:8px 0 18px;padding:6px;background:#F1F5F9;border-radius:14px}
+.login-tab{flex:1;padding:11px 8px;border-radius:10px;font-size:14px;font-weight:700;color:#64748B;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .18s}
+.login-tab.on{background:#fff;color:#0F172A;box-shadow:0 4px 12px rgba(15,23,42,.08)}
+.wa-login-step{display:flex;gap:12px;align-items:flex-start;padding:14px;background:linear-gradient(135deg,#FFFFFF,#F0FDF4);border:1px solid #BBF7D0;border-radius:14px;margin-bottom:12px;text-align:left}
+.wa-step-num{flex-shrink:0;width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 4px 10px rgba(37,211,102,.32)}
+.wa-step-body{flex:1;min-width:0}
+.wa-step-title{font-size:14px;font-weight:700;color:#166534;margin-bottom:4px}
+.wa-step-desc{font-size:12.5px;color:#475569;line-height:1.5}
+.wa-join-btn{margin-top:10px;display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;border:none;padding:11px 14px;border-radius:10px;font-weight:700;font-size:13.5px;cursor:pointer;width:100%;justify-content:center;box-shadow:0 4px 14px rgba(37,211,102,.3);transition:transform .15s ease}
+.wa-join-btn:hover{transform:translateY(-1px)}
+.wa-login-step input{margin-bottom:0!important;text-align:left!important}
 .login input{margin-bottom:12px;text-align:center;font-size:18px;letter-spacing:1px;padding:14px}
 .login-btn{width:100%;padding:14px;font-size:16px;border-radius:12px;font-weight:700;background:#0F172A;color:#F8FAFC;border:none;margin-top:4px}
 .login-btn:disabled{opacity:.5}.login-btn.sec{background:transparent;border:1.5px solid #CBD5E1;color:#64748B;margin-top:8px}
@@ -1382,15 +1393,20 @@ h+='<div class="login-feature"><div class="lf-ic tasks"><svg width="28" height="
 h+='<div class="login-feature"><div class="lf-ic books"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18.5V5a2 2 0 0 1 2-2h12.5"/><path d="M3 18.5A2.5 2.5 0 0 1 5.5 16H20a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H5.5A2.5 2.5 0 0 1 3 18.5z"/></svg></div><div class="lf-lbl">Audiobooks</div><div class="lf-sub">Free &amp; classic</div></div>';
 h+='<div class="login-feature"><div class="lf-ic wisdom"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6L12 2z"/></svg></div><div class="lf-lbl">Wisdom</div><div class="lf-sub">Daily quotes</div></div>';
 h+='</div>';
-h+='<div class="step-dots"><div class="step-dot on"></div><div class="step-dot"></div><div class="step-dot"></div></div>';
-// Force email-only login. WhatsApp Sandbox blocks new users (Twilio limitation).
-S.loginMethod='email';
+h+='<div class="login-tabs"><button class="login-tab'+(S.loginMethod==='email'?' on':'')+'" onclick="S.loginMethod=\\'email\\';S.loginError=\\'\\';render()"><span style="font-size:18px">\\u2709\\uFE0F</span>Email</button><button class="login-tab'+(S.loginMethod==='whatsapp'?' on':'')+'" onclick="S.loginMethod=\\'whatsapp\\';S.loginError=\\'\\';render()"><span style="font-size:18px">\\u{1F4F1}</span>WhatsApp</button></div>';
 h+='<input type="text" placeholder="Your name" value="'+esc(S.loginName)+'" oninput="S.loginName=this.value" style="font-size:15px;letter-spacing:0">';
-h+='<input type="email" placeholder="you@example.com" value="'+esc(S.loginEmail)+'" oninput="S.loginEmail=this.value" autocomplete="email" style="font-size:15px;letter-spacing:0">';
-if(S.loginError)h+='<div style="color:#E8453C;font-size:13px;font-weight:600;margin:8px 0">'+S.loginError+'</div>';
-h+='<button class="login-btn" onclick="sendOTP()"'+(S.loginLoading?' disabled':'')+'>'+(S.loginLoading?'Sending code...':'\\u2709\\uFE0F Send code to email')+'</button>';
-h+='<div class="login-hint">We\\'ll email a 6-digit code. Check your inbox (and spam folder).</div>';
-h+='<div class="login-hint" style="margin-top:14px;font-size:11px;opacity:.6">Sign in with email \\u2014 you can connect WhatsApp later from inside the app.</div>';
+if(S.loginMethod==='email'){
+  h+='<input type="email" placeholder="you@example.com" value="'+esc(S.loginEmail)+'" oninput="S.loginEmail=this.value" autocomplete="email" style="font-size:15px;letter-spacing:0">';
+  if(S.loginError)h+='<div style="color:#E8453C;font-size:13px;font-weight:600;margin:8px 0">'+S.loginError+'</div>';
+  h+='<button class="login-btn" onclick="sendOTP()"'+(S.loginLoading?' disabled':'')+'>'+(S.loginLoading?'Sending code...':'\\u2709\\uFE0F Send code to email')+'</button>';
+  h+='<div class="login-hint">We\\'ll email a 6-digit code. Check your inbox (and spam folder).</div>';
+}else{
+  h+='<div class="wa-login-step"><div class="wa-step-num">1</div><div class="wa-step-body"><div class="wa-step-title">Say hi to Brodoit on WhatsApp</div><div class="wa-step-desc">Tap below \\u2014 we\\'ll open WhatsApp with a pre-filled message. Just hit <b>Send</b>.</div><button class="wa-join-btn" onclick="openWAJoin()"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>Open WhatsApp &amp; tap Send</button></div></div>';
+  h+='<div class="wa-login-step"><div class="wa-step-num">2</div><div class="wa-step-body"><div class="wa-step-title">Enter your WhatsApp number</div><div class="wa-step-desc">We\\'ll send a 6-digit verification code to that number.</div><input type="tel" placeholder="+1 555 555 5555" value="'+esc(S.loginPhone)+'" oninput="S.loginPhone=this.value" autocomplete="tel" style="font-size:15px;letter-spacing:0;margin-top:8px;margin-bottom:0"></div></div>';
+  if(S.loginError)h+='<div style="color:#E8453C;font-size:13px;font-weight:600;margin:8px 0">'+S.loginError+'</div>';
+  h+='<button class="login-btn" style="background:linear-gradient(135deg,#25D366,#128C7E);box-shadow:0 6px 18px rgba(37,211,102,.32);border:none" onclick="sendOTP()"'+(S.loginLoading?' disabled':'')+'>'+(S.loginLoading?'Sending code...':'\\u{1F4F1} Send code via WhatsApp')+'</button>';
+  h+='<div class="login-hint">After step 1, your code arrives instantly on WhatsApp.</div>';
+}
 }else if(S.loginStep==='otp'){
 h+='<div class="login-sub">Enter the code sent to<br><strong>'+esc(S.loginMethod==='email'?S.loginEmail:S.loginPhone)+'</strong></div>';
 h+='<div class="step-dots"><div class="step-dot on"></div><div class="step-dot on"></div><div class="step-dot"></div></div>';
