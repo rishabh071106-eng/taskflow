@@ -1206,21 +1206,23 @@ body[data-theme=aurora] .gcal-card p,body[data-theme=aurora] .gcal-evt-time{colo
 
 /* Inshorts-style news cards */
 .inshort-feed{display:flex;flex-direction:column;gap:18px;padding-bottom:8px}
-.inshort{background:rgba(255,255,255,.96);border:1px solid rgba(15,23,42,.06);border-radius:22px;overflow:hidden;box-shadow:0 8px 32px rgba(15,23,42,.06);transition:transform .25s ease,box-shadow .25s ease}
+.inshort{background:rgba(255,255,255,.96);border:1px solid rgba(15,23,42,.06);border-radius:22px;overflow:hidden;box-shadow:0 8px 32px rgba(15,23,42,.06);transition:transform .25s ease,box-shadow .25s ease;display:flex;flex-direction:row;align-items:stretch}
 .inshort:hover{transform:translateY(-3px);box-shadow:0 14px 38px rgba(15,23,42,.1)}
-.inshort-img{position:relative;width:100%;aspect-ratio:16/9;background-size:cover;background-position:center;background-color:#0F172A}
+.inshort-img{position:relative;flex:0 0 38%;width:38%;align-self:stretch;min-height:180px;aspect-ratio:auto;background-size:cover;background-position:center;background-color:#0F172A}
 .inshort-img-placeholder{display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#6366F1,#EC4899)}
-.inshort-src{position:absolute;top:14px;left:14px;background:rgba(15,23,42,.85);color:#fff;font-size:12px;font-weight:700;padding:6px 12px;border-radius:30px;letter-spacing:.3px;backdrop-filter:blur(10px)}
-.inshort-body{padding:18px 20px 16px}
-.inshort-title{font-size:20px;font-weight:800;line-height:1.25;color:#0F172A;margin-bottom:10px;letter-spacing:-.3px}
-.inshort-desc{font-size:14.5px;line-height:1.55;color:#475569;margin-bottom:14px}
-.inshort-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:12px;border-top:1px solid rgba(15,23,42,.06)}
+.inshort-src{position:absolute;top:12px;left:12px;background:rgba(15,23,42,.85);color:#fff;font-size:11px;font-weight:700;padding:5px 10px;border-radius:30px;letter-spacing:.3px;backdrop-filter:blur(10px)}
+.inshort-body{padding:18px 20px 16px;flex:1;min-width:0;display:flex;flex-direction:column}
+.inshort-title{font-size:18px;font-weight:800;line-height:1.3;color:#0F172A;margin-bottom:10px;letter-spacing:-.3px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.inshort-desc{font-size:14px;line-height:1.55;color:#475569;margin-bottom:14px;flex:1;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+.inshort-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:12px;border-top:1px solid rgba(15,23,42,.06);margin-top:auto}
 .inshort-time{font-size:12px;color:#94A3B8;font-weight:600}
 .inshort-share{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#6366F1;background:rgba(99,102,241,.1);border:none;padding:8px 14px;border-radius:10px;cursor:pointer;transition:all .15s}
 .inshort-share:hover{background:#6366F1;color:#fff}
 @media (max-width:600px){
-  .inshort-title{font-size:18px}
-  .inshort-desc{font-size:14px}
+  .inshort{flex-direction:column}
+  .inshort-img{flex:0 0 auto;width:100%;min-height:0;aspect-ratio:16/9}
+  .inshort-title{font-size:17px;-webkit-line-clamp:unset}
+  .inshort-desc{font-size:14px;-webkit-line-clamp:4}
   .inshort-body{padding:16px 16px 14px}
 }
 body[data-theme=aurora] .inshort{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.08)}
@@ -1283,7 +1285,12 @@ body[data-theme=aurora] .med-foot{color:#9999B5}
 .li-launch{border-radius:14px;background:linear-gradient(135deg,#F8FAFC,#EEF2FF);border:1px solid #E8E9EF;padding:36px 28px;display:flex;flex-direction:column;align-items:center;text-align:center}
 .li-launch-art{width:88px;height:88px;border-radius:22px;background:#0A66C2;color:#fff;display:flex;align-items:center;justify-content:center;margin-bottom:18px;box-shadow:0 12px 30px rgba(10,102,194,.32)}
 .li-launch-ttl{font-family:'Instrument Serif',Georgia,serif;font-size:26px;letter-spacing:-.01em;color:#0F172A;margin-bottom:8px;line-height:1.2}
-.li-launch-desc{font-size:14px;color:#64748B;line-height:1.55;max-width:440px;margin-bottom:22px}
+.li-launch-desc{font-size:14px;color:#64748B;line-height:1.55;max-width:460px;margin-bottom:14px}
+.li-steps{list-style:decimal;margin:0 0 22px 22px;padding:0;text-align:left;max-width:420px;font-size:13.5px;color:#475569;line-height:1.6}
+.li-steps li{margin-bottom:5px}
+.li-steps b{color:#0F172A}
+body[data-theme=aurora] .li-steps{color:#9999B5}
+body[data-theme=aurora] .li-steps b{color:#F5F5FA}
 .li-launch-acts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 .li-cta{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:11px;background:#0A66C2;color:#fff;font-size:14px;font-weight:700;text-decoration:none;box-shadow:0 6px 18px rgba(10,102,194,.3);transition:transform .15s,box-shadow .15s}
 .li-cta:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(10,102,194,.4);background:#004182}
@@ -1862,14 +1869,19 @@ else if(S.tab==='linkedin'){
   }else{
     h+='<div class="li-acc li-acc-empty"><div class="li-acc-body"><div class="li-acc-lbl">No Google account connected</div><div class="li-acc-email">Connect Gmail in the Calendar tab to use it as your default LinkedIn login.</div></div><button class="li-connect" onclick="switchTab(\\'cal\\')">Connect Gmail</button></div>';
   }
-  const liUrl='https://www.linkedin.com/login'+(gmail?'?session_redirect=%2Ffeed%2F&loginAttempt=true&email='+encodeURIComponent(gmail):'');
+  const liLogin='https://www.linkedin.com/login';
   const liFeed='https://www.linkedin.com/feed/';
   h+='<div class="li-launch">';
   h+='<div class="li-launch-art">'+ic('linkedin',56)+'</div>';
-  h+='<div class="li-launch-ttl">Open LinkedIn'+(gmail?' as '+esc(gmail.split('@')[0]):'')+'</div>';
-  h+='<div class="li-launch-desc">LinkedIn doesn\\'t allow other apps to embed its feed for security. Tap below to launch LinkedIn in a new tab \\u2014 '+(gmail?'your Gmail is pre-filled so you can sign in with one tap.':'sign in with any account.')+'</div>';
+  h+='<div class="li-launch-ttl">Continue to LinkedIn</div>';
+  if(gmail){
+    h+='<div class="li-launch-desc">LinkedIn blocks in-app embedding for security, so we open it in a new tab. On the LinkedIn page, tap <b>"Continue with Google"</b> and pick <b>'+esc(gmail)+'</b> to sign in.</div>';
+    h+='<ol class="li-steps"><li>Tap the button below \\u2014 LinkedIn opens in a new tab.</li><li>On LinkedIn, choose <b>Continue with Google</b>.</li><li>Pick <b>'+esc(gmail)+'</b> in the Google chooser.</li></ol>';
+  }else{
+    h+='<div class="li-launch-desc">LinkedIn blocks in-app embedding, so we open it in a new tab. Connect a Google account in the Calendar tab to use it as your default LinkedIn login.</div>';
+  }
   h+='<div class="li-launch-acts">';
-  h+='<a class="li-cta" href="'+liUrl+'" target="_blank" rel="noopener">'+ic('linkedin',18)+'<span>'+(gmail?'Sign in with Gmail':'Sign in to LinkedIn')+'</span></a>';
+  h+='<a class="li-cta" href="'+liLogin+'" target="_blank" rel="noopener">'+ic('linkedin',18)+'<span>'+(gmail?'Open LinkedIn login':'Sign in to LinkedIn')+'</span></a>';
   h+='<a class="li-cta-sec" href="'+liFeed+'" target="_blank" rel="noopener">Open feed \\u2197</a>';
   h+='</div>';
   h+='</div>';
