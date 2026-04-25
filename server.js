@@ -686,8 +686,8 @@ body[data-theme=aurora] .game-stop{background:rgba(255,255,255,.05);color:#9999B
 @media (max-width:600px){.game-ttl{font-size:18px}.game-prompt{font-size:12px;min-width:0}.game-btn{padding:9px 16px;font-size:12.5px}}
 /* Top strip + climb + side-now base styles (work on all viewports) */
 .top-strip{display:flex;flex-direction:column;align-items:stretch;background:linear-gradient(135deg,rgba(99,102,241,.06) 0%,rgba(232,145,44,.06) 100%);border:1px solid rgba(99,102,241,.18);border-radius:12px;min-height:auto;position:relative;overflow:hidden;margin-bottom:0;box-shadow:0 2px 10px rgba(15,23,42,.04)}
-.top-strip .climb-scene,.top-strip .bro-mascot{position:relative;flex:0 0 auto;border-radius:0;background:transparent;border:none;min-height:32px;overflow:hidden;padding:6px 10px 2px;display:flex;align-items:center;justify-content:center;width:auto}
-.top-strip .bro-svg{width:auto;height:auto;max-height:30px;max-width:90%}
+.top-strip .climb-scene,.top-strip .bro-mascot{position:relative;flex:0 0 auto;border-radius:0;background:transparent;border:none;min-height:auto;overflow:hidden;padding:3px 10px 0;display:flex;align-items:center;justify-content:center;width:auto}
+.top-strip .bro-svg{width:auto;height:auto;max-height:24px;max-width:80%}
 .bro-mascot .bro-figure{transform-origin:48px 110px;animation:broNod 2.4s ease-in-out infinite}
 @keyframes broNod{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-3px) rotate(1.5deg)}}
 .bro-mascot .bro-arm-r{transform-origin:48px 72px;animation:broWave 1.4s ease-in-out infinite}
@@ -703,7 +703,7 @@ body[data-theme=aurora] .bro-mascot .bro-bubble text:first-of-type{fill:#F5F5FA}
 body[data-theme=aurora] .bro-mascot .bro-bubble text:last-of-type{fill:#A78BFA}
 body[data-theme=aurora] .bro-mascot .bro-figure circle:first-child{fill:#A78BFA}
 body[data-theme=aurora] .bro-mascot .bro-figure line{stroke:#A78BFA}
-.top-strip .side-now{flex:0 0 auto;background:transparent;border-top:1px dashed rgba(99,102,241,.18);border-left:none;padding:6px 12px 8px;display:flex;flex-direction:column;justify-content:center;gap:3px;position:relative;overflow:hidden;margin-top:0;min-width:0}
+.top-strip .side-now{flex:0 0 auto;background:transparent;border-top:1px dashed rgba(99,102,241,.18);border-left:none;padding:5px 12px 6px;display:flex;flex-direction:column;justify-content:center;gap:2px;position:relative;overflow:hidden;margin-top:0;min-width:0}
 .top-strip .side-now-lbl{font-size:9px;font-weight:800;color:#6366F1;letter-spacing:1.2px;text-transform:uppercase}
 .top-strip .side-now-time{font-family:'Instrument Serif',Georgia,serif;font-size:20px;font-weight:400;color:#0F172A;line-height:1;letter-spacing:-.03em;margin-top:0}
 .top-strip .side-now-time .sec{color:#E8453C;animation:secBlink 1s steps(2) infinite;font-size:13px;margin-left:1px;font-family:'Instrument Serif',Georgia,serif}
@@ -727,7 +727,7 @@ body[data-theme=aurora] .top-strip .side-now-walker svg circle,body[data-theme=a
 .top-strip .side-now-stat{font-size:10px;color:#475569;font-weight:600;margin-top:2px;display:flex;align-items:center;gap:4px}
 .top-strip .side-now-stat b{font-family:'Instrument Serif',Georgia,serif;font-size:12px;font-weight:400;color:#E8453C;letter-spacing:-.02em;line-height:1}
 .top-strip .side-now-date{font-size:10.5px}
-.top-strip .side-now-bar{height:5px;border-radius:99px;background:rgba(99,102,241,.14);overflow:visible;margin:6px 0 4px;position:relative}
+.top-strip .side-now-bar{height:4px;border-radius:99px;background:rgba(99,102,241,.14);overflow:visible;margin:4px 0 2px;position:relative}
 .top-strip .side-now-fill{height:100%;background:linear-gradient(90deg,#6366F1,#8B5CF6,#EC4899,#E8912C);background-size:200% 100%;border-radius:99px;position:relative;overflow:hidden;animation:gradientShift 4s ease-in-out infinite}
 @keyframes gradientShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
 .top-strip .side-now-fill::after{content:'';position:absolute;top:0;left:-30%;width:30%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);animation:fillShine 2.6s ease-in-out infinite}
@@ -798,7 +798,7 @@ body[data-theme=aurora] .section-div::before{background:#1A1A2E;border-color:rgb
 .tab-hero-particles span:nth-child(8){left:92%;width:4px;height:4px;animation-duration:8s;animation-delay:2s}
 @keyframes rise{0%{transform:translateY(0);opacity:0}10%{opacity:.95}80%{opacity:.55}100%{transform:translateY(-260px) translateX(var(--drift,8px));opacity:0}}
 @media (prefers-reduced-motion:reduce){.hdr-orbit *,.tab-hero-particles *,.section-div::before,.moral-comet{animation:none!important}}
-.moral{display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#FFFBF1 0%,#FEF3E0 50%,#EAF6EE 100%);border:1px solid #F3D9A0;border-radius:12px;padding:10px 14px;margin-bottom:0;position:relative;overflow:hidden;min-height:auto;box-shadow:0 2px 8px rgba(232,145,44,.05)}
+.moral{display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#FFFBF1 0%,#FEF3E0 50%,#EAF6EE 100%);border:1px solid #F3D9A0;border-radius:12px;padding:6px 12px;margin-bottom:0;position:relative;overflow:hidden;min-height:auto;box-shadow:0 2px 8px rgba(232,145,44,.05)}
 .moral::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:linear-gradient(180deg,#E8912C,#3DAE5C);z-index:2}
 .moral-doodle{position:absolute;top:0;right:0;bottom:0;width:42%;max-width:480px;height:100%;pointer-events:none;z-index:0;opacity:.95;filter:drop-shadow(0 1px 2px rgba(15,23,42,.05))}
 .moral::after{content:'';position:absolute;top:0;left:0;bottom:0;width:58%;background:linear-gradient(90deg,rgba(255,251,241,.97) 0%,rgba(254,243,224,.75) 80%,rgba(254,243,224,0) 100%);pointer-events:none;z-index:0}
@@ -826,7 +826,7 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
 @media (max-width:600px){.tabs{padding:4px;gap:4px}.tab{padding:11px 12px;font-size:12px}.tab .ti{font-size:15px}.tab .tl{font-size:11.5px}}
 /* Desktop sidebar layout */
 @media (min-width:1024px){
-  .app{max-width:1440px;padding:18px 28px 48px;display:grid;grid-template-columns:220px 1fr;grid-template-areas:"hdr hdr" "topstrip moral" "nav main";column-gap:22px;row-gap:8px}
+  .app{max-width:1440px;padding:12px 24px 40px;display:grid;grid-template-columns:220px 1fr;grid-template-areas:"hdr hdr" "topstrip moral" "nav main";column-gap:22px;row-gap:6px}
   .app>.hdr{grid-area:hdr;margin-bottom:0}
   .app>.top-strip{grid-area:topstrip;margin-bottom:0}
   .app>.moral{grid-area:moral;margin-bottom:0}
