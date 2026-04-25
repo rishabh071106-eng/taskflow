@@ -759,6 +759,15 @@ body[data-theme=aurora] .news-ticker-row:hover{background:rgba(255,255,255,.08)}
 body[data-theme=aurora] .news-ticker-link{color:#F5F5FA}
 body[data-theme=aurora] .news-ticker-row:hover .news-ticker-link{color:#A78BFA}
 body[data-theme=aurora] .news-ticker-src{color:#A78BFA;background:rgba(167,139,250,.16)}
+/* World clocks at the bottom of the right column */
+.world-clocks{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;background:linear-gradient(135deg,rgba(99,102,241,.05),rgba(232,145,44,.03));border:1px solid rgba(99,102,241,.12);border-radius:10px;padding:8px}
+.world-clocks .wc-item{display:flex;flex-direction:column;align-items:center;gap:1px;line-height:1.1}
+.world-clocks .wc-item b{font-size:9px;font-weight:800;color:#6366F1;letter-spacing:1.1px}
+.world-clocks .wc-time{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#0F172A;letter-spacing:-.02em}
+body[data-theme=aurora] .world-clocks{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(232,145,44,.04));border-color:rgba(167,139,250,.18)}
+body[data-theme=aurora] .world-clocks .wc-item b{color:#A78BFA}
+body[data-theme=aurora] .world-clocks .wc-time{color:#F5F5FA}
+@media (max-width:600px){.world-clocks{padding:6px;gap:4px}.world-clocks .wc-time{font-size:12px}}
 .top-strip .side-now-row-w{transition:opacity .15s ease;user-select:none}
 .top-strip .side-now-row-w:hover{opacity:.85}
 .top-strip .weather-pin{font-size:11px}
@@ -2331,12 +2340,12 @@ function tttFinish(result){
 }
 function gameEnd(){S.game.active=false;S.game.status='idle';render()}
 async function loadWeather(){if(S.weather.loading)return;S.weather.loading=true;S.weather.error=null;render();try{const r=await fetch('/api/weather?city='+encodeURIComponent(S.weather.city||'Bangalore'));const j=await r.json();if(j.error){S.weather.error=j.error}else{S.weather.city=j.city||S.weather.city;S.weather.country=j.country||'';S.weather.temp=j.temp;S.weather.aqi=j.aqi}}catch(e){S.weather.error=String(e)}S.weather.loaded=true;S.weather.loading=false;render()}
-async function loadTicker(){try{const r=await fetch('/api/news?cat=technology',{cache:'no-store'});const j=await r.json();S.ticker={items:(j.items||[]).slice(0,12),idx:0,loaded:true};render();_startTicker()}catch(e){}}
+async function loadTicker(){try{const r=await fetch('/api/news?cat=global',{cache:'no-store'});const j=await r.json();S.ticker={items:(j.items||[]).slice(0,12),idx:0,loaded:true};render();_startTicker()}catch(e){}}
 let _tickerTimer=null;
 function _startTicker(){if(_tickerTimer)clearInterval(_tickerTimer);if(!S.ticker.items.length)return;_tickerTimer=setInterval(()=>{if(!S.ticker.items.length)return;S.ticker.idx=(S.ticker.idx+3)%S.ticker.items.length;const stack=document.getElementById('newsTickerStack');if(stack)render()},9000)}
 function setCity(){const c=prompt('Set your city',S.weather.city||'Bangalore');if(!c)return;const t=c.trim();if(!t)return;localStorage.setItem('tf_city',t);S.weather.city=t;S.weather.loaded=false;loadWeather()}
 // Live-tick the sidebar, header clocks AND world clocks without re-rendering the whole tree
-setInterval(()=>{const n=new Date();const hm=n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false});const sec=String(n.getSeconds()).padStart(2,'0');const t=document.getElementById('sideNowTime');const s=document.getElementById('sideNowSec');if(t&&s){if(t.firstChild&&t.firstChild.nodeValue!==hm)t.firstChild.nodeValue=hm;s.textContent=':'+sec}const ht=document.getElementById('hdrTimeHm');const hs=document.getElementById('hdrTimeSec');if(ht&&hs){if(ht.textContent!==hm)ht.textContent=hm;hs.textContent=':'+sec}const cities=document.querySelectorAll('#sideNowCities [data-tz]');cities.forEach(el=>{try{const tz=el.getAttribute('data-tz');const t2=new Date().toLocaleTimeString('en-US',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false});if(el.textContent!==t2)el.textContent=t2}catch(e){}})},1000);
+setInterval(()=>{const n=new Date();const hm=n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false});const sec=String(n.getSeconds()).padStart(2,'0');const t=document.getElementById('sideNowTime');const s=document.getElementById('sideNowSec');if(t&&s){if(t.firstChild&&t.firstChild.nodeValue!==hm)t.firstChild.nodeValue=hm;s.textContent=':'+sec}const ht=document.getElementById('hdrTimeHm');const hs=document.getElementById('hdrTimeSec');if(ht&&hs){if(ht.textContent!==hm)ht.textContent=hm;hs.textContent=':'+sec}const cities=document.querySelectorAll('[data-tz]');cities.forEach(el=>{try{const tz=el.getAttribute('data-tz');const t2=new Date().toLocaleTimeString('en-US',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false});if(el.textContent!==t2)el.textContent=t2}catch(e){}})},1000);
 
 async function loadBooks(cat){S.booksCat=cat;S.booksLoading=true;render();try{const subjectMap={'self-help':'(subject:"self-help" OR subject:"self help" OR subject:"self improvement" OR subject:"non-fiction")'};const subj=subjectMap[cat]||('subject:'+cat);const q=cat==='all'?'collection:librivoxaudio AND mediatype:audio':'collection:librivoxaudio AND mediatype:audio AND '+subj;const url='https://archive.org/advancedsearch.php?q='+encodeURIComponent(q)+'&fl[]=identifier&fl[]=title&fl[]=creator&fl[]=downloads&rows=30&output=json&sort[]=downloads+desc';const r=await fetch(url);const j=await r.json();S.books=j.response.docs;}catch(e){S.books=[];toast('\\u26A0\\uFE0F Failed to load books','err')}S.booksLoading=false;render()}
 async function playBook(id){const b=S.books.find(x=>x.identifier===id);if(!b){toast('\\u26A0\\uFE0F Book not found','err');return}const title=Array.isArray(b.title)?b.title[0]:b.title;const author=Array.isArray(b.creator)?b.creator[0]:(b.creator||'Unknown');S.playing={id,title,author,loading:true};render();try{const r=await fetch('https://archive.org/metadata/'+encodeURIComponent(id));if(!r.ok)throw new Error('metadata '+r.status);const j=await r.json();if(!j.files||!j.files.length){toast('\\u26A0\\uFE0F No files \\u2014 opening archive.org','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render();return}let mp3=j.files.find(f=>/_64kb\\.mp3$/i.test(f.name));if(!mp3)mp3=j.files.find(f=>/_32kb\\.mp3$/i.test(f.name));if(!mp3)mp3=j.files.find(f=>/\\.mp3$/i.test(f.name)&&!/sample|test|spoken/i.test(f.name));if(!mp3)mp3=j.files.find(f=>/\\.(mp3|m4a|ogg)$/i.test(f.name));if(mp3){const server=j.server||'archive.org';const dir=j.dir||('/'+id);const directUrl='https://'+server+dir+'/'+mp3.name.split('/').map(encodeURIComponent).join('/');const dlUrl='https://archive.org/download/'+encodeURIComponent(id)+'/'+mp3.name.split('/').map(encodeURIComponent).join('/');S.playing={id,title,author,url:directUrl,altUrl:dlUrl,external:'https://archive.org/details/'+id};render();setTimeout(()=>{const a=document.getElementById('audioEl');if(!a)return;a.setAttribute('playsinline','');a.setAttribute('webkit-playsinline','');a.preload='auto';a.addEventListener('error',function onErr(){a.removeEventListener('error',onErr);if(a.src!==dlUrl){a.src=dlUrl;a.load()}},{once:true});a.load();a.addEventListener('play',startBookListenTimer);a.addEventListener('pause',()=>{/* keep timer; checks paused itself */});const p=a.play();if(p&&p.catch)p.catch(()=>toast('\\u25B6\\uFE0F Tap the play button on the bar','err'))},250)}else{toast('\\u26A0\\uFE0F No audio \\u2014 opening archive.org','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render()}}catch(e){toast('\\u26A0\\uFE0F '+e.message,'err');S.playing={id,title,author,url:null,external:'https://archive.org/details/'+id,error:e.message};render()}}
@@ -2439,12 +2448,16 @@ let h=PHONE_BANNER+'<div class="hdr"><div><div class="logo">Bro<span class="k">D
 const m=MORALS[S.moralIdx];
 {
   const mWrap='<div class="moral">'+MORAL_DOODLE+'<div class="moral-emoji">\\u{1F4A1}</div><div class="moral-body"><div class="moral-lbl">Moral of the Day</div><div class="moral-txt">"'+esc(m.t)+'"</div><div class="moral-by">\\u2014 '+esc(m.a)+'</div></div><button class="moral-ref" onclick="rotateMoral()" title="New quote">\\u21BB</button></div>';
-  // News ticker — 3 stacked headlines that rotate every 7s; fills the empty column space below the moral chip
+  // News ticker — 3 stacked WORLD-news headlines below the moral chip
   const items=S.ticker.items||[];const baseIdx=S.ticker.idx||0;const visible=[0,1,2].map(o=>items[(baseIdx+o)%(items.length||1)]||{title:'Loading\\u2026',link:'#',source:''});
   let ticker='<div class="news-ticker-stack" id="newsTickerStack">';
   visible.forEach((ti,i)=>{ticker+='<a class="news-ticker-row" style="animation-delay:'+(i*0.08)+'s" href="'+esc(ti.link||'#')+'" target="_blank" rel="noopener" title="'+esc(ti.title||'')+'"><span class="news-ticker-pulse"></span><span class="news-ticker-src">'+esc((ti.source||'').toUpperCase())+'</span><span class="news-ticker-link">'+esc((ti.title||'').slice(0,120))+'</span></a>'});
   ticker+='</div>';
-  h+='<div class="moral-wrap">'+mWrap+ticker+'</div>';
+  // World clocks at the bottom of the right column
+  const fmtTZ2=(tz)=>{try{return new Date().toLocaleTimeString('en-US',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false})}catch(e){return '--:--'}};
+  const CITIES2=[{l:'NYC',tz:'America/New_York'},{l:'LAX',tz:'America/Los_Angeles'},{l:'LDN',tz:'Europe/London'},{l:'SGP',tz:'Asia/Singapore'}];
+  const wc='<div class="world-clocks" id="worldClocks">'+CITIES2.map(c=>'<span class="wc-item"><b>'+c.l+'</b><span class="wc-time" data-tz="'+c.tz+'">'+fmtTZ2(c.tz)+'</span></span>').join('')+'</div>';
+  h+='<div class="moral-wrap">'+mWrap+ticker+wc+'</div>';
 }
 
 // Tabs
@@ -2492,7 +2505,6 @@ const m=MORALS[S.moralIdx];
       +'<span class="side-now-sep">\\u2022</span>'
       +'<span class="side-now-days"><b>'+daysLeft+'</b>d</span>'
     +'</div>'
-    +'<div class="side-now-cities" id="sideNowCities">'+CITIES.map(c=>'<span class="city-clock"><b>'+c.l+'</b> <span data-tz="'+c.tz+'">'+fmtTZ(c.tz)+'</span></span>').join('<span class="city-sep">\\u00b7</span>')+'</div>'
     +'<div class="side-now-row side-now-row-w" onclick="setCity()" title="Click to change city" style="cursor:pointer">'
       +'<span class="weather-pin">\\u{1F4CD}</span>'
       +'<span class="weather-city">'+esc(w.city||'Bangalore')+'</span>'
@@ -2514,7 +2526,7 @@ const m=MORALS[S.moralIdx];
     +'<svg class="side-now-wave" viewBox="0 0 100 30" preserveAspectRatio="none"><path d="M 0 15 Q 12.5 5 25 15 T 50 15 T 75 15 T 100 15" stroke="#6366F1" stroke-width="1.6" fill="none"><animate attributeName="d" dur="4s" repeatCount="indefinite" values="M 0 15 Q 12.5 5 25 15 T 50 15 T 75 15 T 100 15;M 0 15 Q 12.5 25 25 15 T 50 15 T 75 15 T 100 15;M 0 15 Q 12.5 5 25 15 T 50 15 T 75 15 T 100 15"/></path></svg>'
     +'</div>';
   h+='<nav class="tabs page-t">'+tabsHtml+'</nav>';
-  h+='<section class="top-strip" aria-hidden="true">'+climbScene+sideNow+'</section>';
+  h+='<section class="top-strip" aria-hidden="true">'+sideNow+'</section>';
 }
 
 h+='<main class="main-col">';
