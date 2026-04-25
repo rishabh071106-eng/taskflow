@@ -489,9 +489,9 @@ input:focus,textarea:focus{outline:none;border-color:#0F172A}textarea{resize:ver
 .hdr-sub{font-size:13px;color:#94A3B8;margin-top:2px;font-weight:500}
 .moral{display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#FFFBF1 0%,#FEF3E0 50%,#EAF6EE 100%);border:1px solid #F3D9A0;border-radius:18px;padding:20px 22px;margin-bottom:14px;position:relative;overflow:hidden;min-height:96px;box-shadow:0 4px 16px rgba(232,145,44,.08)}
 .moral::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:linear-gradient(180deg,#E8912C,#3DAE5C);z-index:2}
-.moral-doodle{position:absolute;top:0;right:0;bottom:0;width:50%;max-width:480px;height:100%;pointer-events:none;z-index:0;opacity:1}
-.moral::after{content:'';position:absolute;top:0;left:0;bottom:0;width:55%;background:linear-gradient(90deg,rgba(255,251,241,.95) 0%,rgba(254,243,224,.85) 60%,rgba(254,243,224,0) 100%);pointer-events:none;z-index:0}
-@media (max-width:600px){.moral-doodle{width:42%}.moral::after{width:62%}}
+.moral-doodle{position:absolute;top:0;right:0;bottom:0;width:58%;max-width:560px;height:100%;pointer-events:none;z-index:0;opacity:1;filter:drop-shadow(0 1px 2px rgba(15,23,42,.05))}
+.moral::after{content:'';position:absolute;top:0;left:0;bottom:0;width:42%;background:linear-gradient(90deg,rgba(255,251,241,.96) 0%,rgba(254,243,224,.78) 70%,rgba(254,243,224,0) 100%);pointer-events:none;z-index:0}
+@media (max-width:600px){.moral-doodle{width:48%}.moral::after{width:55%}}
 .moral-emoji{font-size:26px;flex-shrink:0;filter:drop-shadow(0 2px 4px rgba(232,145,44,.3));position:relative;z-index:1}
 .moral-body{flex:1;min-width:0;position:relative;z-index:1}
 .moral-lbl{font-size:10px;font-weight:700;color:#B57B00;text-transform:uppercase;letter-spacing:1.2px}
@@ -513,13 +513,14 @@ input:focus,textarea:focus{outline:none;border-color:#0F172A}textarea{resize:ver
 @media (max-width:600px){.tabs{padding:4px;gap:4px}.tab{padding:11px 12px;font-size:12px}.tab .ti{font-size:15px}.tab .tl{font-size:11.5px}}
 /* Desktop sidebar layout */
 @media (min-width:1024px){
-  .app{max-width:1240px;padding:28px 36px 60px;display:grid;grid-template-columns:250px 1fr;grid-template-areas:"hdr hdr" "moral moral" "nav main";column-gap:32px;row-gap:20px}
+  .app{max-width:1280px;padding:28px 36px 60px;display:grid;grid-template-columns:290px 1fr;grid-template-areas:"hdr hdr" "moral moral" "nav main";column-gap:36px;row-gap:20px}
   .app>.hdr{grid-area:hdr;margin-bottom:0}
   .app>.moral{grid-area:moral;margin-bottom:0}
-  .app>.tabs.page-t{grid-area:nav;flex-direction:column;align-self:start;position:sticky;top:28px;padding:10px;gap:3px;overflow:visible;max-height:calc(100vh - 56px);margin-bottom:0}
-  .app>.tabs.page-t .tab{width:100%;flex:0 0 auto;padding:14px 16px;font-size:14px;justify-content:flex-start;border-radius:12px}
-  .app>.tabs.page-t .tab .ti{font-size:20px;margin-right:4px}
-  .app>.tabs.page-t .tab .tl{font-size:14px}
+  .app>.tabs.page-t{grid-area:nav;flex-direction:column;align-self:start;position:sticky;top:28px;padding:14px;gap:6px;overflow:visible;max-height:calc(100vh - 56px);margin-bottom:0}
+  .app>.tabs.page-t .tab{width:100%;flex:0 0 auto;padding:18px 20px;font-size:16px;font-weight:600;justify-content:flex-start;border-radius:14px;gap:14px}
+  .app>.tabs.page-t .tab .ti{font-size:24px;margin-right:6px}
+  .app>.tabs.page-t .tab .ti svg{width:24px;height:24px}
+  .app>.tabs.page-t .tab .tl{font-size:16px;letter-spacing:-.01em}
   .app>.main-col{grid-area:main;min-width:0}
   .fab{display:none}
   /* Wider hero elements on desktop */
@@ -1368,30 +1369,35 @@ if(token){S.user={phone:localStorage.getItem('tf_phone'),name:localStorage.getIt
 const api=async(p,o={})=>{try{const h={'Content-Type':'application/json'};if(token)h['x-token']=token;const r=await fetch('/api'+p,{headers:h,...o});if(r.status===401){logout();return null}return await r.json()}catch(e){return null}};
 const P={high:{c:'#E8453C',d:'\\u{1F534}'},medium:{c:'#E8912C',d:'\\u{1F7E0}'},low:{c:'#3DAE5C',d:'\\u{1F7E2}'}};
 // Scenic Unsplash hero banners per tab (free, hot-link friendly)
-// One clean doodle illustrating the "1% Better Every Day" law — confined to the right side of the chip
-const MORAL_DOODLE='<svg class="moral-doodle" viewBox="0 0 480 200" preserveAspectRatio="xMaxYMid meet" xmlns="http://www.w3.org/2000/svg">'
-// soft chart frame (axes)
-+'<g stroke="#94A3B8" stroke-width="1" opacity="0.35" stroke-linecap="round"><line x1="40" y1="170" x2="450" y2="170"/><line x1="40" y1="170" x2="40" y2="20"/></g>'
-// axis labels
-+'<g font-family="Inter, sans-serif" font-size="9" fill="#64748B" opacity="0.7" font-weight="600"><text x="40" y="186" text-anchor="middle">Day 1</text><text x="245" y="186" text-anchor="middle">Day 180</text><text x="450" y="186" text-anchor="middle">Day 365</text></g>'
-// dashed shadow curve under main curve (hand-drawn vibe)
-+'<path d="M 40 168 C 180 166 280 158 360 130 S 440 50 450 28" stroke="#E8912C" stroke-width="2" fill="none" stroke-linecap="round" stroke-dasharray="2 5" opacity="0.35" transform="translate(2 3)"/>'
-// main exponential curve
-+'<path d="M 40 168 C 180 166 280 158 360 130 S 440 50 450 28" stroke="#6366F1" stroke-width="2.6" fill="none" stroke-linecap="round" opacity="0.6"/>'
-// subtle area fill under curve
-+'<path d="M 40 168 C 180 166 280 158 360 130 S 440 50 450 28 L 450 170 L 40 170 Z" fill="#6366F1" opacity="0.06"/>'
-// "+1% daily" tag near the start with leader line
-+'<g><line x1="60" y1="155" x2="80" y2="135" stroke="#3DAE5C" stroke-width="1" opacity="0.55"/><rect x="78" y="120" width="68" height="20" rx="10" fill="#3DAE5C" opacity="0.18"/><text x="112" y="134" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#1A9E47" text-anchor="middle" opacity="0.85">+1% daily</text></g>'
-// "37× growth" tag near the peak with leader line
-+'<g><line x1="430" y1="40" x2="380" y2="60" stroke="#E8912C" stroke-width="1" opacity="0.55"/><rect x="290" y="50" width="92" height="22" rx="11" fill="#E8912C" opacity="0.18"/><text x="336" y="65" font-family="Inter, sans-serif" font-size="11.5" font-weight="800" fill="#B57B00" text-anchor="middle" opacity="0.95">37× in a year</text></g>'
-// stick figure with a flag at the peak
-+'<g stroke="#0F172A" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"><circle cx="450" cy="20" r="3.5" fill="#0F172A"/><line x1="450" y1="23" x2="450" y2="33"/><line x1="446" y1="28" x2="454" y2="28"/><line x1="450" y1="33" x2="446" y2="40"/><line x1="450" y1="33" x2="454" y2="40"/></g>'
-// flag pole
-+'<g stroke="#E8453C" stroke-width="1.6" fill="none" stroke-linecap="round"><line x1="455" y1="6" x2="455" y2="20"/><path d="M 455 6 L 470 10 L 455 14 Z" fill="#E8453C" opacity="0.85" stroke="none"/></g>'
-// little dots tracking each day (sparse, on the curve)
-+'<g fill="#6366F1" opacity="0.55"><circle cx="100" cy="167" r="1.6"/><circle cx="170" cy="165" r="1.6"/><circle cx="240" cy="160" r="1.8"/><circle cx="310" cy="148" r="2"/><circle cx="370" cy="118" r="2.2"/><circle cx="410" cy="78" r="2.4"/></g>'
-// tiny attribution label
-+'<text x="245" y="14" font-family="Inter, sans-serif" font-size="9" font-weight="700" fill="#6366F1" text-anchor="middle" opacity="0.55" letter-spacing="1">THE 1% RULE</text>'
+// "Rise Together" doodle — a chain of 4 people climbing the same curve, helping each other up
+const MORAL_DOODLE='<svg class="moral-doodle" viewBox="0 0 520 200" preserveAspectRatio="xMaxYMid meet" xmlns="http://www.w3.org/2000/svg">'
+// dashed shadow under curve (hand-drawn vibe)
++'<path d="M 30 175 C 150 172 240 162 330 130 S 460 40 510 18" stroke="#E8912C" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-dasharray="2 6" opacity="0.55" transform="translate(2 3)"/>'
+// soft area fill below curve (gives the slope visual weight)
++'<path d="M 30 175 C 150 172 240 162 330 130 S 460 40 510 18 L 510 180 L 30 180 Z" fill="url(#grow)" opacity="0.22"/>'
++'<defs><linearGradient id="grow" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" stop-color="#3DAE5C"/><stop offset="100%" stop-color="#E8912C"/></linearGradient></defs>'
+// main rising curve
++'<path d="M 30 175 C 150 172 240 162 330 130 S 460 40 510 18" stroke="#6366F1" stroke-width="3.2" fill="none" stroke-linecap="round" opacity="0.85"/>'
+// chain of hands connecting all 4 figures (a wavy line passing through their hands)
++'<path d="M 95 152 Q 175 148 215 132 T 320 102 T 415 60 T 490 22" stroke="#0F172A" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0.55" stroke-dasharray="0"/>'
+// FIGURE 1 (purple) — bottom of the climb, lifting arm forward
++'<g stroke="#6366F1" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="105" cy="148" r="6" fill="#6366F1"/><line x1="105" y1="154" x2="105" y2="170"/><line x1="105" y1="160" x2="93" y2="166"/><line x1="105" y1="160" x2="118" y2="152"/><line x1="105" y1="170" x2="98" y2="180"/><line x1="105" y1="170" x2="112" y2="180"/></g>'
+// FIGURE 2 (green) — bit higher, reaching back and forward
++'<g stroke="#3DAE5C" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="215" cy="128" r="6.5" fill="#3DAE5C"/><line x1="215" y1="135" x2="215" y2="152"/><line x1="215" y1="142" x2="200" y2="138"/><line x1="215" y1="142" x2="232" y2="132"/><line x1="215" y1="152" x2="208" y2="164"/><line x1="215" y1="152" x2="222" y2="164"/></g>'
+// FIGURE 3 (orange) — higher, pulling figure 4 up
++'<g stroke="#E8912C" stroke-width="2.7" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="320" cy="98" r="7" fill="#E8912C"/><line x1="320" y1="105" x2="320" y2="124"/><line x1="320" y1="112" x2="305" y2="108"/><line x1="320" y1="112" x2="338" y2="100"/><line x1="320" y1="124" x2="312" y2="138"/><line x1="320" y1="124" x2="328" y2="138"/></g>'
+// FIGURE 4 (red) — at the top, arms raised in celebration with a flag
++'<g stroke="#E8453C" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="490" cy="22" r="7" fill="#E8453C"/><line x1="490" y1="29" x2="490" y2="48"/><line x1="490" y1="34" x2="478" y2="22"/><line x1="490" y1="34" x2="502" y2="22"/><line x1="490" y1="48" x2="482" y2="60"/><line x1="490" y1="48" x2="498" y2="60"/></g>'
+// flag held by figure 4
++'<g><line x1="502" y1="22" x2="502" y2="4" stroke="#0F172A" stroke-width="1.8" stroke-linecap="round"/><path d="M 502 4 L 520 8 L 502 14 Z" fill="#E8453C" opacity="0.95"/></g>'
+// sparkle stars around the celebrating figure
++'<g fill="#E8912C" opacity="0.85"><path d="M 460 10 l 1.5 -4 1.5 4 4 0 -3 2.5 1.2 4 -3.7 -2.4 -3.7 2.4 1.2 -4 -3 -2.5 z"/><path d="M 510 50 l 1.2 -3 1.2 3 3.2 0 -2.4 2 1 3.2 -3 -2 -3 2 1 -3.2 -2.4 -2 z"/></g>'
+// "+1% daily" pill near figure 1 with leader line
++'<g><line x1="120" y1="140" x2="142" y2="118" stroke="#1A9E47" stroke-width="1.4" opacity="0.7"/><rect x="138" y="100" width="76" height="22" rx="11" fill="#3DAE5C" opacity="0.95"/><text x="176" y="115" font-family="Inter, sans-serif" font-size="11.5" font-weight="800" fill="#FFFFFF" text-anchor="middle">+1% daily</text></g>'
+// "Rise Together" pill near top with leader line
++'<g><line x1="445" y1="42" x2="380" y2="62" stroke="#B57B00" stroke-width="1.4" opacity="0.7"/><rect x="270" y="62" width="118" height="24" rx="12" fill="#E8912C" opacity="0.95"/><text x="329" y="78" font-family="Inter, sans-serif" font-size="12" font-weight="800" fill="#FFFFFF" text-anchor="middle">Rise together \\u2197</text></g>'
+// caption at top
++'<text x="270" y="14" font-family="Inter, sans-serif" font-size="9.5" font-weight="800" fill="#6366F1" text-anchor="middle" letter-spacing="1.4">GROW \\u2022 TOGETHER \\u2022 TRACK \\u2022 REPEAT</text>'
 +'</svg>';
 const TAB_HERO={
   tasks:{img:'1499951360447-b19be8fe80f5',h:'Make today count',s:'Small wins, stacked daily'},
@@ -1473,7 +1479,7 @@ function opE(id){const t=S.tasks.find(x=>x.id===id);if(!t)return;S.form={title:t
 function clM(){S.showAdd=false;S.editing=null;if(rec)try{rec.stop()}catch(e){}S.listening=false;render()}
 function stV(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){toast('\\u26A0\\uFE0F Voice not supported','err');return}rec=new SR();rec.continuous=false;rec.interimResults=true;rec.lang='en-US';rec.onresult=e=>{let t='';for(let i=0;i<e.results.length;i++)t+=e.results[i][0].transcript;if(e.results[0].isFinal){S.form.title=t;const l=t.toLowerCase();if(/urgent|important|asap/.test(l)){S.form.priority='high';S.form.title=S.form.title.replace(/urgent|important|asap/gi,'').trim()}if(/\\btoday\\b/.test(l))S.form.dueDate=new Date().toISOString().split('T')[0];else if(/\\btomorrow\\b/.test(l)){const d=new Date();d.setDate(d.getDate()+1);S.form.dueDate=d.toISOString().split('T')[0]}}else S.form.title=t;render()};rec.onend=()=>{S.listening=false;render()};rec.onerror=e=>{S.listening=false;toast('\\u26A0\\uFE0F '+e.error,'err');render()};rec.start();S.listening=true;render()}
 
-function switchTab(t){if(t==='steps')t='tasks';S.tab=t;if(t==='books'&&!S.books.length)loadBooks('all');if(t==='meditation'&&!S.meditations)loadMeditations();if(t==='news'&&!S.news[S.newsCat])loadNews(S.newsCat);if(t==='cal'){if(!S.google.loaded)loadGoogleStatus();else if(S.google.accounts.length&&!S.gcalEvents.length&&!S.gcalLoading)loadGcalEvents()}render()}
+function switchTab(t){if(t==='steps'||t==='dash')t='tasks';S.tab=t;if(t==='books'&&!S.books.length)loadBooks('all');if(t==='meditation'&&!S.meditations)loadMeditations();if(t==='news'&&!S.news[S.newsCat])loadNews(S.newsCat);if(t==='cal'){if(!S.google.loaded)loadGoogleStatus();else if(S.google.accounts.length&&!S.gcalEvents.length&&!S.gcalLoading)loadGcalEvents()}render()}
 async function loadNews(cat){S.newsCat=cat;S.newsLoading=true;render();try{const r=await fetch('/api/news?cat='+encodeURIComponent(cat),{cache:'no-store'});const j=await r.json();S.news[cat]=j.items||[]}catch(e){S.news[cat]=[]}S.newsLoading=false;render()}
 function shareNews(idx){const item=(S.news[S.newsCat]||[])[idx];if(!item)return;const url=item.link,title=item.title,text=(item.desc||'').slice(0,140);if(navigator.share){navigator.share({title,text,url}).catch(()=>{})}else{navigator.clipboard?.writeText(title+'\\n\\n'+url).then(()=>toast('\\u{1F517} Link copied')).catch(()=>toast('\\u26A0\\uFE0F Share unavailable','err'))}}
 function timeAgo(ds){if(!ds)return '';const d=new Date(ds);if(isNaN(d))return '';const s=(Date.now()-d.getTime())/1000;if(s<60)return 'just now';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';if(s<604800)return Math.floor(s/86400)+'d ago';return d.toLocaleDateString()}
@@ -1617,7 +1623,7 @@ const m=MORALS[S.moralIdx];
 h+='<div class="moral">'+MORAL_DOODLE+'<div class="moral-emoji">\\u{1F4A1}</div><div class="moral-body"><div class="moral-lbl">Moral of the Day</div><div class="moral-txt">"'+esc(m.t)+'"</div><div class="moral-by">\\u2014 '+esc(m.a)+'</div></div><button class="moral-ref" onclick="rotateMoral()" title="New quote">\\u21BB</button></div>';
 
 // Tabs
-h+='<nav class="tabs page-t">'+[{k:'tasks',l:'Tasks'},{k:'board',l:'Board'},{k:'cal',l:'Calendar'},{k:'dash',l:'Stats'},{k:'news',l:'News'},{k:'books',l:'Books'},{k:'meditation',l:'Meditate'}].map(x=>'<button class="tab'+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+ic(x.k,24)+'</span><span class="tl">'+x.l+'</span></button>').join('')+'</nav>';
+h+='<nav class="tabs page-t">'+[{k:'tasks',l:'Tasks'},{k:'board',l:'Board'},{k:'cal',l:'Calendar'},{k:'news',l:'News'},{k:'books',l:'Books'},{k:'meditation',l:'Meditate'}].map(x=>'<button class="tab'+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+ic(x.k,28)+'</span><span class="tl">'+x.l+'</span></button>').join('')+'</nav>';
 
 h+='<main class="main-col">';
 h+='<div class="user-bar" style="cursor:pointer" onclick="openProfile()"><span>\\u{1F464} '+esc(S.user.name||S.user.phone)+' <span style="color:#94A3B8;font-size:11px">\\u203A Profile</span></span><button onclick="event.stopPropagation();logout()">Logout</button></div>';
@@ -1632,6 +1638,7 @@ h+='<div class="user-bar" style="cursor:pointer" onclick="openProfile()"><span>\
 }
 
 // TASKS TAB
+if(S.tab==='dash')S.tab='tasks'; // Stats tab removed; redirect any stale state to Tasks
 if(S.tab==='tasks'){
   h+='<button class="add-bar" onclick="opA()"><span class="plus">+</span><span class="txt"><b>Add a new task</b><small>'+(S.waConnected?'Type, speak, or send via WhatsApp':'Type or use voice input')+'</small></span></button>';
   if(S.waConnected&&S.waOk)h+='<div class="al" style="background:#EDFCF2;border:1px solid #B7E8C4;color:#1A9E47">\\u{1F4F1} WhatsApp connected</div>';
