@@ -961,14 +961,88 @@ body[data-theme=aurora] .dash-hero .big{background:linear-gradient(90deg,#fff,#F
 .calc-hist .hi b{color:#3DAE5C}
 .smart-hint{background:#EEF2FF;border-radius:8px;padding:8px 12px;font-size:11px;color:#64748B;margin-bottom:10px;line-height:1.5}
 .smart-hint code{background:#fff;padding:1px 5px;border-radius:3px;color:#E8453C;font-family:ui-monospace,Menlo,monospace}
+
+/* Ocean waves background */
+.ocean{position:fixed;left:0;right:0;bottom:0;height:38vh;min-height:240px;width:100%;z-index:0;pointer-events:none;opacity:.55;mask-image:linear-gradient(to top,#000 60%,transparent 100%);-webkit-mask-image:linear-gradient(to top,#000 60%,transparent 100%)}
+.ocean svg{width:100%;height:100%;display:block}
+.ocean .wv{transform-origin:center bottom;animation:wave 11s ease-in-out infinite alternate}
+.ocean .wv2{animation-duration:8s;animation-direction:alternate-reverse;opacity:.85}
+.ocean .wv1{animation-duration:6s;opacity:.95}
+@keyframes wave{0%{transform:translate3d(0,0,0)}50%{transform:translate3d(-22px,4px,0)}100%{transform:translate3d(22px,0,0)}}
+body[data-theme=aurora] .ocean{opacity:.4}
+.app{position:relative;z-index:1}
+
+/* Meditation tab */
+.med-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:14px}
+.med-card{display:flex;align-items:center;gap:14px;padding:18px 18px;border-radius:18px;background:linear-gradient(135deg,rgba(255,255,255,.92),rgba(255,255,255,.78));border:1.5px solid rgba(15,23,42,.06);text-align:left;cursor:pointer;transition:transform .2s ease,box-shadow .25s ease,border-color .2s ease;position:relative;overflow:hidden;width:100%;color:#0F172A}
+.med-card::before{content:'';position:absolute;top:0;left:0;width:6px;height:100%;background:var(--mc,#6366F1)}
+.med-card:hover{transform:translateY(-3px);box-shadow:0 14px 38px rgba(15,23,42,.08);border-color:var(--mc,#6366F1)}
+.med-card-mins{flex:0 0 auto;width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,var(--mc,#6366F1),rgba(0,0,0,.12));color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 8px 22px rgba(0,0,0,.12)}
+.med-card-mins b{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;line-height:1}
+.med-card-mins small{font-size:10px;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-top:2px;opacity:.95}
+.med-card-body{flex:1;min-width:0}
+.med-card-title{font-size:15px;font-weight:700;color:#0F172A;margin-bottom:3px}
+.med-card-desc{font-size:12.5px;color:#64748B;line-height:1.4}
+.med-card-play{flex:0 0 auto;width:38px;height:38px;border-radius:50%;background:rgba(15,23,42,.06);color:var(--mc,#6366F1);display:flex;align-items:center;justify-content:center;transition:transform .2s ease,background .2s ease}
+.med-card:hover .med-card-play{transform:scale(1.1);background:var(--mc,#6366F1);color:#fff}
+.med-foot{font-size:12px;color:#64748B;text-align:center;margin-top:8px;opacity:.85}
+
+.med-player{background:rgba(255,255,255,.94);border:1.5px solid rgba(15,23,42,.06);border-radius:20px;padding:16px;margin-bottom:14px;box-shadow:0 12px 38px rgba(15,23,42,.06)}
+.med-back{font-size:13px;font-weight:700;color:#6366F1;background:rgba(99,102,241,.1);border:none;padding:8px 14px;border-radius:10px;cursor:pointer;margin-bottom:14px}
+.med-back:hover{background:rgba(99,102,241,.18)}
+.med-player-hd{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.med-player-hd .med-mins{flex:0 0 auto;width:60px;height:60px;border-radius:16px;background:linear-gradient(135deg,#6366F1,#8B5CF6,#EC4899);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:22px;font-weight:700;box-shadow:0 8px 22px rgba(99,102,241,.32)}
+.med-player-hd h2{font-size:18px;font-weight:700;color:#0F172A;margin-bottom:2px}
+.med-player-hd p{font-size:13px;color:#64748B}
+.med-frame{position:relative;padding-bottom:56.25%;height:0;border-radius:14px;overflow:hidden;background:#000}
+.med-frame iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
+.med-tip{font-size:12.5px;color:#64748B;text-align:center;margin-top:14px;padding:10px 14px;background:rgba(99,102,241,.06);border-radius:10px}
+
+body[data-theme=aurora] .med-card{background:linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.03));border-color:rgba(255,255,255,.08);color:#F5F5FA}
+body[data-theme=aurora] .med-card-title{color:#F5F5FA}
+body[data-theme=aurora] .med-card-desc{color:#9999B5}
+body[data-theme=aurora] .med-card-play{background:rgba(255,255,255,.08)}
+body[data-theme=aurora] .med-player{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08)}
+body[data-theme=aurora] .med-player-hd h2{color:#F5F5FA}
+body[data-theme=aurora] .med-player-hd p{color:#9999B5}
+body[data-theme=aurora] .med-tip{color:#9999B5;background:rgba(167,139,250,.1)}
+body[data-theme=aurora] .med-foot{color:#9999B5}
+
+/* Bigger Monday-style tab nav */
+.tabs.page-t .tab{font-size:14px;font-weight:700;letter-spacing:.1px}
+.tabs.page-t .tab .ti svg{width:24px;height:24px}
+.tabs.page-t .tab.on{background:linear-gradient(135deg,#6366F1,#8B5CF6,#EC4899)!important;color:#fff!important;box-shadow:0 8px 22px rgba(99,102,241,.38),0 0 0 1px rgba(255,255,255,.1) inset!important;transform:translateY(-2px)}
+.tabs.page-t .tab.on .ti{transform:scale(1.15)}
+@media (max-width:600px){
+  .tabs.page-t .tab{padding:9px 4px 6px;min-width:62px}
+  .tabs.page-t .tab .ti svg{width:26px!important;height:26px!important}
+  .tabs.page-t .tab .tl{font-size:11px;font-weight:700}
+  .tabs.page-t .tab.on{background:transparent!important;color:#6366F1!important;box-shadow:none!important;transform:none!important}
+  .tabs.page-t .tab.on .ti{filter:drop-shadow(0 4px 10px rgba(99,102,241,.5))}
+  .tabs.page-t .tab.on::after{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:18px;height:3px;border-radius:3px;background:linear-gradient(90deg,#6366F1,#EC4899)}
+}
+@media (min-width:992px){
+  .app>.tabs.page-t .tab{padding:14px 16px;font-size:15px;font-weight:700}
+  .app>.tabs.page-t .tab .ti svg{width:24px;height:24px}
+}
+
 </style></head><body>
 <div class="bg-blob a"></div><div class="bg-blob b"></div><div class="bg-blob c"></div><div class="bg-blob d"></div>
+<div class="ocean" aria-hidden="true">
+<svg viewBox="0 0 1440 320" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="oc1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7DD3FC" stop-opacity=".55"/><stop offset="100%" stop-color="#0EA5E9" stop-opacity=".75"/></linearGradient>
+<linearGradient id="oc2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#A5F3FC" stop-opacity=".5"/><stop offset="100%" stop-color="#06B6D4" stop-opacity=".7"/></linearGradient>
+<linearGradient id="oc3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#C7F3FE" stop-opacity=".4"/><stop offset="100%" stop-color="#22D3EE" stop-opacity=".6"/></linearGradient></defs>
+<path class="wv wv3" fill="url(#oc3)" d="M0,224 C240,160 480,288 720,224 C960,160 1200,288 1440,224 L1440,320 L0,320 Z"/>
+<path class="wv wv2" fill="url(#oc2)" d="M0,256 C240,192 480,288 720,240 C960,192 1200,288 1440,240 L1440,320 L0,320 Z"/>
+<path class="wv wv1" fill="url(#oc1)" d="M0,272 C240,224 480,304 720,272 C960,240 1200,304 1440,272 L1440,320 L0,320 Z"/>
+</svg></div>
 <div class="app" id="app"></div>
 <script>
 const MORALS=[{t:"The secret of getting ahead is getting started.",a:"Mark Twain"},{t:"It does not matter how slowly you go as long as you do not stop.",a:"Confucius"},{t:"Small daily improvements are the key to staggering long-term results.",a:"Robin Sharma"},{t:"Discipline is choosing between what you want now and what you want most.",a:"Abraham Lincoln"},{t:"Don't count the days. Make the days count.",a:"Muhammad Ali"},{t:"The best way to predict the future is to create it.",a:"Peter Drucker"},{t:"Focus on being productive instead of busy.",a:"Tim Ferriss"},{t:"You don't have to be great to start, but you have to start to be great.",a:"Zig Ziglar"},{t:"The journey of a thousand miles begins with a single step.",a:"Lao Tzu"},{t:"Either you run the day or the day runs you.",a:"Jim Rohn"},{t:"A year from now you may wish you had started today.",a:"Karen Lamb"},{t:"Success is the sum of small efforts repeated day in and day out.",a:"Robert Collier"},{t:"Done is better than perfect.",a:"Sheryl Sandberg"},{t:"The way to get started is to quit talking and begin doing.",a:"Walt Disney"},{t:"You cannot escape the responsibility of tomorrow by evading it today.",a:"Abraham Lincoln"},{t:"Motivation gets you going, but discipline keeps you growing.",a:"John C. Maxwell"},{t:"Do something today that your future self will thank you for.",a:"Sean Patrick Flanery"},{t:"The harder I work, the luckier I get.",a:"Samuel Goldwyn"},{t:"Don't watch the clock; do what it does. Keep going.",a:"Sam Levenson"},{t:"Great things never come from comfort zones.",a:"Neil Strauss"},{t:"Sometimes later becomes never. Do it now.",a:"Anonymous"},{t:"Wake up with determination. Go to bed with satisfaction.",a:"Anonymous"},{t:"A goal without a plan is just a wish.",a:"Antoine de Saint-Exupéry"},{t:"Little by little, day by day, what is meant for you will find its way.",a:"Anonymous"},{t:"Success doesn't just find you — you have to go out and get it.",a:"Anonymous"},{t:"Push yourself, because no one else is going to do it for you.",a:"Anonymous"},{t:"Dream big. Start small. Act now.",a:"Robin Sharma"},{t:"Hard work beats talent when talent doesn't work hard.",a:"Tim Notke"},{t:"The only impossible journey is the one you never begin.",a:"Tony Robbins"},{t:"Opportunities don't happen. You create them.",a:"Chris Grosser"}];
 let S={tasks:[],view:'all',search:'',tab:'tasks',showAdd:false,editing:null,listening:false,toast:null,toastType:'ok',waOk:false,sending:{},user:null,
 books:[],booksLoading:false,booksCat:'all',bookSearch:'',playing:null,moralIdx:Math.floor(Math.random()*MORALS.length),
-waConnected:localStorage.getItem('wa_connected')==='1',showWAOnboard:false,
+waConnected:localStorage.getItem('wa_connected')==='1',showWAOnboard:false,activeMeditation:null,
 calMonth:new Date(),calSelectedDate:new Date().toISOString().slice(0,10),
 steps:[],stepGoal:parseInt(localStorage.getItem('step_goal')||'10000',10),stepLive:{active:false,count:0},
 theme:localStorage.getItem('theme')||'classic',
@@ -989,6 +1063,7 @@ cal:'<svg '+s+'><rect x="3" y="4" width="18" height="18" rx="2.5"/><path d="M16 
 dash:'<svg '+s+'><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>',
 news:'<svg '+s+'><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8z"/></svg>',
 books:'<svg '+s+'><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>',
+meditation:'<svg '+s+'><circle cx="12" cy="6" r="2.5"/><path d="M12 9c-1.5 1-3 3-3 5v3l-3 1c-.5.2-.7.8-.4 1.2.3.4.8.5 1.2.3l3.2-1.3v3.8h4v-3.8l3.2 1.3c.4.2.9 0 1.2-.3.3-.4.1-1-.4-1.2L15 17v-3c0-2-1.5-4-3-5z"/></svg>',
 steps:'<svg '+s+'><path d="M4 16v-2.4C4 11.5 3 10.5 3 8c0-2.7 1.5-6 4.5-6C9.4 2 10 3.8 10 5.5c0 3.1-2 5.7-2 8.7V16a2 2 0 1 1-4 0z"/><path d="M20 20v-2.4c0-2.1 1-3.1 1-5.6 0-2.7-1.5-6-4.5-6-1.9 0-2.5 1.8-2.5 3.5 0 3.1 2 5.7 2 8.7V20a2 2 0 1 0 4 0z"/></svg>',
 calc:'<svg '+s+'><rect x="4" y="2" width="16" height="20" rx="2.5"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16" y2="18"/><circle cx="8" cy="10" r=".8" fill="currentColor"/><circle cx="12" cy="10" r=".8" fill="currentColor"/><circle cx="16" cy="10" r=".8" fill="currentColor"/><circle cx="8" cy="14" r=".8" fill="currentColor"/><circle cx="12" cy="14" r=".8" fill="currentColor"/><circle cx="8" cy="18" r=".8" fill="currentColor"/><circle cx="12" cy="18" r=".8" fill="currentColor"/></svg>',
 ai:'<svg '+s+'><path d="M12 8V4H8"/><rect x="4" y="8" width="16" height="12" rx="2.5"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>',
@@ -1062,9 +1137,11 @@ board:"This is the Kanban board. Drag your cards between To Do, Doing, and Done 
 cal:"Your calendar view. Tap any date to see scheduled tasks or add new ones for that day.",
 dash:"Your productivity dashboard. See completed tasks, streaks, and your progress over time.",
 news:"Stay informed with daily curated news. Browse different categories like technology, sports, and entertainment.",
-books:"Free audiobook library from Libri Vox. Search, browse, and listen. Keep a streak by listening for two minutes a day."
+books:"Free audiobook library from Libri Vox. Search, browse, and listen. Keep a streak by listening for two minutes a day.",
+meditation:"Take a mindful break. Pick a one, five, ten, twenty, or thirty minute guided meditation and let your breath settle."
 };
-function speakIntro(){try{if(!('speechSynthesis' in window)){toast('\\u26A0\\uFE0F Voice not supported on this device','err');return}const t=TAB_INTROS[S.tab];if(!t)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=1;u.pitch=1;u.volume=1;speechSynthesis.speak(u);toast('\\u{1F50A} Playing intro')}catch(e){toast('\\u26A0\\uFE0F Voice error','err')}}
+function pickBestVoice(){try{const vs=speechSynthesis.getVoices()||[];if(!vs.length)return null;const pref=['Samantha','Google UK English Female','Microsoft Aria Online (Natural) - English (United States)','Microsoft Jenny Online (Natural) - English (United States)','Google US English','Karen','Moira','Tessa','Veena','Fiona','Allison','Ava','Susan'];for(const name of pref){const v=vs.find(x=>x.name===name||x.name.indexOf(name)===0);if(v)return v}const en=vs.filter(v=>(v.lang||'').toLowerCase().startsWith('en'));const natural=en.find(v=>/natural|neural|premium|enhanced/i.test(v.name));if(natural)return natural;const female=en.find(v=>/female|samantha|karen|moira|tessa|veena|fiona|allison|ava|susan|aria|jenny/i.test(v.name));if(female)return female;return en[0]||vs[0]}catch(e){return null}}
+function speakIntro(){try{if(!('speechSynthesis' in window)){toast('\\u26A0\\uFE0F Voice not supported on this device','err');return}const t=TAB_INTROS[S.tab];if(!t)return;speechSynthesis.cancel();const go=()=>{const u=new SpeechSynthesisUtterance(t);const v=pickBestVoice();if(v){u.voice=v;u.lang=v.lang}u.rate=.92;u.pitch=1.05;u.volume=1;speechSynthesis.speak(u);toast('\\u{1F50A} Playing intro')};const vs=speechSynthesis.getVoices();if(!vs||!vs.length){speechSynthesis.onvoiceschanged=()=>{speechSynthesis.onvoiceschanged=null;go()};setTimeout(go,250)}else go()}catch(e){toast('\\u26A0\\uFE0F Voice error','err')}}
 function stopSpeak(){try{speechSynthesis.cancel()}catch(e){}}
 function filterBooks(v){S.bookSearch=v;const grid=document.getElementById('books-grid');if(!grid){render();return}const q=(v||'').toLowerCase().trim();const fb=!q?S.books:S.books.filter(b=>{const t=(Array.isArray(b.title)?b.title[0]:b.title||'').toLowerCase();const a=(Array.isArray(b.creator)?b.creator[0]:b.creator||'').toLowerCase();return t.includes(q)||a.includes(q)});grid.innerHTML=renderBookCards(fb)}
 function renderBookCards(fb){if(!fb.length)return '<div class="empty"><div style="font-size:36px">\\u{1F4DA}</div><div style="font-size:14px;margin-top:8px">No books found</div></div>';let h='<div class="book-list">';fb.forEach(b=>{const id=b.identifier;const cover='https://archive.org/services/img/'+id;const author=Array.isArray(b.creator)?b.creator[0]:(b.creator||'Unknown');const title=Array.isArray(b.title)?b.title[0]:b.title;h+='<div class="book-card"><div class="book-cover"><img src="'+cover+'" loading="lazy" onerror="this.style.display=\\'none\\'"/></div><div class="book-info"><div class="book-title">'+esc(title)+'</div><div class="book-author">'+esc(author)+'</div><div class="book-meta"><span>\\u{1F3A7} '+(b.downloads?(+b.downloads).toLocaleString():'\\u2014')+' plays</span><span>\\u{1F4D6} LibriVox</span></div></div><button class="book-play" onclick="playBook(\\''+id+'\\')">\\u25B6</button></div>'});h+='</div>';return h}
@@ -1073,6 +1150,8 @@ function closeWAOnboard(){S.showWAOnboard=false;render()}
 function openWAJoin(){const code=window.__TWILIO_SANDBOX_CODE||'along-wool';window.open('https://wa.me/14155238886?text='+encodeURIComponent('join '+code),'_blank')}
 function confirmWAJoined(){S.waConnected=true;localStorage.setItem('wa_connected','1');S.showWAOnboard=false;toast('\\u2705 WhatsApp connected');render()}
 function disconnectWA(){S.waConnected=false;localStorage.removeItem('wa_connected');toast('\\u23F8 WhatsApp disconnected');render()}
+function openMeditation(yt,title,desc,mins){S.activeMeditation={yt:yt,title:title,desc:desc,mins:mins};render()}
+function closeMeditation(){S.activeMeditation=null;render()}
 async function openProfile(){S.showProfile=true;render();const me=await api('/me');if(me&&!me.error)S.profile=me;render()}
 function closeProfile(){S.showProfile=false;render()}
 async function saveName(){const n=(document.getElementById('pfName')||{}).value;if(!n||!n.trim())return;const r=await api('/me',{method:'PUT',body:JSON.stringify({name:n.trim()})});if(r&&r.name){S.user.name=r.name;localStorage.setItem('tf_name',r.name);S.profile=Object.assign(S.profile||{},{name:r.name});toast('\\u2705 Name updated');render()}}
@@ -1141,7 +1220,7 @@ const m=MORALS[S.moralIdx];
 h+='<div class="moral"><div class="moral-emoji">\\u{1F4A1}</div><div class="moral-body"><div class="moral-lbl">Moral of the Day</div><div class="moral-txt">"'+esc(m.t)+'"</div><div class="moral-by">\\u2014 '+esc(m.a)+'</div></div><button class="moral-ref" onclick="rotateMoral()" title="New quote">\\u21BB</button></div>';
 
 // Tabs
-h+='<nav class="tabs page-t">'+[{k:'tasks',l:'Tasks'},{k:'board',l:'Board'},{k:'cal',l:'Calendar'},{k:'dash',l:'Stats'},{k:'news',l:'News'},{k:'books',l:'Books'}].map(x=>'<button class="tab'+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+ic(x.k,20)+'</span><span class="tl">'+x.l+'</span></button>').join('')+'</nav>';
+h+='<nav class="tabs page-t">'+[{k:'tasks',l:'Tasks'},{k:'board',l:'Board'},{k:'cal',l:'Calendar'},{k:'dash',l:'Stats'},{k:'news',l:'News'},{k:'books',l:'Books'},{k:'meditation',l:'Meditate'}].map(x=>'<button class="tab'+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+ic(x.k,24)+'</span><span class="tl">'+x.l+'</span></button>').join('')+'</nav>';
 
 h+='<main class="main-col">';
 h+='<div class="user-bar" style="cursor:pointer" onclick="openProfile()"><span>\\u{1F464} '+esc(S.user.name||S.user.phone)+' <span style="color:#94A3B8;font-size:11px">\\u203A Profile</span></span><button onclick="event.stopPropagation();logout()">Logout</button></div>';
@@ -1351,6 +1430,29 @@ else if(S.tab==='books'){
     const fb=!q?S.books:S.books.filter(b=>{const t=(Array.isArray(b.title)?b.title[0]:b.title||'').toLowerCase();const a=(Array.isArray(b.creator)?b.creator[0]:b.creator||'').toLowerCase();return t.includes(q)||a.includes(q)});
     h+='<div id="books-grid">'+renderBookCards(fb)+'</div>';
   }
+}
+
+// MEDITATION TAB
+else if(S.tab==='meditation'){
+  h+='<div class="section-hd"><span class="section-ic">'+ic('meditation',22)+'</span><div><h3>Meditation</h3><p>Guided sessions \\u2022 pause, breathe, return calmer</p></div></div>';
+  const sessions=[
+    {mins:'1',title:'1-Minute Reset',desc:'Quick breath reset for a busy moment',q:'1 minute guided meditation breathing',color:'#06B6D4'},
+    {mins:'5',title:'5-Minute Calm',desc:'Short guided meditation to settle',q:'5 minute guided meditation calm',color:'#3B82F6'},
+    {mins:'10',title:'10-Minute Mindfulness',desc:'Classic guided session for stillness',q:'10 minute guided meditation mindfulness',color:'#8B5CF6'},
+    {mins:'20',title:'20-Minute Deep Breath',desc:'A longer, deeper sit',q:'20 minute guided meditation',color:'#EC4899'},
+    {mins:'30',title:'30-Minute Body Scan',desc:'Full guided body scan to unwind',q:'30 minute guided meditation body scan',color:'#F59E0B'}
+  ];
+  h+='<div class="med-grid">';
+  sessions.forEach(x=>{
+    const url='https://www.youtube.com/results?search_query='+encodeURIComponent(x.q);
+    h+='<a class="med-card" href="'+url+'" target="_blank" rel="noopener" style="--mc:'+x.color+';text-decoration:none">';
+    h+='<div class="med-card-mins"><b>'+x.mins+'</b><small>min</small></div>';
+    h+='<div class="med-card-body"><div class="med-card-title">'+esc(x.title)+'</div><div class="med-card-desc">'+esc(x.desc)+'</div></div>';
+    h+='<div class="med-card-play"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div>';
+    h+='</a>';
+  });
+  h+='</div>';
+  h+='<div class="med-foot">\\u{1F1FE} Tap a session to open a fresh selection of guided videos on YouTube. Pick whichever voice and style feels right for you today.</div>';
 }
 
 
