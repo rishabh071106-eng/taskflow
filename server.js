@@ -598,7 +598,7 @@ body[data-theme=aurora] .hdr-time-date{color:#9999B5}
 /* Section dividers — thin gradient line with a pulsing centered node */
 .section-div{height:1px;background:linear-gradient(90deg,transparent 0%,rgba(99,102,241,.18) 30%,rgba(232,145,44,.22) 50%,rgba(99,102,241,.18) 70%,transparent 100%);margin:18px 0;position:relative}
 /* Tap Sprint mini-game */
-.game-card{background:linear-gradient(135deg,rgba(99,102,241,.06),rgba(236,72,153,.05));border:1px solid rgba(99,102,241,.18);border-radius:14px;padding:14px 16px 16px;margin-bottom:14px;display:flex;flex-direction:column;gap:10px;position:relative;overflow:hidden}
+.game-card{background:linear-gradient(135deg,rgba(99,102,241,.06),rgba(236,72,153,.05));border:1px solid rgba(99,102,241,.18);border-radius:16px;padding:18px 22px 20px;margin-bottom:18px;display:flex;flex-direction:column;gap:12px;position:relative;overflow:hidden}
 .game-card::before{content:'';position:absolute;top:-30px;right:-30px;width:140px;height:140px;background:radial-gradient(circle,rgba(99,102,241,.18),transparent 65%);pointer-events:none}
 .game-hd{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .game-ttl{font-family:'Instrument Serif',Georgia,serif;font-size:20px;color:#0F172A;display:flex;align-items:center;gap:8px;letter-spacing:-.01em}
@@ -612,15 +612,20 @@ body[data-theme=aurora] .hdr-time-date{color:#9999B5}
 .game-btn:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(99,102,241,.4)}
 .game-btn:active{transform:scale(.96)}
 .game-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:260px;margin:0 auto}
-.game-cell{aspect-ratio:1;border-radius:14px;background:rgba(255,255,255,.7);border:2px solid rgba(99,102,241,.12);cursor:pointer;transition:all .18s cubic-bezier(.4,1.5,.5,1);position:relative}
-.game-cell:hover{border-color:rgba(99,102,241,.4);transform:translateY(-1px)}
-.game-cell.seq{background:radial-gradient(circle,#C7D2FE 0%,#6366F1 75%);border-color:#6366F1;box-shadow:0 0 0 6px rgba(99,102,241,.18),0 6px 18px rgba(99,102,241,.45);transform:scale(1.05)}
-.game-cell.pop{animation:cellPop .3s cubic-bezier(.4,1.5,.5,1)}
-@keyframes cellPop{0%{transform:scale(1)}40%{transform:scale(1.18);background:#3DAE5C;border-color:#10B981}100%{transform:scale(1)}}
-.game-cell.miss{animation:cellMiss .42s ease-out}
-@keyframes cellMiss{0%{background:#FEE2E2;border-color:#F87171;transform:scale(1.08) rotate(-2deg)}50%{transform:scale(.98) rotate(2deg)}100%{background:rgba(255,255,255,.7);transform:scale(1) rotate(0)}}
-.game-status-line{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:4px;font-size:13px}
-.game-status{font-weight:700;color:#6366F1;letter-spacing:-.01em;transition:color .2s ease}
+.game-cell{aspect-ratio:1;border-radius:14px;background:rgba(255,255,255,.7);border:2px solid rgba(99,102,241,.12);cursor:pointer;transition:all .18s cubic-bezier(.4,1.5,.5,1);position:relative;font-family:'Instrument Serif',Georgia,serif;font-size:42px;font-weight:400;color:#0F172A;line-height:1;display:flex;align-items:center;justify-content:center;padding:0}
+.game-cell:hover:not(.ttt-filled){border-color:rgba(99,102,241,.5);transform:translateY(-2px);background:#fff}
+.game-cell.ttt-x{color:#E8453C;border-color:rgba(232,69,60,.35);background:linear-gradient(135deg,#fff,#FFF1F0)}
+.game-cell.ttt-o{color:#3B82F6;border-color:rgba(59,130,246,.35);background:linear-gradient(135deg,#fff,#EFF6FF)}
+.game-cell.ttt-filled{cursor:default;animation:tttPop .3s cubic-bezier(.4,1.5,.5,1)}
+@keyframes tttPop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+.game-cell.ttt-win{animation:tttWinPulse 1s ease-in-out infinite;border-width:3px;box-shadow:0 0 0 0 currentColor,0 6px 18px rgba(0,0,0,.12)}
+@keyframes tttWinPulse{0%,100%{box-shadow:0 0 0 0 rgba(232,145,44,.45),0 6px 18px rgba(15,23,42,.12);transform:scale(1)}50%{box-shadow:0 0 0 8px rgba(232,145,44,0),0 8px 22px rgba(15,23,42,.18);transform:scale(1.05)}}
+.game-status-line{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px;font-size:13px}
+.game-status{font-weight:700;letter-spacing:-.01em;transition:color .2s ease}
+.status-you{color:#E8453C}
+.status-bot{color:#3B82F6}
+.game-best b{color:#0F172A;font-family:'Space Mono',monospace;font-weight:700;margin:0 1px;font-size:13px}
+.ttt-grid{max-width:280px}
 .game-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12.5px;font-weight:700;margin-top:2px}
 .game-hint{color:#94A3B8;font-weight:600;letter-spacing:.4px}
 .game-score{font-family:'Instrument Serif',Georgia,serif;font-size:20px;color:#6366F1;font-weight:400}
@@ -751,7 +756,7 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
 @media (max-width:600px){.tabs{padding:4px;gap:4px}.tab{padding:11px 12px;font-size:12px}.tab .ti{font-size:15px}.tab .tl{font-size:11.5px}}
 /* Desktop sidebar layout */
 @media (min-width:1024px){
-  .app{max-width:1440px;padding:24px 32px 48px;display:grid;grid-template-columns:280px 1.1fr 1fr;grid-template-areas:"hdr hdr hdr" "topstrip moral moral" "nav main main";column-gap:24px;row-gap:14px}
+  .app{max-width:1440px;padding:32px 40px 64px;display:grid;grid-template-columns:280px 1.1fr 1fr;grid-template-areas:"hdr hdr hdr" "topstrip moral moral" "nav main main";column-gap:32px;row-gap:20px}
   .app>.hdr{grid-area:hdr;margin-bottom:0}
   .app>.top-strip{grid-area:topstrip;margin-bottom:0}
   .app>.moral{grid-area:moral;margin-bottom:0}
@@ -1838,7 +1843,7 @@ const MORALS=[{t:"The secret of getting ahead is getting started.",a:"Mark Twain
 let S={tasks:[],view:'all',search:'',tab:'tasks',showAdd:false,editing:null,listening:false,toast:null,toastType:'ok',waOk:false,sending:{},user:null,
 books:[],booksLoading:false,booksCat:'all',bookSearch:'',playing:null,moralIdx:Math.floor(Math.random()*MORALS.length),
 history:{loading:false,loaded:{},events:[],articles:{}},historySec:'today',geography:{loading:false,loaded:{},articles:{}},geoSec:'earth',
-game:{active:false,score:0,timeLeft:0,activeCell:-1,best:Number(localStorage.getItem('tf_game_best')||0)},
+game:{active:false,board:Array(9).fill(null),turn:'X',status:'idle',winLine:null,wins:Number(localStorage.getItem('tf_ttt_wins')||0),losses:Number(localStorage.getItem('tf_ttt_losses')||0),draws:Number(localStorage.getItem('tf_ttt_draws')||0)},
 waConnected:localStorage.getItem('wa_connected')==='1',showWAOnboard:false,activeMeditation:null,
 google:{configured:false,accounts:[],loaded:false},gcalEvents:[],gcalLoading:false,showGcalAdd:false,gcalForm:{title:'',date:'',time:'',duration:30,notes:'',email:''},
 calMonth:new Date(),calSelectedDate:new Date().toISOString().slice(0,10),
@@ -2114,47 +2119,44 @@ function calSelect(d){S.calSelectedDate=d;render()}
 function calAddForDate(){S.form={title:'',notes:'',priority:'medium',dueDate:S.calSelectedDate||'',reminderTime:'',status:'pending'};S.editing=null;S.showAdd=true;render();setTimeout(()=>{const e=document.getElementById('ft');if(e)e.focus()},100)}
 function rotateMoral(){const a=document.getElementById('audioEl');if(a&&!a.paused)return;S.moralIdx=(S.moralIdx+1)%MORALS.length;render()}
 setInterval(()=>{if(S.user)rotateMoral()},45000);
-// Memory Match mini-game — Simon-style sequence memory; level = highest sequence completed
-let _gameSeqTimer=null;
-function gameStart(){
-  if(_gameSeqTimer){clearTimeout(_gameSeqTimer);_gameSeqTimer=null}
-  S.game.active=true;S.game.mode='show';S.game.level=1;S.game.inputIdx=0;
-  S.game.sequence=[Math.floor(Math.random()*9)];
-  render();_gameSeqTimer=setTimeout(gamePlaySequence,420);
+// Tic Tac Toe vs a simple bot (you play X, bot plays O)
+const TTT_LINES=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+function tttCheck(b,p){for(const l of TTT_LINES){if(l.every(i=>b[i]===p))return l}return null}
+function tttBotMove(b){
+  for(let i=0;i<9;i++){if(b[i])continue;b[i]='O';if(tttCheck(b,'O')){b[i]=null;return i}b[i]=null}
+  for(let i=0;i<9;i++){if(b[i])continue;b[i]='X';if(tttCheck(b,'X')){b[i]=null;return i}b[i]=null}
+  if(!b[4])return 4;
+  const corners=[0,2,6,8].filter(c=>!b[c]);if(corners.length)return corners[Math.floor(Math.random()*corners.length)];
+  const empty=[];for(let i=0;i<9;i++)if(!b[i])empty.push(i);
+  return empty[Math.floor(Math.random()*empty.length)];
 }
-function gamePlaySequence(){
-  let i=0;const cells=()=>document.querySelectorAll('.game-cell');
-  const setStatus=(t,c)=>{const s=document.getElementById('game-status');if(s){s.textContent=t;s.style.color=c||''}};
-  setStatus('Watch the sequence...','#6366F1');
-  const tick=()=>{
-    if(!S.game.active)return;
-    if(i>=S.game.sequence.length){S.game.mode='input';S.game.inputIdx=0;setStatus('Your turn \\u2192','#10B981');return}
-    const idx=S.game.sequence[i];const c=cells()[idx];
-    if(c){c.classList.add('seq');setTimeout(()=>c.classList.remove('seq'),420)}
-    i++;_gameSeqTimer=setTimeout(tick,Math.max(280,640-S.game.level*20));
-  };tick();
+function gameStart(){
+  S.game.active=true;S.game.board=Array(9).fill(null);S.game.turn='X';S.game.status='playing';S.game.winLine=null;render();
 }
 function gameTap(i){
-  if(!S.game.active||S.game.mode!=='input')return;
-  const cells=document.querySelectorAll('.game-cell');
-  const expected=S.game.sequence[S.game.inputIdx];
-  if(i!==expected){if(cells[i]){cells[i].classList.add('miss');setTimeout(()=>cells[i].classList.remove('miss'),420)}gameEnd(false);return}
-  if(cells[i]){cells[i].classList.add('pop');setTimeout(()=>cells[i].classList.remove('pop'),300)}
-  S.game.inputIdx++;
-  const sc=document.getElementById('game-score');if(sc)sc.textContent='Lv '+S.game.level;
-  if(S.game.inputIdx>=S.game.sequence.length){
-    // Round complete — advance
-    S.game.level++;S.game.sequence.push(Math.floor(Math.random()*9));S.game.mode='show';
-    const s=document.getElementById('game-status');if(s){s.textContent='\\u2728 Level up!';s.style.color='#E8912C'}
-    _gameSeqTimer=setTimeout(gamePlaySequence,650);
-  }
+  if(!S.game.active||S.game.status!=='playing'||S.game.turn!=='X'||S.game.board[i])return;
+  S.game.board[i]='X';
+  const winLine=tttCheck(S.game.board,'X');
+  if(winLine){S.game.winLine=winLine;return tttFinish('won')}
+  if(S.game.board.every(c=>c))return tttFinish('draw');
+  S.game.turn='O';render();
+  setTimeout(()=>{
+    if(!S.game.active||S.game.status!=='playing')return;
+    const idx=tttBotMove(S.game.board);S.game.board[idx]='O';
+    const wl=tttCheck(S.game.board,'O');
+    if(wl){S.game.winLine=wl;return tttFinish('lost')}
+    if(S.game.board.every(c=>c))return tttFinish('draw');
+    S.game.turn='X';render();
+  },520);
 }
-function gameEnd(won){
-  if(_gameSeqTimer){clearTimeout(_gameSeqTimer);_gameSeqTimer=null}
-  const reached=Math.max(0,S.game.level-1);
-  if(reached>S.game.best){S.game.best=reached;localStorage.setItem('tf_game_best',S.game.best)}
-  S.game.active=false;S.game.mode='over';S.game.score=reached;render();
+function tttFinish(result){
+  S.game.status=result;
+  if(result==='won'){S.game.wins++;localStorage.setItem('tf_ttt_wins',S.game.wins)}
+  else if(result==='lost'){S.game.losses++;localStorage.setItem('tf_ttt_losses',S.game.losses)}
+  else if(result==='draw'){S.game.draws++;localStorage.setItem('tf_ttt_draws',S.game.draws)}
+  S.game.active=false;render();
 }
+function gameEnd(){S.game.active=false;S.game.status='idle';render()}
 // Live-tick the sidebar AND header clocks without re-rendering the whole tree
 setInterval(()=>{const n=new Date();const hm=n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false});const sec=String(n.getSeconds()).padStart(2,'0');const t=document.getElementById('sideNowTime');const s=document.getElementById('sideNowSec');if(t&&s){if(t.firstChild&&t.firstChild.nodeValue!==hm)t.firstChild.nodeValue=hm;s.textContent=sec}const ht=document.getElementById('hdrTimeHm');const hs=document.getElementById('hdrTimeSec');if(ht&&hs){if(ht.textContent!==hm)ht.textContent=hm;hs.textContent=':'+sec}},1000);
 
@@ -2319,19 +2321,26 @@ h+='<div class="section-div" aria-hidden="true"></div>';
 // TASKS TAB
 if(S.tab==='dash')S.tab='tasks'; // Stats tab removed; redirect any stale state to Tasks
 if(S.tab==='tasks'){
-  // Memory Match mini-game card (Simon-style sequence memory)
+  // Tic Tac Toe vs a simple bot
   {
     const g=S.game;
-    h+='<div class="game-card"><div class="game-hd"><div class="game-ttl"><span class="game-emoji">\\u{1F9E0}</span> Memory Match</div><div class="game-best">Best <b>Lv '+g.best+'</b></div></div>';
+    h+='<div class="game-card"><div class="game-hd"><div class="game-ttl"><span class="game-emoji">\\u{1F3AF}</span> Tic Tac Toe</div><div class="game-best">W <b>'+g.wins+'</b> \\u2022 L <b>'+g.losses+'</b> \\u2022 D <b>'+g.draws+'</b></div></div>';
     if(!g.active){
-      const prompt=g.mode==='over'&&g.score>0?'Round over \\u2014 you reached <b>level '+g.score+'</b>. Try again?':'Watch the sequence \\u2192 then repeat it. The chain grows each level.';
-      h+='<div class="game-cta"><div class="game-prompt">'+prompt+'</div><button class="game-btn" onclick="gameStart()">'+(g.mode==='over'?'Play again':'Start')+'</button></div>';
+      let prompt='You play X, the bot plays O. Want a quick game?';
+      if(g.status==='won')prompt='\\u{1F3C6} You won! Want another round?';
+      else if(g.status==='lost')prompt='Bot got that one. Try again?';
+      else if(g.status==='draw')prompt='Draw \\u2014 nobody wins. One more?';
+      h+='<div class="game-cta"><div class="game-prompt">'+prompt+'</div><button class="game-btn" onclick="gameStart()">'+(g.status==='idle'?'Start game':'Play again')+'</button></div>';
     }else{
-      h+='<div class="game-status-line"><span id="game-status" class="game-status">Watch the sequence\\u2026</span><span id="game-score" class="game-score">Lv '+g.level+'</span></div>';
-      h+='<div class="game-grid">';
-      for(let i=0;i<9;i++)h+='<button class="game-cell" onclick="gameTap('+i+')" aria-label="cell"></button>';
+      const status=g.turn==='X'?'Your turn (X)':'Bot thinking\\u2026';
+      h+='<div class="game-status-line"><span class="game-status'+(g.turn==='X'?' status-you':' status-bot')+'">'+status+'</span></div>';
+      h+='<div class="game-grid ttt-grid">';
+      for(let i=0;i<9;i++){
+        const v=g.board[i];const won=g.winLine&&g.winLine.includes(i);
+        h+='<button class="game-cell ttt-cell'+(v?' ttt-'+v.toLowerCase():'')+(won?' ttt-win':'')+(v?' ttt-filled':'')+'" onclick="gameTap('+i+')" aria-label="cell">'+(v||'')+'</button>';
+      }
       h+='</div>';
-      h+='<div class="game-foot"><div class="game-hint">'+(g.mode==='show'?'\\u{1F441}\\uFE0F watch':'\\u270B repeat')+'</div><button class="game-stop" onclick="gameEnd(false)">Stop</button></div>';
+      h+='<div class="game-foot"><div class="game-hint">tap any empty square</div><button class="game-stop" onclick="gameEnd()">Stop</button></div>';
     }
     h+='</div>';
   }
