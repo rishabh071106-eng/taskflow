@@ -598,8 +598,16 @@ body[data-theme=aurora] .hdr-time-date{color:#9999B5}
 /* Section dividers — thin gradient line with a pulsing centered node */
 .section-div{height:1px;background:linear-gradient(90deg,transparent 0%,rgba(99,102,241,.18) 30%,rgba(232,145,44,.22) 50%,rgba(99,102,241,.18) 70%,transparent 100%);margin:18px 0;position:relative}
 /* Tap Sprint mini-game */
-.game-card{background:linear-gradient(135deg,rgba(99,102,241,.06),rgba(236,72,153,.05));border:1px solid rgba(99,102,241,.18);border-radius:16px;padding:18px 22px 20px;margin-bottom:18px;display:flex;flex-direction:column;gap:12px;position:relative;overflow:hidden;min-height:420px;justify-content:center}
-.game-card.game-active{justify-content:flex-start}
+.game-card{background:linear-gradient(135deg,rgba(99,102,241,.06),rgba(236,72,153,.05));border:1px solid rgba(99,102,241,.18);border-radius:16px;padding:18px 22px 20px;margin-bottom:18px;display:flex;flex-direction:column;gap:12px;position:relative;overflow:hidden}
+.game-card.game-idle .game-grid{opacity:.55;filter:saturate(.6);pointer-events:none}
+.game-card.game-idle .game-status-line{opacity:.6}
+.game-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(255,251,247,.85) 0%,rgba(254,243,231,.78) 100%);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);z-index:5;border-radius:16px;animation:overlayFade .25s ease-out}
+@keyframes overlayFade{from{opacity:0}to{opacity:1}}
+.game-overlay-inner{display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;padding:18px 24px;max-width:80%}
+.game-overlay .game-prompt{font-size:14px;color:#475569;line-height:1.5;font-weight:500}
+.game-overlay .game-btn{padding:12px 26px;font-size:14px;letter-spacing:.2px}
+body[data-theme=aurora] .game-overlay{background:linear-gradient(135deg,rgba(20,20,40,.85),rgba(20,20,40,.78))}
+body[data-theme=aurora] .game-overlay .game-prompt{color:#9999B5}
 .game-card::before{content:'';position:absolute;top:-30px;right:-30px;width:140px;height:140px;background:radial-gradient(circle,rgba(99,102,241,.18),transparent 65%);pointer-events:none}
 .game-hd{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .game-ttl{font-family:'Instrument Serif',Georgia,serif;font-size:20px;color:#0F172A;display:flex;align-items:center;gap:8px;letter-spacing:-.01em}
@@ -628,7 +636,7 @@ body[data-theme=aurora] .hdr-time-date{color:#9999B5}
 .status-you{color:#E8453C}
 .status-bot{color:#3B82F6}
 .game-best b{color:#0F172A;font-family:'Space Mono',monospace;font-weight:700;margin:0 1px;font-size:13px}
-.ttt-grid{max-width:280px}
+.ttt-grid{max-width:320px}
 .game-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12.5px;font-weight:700;margin-top:2px}
 .game-hint{color:#94A3B8;font-weight:600;letter-spacing:.4px}
 .game-score{font-family:'Instrument Serif',Georgia,serif;font-size:20px;color:#6366F1;font-weight:400}
@@ -2327,26 +2335,26 @@ h+='<div class="section-div" aria-hidden="true"></div>';
 // TASKS TAB
 if(S.tab==='dash')S.tab='tasks'; // Stats tab removed; redirect any stale state to Tasks
 if(S.tab==='tasks'){
-  // Tic Tac Toe vs a simple bot
+  // Tic Tac Toe vs a simple bot — grid always rendered at full size; Start overlays it when idle so the layout never shifts
   {
     const g=S.game;
-    h+='<div class="game-card'+(g.active?' game-active':'')+'"><div class="game-hd"><div class="game-ttl"><span class="game-emoji">\\u{1F3AF}</span> Tic Tac Toe</div><div class="game-best">W <b>'+g.wins+'</b> \\u2022 L <b>'+g.losses+'</b> \\u2022 D <b>'+g.draws+'</b></div></div>';
+    h+='<div class="game-card'+(g.active?' game-active':' game-idle')+'">';
+    h+='<div class="game-hd"><div class="game-ttl"><span class="game-emoji">\\u{1F3AF}</span> Tic Tac Toe</div><div class="game-best">W <b>'+g.wins+'</b> \\u2022 L <b>'+g.losses+'</b> \\u2022 D <b>'+g.draws+'</b></div></div>';
+    const status=!g.active?'Tap Start to play (you are X)':(g.turn==='X'?'Your turn (X)':'Bot thinking\\u2026');
+    h+='<div class="game-status-line"><span class="game-status'+(g.active?(g.turn==='X'?' status-you':' status-bot'):'')+'">'+status+'</span></div>';
+    h+='<div class="game-grid ttt-grid">';
+    for(let i=0;i<9;i++){
+      const v=g.board[i];const won=g.winLine&&g.winLine.includes(i);
+      h+='<button class="game-cell ttt-cell'+(v?' ttt-'+v.toLowerCase():'')+(won?' ttt-win':'')+(v?' ttt-filled':'')+'" onclick="gameTap('+i+')" aria-label="cell"'+(g.active?'':' tabindex="-1"')+'>'+(v||'')+'</button>';
+    }
+    h+='</div>';
+    h+='<div class="game-foot"><div class="game-hint">'+(g.active?'tap any empty square':'click anywhere on the board to begin')+'</div>'+(g.active?'<button class="game-stop" onclick="gameEnd()">Stop</button>':'')+'</div>';
     if(!g.active){
-      let prompt='You play X, the bot plays O. Want a quick game?';
-      if(g.status==='won')prompt='\\u{1F3C6} You won! Want another round?';
-      else if(g.status==='lost')prompt='Bot got that one. Try again?';
-      else if(g.status==='draw')prompt='Draw \\u2014 nobody wins. One more?';
-      h+='<div class="game-cta"><div class="game-prompt">'+prompt+'</div><button class="game-btn" onclick="gameStart()">'+(g.status==='idle'?'Start game':'Play again')+'</button></div>';
-    }else{
-      const status=g.turn==='X'?'Your turn (X)':'Bot thinking\\u2026';
-      h+='<div class="game-status-line"><span class="game-status'+(g.turn==='X'?' status-you':' status-bot')+'">'+status+'</span></div>';
-      h+='<div class="game-grid ttt-grid">';
-      for(let i=0;i<9;i++){
-        const v=g.board[i];const won=g.winLine&&g.winLine.includes(i);
-        h+='<button class="game-cell ttt-cell'+(v?' ttt-'+v.toLowerCase():'')+(won?' ttt-win':'')+(v?' ttt-filled':'')+'" onclick="gameTap('+i+')" aria-label="cell">'+(v||'')+'</button>';
-      }
-      h+='</div>';
-      h+='<div class="game-foot"><div class="game-hint">tap any empty square</div><button class="game-stop" onclick="gameEnd()">Stop</button></div>';
+      let prompt='You play X, the bot plays O.';
+      if(g.status==='won')prompt='\\u{1F3C6} You won the last round!';
+      else if(g.status==='lost')prompt='Bot got that one \\u2014 redemption time?';
+      else if(g.status==='draw')prompt='Last round was a draw. One more?';
+      h+='<div class="game-overlay"><div class="game-overlay-inner"><div class="game-prompt">'+prompt+'</div><button class="game-btn" onclick="gameStart()">'+(g.status==='idle'?'\\u25B6 Start game':'\\u21BB Play again')+'</button></div></div>';
     }
     h+='</div>';
   }
