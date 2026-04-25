@@ -612,13 +612,15 @@ body[data-theme=aurora] .hdr-time-date{color:#9999B5}
 .game-btn:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(99,102,241,.4)}
 .game-btn:active{transform:scale(.96)}
 .game-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:260px;margin:0 auto}
-.game-cell{aspect-ratio:1;border-radius:14px;background:rgba(255,255,255,.7);border:2px solid rgba(99,102,241,.12);cursor:pointer;transition:all .18s cubic-bezier(.4,1.5,.5,1);position:relative;font-family:'Instrument Serif',Georgia,serif;font-size:42px;font-weight:400;color:#0F172A;line-height:1;display:flex;align-items:center;justify-content:center;padding:0}
-.game-cell:hover:not(.ttt-filled){border-color:rgba(99,102,241,.5);transform:translateY(-2px);background:#fff}
-.game-cell.ttt-x{color:#E8453C;border-color:rgba(232,69,60,.35);background:linear-gradient(135deg,#fff,#FFF1F0)}
-.game-cell.ttt-o{color:#3B82F6;border-color:rgba(59,130,246,.35);background:linear-gradient(135deg,#fff,#EFF6FF)}
-.game-cell.ttt-filled{cursor:default;animation:tttPop .3s cubic-bezier(.4,1.5,.5,1)}
-@keyframes tttPop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
-.game-cell.ttt-win{animation:tttWinPulse 1s ease-in-out infinite;border-width:3px;box-shadow:0 0 0 0 currentColor,0 6px 18px rgba(0,0,0,.12)}
+.game-cell{aspect-ratio:1;border-radius:14px;background:rgba(255,255,255,.85);border:2px solid rgba(99,102,241,.14);cursor:pointer;transition:border-color .15s ease,background .15s ease,transform .12s ease;position:relative;font-family:'Instrument Serif',Georgia,serif;font-size:42px;font-weight:400;color:#0F172A;line-height:1;display:flex;align-items:center;justify-content:center;padding:0}
+.game-cell:focus{outline:none}
+.game-cell:focus-visible{outline:2px solid rgba(99,102,241,.4);outline-offset:2px}
+.game-cell:hover:not(.ttt-filled){border-color:rgba(99,102,241,.5);background:#fff}
+.game-cell:active:not(.ttt-filled){transform:scale(.96)}
+.game-cell.ttt-x{color:#E8453C;border-color:rgba(232,69,60,.4);background:linear-gradient(135deg,#fff,#FFE4E1);cursor:default}
+.game-cell.ttt-o{color:#3B82F6;border-color:rgba(59,130,246,.4);background:linear-gradient(135deg,#fff,#EFF6FF);cursor:default}
+.game-cell.ttt-filled{cursor:default}
+.game-cell.ttt-win{animation:tttWinPulse 1s ease-in-out infinite;border-width:3px}
 @keyframes tttWinPulse{0%,100%{box-shadow:0 0 0 0 rgba(232,145,44,.45),0 6px 18px rgba(15,23,42,.12);transform:scale(1)}50%{box-shadow:0 0 0 8px rgba(232,145,44,0),0 8px 22px rgba(15,23,42,.18);transform:scale(1.05)}}
 .game-status-line{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px;font-size:13px}
 .game-status{font-weight:700;letter-spacing:-.01em;transition:color .2s ease}
@@ -644,8 +646,8 @@ body[data-theme=aurora] .game-stop{background:rgba(255,255,255,.05);color:#9999B
 @media (max-width:600px){.game-grid{max-width:220px;gap:6px}.game-ttl{font-size:18px}.game-prompt{font-size:12px;min-width:0}.game-btn{padding:9px 16px;font-size:12.5px}}
 /* Top strip + climb + side-now base styles (work on all viewports) */
 .top-strip{display:flex;flex-direction:column;align-items:stretch;background:linear-gradient(135deg,rgba(99,102,241,.06) 0%,rgba(232,145,44,.06) 100%);border:1px solid rgba(99,102,241,.18);border-radius:14px;min-height:auto;position:relative;overflow:hidden;margin-bottom:0;box-shadow:0 4px 16px rgba(15,23,42,.04)}
-.top-strip .climb-scene,.top-strip .bro-mascot{position:relative;flex:0 0 auto;border-radius:0;background:transparent;border:none;min-height:90px;overflow:hidden;padding:6px 10px;display:flex;align-items:center;justify-content:center}
-.top-strip .bro-svg{width:100%;height:auto;max-height:84px}
+.top-strip .climb-scene,.top-strip .bro-mascot{position:relative;flex:0 0 auto;border-radius:0;background:transparent;border:none;min-height:56px;overflow:hidden;padding:6px 12px;display:flex;align-items:center;justify-content:center}
+.top-strip .bro-svg{width:100%;height:auto;max-height:54px}
 .bro-mascot .bro-figure{transform-origin:48px 110px;animation:broNod 2.4s ease-in-out infinite}
 @keyframes broNod{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-3px) rotate(1.5deg)}}
 .bro-mascot .bro-arm-r{transform-origin:48px 72px;animation:broWave 1.4s ease-in-out infinite}
@@ -661,14 +663,14 @@ body[data-theme=aurora] .bro-mascot .bro-bubble text:first-of-type{fill:#F5F5FA}
 body[data-theme=aurora] .bro-mascot .bro-bubble text:last-of-type{fill:#A78BFA}
 body[data-theme=aurora] .bro-mascot .bro-figure circle:first-child{fill:#A78BFA}
 body[data-theme=aurora] .bro-mascot .bro-figure line{stroke:#A78BFA}
-.top-strip .side-now{flex:0 0 auto;background:linear-gradient(135deg,rgba(99,102,241,.04),rgba(232,145,44,.04));border-top:1px dashed rgba(99,102,241,.25);border-left:none;padding:14px 18px;display:flex;flex-direction:column;justify-content:center;gap:4px;position:relative;overflow:hidden;margin-top:0}
-.top-strip .side-now-lbl{font-size:10px;font-weight:800;color:#6366F1;letter-spacing:1.4px;text-transform:uppercase}
-.top-strip .side-now-time{font-family:'Instrument Serif',Georgia,serif;font-size:30px;font-weight:400;color:#0F172A;line-height:1;letter-spacing:-.03em;margin-top:0}
-.top-strip .side-now-time .sec{color:#E8453C;animation:secBlink 1s steps(2) infinite;font-size:18px;margin-left:2px;display:inline-block;vertical-align:top;margin-top:6px}
+.top-strip .side-now{flex:0 0 auto;background:linear-gradient(135deg,rgba(99,102,241,.04),rgba(232,145,44,.04));border-top:1px dashed rgba(99,102,241,.25);border-left:none;padding:8px 14px 10px;display:flex;flex-direction:column;justify-content:center;gap:2px;position:relative;overflow:hidden;margin-top:0}
+.top-strip .side-now-lbl{font-size:9px;font-weight:800;color:#6366F1;letter-spacing:1.2px;text-transform:uppercase}
+.top-strip .side-now-time{font-family:'Instrument Serif',Georgia,serif;font-size:22px;font-weight:400;color:#0F172A;line-height:1;letter-spacing:-.03em;margin-top:0}
+.top-strip .side-now-time .sec{color:#E8453C;animation:secBlink 1s steps(2) infinite;font-size:13px;margin-left:2px;display:inline-block;vertical-align:top;margin-top:4px}
 .top-strip .side-now-date{font-size:12px;color:#64748B;font-weight:600}
-.top-strip .side-now-stat{font-size:13px;color:#475569;font-weight:600;margin-top:6px;display:flex;align-items:center;gap:6px}
-.top-strip .side-now-stat b{font-family:'Instrument Serif',Georgia,serif;font-size:22px;font-weight:400;color:#E8453C;letter-spacing:-.02em;line-height:1}
-.top-strip .side-now-bar{height:8px;border-radius:99px;background:rgba(99,102,241,.14);overflow:hidden;margin-top:10px;position:relative}
+.top-strip .side-now-stat{font-size:11px;color:#475569;font-weight:600;margin-top:4px;display:flex;align-items:center;gap:5px}
+.top-strip .side-now-stat b{font-family:'Instrument Serif',Georgia,serif;font-size:15px;font-weight:400;color:#E8453C;letter-spacing:-.02em;line-height:1}
+.top-strip .side-now-bar{height:5px;border-radius:99px;background:rgba(99,102,241,.14);overflow:hidden;margin-top:6px;position:relative}
 .top-strip .side-now-fill{height:100%;background:linear-gradient(90deg,#6366F1,#8B5CF6,#EC4899,#E8912C);background-size:200% 100%;border-radius:99px;position:relative;overflow:hidden;animation:gradientShift 4s ease-in-out infinite}
 @keyframes gradientShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
 .top-strip .side-now-fill::after{content:'';position:absolute;top:0;left:-30%;width:30%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);animation:fillShine 2.6s ease-in-out infinite}
@@ -677,7 +679,7 @@ body[data-theme=aurora] .bro-mascot .bro-figure line{stroke:#A78BFA}
 @keyframes cometRun{from{left:0%}to{left:100%}}
 body[data-theme=aurora] .top-strip .side-now-stat{color:#9999B5}
 body[data-theme=aurora] .top-strip .side-now-stat b{color:#F472B6}
-.top-strip .side-now-foot{font-size:10px;color:#94A3B8;font-weight:700;letter-spacing:.6px;display:flex;justify-content:space-between;margin-top:2px}
+.top-strip .side-now-foot{font-size:9px;color:#94A3B8;font-weight:700;letter-spacing:.5px;display:flex;justify-content:space-between;margin-top:2px}
 .top-strip .side-now-wave{position:absolute;bottom:0;left:0;right:0;height:30px;opacity:.15;pointer-events:none}
 @media (max-width:900px){.top-strip{flex-direction:column;min-height:auto}.top-strip .bro-mascot{min-height:120px;padding:4px 8px}.top-strip .side-now{flex:0 0 auto;border-left:none;border-top:1px dashed rgba(99,102,241,.25)}.top-strip .side-now-time{font-size:30px}.top-strip .side-now-time .sec{font-size:18px}}
 @media (max-width:600px){
@@ -728,19 +730,19 @@ body[data-theme=aurora] .section-div::before{background:#1A1A2E;border-color:rgb
 .tab-hero-particles span:nth-child(8){left:92%;width:4px;height:4px;animation-duration:8s;animation-delay:2s}
 @keyframes rise{0%{transform:translateY(0);opacity:0}10%{opacity:.95}80%{opacity:.55}100%{transform:translateY(-260px) translateX(var(--drift,8px));opacity:0}}
 @media (prefers-reduced-motion:reduce){.hdr-orbit *,.tab-hero-particles *,.section-div::before,.moral-comet{animation:none!important}}
-.moral{display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#FFFBF1 0%,#FEF3E0 50%,#EAF6EE 100%);border:1px solid #F3D9A0;border-radius:14px;padding:14px 18px;margin-bottom:0;position:relative;overflow:hidden;min-height:auto;box-shadow:0 4px 16px rgba(232,145,44,.08)}
+.moral{display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#FFFBF1 0%,#FEF3E0 50%,#EAF6EE 100%);border:1px solid #F3D9A0;border-radius:12px;padding:10px 14px;margin-bottom:0;position:relative;overflow:hidden;min-height:auto;box-shadow:0 2px 10px rgba(232,145,44,.06)}
 .moral::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:linear-gradient(180deg,#E8912C,#3DAE5C);z-index:2}
 .moral-doodle{position:absolute;top:0;right:0;bottom:0;width:62%;max-width:640px;height:100%;pointer-events:none;z-index:0;opacity:1;filter:drop-shadow(0 1px 2px rgba(15,23,42,.05))}
 .moral::after{content:'';position:absolute;top:0;left:0;bottom:0;width:38%;background:linear-gradient(90deg,rgba(255,251,241,.96) 0%,rgba(254,243,224,.65) 75%,rgba(254,243,224,0) 100%);pointer-events:none;z-index:0}
 @media (max-width:700px){.moral-doodle{width:36%;opacity:.8}.moral::after{width:64%}.moral{min-height:auto;padding:18px 18px 16px}.moral-txt{font-size:14.5px;line-height:1.4}.moral-by{font-size:12px}.moral-emoji{font-size:22px}}
 @media (max-width:480px){.moral-doodle{display:none}.moral::after{display:none}.moral-txt{font-size:14px}}
 body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,20,40,.9) 0%,rgba(20,20,40,.65) 70%,rgba(20,20,40,0) 100%)}
-.moral-emoji{font-size:26px;flex-shrink:0;filter:drop-shadow(0 2px 4px rgba(232,145,44,.3));position:relative;z-index:1}
+.moral-emoji{font-size:20px;flex-shrink:0;filter:drop-shadow(0 2px 4px rgba(232,145,44,.3));position:relative;z-index:1}
 .moral-body{flex:1;min-width:0;position:relative;z-index:1}
-.moral-lbl{font-size:10px;font-weight:700;color:#B57B00;text-transform:uppercase;letter-spacing:1.2px}
-.moral-txt{font-size:15px;line-height:1.4;color:#0F172A;font-weight:600;margin-top:3px;letter-spacing:-.1px}
-.moral-by{font-size:12px;color:#94A3B8;margin-top:4px;font-style:italic;font-weight:500}
-.moral-ref{width:34px;height:34px;border-radius:50%;background:#FFFFFF;color:#B57B00;font-size:15px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border:1.5px solid #F3D9A0;transition:all .3s cubic-bezier(.4,1.5,.5,1);position:relative;z-index:1}
+.moral-lbl{font-size:9px;font-weight:700;color:#B57B00;text-transform:uppercase;letter-spacing:1.1px}
+.moral-txt{font-size:13px;line-height:1.35;color:#0F172A;font-weight:600;margin-top:2px;letter-spacing:-.1px}
+.moral-by{font-size:11px;color:#94A3B8;margin-top:2px;font-style:italic;font-weight:500}
+.moral-ref{width:26px;height:26px;border-radius:50%;background:#FFFFFF;color:#B57B00;font-size:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border:1.5px solid #F3D9A0;transition:all .3s cubic-bezier(.4,1.5,.5,1);position:relative;z-index:1}
 .moral-ref:hover{background:#B57B00;color:#fff;transform:rotate(180deg) scale(1.1)}
 .moral-ref:hover{transform:rotate(180deg);background:#0F172A;color:#F8FAFC}
 @keyframes slideIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
