@@ -795,10 +795,8 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
   .app>.tabs.page-t .tab.tab-books{--tab-tint:linear-gradient(135deg,rgba(5,150,105,.55),rgba(15,23,42,.45))}
   .app>.tabs.page-t .tab.tab-meditation .ti{background-image:url("https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=200&q=70&auto=format&fit=crop")}
   .app>.tabs.page-t .tab.tab-meditation{--tab-tint:linear-gradient(135deg,rgba(124,58,237,.55),rgba(15,23,42,.45))}
-  .app>.tabs.page-t .tab.tab-history .ti{background-image:url("https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=200&q=70&auto=format&fit=crop")}
-  .app>.tabs.page-t .tab.tab-history{--tab-tint:linear-gradient(135deg,rgba(180,83,9,.55),rgba(15,23,42,.45))}
-  .app>.tabs.page-t .tab.tab-geography .ti{background-image:url("https://images.unsplash.com/photo-1446776877081-d282a0f896e2?w=200&q=70&auto=format&fit=crop")}
-  .app>.tabs.page-t .tab.tab-geography{--tab-tint:linear-gradient(135deg,rgba(8,145,178,.55),rgba(15,23,42,.45))}
+  .app>.tabs.page-t .tab.tab-knowledge .ti{background-image:url("https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=200&q=70&auto=format&fit=crop")}
+  .app>.tabs.page-t .tab.tab-knowledge{--tab-tint:linear-gradient(135deg,rgba(180,83,9,.55),rgba(15,23,42,.45))}
   .app>.tabs.page-t .tab:hover:not(.on) .ti{transform:scale(1.06);box-shadow:0 8px 22px rgba(15,23,42,.24)}
   .app>.tabs.page-t .tab.on .ti{box-shadow:0 8px 24px rgba(15,23,42,.32),0 0 0 3px var(--ring,rgba(255,255,255,.7))}
   .app>.tabs.page-t .tab.on .ti::after{opacity:.45}
@@ -808,8 +806,7 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
   .app>.tabs.page-t .tab.tab-news.on{--ring:rgba(13,148,136,.85)}
   .app>.tabs.page-t .tab.tab-books.on{--ring:rgba(5,150,105,.85)}
   .app>.tabs.page-t .tab.tab-meditation.on{--ring:rgba(139,92,246,.85)}
-  .app>.tabs.page-t .tab.tab-history.on{--ring:rgba(180,83,9,.85)}
-  .app>.tabs.page-t .tab.tab-geography.on{--ring:rgba(8,145,178,.85)}
+  .app>.tabs.page-t .tab.tab-knowledge.on{--ring:rgba(180,83,9,.85)}
   /* Active tab tile pulses softly */
   .app>.tabs.page-t .tab.on .ti{animation:tilePulse 2.4s ease-in-out infinite}
   @keyframes tilePulse{0%,100%{box-shadow:0 8px 24px rgba(15,23,42,.32),0 0 0 3px var(--ring,rgba(255,255,255,.7))}50%{box-shadow:0 12px 30px rgba(15,23,42,.36),0 0 0 6px var(--ring,rgba(255,255,255,.4))}}
@@ -1755,7 +1752,14 @@ body[data-theme=aurora] .ipl-ttl-bar{background:rgba(255,255,255,.08)}
 @media (max-width:600px){.ipl-ttl-row{grid-template-columns:120px 1fr 30px;gap:10px}.ipl-ttl-name{font-size:12px}.ipl-ttl-n{font-size:18px}}
 
 /* Magazine layout — shared by History & Geography */
-.mag-pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;padding:4px 0}
+.mag-pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;padding:4px 0}
+.know-topics{margin-bottom:8px}
+.know-topic{font-size:14px;padding:11px 18px}
+.know-topic.on{background:linear-gradient(135deg,#B45309,#7C2D12);box-shadow:0 6px 18px rgba(180,83,9,.3)}
+.know-subs{padding-bottom:14px;border-bottom:1px dashed rgba(99,102,241,.18);margin-bottom:18px}
+.mag-pill-sub{font-size:12px;padding:7px 12px;font-weight:600}
+.mag-pill-sub.on{background:linear-gradient(135deg,#6366F1,#8B5CF6);box-shadow:0 4px 12px rgba(99,102,241,.25)}
+body[data-theme=aurora] .know-subs{border-bottom-color:rgba(167,139,250,.2)}
 .mag-pill{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:700;padding:9px 14px;border-radius:99px;background:#fff;border:1.5px solid #E8E9EF;color:#475569;cursor:pointer;transition:all .2s ease}
 .mag-pill:hover{border-color:#6366F1;color:#0F172A;transform:translateY(-1px)}
 .mag-pill.on{background:linear-gradient(135deg,#6366F1,#EC4899);color:#fff;border-color:transparent;box-shadow:0 6px 18px rgba(99,102,241,.3)}
@@ -1857,7 +1861,7 @@ body[data-theme=aurora] .hist-link a:hover{color:#C4B5FD}
 const MORALS=[{t:"The secret of getting ahead is getting started.",a:"Mark Twain"},{t:"It does not matter how slowly you go as long as you do not stop.",a:"Confucius"},{t:"Small daily improvements are the key to staggering long-term results.",a:"Robin Sharma"},{t:"Discipline is choosing between what you want now and what you want most.",a:"Abraham Lincoln"},{t:"Don't count the days. Make the days count.",a:"Muhammad Ali"},{t:"The best way to predict the future is to create it.",a:"Peter Drucker"},{t:"Focus on being productive instead of busy.",a:"Tim Ferriss"},{t:"You don't have to be great to start, but you have to start to be great.",a:"Zig Ziglar"},{t:"The journey of a thousand miles begins with a single step.",a:"Lao Tzu"},{t:"Either you run the day or the day runs you.",a:"Jim Rohn"},{t:"A year from now you may wish you had started today.",a:"Karen Lamb"},{t:"Success is the sum of small efforts repeated day in and day out.",a:"Robert Collier"},{t:"Done is better than perfect.",a:"Sheryl Sandberg"},{t:"The way to get started is to quit talking and begin doing.",a:"Walt Disney"},{t:"You cannot escape the responsibility of tomorrow by evading it today.",a:"Abraham Lincoln"},{t:"Motivation gets you going, but discipline keeps you growing.",a:"John C. Maxwell"},{t:"Do something today that your future self will thank you for.",a:"Sean Patrick Flanery"},{t:"The harder I work, the luckier I get.",a:"Samuel Goldwyn"},{t:"Don't watch the clock; do what it does. Keep going.",a:"Sam Levenson"},{t:"Great things never come from comfort zones.",a:"Neil Strauss"},{t:"Sometimes later becomes never. Do it now.",a:"Anonymous"},{t:"Wake up with determination. Go to bed with satisfaction.",a:"Anonymous"},{t:"A goal without a plan is just a wish.",a:"Antoine de Saint-Exupéry"},{t:"Little by little, day by day, what is meant for you will find its way.",a:"Anonymous"},{t:"Success doesn't just find you — you have to go out and get it.",a:"Anonymous"},{t:"Push yourself, because no one else is going to do it for you.",a:"Anonymous"},{t:"Dream big. Start small. Act now.",a:"Robin Sharma"},{t:"Hard work beats talent when talent doesn't work hard.",a:"Tim Notke"},{t:"The only impossible journey is the one you never begin.",a:"Tony Robbins"},{t:"Opportunities don't happen. You create them.",a:"Chris Grosser"}];
 let S={tasks:[],view:'all',search:'',tab:'tasks',showAdd:false,editing:null,listening:false,toast:null,toastType:'ok',waOk:false,sending:{},user:null,
 books:[],booksLoading:false,booksCat:'all',bookSearch:'',playing:null,moralIdx:Math.floor(Math.random()*MORALS.length),
-history:{loading:false,loaded:{},events:[],articles:{}},historySec:'today',geography:{loading:false,loaded:{},articles:{}},geoSec:'earth',
+knowledge:{loading:false,loaded:{},articles:{},events:[],topic:'history',sec:'today'},
 game:{active:false,board:Array(9).fill(null),turn:'X',status:'idle',winLine:null,wins:Number(localStorage.getItem('tf_ttt_wins')||0),losses:Number(localStorage.getItem('tf_ttt_losses')||0),draws:Number(localStorage.getItem('tf_ttt_draws')||0)},
 waConnected:localStorage.getItem('wa_connected')==='1',showWAOnboard:false,activeMeditation:null,
 google:{configured:false,accounts:[],loaded:false},gcalEvents:[],gcalLoading:false,showGcalAdd:false,gcalForm:{title:'',date:'',time:'',duration:30,notes:'',email:''},
@@ -1883,8 +1887,7 @@ cal:'<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://w
 news:'<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="5" width="22" height="22" rx="2.5" fill="currentColor" opacity="0.18"/><rect x="25" y="10" width="4" height="17" rx="1.5" fill="currentColor" opacity="0.4"/><rect x="6" y="9" width="9" height="6" rx="1" fill="currentColor" opacity="0.55"/><line x1="17" y1="10" x2="22" y2="10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="17" y1="13.5" x2="22" y2="13.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="6" y1="19" x2="22" y2="19" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="6" y1="22.5" x2="20" y2="22.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity="0.7"/></svg>',
 books:'<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 8 C 16 8 11 5 4 6 L 4 25 C 11 24 16 27 16 27 L 16 8 Z" fill="currentColor" opacity="0.55"/><path d="M16 8 C 16 8 21 5 28 6 L 28 25 C 21 24 16 27 16 27 L 16 8 Z" fill="currentColor" opacity="0.85"/><line x1="8" y1="11" x2="13" y2="11.6" stroke="#fff" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/><line x1="8" y1="15" x2="13" y2="15.6" stroke="#fff" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/><line x1="19" y1="11.6" x2="24" y2="11" stroke="#fff" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/><line x1="19" y1="15.6" x2="24" y2="15" stroke="#fff" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/></svg>',
 meditation:'<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="13" fill="currentColor" opacity="0.14"/><circle cx="16" cy="16" r="9" fill="currentColor" opacity="0.18"/><circle cx="16" cy="9.5" r="3" fill="currentColor"/><path d="M9 22 C 11 17 14 16 16 16 C 18 16 21 17 23 22 C 22 23.5 18.5 24 16 24 C 13.5 24 10 23.5 9 22 Z" fill="currentColor"/><path d="M5 19 C 8 22 11 22 12 21" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.75"/><path d="M27 19 C 24 22 21 22 20 21" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.75"/></svg>',
-history:'<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="12" fill="currentColor" opacity="0.18"/><circle cx="16" cy="16" r="9" fill="none" stroke="currentColor" stroke-width="1.6" opacity="0.7"/><line x1="16" y1="16" x2="16" y2="9.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="16" y1="16" x2="20.5" y2="18.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="16" cy="16" r="1.6" fill="currentColor"/><path d="M16 4 A12 12 0 0 0 4 16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" fill="none" opacity="0.85"/><polyline points="4 12 4 16 8 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>',
-geography:'<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="12" fill="currentColor" opacity="0.2"/><circle cx="16" cy="16" r="12" fill="none" stroke="currentColor" stroke-width="1.6" opacity="0.85"/><path d="M4 16 H 28" stroke="currentColor" stroke-width="1.4" opacity="0.55"/><path d="M16 4 A 9 12 0 0 1 16 28 A 9 12 0 0 1 16 4 Z" fill="none" stroke="currentColor" stroke-width="1.4" opacity="0.55"/><path d="M16 4 A 14 12 0 0 1 16 28" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.4"/><path d="M16 4 A 14 12 0 0 0 16 28" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.4"/></svg>'
+knowledge:'<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 7 a2 2 0 0 1 2 -2 h18 a2 2 0 0 1 2 2 v18 a2 2 0 0 1 -2 2 h-18 a2 2 0 0 1 -2 -2 z" fill="currentColor" opacity="0.2"/><path d="M5 25 a2 2 0 0 0 2 2 h18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M9 9 v14 M22 9 v14 M9 12 H 22 M9 18 H 18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity="0.85"/><circle cx="13" cy="13" r="1" fill="currentColor"/><circle cx="13" cy="20" r="1" fill="currentColor"/></svg>'
 };
 // "Rise Together" doodle — 4 animated figures climbing the same curve, holding hands; full SMIL animation
 const MORAL_DOODLE='<svg class="moral-doodle" viewBox="0 0 520 200" preserveAspectRatio="xMaxYMid meet" xmlns="http://www.w3.org/2000/svg">'
@@ -1965,8 +1968,7 @@ const TAB_HERO={
   news:{img:'1495020689067-958852a7765e',h:'What\\u2019s new today',s:'Curated stories from across the web'},
   books:{img:'1507842217343-583bb7270b66',h:'Read &amp; grow',s:'Free public-domain audio \\u2022 a few minutes a day'},
   meditation:{img:'1518609878373-06d740f60d8b',h:'Pause and breathe',s:'Guided sessions for a calm mind'},
-  history:{img:'1481627834876-b7833e8f5570',h:'A library of yesterdays',s:'Civilisations, science, art \\u2022 stories that built our world'},
-  geography:{img:'1446776877081-d282a0f896e2',h:'Earth, oceans, the cosmos',s:'Read about the world we live in \\u2022 from atoms to galaxies'}
+  knowledge:{img:'1481627834876-b7833e8f5570',h:'The Knowledge desk',s:'History \\u2022 Geography \\u2022 Space \\u2022 Karma & Dharma'}
 };
 function ic(n,sz){sz=sz||20;const s='width="'+sz+'" height="'+sz+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"';const m={
 tasks:'<svg '+s+'><path d="M9 11l2 2 4-4"/><path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c1.66 0 3.22.45 4.56 1.23"/></svg>',
@@ -1990,8 +1992,7 @@ moon:'<svg '+s+'><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill=
 sun:'<svg '+s+'><circle cx="12" cy="12" r="4" fill="currentColor"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.07" y2="4.93"/></svg>',
 refresh:'<svg '+s+'><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/><path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14"/></svg>',
 plus:'<svg '+s+'><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
-history:'<svg '+s+'><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 16 14"/><path d="M3 12 a9 9 0 0 1 9 -9"/></svg>',
-geography:'<svg '+s+'><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><path d="M12 3 a14 9 0 0 1 0 18"/><path d="M12 3 a14 9 0 0 0 0 18"/></svg>'};return m[n]||''}
+knowledge:'<svg '+s+'><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20v2H6.5A2.5 2.5 0 0 1 4 19.5z"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>'};return m[n]||''}
 const ST={pending:{l:'To Do',c:'#94A3B8',bg:'#F1F5F9'},'in-progress':{l:'Doing',c:'#3B82F6',bg:'#EFF6FF'},done:{l:'Done',c:'#3DAE5C',bg:'#F2FBF4'}};
 const fD=d=>d?new Date(d+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
 const fT=t=>{if(!t)return'';const[h,m]=t.split(':');const hr=+h;return(hr>12?hr-12:hr||12)+':'+m+' '+(hr>=12?'PM':'AM')};
@@ -2041,26 +2042,41 @@ function opE(id){const t=S.tasks.find(x=>x.id===id);if(!t)return;S.form={title:t
 function clM(){S.showAdd=false;S.editing=null;if(rec)try{rec.stop()}catch(e){}S.listening=false;render()}
 function stV(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){toast('\\u26A0\\uFE0F Voice not supported','err');return}rec=new SR();rec.continuous=false;rec.interimResults=true;rec.lang='en-US';rec.onresult=e=>{let t='';for(let i=0;i<e.results.length;i++)t+=e.results[i][0].transcript;if(e.results[0].isFinal){S.form.title=t;const l=t.toLowerCase();if(/urgent|important|asap/.test(l)){S.form.priority='high';S.form.title=S.form.title.replace(/urgent|important|asap/gi,'').trim()}if(/\\btoday\\b/.test(l))S.form.dueDate=new Date().toISOString().split('T')[0];else if(/\\btomorrow\\b/.test(l)){const d=new Date();d.setDate(d.getDate()+1);S.form.dueDate=d.toISOString().split('T')[0]}}else S.form.title=t;render()};rec.onend=()=>{S.listening=false;render()};rec.onerror=e=>{S.listening=false;toast('\\u26A0\\uFE0F '+e.error,'err');render()};rec.start();S.listening=true;render()}
 
-// History magazine sections — each is a curated list of Wikipedia article slugs
-const HISTORY_SECTIONS=[
-  {k:'today',l:'On This Day',e:'\\u{1F4C5}'},
-  {k:'ancient',l:'Ancient World',e:'\\u{1F3DB}\\uFE0F',titles:['Ancient_Egypt','Ancient_Rome','Ancient_Greece','Indus_Valley_Civilisation','Mesopotamia','Maya_civilization','Ancient_China','Persian_Empire']},
-  {k:'science',l:'Science & Discovery',e:'\\u{1F52C}',titles:['Isaac_Newton','Albert_Einstein','Marie_Curie','Charles_Darwin','Nikola_Tesla','Galileo_Galilei','Ada_Lovelace','Alan_Turing']},
-  {k:'empires',l:'Empires & Wars',e:'\\u{2694}\\uFE0F',titles:['Roman_Empire','Mongol_Empire','British_Empire','Ottoman_Empire','Mughal_Empire','Byzantine_Empire','World_War_II','World_War_I']},
-  {k:'art',l:'Art & Culture',e:'\\u{1F3A8}',titles:['Leonardo_da_Vinci','Renaissance','Michelangelo','William_Shakespeare','Wolfgang_Amadeus_Mozart','Vincent_van_Gogh','Pablo_Picasso','Frida_Kahlo']},
-  {k:'innov',l:'Innovations',e:'\\u{1F4A1}',titles:['Printing_press','Industrial_Revolution','History_of_the_Internet','Telephone','Electricity','Steam_engine','Wright_brothers','Penicillin']}
+// Knowledge magazine — four major topics, each with 4-5 sub-sections of curated Wikipedia article slugs
+// Total: 130+ articles across History (40 + today), Geography (32), Space (28), Karma (24)
+const KNOWLEDGE_TOPICS=[
+  {k:'history',l:'History',e:'\\u{1F3DB}\\uFE0F',sections:[
+    {k:'today',l:'On This Day',e:'\\u{1F4C5}'},
+    {k:'ancient',l:'Ancient World',e:'\\u{1F3DB}\\uFE0F',titles:['Ancient_Egypt','Ancient_Rome','Ancient_Greece','Indus_Valley_Civilisation','Mesopotamia','Maya_civilization','Ancient_China','Persian_Empire']},
+    {k:'science',l:'Science',e:'\\u{1F52C}',titles:['Isaac_Newton','Albert_Einstein','Marie_Curie','Charles_Darwin','Nikola_Tesla','Galileo_Galilei','Ada_Lovelace','Alan_Turing']},
+    {k:'empires',l:'Empires & Wars',e:'\\u{2694}\\uFE0F',titles:['Roman_Empire','Mongol_Empire','British_Empire','Ottoman_Empire','Mughal_Empire','Byzantine_Empire','World_War_II','World_War_I']},
+    {k:'art',l:'Art & Culture',e:'\\u{1F3A8}',titles:['Leonardo_da_Vinci','Renaissance','Michelangelo','William_Shakespeare','Wolfgang_Amadeus_Mozart','Vincent_van_Gogh','Pablo_Picasso','Frida_Kahlo']},
+    {k:'innov',l:'Innovations',e:'\\u{1F4A1}',titles:['Printing_press','Industrial_Revolution','History_of_the_Internet','Telephone','Electricity','Steam_engine','Wright_brothers','Penicillin']}
+  ]},
+  {k:'geography',l:'Geography',e:'\\u{1F30D}',sections:[
+    {k:'earth',l:'Earth',e:'\\u{1F30D}',titles:['Earth','Plate_tectonics','Continental_drift','Atmosphere_of_Earth','Pangaea','Volcano','Geosphere','Lithosphere']},
+    {k:'oceans',l:'Oceans',e:'\\u{1F30A}',titles:['Pacific_Ocean','Atlantic_Ocean','Indian_Ocean','Arctic_Ocean','Mariana_Trench','Coral_reef','Great_Barrier_Reef','Ocean_current']},
+    {k:'land',l:'Mountains & Land',e:'\\u{1F3D4}\\uFE0F',titles:['Mount_Everest','Sahara','Amazon_rainforest','Grand_Canyon','Antarctica','Himalayas','Andes','Yellowstone_National_Park']},
+    {k:'climate',l:'Climate & Weather',e:'\\u{1F324}\\uFE0F',titles:['Climate_change','Monsoon','Tropical_cyclone','Desert','Permafrost','Aurora','Tornado','Glacier']}
+  ]},
+  {k:'space',l:'Space',e:'\\u{1F680}',sections:[
+    {k:'solar',l:'Solar System',e:'\\u{2600}\\uFE0F',titles:['Sun','Mercury_(planet)','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto']},
+    {k:'galaxies',l:'Galaxies',e:'\\u{1F30C}',titles:['Universe','Milky_Way','Andromeda_Galaxy','Galaxy','Big_Bang','Magellanic_Clouds','Cosmic_microwave_background','Dark_matter']},
+    {k:'stars',l:'Stars & Black Holes',e:'\\u{2728}',titles:['Star','Black_hole','Supernova','Neutron_star','White_dwarf','Pulsar','Quasar']},
+    {k:'missions',l:'Missions',e:'\\u{1F6F8}',titles:['Apollo_program','Voyager_program','International_Space_Station','Hubble_Space_Telescope','James_Webb_Space_Telescope','SpaceX','New_Horizons']}
+  ]},
+  {k:'karma',l:'Karma & Dharma',e:'\\u{1F549}\\uFE0F',sections:[
+    {k:'epics',l:'Epics & Texts',e:'\\u{1F4DC}',titles:['Bhagavad_Gita','Mahabharata','Ramayana','Upanishads','Vedas','Tao_Te_Ching','Dhammapada']},
+    {k:'concepts',l:'Core Concepts',e:'\\u{1FAB7}',titles:['Karma','Dharma','Moksha','Reincarnation','Yoga','Vedanta','Eightfold_Path','Four_Noble_Truths']},
+    {k:'figures',l:'Sages & Teachers',e:'\\u{1F9D1}\\u200D\\u{1F33E}',titles:['Gautama_Buddha','Krishna','Confucius','Lao_Tzu','Adi_Shankara','Patanjali','Bodhidharma','Ramana_Maharshi']},
+    {k:'paths',l:'Paths & Schools',e:'\\u{1F308}',titles:['Hinduism','Buddhism','Jainism','Sikhism','Zen','Theravada','Mahayana','Vipassana_movement']}
+  ]}
 ];
-const GEOGRAPHY_SECTIONS=[
-  {k:'earth',l:'Earth',e:'\\u{1F30D}',titles:['Earth','Plate_tectonics','Continental_drift','Atmosphere_of_Earth','Pangaea','Earth%27s_inner_core','Geosphere','Volcano']},
-  {k:'universe',l:'Universe',e:'\\u{1F30C}',titles:['Universe','Big_Bang','Solar_System','Galaxy','Black_hole','Milky_Way','Cosmic_microwave_background','Dark_matter']},
-  {k:'oceans',l:'Oceans & Seas',e:'\\u{1F30A}',titles:['Pacific_Ocean','Atlantic_Ocean','Indian_Ocean','Arctic_Ocean','Mariana_Trench','Coral_reef','Great_Barrier_Reef','Ocean_current']},
-  {k:'land',l:'Mountains & Land',e:'\\u{1F3D4}\\uFE0F',titles:['Mount_Everest','Sahara','Amazon_rainforest','Grand_Canyon','Antarctica','Himalayas','Andes','Yellowstone_National_Park']},
-  {k:'climate',l:'Climate & Weather',e:'\\u{1F324}\\uFE0F',titles:['Climate_change','Monsoon','Tropical_cyclone','Desert','Permafrost','Aurora','Tornado','Glacier']},
-  {k:'space',l:'Space',e:'\\u{1F680}',titles:['Mars','Moon','Sun','Saturn','Jupiter','International_Space_Station','James_Webb_Space_Telescope','Voyager_program']}
-];
-function switchTab(t){if(t==='steps'||t==='dash')t='tasks';S.tab=t;if(t==='books'&&!S.books.length)loadBooks('all');if(t==='meditation'&&!S.meditations)loadMeditations();if(t==='news'&&!S.news[S.newsCat])loadNews(S.newsCat);if(t==='history'&&!S.history.loaded[S.historySec||'today'])loadHistorySec(S.historySec||'today');if(t==='geography'&&!S.geography.loaded[S.geoSec||'earth'])loadGeoSec(S.geoSec||'earth');if(t==='cal'){if(!S.google.loaded)loadGoogleStatus();else if(S.google.accounts.length&&!S.gcalEvents.length&&!S.gcalLoading)loadGcalEvents()}render()}
-async function loadHistorySec(k){S.historySec=k;S.history.loading=true;render();try{if(k==='today'){const r=await fetch('/api/history/today');const j=await r.json();S.history.events=j.events||[]}else{const sec=HISTORY_SECTIONS.find(s=>s.k===k);if(!sec){S.history.loaded[k]=true;S.history.loading=false;render();return}const r=await fetch('/api/wiki/summaries?titles='+encodeURIComponent(sec.titles.join(',')));const j=await r.json();S.history.articles=S.history.articles||{};S.history.articles[k]=j.summaries||[]}}catch(e){}S.history.loaded[k]=true;S.history.loading=false;render()}
-async function loadGeoSec(k){S.geoSec=k;S.geography.loading=true;render();try{const sec=GEOGRAPHY_SECTIONS.find(s=>s.k===k);if(!sec){S.geography.loaded[k]=true;S.geography.loading=false;render();return}const r=await fetch('/api/wiki/summaries?titles='+encodeURIComponent(sec.titles.join(',')));const j=await r.json();S.geography.articles=S.geography.articles||{};S.geography.articles[k]=j.summaries||[]}catch(e){}S.geography.loaded[k]=true;S.geography.loading=false;render()}
+function getKnowledgeTopic(k){return KNOWLEDGE_TOPICS.find(t=>t.k===k)||KNOWLEDGE_TOPICS[0]}
+function getKnowledgeSec(topicK,secK){const t=getKnowledgeTopic(topicK);return t.sections.find(s=>s.k===secK)||t.sections[0]}
+function switchTab(t){if(t==='steps'||t==='dash')t='tasks';if(t==='history'||t==='geography')t='knowledge';S.tab=t;if(t==='books'&&!S.books.length)loadBooks('all');if(t==='meditation'&&!S.meditations)loadMeditations();if(t==='news'&&!S.news[S.newsCat])loadNews(S.newsCat);if(t==='knowledge'){const tk=S.knowledge.topic||'history';const sk=S.knowledge.sec||'today';if(!S.knowledge.loaded[tk+':'+sk])loadKnowledge(tk,sk)}if(t==='cal'){if(!S.google.loaded)loadGoogleStatus();else if(S.google.accounts.length&&!S.gcalEvents.length&&!S.gcalLoading)loadGcalEvents()}render()}
+async function loadKnowledge(topicK,secK){S.knowledge.topic=topicK;S.knowledge.sec=secK;S.knowledge.loading=true;render();const cacheKey=topicK+':'+secK;try{if(topicK==='history'&&secK==='today'){const r=await fetch('/api/history/today');const j=await r.json();S.knowledge.events=j.events||[]}else{const tObj=KNOWLEDGE_TOPICS.find(t=>t.k===topicK);const sObj=tObj&&tObj.sections.find(s=>s.k===secK);if(!sObj||!sObj.titles){S.knowledge.loaded[cacheKey]=true;S.knowledge.loading=false;render();return}const r=await fetch('/api/wiki/summaries?titles='+encodeURIComponent(sObj.titles.join(',')));const j=await r.json();S.knowledge.articles[cacheKey]=j.summaries||[]}}catch(e){}S.knowledge.loaded[cacheKey]=true;S.knowledge.loading=false;render()}
+function switchKnowledgeTopic(k){S.knowledge.topic=k;const tObj=KNOWLEDGE_TOPICS.find(t=>t.k===k);const sk=(tObj&&tObj.sections[0]&&tObj.sections[0].k)||'today';loadKnowledge(k,sk)}
 async function loadNews(cat){S.newsCat=cat;S.newsLoading=true;render();try{const r=await fetch('/api/news?cat='+encodeURIComponent(cat),{cache:'no-store'});const j=await r.json();S.news[cat]=j.items||[]}catch(e){S.news[cat]=[]}S.newsLoading=false;render()}
 function shareNews(idx){const item=(S.news[S.newsCat]||[])[idx];if(!item)return;const url=item.link,title=item.title,text=(item.desc||'').slice(0,140);if(navigator.share){navigator.share({title,text,url}).catch(()=>{})}else{navigator.clipboard?.writeText(title+'\\n\\n'+url).then(()=>toast('\\u{1F517} Link copied')).catch(()=>toast('\\u26A0\\uFE0F Share unavailable','err'))}}
 function timeAgo(ds){if(!ds)return '';const d=new Date(ds);if(isNaN(d))return '';const s=(Date.now()-d.getTime())/1000;if(s<60)return 'just now';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';if(s<604800)return Math.floor(s/86400)+'d ago';return d.toLocaleDateString()}
@@ -2282,7 +2298,7 @@ h+='<div class="moral">'+MORAL_DOODLE+'<div class="moral-emoji">\\u{1F4A1}</div>
   const dayOfYear=Math.floor((now-yStart)/86400000);
   const yearPct=Math.round(dayOfYear/365*100);
   const dateStr=now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-  const tabsHtml=[{k:'tasks',l:'Tasks'},{k:'board',l:'Board'},{k:'cal',l:'Calendar'},{k:'news',l:'News'},{k:'history',l:'History'},{k:'geography',l:'Geography'},{k:'books',l:'Books'},{k:'meditation',l:'Meditate'}].map(x=>'<button class="tab tab-'+x.k+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(ID[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
+  const tabsHtml=[{k:'tasks',l:'Tasks'},{k:'board',l:'Board'},{k:'cal',l:'Calendar'},{k:'news',l:'News'},{k:'knowledge',l:'Knowledge'},{k:'books',l:'Books'},{k:'meditation',l:'Meditate'}].map(x=>'<button class="tab tab-'+x.k+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(ID[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
   // "Bro, do it!" mascot — a character with a speech bubble that animates
   const climbScene='<div class="bro-mascot" aria-hidden="true">'
     +'<svg class="bro-svg" viewBox="0 0 340 130" xmlns="http://www.w3.org/2000/svg">'
@@ -2626,24 +2642,32 @@ else if(S.tab==='meditation'){
   h+='<div class="med-foot">\\u{1F50A} Use headphones, find a quiet spot, and let the guide lead you.</div>';
 }
 
-// HISTORY TAB — magazine layout with section pills
-else if(S.tab==='history'){
-  const hist=S.history;
+// KNOWLEDGE TAB — combined History + Geography + Space + Karma with two-level navigation
+else if(S.tab==='knowledge'){
+  const kn=S.knowledge;
   const today=new Date();
-  const sec=S.historySec||'today';
-  h+='<div class="section-hd"><span class="section-ic" style="background:linear-gradient(135deg,#B45309,#7C2D12)">'+ic('history',22)+'</span><div><h3>The History magazine</h3><p>Civilisations \\u2022 science \\u2022 art \\u2022 empires</p></div></div>';
-  // Section pills
-  h+='<div class="mag-pills">';
-  HISTORY_SECTIONS.forEach(s=>{h+='<button class="mag-pill'+(sec===s.k?' on':'')+'" onclick="loadHistorySec(\\''+s.k+'\\')"><span class="mag-pill-e">'+s.e+'</span>'+esc(s.l)+'</button>'});
+  const topicK=kn.topic||'history';
+  const secK=kn.sec||'today';
+  const tObj=getKnowledgeTopic(topicK);
+  const sObj=getKnowledgeSec(topicK,secK);
+  h+='<div class="section-hd"><span class="section-ic" style="background:linear-gradient(135deg,#B45309,#7C2D12)">'+ic('knowledge',22)+'</span><div><h3>Knowledge \\u2022 a magazine for the curious</h3><p>History \\u2022 Geography \\u2022 Space \\u2022 Karma &amp; Dharma</p></div></div>';
+  // Top-level topic pills
+  h+='<div class="mag-pills know-topics">';
+  KNOWLEDGE_TOPICS.forEach(t=>{h+='<button class="mag-pill know-topic'+(topicK===t.k?' on':'')+'" onclick="switchKnowledgeTopic(\\''+t.k+'\\')"><span class="mag-pill-e">'+t.e+'</span>'+esc(t.l)+'</button>'});
   h+='</div>';
-  if(hist.loading&&!hist.loaded[sec]){h+='<div class="loading">\\u{1F4DC} Pulling stories from history\\u2026</div>';}
-  else if(sec==='today'){
+  // Sub-section pills (changes with topic)
+  h+='<div class="mag-pills know-subs">';
+  tObj.sections.forEach(s=>{h+='<button class="mag-pill mag-pill-sub'+(secK===s.k?' on':'')+'" onclick="loadKnowledge(\\''+topicK+'\\',\\''+s.k+'\\')"><span class="mag-pill-e">'+s.e+'</span>'+esc(s.l)+'</button>'});
+  h+='</div>';
+  const cacheKey=topicK+':'+secK;
+  if(kn.loading&&!kn.loaded[cacheKey]){h+='<div class="loading">\\u{1F4DA} Loading articles\\u2026</div>';}
+  else if(topicK==='history'&&secK==='today'){
     const dayStr=today.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
     h+='<div class="mag-section-ttl"><span>'+esc(dayStr)+' \\u2014 events on this day</span></div>';
-    if(!hist.events.length){h+='<div class="empty"><div style="font-size:44px">\\u{1F4DC}</div><div style="font-size:15px;margin-top:10px;font-weight:600">No events loaded</div></div>';}
+    if(!kn.events.length){h+='<div class="empty"><div style="font-size:44px">\\u{1F4DC}</div><div style="font-size:15px;margin-top:10px;font-weight:600">No events loaded</div></div>';}
     else{
       h+='<div class="hist-feed">';
-      hist.events.slice(0,20).forEach(ev=>{
+      kn.events.slice(0,20).forEach(ev=>{
         const yearsAgo=today.getFullYear()-Number(ev.year);
         h+='<article class="hist-item">';
         h+='<div class="hist-year"><b>'+esc(String(ev.year))+'</b><small>'+(yearsAgo>0?yearsAgo+' yrs ago':'this year')+'</small></div>';
@@ -2657,17 +2681,16 @@ else if(S.tab==='history'){
     }
   }
   else{
-    const arts=(hist.articles&&hist.articles[sec])||[];
-    const secObj=HISTORY_SECTIONS.find(x=>x.k===sec)||{l:''};
-    h+='<div class="mag-section-ttl"><span>'+esc(secObj.l)+' \\u2014 read with intention</span></div>';
-    if(!arts.length){h+='<div class="empty"><div style="font-size:44px">\\u{1F4DA}</div><div style="font-size:15px;margin-top:10px;font-weight:600">No articles yet</div></div>';}
+    const arts=kn.articles[cacheKey]||[];
+    h+='<div class="mag-section-ttl"><span>'+esc(tObj.l)+' \\u2022 '+esc(sObj.l)+'</span></div>';
+    if(!arts.length){h+='<div class="empty"><div style="font-size:44px">\\u{1F4DA}</div><div style="font-size:15px;margin-top:10px;font-weight:600">No articles yet</div><div style="font-size:12px;margin-top:4px">Try refreshing</div></div>';}
     else{
       h+='<div class="mag-grid">';
       arts.forEach((a,i)=>{
         h+='<article class="mag-card" style="animation-delay:'+(i*0.05)+'s">';
         if(a.thumb)h+='<div class="mag-card-img"><img src="'+esc(a.thumb)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.classList.add(\\'mag-card-img-empty\\');this.remove()"></div>';
-        else h+='<div class="mag-card-img mag-card-img-empty">\\u{1F4DC}</div>';
-        h+='<div class="mag-card-body"><div class="mag-card-kicker">'+esc(secObj.l)+'</div>';
+        else h+='<div class="mag-card-img mag-card-img-empty">'+esc(tObj.e)+'</div>';
+        h+='<div class="mag-card-body"><div class="mag-card-kicker">'+esc(tObj.l)+' \\u2022 '+esc(sObj.l)+'</div>';
         h+='<h3 class="mag-card-h">'+esc(a.title)+'</h3>';
         if(a.description)h+='<div class="mag-card-d">'+esc(a.description)+'</div>';
         if(a.extract)h+='<p class="mag-card-x">'+esc(a.extract.slice(0,300))+(a.extract.length>300?'\\u2026':'')+'</p>';
@@ -2676,36 +2699,6 @@ else if(S.tab==='history'){
       });
       h+='</div>';
     }
-  }
-}
-
-// GEOGRAPHY TAB — magazine layout: Earth, oceans, universe
-else if(S.tab==='geography'){
-  const geo=S.geography;
-  const sec=S.geoSec||'earth';
-  h+='<div class="section-hd"><span class="section-ic" style="background:linear-gradient(135deg,#0891B2,#0F172A)">'+ic('geography',22)+'</span><div><h3>The Geography magazine</h3><p>Earth \\u2022 oceans \\u2022 mountains \\u2022 the cosmos</p></div></div>';
-  h+='<div class="mag-pills">';
-  GEOGRAPHY_SECTIONS.forEach(s=>{h+='<button class="mag-pill'+(sec===s.k?' on':'')+'" onclick="loadGeoSec(\\''+s.k+'\\')"><span class="mag-pill-e">'+s.e+'</span>'+esc(s.l)+'</button>'});
-  h+='</div>';
-  const arts=(geo.articles&&geo.articles[sec])||[];
-  const secObj=GEOGRAPHY_SECTIONS.find(x=>x.k===sec)||{l:''};
-  h+='<div class="mag-section-ttl"><span>'+esc(secObj.l)+' \\u2014 a closer look</span></div>';
-  if(geo.loading&&!geo.loaded[sec]){h+='<div class="loading">\\u{1F30D} Loading articles\\u2026</div>';}
-  else if(!arts.length){h+='<div class="empty"><div style="font-size:44px">\\u{1F4DA}</div><div style="font-size:15px;margin-top:10px;font-weight:600">No articles yet</div></div>';}
-  else{
-    h+='<div class="mag-grid">';
-    arts.forEach((a,i)=>{
-      h+='<article class="mag-card" style="animation-delay:'+(i*0.05)+'s">';
-      if(a.thumb)h+='<div class="mag-card-img"><img src="'+esc(a.thumb)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.classList.add(\\'mag-card-img-empty\\');this.remove()"></div>';
-      else h+='<div class="mag-card-img mag-card-img-empty">\\u{1F30D}</div>';
-      h+='<div class="mag-card-body"><div class="mag-card-kicker">'+esc(secObj.l)+'</div>';
-      h+='<h3 class="mag-card-h">'+esc(a.title)+'</h3>';
-      if(a.description)h+='<div class="mag-card-d">'+esc(a.description)+'</div>';
-      if(a.extract)h+='<p class="mag-card-x">'+esc(a.extract.slice(0,300))+(a.extract.length>300?'\\u2026':'')+'</p>';
-      h+='<a class="mag-card-cta" href="'+esc(a.url)+'" target="_blank" rel="noopener">Read full article \\u2197</a>';
-      h+='</div></article>';
-    });
-    h+='</div>';
   }
 }
 
