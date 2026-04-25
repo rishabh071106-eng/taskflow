@@ -1015,6 +1015,10 @@ body[data-theme=aurora] .dash-hero .big{background:linear-gradient(90deg,#fff,#F
 .login-btn{width:100%;padding:14px;font-size:16px;border-radius:12px;font-weight:700;background:#0F172A;color:#F8FAFC;border:none;margin-top:4px}
 .login-btn:disabled{opacity:.5}.login-btn.sec{background:transparent;border:1.5px solid #CBD5E1;color:#64748B;margin-top:8px}
 .login-hint{font-size:12px;color:#94A3B8;margin-top:16px;line-height:1.5}
+.login-foot{margin-top:32px;padding-top:18px;border-top:1px solid rgba(15,23,42,.06);display:flex;align-items:center;justify-content:center;gap:10px;font-size:12px;color:#94A3B8;flex-wrap:wrap}
+.login-foot a{color:#64748B;text-decoration:none;font-weight:600}
+.login-foot a:hover{color:#0F172A;text-decoration:underline}
+.login-foot span{opacity:.5}
 .otp-inputs{display:flex;gap:8px;justify-content:center;margin:16px 0}
 .otp-inputs input{width:44px;height:52px;text-align:center;font-size:22px;font-family:'Space Mono',monospace;font-weight:700;padding:0;border-radius:10px}
 .user-bar{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#FFFFFF;border:1px solid #E8E9EF;border-radius:12px;margin-bottom:14px;font-size:14px;font-weight:600;transition:all .18s;box-shadow:0 2px 8px rgba(0,0,0,.03)}
@@ -1575,6 +1579,7 @@ h+='<button class="login-btn" onclick="verifyOTP()"'+(S.loginLoading?' disabled'
 h+='<button class="login-btn sec" onclick="S.loginStep=\\'phone\\';S.loginError=\\'\\';render()">\\u2190 Change number</button>';
 h+='<div class="login-hint">Didn\\'t get the code? Check your spam folder or click "Change number" to retry.</div>';
 }
+h+='<footer class="login-foot"><a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a><span>\\u2022</span><a href="/terms" target="_blank" rel="noopener">Terms of Service</a><span>\\u2022</span><a href="mailto:hello@brodoit.com">Contact</a></footer>';
 h+='</div>';
 if(S.toast)h+='<div class="toast toast-'+(S.toastType==='err'?'err':'ok')+'">'+S.toast+'</div>';
 document.getElementById('app').innerHTML=h;
