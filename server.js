@@ -585,12 +585,12 @@ body[data-theme=aurora] .news-hero h2{color:#F5F5FA}
 .flt-icons .fb{display:inline-flex;align-items:center;gap:6px}
 .fb-ic{display:inline-flex;align-items:center;color:inherit;opacity:.85}
 .news-feed{display:flex;flex-direction:column;gap:14px}
-.news-card{background:#fff;border:1px solid rgba(15,23,42,.06);border-radius:18px;overflow:hidden;box-shadow:0 1px 3px rgba(15,23,42,.04),0 4px 14px rgba(15,23,42,.06);transition:all .25s cubic-bezier(.2,.8,.2,1)}
+.news-card{background:#fff;border:1px solid rgba(15,23,42,.06);border-radius:18px;overflow:hidden;box-shadow:0 1px 3px rgba(15,23,42,.04),0 4px 14px rgba(15,23,42,.06);transition:all .25s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:row;align-items:stretch}
 .news-card:hover{transform:translateY(-3px);box-shadow:0 6px 12px rgba(15,23,42,.06),0 16px 32px rgba(15,23,42,.1);border-color:rgba(99,102,241,.25)}
-.news-img{display:block;position:relative;width:100%;height:200px;background-size:cover;background-position:center;background-color:#F1F5F9;text-decoration:none}
-.news-img::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(0,0,0,.4) 100%);pointer-events:none}
+.news-img{display:block;position:relative;flex:0 0 50%;width:50%;align-self:stretch;min-height:200px;background-size:cover;background-position:center;background-color:#F1F5F9;text-decoration:none}
+.news-img::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent 60%,rgba(0,0,0,.25) 100%);pointer-events:none}
 .news-src-chip{position:absolute;bottom:12px;left:12px;z-index:1;background:rgba(255,255,255,.95);backdrop-filter:blur(10px);color:#6366F1;padding:5px 12px;border-radius:8px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;box-shadow:0 2px 8px rgba(0,0,0,.15)}
-.news-body{padding:16px 18px 18px}
+.news-body{padding:16px 18px 18px;flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center}
 .news-meta{display:flex;gap:10px;align-items:center;font-size:11px;color:#94A3B8;font-weight:700;margin-bottom:8px}
 .news-src{color:#6366F1;background:#EEF2FF;padding:3px 10px;border-radius:7px;text-transform:uppercase;letter-spacing:.6px}
 .news-time{font-weight:600;letter-spacing:0;text-transform:none;color:#94A3B8}
@@ -604,7 +604,7 @@ body[data-theme=aurora] .news-hero h2{color:#F5F5FA}
 .news-share:active{transform:scale(.95)}
 .news-read{color:#6366F1;font-size:13px;font-weight:700;text-decoration:none;transition:color .15s}
 .news-read:hover{color:#EC4899;text-decoration:underline}
-@media (max-width:600px){.news-img{height:170px}.news-title{font-size:16px}.news-desc{font-size:13.5px}.news-body{padding:14px 16px 16px}}
+@media (max-width:600px){.news-card{flex-direction:column}.news-img{flex:0 0 auto;width:100%;min-height:170px;height:170px}.news-img::after{background:linear-gradient(180deg,transparent 50%,rgba(0,0,0,.4) 100%)}.news-title{font-size:16px}.news-desc{font-size:13.5px}.news-body{padding:14px 16px 16px}}
 body[data-theme=aurora] .news-card{background:rgba(26,26,44,.7);border-color:rgba(255,255,255,.08);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
 body[data-theme=aurora] .news-card:hover{border-color:rgba(167,139,250,.35)}
 body[data-theme=aurora] .news-hero h2{color:#F5F5FA}
@@ -1238,8 +1238,8 @@ body[data-theme=aurora] .inshort-share{background:rgba(167,139,250,.18);color:#A
 .med-card-mins b{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;line-height:1}
 .med-card-mins small{font-size:10px;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-top:2px;opacity:.95}
 .med-card-body{flex:1;min-width:0}
-.med-card-title{font-size:15px;font-weight:700;color:#0F172A;margin-bottom:3px}
-.med-card-desc{font-size:12.5px;color:#64748B;line-height:1.4}
+.med-card-title{font-family:'Inter','SF Pro Text',-apple-system,BlinkMacSystemFont,sans-serif;font-size:14px;font-weight:700;color:#0F172A;margin-bottom:3px;letter-spacing:-.011em}
+.med-card-desc{font-family:'Inter','SF Pro Text',-apple-system,BlinkMacSystemFont,sans-serif;font-size:12px;color:#64748B;line-height:1.4}
 .med-card-play{flex:0 0 auto;width:38px;height:38px;border-radius:50%;background:rgba(15,23,42,.06);color:var(--mc,#6366F1);display:flex;align-items:center;justify-content:center;transition:transform .2s ease,background .2s ease}
 .med-card:hover .med-card-play{transform:scale(1.1);background:var(--mc,#6366F1);color:#fff}
 .med-foot{font-size:13px;color:#64748B;text-align:center;margin-top:10px;opacity:.85}
@@ -1268,6 +1268,36 @@ body[data-theme=aurora] .med-player-hd h2{color:#F5F5FA}
 body[data-theme=aurora] .med-player-hd p{color:#9999B5}
 body[data-theme=aurora] .med-tip{color:#9999B5;background:rgba(167,139,250,.1)}
 body[data-theme=aurora] .med-foot{color:#9999B5}
+
+/* LinkedIn microfrontend tab */
+.li-card{background:#fff;border:1px solid rgba(15,23,42,.06);border-radius:18px;padding:18px;box-shadow:0 1px 3px rgba(15,23,42,.04),0 4px 14px rgba(15,23,42,.06);display:flex;flex-direction:column;gap:14px}
+.li-acc{display:flex;align-items:center;gap:12px;padding:12px 14px;background:#F8FAFC;border:1px solid #E8E9EF;border-radius:12px}
+.li-acc-ic{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#4285F4,#34A853,#FBBC05,#EA4335);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;flex-shrink:0}
+.li-acc-body{flex:1;min-width:0}
+.li-acc-lbl{font-size:11px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.6px;margin-bottom:2px}
+.li-acc-email{font-size:14px;font-weight:600;color:#0F172A;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.li-acc-tag{font-size:11px;font-weight:700;color:#1A9E47;background:#EDFCF2;padding:4px 9px;border-radius:7px;text-transform:uppercase;letter-spacing:.5px}
+.li-acc-empty{flex-wrap:wrap}
+.li-connect{font-size:13px;font-weight:700;color:#fff;background:#0A66C2;padding:8px 14px;border-radius:9px;border:none;cursor:pointer}
+.li-connect:hover{background:#004182}
+.li-frame-wrap{position:relative;border-radius:14px;overflow:hidden;background:#F1F5F9;border:1px solid #E8E9EF;min-height:420px;display:flex;align-items:center;justify-content:center}
+.li-frame{width:100%;height:520px;border:0;display:block;background:#fff;position:relative;z-index:1}
+.li-frame-fallback{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;background:linear-gradient(135deg,#F8FAFC,#EEF2FF);z-index:0}
+.li-fb-ttl{font-family:'Instrument Serif',Georgia,serif;font-size:22px;color:#0F172A;margin-bottom:6px}
+.li-fb-desc{font-size:13.5px;color:#64748B;line-height:1.5;max-width:380px;margin-bottom:16px}
+.li-cta{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:11px;background:#0A66C2;color:#fff;font-size:14px;font-weight:700;text-decoration:none;box-shadow:0 6px 18px rgba(10,102,194,.3);transition:transform .15s,box-shadow .15s}
+.li-cta:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(10,102,194,.4);background:#004182}
+.li-foot{font-size:12px;color:#94A3B8;text-align:center;line-height:1.5}
+body[data-theme=aurora] .li-card{background:rgba(26,26,44,.7);border-color:rgba(255,255,255,.08)}
+body[data-theme=aurora] .li-acc{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08)}
+body[data-theme=aurora] .li-acc-lbl{color:#9999B5}
+body[data-theme=aurora] .li-acc-email{color:#F5F5FA}
+body[data-theme=aurora] .li-frame-wrap{background:#15152A;border-color:rgba(255,255,255,.08)}
+body[data-theme=aurora] .li-frame-fallback{background:linear-gradient(135deg,rgba(255,255,255,.03),rgba(167,139,250,.08))}
+body[data-theme=aurora] .li-fb-ttl{color:#F5F5FA}
+body[data-theme=aurora] .li-fb-desc{color:#9999B5}
+body[data-theme=aurora] .li-foot{color:#6B6B85}
+@media (max-width:600px){.li-frame{height:420px}.li-frame-wrap{min-height:340px}}
 
 /* Refined editorial tab nav */
 .tabs.page-t .tab{font-size:14px;font-weight:500;letter-spacing:-.005em;transition:color .15s ease,background .15s ease;color:var(--ink-3)}
@@ -1349,7 +1379,8 @@ flame:'<svg '+s+'><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.4-.5-2.4-1.5-3.5C8 
 moon:'<svg '+s+'><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor"/></svg>',
 sun:'<svg '+s+'><circle cx="12" cy="12" r="4" fill="currentColor"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.07" y2="4.93"/></svg>',
 refresh:'<svg '+s+'><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/><path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14"/></svg>',
-plus:'<svg '+s+'><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'};return m[n]||''}
+plus:'<svg '+s+'><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+linkedin:'<svg width="'+sz+'" height="'+sz+'" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.852 3.37-1.852 3.601 0 4.267 2.37 4.267 5.455v6.288zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.063 2.063 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>'};return m[n]||''}
 const ST={pending:{l:'To Do',c:'#94A3B8',bg:'#F1F5F9'},'in-progress':{l:'Doing',c:'#3B82F6',bg:'#EFF6FF'},done:{l:'Done',c:'#3DAE5C',bg:'#F2FBF4'}};
 const fD=d=>d?new Date(d+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
 const fT=t=>{if(!t)return'';const[h,m]=t.split(':');const hr=+h;return(hr>12?hr-12:hr||12)+':'+m+' '+(hr>=12?'PM':'AM')};
@@ -1399,7 +1430,7 @@ function opE(id){const t=S.tasks.find(x=>x.id===id);if(!t)return;S.form={title:t
 function clM(){S.showAdd=false;S.editing=null;if(rec)try{rec.stop()}catch(e){}S.listening=false;render()}
 function stV(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){toast('\\u26A0\\uFE0F Voice not supported','err');return}rec=new SR();rec.continuous=false;rec.interimResults=true;rec.lang='en-US';rec.onresult=e=>{let t='';for(let i=0;i<e.results.length;i++)t+=e.results[i][0].transcript;if(e.results[0].isFinal){S.form.title=t;const l=t.toLowerCase();if(/urgent|important|asap/.test(l)){S.form.priority='high';S.form.title=S.form.title.replace(/urgent|important|asap/gi,'').trim()}if(/\\btoday\\b/.test(l))S.form.dueDate=new Date().toISOString().split('T')[0];else if(/\\btomorrow\\b/.test(l)){const d=new Date();d.setDate(d.getDate()+1);S.form.dueDate=d.toISOString().split('T')[0]}}else S.form.title=t;render()};rec.onend=()=>{S.listening=false;render()};rec.onerror=e=>{S.listening=false;toast('\\u26A0\\uFE0F '+e.error,'err');render()};rec.start();S.listening=true;render()}
 
-function switchTab(t){if(t==='steps')t='tasks';S.tab=t;if(t==='books'&&!S.books.length)loadBooks('all');if(t==='meditation'&&!S.meditations)loadMeditations();if(t==='news'&&!S.news[S.newsCat])loadNews(S.newsCat);if(t==='cal'){if(!S.google.loaded)loadGoogleStatus();else if(S.google.accounts.length&&!S.gcalEvents.length&&!S.gcalLoading)loadGcalEvents()}render()}
+function switchTab(t){if(t==='steps')t='tasks';S.tab=t;if(t==='books'&&!S.books.length)loadBooks('all');if(t==='meditation'&&!S.meditations)loadMeditations();if(t==='news'&&!S.news[S.newsCat])loadNews(S.newsCat);if(t==='linkedin'&&!S.google.loaded)loadGoogleStatus();if(t==='cal'){if(!S.google.loaded)loadGoogleStatus();else if(S.google.accounts.length&&!S.gcalEvents.length&&!S.gcalLoading)loadGcalEvents()}render()}
 async function loadNews(cat){S.newsCat=cat;S.newsLoading=true;render();try{const r=await fetch('/api/news?cat='+encodeURIComponent(cat),{cache:'no-store'});const j=await r.json();S.news[cat]=j.items||[]}catch(e){S.news[cat]=[]}S.newsLoading=false;render()}
 function shareNews(idx){const item=(S.news[S.newsCat]||[])[idx];if(!item)return;const url=item.link,title=item.title,text=(item.desc||'').slice(0,140);if(navigator.share){navigator.share({title,text,url}).catch(()=>{})}else{navigator.clipboard?.writeText(title+'\\n\\n'+url).then(()=>toast('\\u{1F517} Link copied')).catch(()=>toast('\\u26A0\\uFE0F Share unavailable','err'))}}
 function timeAgo(ds){if(!ds)return '';const d=new Date(ds);if(isNaN(d))return '';const s=(Date.now()-d.getTime())/1000;if(s<60)return 'just now';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';if(s<604800)return Math.floor(s/86400)+'d ago';return d.toLocaleDateString()}
@@ -1473,7 +1504,7 @@ function calAddForDate(){S.form={title:'',notes:'',priority:'medium',dueDate:S.c
 function rotateMoral(){const a=document.getElementById('audioEl');if(a&&!a.paused)return;S.moralIdx=(S.moralIdx+1)%MORALS.length;render()}
 setInterval(()=>{if(S.user)rotateMoral()},45000);
 
-async function loadBooks(cat){S.booksCat=cat;S.booksLoading=true;render();try{const q=cat==='all'?'collection:librivoxaudio AND mediatype:audio':'collection:librivoxaudio AND mediatype:audio AND subject:'+cat;const url='https://archive.org/advancedsearch.php?q='+encodeURIComponent(q)+'&fl[]=identifier&fl[]=title&fl[]=creator&fl[]=downloads&rows=30&output=json&sort[]=downloads+desc';const r=await fetch(url);const j=await r.json();S.books=j.response.docs;}catch(e){S.books=[];toast('\\u26A0\\uFE0F Failed to load books','err')}S.booksLoading=false;render()}
+async function loadBooks(cat){S.booksCat=cat;S.booksLoading=true;render();try{const subjectMap={'self-help':'(subject:"self-help" OR subject:"self help" OR subject:"self improvement" OR subject:"non-fiction")'};const subj=subjectMap[cat]||('subject:'+cat);const q=cat==='all'?'collection:librivoxaudio AND mediatype:audio':'collection:librivoxaudio AND mediatype:audio AND '+subj;const url='https://archive.org/advancedsearch.php?q='+encodeURIComponent(q)+'&fl[]=identifier&fl[]=title&fl[]=creator&fl[]=downloads&rows=30&output=json&sort[]=downloads+desc';const r=await fetch(url);const j=await r.json();S.books=j.response.docs;}catch(e){S.books=[];toast('\\u26A0\\uFE0F Failed to load books','err')}S.booksLoading=false;render()}
 async function playBook(id){const b=S.books.find(x=>x.identifier===id);if(!b){toast('\\u26A0\\uFE0F Book not found','err');return}const title=Array.isArray(b.title)?b.title[0]:b.title;const author=Array.isArray(b.creator)?b.creator[0]:(b.creator||'Unknown');S.playing={id,title,author,loading:true};render();try{const r=await fetch('https://archive.org/metadata/'+encodeURIComponent(id));if(!r.ok)throw new Error('metadata '+r.status);const j=await r.json();if(!j.files||!j.files.length){toast('\\u26A0\\uFE0F No files \\u2014 opening archive.org','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render();return}let mp3=j.files.find(f=>/_64kb\\.mp3$/i.test(f.name));if(!mp3)mp3=j.files.find(f=>/_32kb\\.mp3$/i.test(f.name));if(!mp3)mp3=j.files.find(f=>/\\.mp3$/i.test(f.name)&&!/sample|test|spoken/i.test(f.name));if(!mp3)mp3=j.files.find(f=>/\\.(mp3|m4a|ogg)$/i.test(f.name));if(mp3){const server=j.server||'archive.org';const dir=j.dir||('/'+id);const directUrl='https://'+server+dir+'/'+mp3.name.split('/').map(encodeURIComponent).join('/');const dlUrl='https://archive.org/download/'+encodeURIComponent(id)+'/'+mp3.name.split('/').map(encodeURIComponent).join('/');S.playing={id,title,author,url:directUrl,altUrl:dlUrl,external:'https://archive.org/details/'+id};render();setTimeout(()=>{const a=document.getElementById('audioEl');if(!a)return;a.setAttribute('playsinline','');a.setAttribute('webkit-playsinline','');a.preload='auto';a.addEventListener('error',function onErr(){a.removeEventListener('error',onErr);if(a.src!==dlUrl){a.src=dlUrl;a.load()}},{once:true});a.load();a.addEventListener('play',startBookListenTimer);a.addEventListener('pause',()=>{/* keep timer; checks paused itself */});const p=a.play();if(p&&p.catch)p.catch(()=>toast('\\u25B6\\uFE0F Tap the play button on the bar','err'))},250)}else{toast('\\u26A0\\uFE0F No audio \\u2014 opening archive.org','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render()}}catch(e){toast('\\u26A0\\uFE0F '+e.message,'err');S.playing={id,title,author,url:null,external:'https://archive.org/details/'+id,error:e.message};render()}}
 function closePlayer(){stopBookListenTimer();S.playing=null;render()}
 let _bkTimer=null;
@@ -1543,7 +1574,7 @@ const m=MORALS[S.moralIdx];
 h+='<div class="moral"><div class="moral-emoji">\\u{1F4A1}</div><div class="moral-body"><div class="moral-lbl">Moral of the Day</div><div class="moral-txt">"'+esc(m.t)+'"</div><div class="moral-by">\\u2014 '+esc(m.a)+'</div></div><button class="moral-ref" onclick="rotateMoral()" title="New quote">\\u21BB</button></div>';
 
 // Tabs
-h+='<nav class="tabs page-t">'+[{k:'tasks',l:'Tasks'},{k:'board',l:'Board'},{k:'cal',l:'Calendar'},{k:'dash',l:'Stats'},{k:'news',l:'News'},{k:'books',l:'Books'},{k:'meditation',l:'Meditate'}].map(x=>'<button class="tab'+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+ic(x.k,24)+'</span><span class="tl">'+x.l+'</span></button>').join('')+'</nav>';
+h+='<nav class="tabs page-t">'+[{k:'tasks',l:'Tasks'},{k:'board',l:'Board'},{k:'cal',l:'Calendar'},{k:'dash',l:'Stats'},{k:'news',l:'News'},{k:'books',l:'Books'},{k:'meditation',l:'Meditate'},{k:'linkedin',l:'LinkedIn'}].map(x=>'<button class="tab'+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+ic(x.k,24)+'</span><span class="tl">'+x.l+'</span></button>').join('')+'</nav>';
 
 h+='<main class="main-col">';
 h+='<div class="user-bar" style="cursor:pointer" onclick="openProfile()"><span>\\u{1F464} '+esc(S.user.name||S.user.phone)+' <span style="color:#94A3B8;font-size:11px">\\u203A Profile</span></span><button onclick="event.stopPropagation();logout()">Logout</button></div>';
@@ -1786,7 +1817,7 @@ else if(S.tab==='books'){
   h+='<div class="section-hd"><span class="section-ic">'+ic('books',22)+'</span><div><h3>Audiobooks</h3><p>Free LibriVox library \\u2022 listen 2 minutes a day to keep your streak</p></div></div>';
   h+='<div class="streak-card"><div class="streak-ico">'+ic('flame',24)+'</div><div class="streak-body"><div class="streak-n">'+bs.streak+'<span>day'+(bs.streak===1?'':'s')+'</span></div><div class="streak-lbl">Listening streak'+(bs.today?' \\u2022 done today \\u2705':'')+'</div></div><div class="streak-tot"><b>'+bs.total+'</b><small>total days</small></div></div>';
   h+='<div class="srch"><input id="bsearch" placeholder="Search audiobooks..." value="'+esc(S.bookSearch)+'" oninput="filterBooks(this.value)"></div>';
-  h+='<div class="flt">'+['all','fiction','mystery','philosophy','adventure','kids'].map(c=>'<button class="fb'+(S.booksCat===c?' on':'')+'" onclick="loadBooks(\\''+c+'\\')">'+c.charAt(0).toUpperCase()+c.slice(1)+'</button>').join('')+'</div>';
+  h+='<div class="flt">'+[{k:'all',l:'All'},{k:'fiction',l:'Fiction'},{k:'self-help',l:'Self Development'},{k:'mystery',l:'Mystery'},{k:'philosophy',l:'Philosophy'},{k:'adventure',l:'Adventure'},{k:'kids',l:'Kids'}].map(c=>'<button class="fb'+(S.booksCat===c.k?' on':'')+'" onclick="loadBooks(\\''+c.k+'\\')">'+c.l+'</button>').join('')+'</div>';
   if(S.booksLoading)h+='<div class="loading">Loading audiobooks...</div>';
   else{
     const q=S.bookSearch.toLowerCase().trim();
@@ -1797,7 +1828,7 @@ else if(S.tab==='books'){
 
 // MEDITATION TAB
 else if(S.tab==='meditation'){
-  h+='<div class="section-hd"><span class="section-ic">'+ic('meditation',26)+'</span><div><h3>Meditation</h3><p>Guided audio sessions \\u2022 pause, breathe, return calmer</p></div></div>';
+  h+='<div class="section-hd"><span class="section-ic">'+ic('meditation',22)+'</span><div><h3>Meditation</h3><p>Guided audio sessions \\u2022 pause, breathe, return calmer</p></div></div>';
   if(S.medLoading&&!S.meditations)h+='<div class="loading">Finding guided meditations...</div>';
   h+='<div class="med-grid">';
   MED_SLOTS.forEach(x=>{
@@ -1814,7 +1845,24 @@ else if(S.tab==='meditation'){
     h+='</button>';
   });
   h+='</div>';
-  h+='<div class="med-foot">\\u{1F50A} Audio streams from the free Internet Archive. Use headphones, find a quiet spot, and let the guide lead you.</div>';
+  h+='<div class="med-foot">\\u{1F50A} Use headphones, find a quiet spot, and let the guide lead you.</div>';
+}
+
+// LINKEDIN TAB (microfrontend with default Gmail login)
+else if(S.tab==='linkedin'){
+  const def=(S.google.accounts||[]).find(a=>a.is_default)||(S.google.accounts||[])[0];
+  const gmail=def?def.email:'';
+  h+='<div class="section-hd"><span class="section-ic" style="background:#0A66C2">'+ic('linkedin',22)+'</span><div><h3>LinkedIn</h3><p>Microfrontend \\u2022 sign in with your default Gmail</p></div></div>';
+  h+='<div class="li-card">';
+  if(gmail){
+    h+='<div class="li-acc"><span class="li-acc-ic">G</span><div class="li-acc-body"><div class="li-acc-lbl">Default Google account</div><div class="li-acc-email">'+esc(gmail)+'</div></div><span class="li-acc-tag">in use</span></div>';
+  }else{
+    h+='<div class="li-acc li-acc-empty"><div class="li-acc-body"><div class="li-acc-lbl">No Google account connected</div><div class="li-acc-email">Connect Gmail in the Calendar tab to use it as your default LinkedIn login.</div></div><button class="li-connect" onclick="switchTab(\\'cal\\')">Connect Gmail</button></div>';
+  }
+  const liUrl='https://www.linkedin.com/login'+(gmail?'?session_redirect=%2Ffeed%2F&loginAttempt=true&email='+encodeURIComponent(gmail):'');
+  h+='<div class="li-frame-wrap"><iframe class="li-frame" src="https://www.linkedin.com/embed/feed/" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox" referrerpolicy="origin" loading="lazy" title="LinkedIn"></iframe><div class="li-frame-fallback"><div class="li-fb-ttl">LinkedIn embed blocked by the browser</div><div class="li-fb-desc">LinkedIn restricts in-app embedding. Continue in a new tab \\u2014 your Gmail is pre-filled.</div><a class="li-cta" href="'+liUrl+'" target="_blank" rel="noopener">'+ic('linkedin',18)+'<span>Continue '+(gmail?'as '+esc(gmail.split('@')[0]):'to LinkedIn')+'</span></a></div></div>';
+  h+='<div class="li-foot">Brodoit never sees your LinkedIn password. Auth happens directly on linkedin.com.</div>';
+  h+='</div>';
 }
 
 
