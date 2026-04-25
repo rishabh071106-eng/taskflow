@@ -626,7 +626,7 @@ body[data-theme=aurora] .hdr-time-date{color:#9999B5}
   .hdr-sub{gap:10px;flex-wrap:wrap;font-size:13px}
 }
 /* Section dividers — thin gradient line with a pulsing centered node */
-.section-div{height:1px;background:linear-gradient(90deg,transparent 0%,rgba(99,102,241,.18) 30%,rgba(232,145,44,.22) 50%,rgba(99,102,241,.18) 70%,transparent 100%);margin:18px 0;position:relative}
+.section-div{height:1px;background:linear-gradient(90deg,transparent 0%,rgba(99,102,241,.18) 30%,rgba(232,145,44,.22) 50%,rgba(99,102,241,.18) 70%,transparent 100%);margin:6px 0;position:relative}
 /* Tap Sprint mini-game */
 .game-card{background:linear-gradient(135deg,rgba(99,102,241,.06),rgba(236,72,153,.05));border:1px solid rgba(99,102,241,.18);border-radius:16px;padding:18px 22px 20px;margin-bottom:18px;display:flex;flex-direction:column;gap:10px;position:relative;overflow:hidden;min-height:440px}
 .game-card.game-idle .game-grid{opacity:.55;filter:saturate(.6);pointer-events:none}
@@ -826,7 +826,7 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
 @media (max-width:600px){.tabs{padding:4px;gap:4px}.tab{padding:11px 12px;font-size:12px}.tab .ti{font-size:15px}.tab .tl{font-size:11.5px}}
 /* Desktop sidebar layout */
 @media (min-width:1024px){
-  .app{max-width:1440px;padding:22px 28px 56px;display:grid;grid-template-columns:220px 1fr;grid-template-areas:"hdr hdr" "topstrip moral" "nav main";column-gap:22px;row-gap:12px}
+  .app{max-width:1440px;padding:18px 28px 48px;display:grid;grid-template-columns:220px 1fr;grid-template-areas:"hdr hdr" "topstrip moral" "nav main";column-gap:22px;row-gap:8px}
   .app>.hdr{grid-area:hdr;margin-bottom:0}
   .app>.top-strip{grid-area:topstrip;margin-bottom:0}
   .app>.moral{grid-area:moral;margin-bottom:0}
@@ -2478,9 +2478,7 @@ h+='<div class="moral">'+MORAL_DOODLE+'<div class="moral-emoji">\\u{1F4A1}</div>
 }
 
 h+='<main class="main-col">';
-// User-bar removed from main column — Profile lives in the header top-right; Logout is reachable via the profile modal
-h+='<div class="section-div" aria-hidden="true"></div>';
-
+// User-bar + section-div removed; Profile lives in the header top-right.
 // Scenic tab hero — rendered at top of every tab EXCEPT Tasks (where it moves to the bottom of the list)
 const _tabHeroHtml=(()=>{const hero=TAB_HERO[S.tab];if(!hero)return '';const url='https://images.unsplash.com/photo-'+hero.img+'?w=1400&q=80&auto=format&fit=crop';return '<div class="tab-hero" style="background-image:linear-gradient(135deg,rgba(15,23,42,.62) 0%,rgba(15,23,42,.32) 55%,rgba(15,23,42,.18) 100%),url(&quot;'+url+'&quot;)"><div class="tab-hero-particles"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><div class="tab-hero-body"><h2 class="tab-hero-h">'+hero.h+'</h2><p class="tab-hero-s">'+hero.s+'</p></div></div>'})();
 if(S.tab!=='tasks')h+=_tabHeroHtml;
