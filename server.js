@@ -486,14 +486,30 @@ input:focus,textarea:focus{outline:none;border-color:#0F172A}textarea{resize:ver
 .hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding:4px 2px}.logo{font-family:'Space Mono',monospace;font-size:30px;font-weight:700;letter-spacing:-.8px;line-height:1.1}.logo .k{color:#3DAE5C;display:inline-block;transition:transform .4s cubic-bezier(.4,1.5,.5,1)}.logo:hover .k{transform:scale(1.15) rotate(-6deg)}
 .hdr-st{font-size:11px;font-weight:700;padding:8px 14px;border-radius:10px;background:#FFFFFF;border:1px solid #E8E9EF;display:flex;align-items:center;gap:7px;letter-spacing:.8px;box-shadow:0 2px 6px rgba(0,0,0,.04)}
 .dot{width:9px;height:9px;border-radius:50%;display:inline-block;animation:pulse-dot 2s ease-in-out infinite}
-.hdr-sub{font-size:13px;color:#94A3B8;margin-top:2px;font-weight:500;display:flex;align-items:center;gap:10px;font-family:'Instrument Serif',Georgia,serif;font-size:15px;letter-spacing:.02em}
-.hdr-orbit{width:36px;height:36px;flex-shrink:0;color:#6366F1;filter:drop-shadow(0 2px 8px rgba(99,102,241,.35))}
-.hdr-orbit .orbit-ring{opacity:.28}
-.hdr-orbit .orbit-1{transform-origin:12px 12px;animation:orbitSpin 9s linear infinite}
-.hdr-orbit .orbit-2{transform-origin:12px 12px;animation:orbitSpin 5.5s linear infinite reverse}
-.hdr-orbit .orbit-core{animation:corePulse 2.6s ease-in-out infinite}
-@keyframes orbitSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-@keyframes corePulse{0%,100%{transform-origin:12px 12px;transform:scale(1);opacity:1}50%{transform-origin:12px 12px;transform:scale(1.45);opacity:.6}}
+.hdr-sub{margin-top:4px;font-weight:500;display:flex;align-items:center;gap:14px;font-family:'Instrument Serif',Georgia,serif;font-size:15px;letter-spacing:.02em;color:#64748B}
+/* Jump-rope figure in the header */
+.hdr-jumper{width:50px;height:50px;flex-shrink:0;color:#6366F1;filter:drop-shadow(0 2px 8px rgba(99,102,241,.32))}
+.hdr-jumper .jumper{transform-origin:30px 32px;animation:hdrJump .85s ease-in-out infinite}
+.hdr-jumper .leg-l{transform-origin:30px 32px;animation:jumpLegL .85s ease-in-out infinite}
+.hdr-jumper .leg-r{transform-origin:30px 32px;animation:jumpLegR .85s ease-in-out infinite}
+.hdr-jumper .rope-top{animation:ropeTop .85s linear infinite}
+.hdr-jumper .rope-bottom{animation:ropeBottom .85s linear infinite}
+.hdr-jumper .ground{stroke:#94A3B8;opacity:.35}
+.hdr-jumper .puff{animation:puffPop .85s ease-out infinite}
+@keyframes hdrJump{0%,100%{transform:translateY(0)}40%{transform:translateY(-7px)}50%{transform:translateY(-7px)}}
+@keyframes jumpLegL{0%,100%{transform:translateY(0) rotate(0deg)}40%,50%{transform:translateY(-7px) rotate(-12deg)}}
+@keyframes jumpLegR{0%,100%{transform:translateY(0) rotate(0deg)}40%,50%{transform:translateY(-7px) rotate(12deg)}}
+@keyframes ropeTop{0%,49%{opacity:0}50%,100%{opacity:1}}
+@keyframes ropeBottom{0%,49%{opacity:1}50%,100%{opacity:0}}
+@keyframes puffPop{0%{opacity:0;transform:scale(.4)}10%{opacity:.85;transform:scale(1)}40%,100%{opacity:0;transform:scale(1.3)}}
+/* Live time block in the header */
+.hdr-time{display:flex;align-items:baseline;gap:6px;font-family:'Instrument Serif',Georgia,serif}
+.hdr-time-hm{font-size:24px;font-weight:400;letter-spacing:-.02em;color:#0F172A;line-height:1}
+.hdr-time-sec{font-size:14px;color:#E8453C;animation:secBlink 1s steps(2) infinite;font-weight:400}
+.hdr-time-sep{color:#CBD5E1;font-size:18px;margin:0 4px}
+.hdr-time-date{font-size:14px;color:#64748B;font-style:italic}
+body[data-theme=aurora] .hdr-time-hm{color:#F5F5FA}
+body[data-theme=aurora] .hdr-time-date{color:#9999B5}
 /* Section dividers — thin gradient line with a pulsing centered node */
 .section-div{height:1px;background:linear-gradient(90deg,transparent 0%,rgba(99,102,241,.18) 30%,rgba(232,145,44,.22) 50%,rgba(99,102,241,.18) 70%,transparent 100%);margin:18px 0;position:relative}
 .section-div::before{content:'';position:absolute;top:50%;left:50%;width:8px;height:8px;border-radius:50%;background:#fff;border:2px solid rgba(99,102,241,.55);transform:translate(-50%,-50%);box-shadow:0 0 0 0 rgba(99,102,241,.45);animation:nodePulse 3s ease-in-out infinite}
@@ -1677,8 +1693,8 @@ function calSelect(d){S.calSelectedDate=d;render()}
 function calAddForDate(){S.form={title:'',notes:'',priority:'medium',dueDate:S.calSelectedDate||'',reminderTime:'',status:'pending'};S.editing=null;S.showAdd=true;render();setTimeout(()=>{const e=document.getElementById('ft');if(e)e.focus()},100)}
 function rotateMoral(){const a=document.getElementById('audioEl');if(a&&!a.paused)return;S.moralIdx=(S.moralIdx+1)%MORALS.length;render()}
 setInterval(()=>{if(S.user)rotateMoral()},45000);
-// Live-tick the sidebar clock without re-rendering the whole tree
-setInterval(()=>{const t=document.getElementById('sideNowTime');const s=document.getElementById('sideNowSec');if(!t||!s)return;const n=new Date();const hm=n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false});const sec=String(n.getSeconds()).padStart(2,'0');if(t.firstChild&&t.firstChild.nodeValue!==hm)t.firstChild.nodeValue=hm;s.textContent=sec},1000);
+// Live-tick the sidebar AND header clocks without re-rendering the whole tree
+setInterval(()=>{const n=new Date();const hm=n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false});const sec=String(n.getSeconds()).padStart(2,'0');const t=document.getElementById('sideNowTime');const s=document.getElementById('sideNowSec');if(t&&s){if(t.firstChild&&t.firstChild.nodeValue!==hm)t.firstChild.nodeValue=hm;s.textContent=sec}const ht=document.getElementById('hdrTimeHm');const hs=document.getElementById('hdrTimeSec');if(ht&&hs){if(ht.textContent!==hm)ht.textContent=hm;hs.textContent=':'+sec}},1000);
 
 async function loadBooks(cat){S.booksCat=cat;S.booksLoading=true;render();try{const subjectMap={'self-help':'(subject:"self-help" OR subject:"self help" OR subject:"self improvement" OR subject:"non-fiction")'};const subj=subjectMap[cat]||('subject:'+cat);const q=cat==='all'?'collection:librivoxaudio AND mediatype:audio':'collection:librivoxaudio AND mediatype:audio AND '+subj;const url='https://archive.org/advancedsearch.php?q='+encodeURIComponent(q)+'&fl[]=identifier&fl[]=title&fl[]=creator&fl[]=downloads&rows=30&output=json&sort[]=downloads+desc';const r=await fetch(url);const j=await r.json();S.books=j.response.docs;}catch(e){S.books=[];toast('\\u26A0\\uFE0F Failed to load books','err')}S.booksLoading=false;render()}
 async function playBook(id){const b=S.books.find(x=>x.identifier===id);if(!b){toast('\\u26A0\\uFE0F Book not found','err');return}const title=Array.isArray(b.title)?b.title[0]:b.title;const author=Array.isArray(b.creator)?b.creator[0]:(b.creator||'Unknown');S.playing={id,title,author,loading:true};render();try{const r=await fetch('https://archive.org/metadata/'+encodeURIComponent(id));if(!r.ok)throw new Error('metadata '+r.status);const j=await r.json();if(!j.files||!j.files.length){toast('\\u26A0\\uFE0F No files \\u2014 opening archive.org','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render();return}let mp3=j.files.find(f=>/_64kb\\.mp3$/i.test(f.name));if(!mp3)mp3=j.files.find(f=>/_32kb\\.mp3$/i.test(f.name));if(!mp3)mp3=j.files.find(f=>/\\.mp3$/i.test(f.name)&&!/sample|test|spoken/i.test(f.name));if(!mp3)mp3=j.files.find(f=>/\\.(mp3|m4a|ogg)$/i.test(f.name));if(mp3){const server=j.server||'archive.org';const dir=j.dir||('/'+id);const directUrl='https://'+server+dir+'/'+mp3.name.split('/').map(encodeURIComponent).join('/');const dlUrl='https://archive.org/download/'+encodeURIComponent(id)+'/'+mp3.name.split('/').map(encodeURIComponent).join('/');S.playing={id,title,author,url:directUrl,altUrl:dlUrl,external:'https://archive.org/details/'+id};render();setTimeout(()=>{const a=document.getElementById('audioEl');if(!a)return;a.setAttribute('playsinline','');a.setAttribute('webkit-playsinline','');a.preload='auto';a.addEventListener('error',function onErr(){a.removeEventListener('error',onErr);if(a.src!==dlUrl){a.src=dlUrl;a.load()}},{once:true});a.load();a.addEventListener('play',startBookListenTimer);a.addEventListener('pause',()=>{/* keep timer; checks paused itself */});const p=a.play();if(p&&p.catch)p.catch(()=>toast('\\u25B6\\uFE0F Tap the play button on the bar','err'))},250)}else{toast('\\u26A0\\uFE0F No audio \\u2014 opening archive.org','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render()}}catch(e){toast('\\u26A0\\uFE0F '+e.message,'err');S.playing={id,title,author,url:null,external:'https://archive.org/details/'+id,error:e.message};render()}}
@@ -1743,8 +1759,31 @@ return;
 const ts=S.tasks,f=ts.filter(t=>{if(S.search){const q=S.search.toLowerCase();if(!t.title.toLowerCase().includes(q)&&!(t.notes||'').toLowerCase().includes(q))return false}if(S.view==='all')return true;if(S.view==='today')return isTd(t.due_date);if(S.view==='overdue')return isOD(t.due_date,t.status);return t.status===S.view});
 const s={total:ts.length,pend:ts.filter(t=>t.status==='pending').length,act:ts.filter(t=>t.status==='in-progress').length,dn:ts.filter(t=>t.status==='done').length,od:ts.filter(t=>isOD(t.due_date,t.status)).length};
 
-const ORBIT='<svg class="hdr-orbit" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle class="orbit-ring" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1"/><circle class="orbit-ring" cx="12" cy="12" r="6" stroke="currentColor" stroke-width="1"/><g class="orbit-1"><circle cx="12" cy="2" r="2" fill="#6366F1"/></g><g class="orbit-2"><circle cx="12" cy="6" r="1.6" fill="#E8912C"/></g><circle class="orbit-core" cx="12" cy="12" r="1.8" fill="currentColor"/></svg>';
-let h='<div class="hdr"><div><div class="logo">Bro<span class="k">Do</span>it</div><div class="hdr-sub">'+ORBIT+'<span>'+new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})+'</span></div></div><div class="hdr-actions"><button class="theme-tg" onclick="toggleTheme()" title="Switch theme">'+(S.theme==='aurora'?ic('sun',18):ic('moon',18))+'</button><div class="hdr-st"><span class="dot" style="background:'+(S.waConnected&&S.waOk?'#10B981':'#CBD5E1')+'"></span>'+(S.waConnected&&S.waOk?'LIVE':'OFF')+'</div></div></div>';
+const JUMPER='<svg class="hdr-jumper" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">'
+  +'<line class="ground" x1="6" y1="48" x2="54" y2="48" stroke-width="1.2" stroke-linecap="round"/>'
+  +'<path class="rope-top" d="M 8 32 Q 30 6 52 32" stroke="#E8453C" stroke-width="1.6" fill="none" stroke-linecap="round"/>'
+  +'<path class="rope-bottom" d="M 8 32 Q 30 56 52 32" stroke="#E8453C" stroke-width="1.6" fill="none" stroke-linecap="round"/>'
+  +'<g class="jumper">'
+    +'<circle cx="30" cy="14" r="3.4" fill="currentColor"/>'
+    +'<line x1="30" y1="17" x2="30" y2="32" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>'
+    +'<line x1="30" y1="22" x2="22" y2="30" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>'
+    +'<line x1="30" y1="22" x2="38" y2="30" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>'
+    +'<g class="leg-l"><line x1="30" y1="32" x2="26" y2="44" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></g>'
+    +'<g class="leg-r"><line x1="30" y1="32" x2="34" y2="44" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></g>'
+  +'</g>'
+  +'<g class="puff" opacity="0" fill="#94A3B8"><circle cx="20" cy="48" r="1.8"/><circle cx="40" cy="48" r="1.8"/></g>'
+  +'</svg>';
+const _now=new Date();
+const _hm=_now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false});
+const _sec=String(_now.getSeconds()).padStart(2,'0');
+const _date=_now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+const HDR_TIME='<div class="hdr-time">'
+  +'<span class="hdr-time-hm" id="hdrTimeHm">'+_hm+'</span>'
+  +'<span class="hdr-time-sec" id="hdrTimeSec">:'+_sec+'</span>'
+  +'<span class="hdr-time-sep">|</span>'
+  +'<span class="hdr-time-date">'+_date+'</span>'
++'</div>';
+let h='<div class="hdr"><div><div class="logo">Bro<span class="k">Do</span>it</div><div class="hdr-sub">'+JUMPER+HDR_TIME+'</div></div><div class="hdr-actions"><button class="theme-tg" onclick="toggleTheme()" title="Switch theme">'+(S.theme==='aurora'?ic('sun',18):ic('moon',18))+'</button><div class="hdr-st"><span class="dot" style="background:'+(S.waConnected&&S.waOk?'#10B981':'#CBD5E1')+'"></span>'+(S.waConnected&&S.waOk?'LIVE':'OFF')+'</div></div></div>';
 
 // Moral chip
 const m=MORALS[S.moralIdx];
