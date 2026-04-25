@@ -735,6 +735,27 @@ body[data-theme=aurora] .top-strip .side-now-days{color:#9999B5}
 body[data-theme=aurora] .top-strip .side-now-days b{color:#F472B6}
 body[data-theme=aurora] .top-strip .side-now-date{color:#9999B5}
 .top-strip .side-now-foot{font-size:10px;color:#94A3B8;font-weight:700;letter-spacing:.5px;display:flex;justify-content:space-between;margin-top:0}
+/* World clocks row inside the side-now panel */
+.top-strip .side-now-cities{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin-top:3px;font-size:10.5px;color:#475569;font-weight:600;line-height:1}
+.top-strip .city-clock{display:inline-flex;align-items:baseline;gap:3px;font-family:'Space Mono',monospace;font-size:10.5px;color:#475569}
+.top-strip .city-clock b{color:#6366F1;font-size:9px;font-weight:800;letter-spacing:.4px;font-family:'Inter',sans-serif}
+.top-strip .city-sep{color:#CBD5E1;font-size:9px}
+body[data-theme=aurora] .top-strip .side-now-cities{color:#9999B5}
+body[data-theme=aurora] .top-strip .city-clock{color:#C4B5FD}
+body[data-theme=aurora] .top-strip .city-clock b{color:#A78BFA}
+/* News ticker — floating headlines below the moral chip */
+.news-ticker{background:linear-gradient(135deg,rgba(99,102,241,.04),rgba(236,72,153,.04));border:1px solid rgba(99,102,241,.14);border-radius:10px;padding:6px 12px;font-size:12.5px;line-height:1.35;overflow:hidden;position:relative;min-height:30px}
+.news-ticker-inner{display:flex;align-items:center;gap:10px;opacity:0;transform:translateY(6px);transition:opacity .4s ease,transform .4s ease}
+.news-ticker-inner.show{opacity:1;transform:translateY(0)}
+.news-ticker-pulse{width:7px;height:7px;border-radius:50%;background:#E8453C;flex-shrink:0;box-shadow:0 0 0 0 rgba(232,69,60,.6);animation:tickerLive 1.6s ease-in-out infinite}
+@keyframes tickerLive{0%,100%{box-shadow:0 0 0 0 rgba(232,69,60,.6)}50%{box-shadow:0 0 0 5px rgba(232,69,60,0)}}
+.news-ticker-src{font-size:9.5px;font-weight:800;color:#6366F1;letter-spacing:1.2px;text-transform:uppercase;flex-shrink:0;background:rgba(99,102,241,.1);padding:2px 7px;border-radius:6px}
+.news-ticker-link{font-weight:600;color:#0F172A;text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0;transition:color .15s ease}
+.news-ticker-link:hover{color:#6366F1}
+body[data-theme=aurora] .news-ticker{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(244,114,182,.06));border-color:rgba(167,139,250,.18)}
+body[data-theme=aurora] .news-ticker-link{color:#F5F5FA}
+body[data-theme=aurora] .news-ticker-link:hover{color:#A78BFA}
+body[data-theme=aurora] .news-ticker-src{color:#A78BFA;background:rgba(167,139,250,.16)}
 .top-strip .side-now-row-w{transition:opacity .15s ease;user-select:none}
 .top-strip .side-now-row-w:hover{opacity:.85}
 .top-strip .weather-pin{font-size:11px}
@@ -829,7 +850,8 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
   .app{max-width:1440px;padding:12px 24px 40px;display:grid;grid-template-columns:220px 1fr;grid-template-areas:"hdr hdr" "topstrip moral" "nav main";column-gap:22px;row-gap:6px}
   .app>.hdr{grid-area:hdr;margin-bottom:0}
   .app>.top-strip{grid-area:topstrip;margin-bottom:0}
-  .app>.moral{grid-area:moral;margin-bottom:0}
+  .app>.moral-wrap{grid-area:moral;margin-bottom:0;display:flex;flex-direction:column;gap:6px}
+  .moral-wrap .moral{margin-bottom:0}
   .app>.tabs.page-t{grid-area:nav;flex-direction:column;align-self:start;position:sticky;top:22px;padding:8px;gap:4px;overflow:visible;margin-bottom:0;justify-content:flex-start}
   .app>.tabs.page-t .tab{width:100%;flex:0 0 auto;min-height:50px;padding:8px 10px;font-size:13.5px;font-weight:600;justify-content:flex-start;border-radius:10px;gap:10px;align-items:center;border:none}
   .app>.tabs.page-t .tab .ti{width:36px;height:36px;border-radius:9px;background-size:cover;background-position:center;background-color:#0F172A;background-repeat:no-repeat;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:0;transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s ease;position:relative;overflow:hidden;box-shadow:0 2px 6px rgba(15,23,42,.14)}
@@ -1971,6 +1993,7 @@ knowledge:{loading:false,loaded:{},articles:{},events:[],topic:'history',sec:'to
 game:{active:false,board:Array(9).fill(null),turn:'X',status:'idle',winLine:null,wins:Number(localStorage.getItem('tf_ttt_wins')||0),losses:Number(localStorage.getItem('tf_ttt_losses')||0),draws:Number(localStorage.getItem('tf_ttt_draws')||0)},
 weather:{city:localStorage.getItem('tf_city')||'Bangalore',temp:null,aqi:null,country:'',loaded:false,loading:false,error:null},
 medCat:localStorage.getItem('tf_medcat')||'vipassana',
+ticker:{items:[],idx:0,loaded:false},
 waConnected:localStorage.getItem('wa_connected')==='1',showWAOnboard:false,activeMeditation:null,
 google:{configured:false,accounts:[],loaded:false},gcalEvents:[],gcalLoading:false,showGcalAdd:false,gcalForm:{title:'',date:'',time:'',duration:30,notes:'',email:''},
 calMonth:new Date(),calSelectedDate:new Date().toISOString().slice(0,10),
@@ -2305,9 +2328,12 @@ function tttFinish(result){
 }
 function gameEnd(){S.game.active=false;S.game.status='idle';render()}
 async function loadWeather(){if(S.weather.loading)return;S.weather.loading=true;S.weather.error=null;render();try{const r=await fetch('/api/weather?city='+encodeURIComponent(S.weather.city||'Bangalore'));const j=await r.json();if(j.error){S.weather.error=j.error}else{S.weather.city=j.city||S.weather.city;S.weather.country=j.country||'';S.weather.temp=j.temp;S.weather.aqi=j.aqi}}catch(e){S.weather.error=String(e)}S.weather.loaded=true;S.weather.loading=false;render()}
+async function loadTicker(){try{const r=await fetch('/api/news?cat=technology',{cache:'no-store'});const j=await r.json();S.ticker={items:(j.items||[]).slice(0,12),idx:0,loaded:true};render();_startTicker()}catch(e){}}
+let _tickerTimer=null;
+function _startTicker(){if(_tickerTimer)clearInterval(_tickerTimer);if(!S.ticker.items.length)return;_tickerTimer=setInterval(()=>{if(!S.ticker.items.length)return;S.ticker.idx=(S.ticker.idx+1)%S.ticker.items.length;const el=document.getElementById('newsTickerInner');if(el){const it=S.ticker.items[S.ticker.idx];el.classList.remove('show');setTimeout(()=>{const a=document.getElementById('newsTickerLink');if(a){a.textContent=(it.title||'').slice(0,140);a.href=it.link||'#';a.title=it.title||''}const src=document.getElementById('newsTickerSrc');if(src)src.textContent=(it.source||'').toUpperCase();el.classList.add('show')},420)}},5000)}
 function setCity(){const c=prompt('Set your city',S.weather.city||'Bangalore');if(!c)return;const t=c.trim();if(!t)return;localStorage.setItem('tf_city',t);S.weather.city=t;S.weather.loaded=false;loadWeather()}
-// Live-tick the sidebar AND header clocks without re-rendering the whole tree
-setInterval(()=>{const n=new Date();const hm=n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false});const sec=String(n.getSeconds()).padStart(2,'0');const t=document.getElementById('sideNowTime');const s=document.getElementById('sideNowSec');if(t&&s){if(t.firstChild&&t.firstChild.nodeValue!==hm)t.firstChild.nodeValue=hm;s.textContent=':'+sec}const ht=document.getElementById('hdrTimeHm');const hs=document.getElementById('hdrTimeSec');if(ht&&hs){if(ht.textContent!==hm)ht.textContent=hm;hs.textContent=':'+sec}},1000);
+// Live-tick the sidebar, header clocks AND world clocks without re-rendering the whole tree
+setInterval(()=>{const n=new Date();const hm=n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false});const sec=String(n.getSeconds()).padStart(2,'0');const t=document.getElementById('sideNowTime');const s=document.getElementById('sideNowSec');if(t&&s){if(t.firstChild&&t.firstChild.nodeValue!==hm)t.firstChild.nodeValue=hm;s.textContent=':'+sec}const ht=document.getElementById('hdrTimeHm');const hs=document.getElementById('hdrTimeSec');if(ht&&hs){if(ht.textContent!==hm)ht.textContent=hm;hs.textContent=':'+sec}const cities=document.querySelectorAll('#sideNowCities [data-tz]');cities.forEach(el=>{try{const tz=el.getAttribute('data-tz');const t2=new Date().toLocaleTimeString('en-US',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false});if(el.textContent!==t2)el.textContent=t2}catch(e){}})},1000);
 
 async function loadBooks(cat){S.booksCat=cat;S.booksLoading=true;render();try{const subjectMap={'self-help':'(subject:"self-help" OR subject:"self help" OR subject:"self improvement" OR subject:"non-fiction")'};const subj=subjectMap[cat]||('subject:'+cat);const q=cat==='all'?'collection:librivoxaudio AND mediatype:audio':'collection:librivoxaudio AND mediatype:audio AND '+subj;const url='https://archive.org/advancedsearch.php?q='+encodeURIComponent(q)+'&fl[]=identifier&fl[]=title&fl[]=creator&fl[]=downloads&rows=30&output=json&sort[]=downloads+desc';const r=await fetch(url);const j=await r.json();S.books=j.response.docs;}catch(e){S.books=[];toast('\\u26A0\\uFE0F Failed to load books','err')}S.booksLoading=false;render()}
 async function playBook(id){const b=S.books.find(x=>x.identifier===id);if(!b){toast('\\u26A0\\uFE0F Book not found','err');return}const title=Array.isArray(b.title)?b.title[0]:b.title;const author=Array.isArray(b.creator)?b.creator[0]:(b.creator||'Unknown');S.playing={id,title,author,loading:true};render();try{const r=await fetch('https://archive.org/metadata/'+encodeURIComponent(id));if(!r.ok)throw new Error('metadata '+r.status);const j=await r.json();if(!j.files||!j.files.length){toast('\\u26A0\\uFE0F No files \\u2014 opening archive.org','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render();return}let mp3=j.files.find(f=>/_64kb\\.mp3$/i.test(f.name));if(!mp3)mp3=j.files.find(f=>/_32kb\\.mp3$/i.test(f.name));if(!mp3)mp3=j.files.find(f=>/\\.mp3$/i.test(f.name)&&!/sample|test|spoken/i.test(f.name));if(!mp3)mp3=j.files.find(f=>/\\.(mp3|m4a|ogg)$/i.test(f.name));if(mp3){const server=j.server||'archive.org';const dir=j.dir||('/'+id);const directUrl='https://'+server+dir+'/'+mp3.name.split('/').map(encodeURIComponent).join('/');const dlUrl='https://archive.org/download/'+encodeURIComponent(id)+'/'+mp3.name.split('/').map(encodeURIComponent).join('/');S.playing={id,title,author,url:directUrl,altUrl:dlUrl,external:'https://archive.org/details/'+id};render();setTimeout(()=>{const a=document.getElementById('audioEl');if(!a)return;a.setAttribute('playsinline','');a.setAttribute('webkit-playsinline','');a.preload='auto';a.addEventListener('error',function onErr(){a.removeEventListener('error',onErr);if(a.src!==dlUrl){a.src=dlUrl;a.load()}},{once:true});a.load();a.addEventListener('play',startBookListenTimer);a.addEventListener('pause',()=>{/* keep timer; checks paused itself */});const p=a.play();if(p&&p.catch)p.catch(()=>toast('\\u25B6\\uFE0F Tap the play button on the bar','err'))},250)}else{toast('\\u26A0\\uFE0F No audio \\u2014 opening archive.org','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render()}}catch(e){toast('\\u26A0\\uFE0F '+e.message,'err');S.playing={id,title,author,url:null,external:'https://archive.org/details/'+id,error:e.message};render()}}
@@ -2408,7 +2434,13 @@ let h=PHONE_BANNER+'<div class="hdr"><div><div class="logo">Bro<span class="k">D
 
 // Moral chip
 const m=MORALS[S.moralIdx];
-h+='<div class="moral">'+MORAL_DOODLE+'<div class="moral-emoji">\\u{1F4A1}</div><div class="moral-body"><div class="moral-lbl">Moral of the Day</div><div class="moral-txt">"'+esc(m.t)+'"</div><div class="moral-by">\\u2014 '+esc(m.a)+'</div></div><button class="moral-ref" onclick="rotateMoral()" title="New quote">\\u21BB</button></div>';
+{
+  const mWrap='<div class="moral">'+MORAL_DOODLE+'<div class="moral-emoji">\\u{1F4A1}</div><div class="moral-body"><div class="moral-lbl">Moral of the Day</div><div class="moral-txt">"'+esc(m.t)+'"</div><div class="moral-by">\\u2014 '+esc(m.a)+'</div></div><button class="moral-ref" onclick="rotateMoral()" title="New quote">\\u21BB</button></div>';
+  // News ticker — floating headlines below the moral chip, fading in/out every 5s
+  const ti=(S.ticker.items||[])[S.ticker.idx]||{title:'',link:'#',source:''};
+  const ticker='<div class="news-ticker"><div class="news-ticker-inner show" id="newsTickerInner"><span class="news-ticker-pulse"></span><span class="news-ticker-src" id="newsTickerSrc">'+esc((ti.source||'').toUpperCase())+'</span><a class="news-ticker-link" id="newsTickerLink" href="'+esc(ti.link||'#')+'" target="_blank" rel="noopener" title="'+esc(ti.title||'')+'">'+esc((ti.title||'Loading latest news\\u2026').slice(0,140))+'</a></div></div>';
+  h+='<div class="moral-wrap">'+mWrap+ticker+'</div>';
+}
 
 // Tabs
 {
@@ -2445,6 +2477,8 @@ h+='<div class="moral">'+MORAL_DOODLE+'<div class="moral-emoji">\\u{1F4A1}</div>
   const w=S.weather||{};
   const aqiLevel=w.aqi==null?'':w.aqi<=50?'good':w.aqi<=100?'mod':w.aqi<=150?'usg':w.aqi<=200?'bad':w.aqi<=300?'vbad':'haz';
   const aqiColor={good:'#10B981',mod:'#F59E0B',usg:'#F97316',bad:'#E8453C',vbad:'#9333EA',haz:'#7F1D1D'}[aqiLevel]||'#94A3B8';
+  const fmtTZ=(tz)=>{try{return new Date().toLocaleTimeString('en-US',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false})}catch(e){return '--:--'}};
+  const CITIES=[{l:'NYC',tz:'America/New_York'},{l:'LAX',tz:'America/Los_Angeles'},{l:'LDN',tz:'Europe/London'},{l:'SGP',tz:'Asia/Singapore'}];
   const sideNow='<div class="side-now" aria-hidden="true">'
     +'<div class="side-now-row">'
       +'<span class="side-now-time" id="sideNowTime">'+now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false})+'<span class="sec" id="sideNowSec">:'+String(now.getSeconds()).padStart(2,'0')+'</span></span>'
@@ -2453,6 +2487,7 @@ h+='<div class="moral">'+MORAL_DOODLE+'<div class="moral-emoji">\\u{1F4A1}</div>
       +'<span class="side-now-sep">\\u2022</span>'
       +'<span class="side-now-days"><b>'+daysLeft+'</b>d</span>'
     +'</div>'
+    +'<div class="side-now-cities" id="sideNowCities">'+CITIES.map(c=>'<span class="city-clock"><b>'+c.l+'</b> <span data-tz="'+c.tz+'">'+fmtTZ(c.tz)+'</span></span>').join('<span class="city-sep">\\u00b7</span>')+'</div>'
     +'<div class="side-now-row side-now-row-w" onclick="setCity()" title="Click to change city" style="cursor:pointer">'
       +'<span class="weather-pin">\\u{1F4CD}</span>'
       +'<span class="weather-city">'+esc(w.city||'Bangalore')+'</span>'
@@ -2931,7 +2966,7 @@ document.getElementById('app').innerHTML=h;
 }
 fetch('/api/config').then(r=>r.json()).then(c=>{window.__TWILIO_SANDBOX_CODE=c.sandboxCode||'';render()}).catch(()=>{});
 applyTheme();
-if(S.user){refreshSession();load();loadBookStreak();loadGoogleStatus();loadWeather();chk();setInterval(load,10000);setInterval(loadWeather,15*60*1000)}else render();
+if(S.user){refreshSession();load();loadBookStreak();loadGoogleStatus();loadWeather();loadTicker();chk();setInterval(load,10000);setInterval(loadWeather,15*60*1000);setInterval(loadTicker,15*60*1000)}else render();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
 </script></body></html>`;
 
