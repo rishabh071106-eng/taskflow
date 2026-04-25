@@ -589,6 +589,14 @@ body[data-theme=aurora] .streak-n,body[data-theme=aurora] .streak-tot b{color:#F
 body[data-theme=aurora] .streak-n span,body[data-theme=aurora] .streak-lbl,body[data-theme=aurora] .streak-tot small{color:#FB923C}
 body[data-theme=aurora] .streak-tot{border-left-color:rgba(251,146,60,.3)}
 /* Section header (uniform across Books/Steps/Board/News tabs) */
+.tab-hero{position:relative;height:170px;border-radius:20px;overflow:hidden;background-size:cover;background-position:center;margin-bottom:18px;display:flex;align-items:flex-end;padding:22px 26px;box-shadow:0 10px 28px rgba(15,23,42,.14);transition:transform .3s ease}
+.tab-hero:hover{transform:translateY(-2px)}
+.tab-hero-body{color:#fff;position:relative;z-index:1;max-width:80%}
+.tab-hero-h{font-family:'Instrument Serif',Georgia,serif;font-size:30px;font-weight:400;letter-spacing:-.02em;color:#fff;line-height:1.1;margin-bottom:4px;text-shadow:0 2px 14px rgba(0,0,0,.4)}
+.tab-hero-s{font-size:14px;color:rgba(255,255,255,.94);font-weight:450;text-shadow:0 1px 8px rgba(0,0,0,.45)}
+.tab-hero-credit{position:absolute;top:10px;right:14px;font-size:10px;color:rgba(255,255,255,.65);text-transform:uppercase;letter-spacing:.6px;font-weight:600;z-index:1}
+@media (max-width:600px){.tab-hero{height:140px;padding:18px 20px;border-radius:16px}.tab-hero-h{font-size:24px}.tab-hero-s{font-size:13px}}
+body[data-theme=aurora] .tab-hero{box-shadow:0 12px 32px rgba(0,0,0,.4)}
 .section-hd{display:flex;align-items:center;gap:14px;margin-bottom:18px}
 .section-ic{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:12px;background:#0F172A;color:#fff;flex-shrink:0}
 .section-hd h3{font-size:22px;font-weight:700;letter-spacing:-.5px;color:#0F172A;margin-bottom:2px}
@@ -1355,6 +1363,16 @@ if(token){S.user={phone:localStorage.getItem('tf_phone'),name:localStorage.getIt
 
 const api=async(p,o={})=>{try{const h={'Content-Type':'application/json'};if(token)h['x-token']=token;const r=await fetch('/api'+p,{headers:h,...o});if(r.status===401){logout();return null}return await r.json()}catch(e){return null}};
 const P={high:{c:'#E8453C',d:'\\u{1F534}'},medium:{c:'#E8912C',d:'\\u{1F7E0}'},low:{c:'#3DAE5C',d:'\\u{1F7E2}'}};
+// Scenic Unsplash hero banners per tab (free, hot-link friendly)
+const TAB_HERO={
+  tasks:{img:'1499951360447-b19be8fe80f5',h:'Make today count',s:'Small wins, stacked daily'},
+  board:{img:'1454165804606-c3d57bc86b40',h:'Move it forward',s:'Drag, drop, ship'},
+  cal:{img:'1506905925346-21bda4d32df4',h:'Plan with intention',s:'Your week, beautifully laid out'},
+  dash:{img:'1551288049-bebda4e38f71',h:'Track your progress',s:'Numbers that tell your story'},
+  news:{img:'1495020689067-958852a7765e',h:'What\\u2019s new today',s:'Curated stories from across the web'},
+  books:{img:'1507842217343-583bb7270b66',h:'Read &amp; grow',s:'Free public-domain audio \\u2022 a few minutes a day'},
+  meditation:{img:'1518609878373-06d740f60d8b',h:'Pause and breathe',s:'Guided sessions for a calm mind'}
+};
 function ic(n,sz){sz=sz||20;const s='width="'+sz+'" height="'+sz+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"';const m={
 tasks:'<svg '+s+'><path d="M9 11l2 2 4-4"/><path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c1.66 0 3.22.45 4.56 1.23"/></svg>',
 board:'<svg '+s+'><path d="M3 3h7v18H3z"/><path d="M14 3h7v10h-7z"/><path d="M14 17h7v4h-7z"/></svg>',
@@ -1574,6 +1592,15 @@ h+='<nav class="tabs page-t">'+[{k:'tasks',l:'Tasks'},{k:'board',l:'Board'},{k:'
 
 h+='<main class="main-col">';
 h+='<div class="user-bar" style="cursor:pointer" onclick="openProfile()"><span>\\u{1F464} '+esc(S.user.name||S.user.phone)+' <span style="color:#94A3B8;font-size:11px">\\u203A Profile</span></span><button onclick="event.stopPropagation();logout()">Logout</button></div>';
+
+// Scenic tab hero — sets the mood for the section
+{
+  const hero=TAB_HERO[S.tab];
+  if(hero){
+    const url='https://images.unsplash.com/photo-'+hero.img+'?w=1400&q=80&auto=format&fit=crop';
+    h+='<div class="tab-hero" style="background-image:linear-gradient(135deg,rgba(15,23,42,.62) 0%,rgba(15,23,42,.32) 55%,rgba(15,23,42,.18) 100%),url(&quot;'+url+'&quot;)"><div class="tab-hero-body"><h2 class="tab-hero-h">'+hero.h+'</h2><p class="tab-hero-s">'+hero.s+'</p></div><div class="tab-hero-credit">photo \\u00b7 unsplash</div></div>';
+  }
+}
 
 // TASKS TAB
 if(S.tab==='tasks'){
