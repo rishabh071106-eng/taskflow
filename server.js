@@ -519,23 +519,32 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
   .app>.moral{grid-area:moral;margin-bottom:0}
   .app>.tabs.page-t{grid-area:nav;flex-direction:column;align-self:stretch;position:sticky;top:28px;padding:16px;gap:10px;overflow:visible;min-height:calc(100vh - 56px);max-height:calc(100vh - 56px);margin-bottom:0;justify-content:flex-start}
   .app>.tabs.page-t .tab{width:100%;flex:1 1 0;min-height:74px;padding:14px 16px;font-size:16px;font-weight:600;justify-content:flex-start;border-radius:14px;gap:14px;align-items:center}
-  .app>.tabs.page-t .tab .ti{width:46px;height:46px;border-radius:13px;background:var(--tab-bg,#F1F5F9);color:var(--tab-fg,#0F172A);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:0;transition:all .2s ease}
-  .app>.tabs.page-t .tab .ti svg{width:26px;height:26px}
+  .app>.tabs.page-t .tab .ti{width:60px;height:60px;border-radius:14px;background-size:cover;background-position:center;background-color:#0F172A;background-repeat:no-repeat;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:0;transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s ease;position:relative;overflow:hidden;box-shadow:0 4px 14px rgba(15,23,42,.18)}
+  .app>.tabs.page-t .tab .ti::after{content:'';position:absolute;inset:0;background:var(--tab-tint,linear-gradient(135deg,rgba(99,102,241,.55),rgba(15,23,42,.35)));z-index:0;transition:opacity .2s ease}
+  .app>.tabs.page-t .tab .ti svg{width:28px;height:28px;position:relative;z-index:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.45))}
   .app>.tabs.page-t .tab .tl{font-size:16px;letter-spacing:-.01em}
-  .app>.tabs.page-t .tab.tab-tasks{--tab-bg:#EEF2FF;--tab-fg:#4F46E5}
-  .app>.tabs.page-t .tab.tab-board{--tab-bg:#FEF3C7;--tab-fg:#B45309}
-  .app>.tabs.page-t .tab.tab-cal{--tab-bg:#FCE7F3;--tab-fg:#BE185D}
-  .app>.tabs.page-t .tab.tab-news{--tab-bg:#CCFBF1;--tab-fg:#0D9488}
-  .app>.tabs.page-t .tab.tab-books{--tab-bg:#D1FAE5;--tab-fg:#047857}
-  .app>.tabs.page-t .tab.tab-meditation{--tab-bg:#EDE9FE;--tab-fg:#7C3AED}
-  .app>.tabs.page-t .tab.on .ti{background:rgba(255,255,255,.18);color:#fff}
-  .app>.tabs.page-t .tab:hover:not(.on) .ti{transform:scale(1.05)}
-  body[data-theme=aurora] .app>.tabs.page-t .tab.tab-tasks{--tab-bg:rgba(99,102,241,.16);--tab-fg:#A5B4FC}
-  body[data-theme=aurora] .app>.tabs.page-t .tab.tab-board{--tab-bg:rgba(232,145,44,.16);--tab-fg:#FCD34D}
-  body[data-theme=aurora] .app>.tabs.page-t .tab.tab-cal{--tab-bg:rgba(236,72,153,.16);--tab-fg:#F9A8D4}
-  body[data-theme=aurora] .app>.tabs.page-t .tab.tab-news{--tab-bg:rgba(13,148,136,.18);--tab-fg:#5EEAD4}
-  body[data-theme=aurora] .app>.tabs.page-t .tab.tab-books{--tab-bg:rgba(5,150,105,.18);--tab-fg:#6EE7B7}
-  body[data-theme=aurora] .app>.tabs.page-t .tab.tab-meditation{--tab-bg:rgba(139,92,246,.18);--tab-fg:#C4B5FD}
+  /* Each tab gets a distinct scenic background image */
+  .app>.tabs.page-t .tab.tab-tasks .ti{background-image:url("https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?w=200&q=70&auto=format&fit=crop")}
+  .app>.tabs.page-t .tab.tab-tasks{--tab-tint:linear-gradient(135deg,rgba(79,70,229,.55),rgba(15,23,42,.45))}
+  .app>.tabs.page-t .tab.tab-board .ti{background-image:url("https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=200&q=70&auto=format&fit=crop")}
+  .app>.tabs.page-t .tab.tab-board{--tab-tint:linear-gradient(135deg,rgba(217,119,6,.55),rgba(15,23,42,.45))}
+  .app>.tabs.page-t .tab.tab-cal .ti{background-image:url("https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&q=70&auto=format&fit=crop")}
+  .app>.tabs.page-t .tab.tab-cal{--tab-tint:linear-gradient(135deg,rgba(219,39,119,.5),rgba(15,23,42,.45))}
+  .app>.tabs.page-t .tab.tab-news .ti{background-image:url("https://images.unsplash.com/photo-1495020689067-958852a7765e?w=200&q=70&auto=format&fit=crop")}
+  .app>.tabs.page-t .tab.tab-news{--tab-tint:linear-gradient(135deg,rgba(13,148,136,.55),rgba(15,23,42,.45))}
+  .app>.tabs.page-t .tab.tab-books .ti{background-image:url("https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=200&q=70&auto=format&fit=crop")}
+  .app>.tabs.page-t .tab.tab-books{--tab-tint:linear-gradient(135deg,rgba(5,150,105,.55),rgba(15,23,42,.45))}
+  .app>.tabs.page-t .tab.tab-meditation .ti{background-image:url("https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=200&q=70&auto=format&fit=crop")}
+  .app>.tabs.page-t .tab.tab-meditation{--tab-tint:linear-gradient(135deg,rgba(124,58,237,.55),rgba(15,23,42,.45))}
+  .app>.tabs.page-t .tab:hover:not(.on) .ti{transform:scale(1.06);box-shadow:0 8px 22px rgba(15,23,42,.24)}
+  .app>.tabs.page-t .tab.on .ti{box-shadow:0 8px 24px rgba(15,23,42,.32),0 0 0 3px var(--ring,rgba(255,255,255,.7))}
+  .app>.tabs.page-t .tab.on .ti::after{opacity:.45}
+  .app>.tabs.page-t .tab.tab-tasks.on{--ring:rgba(99,102,241,.85)}
+  .app>.tabs.page-t .tab.tab-board.on{--ring:rgba(232,145,44,.85)}
+  .app>.tabs.page-t .tab.tab-cal.on{--ring:rgba(236,72,153,.85)}
+  .app>.tabs.page-t .tab.tab-news.on{--ring:rgba(13,148,136,.85)}
+  .app>.tabs.page-t .tab.tab-books.on{--ring:rgba(5,150,105,.85)}
+  .app>.tabs.page-t .tab.tab-meditation.on{--ring:rgba(139,92,246,.85)}
   .app>.main-col{grid-area:main;min-width:0}
   .fab{display:none}
   /* Wider hero elements on desktop */
