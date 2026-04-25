@@ -685,9 +685,9 @@ body[data-theme=aurora] .game-score{color:#A78BFA}
 body[data-theme=aurora] .game-stop{background:rgba(255,255,255,.05);color:#9999B5}
 @media (max-width:600px){.game-ttl{font-size:18px}.game-prompt{font-size:12px;min-width:0}.game-btn{padding:9px 16px;font-size:12.5px}}
 /* Top strip + climb + side-now base styles (work on all viewports) */
-.top-strip{display:flex;flex-direction:row;align-items:center;background:linear-gradient(135deg,rgba(99,102,241,.06) 0%,rgba(232,145,44,.06) 100%);border:1px solid rgba(99,102,241,.18);border-radius:12px;min-height:auto;position:relative;overflow:hidden;margin-bottom:0;box-shadow:0 2px 10px rgba(15,23,42,.04)}
-.top-strip .climb-scene,.top-strip .bro-mascot{position:relative;flex:0 0 auto;border-radius:0;background:transparent;border:none;min-height:auto;overflow:hidden;padding:6px 8px;display:flex;align-items:center;justify-content:flex-start;width:96px}
-.top-strip .bro-svg{width:100%;height:auto;max-height:42px}
+.top-strip{display:flex;flex-direction:column;align-items:stretch;background:linear-gradient(135deg,rgba(99,102,241,.06) 0%,rgba(232,145,44,.06) 100%);border:1px solid rgba(99,102,241,.18);border-radius:12px;min-height:auto;position:relative;overflow:hidden;margin-bottom:0;box-shadow:0 2px 10px rgba(15,23,42,.04)}
+.top-strip .climb-scene,.top-strip .bro-mascot{position:relative;flex:0 0 auto;border-radius:0;background:transparent;border:none;min-height:32px;overflow:hidden;padding:6px 10px 2px;display:flex;align-items:center;justify-content:center;width:auto}
+.top-strip .bro-svg{width:auto;height:auto;max-height:30px;max-width:90%}
 .bro-mascot .bro-figure{transform-origin:48px 110px;animation:broNod 2.4s ease-in-out infinite}
 @keyframes broNod{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-3px) rotate(1.5deg)}}
 .bro-mascot .bro-arm-r{transform-origin:48px 72px;animation:broWave 1.4s ease-in-out infinite}
@@ -703,7 +703,7 @@ body[data-theme=aurora] .bro-mascot .bro-bubble text:first-of-type{fill:#F5F5FA}
 body[data-theme=aurora] .bro-mascot .bro-bubble text:last-of-type{fill:#A78BFA}
 body[data-theme=aurora] .bro-mascot .bro-figure circle:first-child{fill:#A78BFA}
 body[data-theme=aurora] .bro-mascot .bro-figure line{stroke:#A78BFA}
-.top-strip .side-now{flex:1;background:transparent;border-top:none;border-left:1px dashed rgba(99,102,241,.2);padding:6px 12px;display:flex;flex-direction:column;justify-content:center;gap:4px;position:relative;overflow:hidden;margin-top:0;min-width:0}
+.top-strip .side-now{flex:0 0 auto;background:transparent;border-top:1px dashed rgba(99,102,241,.18);border-left:none;padding:6px 12px 8px;display:flex;flex-direction:column;justify-content:center;gap:3px;position:relative;overflow:hidden;margin-top:0;min-width:0}
 .top-strip .side-now-lbl{font-size:9px;font-weight:800;color:#6366F1;letter-spacing:1.2px;text-transform:uppercase}
 .top-strip .side-now-time{font-family:'Instrument Serif',Georgia,serif;font-size:20px;font-weight:400;color:#0F172A;line-height:1;letter-spacing:-.03em;margin-top:0}
 .top-strip .side-now-time .sec{color:#E8453C;animation:secBlink 1s steps(2) infinite;font-size:13px;margin-left:1px;font-family:'Instrument Serif',Georgia,serif}
@@ -800,8 +800,8 @@ body[data-theme=aurora] .section-div::before{background:#1A1A2E;border-color:rgb
 @media (prefers-reduced-motion:reduce){.hdr-orbit *,.tab-hero-particles *,.section-div::before,.moral-comet{animation:none!important}}
 .moral{display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#FFFBF1 0%,#FEF3E0 50%,#EAF6EE 100%);border:1px solid #F3D9A0;border-radius:12px;padding:10px 14px;margin-bottom:0;position:relative;overflow:hidden;min-height:auto;box-shadow:0 2px 8px rgba(232,145,44,.05)}
 .moral::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:linear-gradient(180deg,#E8912C,#3DAE5C);z-index:2}
-.moral-doodle{position:absolute;top:0;right:0;bottom:0;width:62%;max-width:640px;height:100%;pointer-events:none;z-index:0;opacity:1;filter:drop-shadow(0 1px 2px rgba(15,23,42,.05))}
-.moral::after{content:'';position:absolute;top:0;left:0;bottom:0;width:38%;background:linear-gradient(90deg,rgba(255,251,241,.96) 0%,rgba(254,243,224,.65) 75%,rgba(254,243,224,0) 100%);pointer-events:none;z-index:0}
+.moral-doodle{position:absolute;top:0;right:0;bottom:0;width:42%;max-width:480px;height:100%;pointer-events:none;z-index:0;opacity:.95;filter:drop-shadow(0 1px 2px rgba(15,23,42,.05))}
+.moral::after{content:'';position:absolute;top:0;left:0;bottom:0;width:58%;background:linear-gradient(90deg,rgba(255,251,241,.97) 0%,rgba(254,243,224,.75) 80%,rgba(254,243,224,0) 100%);pointer-events:none;z-index:0}
 @media (max-width:700px){.moral-doodle{width:36%;opacity:.8}.moral::after{width:64%}.moral{min-height:auto;padding:18px 18px 16px}.moral-txt{font-size:14.5px;line-height:1.4}.moral-by{font-size:12px}.moral-emoji{font-size:22px}}
 @media (max-width:480px){.moral-doodle{display:none}.moral::after{display:none}.moral-txt{font-size:14px}}
 body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,20,40,.9) 0%,rgba(20,20,40,.65) 70%,rgba(20,20,40,0) 100%)}
@@ -826,19 +826,16 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
 @media (max-width:600px){.tabs{padding:4px;gap:4px}.tab{padding:11px 12px;font-size:12px}.tab .ti{font-size:15px}.tab .tl{font-size:11.5px}}
 /* Desktop sidebar layout */
 @media (min-width:1024px){
-  .app{max-width:1440px;padding:24px 32px 56px;display:grid;grid-template-columns:240px 1.2fr 1fr;grid-template-areas:"hdr hdr hdr" "topstrip topstrip moral" "nav main main";column-gap:24px;row-gap:14px}
+  .app{max-width:1440px;padding:22px 28px 56px;display:grid;grid-template-columns:220px 1fr;grid-template-areas:"hdr hdr" "topstrip moral" "nav main";column-gap:22px;row-gap:12px}
   .app>.hdr{grid-area:hdr;margin-bottom:0}
   .app>.top-strip{grid-area:topstrip;margin-bottom:0}
   .app>.moral{grid-area:moral;margin-bottom:0}
-  .app>.tabs.page-t{grid-area:nav;flex-direction:column;align-self:start;position:sticky;top:28px;padding:14px;gap:8px;overflow:visible;margin-bottom:0;justify-content:flex-start}
-  .app>.tabs.page-t .tab{width:100%;flex:0 0 auto;min-height:78px;padding:14px 16px;font-size:16px;font-weight:600;justify-content:flex-start;border-radius:14px;gap:14px;align-items:center;border:1px solid transparent;border-bottom:1px solid rgba(15,23,42,.06)}
-  .app>.tabs.page-t .tab:last-of-type{border-bottom-color:transparent}
-  .app>.tabs.page-t .tab.on{border-color:rgba(15,23,42,.08);border-bottom-color:rgba(15,23,42,.08)}
-  body[data-theme=aurora] .app>.tabs.page-t .tab{border-bottom-color:rgba(255,255,255,.06)}
-  .app>.tabs.page-t .tab .ti{width:60px;height:60px;border-radius:14px;background-size:cover;background-position:center;background-color:#0F172A;background-repeat:no-repeat;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:0;transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s ease;position:relative;overflow:hidden;box-shadow:0 4px 14px rgba(15,23,42,.18)}
+  .app>.tabs.page-t{grid-area:nav;flex-direction:column;align-self:start;position:sticky;top:22px;padding:8px;gap:4px;overflow:visible;margin-bottom:0;justify-content:flex-start}
+  .app>.tabs.page-t .tab{width:100%;flex:0 0 auto;min-height:50px;padding:8px 10px;font-size:13.5px;font-weight:600;justify-content:flex-start;border-radius:10px;gap:10px;align-items:center;border:none}
+  .app>.tabs.page-t .tab .ti{width:36px;height:36px;border-radius:9px;background-size:cover;background-position:center;background-color:#0F172A;background-repeat:no-repeat;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:0;transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s ease;position:relative;overflow:hidden;box-shadow:0 2px 6px rgba(15,23,42,.14)}
   .app>.tabs.page-t .tab .ti::after{content:'';position:absolute;inset:0;background:var(--tab-tint,linear-gradient(135deg,rgba(99,102,241,.55),rgba(15,23,42,.35)));z-index:0;transition:opacity .2s ease}
-  .app>.tabs.page-t .tab .ti svg{width:28px;height:28px;position:relative;z-index:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.45))}
-  .app>.tabs.page-t .tab .tl{font-size:16px;letter-spacing:-.01em}
+  .app>.tabs.page-t .tab .ti svg{width:18px!important;height:18px!important;position:relative;z-index:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4));stroke-width:1.7!important}
+  .app>.tabs.page-t .tab .tl{font-size:13.5px;letter-spacing:-.01em}
   /* Each tab gets a distinct scenic background image */
   .app>.tabs.page-t .tab.tab-tasks .ti{background-image:url("https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?w=200&q=70&auto=format&fit=crop")}
   .app>.tabs.page-t .tab.tab-tasks{--tab-tint:linear-gradient(135deg,rgba(79,70,229,.55),rgba(15,23,42,.45))}
