@@ -487,13 +487,15 @@ input:focus,textarea:focus{outline:none;border-color:#0F172A}textarea{resize:ver
 .hdr-st{font-size:11px;font-weight:700;padding:8px 14px;border-radius:10px;background:#FFFFFF;border:1px solid #E8E9EF;display:flex;align-items:center;gap:7px;letter-spacing:.8px;box-shadow:0 2px 6px rgba(0,0,0,.04)}
 .dot{width:9px;height:9px;border-radius:50%;display:inline-block;animation:pulse-dot 2s ease-in-out infinite}
 .hdr-sub{font-size:13px;color:#94A3B8;margin-top:2px;font-weight:500}
-.moral{display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#FFFFFF,#F5E6C4);border:1px solid #F3D9A0;border-radius:16px;padding:16px 18px;margin-bottom:14px;position:relative;overflow:hidden;box-shadow:0 2px 10px rgba(232,145,44,.06)}
-.moral::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:linear-gradient(180deg,#E8912C,#3DAE5C)}
-.moral-emoji{font-size:26px;flex-shrink:0;filter:drop-shadow(0 2px 4px rgba(232,145,44,.3))}.moral-body{flex:1;min-width:0}
+.moral{display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#FFFBF1 0%,#FEF3E0 50%,#EAF6EE 100%);border:1px solid #F3D9A0;border-radius:18px;padding:20px 22px;margin-bottom:14px;position:relative;overflow:hidden;min-height:96px;box-shadow:0 4px 16px rgba(232,145,44,.08)}
+.moral::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:linear-gradient(180deg,#E8912C,#3DAE5C);z-index:2}
+.moral-doodle{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:.85}
+.moral-emoji{font-size:26px;flex-shrink:0;filter:drop-shadow(0 2px 4px rgba(232,145,44,.3));position:relative;z-index:1}
+.moral-body{flex:1;min-width:0;position:relative;z-index:1}
 .moral-lbl{font-size:10px;font-weight:700;color:#B57B00;text-transform:uppercase;letter-spacing:1.2px}
 .moral-txt{font-size:15px;line-height:1.45;color:#0F172A;font-weight:600;margin-top:3px;letter-spacing:-.1px}
 .moral-by{font-size:12px;color:#94A3B8;margin-top:4px;font-style:italic;font-weight:500}
-.moral-ref{width:34px;height:34px;border-radius:50%;background:#FFFFFF;color:#B57B00;font-size:15px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border:1.5px solid #F3D9A0;transition:all .3s cubic-bezier(.4,1.5,.5,1)}
+.moral-ref{width:34px;height:34px;border-radius:50%;background:#FFFFFF;color:#B57B00;font-size:15px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border:1.5px solid #F3D9A0;transition:all .3s cubic-bezier(.4,1.5,.5,1);position:relative;z-index:1}
 .moral-ref:hover{background:#B57B00;color:#fff;transform:rotate(180deg) scale(1.1)}
 .moral-ref:hover{transform:rotate(180deg);background:#0F172A;color:#F8FAFC}
 @keyframes slideIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
@@ -1364,6 +1366,20 @@ if(token){S.user={phone:localStorage.getItem('tf_phone'),name:localStorage.getIt
 const api=async(p,o={})=>{try{const h={'Content-Type':'application/json'};if(token)h['x-token']=token;const r=await fetch('/api'+p,{headers:h,...o});if(r.status===401){logout();return null}return await r.json()}catch(e){return null}};
 const P={high:{c:'#E8453C',d:'\\u{1F534}'},medium:{c:'#E8912C',d:'\\u{1F7E0}'},low:{c:'#3DAE5C',d:'\\u{1F7E2}'}};
 // Scenic Unsplash hero banners per tab (free, hot-link friendly)
+// Hand-drawn SVG doodle: exponential growth — 3 figures climbing the curve, +1 marks, star at peak
+const MORAL_DOODLE='<svg class="moral-doodle" viewBox="0 0 1200 240" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">'
++'<path d="M 30 210 C 280 208 420 200 580 175 S 820 110 1050 35" stroke="#6366F1" stroke-width="2.4" fill="none" stroke-linecap="round" opacity="0.32" stroke-dasharray="0"/>'
++'<path d="M 30 210 C 280 208 420 200 580 175 S 820 110 1050 35" stroke="#E8912C" stroke-width="2.4" fill="none" stroke-linecap="round" opacity="0.18" stroke-dasharray="3 6" transform="translate(0 4)"/>'
++'<g stroke="#6366F1" stroke-width="1" opacity="0.18"><line x1="30" y1="218" x2="1100" y2="218"/><line x1="200" y1="216" x2="200" y2="222"/><line x1="400" y1="216" x2="400" y2="222"/><line x1="600" y1="216" x2="600" y2="222"/><line x1="800" y1="216" x2="800" y2="222"/><line x1="1000" y1="216" x2="1000" y2="222"/></g>'
++'<g stroke="#0F172A" stroke-width="2" fill="none" opacity="0.32" stroke-linecap="round"><circle cx="200" cy="172" r="6"/><line x1="200" y1="178" x2="200" y2="194"/><line x1="193" y1="186" x2="207" y2="186"/><line x1="200" y1="194" x2="194" y2="206"/><line x1="200" y1="194" x2="206" y2="206"/></g>'
++'<g stroke="#3DAE5C" stroke-width="2" fill="none" opacity="0.55" stroke-linecap="round" stroke-linejoin="round"><circle cx="560" cy="140" r="7"/><line x1="560" y1="147" x2="560" y2="166"/><line x1="551" y1="155" x2="569" y2="155"/><line x1="560" y1="166" x2="552" y2="180"/><line x1="560" y1="166" x2="568" y2="180"/><path d="M 552 118 l 5 5 9 -11" stroke-width="2.6"/></g>'
++'<g stroke="#E8912C" stroke-width="2.2" fill="none" opacity="0.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="960" cy="58" r="8"/><line x1="960" y1="66" x2="960" y2="92"/><line x1="949" y1="76" x2="971" y2="76"/><line x1="960" y1="92" x2="950" y2="110"/><line x1="960" y1="92" x2="970" y2="110"/></g>'
++'<path d="M 960 28 l 4 -10 4 10 10 1 -8 7 3 11 -9 -6 -9 6 3 -11 -8 -7 z" fill="#E8912C" opacity="0.7"/>'
++'<g stroke="#6366F1" stroke-width="2.4" fill="none" opacity="0.5" stroke-linecap="round" stroke-linejoin="round"><line x1="1060" y1="40" x2="1095" y2="10"/><polyline points="1080 10 1095 10 1095 25"/></g>'
++'<g font-family="Inter, sans-serif" font-weight="700" font-size="13" fill="#3DAE5C" opacity="0.45"><text x="320" y="170">+1</text><text x="445" y="156">+1</text><text x="690" y="118">+1</text><text x="820" y="92">+1</text></g>'
++'<g fill="#E8912C" opacity="0.5"><circle cx="120" cy="186" r="2"/><circle cx="380" cy="160" r="2"/><circle cx="680" cy="115" r="2.5"/><circle cx="880" cy="78" r="2"/><circle cx="1020" cy="48" r="2.6"/></g>'
++'<g stroke="#64748B" stroke-width="1.4" fill="none" opacity="0.28" stroke-linecap="round"><rect x="80" y="170" width="14" height="18" rx="1.5"/><line x1="84" y1="176" x2="90" y2="176"/><line x1="84" y1="180" x2="90" y2="180"/><line x1="84" y1="184" x2="88" y2="184"/></g>'
++'</svg>';
 const TAB_HERO={
   tasks:{img:'1499951360447-b19be8fe80f5',h:'Make today count',s:'Small wins, stacked daily'},
   board:{img:'1454165804606-c3d57bc86b40',h:'Move it forward',s:'Drag, drop, ship'},
@@ -1585,7 +1601,7 @@ let h='<div class="hdr"><div><div class="logo">Bro<span class="k">Do</span>it</d
 
 // Moral chip
 const m=MORALS[S.moralIdx];
-h+='<div class="moral"><div class="moral-emoji">\\u{1F4A1}</div><div class="moral-body"><div class="moral-lbl">Moral of the Day</div><div class="moral-txt">"'+esc(m.t)+'"</div><div class="moral-by">\\u2014 '+esc(m.a)+'</div></div><button class="moral-ref" onclick="rotateMoral()" title="New quote">\\u21BB</button></div>';
+h+='<div class="moral">'+MORAL_DOODLE+'<div class="moral-emoji">\\u{1F4A1}</div><div class="moral-body"><div class="moral-lbl">Moral of the Day</div><div class="moral-txt">"'+esc(m.t)+'"</div><div class="moral-by">\\u2014 '+esc(m.a)+'</div></div><button class="moral-ref" onclick="rotateMoral()" title="New quote">\\u21BB</button></div>';
 
 // Tabs
 h+='<nav class="tabs page-t">'+[{k:'tasks',l:'Tasks'},{k:'board',l:'Board'},{k:'cal',l:'Calendar'},{k:'dash',l:'Stats'},{k:'news',l:'News'},{k:'books',l:'Books'},{k:'meditation',l:'Meditate'}].map(x=>'<button class="tab'+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+ic(x.k,24)+'</span><span class="tl">'+x.l+'</span></button>').join('')+'</nav>';
