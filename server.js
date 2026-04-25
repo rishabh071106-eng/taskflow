@@ -339,7 +339,8 @@ app.get('/brodoit.vcf',(_,res)=>{
 // ═══ NEWS (shorts feed, RSS aggregator, 15-min server cache) ═══
 const NEWS_FEEDS={
   ai:['https://techcrunch.com/category/artificial-intelligence/feed/','https://venturebeat.com/category/ai/feed/','https://www.theverge.com/rss/ai-artificial-intelligence/index.xml','https://www.technologyreview.com/feed/','https://openai.com/blog/rss.xml'],
-  sports:['https://feeds.bbci.co.uk/sport/rss.xml','https://www.espn.com/espn/rss/news','https://www.skysports.com/rss/12040'],
+  sports:['https://feeds.bbci.co.uk/sport/rss.xml','https://www.espn.com/espn/rss/news','https://www.skysports.com/rss/12040','https://feeds.bbci.co.uk/sport/cricket/rss.xml'],
+  ipl:['https://feeds.bbci.co.uk/sport/cricket/rss.xml','https://www.espncricinfo.com/rss/content/story/feeds/0.xml','https://www.thehindu.com/sport/cricket/feeder/default.rss','https://indianexpress.com/section/sports/cricket/feed/'],
   technology:['https://techcrunch.com/feed/','https://www.theverge.com/rss/index.xml','https://feeds.arstechnica.com/arstechnica/index','https://www.wired.com/feed/rss'],
   movies:['https://variety.com/v/film/feed/','https://www.hollywoodreporter.com/c/movies/movie-news/feed/','https://www.indiewire.com/c/film/feed/'],
   global:['https://feeds.bbci.co.uk/news/world/rss.xml','https://feeds.reuters.com/reuters/topNews','https://rss.nytimes.com/services/xml/rss/nyt/World.xml','https://feeds.npr.org/1004/rss.xml']
@@ -349,6 +350,7 @@ const UNSPLASH=(id)=>'https://images.unsplash.com/photo-'+id+'?w=900&q=80&auto=f
 const FALLBACK_IMAGES={
   ai:[UNSPLASH('1677442136019-21780ecad995'),UNSPLASH('1620712943543-bcc4688e7485'),UNSPLASH('1488229297570-58520851e868'),UNSPLASH('1518770660439-4636190af475'),UNSPLASH('1551434678-e076c223a692'),UNSPLASH('1485827404703-89b55fcc595e')],
   sports:[UNSPLASH('1461896836934-ffe607ba8211'),UNSPLASH('1517649763962-0c623066013b'),UNSPLASH('1556056504-5c7696c4c28d'),UNSPLASH('1431324155629-1a6deb1dec8d'),UNSPLASH('1574629810360-7efbbe195018'),UNSPLASH('1552674605-db6ffd4facb5')],
+  ipl:[UNSPLASH('1540747913346-19e32dc3e97e'),UNSPLASH('1531415074968-036ba1b575da'),UNSPLASH('1502230831726-fe5549140034'),UNSPLASH('1517649763962-0c623066013b'),UNSPLASH('1461896836934-ffe607ba8211')],
   technology:[UNSPLASH('1518770660439-4636190af475'),UNSPLASH('1451187580459-43490279c0fa'),UNSPLASH('1531297484001-80022131f5a1'),UNSPLASH('1550751827-4bd374c3f58b'),UNSPLASH('1581091226825-a6a2a5aee158'),UNSPLASH('1460925895917-afdab827c52f')],
   movies:[UNSPLASH('1489599849927-2ee91cede3ba'),UNSPLASH('1536440136628-849c177e76a1'),UNSPLASH('1517604931442-7e0c8ed2963c'),UNSPLASH('1542204165-65bf26472b9b'),UNSPLASH('1485846234645-a62644f84728'),UNSPLASH('1440404653325-ab127d49abc1')],
   global:[UNSPLASH('1506905925346-21bda4d32df4'),UNSPLASH('1469854523086-cc02fe5d8800'),UNSPLASH('1501785888041-af3ef285b470'),UNSPLASH('1502602898657-3e91760cbb34'),UNSPLASH('1480714378408-67cf0d13bc1b'),UNSPLASH('1564507592333-c60657eea523')]
@@ -405,6 +407,54 @@ app.get('/api/news',async(req,res)=>{
   for(const it of dedup){if(!it.img){it.img=fb[fbIdx%fb.length];it.imgFallback=true;fbIdx++}}
   newsCache[cat]={ts:Date.now(),items:dedup};
   res.json({items:dedup,cat,cached:false});
+});
+
+// ═══ HISTORY (Wikipedia "On This Day", 6-hour server cache) ═══
+const historyCache={};
+app.get('/api/history/today',async(req,res)=>{
+  const now=new Date();
+  const m=String(now.getMonth()+1).padStart(2,'0');
+  const d=String(now.getDate()).padStart(2,'0');
+  const key=m+'-'+d;
+  const c=historyCache[key];
+  if(c&&Date.now()-c.ts<6*60*60*1000)return res.json({events:c.events,date:key,cached:true});
+  try{
+    const ctrl=new AbortController();const t=setTimeout(()=>ctrl.abort(),6000);
+    const url='https://en.wikipedia.org/api/rest_v1/feed/onthisday/events/'+m+'/'+d;
+    const r=await fetch(url,{signal:ctrl.signal,headers:{'User-Agent':'Brodoit/1.0 (+https://brodoit.com)','Accept':'application/json'}});
+    clearTimeout(t);
+    if(!r.ok)return res.json({events:[],date:key,error:'fetch '+r.status});
+    const j=await r.json();
+    const events=(j.events||[]).slice(0,30).map(ev=>{
+      const page=(ev.pages||[])[0]||{};
+      return{year:ev.year,text:ev.text,title:page.normalizedtitle||page.title||'',url:(page.content_urls&&page.content_urls.desktop&&page.content_urls.desktop.page)||'',thumb:(page.thumbnail&&page.thumbnail.source)||null,extract:page.extract||''};
+    }).sort((a,b)=>b.year-a.year);
+    historyCache[key]={ts:Date.now(),events};
+    res.json({events,date:key,cached:false});
+  }catch(e){res.json({events:[],date:key,error:String(e)})}
+});
+
+// ═══ CRICKET LIVE (best-effort scrape with graceful fallback) ═══
+const cricketCache={};
+app.get('/api/cricket/live',async(req,res)=>{
+  const c=cricketCache.all;
+  if(c&&Date.now()-c.ts<60*1000)return res.json({matches:c.matches,cached:true});
+  // Without an API key we can't reliably fetch live scores. Return empty list and let the UI link out.
+  // Future: wire in CRICAPI_KEY env var to fetch from cricapi.com.
+  if(process.env.CRICAPI_KEY){
+    try{
+      const ctrl=new AbortController();const t=setTimeout(()=>ctrl.abort(),5000);
+      const r=await fetch('https://api.cricapi.com/v1/currentMatches?apikey='+encodeURIComponent(process.env.CRICAPI_KEY)+'&offset=0',{signal:ctrl.signal});
+      clearTimeout(t);
+      if(r.ok){
+        const j=await r.json();
+        const matches=(j.data||[]).filter(m=>/IPL|Indian Premier League/i.test(m.name||m.series||'')).slice(0,8);
+        cricketCache.all={ts:Date.now(),matches};
+        return res.json({matches,source:'cricapi'});
+      }
+    }catch(e){}
+  }
+  res.json({matches:[],source:'none',hint:'Set CRICAPI_KEY env var for live scores'});
 });
 
 // ═══ PROFILE (/api/me) ═══
@@ -616,6 +666,10 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
   .app>.tabs.page-t .tab.tab-books{--tab-tint:linear-gradient(135deg,rgba(5,150,105,.55),rgba(15,23,42,.45))}
   .app>.tabs.page-t .tab.tab-meditation .ti{background-image:url("https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=200&q=70&auto=format&fit=crop")}
   .app>.tabs.page-t .tab.tab-meditation{--tab-tint:linear-gradient(135deg,rgba(124,58,237,.55),rgba(15,23,42,.45))}
+  .app>.tabs.page-t .tab.tab-ipl .ti{background-image:url("https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=200&q=70&auto=format&fit=crop")}
+  .app>.tabs.page-t .tab.tab-ipl{--tab-tint:linear-gradient(135deg,rgba(232,69,60,.55),rgba(15,23,42,.45))}
+  .app>.tabs.page-t .tab.tab-history .ti{background-image:url("https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=200&q=70&auto=format&fit=crop")}
+  .app>.tabs.page-t .tab.tab-history{--tab-tint:linear-gradient(135deg,rgba(180,83,9,.55),rgba(15,23,42,.45))}
   .app>.tabs.page-t .tab:hover:not(.on) .ti{transform:scale(1.06);box-shadow:0 8px 22px rgba(15,23,42,.24)}
   .app>.tabs.page-t .tab.on .ti{box-shadow:0 8px 24px rgba(15,23,42,.32),0 0 0 3px var(--ring,rgba(255,255,255,.7))}
   .app>.tabs.page-t .tab.on .ti::after{opacity:.45}
@@ -625,6 +679,8 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
   .app>.tabs.page-t .tab.tab-news.on{--ring:rgba(13,148,136,.85)}
   .app>.tabs.page-t .tab.tab-books.on{--ring:rgba(5,150,105,.85)}
   .app>.tabs.page-t .tab.tab-meditation.on{--ring:rgba(139,92,246,.85)}
+  .app>.tabs.page-t .tab.tab-ipl.on{--ring:rgba(232,69,60,.85)}
+  .app>.tabs.page-t .tab.tab-history.on{--ring:rgba(180,83,9,.85)}
   /* Active tab tile pulses softly */
   .app>.tabs.page-t .tab.on .ti{animation:tilePulse 2.4s ease-in-out infinite}
   @keyframes tilePulse{0%,100%{box-shadow:0 8px 24px rgba(15,23,42,.32),0 0 0 3px var(--ring,rgba(255,255,255,.7))}50%{box-shadow:0 12px 30px rgba(15,23,42,.36),0 0 0 6px var(--ring,rgba(255,255,255,.4))}}
@@ -1491,6 +1547,50 @@ body[data-theme=aurora] .med-player-hd p{color:#9999B5}
 body[data-theme=aurora] .med-tip{color:#9999B5;background:rgba(167,139,250,.1)}
 body[data-theme=aurora] .med-foot{color:#9999B5}
 
+/* IPL tab */
+.ipl-live{position:relative;background:linear-gradient(135deg,#0F172A 0%,#312E81 60%,#E8453C 140%);color:#fff;border-radius:18px;padding:22px 24px;margin-bottom:18px;overflow:hidden;box-shadow:0 10px 28px rgba(15,23,42,.18)}
+.ipl-live::before{content:'';position:absolute;inset:0;background-image:url("https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=1200&q=70&auto=format&fit=crop");background-size:cover;background-position:center;opacity:.18;mix-blend-mode:screen}
+.ipl-live-body{position:relative;z-index:1}
+.ipl-live-lbl{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:800;letter-spacing:1.6px;color:#FCA5A5;background:rgba(255,255,255,.06);padding:6px 12px;border-radius:99px;margin-bottom:12px}
+.ipl-live-dot{width:8px;height:8px;border-radius:50%;background:#E8453C;animation:livePulse 1.4s ease-in-out infinite;box-shadow:0 0 0 0 rgba(232,69,60,.7)}
+@keyframes livePulse{0%,100%{box-shadow:0 0 0 0 rgba(232,69,60,.7)}50%{box-shadow:0 0 0 8px rgba(232,69,60,0)}}
+.ipl-live-h{font-family:'Instrument Serif',Georgia,serif;font-size:26px;line-height:1.15;margin-bottom:6px}
+.ipl-live-s{font-size:13.5px;color:rgba(255,255,255,.78);line-height:1.5;margin-bottom:16px;max-width:520px}
+.ipl-live-acts{display:flex;flex-wrap:wrap;gap:10px}
+.ipl-cta{display:inline-flex;align-items:center;padding:11px 20px;border-radius:11px;background:#E8453C;color:#fff;font-size:13px;font-weight:800;text-decoration:none;letter-spacing:.2px;box-shadow:0 6px 18px rgba(232,69,60,.4);transition:transform .15s ease,box-shadow .15s ease}
+.ipl-cta:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(232,69,60,.5)}
+.ipl-cta-sec{display:inline-flex;align-items:center;padding:11px 18px;border-radius:11px;background:rgba(255,255,255,.1);color:#fff;font-size:13px;font-weight:700;text-decoration:none;border:1px solid rgba(255,255,255,.2);transition:background .15s ease,border-color .15s ease}
+.ipl-cta-sec:hover{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.3)}
+.ipl-matches{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:18px}
+.ipl-match{background:#fff;border:1px solid #E8E9EF;border-radius:14px;padding:14px 16px}
+.ipl-match-status{font-size:11px;font-weight:800;color:#E8453C;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.ipl-match-teams{font-size:15px;font-weight:700;color:#0F172A;margin-bottom:4px}
+.ipl-match-meta{font-size:12px;color:#64748B}
+body[data-theme=aurora] .ipl-match{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.08)}
+body[data-theme=aurora] .ipl-match-teams{color:#F5F5FA}
+body[data-theme=aurora] .ipl-match-meta{color:#9999B5}
+
+/* History tab */
+.hist-feed{display:flex;flex-direction:column;gap:14px}
+.hist-item{display:flex;gap:16px;background:#fff;border:1px solid #E8E9EF;border-radius:16px;padding:18px 20px;box-shadow:0 1px 3px rgba(15,23,42,.04),0 4px 14px rgba(15,23,42,.05);transition:transform .2s ease,box-shadow .2s ease}
+.hist-item:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(15,23,42,.08)}
+.hist-year{flex:0 0 90px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;border-right:1px dashed rgba(99,102,241,.3);padding-right:16px}
+.hist-year b{font-family:'Instrument Serif',Georgia,serif;font-size:30px;font-weight:400;color:#B45309;line-height:1;letter-spacing:-.02em}
+.hist-year small{font-size:10px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.6px;margin-top:4px}
+.hist-body{flex:1;min-width:0;display:flex;gap:14px;align-items:flex-start}
+.hist-thumb{width:80px;height:80px;border-radius:10px;object-fit:cover;flex-shrink:0;background:#F1F5F9}
+.hist-text{flex:1;min-width:0}
+.hist-event{font-size:14.5px;line-height:1.55;color:#0F172A;margin-bottom:6px}
+.hist-link{font-size:12.5px;font-weight:600}
+.hist-link a{color:#6366F1;text-decoration:none}
+.hist-link a:hover{text-decoration:underline;color:#4F46E5}
+@media (max-width:600px){.hist-item{flex-direction:column;gap:10px}.hist-year{flex:0 0 auto;flex-direction:row;align-items:baseline;gap:8px;border-right:none;border-bottom:1px dashed rgba(99,102,241,.3);padding:0 0 8px;width:100%}.hist-thumb{width:64px;height:64px}}
+body[data-theme=aurora] .hist-item{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08)}
+body[data-theme=aurora] .hist-event{color:#F5F5FA}
+body[data-theme=aurora] .hist-year b{color:#FCD34D}
+body[data-theme=aurora] .hist-link a{color:#A78BFA}
+body[data-theme=aurora] .hist-link a:hover{color:#C4B5FD}
+
 /* Refined editorial tab nav */
 .tabs.page-t .tab{font-size:14px;font-weight:500;letter-spacing:-.005em;transition:color .15s ease,background .15s ease;color:var(--ink-3)}
 .tabs.page-t .tab .ti svg{width:20px;height:20px;transition:transform .15s ease,opacity .15s ease;opacity:.85}
@@ -1535,6 +1635,7 @@ body[data-theme=aurora] .med-foot{color:#9999B5}
 const MORALS=[{t:"The secret of getting ahead is getting started.",a:"Mark Twain"},{t:"It does not matter how slowly you go as long as you do not stop.",a:"Confucius"},{t:"Small daily improvements are the key to staggering long-term results.",a:"Robin Sharma"},{t:"Discipline is choosing between what you want now and what you want most.",a:"Abraham Lincoln"},{t:"Don't count the days. Make the days count.",a:"Muhammad Ali"},{t:"The best way to predict the future is to create it.",a:"Peter Drucker"},{t:"Focus on being productive instead of busy.",a:"Tim Ferriss"},{t:"You don't have to be great to start, but you have to start to be great.",a:"Zig Ziglar"},{t:"The journey of a thousand miles begins with a single step.",a:"Lao Tzu"},{t:"Either you run the day or the day runs you.",a:"Jim Rohn"},{t:"A year from now you may wish you had started today.",a:"Karen Lamb"},{t:"Success is the sum of small efforts repeated day in and day out.",a:"Robert Collier"},{t:"Done is better than perfect.",a:"Sheryl Sandberg"},{t:"The way to get started is to quit talking and begin doing.",a:"Walt Disney"},{t:"You cannot escape the responsibility of tomorrow by evading it today.",a:"Abraham Lincoln"},{t:"Motivation gets you going, but discipline keeps you growing.",a:"John C. Maxwell"},{t:"Do something today that your future self will thank you for.",a:"Sean Patrick Flanery"},{t:"The harder I work, the luckier I get.",a:"Samuel Goldwyn"},{t:"Don't watch the clock; do what it does. Keep going.",a:"Sam Levenson"},{t:"Great things never come from comfort zones.",a:"Neil Strauss"},{t:"Sometimes later becomes never. Do it now.",a:"Anonymous"},{t:"Wake up with determination. Go to bed with satisfaction.",a:"Anonymous"},{t:"A goal without a plan is just a wish.",a:"Antoine de Saint-Exupéry"},{t:"Little by little, day by day, what is meant for you will find its way.",a:"Anonymous"},{t:"Success doesn't just find you — you have to go out and get it.",a:"Anonymous"},{t:"Push yourself, because no one else is going to do it for you.",a:"Anonymous"},{t:"Dream big. Start small. Act now.",a:"Robin Sharma"},{t:"Hard work beats talent when talent doesn't work hard.",a:"Tim Notke"},{t:"The only impossible journey is the one you never begin.",a:"Tony Robbins"},{t:"Opportunities don't happen. You create them.",a:"Chris Grosser"}];
 let S={tasks:[],view:'all',search:'',tab:'tasks',showAdd:false,editing:null,listening:false,toast:null,toastType:'ok',waOk:false,sending:{},user:null,
 books:[],booksLoading:false,booksCat:'all',bookSearch:'',playing:null,moralIdx:Math.floor(Math.random()*MORALS.length),
+ipl:{loading:false,loaded:false,news:[],matches:[]},history:{loading:false,loaded:false,events:[]},
 waConnected:localStorage.getItem('wa_connected')==='1',showWAOnboard:false,activeMeditation:null,
 google:{configured:false,accounts:[],loaded:false},gcalEvents:[],gcalLoading:false,showGcalAdd:false,gcalForm:{title:'',date:'',time:'',duration:30,notes:'',email:''},
 calMonth:new Date(),calSelectedDate:new Date().toISOString().slice(0,10),
@@ -1558,7 +1659,9 @@ board:'<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http:/
 cal:'<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="6" width="24" height="22" rx="3" fill="currentColor" opacity="0.18"/><rect x="4" y="6" width="24" height="6.5" rx="3" fill="currentColor" opacity="0.55"/><rect x="9" y="3" width="2" height="6" rx="1" fill="currentColor"/><rect x="21" y="3" width="2" height="6" rx="1" fill="currentColor"/><path d="M16 18.5l-1.4 2.8-3.1.45 2.25 2.2-.53 3.1L16 25.6l2.78 1.45-.53-3.1 2.25-2.2-3.1-.45z" fill="currentColor"/></svg>',
 news:'<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="5" width="22" height="22" rx="2.5" fill="currentColor" opacity="0.18"/><rect x="25" y="10" width="4" height="17" rx="1.5" fill="currentColor" opacity="0.4"/><rect x="6" y="9" width="9" height="6" rx="1" fill="currentColor" opacity="0.55"/><line x1="17" y1="10" x2="22" y2="10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="17" y1="13.5" x2="22" y2="13.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="6" y1="19" x2="22" y2="19" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="6" y1="22.5" x2="20" y2="22.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity="0.7"/></svg>',
 books:'<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 8 C 16 8 11 5 4 6 L 4 25 C 11 24 16 27 16 27 L 16 8 Z" fill="currentColor" opacity="0.55"/><path d="M16 8 C 16 8 21 5 28 6 L 28 25 C 21 24 16 27 16 27 L 16 8 Z" fill="currentColor" opacity="0.85"/><line x1="8" y1="11" x2="13" y2="11.6" stroke="#fff" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/><line x1="8" y1="15" x2="13" y2="15.6" stroke="#fff" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/><line x1="19" y1="11.6" x2="24" y2="11" stroke="#fff" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/><line x1="19" y1="15.6" x2="24" y2="15" stroke="#fff" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/></svg>',
-meditation:'<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="13" fill="currentColor" opacity="0.14"/><circle cx="16" cy="16" r="9" fill="currentColor" opacity="0.18"/><circle cx="16" cy="9.5" r="3" fill="currentColor"/><path d="M9 22 C 11 17 14 16 16 16 C 18 16 21 17 23 22 C 22 23.5 18.5 24 16 24 C 13.5 24 10 23.5 9 22 Z" fill="currentColor"/><path d="M5 19 C 8 22 11 22 12 21" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.75"/><path d="M27 19 C 24 22 21 22 20 21" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.75"/></svg>'
+meditation:'<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="13" fill="currentColor" opacity="0.14"/><circle cx="16" cy="16" r="9" fill="currentColor" opacity="0.18"/><circle cx="16" cy="9.5" r="3" fill="currentColor"/><path d="M9 22 C 11 17 14 16 16 16 C 18 16 21 17 23 22 C 22 23.5 18.5 24 16 24 C 13.5 24 10 23.5 9 22 Z" fill="currentColor"/><path d="M5 19 C 8 22 11 22 12 21" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.75"/><path d="M27 19 C 24 22 21 22 20 21" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.75"/></svg>',
+ipl:'<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 3 L20 12 L16 28 L12 12 Z" fill="currentColor" opacity="0.85"/><line x1="16" y1="3" x2="16" y2="9" stroke="#fff" stroke-width="1.4" stroke-linecap="round" opacity="0.7"/><circle cx="22" cy="20" r="2.6" fill="currentColor" opacity="0.55"/><line x1="6" y1="20" x2="11" y2="20" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity="0.4"/></svg>',
+history:'<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="12" fill="currentColor" opacity="0.18"/><circle cx="16" cy="16" r="9" fill="none" stroke="currentColor" stroke-width="1.6" opacity="0.7"/><line x1="16" y1="16" x2="16" y2="9.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="16" y1="16" x2="20.5" y2="18.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="16" cy="16" r="1.6" fill="currentColor"/><path d="M16 4 A12 12 0 0 0 4 16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" fill="none" opacity="0.85"/><polyline points="4 12 4 16 8 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>'
 };
 // "Rise Together" doodle — 4 animated figures climbing the same curve, holding hands; full SMIL animation
 const MORAL_DOODLE='<svg class="moral-doodle" viewBox="0 0 520 200" preserveAspectRatio="xMaxYMid meet" xmlns="http://www.w3.org/2000/svg">'
@@ -1638,7 +1741,9 @@ const TAB_HERO={
   dash:{img:'1551288049-bebda4e38f71',h:'Track your progress',s:'Numbers that tell your story'},
   news:{img:'1495020689067-958852a7765e',h:'What\\u2019s new today',s:'Curated stories from across the web'},
   books:{img:'1507842217343-583bb7270b66',h:'Read &amp; grow',s:'Free public-domain audio \\u2022 a few minutes a day'},
-  meditation:{img:'1518609878373-06d740f60d8b',h:'Pause and breathe',s:'Guided sessions for a calm mind'}
+  meditation:{img:'1518609878373-06d740f60d8b',h:'Pause and breathe',s:'Guided sessions for a calm mind'},
+  ipl:{img:'1540747913346-19e32dc3e97e',h:'IPL season',s:'Live scores, news, every six counted'},
+  history:{img:'1481627834876-b7833e8f5570',h:'On this day',s:'A small window into the past, every morning'}
 };
 function ic(n,sz){sz=sz||20;const s='width="'+sz+'" height="'+sz+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"';const m={
 tasks:'<svg '+s+'><path d="M9 11l2 2 4-4"/><path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c1.66 0 3.22.45 4.56 1.23"/></svg>',
@@ -1661,7 +1766,9 @@ flame:'<svg '+s+'><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.4-.5-2.4-1.5-3.5C8 
 moon:'<svg '+s+'><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor"/></svg>',
 sun:'<svg '+s+'><circle cx="12" cy="12" r="4" fill="currentColor"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.07" y2="4.93"/></svg>',
 refresh:'<svg '+s+'><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/><path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14"/></svg>',
-plus:'<svg '+s+'><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'};return m[n]||''}
+plus:'<svg '+s+'><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+ipl:'<svg '+s+'><path d="M12 2 L 16 8 L 12 22 L 8 8 Z"/><circle cx="12" cy="6" r="1.4"/><line x1="4" y1="14" x2="20" y2="14"/></svg>',
+history:'<svg '+s+'><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 16 14"/><path d="M3 12 a9 9 0 0 1 9 -9"/></svg>'};return m[n]||''}
 const ST={pending:{l:'To Do',c:'#94A3B8',bg:'#F1F5F9'},'in-progress':{l:'Doing',c:'#3B82F6',bg:'#EFF6FF'},done:{l:'Done',c:'#3DAE5C',bg:'#F2FBF4'}};
 const fD=d=>d?new Date(d+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
 const fT=t=>{if(!t)return'';const[h,m]=t.split(':');const hr=+h;return(hr>12?hr-12:hr||12)+':'+m+' '+(hr>=12?'PM':'AM')};
@@ -1711,7 +1818,9 @@ function opE(id){const t=S.tasks.find(x=>x.id===id);if(!t)return;S.form={title:t
 function clM(){S.showAdd=false;S.editing=null;if(rec)try{rec.stop()}catch(e){}S.listening=false;render()}
 function stV(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){toast('\\u26A0\\uFE0F Voice not supported','err');return}rec=new SR();rec.continuous=false;rec.interimResults=true;rec.lang='en-US';rec.onresult=e=>{let t='';for(let i=0;i<e.results.length;i++)t+=e.results[i][0].transcript;if(e.results[0].isFinal){S.form.title=t;const l=t.toLowerCase();if(/urgent|important|asap/.test(l)){S.form.priority='high';S.form.title=S.form.title.replace(/urgent|important|asap/gi,'').trim()}if(/\\btoday\\b/.test(l))S.form.dueDate=new Date().toISOString().split('T')[0];else if(/\\btomorrow\\b/.test(l)){const d=new Date();d.setDate(d.getDate()+1);S.form.dueDate=d.toISOString().split('T')[0]}}else S.form.title=t;render()};rec.onend=()=>{S.listening=false;render()};rec.onerror=e=>{S.listening=false;toast('\\u26A0\\uFE0F '+e.error,'err');render()};rec.start();S.listening=true;render()}
 
-function switchTab(t){if(t==='steps'||t==='dash')t='tasks';S.tab=t;if(t==='books'&&!S.books.length)loadBooks('all');if(t==='meditation'&&!S.meditations)loadMeditations();if(t==='news'&&!S.news[S.newsCat])loadNews(S.newsCat);if(t==='cal'){if(!S.google.loaded)loadGoogleStatus();else if(S.google.accounts.length&&!S.gcalEvents.length&&!S.gcalLoading)loadGcalEvents()}render()}
+function switchTab(t){if(t==='steps'||t==='dash')t='tasks';S.tab=t;if(t==='books'&&!S.books.length)loadBooks('all');if(t==='meditation'&&!S.meditations)loadMeditations();if(t==='news'&&!S.news[S.newsCat])loadNews(S.newsCat);if(t==='ipl'&&!S.ipl.loaded)loadIPL();if(t==='history'&&!S.history.loaded)loadHistory();if(t==='cal'){if(!S.google.loaded)loadGoogleStatus();else if(S.google.accounts.length&&!S.gcalEvents.length&&!S.gcalLoading)loadGcalEvents()}render()}
+async function loadIPL(){S.ipl={loading:true,loaded:false,news:[],matches:[]};render();try{const[n,m]=await Promise.all([fetch('/api/news?cat=ipl',{cache:'no-store'}).then(r=>r.json()).catch(()=>({items:[]})),fetch('/api/cricket/live').then(r=>r.json()).catch(()=>({matches:[]}))]);S.ipl={loading:false,loaded:true,news:n.items||[],matches:m.matches||[],source:m.source}}catch(e){S.ipl={loading:false,loaded:true,news:[],matches:[],error:String(e)}}render()}
+async function loadHistory(){S.history={loading:true,loaded:false,events:[]};render();try{const r=await fetch('/api/history/today');const j=await r.json();S.history={loading:false,loaded:true,events:j.events||[],date:j.date||''}}catch(e){S.history={loading:false,loaded:true,events:[],error:String(e)}}render()}
 async function loadNews(cat){S.newsCat=cat;S.newsLoading=true;render();try{const r=await fetch('/api/news?cat='+encodeURIComponent(cat),{cache:'no-store'});const j=await r.json();S.news[cat]=j.items||[]}catch(e){S.news[cat]=[]}S.newsLoading=false;render()}
 function shareNews(idx){const item=(S.news[S.newsCat]||[])[idx];if(!item)return;const url=item.link,title=item.title,text=(item.desc||'').slice(0,140);if(navigator.share){navigator.share({title,text,url}).catch(()=>{})}else{navigator.clipboard?.writeText(title+'\\n\\n'+url).then(()=>toast('\\u{1F517} Link copied')).catch(()=>toast('\\u26A0\\uFE0F Share unavailable','err'))}}
 function timeAgo(ds){if(!ds)return '';const d=new Date(ds);if(isNaN(d))return '';const s=(Date.now()-d.getTime())/1000;if(s<60)return 'just now';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';if(s<604800)return Math.floor(s/86400)+'d ago';return d.toLocaleDateString()}
@@ -1887,7 +1996,7 @@ h+='<div class="moral">'+MORAL_DOODLE+'<div class="moral-emoji">\\u{1F4A1}</div>
   const dayOfYear=Math.floor((now-yStart)/86400000);
   const yearPct=Math.round(dayOfYear/365*100);
   const dateStr=now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-  const tabsHtml=[{k:'tasks',l:'Tasks'},{k:'board',l:'Board'},{k:'cal',l:'Calendar'},{k:'news',l:'News'},{k:'books',l:'Books'},{k:'meditation',l:'Meditate'}].map(x=>'<button class="tab tab-'+x.k+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(ID[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
+  const tabsHtml=[{k:'tasks',l:'Tasks'},{k:'board',l:'Board'},{k:'cal',l:'Calendar'},{k:'news',l:'News'},{k:'ipl',l:'IPL'},{k:'history',l:'History'},{k:'books',l:'Books'},{k:'meditation',l:'Meditate'}].map(x=>'<button class="tab tab-'+x.k+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(ID[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
   const STICK='<svg viewBox="0 0 18 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="3.5" r="2.6" fill="currentColor"/><line x1="9" y1="6" x2="9" y2="14"/><g class="arm-l"><line x1="9" y1="9" x2="4" y2="11"/></g><g class="arm-r"><line x1="9" y1="9" x2="14" y2="7"/></g><g class="leg-l"><line x1="9" y1="14" x2="5" y2="22"/></g><g class="leg-r"><line x1="9" y1="14" x2="13" y2="22"/></g></svg>';
   const climbScene='<div class="climb-scene" aria-hidden="true">'
     +'<div class="climb-caption">RISE \\u2022 STEP \\u2022 BY \\u2022 STEP</div>'
@@ -2203,6 +2312,61 @@ else if(S.tab==='meditation'){
   });
   h+='</div>';
   h+='<div class="med-foot">\\u{1F50A} Use headphones, find a quiet spot, and let the guide lead you.</div>';
+}
+
+// IPL TAB — live-score CTA + curated cricket news
+else if(S.tab==='ipl'){
+  const ipl=S.ipl||{loading:false,loaded:false,news:[],matches:[]};
+  h+='<div class="section-hd"><span class="section-ic" style="background:linear-gradient(135deg,#E8453C,#0F172A)">'+ic('ipl',22)+'</span><div><h3>IPL \\u2022 Indian Premier League</h3><p>Live scores \\u2022 fresh news \\u2022 every six counted</p></div></div>';
+  h+='<div class="ipl-live"><div class="ipl-live-body"><div class="ipl-live-lbl"><span class="ipl-live-dot"></span>LIVE SCORES</div><div class="ipl-live-h">Open today\\u2019s live scoring</div><div class="ipl-live-s">Real-time ball-by-ball commentary, scorecards and stats from official sources.</div><div class="ipl-live-acts"><a class="ipl-cta" href="https://www.cricbuzz.com/cricket-match/live-scores" target="_blank" rel="noopener">Cricbuzz Live \\u2197</a><a class="ipl-cta-sec" href="https://www.espncricinfo.com/live-cricket-score" target="_blank" rel="noopener">ESPN Cricinfo \\u2197</a><a class="ipl-cta-sec" href="https://www.iplt20.com/" target="_blank" rel="noopener">iplt20.com \\u2197</a></div></div></div>';
+  if(ipl.matches&&ipl.matches.length){
+    h+='<div class="ipl-matches">';
+    ipl.matches.forEach(m=>{h+='<div class="ipl-match"><div class="ipl-match-status">'+esc(m.status||'')+'</div><div class="ipl-match-teams">'+esc((m.teams||['','']).join(' vs '))+'</div><div class="ipl-match-meta">'+esc(m.matchType||'')+' \\u2022 '+esc(m.venue||'')+'</div></div>'});
+    h+='</div>';
+  }
+  h+='<div class="section-hd" style="margin-top:24px"><span class="section-ic">'+ic('news',22)+'</span><div><h3>Cricket headlines</h3><p>BBC \\u2022 Cricinfo \\u2022 The Hindu \\u2022 Indian Express</p></div></div>';
+  if(ipl.loading){h+='<div class="loading">\\u{1F4E1} Fetching latest cricket stories\\u2026</div>';}
+  else if(!ipl.news.length){h+='<div class="empty"><div style="font-size:44px">\\u{1F3CF}</div><div style="font-size:15px;margin-top:10px;font-weight:600">No headlines just yet</div><div style="font-size:12px;margin-top:4px">Try refreshing in a minute</div></div>';}
+  else{
+    h+='<div class="inshort-feed">';
+    ipl.news.slice(0,15).forEach(it=>{
+      const img=it.img||'';
+      const when=timeAgo(it.date);
+      const srcName=(it.source||'').charAt(0).toUpperCase()+(it.source||'').slice(1);
+      h+='<article class="inshort">';
+      if(img)h+='<div class="inshort-img"><img src="'+esc(img)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.classList.add(\\'inshort-img-placeholder\\');this.remove()"><div class="inshort-src">'+esc(srcName)+'</div></div>';
+      else h+='<div class="inshort-img inshort-img-placeholder"><div class="inshort-src">'+esc(srcName)+'</div><div style="font-size:64px;opacity:.25">\\u{1F3CF}</div></div>';
+      h+='<div class="inshort-body"><h3 class="inshort-title"><a href="'+esc(it.link||'#')+'" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">'+esc(it.title||'')+'</a></h3>';
+      if(it.desc)h+='<p class="inshort-desc">'+esc(it.desc)+'</p>';
+      h+='<div class="inshort-foot"><span class="inshort-time">'+(when?'\\u{1F552} '+esc(when):'')+'</span><a class="inshort-share" href="'+esc(it.link||'#')+'" target="_blank" rel="noopener">Read \\u2197</a></div>';
+      h+='</div></article>';
+    });
+    h+='</div>';
+  }
+}
+
+// HISTORY TAB — Wikipedia "On This Day"
+else if(S.tab==='history'){
+  const hist=S.history||{loading:false,loaded:false,events:[]};
+  const today=new Date();
+  const dayStr=today.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  h+='<div class="section-hd"><span class="section-ic" style="background:linear-gradient(135deg,#B45309,#7C2D12)">'+ic('history',22)+'</span><div><h3>On this day in history</h3><p>'+esc(dayStr)+' \\u2022 sourced from Wikipedia</p></div></div>';
+  if(hist.loading){h+='<div class="loading">\\u{1F4DC} Pulling events from history\\u2026</div>';}
+  else if(!hist.events.length){h+='<div class="empty"><div style="font-size:44px">\\u{1F4DC}</div><div style="font-size:15px;margin-top:10px;font-weight:600">No events loaded</div><div style="font-size:12px;margin-top:4px">Try refreshing</div></div>';}
+  else{
+    h+='<div class="hist-feed">';
+    hist.events.slice(0,20).forEach(ev=>{
+      const yearsAgo=today.getFullYear()-Number(ev.year);
+      h+='<article class="hist-item">';
+      h+='<div class="hist-year"><b>'+esc(String(ev.year))+'</b><small>'+(yearsAgo>0?yearsAgo+' yrs ago':'this year')+'</small></div>';
+      h+='<div class="hist-body">';
+      if(ev.thumb)h+='<img class="hist-thumb" src="'+esc(ev.thumb)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">';
+      h+='<div class="hist-text"><div class="hist-event">'+esc(ev.text||'')+'</div>';
+      if(ev.title)h+='<div class="hist-link">'+(ev.url?'<a href="'+esc(ev.url)+'" target="_blank" rel="noopener">'+esc(ev.title)+' \\u2197</a>':esc(ev.title))+'</div>';
+      h+='</div></div></article>';
+    });
+    h+='</div>';
+  }
 }
 
 
