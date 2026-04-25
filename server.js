@@ -28,10 +28,25 @@ const PRI={high:'🔴',medium:'🟠',low:'🟢'};
 const fmtD=d=>d?new Date(d+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
 const todayStr=()=>new Date().toISOString().split('T')[0];
 const cleanPhone=p=>{let c=(p||'').replace(/[^0-9+]/g,'');if(!c.startsWith('+'))c='+'+c;return c};
+function looksLikeMissingCountryCode(p){
+  // Heuristic: 10 digits without + and starting with a non-1, non-7-9 digit isn't a country code.
+  // If user types exactly 10 digits we suspect missing country code.
+  const digits=(p||'').replace(/[^0-9]/g,'');
+  return digits.length===10;
+}
 
 async function sendWA(to,body){
-  if(!tw)return{ok:false};
-  try{const n=to.startsWith('whatsapp:')?to:'whatsapp:'+to;const m=await tw.messages.create({from:TW_FROM,to:n,body});return{ok:true}}catch(e){return{ok:false,reason:e.message}}
+  if(!tw)return{ok:false,reason:'Twilio not configured',code:'NO_TWILIO'};
+  try{const n=to.startsWith('whatsapp:')?to:'whatsapp:'+to;const m=await tw.messages.create({from:TW_FROM,to:n,body});return{ok:true,sid:m.sid,status:m.status}}catch(e){return{ok:false,reason:e.message||String(e),code:e.code||0,moreInfo:e.moreInfo||''}}
+}
+function waErrorMessage(r){
+  const c=r.code;
+  if(c===21211||c===21214||c===21217)return 'Phone number format is invalid. Include the country code (e.g. +91 9876543210 for India).';
+  if(c===63007)return 'WhatsApp number not registered for this account.';
+  if(c===63015||c===63016)return 'WhatsApp Sandbox connection has expired. Send "join along-wool" to +1 415 523 8886 again (sessions expire after 72h of inactivity).';
+  if(c===63018)return 'Twilio daily limit reached for this number. Try again tomorrow or use email login.';
+  if(c===21610)return 'This number unsubscribed from messages. Reply START to +1 415 523 8886 first.';
+  return 'WhatsApp delivery failed. Make sure you sent "join along-wool" to +1 415 523 8886 within the last 72 hours.';
 }
 
 // Email via Resend (free tier: 3000/mo, 100/day)
@@ -64,15 +79,20 @@ function auth(req,res,next){
 
 // ═══ OTP AUTH ═══
 app.post('/api/send-otp',async(req,res)=>{
-  const phone=cleanPhone(req.body.phone);
-  if(phone.length<10)return res.status(400).json({error:'Invalid phone number'});
+  const rawPhone=String(req.body.phone||'');
+  if(looksLikeMissingCountryCode(rawPhone))return res.status(400).json({error:'Add your country code (e.g. +91 for India, +1 for US/Canada). 10 digits alone are ambiguous.',hint:'missing_country_code'});
+  const phone=cleanPhone(rawPhone);
+  if(phone.length<10||!/^\+\d{8,15}$/.test(phone))return res.status(400).json({error:'Phone number must look like +<country><number>, e.g. +91 9876543210.'});
   if(rateLimited('wa:'+phone))return res.status(429).json({error:'Too many requests. Try again in 10 minutes.'});
   const code=genOTP();
   const expires=new Date(Date.now()+5*60*1000).toISOString();
   db.prepare('INSERT OR REPLACE INTO otps(phone,code,expires_at)VALUES(?,?,?)').run(phone,code,expires);
   const r=await sendWA(phone,`🔐 Your Brodoit verification code is: *${code}*\n\nThis code expires in 5 minutes.\nDo not share this code with anyone.`);
-  if(r.ok)res.json({ok:true,message:'OTP sent to your WhatsApp'});
-  else res.status(500).json({ok:false,error:'Failed to send OTP. Make sure you have joined the Twilio WhatsApp sandbox first.',detail:r.reason});
+  if(r.ok)res.json({ok:true,message:'OTP sent to your WhatsApp',phone,sid:r.sid});
+  else{
+    console.log('[send-otp] failed for',phone,'code:',r.code,'reason:',r.reason);
+    res.status(500).json({ok:false,error:waErrorMessage(r),detail:r.reason,code:r.code,sentTo:phone});
+  }
 });
 
 // Email OTP
@@ -949,6 +969,12 @@ body[data-theme=aurora] .dash-hero .big{background:linear-gradient(90deg,#fff,#F
 .wa-join-btn{margin-top:10px;display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;border:none;padding:11px 14px;border-radius:10px;font-weight:700;font-size:13.5px;cursor:pointer;width:100%;justify-content:center;box-shadow:0 4px 14px rgba(37,211,102,.3);transition:transform .15s ease}
 .wa-join-btn:hover{transform:translateY(-1px)}
 .wa-login-step input{margin-bottom:0!important;text-align:left!important}
+.login-err{background:#FEF2F2;border:1px solid #FCA5A5;border-radius:12px;padding:12px 14px;margin:12px 0;text-align:left}
+.login-err-msg{font-size:13px;font-weight:600;color:#B91C1C;line-height:1.5}
+.login-err-code{font-size:11px;color:#7F1D1D;margin-top:6px;font-family:'Space Mono',monospace;opacity:.85}
+.login-err-acts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.login-err-acts button{font-size:12px;font-weight:700;padding:7px 12px;border-radius:8px;background:#fff;color:#0F172A;border:1px solid #E2E8F0;cursor:pointer}
+.login-err-acts button:hover{background:#F8FAFC;border-color:#CBD5E1}
 .login input{margin-bottom:12px;text-align:center;font-size:18px;letter-spacing:1px;padding:14px}
 .login-btn{width:100%;padding:14px;font-size:16px;border-radius:12px;font-weight:700;background:#0F172A;color:#F8FAFC;border:none;margin-top:4px}
 .login-btn:disabled{opacity:.5}.login-btn.sec{background:transparent;border:1.5px solid #CBD5E1;color:#64748B;margin-top:8px}
@@ -1241,7 +1267,7 @@ theme:localStorage.getItem('theme')||'classic',
 news:{},newsCat:'technology',newsLoading:false,
 bookStreak:{streak:0,total:0,today:false,days:[]},_bkSec:0,
 
-loginStep:'phone',loginMethod:'email',loginPhone:'',loginEmail:'',loginName:'',loginOTP:['','','','','',''],loginLoading:false,loginError:'',emailOk:false,
+loginStep:'phone',loginMethod:'email',loginPhone:'',loginEmail:'',loginName:'',loginOTP:['','','','','',''],loginLoading:false,loginError:'',loginErrorDetail:'',loginErrorCode:0,loginSentTo:'',emailOk:false,
 form:{title:'',notes:'',priority:'medium',dueDate:'',reminderTime:'',status:'pending'}};
 let rec=null,token=localStorage.getItem('tf_token');
 if(token){S.user={phone:localStorage.getItem('tf_phone'),name:localStorage.getItem('tf_name'),token}}
@@ -1279,7 +1305,8 @@ const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&g
 function toast(m,t){S.toast=m;S.toastType=t||'ok';render();setTimeout(()=>{S.toast=null;render()},3000)}
 const WI='<svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>';
 
-async function sendOTP(){S.loginLoading=true;S.loginError='';render();let url,body;if(S.loginMethod==='email'){const em=(S.loginEmail||'').trim().toLowerCase();if(!/^[\\w.+-]+@[\\w-]+\\.[a-z]{2,}$/i.test(em)){S.loginError='Enter a valid email address';S.loginLoading=false;render();return}url='/api/send-otp-email';body={email:em}}else{let ph=S.loginPhone.replace(/[^0-9+]/g,'');if(!ph.startsWith('+'))ph='+'+ph;if(ph.length<10){S.loginError='Enter valid phone with country code';S.loginLoading=false;render();return}url='/api/send-otp';body={phone:ph}}const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(r=>r.json()).catch(()=>({ok:false,error:'Network error'}));S.loginLoading=false;if(r.ok){S.loginStep='otp';S.loginOTP=['','','','','',''];S.loginError='';render();setTimeout(()=>{const el=document.getElementById('otp0');if(el)el.focus()},100)}else{S.loginError=r.error||'Failed to send OTP';render()}}
+function formatPhonePreview(p){const d=(p||'').replace(/[^0-9+]/g,'');if(!d)return '';if(d.length===10&&!d.startsWith('+'))return null;let out=d;if(!out.startsWith('+'))out='+'+out;return out}
+async function sendOTP(){S.loginLoading=true;S.loginError='';render();let url,body;if(S.loginMethod==='email'){const em=(S.loginEmail||'').trim().toLowerCase();if(!/^[\\w.+-]+@[\\w-]+\\.[a-z]{2,}$/i.test(em)){S.loginError='Enter a valid email address';S.loginLoading=false;render();return}url='/api/send-otp-email';body={email:em}}else{const raw=S.loginPhone.replace(/[^0-9+]/g,'');if(!raw){S.loginError='Enter your WhatsApp number';S.loginLoading=false;render();return}if(raw.length===10&&!raw.startsWith('+')){S.loginError='\\u26A0\\uFE0F Add your country code (e.g. +91 for India, +1 for US). 10 digits alone are ambiguous.';S.loginLoading=false;render();return}let ph=raw;if(!ph.startsWith('+'))ph='+'+ph;if(ph.length<10){S.loginError='Phone number too short \\u2014 include country code like +91 9876543210';S.loginLoading=false;render();return}url='/api/send-otp';body={phone:ph}}const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(r=>r.json()).catch(()=>({ok:false,error:'Network error \\u2014 check your connection'}));S.loginLoading=false;if(r.ok){S.loginStep='otp';S.loginOTP=['','','','','',''];S.loginError='';S.loginSentTo=r.phone||S.loginEmail||S.loginPhone;render();setTimeout(()=>{const el=document.getElementById('otp0');if(el)el.focus()},100)}else{S.loginError=r.error||'Failed to send OTP';S.loginErrorDetail=r.detail||'';S.loginErrorCode=r.code||0;render()}}
 async function verifyOTP(){const code=S.loginOTP.join('');if(code.length<6){S.loginError='Enter the 6-digit code';render();return}S.loginLoading=true;S.loginError='';render();let url,body;if(S.loginMethod==='email'){url='/api/verify-otp-email';body={email:(S.loginEmail||'').trim().toLowerCase(),code,name:S.loginName}}else{let ph=S.loginPhone.replace(/[^0-9+]/g,'');if(!ph.startsWith('+'))ph='+'+ph;url='/api/verify-otp';body={phone:ph,code,name:S.loginName}}const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(r=>r.json()).catch(()=>({error:'Network error'}));S.loginLoading=false;if(r.token){token=r.token;localStorage.setItem('tf_token',r.token);localStorage.setItem('tf_phone',r.phone);localStorage.setItem('tf_name',r.name||'');if(r.email)localStorage.setItem('tf_email',r.email);S.user=r;S.loginStep='phone';load();chk();toast('\\u2705 Welcome!')}else{S.loginError=r.error||'Verification failed';render()}}
 function otpInput(i,v){S.loginOTP[i]=v.slice(-1);render();if(v&&i<5)setTimeout(()=>{const el=document.getElementById('otp'+(i+1));if(el)el.focus()},10)}
 function otpKey(i,e){if(e.key==='Backspace'&&!S.loginOTP[i]&&i>0){S.loginOTP[i-1]='';render();setTimeout(()=>{const el=document.getElementById('otp'+(i-1));if(el)el.focus()},10)}}
@@ -1402,13 +1429,17 @@ if(S.loginMethod==='email'){
   h+='<div class="login-hint">We\\'ll email a 6-digit code. Check your inbox (and spam folder).</div>';
 }else{
   h+='<div class="wa-login-step"><div class="wa-step-num">1</div><div class="wa-step-body"><div class="wa-step-title">Say hi to Brodoit on WhatsApp</div><div class="wa-step-desc">Tap below \\u2014 we\\'ll open WhatsApp with a pre-filled message. Just hit <b>Send</b>.</div><button class="wa-join-btn" onclick="openWAJoin()"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>Open WhatsApp &amp; tap Send</button></div></div>';
-  h+='<div class="wa-login-step"><div class="wa-step-num">2</div><div class="wa-step-body"><div class="wa-step-title">Enter your WhatsApp number</div><div class="wa-step-desc">We\\'ll send a 6-digit verification code to that number.</div><input type="tel" placeholder="+1 555 555 5555" value="'+esc(S.loginPhone)+'" oninput="S.loginPhone=this.value" autocomplete="tel" style="font-size:15px;letter-spacing:0;margin-top:8px;margin-bottom:0"></div></div>';
-  if(S.loginError)h+='<div style="color:#E8453C;font-size:13px;font-weight:600;margin:8px 0">'+S.loginError+'</div>';
+  h+='<div class="wa-login-step"><div class="wa-step-num">2</div><div class="wa-step-body"><div class="wa-step-title">Enter your WhatsApp number</div><div class="wa-step-desc">Include your country code. Examples: <b>+91</b> India, <b>+1</b> US/Canada, <b>+44</b> UK.</div><input type="tel" placeholder="+91 98765 43210" value="'+esc(S.loginPhone)+'" oninput="S.loginPhone=this.value;render()" autocomplete="tel" style="font-size:15px;letter-spacing:0;margin-top:8px;margin-bottom:0">';
+  const preview=formatPhonePreview(S.loginPhone);
+  if(preview)h+='<div style="font-size:11.5px;color:#16A34A;margin-top:6px;font-weight:600">\\u2713 Will send to '+esc(preview)+'</div>';
+  else if(S.loginPhone&&S.loginPhone.length>=10)h+='<div style="font-size:11.5px;color:#E8453C;margin-top:6px;font-weight:600">\\u26A0\\uFE0F Missing country code \\u2014 add e.g. +91 in front</div>';
+  h+='</div></div>';
+  if(S.loginError)h+='<div class="login-err"><div class="login-err-msg">'+S.loginError+'</div>'+(S.loginErrorCode?'<div class="login-err-code">Twilio code '+S.loginErrorCode+(S.loginErrorDetail?' \\u2014 '+esc(S.loginErrorDetail.slice(0,140)):'')+'</div>':'')+'<div class="login-err-acts"><button onclick="openWAJoin()">\\u{1F501} Re-send join code</button><button onclick="S.loginMethod=\\'email\\';S.loginError=\\'\\';render()">\\u2709\\uFE0F Use email instead</button></div></div>';
   h+='<button class="login-btn" style="background:linear-gradient(135deg,#25D366,#128C7E);box-shadow:0 6px 18px rgba(37,211,102,.32);border:none" onclick="sendOTP()"'+(S.loginLoading?' disabled':'')+'>'+(S.loginLoading?'Sending code...':'\\u{1F4F1} Send code via WhatsApp')+'</button>';
   h+='<div class="login-hint">After step 1, your code arrives instantly on WhatsApp.</div>';
 }
 }else if(S.loginStep==='otp'){
-h+='<div class="login-sub">Enter the code sent to<br><strong>'+esc(S.loginMethod==='email'?S.loginEmail:S.loginPhone)+'</strong></div>';
+h+='<div class="login-sub">Code sent via '+(S.loginMethod==='email'?'\\u2709\\uFE0F email':'\\u{1F4F1} WhatsApp')+' to<br><strong>'+esc(S.loginSentTo||(S.loginMethod==='email'?S.loginEmail:S.loginPhone))+'</strong></div>';
 h+='<div class="step-dots"><div class="step-dot on"></div><div class="step-dot on"></div><div class="step-dot"></div></div>';
 h+='<div class="otp-inputs">';
 for(let i=0;i<6;i++)h+='<input id="otp'+i+'" type="tel" maxlength="1" value="'+S.loginOTP[i]+'" oninput="otpInput('+i+',this.value)" onkeydown="otpKey('+i+',event)">';
