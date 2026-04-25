@@ -600,15 +600,26 @@ body[data-theme=aurora] .hdr-time-date{color:#9999B5}
 .top-strip .side-now-wave{position:absolute;bottom:0;left:0;right:0;height:30px;opacity:.15;pointer-events:none}
 @media (max-width:900px){.top-strip{flex-direction:column;min-height:auto}.top-strip .climb-scene{min-height:140px;padding:6px 0}.top-strip .side-now{flex:0 0 auto;border-left:none;border-top:1px dashed rgba(99,102,241,.25)}.top-strip .side-now-time{font-size:30px}.top-strip .side-now-time .sec{font-size:18px}}
 @media (max-width:600px){
-  /* Hide the climb scene on phones — keep just the time card */
-  .top-strip .climb-scene{display:none}
+  /* Keep a compact climb scene above the time card on phones */
   .top-strip{border-radius:14px;min-height:auto}
-  .top-strip .side-now{padding:14px 16px;border-top:none}
+  .top-strip .climb-scene{min-height:0;height:96px;padding:4px 0}
+  .top-strip .climb-caption{font-size:8.5px;top:5px;letter-spacing:1.1px}
+  .top-strip .climber{width:14px;height:18px}
+  .top-strip .climber-2{display:none} /* keep just two climbers + a walker so it's not cluttered */
+  .top-strip .walker-c{display:none}
+  .top-strip .climb-peak{width:14px;height:14px;top:4px;right:8px}
+  .top-strip .celebrator{width:16px;height:18px;top:4px;right:26px}
+  .top-strip .side-now{padding:14px 16px;border-top:1px dashed rgba(99,102,241,.22)}
   .top-strip .side-now-time{font-size:28px}
   .top-strip .side-now-time .sec{font-size:16px}
   .top-strip .side-now-lbl{font-size:9.5px;letter-spacing:1.2px}
   .top-strip .side-now-bar{margin-top:6px}
   .top-strip .side-now-foot{font-size:9.5px}
+}
+@media (max-width:380px){
+  .top-strip .climb-scene{height:78px}
+  .top-strip .climber-3{display:none} /* on very narrow phones, just one climber + the celebrator */
+  .top-strip .walker-b{display:none}
 }
 body[data-theme=aurora] .top-strip{background:linear-gradient(135deg,rgba(167,139,250,.08) 0%,rgba(232,145,44,.06) 100%);border-color:rgba(167,139,250,.18)}
 body[data-theme=aurora] .top-strip .side-now{background:linear-gradient(135deg,rgba(167,139,250,.06),rgba(232,145,44,.04));border-left-color:rgba(167,139,250,.2)}
