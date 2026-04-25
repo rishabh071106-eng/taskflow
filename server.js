@@ -814,9 +814,21 @@ body[data-theme=aurora] .dash-hero .big{background:linear-gradient(90deg,#fff,#F
 .loading{text-align:center;padding:30px;color:#94A3B8;font-size:13px}
 .toast{position:fixed;top:14px;left:50%;transform:translateX(-50%);padding:10px 18px;border-radius:10px;font-size:13px;font-weight:600;z-index:300;box-shadow:0 4px 16px rgba(0,0,0,.08);border:1px solid}
 .toast-ok{background:#F2FBF4;border-color:#B7E8C4;color:#2D8A4E}.toast-err{background:#FEF1F0;border-color:#F5C6C2;color:#E8453C}
-.login{max-width:400px;margin:0 auto;padding:50px 24px;text-align:center}
-.login-logo{font-family:'Space Mono',monospace;font-size:32px;font-weight:700;margin-bottom:6px}.login-logo .k{color:#3DAE5C}
-.login-sub{font-size:14px;color:#64748B;margin-bottom:28px;line-height:1.5}
+.login{max-width:460px;margin:0 auto;padding:40px 28px;text-align:center;min-height:100vh;display:flex;flex-direction:column;justify-content:center}
+.login-logo{font-family:'Space Mono',monospace;font-size:48px;font-weight:700;margin-bottom:8px;letter-spacing:-1px}.login-logo .k{color:#3DAE5C}
+.login-sub{font-size:16px;color:#64748B;margin-bottom:28px;line-height:1.5;font-weight:500}
+.login-features{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:8px 0 28px}
+.login-feature{padding:18px 8px;border-radius:18px;background:#FFFFFF;border:1.5px solid #EEF2F7;transition:transform .2s ease,box-shadow .2s ease}
+.login-feature:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(15,23,42,.06)}
+.login-feature .lf-ic{width:56px;height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:28px;color:#fff}
+.login-feature .lf-ic.tasks{background:linear-gradient(135deg,#3DAE5C,#2D8A4E);box-shadow:0 8px 20px rgba(61,174,92,.32)}
+.login-feature .lf-ic.books{background:linear-gradient(135deg,#7C3AED,#A855F7);box-shadow:0 8px 20px rgba(124,58,237,.32)}
+.login-feature .lf-ic.wisdom{background:linear-gradient(135deg,#E8912C,#F59E0B);box-shadow:0 8px 20px rgba(232,145,44,.32)}
+.login-feature .lf-lbl{font-size:13px;font-weight:700;color:#0F172A}
+.login-feature .lf-sub{font-size:11px;color:#94A3B8;margin-top:2px}
+@keyframes featIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.login-feature{animation:featIn .5s ease backwards}
+.login-feature:nth-child(1){animation-delay:.05s}.login-feature:nth-child(2){animation-delay:.15s}.login-feature:nth-child(3){animation-delay:.25s}
 .login input{margin-bottom:12px;text-align:center;font-size:18px;letter-spacing:1px;padding:14px}
 .login-btn{width:100%;padding:14px;font-size:16px;border-radius:12px;font-weight:700;background:#0F172A;color:#F8FAFC;border:none;margin-top:4px}
 .login-btn:disabled{opacity:.5}.login-btn.sec{background:transparent;border:1.5px solid #CBD5E1;color:#64748B;margin-top:8px}
@@ -1019,7 +1031,7 @@ function opE(id){const t=S.tasks.find(x=>x.id===id);if(!t)return;S.form={title:t
 function clM(){S.showAdd=false;S.editing=null;if(rec)try{rec.stop()}catch(e){}S.listening=false;render()}
 function stV(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){toast('\\u26A0\\uFE0F Voice not supported','err');return}rec=new SR();rec.continuous=false;rec.interimResults=true;rec.lang='en-US';rec.onresult=e=>{let t='';for(let i=0;i<e.results.length;i++)t+=e.results[i][0].transcript;if(e.results[0].isFinal){S.form.title=t;const l=t.toLowerCase();if(/urgent|important|asap/.test(l)){S.form.priority='high';S.form.title=S.form.title.replace(/urgent|important|asap/gi,'').trim()}if(/\\btoday\\b/.test(l))S.form.dueDate=new Date().toISOString().split('T')[0];else if(/\\btomorrow\\b/.test(l)){const d=new Date();d.setDate(d.getDate()+1);S.form.dueDate=d.toISOString().split('T')[0]}}else S.form.title=t;render()};rec.onend=()=>{S.listening=false;render()};rec.onerror=e=>{S.listening=false;toast('\\u26A0\\uFE0F '+e.error,'err');render()};rec.start();S.listening=true;render()}
 
-function switchTab(t){S.tab=t;if(t==='books'&&!S.books.length)loadBooks('all');if(t==='steps')loadSteps();if(t==='news'&&!S.news[S.newsCat])loadNews(S.newsCat);render()}
+function switchTab(t){if(t==='steps')t='tasks';S.tab=t;if(t==='books'&&!S.books.length)loadBooks('all');if(t==='news'&&!S.news[S.newsCat])loadNews(S.newsCat);render()}
 async function loadNews(cat){S.newsCat=cat;S.newsLoading=true;render();try{const r=await fetch('/api/news?cat='+encodeURIComponent(cat),{cache:'no-store'});const j=await r.json();S.news[cat]=j.items||[]}catch(e){S.news[cat]=[]}S.newsLoading=false;render()}
 function shareNews(idx){const item=(S.news[S.newsCat]||[])[idx];if(!item)return;const url=item.link,title=item.title,text=(item.desc||'').slice(0,140);if(navigator.share){navigator.share({title,text,url}).catch(()=>{})}else{navigator.clipboard?.writeText(title+'\\n\\n'+url).then(()=>toast('\\u{1F517} Link copied')).catch(()=>toast('\\u26A0\\uFE0F Share unavailable','err'))}}
 function timeAgo(ds){if(!ds)return '';const d=new Date(ds);if(isNaN(d))return '';const s=(Date.now()-d.getTime())/1000;if(s<60)return 'just now';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';if(s<604800)return Math.floor(s/86400)+'d ago';return d.toLocaleDateString()}
@@ -1050,8 +1062,7 @@ board:"This is the Kanban board. Drag your cards between To Do, Doing, and Done 
 cal:"Your calendar view. Tap any date to see scheduled tasks or add new ones for that day.",
 dash:"Your productivity dashboard. See completed tasks, streaks, and your progress over time.",
 news:"Stay informed with daily curated news. Browse different categories like technology, sports, and entertainment.",
-books:"Free audiobook library from Libri Vox. Search, browse, and listen. Keep a streak by listening for two minutes a day.",
-steps:"Track your daily steps. Use your phone's motion sensor for live tracking, or log manually from any health app."
+books:"Free audiobook library from Libri Vox. Search, browse, and listen. Keep a streak by listening for two minutes a day."
 };
 function speakIntro(){try{if(!('speechSynthesis' in window)){toast('\\u26A0\\uFE0F Voice not supported on this device','err');return}const t=TAB_INTROS[S.tab];if(!t)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=1;u.pitch=1;u.volume=1;speechSynthesis.speak(u);toast('\\u{1F50A} Playing intro')}catch(e){toast('\\u26A0\\uFE0F Voice error','err')}}
 function stopSpeak(){try{speechSynthesis.cancel()}catch(e){}}
@@ -1087,10 +1098,14 @@ const _fs=(function(){try{const a=document.activeElement;if(!a||(a.tagName!=='IN
 const _restore=function(){if(!_fs)return;try{let el=null;if(_fs.id)el=document.getElementById(_fs.id);if(!el){const inputs=document.querySelectorAll('input,textarea');for(const i of inputs){if((_fs.placeholder&&i.placeholder===_fs.placeholder)||(_fs.name&&i.name===_fs.name)){el=i;break}}}if(el){try{el.focus({preventScroll:true})}catch(e){el.focus()}if(typeof _fs.start==='number'&&el.setSelectionRange){try{el.setSelectionRange(_fs.start,_fs.end)}catch(e){}}}}catch(e){}};
 setTimeout(_restore,0);
 if(!S.user){let h='<div class="login">';
-h+='<svg class="hero" viewBox="0 0 220 160" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3DAE5C"/><stop offset="100%" stop-color="#E8912C"/></linearGradient><linearGradient id="g2" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#7C3AED"/><stop offset="100%" stop-color="#E8453C"/></linearGradient></defs><circle cx="110" cy="80" r="62" fill="url(#g1)" opacity=".15"/><rect x="42" y="40" width="86" height="90" rx="10" fill="#FFFFFF" stroke="#0F172A" stroke-width="2"/><line x1="54" y1="58" x2="116" y2="58" stroke="#CBD5E1" stroke-width="2" stroke-linecap="round"/><line x1="54" y1="72" x2="100" y2="72" stroke="#CBD5E1" stroke-width="2" stroke-linecap="round"/><line x1="54" y1="86" x2="110" y2="86" stroke="#CBD5E1" stroke-width="2" stroke-linecap="round"/><line x1="54" y1="100" x2="90" y2="100" stroke="#CBD5E1" stroke-width="2" stroke-linecap="round"/><circle cx="46" cy="58" r="4" fill="#3DAE5C"/><circle cx="46" cy="72" r="4" fill="#3DAE5C"/><circle cx="46" cy="86" r="4" fill="#E8912C"/><circle cx="46" cy="100" r="4" fill="#CBD5E1"/><rect x="138" y="30" width="60" height="84" rx="6" fill="url(#g2)" transform="rotate(8 168 72)"/><rect x="144" y="38" width="48" height="4" rx="2" fill="#fff" opacity=".8" transform="rotate(8 168 72)"/><rect x="144" y="48" width="38" height="4" rx="2" fill="#fff" opacity=".6" transform="rotate(8 168 72)"/><circle cx="168" cy="88" r="10" fill="#fff" opacity=".9" transform="rotate(8 168 72)"/><polygon points="165,84 165,92 172,88" fill="#7C3AED" transform="rotate(8 168 72)"/><circle cx="30" cy="30" r="6" fill="#E8912C"><animate attributeName="cy" values="30;26;30" dur="2.5s" repeatCount="indefinite"/></circle><circle cx="190" cy="140" r="5" fill="#3DAE5C"><animate attributeName="cy" values="140;136;140" dur="3s" repeatCount="indefinite"/></circle><circle cx="20" cy="130" r="4" fill="#7C3AED" opacity=".7"><animate attributeName="cy" values="130;126;130" dur="2.8s" repeatCount="indefinite"/></circle></svg>';
 h+='<div class="login-logo">Bro<span class="k">Do</span>it</div>';
 if(S.loginStep==='phone'){
-h+='<div class="login-sub">Tasks + Books + Wisdom, all in one place.</div>';
+h+='<div class="login-sub">Your calm productivity companion.<br>Tasks, audiobooks &amp; daily wisdom in one place.</div>';
+h+='<div class="login-features">';
+h+='<div class="login-feature"><div class="lf-ic tasks"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><div class="lf-lbl">Tasks</div><div class="lf-sub">Stay on track</div></div>';
+h+='<div class="login-feature"><div class="lf-ic books"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18.5V5a2 2 0 0 1 2-2h12.5"/><path d="M3 18.5A2.5 2.5 0 0 1 5.5 16H20a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H5.5A2.5 2.5 0 0 1 3 18.5z"/></svg></div><div class="lf-lbl">Audiobooks</div><div class="lf-sub">Free &amp; classic</div></div>';
+h+='<div class="login-feature"><div class="lf-ic wisdom"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6L12 2z"/></svg></div><div class="lf-lbl">Wisdom</div><div class="lf-sub">Daily quotes</div></div>';
+h+='</div>';
 h+='<div class="step-dots"><div class="step-dot on"></div><div class="step-dot"></div><div class="step-dot"></div></div>';
 // Force email-only login. WhatsApp Sandbox blocks new users (Twilio limitation).
 S.loginMethod='email';
@@ -1126,7 +1141,7 @@ const m=MORALS[S.moralIdx];
 h+='<div class="moral"><div class="moral-emoji">\\u{1F4A1}</div><div class="moral-body"><div class="moral-lbl">Moral of the Day</div><div class="moral-txt">"'+esc(m.t)+'"</div><div class="moral-by">\\u2014 '+esc(m.a)+'</div></div><button class="moral-ref" onclick="rotateMoral()" title="New quote">\\u21BB</button></div>';
 
 // Tabs
-h+='<nav class="tabs page-t">'+[{k:'tasks',l:'Tasks'},{k:'board',l:'Board'},{k:'cal',l:'Calendar'},{k:'dash',l:'Stats'},{k:'news',l:'News'},{k:'books',l:'Books'},{k:'steps',l:'Steps'}].map(x=>'<button class="tab'+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+ic(x.k,20)+'</span><span class="tl">'+x.l+'</span></button>').join('')+'</nav>';
+h+='<nav class="tabs page-t">'+[{k:'tasks',l:'Tasks'},{k:'board',l:'Board'},{k:'cal',l:'Calendar'},{k:'dash',l:'Stats'},{k:'news',l:'News'},{k:'books',l:'Books'}].map(x=>'<button class="tab'+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+ic(x.k,20)+'</span><span class="tl">'+x.l+'</span></button>').join('')+'</nav>';
 
 h+='<main class="main-col">';
 h+='<div class="user-bar" style="cursor:pointer" onclick="openProfile()"><span>\\u{1F464} '+esc(S.user.name||S.user.phone)+' <span style="color:#94A3B8;font-size:11px">\\u203A Profile</span></span><button onclick="event.stopPropagation();logout()">Logout</button></div>';
@@ -1179,53 +1194,6 @@ else if(S.tab==='board'){
   h+='<button class="fab" onclick="opA()">+</button>';
 }
 
-// STEPS TAB (motion sensor + manual log + dashboard)
-else if(S.tab==='steps'){
-  const today=new Date().toISOString().slice(0,10);
-  const todayRec=S.steps.find(s=>s.date===today);
-  const baseToday=todayRec?.count||0;
-  const liveAdd=S.stepLive.active?(S.stepLive.count||0):0;
-  const todayCount=baseToday+liveAdd;
-  const goal=S.stepGoal||10000;
-  const pct=Math.min(100,Math.round(100*todayCount/goal));
-  const kcal=Math.round(todayCount*0.04);
-  const km=(todayCount*0.00076).toFixed(2);
-  const activeMin=Math.round(todayCount/100);
-  const last7=[...Array(7)].map((_,i)=>{const d=new Date(Date.now()-(6-i)*864e5).toISOString().slice(0,10);const r=S.steps.find(s=>s.date===d);return{date:d,count:(d===today?todayCount:(r?.count||0)),today:d===today}});
-  const wkTotal=last7.reduce((a,b)=>a+b.count,0);
-  const wkAvg=Math.round(wkTotal/7);
-  const best=last7.reduce((a,b)=>b.count>a.count?b:a,{count:0,date:''});
-  const max=Math.max(goal,...last7.map(d=>d.count),1);
-  let streak=0;for(let i=0;i<60;i++){const d=new Date(Date.now()-i*864e5).toISOString().slice(0,10);const cc=d===today?todayCount:((S.steps.find(s=>s.date===d)||{}).count||0);if(cc>=goal)streak++;else if(i>0)break}
-  const goalDays=last7.filter(d=>d.count>=goal).length;
-  const fmt=n=>n>=10000?(n/1000).toFixed(1)+'k':n>=1000?(n/1000).toFixed(1)+'k':String(n);
-  const C=2*Math.PI*52;
-  h+='<div class="section-hd"><span class="section-ic">'+ic('steps',22)+'</span><div><h3>Steps &amp; Health</h3><p>'+new Date().toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'})+'</p></div></div>';
-  // Hero
-  h+='<div class="steps-hero">';
-  h+='<div class="steps-ring"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="#F1F5F9" stroke-width="9"/><circle cx="60" cy="60" r="52" fill="none" stroke="'+(pct>=100?'#3DAE5C':'#3B82F6')+'" stroke-width="9" stroke-dasharray="'+C.toFixed(2)+'" stroke-dashoffset="'+(C*(1-pct/100)).toFixed(2)+'" stroke-linecap="round" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .6s"/></svg><div class="ring-v"><b>'+todayCount.toLocaleString()+'</b><small>of '+goal.toLocaleString()+'</small></div></div>';
-  h+='<div class="steps-main"><h2>Today\\'s Steps</h2><div class="pct-lbl">'+pct+'% of daily goal \\u2022 '+(goal-todayCount>0?fmt(goal-todayCount)+' to go':'goal smashed \\u{1F389}')+'</div>';
-  if(S.stepLive.active){h+='<div class="live-ind"><span class="pulse-d"></span>LIVE \\u2014 '+(S.stepLive.count||0).toLocaleString()+' tracked in-session</div><button class="btn-tr stop" onclick="stopPed()">\\u23F8 Stop tracking</button>'}
-  else{h+='<button class="btn-tr" onclick="startPed()">\\u25B6 Start live tracking</button>'}
-  h+='</div></div>';
-  // Stat cards
-  h+='<div class="dash-grid">';
-  h+='<div class="dash-card"><div class="lbl">\\u{1F525} Calories</div><div class="v">'+kcal+'</div><div class="sub">kcal burned today</div></div>';
-  h+='<div class="dash-card"><div class="lbl">\\u{1F4CF} Distance</div><div class="v">'+km+'</div><div class="sub">km walked</div></div>';
-  h+='<div class="dash-card"><div class="lbl">\\u23F1 Active</div><div class="v">'+activeMin+'</div><div class="sub">minutes moving</div></div>';
-  h+='<div class="dash-card"><div class="lbl">\\u{1F3C6} Streak</div><div class="v">'+streak+'</div><div class="sub">days hitting goal</div></div>';
-  h+='</div>';
-  // Weekly chart
-  h+='<div class="dash-card" style="margin-bottom:14px"><div class="lbl">\\u{1F4C8} Last 7 days</div><div class="step-bars">';
-  last7.forEach(d=>{const pc=Math.max(2,Math.round(100*d.count/max)),met=d.count>=goal,cls=(d.today?' today':'')+(met?' met':'');const lbl=new Date(d.date+'T00:00:00').toLocaleDateString('en-US',{weekday:'short'}).slice(0,3);h+='<div class="sb"><div class="sb-bar"><div class="sb-fill'+cls+'" style="height:'+pc+'%"></div></div><div class="sb-c">'+fmt(d.count)+'</div><div class="sb-d'+(d.today?' today':'')+'">'+lbl+'</div></div>'});
-  h+='</div></div>';
-  // Weekly stats strip
-  h+='<div class="stats" style="margin-bottom:14px"><div class="st"><b>'+fmt(wkTotal)+'</b><small>Week</small></div><div class="st"><b>'+fmt(wkAvg)+'</b><small>Avg/day</small></div><div class="st"><b>'+fmt(best.count)+'</b><small>Best</small></div><div class="st"><b>'+goalDays+'/7</b><small>Goal days</small></div></div>';
-  // Goal setter
-  h+='<div class="dash-card" style="margin-bottom:14px"><div class="lbl">\\u{1F3AF} Daily Goal</div><div class="goal-row">Walk <input type="number" value="'+goal+'" min="500" max="100000" step="500" onchange="setStepGoal(this.value)"> steps per day. Common targets: 5k (start), 8k, 10k (WHO), 12k+ (active).</div></div>';
-  // Integration note
-  h+='<div class="health-note"><div class="lbl" style="color:#B57B00">\\u26A0\\uFE0F How live tracking really works</div><div style="font-size:13px;color:#64748B;line-height:1.6;margin-top:8px"><b>Brodoit is a web app.</b> Browsers pause all JavaScript when you close the tab or lock your phone \\u2014 which means <b>we can\\'t count steps in the background.</b> Only the Samsung Health or Apple Health native apps do that.<br><br><b>What works right now:</b><br>\\u2022 Tap \\u25B6 <b>Start live tracking</b> \\u2014 Brodoit counts steps using your phone\\'s motion sensor while the app is open<br>\\u2022 We <b>lock the screen on</b> so you can walk with your phone in your hand or pocket without it sleeping<br>\\u2022 If you switch apps mid-walk, Brodoit saves what it counted so far and pauses cleanly<br><br><b>Coming with the Play Store app:</b> real background tracking via Samsung Health / Apple Health / Google Fit (Health Connect).</div></div>';
-}
 
 // DASHBOARD TAB
 else if(S.tab==='dash'){
@@ -1449,7 +1417,7 @@ document.getElementById('app').innerHTML=h;
 }
 fetch('/api/config').then(r=>r.json()).then(c=>{window.__TWILIO_SANDBOX_CODE=c.sandboxCode||'';render()}).catch(()=>{});
 applyTheme();
-if(S.user){refreshSession();load();loadSteps();loadBookStreak();chk();setInterval(load,10000)}else render();
+if(S.user){refreshSession();load();loadBookStreak();chk();setInterval(load,10000)}else render();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
 </script></body></html>`;
 
