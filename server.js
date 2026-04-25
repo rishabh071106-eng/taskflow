@@ -613,16 +613,18 @@ body[data-theme=aurora] .hdr-time-date{color:#9999B5}
 .game-btn:active{transform:scale(.96)}
 .game-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:260px;margin:0 auto}
 .game-cell{aspect-ratio:1;border-radius:14px;background:rgba(255,255,255,.7);border:2px solid rgba(99,102,241,.12);cursor:pointer;transition:all .18s cubic-bezier(.4,1.5,.5,1);position:relative}
-.game-cell:hover{border-color:rgba(99,102,241,.4)}
-.game-cell.on{background:radial-gradient(circle,#A7F3D0 0%,#10B981 70%);border-color:#10B981;box-shadow:0 0 0 0 rgba(16,185,129,.4),0 4px 14px rgba(16,185,129,.4);animation:cellGlow 1s ease-in-out infinite}
-@keyframes cellGlow{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,.4),0 4px 14px rgba(16,185,129,.5)}50%{box-shadow:0 0 0 10px rgba(16,185,129,0),0 6px 18px rgba(16,185,129,.6)}}
-.game-cell.pop{animation:cellPop .32s cubic-bezier(.4,1.5,.5,1)}
-@keyframes cellPop{0%{transform:scale(1)}40%{transform:scale(1.18);background:#3DAE5C}100%{transform:scale(1)}}
-.game-cell.miss{animation:cellMiss .25s ease-out}
-@keyframes cellMiss{0%{background:#FEE2E2;border-color:#F87171}100%{background:rgba(255,255,255,.7)}}
-.game-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;font-weight:700}
-.game-time{font-family:'Space Mono',monospace;color:#0F172A}
+.game-cell:hover{border-color:rgba(99,102,241,.4);transform:translateY(-1px)}
+.game-cell.seq{background:radial-gradient(circle,#C7D2FE 0%,#6366F1 75%);border-color:#6366F1;box-shadow:0 0 0 6px rgba(99,102,241,.18),0 6px 18px rgba(99,102,241,.45);transform:scale(1.05)}
+.game-cell.pop{animation:cellPop .3s cubic-bezier(.4,1.5,.5,1)}
+@keyframes cellPop{0%{transform:scale(1)}40%{transform:scale(1.18);background:#3DAE5C;border-color:#10B981}100%{transform:scale(1)}}
+.game-cell.miss{animation:cellMiss .42s ease-out}
+@keyframes cellMiss{0%{background:#FEE2E2;border-color:#F87171;transform:scale(1.08) rotate(-2deg)}50%{transform:scale(.98) rotate(2deg)}100%{background:rgba(255,255,255,.7);transform:scale(1) rotate(0)}}
+.game-status-line{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:4px;font-size:13px}
+.game-status{font-weight:700;color:#6366F1;letter-spacing:-.01em;transition:color .2s ease}
+.game-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12.5px;font-weight:700;margin-top:2px}
+.game-hint{color:#94A3B8;font-weight:600;letter-spacing:.4px}
 .game-score{font-family:'Instrument Serif',Georgia,serif;font-size:20px;color:#6366F1;font-weight:400}
+.game-prompt b{color:#6366F1;font-weight:800}
 .game-stop{font-size:11.5px;font-weight:700;padding:6px 12px;border-radius:8px;background:rgba(15,23,42,.06);border:none;color:#64748B;cursor:pointer}
 .game-stop:hover{background:rgba(232,69,60,.1);color:#E8453C}
 body[data-theme=aurora] .game-card{background:linear-gradient(135deg,rgba(167,139,250,.1),rgba(244,114,182,.08));border-color:rgba(167,139,250,.2)}
@@ -1074,12 +1076,13 @@ body:not([data-theme=aurora]) .chk.on{background:linear-gradient(135deg,#10B981,
   .tabs.page-t{position:fixed;bottom:0;left:0;right:0;top:auto;padding:8px 6px calc(8px + env(safe-area-inset-bottom));margin:0;border-radius:0;border:none;border-top:1px solid rgba(15,23,42,.06);background:rgba(255,255,255,.92);backdrop-filter:saturate(160%) blur(20px);-webkit-backdrop-filter:saturate(160%) blur(20px);z-index:60;gap:2px;justify-content:space-between;box-shadow:0 -4px 24px rgba(15,23,42,.05);overflow-x:auto;scrollbar-width:none;max-height:none;align-items:stretch}
   .tabs.page-t::-webkit-scrollbar{display:none}
   body[data-theme=aurora] .tabs.page-t{background:rgba(14,14,28,.88);border-top-color:rgba(255,255,255,.08)}
-  .tabs.page-t .tab{flex:1 1 0;flex-direction:column;padding:8px 2px 4px;min-width:58px;gap:2px;border-radius:14px;font-size:10px;font-weight:700;position:relative;transform:none}
-  .tabs.page-t .tab .ti{font-size:22px;line-height:1;transition:transform .25s cubic-bezier(.4,1.5,.5,1);margin:0}
-  .tabs.page-t .tab .tl{font-size:10px;line-height:1;letter-spacing:.1px;margin-top:2px;opacity:.9;font-weight:700}
+  .tabs.page-t .tab{flex:1 1 0;flex-direction:column;padding:10px 2px 5px;min-width:64px;gap:3px;border-radius:14px;font-size:11px;font-weight:700;position:relative;transform:none}
+  .tabs.page-t .tab .ti{font-size:30px;line-height:1;transition:transform .25s cubic-bezier(.4,1.5,.5,1);margin:0;width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center}
+  .tabs.page-t .tab .ti svg{width:30px!important;height:30px!important}
+  .tabs.page-t .tab .tl{font-size:11px;line-height:1;letter-spacing:.1px;margin-top:3px;opacity:.9;font-weight:700}
   .tabs.page-t .tab.on{background:transparent!important;color:#6366F1!important;transform:none!important;box-shadow:none!important}
   body[data-theme=aurora] .tabs.page-t .tab.on{color:#A78BFA!important;background:transparent!important}
-  .tabs.page-t .tab.on .ti{transform:translateY(-2px) scale(1.15)}
+  .tabs.page-t .tab.on .ti{transform:translateY(-2px) scale(1.18)}
   .tabs.page-t .tab.on::before{content:'';position:absolute;top:-9px;left:35%;right:35%;height:3px;border-radius:0 0 4px 4px;background:linear-gradient(90deg,#6366F1,#EC4899)}
   body[data-theme=aurora] .tabs.page-t .tab.on::before{background:linear-gradient(90deg,#A78BFA,#F472B6)}
   .fab{bottom:calc(94px + env(safe-area-inset-bottom));right:18px;width:58px;height:58px;font-size:28px;z-index:55}
@@ -1495,7 +1498,15 @@ body[data-theme=aurora] .dash-hero .big{background:linear-gradient(90deg,#fff,#F
 .add-bar{background:linear-gradient(135deg,#0F172A,#312E81);color:#F8FAFC;padding:18px 20px;border-radius:16px;display:flex;align-items:center;gap:14px;margin-bottom:16px;cursor:pointer;transition:all .2s cubic-bezier(.2,.8,.2,1);border:none;width:100%;font-family:inherit;box-shadow:0 4px 14px rgba(45,42,38,.15)}
 .add-bar:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(45,42,38,.3)}
 .add-bar:active{transform:translateY(0) scale(.98)}
-.add-bar .plus{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#3DAE5C,#2D8A4E);color:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;flex-shrink:0;box-shadow:0 3px 10px rgba(61,174,92,.4)}
+.add-bar .plus{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#3DAE5C,#2D8A4E);color:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;flex-shrink:0;box-shadow:0 3px 10px rgba(61,174,92,.4);position:relative;animation:plusBreathe 2.4s ease-in-out infinite;transition:transform .3s cubic-bezier(.4,1.5,.5,1)}
+.add-bar .plus::before{content:'';position:absolute;inset:-3px;border-radius:50%;border:2px solid rgba(61,174,92,.4);animation:plusRing 2.4s ease-in-out infinite;pointer-events:none}
+@keyframes plusBreathe{0%,100%{transform:scale(1);box-shadow:0 3px 10px rgba(61,174,92,.4),0 0 0 0 rgba(61,174,92,.55)}50%{transform:scale(1.06);box-shadow:0 5px 16px rgba(61,174,92,.5),0 0 0 8px rgba(61,174,92,0)}}
+@keyframes plusRing{0%,100%{opacity:.7;transform:scale(1)}50%{opacity:0;transform:scale(1.4)}}
+.add-bar:hover .plus{transform:scale(1.12) rotate(90deg)}
+.add-bar:hover .plus::before{opacity:0}
+.add-bar.gcal-add-bar .plus{animation:none;box-shadow:0 3px 10px rgba(66,133,244,.35)}
+.add-bar.gcal-add-bar .plus::before{display:none}
+.add-bar.gcal-add-bar:hover .plus{transform:scale(1.1) rotate(0)}
 .add-bar .txt{flex:1;text-align:left}
 .add-bar .txt b{display:block;font-size:16px;font-weight:700;letter-spacing:-.2px}
 .add-bar .txt small{display:block;font-size:12px;color:rgba(245,242,237,.7);margin-top:2px;font-weight:500}
@@ -2103,43 +2114,46 @@ function calSelect(d){S.calSelectedDate=d;render()}
 function calAddForDate(){S.form={title:'',notes:'',priority:'medium',dueDate:S.calSelectedDate||'',reminderTime:'',status:'pending'};S.editing=null;S.showAdd=true;render();setTimeout(()=>{const e=document.getElementById('ft');if(e)e.focus()},100)}
 function rotateMoral(){const a=document.getElementById('audioEl');if(a&&!a.paused)return;S.moralIdx=(S.moralIdx+1)%MORALS.length;render()}
 setInterval(()=>{if(S.user)rotateMoral()},45000);
-// Tap Sprint mini-game — interactive, points, persists best score
-let _gameTimer=null,_gameHl=null;
+// Memory Match mini-game — Simon-style sequence memory; level = highest sequence completed
+let _gameSeqTimer=null;
 function gameStart(){
-  if(_gameTimer||_gameHl)gameEnd();
-  S.game.active=true;S.game.score=0;S.game.timeLeft=20;S.game.activeCell=Math.floor(Math.random()*9);
-  render();
-  _gameHl=setInterval(()=>{
+  if(_gameSeqTimer){clearTimeout(_gameSeqTimer);_gameSeqTimer=null}
+  S.game.active=true;S.game.mode='show';S.game.level=1;S.game.inputIdx=0;
+  S.game.sequence=[Math.floor(Math.random()*9)];
+  render();_gameSeqTimer=setTimeout(gamePlaySequence,420);
+}
+function gamePlaySequence(){
+  let i=0;const cells=()=>document.querySelectorAll('.game-cell');
+  const setStatus=(t,c)=>{const s=document.getElementById('game-status');if(s){s.textContent=t;s.style.color=c||''}};
+  setStatus('Watch the sequence...','#6366F1');
+  const tick=()=>{
     if(!S.game.active)return;
-    let next;do{next=Math.floor(Math.random()*9)}while(next===S.game.activeCell);
-    S.game.activeCell=next;
-    document.querySelectorAll('.game-cell').forEach((c,i)=>c.classList.toggle('on',i===next));
-  },820);
-  _gameTimer=setInterval(()=>{
-    S.game.timeLeft--;
-    const t=document.getElementById('game-time');if(t)t.textContent='\\u23F1 '+S.game.timeLeft+'s';
-    if(S.game.timeLeft<=0)gameEnd();
-  },1000);
+    if(i>=S.game.sequence.length){S.game.mode='input';S.game.inputIdx=0;setStatus('Your turn \\u2192','#10B981');return}
+    const idx=S.game.sequence[i];const c=cells()[idx];
+    if(c){c.classList.add('seq');setTimeout(()=>c.classList.remove('seq'),420)}
+    i++;_gameSeqTimer=setTimeout(tick,Math.max(280,640-S.game.level*20));
+  };tick();
 }
 function gameTap(i){
-  if(!S.game.active)return;
-  if(S.game.activeCell!==i){
-    const cells=document.querySelectorAll('.game-cell');if(cells[i]){cells[i].classList.add('miss');setTimeout(()=>cells[i].classList.remove('miss'),250)}
-    return;
-  }
-  S.game.score++;
-  const sc=document.getElementById('game-score');if(sc)sc.textContent=S.game.score+' pts';
+  if(!S.game.active||S.game.mode!=='input')return;
   const cells=document.querySelectorAll('.game-cell');
-  if(cells[i]){cells[i].classList.add('pop');setTimeout(()=>cells[i].classList.remove('pop'),320)}
-  let next;do{next=Math.floor(Math.random()*9)}while(next===i);
-  S.game.activeCell=next;
-  cells.forEach((c,idx)=>c.classList.toggle('on',idx===next));
+  const expected=S.game.sequence[S.game.inputIdx];
+  if(i!==expected){if(cells[i]){cells[i].classList.add('miss');setTimeout(()=>cells[i].classList.remove('miss'),420)}gameEnd(false);return}
+  if(cells[i]){cells[i].classList.add('pop');setTimeout(()=>cells[i].classList.remove('pop'),300)}
+  S.game.inputIdx++;
+  const sc=document.getElementById('game-score');if(sc)sc.textContent='Lv '+S.game.level;
+  if(S.game.inputIdx>=S.game.sequence.length){
+    // Round complete — advance
+    S.game.level++;S.game.sequence.push(Math.floor(Math.random()*9));S.game.mode='show';
+    const s=document.getElementById('game-status');if(s){s.textContent='\\u2728 Level up!';s.style.color='#E8912C'}
+    _gameSeqTimer=setTimeout(gamePlaySequence,650);
+  }
 }
-function gameEnd(){
-  if(_gameTimer){clearInterval(_gameTimer);_gameTimer=null}
-  if(_gameHl){clearInterval(_gameHl);_gameHl=null}
-  if(S.game.score>S.game.best){S.game.best=S.game.score;localStorage.setItem('tf_game_best',S.game.best)}
-  S.game.active=false;render();
+function gameEnd(won){
+  if(_gameSeqTimer){clearTimeout(_gameSeqTimer);_gameSeqTimer=null}
+  const reached=Math.max(0,S.game.level-1);
+  if(reached>S.game.best){S.game.best=reached;localStorage.setItem('tf_game_best',S.game.best)}
+  S.game.active=false;S.game.mode='over';S.game.score=reached;render();
 }
 // Live-tick the sidebar AND header clocks without re-rendering the whole tree
 setInterval(()=>{const n=new Date();const hm=n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false});const sec=String(n.getSeconds()).padStart(2,'0');const t=document.getElementById('sideNowTime');const s=document.getElementById('sideNowSec');if(t&&s){if(t.firstChild&&t.firstChild.nodeValue!==hm)t.firstChild.nodeValue=hm;s.textContent=sec}const ht=document.getElementById('hdrTimeHm');const hs=document.getElementById('hdrTimeSec');if(ht&&hs){if(ht.textContent!==hm)ht.textContent=hm;hs.textContent=':'+sec}},1000);
@@ -2305,17 +2319,19 @@ h+='<div class="section-div" aria-hidden="true"></div>';
 // TASKS TAB
 if(S.tab==='dash')S.tab='tasks'; // Stats tab removed; redirect any stale state to Tasks
 if(S.tab==='tasks'){
-  // Tap Sprint mini-game card
+  // Memory Match mini-game card (Simon-style sequence memory)
   {
     const g=S.game;
-    h+='<div class="game-card"><div class="game-hd"><div class="game-ttl"><span class="game-emoji">\\u{1F3AE}</span> Tap Sprint</div><div class="game-best">Best <b>'+g.best+'</b></div></div>';
+    h+='<div class="game-card"><div class="game-hd"><div class="game-ttl"><span class="game-emoji">\\u{1F9E0}</span> Memory Match</div><div class="game-best">Best <b>Lv '+g.best+'</b></div></div>';
     if(!g.active){
-      h+='<div class="game-cta"><div class="game-prompt">Tap the glowing dot as fast as you can. 20 seconds.</div><button class="game-btn" onclick="gameStart()">'+(g.score>0?'Play again':'Start')+(g.score>0?' \\u2022 last '+g.score+' pts':'')+'</button></div>';
+      const prompt=g.mode==='over'&&g.score>0?'Round over \\u2014 you reached <b>level '+g.score+'</b>. Try again?':'Watch the sequence \\u2192 then repeat it. The chain grows each level.';
+      h+='<div class="game-cta"><div class="game-prompt">'+prompt+'</div><button class="game-btn" onclick="gameStart()">'+(g.mode==='over'?'Play again':'Start')+'</button></div>';
     }else{
+      h+='<div class="game-status-line"><span id="game-status" class="game-status">Watch the sequence\\u2026</span><span id="game-score" class="game-score">Lv '+g.level+'</span></div>';
       h+='<div class="game-grid">';
-      for(let i=0;i<9;i++)h+='<button class="game-cell'+(g.activeCell===i?' on':'')+'" onclick="gameTap('+i+')" aria-label="cell"></button>';
+      for(let i=0;i<9;i++)h+='<button class="game-cell" onclick="gameTap('+i+')" aria-label="cell"></button>';
       h+='</div>';
-      h+='<div class="game-foot"><div id="game-time" class="game-time">\\u23F1 '+g.timeLeft+'s</div><div id="game-score" class="game-score">'+g.score+' pts</div><button class="game-stop" onclick="gameEnd()">Stop</button></div>';
+      h+='<div class="game-foot"><div class="game-hint">'+(g.mode==='show'?'\\u{1F441}\\uFE0F watch':'\\u270B repeat')+'</div><button class="game-stop" onclick="gameEnd(false)">Stop</button></div>';
     }
     h+='</div>';
   }
