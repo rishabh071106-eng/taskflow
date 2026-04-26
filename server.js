@@ -1260,6 +1260,8 @@ body[data-theme=aurora] .hdr-time-date{color:#9999B5}
 .cc-typing span:nth-child(2){animation-delay:.18s}
 .cc-typing span:nth-child(3){animation-delay:.36s}
 @keyframes ccTyping{0%,80%,100%{opacity:.3;transform:scale(.85)}40%{opacity:1;transform:scale(1.1)}}
+.cc-composer-rec{background:linear-gradient(135deg,#FEF2F2,#FEE2E2);border-color:#FCA5A5}
+.cc-wave{flex:1;height:40px;display:block;background:transparent}
 .cc-composer{display:flex;align-items:flex-end;gap:8px;padding:10px;background:#fff;border:1.5px solid #E2E8F0;border-radius:18px;box-shadow:0 4px 16px rgba(15,23,42,.08);position:sticky;bottom:0;margin-top:8px}
 .cc-composer textarea{flex:1;min-width:0;resize:none;border:none;outline:none;font-family:inherit;font-size:15px;line-height:1.45;padding:8px 4px;color:#0F172A;background:transparent;max-height:120px;min-height:24px}
 .cc-mic{flex-shrink:0;width:42px;height:42px;border-radius:50%;background:#F1F5F9;border:none;font-size:18px;cursor:pointer;color:#0F172A;font-family:inherit;transition:background .12s ease,transform .1s ease}
@@ -1289,6 +1291,24 @@ body[data-theme=aurora] .cc-composer{background:rgba(255,255,255,.04);border-col
 body[data-theme=aurora] .cc-composer textarea{color:#F5F5FA}
 body[data-theme=aurora] .cc-mic{background:rgba(255,255,255,.08);color:#F5F5FA}
 body[data-theme=aurora] .cc-quick-btn{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12);color:#9999B5}
+/* Memory Tap canvas-game */
+.mt-shell{padding:0;background:linear-gradient(180deg,#1E1B4B,#0F172A);border-radius:0 0 18px 18px;overflow:hidden;position:relative}
+.mt-hud{display:flex;justify-content:space-between;align-items:center;padding:14px 18px 4px;background:transparent;color:rgba(255,255,255,.85);font-family:'Space Mono',monospace;font-size:12px;letter-spacing:1.2px;font-weight:700}
+.mt-hud b{color:#FCD34D;font-size:18px;letter-spacing:-.02em;margin-left:6px}
+.mt-canvas{display:block;width:100%;aspect-ratio:1/1;max-height:60vh;background:transparent;cursor:pointer;touch-action:manipulation}
+.mt-end{text-align:center;padding:32px 22px 24px}
+.mt-end-stars{display:flex;justify-content:center;gap:14px;margin-bottom:18px}
+.mt-star{font-size:46px;color:rgba(15,23,42,.18);line-height:1;transition:transform .25s ease,color .25s ease}
+.mt-star-on{color:#FCD34D;animation:mtStarPop .5s cubic-bezier(.2,1.6,.5,1) backwards}
+.mt-star-on:nth-child(1){animation-delay:.05s}
+.mt-star-on:nth-child(2){animation-delay:.18s}
+.mt-star-on:nth-child(3){animation-delay:.32s}
+@keyframes mtStarPop{0%{transform:scale(.3) rotate(-12deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
+.mt-end-t{font-size:22px;font-weight:800;color:#0F172A;margin-bottom:6px}
+.mt-end-t b{color:#7C3AED;font-family:'Space Mono',monospace;font-size:24px}
+.mt-end-s{font-size:13px;color:#64748B;margin-bottom:20px}
+body[data-theme=aurora] .mt-end-t{color:#F5F5FA}body[data-theme=aurora] .mt-end-t b{color:#A78BFA}
+body[data-theme=aurora] .mt-end-s{color:#9999B5}body[data-theme=aurora] .mt-star{color:rgba(255,255,255,.16)}
 /* MIND GYM Daily Workout card + confetti */
 .mg-daily{display:flex;align-items:center;gap:14px;padding:14px 16px;margin-bottom:14px;background:linear-gradient(135deg,#FCD34D 0%,#FB923C 100%);border-radius:14px;color:#0F172A;box-shadow:0 8px 22px rgba(252,211,77,.32)}
 .mg-daily-l{flex:1;min-width:0}
@@ -3795,6 +3815,15 @@ async function coachStartRec(){
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){toast('\\u26A0\\uFE0F Mic not available','err');return}
   try{
     const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});
+    // Live waveform — feed mic into an AnalyserNode so the UI can show real-time audio levels
+    try{
+      if(!_mgAudio)_mgAudio=new(window.AudioContext||window.webkitAudioContext)();
+      const src=_mgAudio.createMediaStreamSource(stream);
+      const an=_mgAudio.createAnalyser();an.fftSize=256;an.smoothingTimeConstant=0.78;
+      src.connect(an);
+      S._coachAnalyser=an;S._coachStream=stream;
+      _coachWaveformLoop();
+    }catch(e){}
     const mime=MediaRecorder.isTypeSupported('audio/webm;codecs=opus')?'audio/webm;codecs=opus':MediaRecorder.isTypeSupported('audio/webm')?'audio/webm':MediaRecorder.isTypeSupported('audio/mp4')?'audio/mp4':'';
     _coachRec=new MediaRecorder(stream,mime?{mimeType:mime}:{});
     _coachChunks=[];
@@ -3819,7 +3848,26 @@ async function coachStartRec(){
     setTimeout(()=>{if(_coachRec)coachStopRec()},30000);
   }catch(e){toast('\\u26A0\\uFE0F Mic blocked: '+(e.message||e),'err')}
 }
-function coachStopRec(){try{_coachRec&&_coachRec.state==='recording'&&_coachRec.stop()}catch(e){}}
+function coachStopRec(){try{_coachRec&&_coachRec.state==='recording'&&_coachRec.stop()}catch(e){}try{S._coachStream&&S._coachStream.getTracks().forEach(t=>t.stop())}catch(e){}S._coachAnalyser=null;S._coachStream=null}
+function _coachWaveformLoop(){
+  if(!S._coachAnalyser){if(S._coachWaveRAF){cancelAnimationFrame(S._coachWaveRAF);S._coachWaveRAF=null}return}
+  const canvas=document.getElementById('ccWave');
+  if(!canvas){S._coachWaveRAF=requestAnimationFrame(_coachWaveformLoop);return}
+  const ctx=canvas.getContext('2d');
+  const dpr=Math.max(1,Math.min(2,window.devicePixelRatio||1));
+  if(canvas.width!==canvas.clientWidth*dpr){canvas.width=canvas.clientWidth*dpr;canvas.height=canvas.clientHeight*dpr;ctx.scale(dpr,dpr)}
+  const w=canvas.clientWidth,h=canvas.clientHeight;
+  ctx.clearRect(0,0,w,h);
+  const an=S._coachAnalyser;const buf=new Uint8Array(an.frequencyBinCount);an.getByteFrequencyData(buf);
+  const bars=24,bw=w/bars;
+  for(let i=0;i<bars;i++){
+    const v=buf[Math.floor(i*buf.length/bars)]/255;
+    const bh=Math.max(2,v*h*0.85);
+    ctx.fillStyle='rgba(124,58,237,'+(0.3+v*0.7)+')';
+    ctx.fillRect(i*bw+2,h/2-bh/2,bw-4,bh);
+  }
+  S._coachWaveRAF=requestAnimationFrame(_coachWaveformLoop);
+}
 function coachReset(){coachStopSpeak();coachStopRec();S.coach.history=[];S.coach.scenario=null;coachInit()}
 function coachStartScenario(sc){coachStopSpeak();S.coach.scenario=sc;S.coach.history=[{role:'assistant',content:"Let's roleplay: **"+sc.title+"**. I'll play "+sc.role+". "+sc.opener}];render();coachSpeak("Let's roleplay. "+sc.opener);setTimeout(()=>{const el=document.getElementById('coachInput');if(el)el.focus()},120)}
 function coachStartScenarioByIdx(i){const sc=COACH_SCENARIOS[i];if(sc)coachStartScenario(sc)}
@@ -3901,7 +3949,7 @@ async function voiceFinish(){
   voiceClose();
 }
 async function _mgSave(game,xpAdd,best){const r=await api('/games/progress',{method:'POST',body:JSON.stringify({game,xpAdd:xpAdd|0,best:best!=null?best|0:null})});if(r&&r.ok){S.mg.progress[game]={level:r.level,xp:r.xp,best:r.best,plays:r.plays};if(r.leveledUp)toast('\\u{1F31F} Level up! '+game+' \\u2192 L'+r.level);render()}}
-function mgClose(){S.mgPlay=null;render()}
+function mgClose(){_mtCleanup();S.mgPlay=null;render()}
 function mgPercent(g){const p=S.mg.progress[g]||{level:1,xp:0};return Math.min(100,Math.round((p.xp/(5*100))*100))}
 
 // ── Math Sprint ──
@@ -3939,13 +3987,210 @@ function mgMathAnswer(choice){
   },650);
 }
 
-// ── Memory Tap ──
-function mgMemoryStart(){const lvl=S.mg.progress.memory.level;const grid=lvl<=1?9:lvl===2?12:lvl===3?16:lvl===4?20:25;S.mgPlay={game:'memory',level:lvl,grid,seq:[],userIdx:0,phase:'show',round:1,best:0,done:false};_mgMemoryNext();render();}
-function _mgMemoryNext(){const p=S.mgPlay;if(!p||p.game!=='memory')return;const seqLen=p.round+(p.level-1);p.seq=Array.from({length:seqLen},()=>Math.floor(Math.random()*p.grid));p.userIdx=0;p.phase='show';p.flashIdx=-1;render();_mgMemoryFlash(0)}
-function _mgMemoryFlash(i){const p=S.mgPlay;if(!p||p.game!=='memory'||p.phase!=='show')return;if(i>=p.seq.length){p.phase='input';p.flashIdx=-1;render();return}p.flashIdx=p.seq[i];_mgSound('flash');render();setTimeout(()=>{p.flashIdx=-1;render();setTimeout(()=>_mgMemoryFlash(i+1),200)},520)}
-function mgMemoryTap(idx){const p=S.mgPlay;if(!p||p.game!=='memory'||p.phase!=='input')return;if(idx===p.seq[p.userIdx]){_mgSound('tap');p.userIdx++;if(p.userIdx>=p.seq.length){if(p.round>p.best)p.best=p.round;p.round++;p.phase='passed';_mgSound('correct');render();setTimeout(_mgMemoryNext,650)}}
-  else{p.done=true;p.phase='lost';_mgSound('wrong');_mgMarkDone('memory');render();_mgSave('memory',p.best*5,p.best)}
+// ── Memory Tap (canvas-based, Elevate-quality rebuild) ──
+// Pentatonic notes per tile (16 notes for up to 25 tiles, repeats for >16)
+const MT_NOTES=[261.63,293.66,329.63,392.00,440.00,523.25,587.33,659.25,783.99,880.00,1046.50,1174.66,1318.51,1567.98,1760.00,2093.00,2349.32,2637.02,2793.83,3135.96,3520.00,3951.07,4186.01,4699.63,5274.04];
+// Per-tile color palette — each tile gets a hue across the spectrum so it feels rich
+const MT_HUES=[210,260,300,340,20,40,60,90,140,170,195,225,255,285,315,345,15,45,75,105,135,165,195,225,255];
+function mgMemoryStart(){
+  const lvl=S.mg.progress.memory.level;
+  // Grid scales with level: L1=3x3, L2=4x4, L3=4x4, L4=5x5, L5=5x5
+  const cols=lvl<=1?3:lvl<=3?4:5;
+  const grid=cols*cols;
+  S.mgPlay={game:'memory',canvasGame:'mt',level:lvl,grid,cols,seq:[],userIdx:0,phase:'pre',round:1,best:0,combo:0,startedAt:Date.now(),done:false};
+  _mgSound('tap');render();
+  setTimeout(_mtInit,30);
 }
+function _mtInit(){
+  const c=document.getElementById('mtCanvas');if(!c){return}
+  S._mtActive=true;
+  const dpr=Math.max(1,Math.min(3,window.devicePixelRatio||1));
+  const cw=c.clientWidth||320,ch=c.clientHeight||320;
+  c.width=cw*dpr;c.height=ch*dpr;
+  const ctx=c.getContext('2d');ctx.scale(dpr,dpr);
+  const p=S.mgPlay;
+  const cols=p.cols,gap=10,pad=12;
+  const tileSize=Math.floor((Math.min(cw,ch)-pad*2-gap*(cols-1))/cols);
+  const gridW=tileSize*cols+gap*(cols-1);
+  const offX=(cw-gridW)/2,offY=(ch-gridW)/2;
+  // Build tile state
+  const tiles=[];
+  for(let i=0;i<p.grid;i++){
+    const r=Math.floor(i/cols),col=i%cols;
+    tiles.push({i,x:offX+col*(tileSize+gap),y:offY+r*(tileSize+gap),size:tileSize,hue:MT_HUES[i%MT_HUES.length],lit:0,press:0,particles:[]});
+  }
+  S._mt={ctx,c,cw,ch,tiles,gap,tileSize,offX,offY,cols,particles:[],hudFlash:0,bannerText:'Get ready\\u2026',bannerOpacity:1,bannerStartedAt:Date.now(),scoreDisplay:p.round-1,statusMsg:''};
+  // Bind canvas tap
+  c.onpointerdown=_mtPointer;
+  // Start render loop
+  if(!S._mtRAF)S._mtRAF=requestAnimationFrame(_mtTick);
+  // Begin sequence
+  setTimeout(()=>{const cur=S.mgPlay;if(!cur||cur.canvasGame!=='mt')return;_mtNextRound()},1400);
+}
+function _mtNextRound(){
+  const p=S.mgPlay;if(!p||p.canvasGame!=='mt')return;
+  const seqLen=p.round+(p.level-1);  // sequence grows each round
+  p.seq=Array.from({length:seqLen},()=>Math.floor(Math.random()*p.grid));
+  p.userIdx=0;p.phase='show';
+  S._mt.bannerText='Round '+p.round;
+  S._mt.bannerOpacity=1;S._mt.bannerStartedAt=Date.now();
+  setTimeout(()=>_mtFlashSequence(0),900);
+}
+function _mtFlashSequence(i){
+  const p=S.mgPlay;if(!p||p.canvasGame!=='mt'||p.phase!=='show')return;
+  if(i>=p.seq.length){p.phase='input';S._mt.statusMsg="Your turn";return}
+  const idx=p.seq[i];const t=S._mt.tiles[idx];if(!t)return;
+  t.lit=1;_mtPlayNote(idx,0.32,0.5);
+  setTimeout(()=>{const tt=S._mt&&S._mt.tiles[idx];if(tt)tt.lit=0;setTimeout(()=>_mtFlashSequence(i+1),220)},420);
+}
+function _mtPointer(ev){
+  const p=S.mgPlay;if(!p||p.canvasGame!=='mt'||p.phase!=='input'||p.done)return;
+  const c=S._mt.c;const rect=c.getBoundingClientRect();
+  const x=ev.clientX-rect.left,y=ev.clientY-rect.top;
+  for(const t of S._mt.tiles){
+    if(x>=t.x&&x<=t.x+t.size&&y>=t.y&&y<=t.y+t.size){_mtTapTile(t.i,x,y);break}
+  }
+}
+function _mtTapTile(idx,x,y){
+  const p=S.mgPlay;if(!p)return;
+  const t=S._mt.tiles[idx];if(!t)return;
+  t.press=1;t.lit=0.85;
+  setTimeout(()=>{t.press=0;t.lit=0},250);
+  if(idx===p.seq[p.userIdx]){
+    _mtPlayNote(idx,0.42,0.62);
+    p.userIdx++;p.combo++;
+    _mtBurst(x,y,t.hue,12);
+    if(p.userIdx>=p.seq.length){
+      // Round won
+      if(p.round>p.best)p.best=p.round;
+      p.round++;p.phase='passed';
+      _mtRoundCelebrate();
+      setTimeout(_mtNextRound,1200);
+    }
+  } else {
+    // Wrong — game over
+    p.done=true;p.phase='lost';
+    _mtBurst(x,y,0,28);
+    _mtPlayChord([196,164.81,130.81],0.45);
+    S._mt.bannerText='Round '+p.best+(p.best?' \\u2014 well done':' \\u2014 try again');
+    S._mt.bannerOpacity=1;S._mt.bannerStartedAt=Date.now();
+    _mgMarkDone('memory');
+    _mgSave('memory',p.best*5,p.best);
+    setTimeout(_mtShowGameOver,800);
+  }
+}
+function _mtRoundCelebrate(){
+  const p=S.mgPlay;if(!p)return;
+  S._mt.bannerText='\\u{1F389} '+p.combo+' in a row!';
+  S._mt.bannerOpacity=1;S._mt.bannerStartedAt=Date.now();
+  // Big confetti at center
+  const cx=S._mt.cw/2,cy=S._mt.ch/2;
+  for(let k=0;k<22;k++)_mtBurst(cx+(Math.random()-.5)*60,cy+(Math.random()-.5)*40,Math.random()*360,1);
+  _mtPlayChord([523.25,659.25,784,1046.5],0.42);
+}
+function _mtBurst(x,y,hue,n){
+  const ps=S._mt.particles;
+  for(let i=0;i<n;i++){
+    const a=Math.random()*Math.PI*2,sp=2+Math.random()*5;
+    ps.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-2,life:1,hue,size:3+Math.random()*4});
+  }
+}
+function _mtTick(now){
+  if(!S._mtActive){S._mtRAF=null;return}
+  const ctx=S._mt&&S._mt.ctx;if(!ctx){S._mtRAF=requestAnimationFrame(_mtTick);return}
+  const cw=S._mt.cw,ch=S._mt.ch;
+  // Background gradient
+  const g=ctx.createLinearGradient(0,0,0,ch);g.addColorStop(0,'#1E1B4B');g.addColorStop(1,'#0F172A');
+  ctx.fillStyle=g;ctx.fillRect(0,0,cw,ch);
+  // Tiles
+  for(const t of S._mt.tiles){
+    const lit=t.lit,press=t.press;
+    const scale=press?0.92:(1+lit*0.05);
+    const cx=t.x+t.size/2,cy=t.y+t.size/2;
+    ctx.save();ctx.translate(cx,cy);ctx.scale(scale,scale);ctx.translate(-cx,-cy);
+    // Tile body
+    const baseSat=lit>0.5?70:30;
+    const baseLight=lit>0.5?60:24;
+    ctx.fillStyle='hsl('+t.hue+','+baseSat+'%,'+baseLight+'%)';
+    _mtRoundRect(ctx,t.x,t.y,t.size,t.size,16);ctx.fill();
+    // Glow when lit
+    if(lit>0){
+      ctx.shadowColor='hsla('+t.hue+',80%,65%,'+(lit*0.85)+')';
+      ctx.shadowBlur=24*lit;
+      ctx.fillStyle='hsla('+t.hue+',85%,65%,'+(lit*0.4)+')';
+      _mtRoundRect(ctx,t.x,t.y,t.size,t.size,16);ctx.fill();
+      ctx.shadowBlur=0;
+      // Highlight ring
+      ctx.strokeStyle='hsla('+t.hue+',90%,80%,'+lit+')';ctx.lineWidth=3;
+      _mtRoundRect(ctx,t.x+1.5,t.y+1.5,t.size-3,t.size-3,15);ctx.stroke();
+    }
+    // Inner highlight (top)
+    const ig=ctx.createLinearGradient(0,t.y,0,t.y+t.size*0.4);
+    ig.addColorStop(0,'rgba(255,255,255,'+(0.18+lit*0.25)+')');
+    ig.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.fillStyle=ig;_mtRoundRect(ctx,t.x,t.y,t.size,t.size*0.4,16);ctx.fill();
+    ctx.restore();
+  }
+  // Particles
+  const ps=S._mt.particles;
+  for(let i=ps.length-1;i>=0;i--){
+    const pp=ps[i];
+    pp.x+=pp.vx;pp.y+=pp.vy;pp.vy+=0.18;pp.life-=0.018;
+    if(pp.life<=0){ps.splice(i,1);continue}
+    ctx.fillStyle='hsla('+pp.hue+',90%,65%,'+pp.life+')';
+    ctx.beginPath();ctx.arc(pp.x,pp.y,pp.size,0,Math.PI*2);ctx.fill();
+  }
+  // Banner text
+  const elapsed=Date.now()-S._mt.bannerStartedAt;
+  if(elapsed<2000){
+    const op=elapsed<200?elapsed/200:elapsed>1500?Math.max(0,1-(elapsed-1500)/500):1;
+    ctx.save();
+    ctx.fillStyle='rgba(255,255,255,'+(op*0.95)+')';
+    ctx.font='800 '+Math.floor(cw*0.075)+'px -apple-system, system-ui, sans-serif';
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.shadowColor='rgba(124,58,237,'+(op*0.6)+')';ctx.shadowBlur=18;
+    ctx.fillText(S._mt.bannerText,cw/2,ch*0.12);
+    ctx.restore();
+  }
+  // Status (your turn / watch)
+  if(S.mgPlay&&S.mgPlay.phase==='input'){
+    ctx.save();
+    ctx.fillStyle='rgba(255,255,255,0.55)';
+    ctx.font='600 12px -apple-system, system-ui, sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText('YOUR TURN \\u2014 '+(S.mgPlay.userIdx+1)+'/'+S.mgPlay.seq.length,cw/2,ch-18);
+    ctx.restore();
+  } else if(S.mgPlay&&S.mgPlay.phase==='show'){
+    ctx.save();
+    ctx.fillStyle='rgba(255,255,255,0.55)';
+    ctx.font='600 12px -apple-system, system-ui, sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText('WATCH',cw/2,ch-18);
+    ctx.restore();
+  }
+  S._mtRAF=requestAnimationFrame(_mtTick);
+}
+function _mtRoundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+function _mtPlayNote(idx,gain,dur){
+  try{
+    if(!_mgAudio)_mgAudio=new(window.AudioContext||window.webkitAudioContext)();
+    const ctx=_mgAudio,t=ctx.currentTime;
+    const f=MT_NOTES[idx%MT_NOTES.length]||440;
+    const o=ctx.createOscillator(),g=ctx.createGain();
+    o.type='sine';o.frequency.value=f;
+    g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(gain||0.3,t+0.01);
+    g.gain.exponentialRampToValueAtTime(0.001,t+(dur||0.45));
+    o.connect(g).connect(ctx.destination);o.start(t);o.stop(t+(dur||0.45)+0.05);
+  }catch(e){}
+}
+function _mtPlayChord(freqs,dur){freqs.forEach((f,i)=>{try{if(!_mgAudio)_mgAudio=new(window.AudioContext||window.webkitAudioContext)();const ctx=_mgAudio,t=ctx.currentTime;const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,t+i*0.06);g.gain.linearRampToValueAtTime(0.18,t+i*0.06+0.02);g.gain.exponentialRampToValueAtTime(0.001,t+i*0.06+(dur||0.4));o.connect(g).connect(ctx.destination);o.start(t+i*0.06);o.stop(t+i*0.06+(dur||0.4)+0.05)}catch(e){}})}
+function _mtShowGameOver(){
+  const p=S.mgPlay;if(!p)return;
+  S._mtActive=false;  // stop the loop
+  cancelAnimationFrame(S._mtRAF);S._mtRAF=null;
+  render();  // re-renders into the modal end-screen
+}
+function _mtCleanup(){S._mtActive=false;if(S._mtRAF){cancelAnimationFrame(S._mtRAF);S._mtRAF=null}S._mt=null}
 
 // ── Reaction ──
 function mgReactionStart(){S.mgPlay={game:'reaction',level:S.mg.progress.reaction.level,phase:'wait',time:null,best:S.mg.progress.reaction.best||0,done:false};_mgSound('tap');render();const t=800+Math.floor(Math.random()*2200);S.mgPlay._timer=setTimeout(()=>{const p=S.mgPlay;if(!p||p.game!=='reaction')return;p.phase='go';p.startedAt=Date.now();_mgSound('go');render()},t)}
@@ -4010,6 +4255,9 @@ function stopBookListenTimer(){if(_bkTimer){clearInterval(_bkTimer);_bkTimer=nul
 async function loadBookStreak(){if(!S.user)return;const r=await api('/book-streak');if(r)S.bookStreak={streak:r.streak||0,total:r.total||0,today:!!r.today,days:r.days||[]}}
 
 function render(){
+// While the canvas-based Memory Tap is running, suspend full re-renders so the canvas state
+// (game loop, animations) is preserved.
+if(S._mtActive&&S.mgPlay&&S.mgPlay.canvasGame==='mt'&&document.getElementById('mtCanvas'))return;
 // Preserve focus + cursor across re-renders so typing isn't interrupted
 const _fs=(function(){try{const a=document.activeElement;if(!a||(a.tagName!=='INPUT'&&a.tagName!=='TEXTAREA'))return null;return{id:a.id,name:a.name,type:a.type,placeholder:a.placeholder,start:a.selectionStart,end:a.selectionEnd}}catch(e){return null}})();
 const _restore=function(){if(!_fs)return;try{let el=null;if(_fs.id)el=document.getElementById(_fs.id);if(!el){const inputs=document.querySelectorAll('input,textarea');for(const i of inputs){if((_fs.placeholder&&i.placeholder===_fs.placeholder)||(_fs.name&&i.name===_fs.name)){el=i;break}}}if(el){try{el.focus({preventScroll:true})}catch(e){el.focus()}if(typeof _fs.start==='number'&&el.setSelectionRange){try{el.setSelectionRange(_fs.start,_fs.end)}catch(e){}}}}catch(e){}};
@@ -4416,12 +4664,19 @@ else if(S.tab==='voice'){
   });
   if(c.sending)h+='<div class="cc-msg cc-coach"><div class="cc-avatar">\\u{1F399}\\uFE0F</div><div class="cc-bubble cc-typing"><span></span><span></span><span></span></div></div>';
   h+='</div>';
-  // Composer
-  h+='<div class="cc-composer">'
-    +'<textarea id="coachInput" placeholder="Type your message\\u2026 or tap the mic" rows="1" oninput="S.coach.input=this.value;this.style.height=\\'auto\\';this.style.height=Math.min(120,this.scrollHeight)+\\'px\\'" onkeydown="if(event.key===\\'Enter\\'&&!event.shiftKey){event.preventDefault();coachSend()}">'+esc(c.input||'')+'</textarea>'
-    +'<button class="cc-mic'+(c.recording?' cc-rec':'')+'" onclick="coachStartRec()" aria-label="Record" title="Tap to record">'+(c.recording?'\\u23F9':'\\u{1F3A4}')+'</button>'
-    +'<button class="cc-send" onclick="coachSend()" '+(c.sending||(!c.input||!c.input.trim())?'disabled':'')+' aria-label="Send">\\u2192</button>'
-  +'</div>';
+  // Composer (with live waveform when recording)
+  if(c.recording){
+    h+='<div class="cc-composer cc-composer-rec">'
+      +'<canvas id="ccWave" class="cc-wave"></canvas>'
+      +'<button class="cc-mic cc-rec" onclick="coachStartRec()" aria-label="Stop">\\u23F9</button>'
+    +'</div>';
+  } else {
+    h+='<div class="cc-composer">'
+      +'<textarea id="coachInput" placeholder="Type your message\\u2026 or tap the mic" rows="1" oninput="S.coach.input=this.value;this.style.height=\\'auto\\';this.style.height=Math.min(120,this.scrollHeight)+\\'px\\'" onkeydown="if(event.key===\\'Enter\\'&&!event.shiftKey){event.preventDefault();coachSend()}">'+esc(c.input||'')+'</textarea>'
+      +'<button class="cc-mic" onclick="coachStartRec()" aria-label="Record" title="Tap to record">\\u{1F3A4}</button>'
+      +'<button class="cc-send" onclick="coachSend()" '+(c.sending||(!c.input||!c.input.trim())?'disabled':'')+' aria-label="Send">\\u2192</button>'
+    +'</div>';
+  }
   // Quick actions
   h+='<div class="cc-quick">'
     +'<button class="cc-quick-btn" onclick="coachSend(\\'Teach me 3 advanced business words I can use today.\\')">3 advanced words</button>'
@@ -4942,15 +5197,20 @@ if(S.mgPlay){
     }
   } else if(p.game==='memory'){
     if(p.done){
-      h+='<div class="mg-body mg-end"><div class="mg-end-emoji">'+(p.phase==='lost'?'\\u{1F4A5}':'\\u{1F389}')+'</div><div class="mg-end-t">Reached round '+p.best+'</div><div class="mg-end-s">+'+(p.best*5)+' XP saved</div><div class="was-acts"><button class="mb mb-c" onclick="mgClose()">Done</button><button class="mb mb-s" onclick="mgMemoryStart()">\\u21BB Play again</button></div></div>';
-    }else{
-      const cols=p.grid<=9?3:p.grid<=12?4:p.grid<=16?4:5;
-      h+='<div class="mg-body">'
-        +'<div class="mg-mem-status">'+(p.phase==='show'?'Watch \\u2026':p.phase==='input'?'Your turn ('+(p.userIdx+1)+'/'+p.seq.length+')':p.phase==='passed'?'\\u2705 Got it! Next round\\u2026':'')+'</div>'
-        +'<div class="mg-mem-grid" style="grid-template-columns:repeat('+cols+',1fr)">';
-      for(let i=0;i<p.grid;i++){const lit=p.flashIdx===i;h+='<button class="mg-mem-tile'+(lit?' mg-mem-lit':'')+'" onclick="mgMemoryTap('+i+')"'+(p.phase!=='input'?' disabled':'')+'></button>'}
-      h+='</div>'
-        +'<div class="mg-meta">Round <b>'+p.round+'</b> \\u2022 Best <b>'+p.best+'</b></div>'
+      // Stars based on best round reached
+      const stars=p.best>=8?3:p.best>=4?2:p.best>=1?1:0;
+      const starsHTML=[1,2,3].map(n=>'<span class="mt-star'+(n<=stars?' mt-star-on':'')+'">\\u2605</span>').join('');
+      h+='<div class="mg-body mt-end">'
+        +'<div class="mt-end-stars">'+starsHTML+'</div>'
+        +'<div class="mt-end-t">Reached <b>round '+p.best+'</b></div>'
+        +'<div class="mt-end-s">+'+(p.best*5)+' XP saved \\u2022 Best run today</div>'
+        +'<div class="was-acts"><button class="mb mb-c" onclick="mgClose()">Done</button><button class="mb mb-s" onclick="mgMemoryStart()">\\u21BB Play again</button></div>'
+      +'</div>';
+    } else {
+      // Canvas shell — _mtInit() will mount the engine after the DOM lands.
+      h+='<div class="mt-shell">'
+        +'<div class="mt-hud"><span class="mt-hud-l">ROUND <b>'+p.round+'</b></span><span class="mt-hud-r">BEST <b>'+p.best+'</b></span></div>'
+        +'<canvas id="mtCanvas" class="mt-canvas"></canvas>'
       +'</div>';
     }
   } else if(p.game==='reaction'){
