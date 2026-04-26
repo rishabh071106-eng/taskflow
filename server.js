@@ -1995,6 +1995,20 @@ body[data-theme=aurora] .tc-added{color:#6B6B85;background:rgba(255,255,255,.04)
 body[data-theme=aurora] .login-wa-note{background:linear-gradient(135deg,rgba(37,211,102,.1),rgba(18,140,126,.06));border-color:rgba(37,211,102,.25);color:#A8E6BC}
 /* Dedicated WhatsApp Setup modal — clean, focused, no profile clutter */
 .was-mdl{max-width:460px;padding:0;overflow:hidden}
+.ov-locked{cursor:default}/* overlay tap doesn't dismiss — explicit X only */
+.was-progress{height:3px;background:rgba(0,0,0,.06);position:relative;overflow:hidden}
+.was-progress-bar{height:100%;background:linear-gradient(90deg,#25D366,#128C7E);transition:width .35s cubic-bezier(.2,.8,.2,1)}
+.was-body{padding:18px;background:#fff}
+.was-card-t{font-weight:800;font-size:15.5px;color:#0F172A;margin:0 0 4px;letter-spacing:-.01em}
+.was-card-d{font-size:12.5px;color:#475569;line-height:1.55;margin:0 0 14px}
+.was-helper{margin:0 0 16px;padding:12px 14px;background:#FFF8E1;border:1px solid #F5D687;border-radius:10px}
+.was-helper-t{font-weight:800;font-size:13px;color:#7C5A00;margin-bottom:4px}
+.was-helper-d{font-size:12px;color:#5D4400;line-height:1.5;margin-bottom:10px}
+.was-helper-acts{display:flex;gap:8px;flex-wrap:wrap}
+.was-helper-acts .was-jb{flex:1;width:auto}
+.was-helper-acts .was-skip{flex:0 0 auto;margin-top:0;padding:10px 12px;width:auto;background:#fff;border:1px solid #E2E8F0;border-radius:8px;color:#64748B}
+.was-resend{display:block;width:100%;margin-top:14px;background:transparent;border:none;color:#128C7E;font-size:13px;font-weight:700;cursor:pointer;padding:10px;font-family:inherit;border-top:1px dashed #E2E8F0}
+.was-resend:hover{background:#F8FAFC}
 .was-hd{display:flex;align-items:center;gap:12px;padding:18px 18px 14px;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;position:relative}
 .was-emoji{font-size:30px;line-height:1;flex-shrink:0;filter:drop-shadow(0 2px 4px rgba(0,0,0,.2))}
 .was-t{margin:0;font-size:18px;font-weight:800;color:#fff;letter-spacing:-.01em}
@@ -2554,7 +2568,7 @@ bookStreak:{streak:0,total:0,today:false,days:[]},_bkSec:0,
 
 loginStep:'phone',loginMethod:'email',loginPhone:'',loginCountryCode:localStorage.getItem('tf_cc')||'+91',loginEmail:'',loginName:'',loginOTP:['','','','','',''],loginLoading:false,loginError:'',loginErrorDetail:'',loginErrorCode:0,loginSentTo:'',emailOk:false,
 form:{title:'',notes:'',priority:'medium',dueDate:'',reminderTime:'',status:'pending'},
-board:(localStorage.getItem('tf_board')||'combined')};
+board:'combined'};  // Boards UI removed per user request — single unified task list. Data model retained.
 let rec=null,token=localStorage.getItem('tf_token');
 if(token){S.user={phone:localStorage.getItem('tf_phone'),name:localStorage.getItem('tf_name'),token}}else{restoreLoginState();
   // Belt-and-suspenders: if URL hash says we're mid-OTP, FORCE loginStep='otp' regardless of localStorage state.
@@ -2748,7 +2762,7 @@ async function load(){const a=document.getElementById('audioEl');if(a&&!a.paused
   const t=await api('/tasks');if(!t)return;const h=JSON.stringify(t);if(h===S._lastTasksHash)return;S._lastTasksHash=h;S.tasks=t;render()
 }
 async function chk(){const h=await api('/health');if(h)S.waOk=h.twilio;render()}
-async function addT(){if(!S.form.title.trim())return;const r=await api('/tasks',{method:'POST',body:JSON.stringify({title:S.form.title,notes:S.form.notes,priority:S.form.priority,status:'pending',due_date:S.form.dueDate,reminder_time:S.form.reminderTime,board:S.form.board})});if(r?.id){S.tasks.unshift(r);clM();toast('\\u2705 Task added to '+(r.board==='office'?'Office Tasks':'Home Tasks')+'!')}}
+async function addT(){if(!S.form.title.trim())return;const r=await api('/tasks',{method:'POST',body:JSON.stringify({title:S.form.title,notes:S.form.notes,priority:S.form.priority,status:'pending',due_date:S.form.dueDate,reminder_time:S.form.reminderTime,board:S.form.board})});if(r?.id){S.tasks.unshift(r);clM();toast('\\u2705 Task added!')}}
 async function savE(){if(!S.form.title.trim()||!S.editing)return;const r=await api('/tasks/'+S.editing,{method:'PUT',body:JSON.stringify({title:S.form.title,notes:S.form.notes,priority:S.form.priority,status:S.form.status,due_date:S.form.dueDate,reminder_time:S.form.reminderTime,board:S.form.board})});if(r){const i=S.tasks.findIndex(t=>t.id===S.editing);if(i>-1)S.tasks[i]=r;clM();toast('\\u2705 Updated!')}}
 async function del(id){await api('/tasks/'+id,{method:'DELETE'});S.tasks=S.tasks.filter(t=>t.id!==id);render()}
 async function tog(id){const t=S.tasks.find(x=>x.id===id);if(!t)return;const r=await api('/tasks/'+id,{method:'PUT',body:JSON.stringify({status:t.status==='done'?'pending':'done'})});if(r){const i=S.tasks.findIndex(x=>x.id===id);if(i>-1)S.tasks[i]=r;render()}}
@@ -2850,41 +2864,48 @@ function saveBroDoitContact(){const a=document.createElement('a');a.href='/brodo
 function confirmWAJoined(){S.waConnected=true;localStorage.setItem('wa_connected','1');S.showWAOnboard=false;toast('\\u2705 WhatsApp connected');render()}
 function disconnectWA(){S.waConnected=false;localStorage.removeItem('wa_connected');toast('\\u23F8 WhatsApp disconnected');render()}
 // ─── Connect-WhatsApp flow (link a real WA number to this account) ───
+// State persists to localStorage so iOS Safari suspending the tab while you fetch the OTP from
+// WhatsApp doesn't drop you back to step 1 when you return.
+function _waPersist(){try{if(S.waConn)localStorage.setItem('tf_wa_conn',JSON.stringify({...S.waConn,ts:Date.now()}));else localStorage.removeItem('tf_wa_conn')}catch(e){}}
+function _waRestore(){try{const raw=localStorage.getItem('tf_wa_conn');if(!raw)return;const d=JSON.parse(raw);if(!d||!d.ts||Date.now()-d.ts>30*60*1000){localStorage.removeItem('tf_wa_conn');return}// strip transient flags
+delete d.sending;delete d.verifying;S.waConn=d;S.showWASetup=true}catch(e){}}
 async function waConnectSend(){
-  const phEl=document.getElementById('waSetupPh')||document.getElementById('waConnPh');
-  const ccEl=document.getElementById('waSetupCC')||document.getElementById('waConnCC');
-  const phone=(phEl&&phEl.value)||'';
-  const cc=(ccEl&&ccEl.value)||'+91';
-  const full=cc+phone.replace(/[^0-9]/g,'');
-  if(full.length<8){S.waConn={...(S.waConn||{step:'phone'}),err:'Enter your WhatsApp number'};render();return}
-  S.waConn={...(S.waConn||{}),phone:full,step:'phone',sending:true,err:''};render();
+  const phEl=document.getElementById('waSetupPh');
+  const ccEl=document.getElementById('waSetupCC');
+  const localNum=((phEl&&phEl.value)||S.waConn?.phoneInput||'').replace(/[^0-9]/g,'');
+  const cc=((ccEl&&ccEl.value)||S.waConn?.cc||'+91');
+  const full=cc+localNum;
+  if(full.length<8){S.waConn={...(S.waConn||{step:'phone'}),phoneInput:localNum,cc,err:'Enter your WhatsApp number'};_waPersist();render();return}
+  S.waConn={...(S.waConn||{}),phone:full,cc,phoneInput:localNum,step:'phone',sending:true,err:''};_waPersist();render();
   const r=await api('/wa/connect',{method:'POST',body:JSON.stringify({phone:full})});
   if(r&&r.ok){
     localStorage.setItem('tf_wa_joined','1');
-    S.waConn={phone:full,step:'verify',sending:false};
+    S.waConn={phone:full,cc,phoneInput:localNum,step:'verify',codeInput:''};
+    _waPersist();
     toast('\\u{1F4F2} Code sent to your WhatsApp');
     render();
     setTimeout(()=>{const e=document.getElementById('waSetupCode');if(e)e.focus()},120);
     return;
   }
-  S.waConn={phone:full,step:'phone',sending:false,err:(r&&r.error)||'Failed to send',needsJoin:!!(r&&r.needsJoin)};
+  S.waConn={phone:full,cc,phoneInput:localNum,step:'phone',err:(r&&r.error)||'Failed to send',needsJoin:!!(r&&r.needsJoin)};
   if(r&&r.needsJoin)localStorage.removeItem('tf_wa_joined');
-  render();
+  _waPersist();render();
 }
 async function waConnectVerify(){
-  const codeEl=document.getElementById('waSetupCode')||document.getElementById('waConnCode');
-  const code=((codeEl&&codeEl.value)||'').trim();
-  if(!code||code.length<6){S.waConn={...(S.waConn||{}),err:'Enter the 6-digit code'};render();return}
-  S.waConn={...(S.waConn||{}),verifying:true,err:''};render();
+  const codeEl=document.getElementById('waSetupCode');
+  const code=((codeEl&&codeEl.value)||S.waConn?.codeInput||'').trim();
+  if(!code||code.length<6){S.waConn={...(S.waConn||{}),codeInput:code,err:'Enter the 6-digit code'};_waPersist();render();return}
+  S.waConn={...(S.waConn||{}),codeInput:code,verifying:true,err:''};_waPersist();render();
   const r=await api('/wa/verify',{method:'POST',body:JSON.stringify({phone:S.waConn.phone,code})});
   if(r&&r.ok){
     S.profile={...(S.profile||{}),wa_phone:r.wa_phone};
-    S.waConn=null;
-    S.showWASetup=false;
+    S.waConn=null;S.showWASetup=false;
+    localStorage.removeItem('tf_wa_conn');
     localStorage.removeItem('tf_wa_banner_x');
     toast('\\u2705 WhatsApp connected!');
   }else{
-    S.waConn={...(S.waConn||{}),verifying:false,err:(r&&r.error)||'Verification failed'};
+    S.waConn={...(S.waConn||{}),codeInput:code,verifying:false,err:(r&&r.error)||'Verification failed'};
+    _waPersist();
   }
   render();
 }
@@ -2893,8 +2914,22 @@ async function waUnlink(){
   const r=await api('/wa/disconnect',{method:'POST'});
   if(r&&r.ok){S.profile={...(S.profile||{}),wa_phone:null};localStorage.removeItem('tf_wa_banner_x');toast('WhatsApp disconnected');render()}
 }
-function waConnectStart(){S.showProfile=false;S.showWASetup=true;S.waConn={step:'phone',err:''};render();setTimeout(()=>{const e=document.getElementById('waSetupPh');if(e)e.focus()},120)}
-function waConnectCancel(){S.waConn=null;S.showWASetup=false;render()}
+function waConnectStart(){
+  S.showProfile=false;S.showWASetup=true;
+  // If we were mid-verify when the modal closed, resume there. Otherwise start fresh.
+  if(!S.waConn||(S.waConn.step!=='verify'&&S.waConn.step!=='phone'))S.waConn={step:'phone',cc:'+91'};
+  _waPersist();render();
+  setTimeout(()=>{const e=document.getElementById(S.waConn.step==='verify'?'waSetupCode':'waSetupPh');if(e)e.focus()},120);
+}
+function waConnectCancel(){
+  // Only allow cancel via explicit X / Cancel button. Keep state in localStorage so re-opening resumes.
+  S.showWASetup=false;render();
+}
+function waConnectAbort(){S.waConn=null;S.showWASetup=false;localStorage.removeItem('tf_wa_conn');render()}
+// Live-persist what the user types so iOS killing the tab while they switch to WhatsApp doesn't lose progress.
+function waConnPhInput(v){if(!S.waConn)return;S.waConn={...S.waConn,phoneInput:v};_waPersist()}
+function waConnCcInput(v){if(!S.waConn)return;S.waConn={...S.waConn,cc:v};_waPersist()}
+function waConnCodeInput(v){if(!S.waConn)return;S.waConn={...S.waConn,codeInput:v};_waPersist();if((v||'').replace(/\D/g,'').length>=6)waConnectVerify()}
 function waOpenJoin(){const code=window.__TWILIO_SANDBOX_CODE||'along-wool';window.open('https://wa.me/14155238886?text='+encodeURIComponent('join '+code),'_blank')}
 // Three categories x two durations = six English-language meditation audios; durations VERIFIED to match the labels
 const MED_SLOTS=[
@@ -3291,28 +3326,16 @@ if(S.tab==='tasks'){
       +'<button class="wa-promo-x" onclick="localStorage.setItem(\\'tf_wa_banner_x\\',\\'1\\');render()" aria-label="Dismiss">\\u2715</button>'
     +'</div>';
   }
-  // Board picker (Home / Office / Combined) — sits above everything else so users frame their day first.
-  const _bcH=S.tasks.filter(t=>(t.board||'home')==='home').length;
-  const _bcO=S.tasks.filter(t=>(t.board||'home')==='office').length;
-  const _bcC=S.tasks.length;
-  const _bk=S.board==='home'?'#E8912C':S.board==='office'?'#6366F1':'#A78BFA';
-  const _bkSoft=S.board==='home'?'rgba(232,145,44,.08)':S.board==='office'?'rgba(99,102,241,.08)':'rgba(167,139,250,.08)';
-  h+='<div class="board-pick" data-bk="'+S.board+'" style="--bk:'+_bk+';--bk-soft:'+_bkSoft+'">'
-    +'<button class="bp bp-office'+(S.board==='office'?' on':'')+'" onclick="setBoard(\\'office\\')"><span class="bp-bg"></span><span class="bp-overlay"></span><span class="bp-text"><span class="bp-l">Office Tasks</span><span class="bp-s">Meetings, deliverables &amp; work deadlines</span></span><span class="bp-c">'+_bcO+'</span></button>'
-    +'<button class="bp bp-home'+(S.board==='home'?' on':'')+'" onclick="setBoard(\\'home\\')"><span class="bp-bg"></span><span class="bp-overlay"></span><span class="bp-text"><span class="bp-l">Home Tasks</span><span class="bp-s">Personal life, errands &amp; self-improvement</span></span><span class="bp-c">'+_bcH+'</span></button>'
-    +'<button class="bp bp-combined'+(S.board==='combined'?' on':'')+'" onclick="setBoard(\\'combined\\')"><span class="bp-bg"></span><span class="bp-overlay"></span><span class="bp-text"><span class="bp-l">Combined Tasks</span><span class="bp-s">See everything across both boards</span></span><span class="bp-c">'+_bcC+'</span></button>'
-  +'</div>'
-  +'<div class="board-pick-hint">'+(S.board==='home'?'\\u{1F3E0} Home Tasks \\u2014 self-improvement &amp; personal activities':S.board==='office'?'\\u{1F4BC} Office Tasks \\u2014 work tasks only':'\\u{1F4DA} Combined Tasks \\u2014 everything from both boards')+'</div>';
-  // TASKS LEAD — the most-used UI sits at the top
-  h+='<button class="add-bar add-bar-board" style="--bk:'+_bk+'" onclick="opA()"><span class="plus">+</span><span class="txt"><b>Add a new task</b><small>Adds to <b>'+(S.board==='office'?'Office Tasks':'Home Tasks')+'</b> \\u2014 type or use voice</small></span></button>';
+  // Boards UI removed per user request — single unified task list, no Home/Office/Combined picker.
+  // TASKS LEAD — primary action sits at the top
+  h+='<button class="add-bar" onclick="opA()"><span class="plus">+</span><span class="txt"><b>Add a new task</b><small>Type, use voice, or send via WhatsApp</small></span></button>';
   // WhatsApp reminders prompt removed for closed-test phase
   h+='<div class="stats">'+[{l:'Total',v:s.total,c:'#0F172A'},{l:'To Do',v:s.pend,c:'#94A3B8'},{l:'Active',v:s.act,c:'#3B82F6'},{l:'Done',v:s.dn,c:'#3DAE5C'}].map(x=>'<div class="st"><b style="color:'+x.c+'">'+x.v+'</b><small>'+x.l+'</small></div>').join('')+'</div>';
   if(s.od>0)h+='<div class="al" style="background:#FEF1F0;border:1px solid #F5C6C2;color:#E8453C;cursor:pointer" onclick="S.view=\\'overdue\\';render()">\\u26A0\\uFE0F '+s.od+' overdue</div>';
   h+='<div class="srch"><input placeholder="Search tasks..." value="'+esc(S.search)+'" oninput="S.search=this.value;render()"></div>';
   h+='<div class="flt">'+[{k:'all',l:'All'},{k:'pending',l:'To Do'},{k:'in-progress',l:'Doing'},{k:'done',l:'Done'},{k:'today',l:'Today'}].map(x=>'<button class="fb'+(S.view===x.k?' on':'')+'" onclick="S.view=\\''+x.k+'\\';render()">'+x.l+'</button>').join('')+'</div>';
   if((s.pend+s.act)>0&&S.profile&&S.profile.wa_phone){
-    const sendLbl=S.board==='home'?'Send Home Tasks to WhatsApp':S.board==='office'?'Send Office Tasks to WhatsApp':'Send all tasks to WhatsApp';
-    h+='<button class="bwa" onclick="sAll()"'+(S.sending&&S.sending._a?' disabled':'')+'>'+WI+' '+(S.sending&&S.sending._a?'Sending\\u2026':sendLbl)+'</button>';
+    h+='<button class="bwa" onclick="sAll()"'+(S.sending&&S.sending._a?' disabled':'')+'>'+WI+' '+(S.sending&&S.sending._a?'Sending\\u2026':'Send all tasks to WhatsApp')+'</button>';
   }
   h+='<div>';
   if(!f.length)h+='<div class="empty"><div style="font-size:36px;margin-bottom:8px">\\u2728</div><div style="font-size:15px;font-weight:600">No tasks yet</div><div style="font-size:13px;margin-top:4px">Tap + to add your first task</div></div>';
@@ -3364,19 +3387,8 @@ if(S.tab==='tasks'){
 
 // BOARD TAB (Kanban: To Do / Doing / Done with drag-and-drop)
 else if(S.tab==='board'){
-  // Same Home / Office / Combined picker — stays consistent with Tasks tab.
-  const _bcH=S.tasks.filter(t=>(t.board||'home')==='home').length;
-  const _bcO=S.tasks.filter(t=>(t.board||'home')==='office').length;
-  const _bcC=S.tasks.length;
-  const _bk=S.board==='home'?'#E8912C':S.board==='office'?'#6366F1':'#A78BFA';
-  const _bkSoft=S.board==='home'?'rgba(232,145,44,.08)':S.board==='office'?'rgba(99,102,241,.08)':'rgba(167,139,250,.08)';
-  h+='<div class="board-pick" data-bk="'+S.board+'" style="--bk:'+_bk+';--bk-soft:'+_bkSoft+'">'
-    +'<button class="bp bp-office'+(S.board==='office'?' on':'')+'" onclick="setBoard(\\'office\\')"><span class="bp-bg"></span><span class="bp-overlay"></span><span class="bp-text"><span class="bp-l">Office Tasks</span><span class="bp-s">Meetings, deliverables &amp; work deadlines</span></span><span class="bp-c">'+_bcO+'</span></button>'
-    +'<button class="bp bp-home'+(S.board==='home'?' on':'')+'" onclick="setBoard(\\'home\\')"><span class="bp-bg"></span><span class="bp-overlay"></span><span class="bp-text"><span class="bp-l">Home Tasks</span><span class="bp-s">Personal life, errands &amp; self-improvement</span></span><span class="bp-c">'+_bcH+'</span></button>'
-    +'<button class="bp bp-combined'+(S.board==='combined'?' on':'')+'" onclick="setBoard(\\'combined\\')"><span class="bp-bg"></span><span class="bp-overlay"></span><span class="bp-text"><span class="bp-l">Combined Tasks</span><span class="bp-s">See everything across both boards</span></span><span class="bp-c">'+_bcC+'</span></button>'
-  +'</div>'
-  +'<div class="board-pick-hint">'+(S.board==='home'?'\\u{1F3E0} Home Tasks \\u2014 self-improvement &amp; personal activities':S.board==='office'?'\\u{1F4BC} Office Tasks \\u2014 work tasks only':'\\u{1F4DA} Combined Tasks \\u2014 everything from both boards')+'</div>';
-  h+='<button class="add-bar add-bar-board" style="--bk:'+_bk+'" onclick="opA()"><span class="plus">+</span><span class="txt"><b>Add a new task</b><small>Lands in To Do under <b>'+(S.board==='office'?'Office Tasks':'Home Tasks')+'</b></small></span></button>';
+  // Boards UI removed — unified task list across Tasks and Board tabs.
+  h+='<button class="add-bar" onclick="opA()"><span class="plus">+</span><span class="txt"><b>Add a new task</b><small>It will land in To Do</small></span></button>';
   h+='<div class="section-hd"><span class="section-ic">'+ic('board',22)+'</span><div><h3>Task Board</h3><p>Drag cards between columns or tap a move button</p></div></div>';
   const cols=[{k:'pending',l:'To Do',i:'\\u{1F4E5}',c:'#94A3B8'},{k:'in-progress',l:'Doing',i:'\\u26A1',c:'#3B82F6'},{k:'done',l:'Done',i:'\\u2705',c:'#3DAE5C'}];
   h+='<div class="board">';
@@ -3772,44 +3784,47 @@ if(S.showProfile){
   h+='</div></div>';
 }
 
-// ─── Dedicated WhatsApp Setup modal — clean, single-purpose, uncontrolled inputs ───
+// ─── Dedicated WhatsApp Setup modal ───
+// State persisted to localStorage so iOS Safari suspending the tab while user fetches the OTP
+// from WhatsApp doesn't drop them back to step 1. Overlay tap does NOT close (explicit X only).
 if(S.showWASetup){
-  const conn=S.waConn||{step:'phone'};
+  const conn=S.waConn||{step:'phone',cc:'+91'};
   const joined=localStorage.getItem('tf_wa_joined')==='1';
   const sandboxCode=window.__TWILIO_SANDBOX_CODE||'along-wool';
-  h+='<div class="ov" onclick="waConnectCancel()"><div class="mdl was-mdl" onclick="event.stopPropagation()">';
-  h+='<div class="was-hd"><span class="was-emoji">\\u{1F4F2}</span><div><h2 class="was-t">Set up WhatsApp</h2><div class="was-s">2 minutes \\u2014 once per phone</div></div><button class="was-x" onclick="waConnectCancel()" aria-label="Close">\\u2715</button></div>';
+  const ccVal=conn.cc||'+91';
+  const ccOpts=[['+91','\\u{1F1EE}\\u{1F1F3}'],['+1','\\u{1F1FA}\\u{1F1F8}'],['+44','\\u{1F1EC}\\u{1F1E7}'],['+61','\\u{1F1E6}\\u{1F1FA}'],['+971','\\u{1F1E6}\\u{1F1EA}'],['+65','\\u{1F1F8}\\u{1F1EC}']];
+  const ccHTML=ccOpts.map(o=>'<option value="'+o[0]+'"'+(ccVal===o[0]?' selected':'')+'>'+o[1]+' '+o[0]+'</option>').join('');
+  h+='<div class="ov ov-locked"><div class="mdl was-mdl">';
+  h+='<div class="was-hd"><span class="was-emoji">\\u{1F4F2}</span><div><h2 class="was-t">Set up WhatsApp</h2><div class="was-s">'+(conn.step==='verify'?'Step 2 of 2 \\u2022 Enter the code':'Step 1 of 2 \\u2022 Enter your number')+'</div></div><button class="was-x" onclick="waConnectAbort()" aria-label="Close">\\u2715</button></div>';
+  // progress indicator
+  h+='<div class="was-progress"><div class="was-progress-bar" style="width:'+(conn.step==='verify'?'100%':'50%')+'"></div></div>';
 
   if(conn.step==='verify'){
-    h+='<div class="was-step"><div class="was-step-n">2</div><div class="was-step-b">'
-      +'<div class="was-step-t">Enter the 6-digit code</div>'
-      +'<div class="was-step-d">Sent on WhatsApp to <b>'+esc(conn.phone||'')+'</b>. Check WhatsApp, copy the code.</div>'
-      +'<input id="waSetupCode" class="was-code" type="tel" inputmode="numeric" maxlength="6" placeholder="\\u2022\\u2022\\u2022\\u2022\\u2022\\u2022" autocomplete="one-time-code" autofocus>'
+    h+='<div class="was-body">'
+      +'<div class="was-card-t">Enter the 6-digit code</div>'
+      +'<div class="was-card-d">We sent it on WhatsApp to <b>'+esc(conn.phone||'')+'</b>. Switch to WhatsApp, copy the code, paste below \\u2014 your progress is saved if you switch apps.</div>'
+      +'<input id="waSetupCode" class="was-code" type="tel" inputmode="numeric" maxlength="6" placeholder="\\u2022\\u2022\\u2022\\u2022\\u2022\\u2022" autocomplete="one-time-code" value="'+esc(conn.codeInput||'')+'" oninput="waConnCodeInput(this.value)">'
       +(conn.err?'<div class="was-err">'+esc(conn.err)+'</div>':'')
-      +'<div class="was-acts"><button class="mb mb-c" onclick="S.waConn={step:\\'phone\\'};render();setTimeout(()=>{const e=document.getElementById(\\'waSetupPh\\');if(e)e.focus()},80)">\\u2190 Use a different number</button><button class="mb mb-s" onclick="waConnectVerify()"'+(conn.verifying?' disabled':'')+'>'+(conn.verifying?'Verifying\\u2026':'Verify &amp; connect')+'</button></div>'
-    +'</div></div>';
+      +'<div class="was-acts"><button class="mb mb-c" onclick="S.waConn={step:\\'phone\\',cc:\\''+ccVal+'\\',phoneInput:\\''+esc(conn.phoneInput||'')+'\\'};_waPersist();render()">\\u2190 Wrong number?</button><button class="mb mb-s" onclick="waConnectVerify()"'+(conn.verifying?' disabled':'')+'>'+(conn.verifying?'Verifying\\u2026':'Verify &amp; connect')+'</button></div>'
+      +'<button class="was-resend" onclick="waConnectSend()">\\u{1F501} Resend code</button>'
+    +'</div>';
   } else {
-    // Step 1 — sandbox join (collapsible if already done)
+    h+='<div class="was-body">';
     if(!joined){
-      h+='<div class="was-step"><div class="was-step-n">1</div><div class="was-step-b">'
-        +'<div class="was-step-t">First time only \\u2014 say hi to Brodoit on WhatsApp</div>'
-        +'<div class="was-step-d">Open WhatsApp and send <b>join '+esc(sandboxCode)+'</b> to <b>+1 415 523 8886</b>. You\\'ll get a confirmation reply.</div>'
-        +'<button class="was-jb" onclick="waOpenJoin()">'+WI+' Open WhatsApp \\u2014 send join code</button>'
-        +'<button class="was-skip" onclick="localStorage.setItem(\\'tf_wa_joined\\',\\'1\\');render()">I already did this \\u2192</button>'
-      +'</div></div>';
+      h+='<div class="was-helper"><div class="was-helper-t">\\u26A1 First time only</div>'
+        +'<div class="was-helper-d">Send <b>join '+esc(sandboxCode)+'</b> to <b>+1 415 523 8886</b> on WhatsApp once. After that, this number can talk to Brodoit.</div>'
+        +'<div class="was-helper-acts"><button class="was-jb" onclick="waOpenJoin()">'+WI+' Open WhatsApp</button><button class="was-skip" onclick="localStorage.setItem(\\'tf_wa_joined\\',\\'1\\');render()">Already did this \\u2192</button></div>'
+      +'</div>';
     }else{
-      h+='<div class="was-mini">\\u2705 Step 1 done on this device. <button class="was-mini-reset" onclick="localStorage.removeItem(\\'tf_wa_joined\\');render()">Need to redo it?</button></div>';
+      h+='<div class="was-mini">\\u2705 Sandbox joined on this device <button class="was-mini-reset" onclick="localStorage.removeItem(\\'tf_wa_joined\\');render()">Redo</button></div>';
     }
-    // Step 2 — phone entry (uncontrolled inputs — browser owns the value)
-    // When step 1 is already done, drop the redundant step badge — keep the layout clean.
-    h+='<div class="was-step'+(joined?' was-step-solo':'')+'">'+(joined?'<div class="was-step-n was-step-done">\\u2713</div>':'<div class="was-step-n">2</div>')+'<div class="was-step-b">'
-      +'<div class="was-step-t">Your WhatsApp number</div>'
-      +'<div class="was-step-d">We\\'ll send a 6-digit code on WhatsApp to confirm.</div>'
-      +'<div class="was-row"><select id="waSetupCC" class="was-cc"><option value="+91" selected>\\u{1F1EE}\\u{1F1F3} +91</option><option value="+1">\\u{1F1FA}\\u{1F1F8} +1</option><option value="+44">\\u{1F1EC}\\u{1F1E7} +44</option><option value="+61">\\u{1F1E6}\\u{1F1FA} +61</option><option value="+971">\\u{1F1E6}\\u{1F1EA} +971</option><option value="+65">\\u{1F1F8}\\u{1F1EC} +65</option></select>'
-      +'<input id="waSetupPh" class="was-ph" type="tel" inputmode="tel" placeholder="98765 43210" autocomplete="tel-national"></div>'
-      +(conn.err?'<div class="was-err">'+esc(conn.err)+(conn.needsJoin?' \\u2014 finish step 1 above first':'')+'</div>':'')
-      +'<div class="was-acts"><button class="mb mb-c" onclick="waConnectCancel()">Cancel</button><button class="mb mb-s" onclick="waConnectSend()"'+(conn.sending?' disabled':'')+'>'+(conn.sending?'Sending\\u2026':'Send code via WhatsApp')+'</button></div>'
-    +'</div></div>';
+    h+='<div class="was-card-t">Your WhatsApp number</div>'
+      +'<div class="was-card-d">We\\'ll send a 6-digit code to confirm.</div>'
+      +'<div class="was-row"><select id="waSetupCC" class="was-cc" onchange="waConnCcInput(this.value)">'+ccHTML+'</select>'
+      +'<input id="waSetupPh" class="was-ph" type="tel" inputmode="tel" placeholder="98765 43210" autocomplete="tel-national" value="'+esc(conn.phoneInput||'')+'" oninput="waConnPhInput(this.value)"></div>'
+      +(conn.err?'<div class="was-err">'+esc(conn.err)+(conn.needsJoin?' \\u2014 finish the one-time setup above first':'')+'</div>':'')
+      +'<div class="was-acts"><button class="mb mb-c" onclick="waConnectAbort()">Cancel</button><button class="mb mb-s" onclick="waConnectSend()"'+(conn.sending?' disabled':'')+'>'+(conn.sending?'Sending\\u2026':'Send code via WhatsApp')+'</button></div>'
+    +'</div>';
   }
   h+='</div></div>';
 }
@@ -3823,10 +3838,7 @@ h+='<label class="lbl">Notes</label><textarea oninput="S.form.notes=this.value" 
 h+='<div class="row"><div><label class="lbl">Priority</label><select onchange="S.form.priority=this.value"><option value="high"'+(S.form.priority==='high'?' selected':'')+'>High</option><option value="medium"'+(S.form.priority==='medium'?' selected':'')+'>Medium</option><option value="low"'+(S.form.priority==='low'?' selected':'')+'>Low</option></select></div>';
 h+='<div><label class="lbl">Due Date</label><input type="date" value="'+S.form.dueDate+'" onchange="S.form.dueDate=this.value"></div></div>';
 h+='<label class="lbl">Reminder</label><input type="time" value="'+S.form.reminderTime+'" onchange="S.form.reminderTime=this.value">';
-h+='<label class="lbl">Board</label><div class="form-board-pick">'
-  +'<button type="button" class="fbp'+(S.form.board==='home'?' on':'')+'" onclick="S.form.board=\\'home\\';render()"><span class="fbp-emoji">\\u{1F3E0}</span><span class="fbp-l">Home Tasks</span><span class="fbp-s">Self-improvement &amp; personal</span></button>'
-  +'<button type="button" class="fbp'+(S.form.board==='office'?' on':'')+'" onclick="S.form.board=\\'office\\';render()"><span class="fbp-emoji">\\u{1F4BC}</span><span class="fbp-l">Office Tasks</span><span class="fbp-s">Work tasks only</span></button>'
-+'</div>';
+// Board picker in form removed — single unified task list. Server defaults new tasks to 'home'.
 if(isE)h+='<label class="lbl">Status</label><select onchange="S.form.status=this.value"><option value="pending"'+(S.form.status==='pending'?' selected':'')+'>To Do</option><option value="in-progress"'+(S.form.status==='in-progress'?' selected':'')+'>Doing</option><option value="done"'+(S.form.status==='done'?' selected':'')+'>Done</option></select>';
 h+='<div class="macts"><button class="mb mb-c" onclick="clM()">Cancel</button><button class="mb mb-s" onclick="'+(isE?'savE()':'addT()')+'">'+(isE?'Update':'Add Task')+'</button></div>';
 if(isE)h+='<button class="mb mb-d" onclick="del(\\''+S.editing+'\\');clM()">Delete</button>';
@@ -3837,7 +3849,7 @@ document.getElementById('app').innerHTML=h;
 }
 fetch('/api/config').then(r=>r.json()).then(c=>{window.__TWILIO_SANDBOX_CODE=c.sandboxCode||'';render()}).catch(()=>{});
 applyTheme();
-if(S.user){refreshSession();load();loadBookStreak();loadGoogleStatus();loadWeather();loadTicker();loadCityTemps();loadRemember();chk();setInterval(load,10000);setInterval(loadWeather,15*60*1000);setInterval(loadTicker,15*60*1000);setInterval(loadCityTemps,15*60*1000);setInterval(loadRemember,6*60*60*1000)}else render();
+if(S.user){_waRestore();refreshSession();load();loadBookStreak();loadGoogleStatus();loadWeather();loadTicker();loadCityTemps();loadRemember();chk();setInterval(load,10000);setInterval(loadWeather,15*60*1000);setInterval(loadTicker,15*60*1000);setInterval(loadCityTemps,15*60*1000);setInterval(loadRemember,6*60*60*1000)}else render();
 // When the user returns from Gmail/another app, re-restore the in-progress login if the displayed step
 // doesn't match what the URL hash + localStorage say. Covers iOS Safari evicting the tab while she reads
 // the OTP email. The URL hash (#otp) is the most durable signal — survives even a full tab kill + reload.
@@ -3847,15 +3859,32 @@ function _recoverLoginIfNeeded(){
   let saved=null;try{saved=JSON.parse(localStorage.getItem('tf_login_state')||'null')}catch(e){}
   const savedSaysOtp=!!(saved&&saved.step==='otp'&&saved.ts&&Date.now()-saved.ts<60*60*1000);
   const wantOtp=hashSaysOtp||savedSaysOtp;
-  if(!wantOtp&&!saved)return;
-  if(wantOtp&&S.loginStep==='otp')return; // already showing the right thing
-  if(!wantOtp&&S.loginStep===(saved?saved.step:'phone'))return;
+  // Force OTP step if either signal says so AND we know who the user is.
+  if(wantOtp){
+    if(S.loginStep==='otp')return; // already showing it
+    try{restoreLoginState()}catch(e){}
+    // Prefill email/phone from any of the durable sources
+    if(!S.loginEmail&&saved&&saved.email)S.loginEmail=saved.email;
+    if(!S.loginEmail){try{S.loginEmail=localStorage.getItem('tf_email')||S.loginEmail||''}catch(e){}}
+    if(!S.loginPhone&&saved&&saved.phone)S.loginPhone=saved.phone;
+    if(S.loginEmail||S.loginPhone){
+      S.loginStep='otp';
+      // Re-stamp the hash in case the platform dropped it
+      try{if(location.hash!=='#otp')history.replaceState(null,'','#otp')}catch(e){}
+      render();
+    }
+    return;
+  }
+  if(!saved)return;
+  if(S.loginStep===(saved?saved.step:'phone'))return;
   try{restoreLoginState()}catch(e){}
-  if(hashSaysOtp&&(S.loginEmail||S.loginPhone))S.loginStep='otp';
   render();
 }
 window.addEventListener('pageshow',function(e){_recoverLoginIfNeeded()});
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')_recoverLoginIfNeeded()});
+// Polling fallback — covers iOS Safari edge cases where neither pageshow nor visibilitychange fires reliably.
+// Cheap (one localStorage read every 2s) and only acts if state actually drifts.
+setInterval(_recoverLoginIfNeeded,2000);
 if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
 </script></body></html>`;
 
