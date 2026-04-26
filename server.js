@@ -35,6 +35,10 @@ try{db.exec("CREATE TABLE IF NOT EXISTS google_tokens(user_phone TEXT NOT NULL,e
 try{db.exec("CREATE TABLE IF NOT EXISTS oauth_states(state TEXT PRIMARY KEY,user_phone TEXT NOT NULL,created_at INTEGER NOT NULL)")}catch(e){}
 // Mind Gym progress — one row per (user, game). xp climbs, level derived from xp/100. best is game-specific (lowest ms for reaction, highest sequence for memory, etc.)
 try{db.exec("CREATE TABLE IF NOT EXISTS user_progress(user_phone TEXT NOT NULL,game TEXT NOT NULL,level INTEGER DEFAULT 1,xp INTEGER DEFAULT 0,best INTEGER DEFAULT 0,plays INTEGER DEFAULT 0,updated_at TEXT DEFAULT(datetime('now')),PRIMARY KEY(user_phone,game))")}catch(e){}
+// Voice Trainer — per-user lesson completions for the 90-day accent + functional-English course
+try{db.exec("CREATE TABLE IF NOT EXISTS voice_progress(user_phone TEXT NOT NULL,day INTEGER NOT NULL,score INTEGER DEFAULT 0,points INTEGER DEFAULT 0,completed_at TEXT DEFAULT(datetime('now')),PRIMARY KEY(user_phone,day))")}catch(e){}
+// Daily-play log so we can compute streaks for both Mind Gym and Voice Trainer
+try{db.exec("CREATE TABLE IF NOT EXISTS play_log(user_phone TEXT NOT NULL,kind TEXT NOT NULL,played_on TEXT NOT NULL,PRIMARY KEY(user_phone,kind,played_on))")}catch(e){}
 
 let tw=null;const TW_FROM=process.env.TWILIO_WHATSAPP_FROM||'whatsapp:+14155238886';
 try{if(process.env.TWILIO_ACCOUNT_SID&&process.env.TWILIO_AUTH_TOKEN){tw=twilio(process.env.TWILIO_ACCOUNT_SID,process.env.TWILIO_AUTH_TOKEN);console.log('✅ Twilio connected')}}catch(e){console.log('⚠️',e.message)}
@@ -174,16 +178,106 @@ app.post('/api/verify-otp',(req,res)=>{
   res.json({phone:user.phone,name:user.name||name,token});
 });
 
+// ═══ VOICE TRAINER — 90-day "zero to hero" English accent + functional-English course ═══
+// Curriculum is a 30-theme cycle, repeated 3 times across 3 phases (Foundation / Conversation / Mastery).
+// Each user's progress (completed days + points) is server-tracked so they pick up where they left off.
+const VOICE_THEMES=[
+  {t:"Welcome to your voice journey",intro:"Hello! I am your AI accent coach. Over 90 days we will go from beginner to confident speaker. Let's start. Repeat each phrase clearly and naturally. Don't worry about speed — focus on clarity.",drills:["Hello, my name is...","Nice to meet you","How are you today?"],tip:"Speak slowly. Clarity beats speed every time."},
+  {t:"Greetings & introductions",intro:"Greetings open every conversation. Let's master the most useful ones. Speak with a smile in your voice.",drills:["Good morning, everyone","I'd like to introduce myself","It's a pleasure to meet you","Where are you from?"],tip:"Lift your tone slightly at the end of questions."},
+  {t:"Short vowel sound /æ/",intro:"Today we work on the short A sound, as in 'cat' and 'apple'. This sound does not exist in many languages, so we drill it carefully.",drills:["The cat sat on the mat","Pack a bag of apples","That man has a happy plan"],tip:"Keep the jaw relaxed and slightly open."},
+  {t:"Long vowel sound /iː/",intro:"The long E sound, as in 'see' and 'tree'. Stretch the sound a fraction longer than feels natural.",drills:["Please see me","Each green leaf","She agrees to read three pieces"],tip:"Smile slightly while you say it — it lengthens the vowel naturally."},
+  {t:"Polite small talk",intro:"Small talk is the bridge to real conversation. Today's phrases work in every social setting.",drills:["How was your weekend?","The weather's lovely today","Have you been here before?","I hope you're doing well"],tip:"Pause a beat after each phrase — let it breathe."},
+  {t:"Word stress: nouns vs verbs",intro:"Same spelling, different meaning, different stress. 'Record' the noun versus 'record' the verb. Listen carefully and copy.",drills:["I bought a new RECord","Please reCORD this meeting","That's a perfect PREsent","I'd like to preSENT my idea"],tip:"Nouns: stress the first syllable. Verbs: stress the second."},
+  {t:"The sound /θ/ — 'think'",intro:"The English TH is unique. Place your tongue lightly between your teeth and blow.",drills:["I think therefore I am","Three thoughtful thinkers","Thursday's the third"],tip:"You should feel air on your tongue. If not, try again."},
+  {t:"The sound /ð/ — 'this'",intro:"The voiced TH, as in 'this' and 'that'. Same tongue position as before but vibrate your vocal cords.",drills:["This is the way","That's their brother","The leather feather"],tip:"Place your hand on your throat — you should feel a buzz."},
+  {t:"Asking polite questions",intro:"Politeness is built into English questions. Today's patterns make any request sound respectful.",drills:["Could you help me, please?","Would you mind repeating that?","May I ask a quick question?","Do you have a moment?"],tip:"Soften your voice on 'please' and 'mind'."},
+  {t:"Saying numbers naturally",intro:"Numbers in conversation flow differently from when you read them on paper. Let's practise the natural rhythm.",drills:["Twenty-two thirty","Three hundred and forty-five","One thousand two hundred","The year nineteen ninety-nine"],tip:"Group digits in pairs or triples — never digit by digit."},
+  {t:"Connected speech: linking",intro:"Native speakers link words together. 'Pick it up' becomes 'pi-ki-tup'. Today we practise the smooth glue.",drills:["Pick it up","Turn it on","An apple a day","Best of all"],tip:"Don't pause between words ending and starting with vowels."},
+  {t:"Intonation: rising vs falling",intro:"Your pitch tells the listener whether you're asking or telling. Today we drill both shapes.",drills:["You're coming. (statement)","You're coming? (question)","She left already. (statement)","She left already? (question)"],tip:"Falling = certainty. Rising = uncertainty or invitation."},
+  {t:"At work: meetings",intro:"Office meetings demand a specific register. These phrases sound natural in any boardroom.",drills:["Could we get back to that point?","I'd like to add something","Just to clarify","Let's move on to the next item"],tip:"Drop your tone slightly — sound calm, in control."},
+  {t:"At work: emails out loud",intro:"Speaking emails out loud trains your written register. Today we read three short ones.",drills:["Thanks for getting back to me","I'm following up on yesterday's email","Please find the attached document","Looking forward to your reply"],tip:"Read at conversation pace, not slower."},
+  {t:"Restaurants & ordering",intro:"Confidence at the table starts with these phrases. Order without hesitation.",drills:["Could I see the menu, please?","I'll have the chicken, medium-rare","Can we get the bill?","Is service included?"],tip:"Keep it crisp. Waiters appreciate clarity."},
+  {t:"Travel: airports & hotels",intro:"Travel English is mostly about precision. Numbers, names, times. We drill the survival kit.",drills:["I have a reservation under...","Could I check in, please?","What time is breakfast?","Where's the boarding gate?"],tip:"Speak slightly louder than normal — airports are noisy."},
+  {t:"Difficult consonant clusters",intro:"English loves stacking consonants. 'Strengths', 'twelfths', 'sixths'. Slow them down to learn them.",drills:["The strengths of his argument","Twelfths and sixths","Asked, helped, walked","Texts and exams"],tip:"Whisper the consonants first; voice them after."},
+  {t:"Schwa /ə/ — the secret sound",intro:"Half of English vowels reduce to schwa, a lazy 'uh' sound. It's the most common vowel and the hardest to hear.",drills:["A banana for the teacher","About a moment ago","The capital of America","Computer support"],tip:"Unstressed syllables = schwa. Almost always."},
+  {t:"Phrasal verbs in daily life",intro:"Phrasal verbs are everywhere. Replace fancy words with them and you sound instantly natural.",drills:["Let's catch up tomorrow","I'll figure it out","Things are picking up","Don't put it off"],tip:"Stress the second word: catch UP, figure OUT."},
+  {t:"Storytelling rhythm",intro:"A good story has rhythm — pauses, peaks, releases. Today we practise the wave.",drills:["So... yesterday I was walking home","And then — out of nowhere — it started to rain","I had no umbrella, of course","But here's the funny part..."],tip:"Pauses are punctuation. Use them."},
+  {t:"Apologising gracefully",intro:"Knowing how to apologise in English builds trust. There's a hierarchy — from light to formal.",drills:["My bad","Sorry about that","I do apologise","Please accept my sincere apologies"],tip:"Match the apology to the situation."},
+  {t:"Disagreeing politely",intro:"You don't have to say 'no'. English has elegant ways to push back without offending.",drills:["I see your point, but...","I'm not sure I agree","That's an interesting view, however","With respect, I think..."],tip:"Always start with acknowledgement before disagreement."},
+  {t:"Expressing preferences",intro:"Going beyond 'I like'. These structures sound mature and confident.",drills:["I'd rather walk than drive","I'm more of a tea person","I tend to prefer mornings","If I had to choose..."],tip:"'I'd' is everywhere — practise the contraction."},
+  {t:"Casual conversation fillers",intro:"Native speakers use fillers — 'you know', 'I mean', 'kind of'. Used right, they buy thinking time.",drills:["You know what I mean?","It's kind of difficult","I mean, basically","Like, totally"],tip:"Don't overuse — one or two per sentence is enough."},
+  {t:"Interview English",intro:"Job interviews demand specific patterns. These open and close strong answers.",drills:["My biggest strength is...","A challenge I'd love to take on","I'm passionate about...","Where do I see myself in five years?"],tip:"Speak with calm energy. Never rush."},
+  {t:"Numbers in finance & data",intro:"Talking about money, percentages, and trends. Daily corporate English.",drills:["Revenue's up by twelve percent","We grew quarter on quarter","The figure stands at forty thousand","A two-fold increase"],tip:"Stress the unit, not just the number."},
+  {t:"Phone calls",intro:"Phone English is a special discipline — no body language, just voice. Phrases for openings and closings.",drills:["Hello, this is... speaking","Could I speak to...?","I'll put you through","Thanks for calling, have a great day"],tip:"Smile while speaking on the phone — it carries through."},
+  {t:"Negotiation phrases",intro:"Today we drill the subtle art of give-and-take.",drills:["Would you consider...?","If we could agree on...","I'm afraid that won't work for us","Let's find a middle ground"],tip:"Soft openers, firm core, calm close."},
+  {t:"Idioms that travel well",intro:"Idioms make your English vivid. These are universally understood and natural.",drills:["A piece of cake","Hit the nail on the head","Once in a blue moon","Break the ice"],tip:"Use them sparingly — one per conversation, max."},
+  {t:"Public speaking",intro:"Today we work on the speaker's voice — slower pace, fuller tone, deliberate pauses.",drills:["Good evening, everyone","It's an honour to be here","Allow me to begin by saying","Thank you for your time"],tip:"Drop your pitch one note. Authority lives in the lower register."}
+];
+const VOICE_PHASES=['Foundation','Conversation','Mastery'];
+function _voiceLessonForDay(d){
+  const idx=(d-1)%30;const phase=Math.floor((d-1)/30);  // 0..2
+  const base=VOICE_THEMES[idx];
+  const phaseLabel=VOICE_PHASES[phase]||'Mastery';
+  // Mastery phase adds a "challenge" sentence; Conversation phase adds a roleplay prompt
+  const drills=base.drills.slice();
+  if(phase>=1)drills.push('Use this in your own sentence');
+  if(phase>=2)drills.push('Now say it twice — once slow, once at full pace');
+  return {day:d,phase:phaseLabel,phaseNum:phase+1,title:base.t,intro:base.intro,drills,tip:base.tip,points:10+phase*5};
+}
+app.get('/api/voice/curriculum',(req,res)=>{
+  const days=Array.from({length:90},(_,i)=>{const l=_voiceLessonForDay(i+1);return {day:l.day,phase:l.phase,phaseNum:l.phaseNum,title:l.title,points:l.points}});
+  res.json({days,phases:VOICE_PHASES});
+});
+app.get('/api/voice/lesson/:day',(req,res)=>{
+  const d=parseInt(req.params.day,10);if(!d||d<1||d>90)return res.status(400).json({error:'Invalid day'});
+  res.json(_voiceLessonForDay(d));
+});
+app.get('/api/voice/progress',auth,(req,res)=>{
+  const rows=db.prepare('SELECT day,score,points,completed_at FROM voice_progress WHERE user_phone=? ORDER BY day').all(req.user.phone);
+  const totalPoints=rows.reduce((s,r)=>s+(r.points||0),0);
+  const completed=rows.length;
+  const pct=Math.round((completed/90)*100);
+  // Level: 1 per phase (3 phases of 30 days each)
+  const level=completed<30?1:completed<60?2:completed<90?3:4;
+  res.json({completed,totalPoints,pct,level,maxLevel:4,rows});
+});
+app.post('/api/voice/complete',auth,(req,res)=>{
+  const day=parseInt(req.body&&req.body.day,10);
+  const score=Math.max(0,Math.min(100,parseInt(req.body&&req.body.score,10)||0));
+  if(!day||day<1||day>90)return res.status(400).json({error:'Invalid day'});
+  const lesson=_voiceLessonForDay(day);
+  const points=Math.round(lesson.points*(score/100));
+  db.prepare("INSERT INTO voice_progress(user_phone,day,score,points,completed_at)VALUES(?,?,?,?,datetime('now'))ON CONFLICT(user_phone,day)DO UPDATE SET score=MAX(score,excluded.score),points=MAX(points,excluded.points),completed_at=excluded.completed_at").run(req.user.phone,day,score,points);
+  const rows=db.prepare('SELECT day,score,points FROM voice_progress WHERE user_phone=?').all(req.user.phone);
+  res.json({ok:true,day,score,points,completed:rows.length,totalPoints:rows.reduce((s,r)=>s+r.points,0)});
+});
+
 // ═══ MIND GYM — per-user game progress (level + xp + best) ═══
 // Game keys: 'math' | 'memory' | 'reaction'. 'best' meaning is per-game (highest score/round
 // for math+memory; LOWEST reaction time in ms — clamped to 0..2000 — for reaction).
 const MAX_LEVEL=5;
 const _xpForLevel=lvl=>lvl*100;  // 100 xp = 1 level. L5 capped.
+function _streakFor(userPhone,kind){
+  // Count consecutive days (today backwards) the user logged a play of this kind.
+  const today=todayStr();
+  const rows=db.prepare("SELECT played_on FROM play_log WHERE user_phone=? AND kind=? ORDER BY played_on DESC").all(userPhone,kind);
+  const set=new Set(rows.map(r=>r.played_on));
+  let streak=0;let cur=new Date(today+'T00:00:00Z');
+  // Allow today OR yesterday as the starting anchor so streak survives until tomorrow
+  if(!set.has(today)&&!set.has(new Date(cur.getTime()-86400000).toISOString().slice(0,10)))return {current:0,longest:0,total:rows.length};
+  if(!set.has(today))cur=new Date(cur.getTime()-86400000);
+  while(set.has(cur.toISOString().slice(0,10))){streak++;cur=new Date(cur.getTime()-86400000)}
+  // longest
+  let longest=0,run=0,prev=null;
+  rows.slice().reverse().forEach(r=>{const d=new Date(r.played_on+'T00:00:00Z');if(prev&&(d-prev)===86400000)run++;else run=1;if(run>longest)longest=run;prev=d});
+  return {current:streak,longest,total:rows.length};
+}
 app.get('/api/games/progress',auth,(req,res)=>{
   const rows=db.prepare("SELECT game,level,xp,best,plays,updated_at FROM user_progress WHERE user_phone=?").all(req.user.phone);
   const map={};rows.forEach(r=>{map[r.game]=r});
   ['math','memory','reaction'].forEach(g=>{if(!map[g])map[g]={game:g,level:1,xp:0,best:0,plays:0,updated_at:null}});
-  res.json({progress:map,maxLevel:MAX_LEVEL,xpPerLevel:100});
+  const streak=_streakFor(req.user.phone,'mindgym');
+  res.json({progress:map,maxLevel:MAX_LEVEL,xpPerLevel:100,streak});
 });
 app.post('/api/games/progress',auth,(req,res)=>{
   const game=String((req.body&&req.body.game)||'').toLowerCase();
@@ -204,7 +298,10 @@ app.post('/api/games/progress',auth,(req,res)=>{
   }
   const plays=(cur?cur.plays:0)+(xpAdd>0||newBest!=null?1:0);
   db.prepare("INSERT INTO user_progress(user_phone,game,level,xp,best,plays,updated_at)VALUES(?,?,?,?,?,?,datetime('now'))ON CONFLICT(user_phone,game)DO UPDATE SET level=excluded.level,xp=excluded.xp,best=excluded.best,plays=excluded.plays,updated_at=excluded.updated_at").run(req.user.phone,game,nextLevel,nextXp,bestVal,plays);
-  res.json({ok:true,game,level:nextLevel,xp:nextXp,best:bestVal,plays,leveledUp:!!(cur&&nextLevel>cur.level)});
+  // Log today's play for streak
+  try{db.prepare("INSERT OR IGNORE INTO play_log(user_phone,kind,played_on)VALUES(?,?,?)").run(req.user.phone,'mindgym',todayStr())}catch(e){}
+  const streak=_streakFor(req.user.phone,'mindgym');
+  res.json({ok:true,game,level:nextLevel,xp:nextXp,best:bestVal,plays,leveledUp:!!(cur&&nextLevel>cur.level),streak});
 });
 
 // ═══ USER EXPORT / IMPORT — last-resort safety net ═══
@@ -1027,6 +1124,112 @@ body[data-theme=aurora] .hdr-time-date{color:#9999B5}
 /* Section dividers — thin gradient line with a pulsing centered node */
 .section-div{height:1px;background:linear-gradient(90deg,transparent 0%,rgba(99,102,241,.18) 30%,rgba(232,145,44,.22) 50%,rgba(99,102,241,.18) 70%,transparent 100%);margin:6px 0;position:relative}
 /* Tap Sprint mini-game */
+/* MIND GYM dedicated tab — hero + cards + value strip */
+.mg-hero{position:relative;border-radius:20px;overflow:hidden;margin-bottom:18px;background:linear-gradient(135deg,#0F172A 0%,#312E81 50%,#5B21B6 100%);color:#fff;box-shadow:0 16px 40px rgba(15,23,42,.22)}
+.mg-hero-grad{position:absolute;inset:0;background:radial-gradient(circle at 80% 0%,rgba(252,211,77,.18),transparent 60%),radial-gradient(circle at 0% 100%,rgba(167,139,250,.32),transparent 55%);pointer-events:none}
+.mg-hero-inner{position:relative;padding:24px 22px;display:flex;flex-direction:column;gap:18px}
+.mg-hero-eyebrow{font-size:10.5px;font-weight:800;letter-spacing:2px;color:rgba(255,255,255,.7);margin-bottom:6px}
+.mg-hero-t{margin:0;font-size:30px;font-weight:900;line-height:1.05;letter-spacing:-.025em;color:#fff}
+.mg-hero-s{font-size:14px;color:rgba(255,255,255,.78);line-height:1.5;margin-top:8px;max-width:520px}
+.mg-hero-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (min-width:600px){.mg-hero-inner{flex-direction:row;align-items:flex-end;gap:24px}.mg-hero-l{flex:1;min-width:0}.mg-hero-stats{flex:0 0 auto;grid-template-columns:repeat(4,minmax(74px,1fr));gap:12px}.mg-hero-t{font-size:38px}}
+.mg-stat{padding:10px 12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:12px;backdrop-filter:saturate(140%) blur(6px);-webkit-backdrop-filter:saturate(140%) blur(6px);min-width:0}
+.mg-stat b{display:block;font-family:'Space Mono',monospace;font-size:24px;font-weight:900;color:#FCD34D;letter-spacing:-.02em;line-height:1}
+.mg-stat small{display:block;font-size:9.5px;font-weight:700;letter-spacing:.7px;color:rgba(255,255,255,.65);text-transform:uppercase;margin-top:5px}
+.mg-stat-streak b{color:#FB923C}
+.mg-grid-tab{grid-template-columns:repeat(1,minmax(0,1fr));gap:12px;margin-bottom:18px}
+@media (min-width:600px){.mg-grid-tab{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.mg-grid-tab .mg-card{background:linear-gradient(135deg,#fff,#FAFAF7);color:#0F172A;border:1.5px solid #E2E8F0;min-height:180px;padding:18px}
+.mg-grid-tab .mg-card-name{color:#0F172A}
+.mg-grid-tab .mg-card-d{color:#64748B}
+.mg-grid-tab .mg-bar{background:rgba(15,23,42,.06)}
+.mg-grid-tab .mg-card-foot{color:#475569}
+.mg-grid-tab .mg-card-foot b{color:#0F172A}
+.mg-grid-tab .mg-card-lvl{background:rgba(99,102,241,.14);color:#6366F1}
+.mg-grid-tab .mg-math{border-color:rgba(99,102,241,.32);background:linear-gradient(135deg,rgba(99,102,241,.08),#fff)}
+.mg-grid-tab .mg-memory{border-color:rgba(236,72,153,.32);background:linear-gradient(135deg,rgba(236,72,153,.08),#fff)}
+.mg-grid-tab .mg-reaction{border-color:rgba(245,158,11,.32);background:linear-gradient(135deg,rgba(245,158,11,.1),#fff)}
+.mg-why{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:24px}
+@media (min-width:600px){.mg-why{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.mg-why-card{display:flex;gap:12px;padding:14px;background:#FAFAF7;border:1px solid #E2E8F0;border-radius:14px;align-items:flex-start}
+.mg-why-emoji{font-size:24px;line-height:1;flex-shrink:0}
+.mg-why-t{font-weight:800;font-size:13.5px;color:#0F172A;letter-spacing:-.005em}
+.mg-why-d{font-size:12px;color:#64748B;line-height:1.45;margin-top:3px}
+body[data-theme=aurora] .mg-grid-tab .mg-card{background:linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02));color:#F5F5FA;border-color:rgba(255,255,255,.12)}
+body[data-theme=aurora] .mg-grid-tab .mg-card-name,body[data-theme=aurora] .mg-grid-tab .mg-card-foot b{color:#F5F5FA}
+body[data-theme=aurora] .mg-grid-tab .mg-card-d{color:#9999B5}
+body[data-theme=aurora] .mg-why-card{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.1)}
+body[data-theme=aurora] .mg-why-t{color:#F5F5FA}
+body[data-theme=aurora] .mg-why-d{color:#9999B5}
+/* VOICE TRAINER */
+.vc-hero{position:relative;border-radius:20px;overflow:hidden;margin-bottom:18px;background:linear-gradient(135deg,#0F172A 0%,#1E3A8A 50%,#0E7490 100%);color:#fff;box-shadow:0 16px 40px rgba(15,23,42,.22)}
+.vc-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 78% 100%,rgba(34,211,238,.28),transparent 55%),radial-gradient(circle at 10% 0%,rgba(252,211,77,.15),transparent 50%);pointer-events:none}
+.vc-hero-inner{position:relative;padding:24px 22px;display:flex;flex-direction:column;gap:18px}
+.vc-hero-eyebrow{font-size:10.5px;font-weight:800;letter-spacing:2px;color:rgba(255,255,255,.74);margin-bottom:6px}
+.vc-hero-t{margin:0;font-size:30px;font-weight:900;line-height:1.05;letter-spacing:-.025em;color:#fff}
+.vc-hero-s{font-size:14px;color:rgba(255,255,255,.82);line-height:1.55;margin-top:8px;max-width:560px}
+.vc-hero-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (min-width:600px){.vc-hero-inner{flex-direction:row;align-items:flex-end;gap:24px}.vc-hero-l{flex:1;min-width:0}.vc-hero-stats{flex:0 0 auto;grid-template-columns:repeat(4,minmax(74px,1fr));gap:12px}.vc-hero-t{font-size:38px}}
+.vc-stat{padding:10px 12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:12px}
+.vc-stat b{display:block;font-family:'Space Mono',monospace;font-size:24px;font-weight:900;color:#67E8F9;letter-spacing:-.02em;line-height:1}
+.vc-stat b small{font-size:14px;color:rgba(103,232,249,.65)}
+.vc-stat small{display:block;font-size:9.5px;font-weight:700;letter-spacing:.7px;color:rgba(255,255,255,.65);text-transform:uppercase;margin-top:5px}
+.vc-phase{margin-bottom:18px}
+.vc-phase-hd{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;padding:0 4px}
+.vc-phase-t{margin:0;font-size:16px;font-weight:800;color:#0F172A;letter-spacing:-.005em}
+.vc-phase-s{font-size:11.5px;color:#94A3B8;font-weight:600}
+.vc-day-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+@media (min-width:600px){.vc-day-grid{grid-template-columns:repeat(10,minmax(0,1fr));gap:8px}}
+.vc-day{aspect-ratio:1;background:#fff;border:1.5px solid #E2E8F0;border-radius:10px;cursor:pointer;font-family:'Space Mono',monospace;font-weight:800;font-size:13px;color:#475569;transition:transform .12s ease,border-color .12s ease,background .12s ease;position:relative;display:flex;align-items:center;justify-content:center}
+.vc-day:hover{border-color:#0E7490;background:#F0FDFF;transform:translateY(-2px)}
+.vc-day:active{transform:scale(.95)}
+.vc-day-done{background:linear-gradient(135deg,#0E7490,#0891B2);border-color:#0891B2;color:#fff}
+.vc-day-check{position:absolute;top:2px;right:3px;font-size:10px;color:#FCD34D}
+.vc-day-num{position:relative;z-index:1}
+body[data-theme=aurora] .vc-phase-t{color:#F5F5FA}
+body[data-theme=aurora] .vc-day{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12);color:#9999B5}
+body[data-theme=aurora] .vc-day:hover{background:rgba(14,116,144,.2);border-color:#0E7490}
+/* Voice lesson modal */
+.vc-mdl{max-width:540px;padding:0;overflow:hidden;display:flex;flex-direction:column;max-height:92vh}
+.vc-mdl-hd{display:flex;align-items:center;gap:12px;padding:18px 18px 14px;background:linear-gradient(135deg,#0F172A,#0E7490);color:#fff;position:relative;flex-shrink:0}
+.vc-mdl-hd > div:first-child{flex:1;min-width:0}
+.vc-mdl-eyebrow{font-size:10px;font-weight:800;letter-spacing:1.6px;color:rgba(255,255,255,.7)}
+.vc-mdl-t{margin:6px 0 0;font-size:18px;font-weight:900;color:#fff;letter-spacing:-.01em;line-height:1.2}
+.vc-mdl-progress{height:3px;background:rgba(0,0,0,.05)}
+.vc-mdl-progress-bar{height:100%;background:linear-gradient(90deg,#22D3EE,#0E7490);transition:width .35s cubic-bezier(.2,.8,.2,1)}
+.vc-mdl-body{padding:18px;background:#fff;flex:1;overflow-y:auto}
+.vc-coach{background:linear-gradient(135deg,#F0FDFF,#ECFEFF);border:1px solid #A5F3FC;border-radius:14px;padding:14px;margin-bottom:14px}
+.vc-coach-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.vc-coach-emoji{font-size:24px;line-height:1}
+.vc-coach-name{flex:1;font-weight:800;color:#0F172A;font-size:13.5px}
+.vc-coach-name small{display:block;font-size:11px;font-weight:600;color:#0E7490;margin-top:1px}
+.vc-coach-btn{background:#0E7490;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-weight:800;font-size:12.5px;cursor:pointer;font-family:inherit;flex-shrink:0}
+.vc-coach-btn:hover{background:#0891B2}
+.vc-coach-text{font-size:13.5px;line-height:1.55;color:#0F172A}
+.vc-drill-card{background:#fff;border:1.5px solid #E2E8F0;border-radius:14px;padding:16px}
+.vc-drill-meta{font-size:10.5px;font-weight:800;letter-spacing:1.5px;color:#94A3B8;text-transform:uppercase;margin-bottom:8px}
+.vc-drill-text{font-size:24px;font-weight:800;color:#0F172A;letter-spacing:-.01em;line-height:1.3;margin-bottom:10px;font-family:'Instrument Serif',Georgia,serif;font-style:italic}
+.vc-drill-tip{font-size:12px;color:#7C5A00;background:#FFFBF1;border:1px solid #F3D9A0;padding:8px 11px;border-radius:9px;margin-bottom:12px;line-height:1.45}
+.vc-drill-row{display:flex;gap:10px}
+.vc-drill-btn{flex:1;padding:13px;font-weight:800;font-size:13.5px;border-radius:10px;border:none;cursor:pointer;font-family:inherit;transition:transform .1s ease,background .12s ease}
+.vc-drill-listen{background:#F1F5F9;color:#0F172A;border:1.5px solid #E2E8F0}
+.vc-drill-listen:hover{background:#E2E8F0}
+.vc-drill-rec{background:linear-gradient(135deg,#DC2626,#991B1B);color:#fff;box-shadow:0 4px 12px rgba(220,38,38,.3)}
+.vc-rec-on{animation:vcPulse 1s ease-in-out infinite}
+@keyframes vcPulse{0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,.5)}50%{box-shadow:0 0 0 12px rgba(220,38,38,0)}}
+.vc-heard{margin-top:12px;font-size:13px;color:#475569;background:#F8FAFC;border:1px dashed #CBD5E1;padding:9px 12px;border-radius:9px;line-height:1.4}
+.vc-score{margin-top:10px;text-align:center;font-size:14px;font-weight:700;padding:10px;border-radius:10px}
+.vc-score b{font-family:'Space Mono',monospace;font-size:18px}
+.vc-score-good{background:#EDFCF2;color:#16A34A}
+.vc-score-ok{background:#FEF3C7;color:#B45309}
+.vc-score-bad{background:#FEF2F2;color:#DC2626}
+.vc-mdl-nav{display:flex;gap:10px;padding:14px 18px;border-top:1px solid #E2E8F0;background:#FAFAF7;flex-shrink:0}
+.vc-mdl-nav .mb{flex:1;margin-top:0}
+body[data-theme=aurora] .vc-mdl-body{background:#1A1A2E}
+body[data-theme=aurora] .vc-coach{background:rgba(14,116,144,.1);border-color:rgba(34,211,238,.3)}
+body[data-theme=aurora] .vc-coach-name,body[data-theme=aurora] .vc-coach-text,body[data-theme=aurora] .vc-drill-text{color:#F5F5FA}
+body[data-theme=aurora] .vc-drill-card{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12)}
+body[data-theme=aurora] .vc-mdl-nav{background:rgba(255,255,255,.02);border-color:rgba(255,255,255,.08)}
 /* MIND GYM — header + 4-card grid */
 .mg-sec{margin:24px 0 18px;padding:18px 16px;background:linear-gradient(135deg,#0F172A 0%,#312E81 60%,#5B21B6 100%);border-radius:18px;color:#fff;box-shadow:0 12px 32px rgba(15,23,42,.18);position:relative;overflow:hidden}
 .mg-sec::before{content:'';position:absolute;top:-30%;right:-15%;width:300px;height:300px;background:radial-gradient(circle,rgba(167,139,250,.35),transparent 60%);pointer-events:none}
@@ -2817,8 +3020,11 @@ rps:{playerWins:Number(localStorage.getItem('tf_rps_w')||0),botWins:Number(local
 guess:{target:null,attempts:0,history:[],message:'',ended:false},
 dice:{values:[],history:[],rolling:false},
 // Mind Gym — server-tracked progress + ephemeral per-play state
-mg:{progress:{math:{level:1,xp:0,best:0},memory:{level:1,xp:0,best:0},reaction:{level:1,xp:0,best:0}},loaded:false},
+mg:{progress:{math:{level:1,xp:0,best:0},memory:{level:1,xp:0,best:0},reaction:{level:1,xp:0,best:0}},streak:{current:0,longest:0,total:0},loaded:false},
 mgPlay:null,  // {game:'math|memory|reaction', ...gameSpecificState}
+// Voice Trainer
+voice:{loaded:false,curriculum:{days:[]},progress:{completed:0,totalPoints:0,pct:0,level:1,maxLevel:4,rows:[]}},
+voicePlay:null,
 weather:{city:localStorage.getItem('tf_city')||'Bangalore',temp:null,aqi:null,country:'',loaded:false,loading:false,error:null},
 cityTemps:{},remember:{person:null,loaded:false},lifeGoal:localStorage.getItem('tf_life_goal')||'',meditating:{active:false,title:'',mins:0,startedAt:0},
 medCat:localStorage.getItem('tf_medcat')||'vipassana',
@@ -2862,6 +3068,8 @@ news:'<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://
 books:'<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 8 C 16 8 11 5 4 6 L 4 25 C 11 24 16 27 16 27 L 16 8 Z" fill="currentColor" opacity="0.55"/><path d="M16 8 C 16 8 21 5 28 6 L 28 25 C 21 24 16 27 16 27 L 16 8 Z" fill="currentColor" opacity="0.85"/><line x1="8" y1="11" x2="13" y2="11.6" stroke="#fff" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/><line x1="8" y1="15" x2="13" y2="15.6" stroke="#fff" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/><line x1="19" y1="11.6" x2="24" y2="11" stroke="#fff" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/><line x1="19" y1="15.6" x2="24" y2="15" stroke="#fff" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/></svg>',
 meditation:'<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="13" fill="currentColor" opacity="0.14"/><circle cx="16" cy="16" r="9" fill="currentColor" opacity="0.18"/><circle cx="16" cy="9.5" r="3" fill="currentColor"/><path d="M9 22 C 11 17 14 16 16 16 C 18 16 21 17 23 22 C 22 23.5 18.5 24 16 24 C 13.5 24 10 23.5 9 22 Z" fill="currentColor"/><path d="M5 19 C 8 22 11 22 12 21" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.75"/><path d="M27 19 C 24 22 21 22 20 21" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.75"/></svg>',
 games:'<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="9" width="26" height="16" rx="6" fill="currentColor" opacity="0.18"/><circle cx="9" cy="17" r="2.4" fill="currentColor"/><circle cx="22.5" cy="14" r="1.6" fill="currentColor"/><circle cx="25.5" cy="17" r="1.6" fill="currentColor" opacity="0.65"/><circle cx="22.5" cy="20" r="1.6" fill="currentColor" opacity="0.65"/><circle cx="19.5" cy="17" r="1.6" fill="currentColor" opacity="0.65"/><line x1="6.5" y1="17" x2="11.5" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/><line x1="9" y1="14.5" x2="9" y2="19.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/></svg>',
+mindgym:'<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11 6 C 7 6 4 9 4 13 C 4 14.5 4.5 16 5.5 17.2 C 5 18.5 5 20 6 21.5 C 7 23 9 24 11 24 L 11 28 L 14 28 L 14 6 Z" fill="currentColor" opacity="0.85"/><path d="M21 6 C 25 6 28 9 28 13 C 28 14.5 27.5 16 26.5 17.2 C 27 18.5 27 20 26 21.5 C 25 23 23 24 21 24 L 21 28 L 18 28 L 18 6 Z" fill="currentColor" opacity="0.55"/><circle cx="9.5" cy="13" r="1.4" fill="#fff" opacity="0.9"/><circle cx="22.5" cy="13" r="1.4" fill="#fff" opacity="0.7"/></svg>',
+voice:'<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="13" y="4" width="6" height="16" rx="3" fill="currentColor" opacity="0.85"/><path d="M8 14 C 8 18.5 11.5 22 16 22 C 20.5 22 24 18.5 24 14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" fill="none" opacity="0.55"/><line x1="16" y1="22" x2="16" y2="27" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" opacity="0.55"/><line x1="12" y1="27" x2="20" y2="27" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" opacity="0.55"/></svg>',
 knowledge:'<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 7 a2 2 0 0 1 2 -2 h18 a2 2 0 0 1 2 2 v18 a2 2 0 0 1 -2 2 h-18 a2 2 0 0 1 -2 -2 z" fill="currentColor" opacity="0.2"/><path d="M5 25 a2 2 0 0 0 2 2 h18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M9 9 v14 M22 9 v14 M9 12 H 22 M9 18 H 18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity="0.85"/><circle cx="13" cy="13" r="1" fill="currentColor"/><circle cx="13" cy="20" r="1" fill="currentColor"/></svg>'
 };
 // "Rise Together" doodle — 4 animated figures climbing the same curve, holding hands; full SMIL animation
@@ -3117,7 +3325,7 @@ const KNOWLEDGE_TOPICS=[
 ];
 function getKnowledgeTopic(k){return KNOWLEDGE_TOPICS.find(t=>t.k===k)||KNOWLEDGE_TOPICS[0]}
 function getKnowledgeSec(topicK,secK){const t=getKnowledgeTopic(topicK);return t.sections.find(s=>s.k===secK)||t.sections[0]}
-function switchTab(t){if(t==='steps'||t==='dash'||t==='history'||t==='geography'||t==='knowledge'||t==='ipl')t=t==='ipl'?'news':'tasks';S.tab=t;if(t==='news'){if(t==='news'&&!S.newsCat)S.newsCat='tech';if(!S.news[S.newsCat])loadNews(S.newsCat)}if(t==='books'&&!S.books.length)loadBooks('all');if(t==='meditation'&&!S.meditations)loadMeditations();if(t==='cal'){if(!S.google.loaded)loadGoogleStatus();else if(S.google.accounts.length&&!S.gcalEvents.length&&!S.gcalLoading)loadGcalEvents()}render();try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}}
+function switchTab(t){if(t==='steps'||t==='dash'||t==='history'||t==='geography'||t==='knowledge'||t==='ipl'||t==='games')t=t==='ipl'?'news':t==='games'?'mindgym':'tasks';S.tab=t;if(t==='news'){if(!S.newsCat)S.newsCat='world';if(!S.news[S.newsCat])loadNews(S.newsCat)}if(t==='books'&&!S.books.length)loadBooks('all');if(t==='meditation'&&!S.meditations)loadMeditations();if(t==='cal'){if(!S.google.loaded)loadGoogleStatus();else if(S.google.accounts.length&&!S.gcalEvents.length&&!S.gcalLoading)loadGcalEvents()}if(t==='mindgym'&&!S.mg.loaded)loadMindGym();if(t==='voice'&&!S.voice.loaded)loadVoice();render();try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}}
 async function loadKnowledge(topicK,secK){S.knowledge.topic=topicK;S.knowledge.sec=secK;S.knowledge.loading=true;render();const cacheKey=topicK+':'+secK;try{if(topicK==='history'&&secK==='today'){const r=await fetch('/api/history/today');const j=await r.json();S.knowledge.events=j.events||[]}else{const tObj=KNOWLEDGE_TOPICS.find(t=>t.k===topicK);const sObj=tObj&&tObj.sections.find(s=>s.k===secK);if(!sObj||!sObj.titles){S.knowledge.loaded[cacheKey]=true;S.knowledge.loading=false;render();return}const r=await fetch('/api/wiki/summaries?titles='+encodeURIComponent(sObj.titles.join(',')));const j=await r.json();S.knowledge.articles[cacheKey]=j.summaries||[]}}catch(e){}S.knowledge.loaded[cacheKey]=true;S.knowledge.loading=false;render()}
 function switchKnowledgeTopic(k){S.knowledge.topic=k;const tObj=KNOWLEDGE_TOPICS.find(t=>t.k===k);const sk=(tObj&&tObj.sections[0]&&tObj.sections[0].k)||'today';loadKnowledge(k,sk)}
 async function loadNews(cat){S.newsCat=cat;S.newsLoading=true;render();try{const r=await fetch('/api/news?cat='+encodeURIComponent(cat),{cache:'no-store'});const j=await r.json();S.news[cat]=j.items||[]}catch(e){S.news[cat]=[]}S.newsLoading=false;render()}
@@ -3313,7 +3521,75 @@ function gameEnd(){S.game.active=false;S.game.status='idle';render()}
 function flipCoin(){if(S.coin.flipping)return;S.coin.flipping=true;S.coin.face=null;render();setTimeout(()=>{const f=Math.random()<0.5?'heads':'tails';S.coin.face=f;S.coin.flipping=false;if(f==='heads'){S.coin.heads++;localStorage.setItem('tf_coin_h',S.coin.heads)}else{S.coin.tails++;localStorage.setItem('tf_coin_t',S.coin.tails)}render()},900)}
 
 // ─── MIND GYM ─────────────────────────────────────────────────────────────
-async function loadMindGym(){const r=await api('/games/progress');if(r&&r.progress){S.mg.progress=r.progress;S.mg.loaded=true;render()}}
+async function loadMindGym(){const r=await api('/games/progress');if(r&&r.progress){S.mg.progress=r.progress;S.mg.streak=r.streak||S.mg.streak;S.mg.loaded=true;render()}}
+// ─── VOICE TRAINER ───
+async function loadVoice(){
+  const [c,p]=await Promise.all([fetch('/api/voice/curriculum').then(r=>r.json()).catch(()=>null),api('/voice/progress')]);
+  if(c)S.voice.curriculum=c;
+  if(p)S.voice.progress=p;
+  S.voice.loaded=true;render();
+}
+async function voiceOpenLesson(day){
+  const r=await fetch('/api/voice/lesson/'+day).then(r=>r.json()).catch(()=>null);
+  if(!r||r.error)return toast('\\u26A0\\uFE0F Lesson not found','err');
+  S.voicePlay={day:r.day,title:r.title,intro:r.intro,drills:r.drills||[],tip:r.tip,phase:r.phase,points:r.points,phase_num:r.phaseNum,idx:0,scores:[],playingTTS:false,recording:false,heard:'',done:false};
+  render();
+}
+function voiceClose(){voiceStopAll();S.voicePlay=null;render()}
+function voiceStopAll(){try{window.speechSynthesis&&window.speechSynthesis.cancel()}catch(e){}try{S._voiceRec&&S._voiceRec.stop()}catch(e){}}
+function _pickMaleVoice(){
+  try{const all=window.speechSynthesis.getVoices()||[];
+    // Prefer en-* male-named voices
+    const prefer=['Daniel','Google UK English Male','Microsoft David','Microsoft Mark','Microsoft Guy','Alex','Fred','Aaron','Arthur','Reed','Rocko'];
+    for(const name of prefer){const v=all.find(x=>x.name&&x.name.indexOf(name)>=0&&(x.lang||'').toLowerCase().startsWith('en'));if(v)return v}
+    // Any en-GB or en-US voice
+    const en=all.find(x=>(x.lang||'').toLowerCase()==='en-gb')||all.find(x=>(x.lang||'').toLowerCase()==='en-us')||all.find(x=>(x.lang||'').toLowerCase().startsWith('en'));
+    return en||all[0]||null;
+  }catch(e){return null}
+}
+function voiceSpeak(text,onEnd){
+  if(!('speechSynthesis' in window))return onEnd&&onEnd();
+  voiceStopAll();
+  const u=new SpeechSynthesisUtterance(String(text||''));
+  const v=_pickMaleVoice();if(v){u.voice=v;u.lang=v.lang||'en-US'}else u.lang='en-US';
+  u.rate=.94;u.pitch=.92;u.volume=1;
+  u.onend=()=>{if(S.voicePlay)S.voicePlay.playingTTS=false;render();onEnd&&onEnd()};
+  u.onerror=()=>{if(S.voicePlay)S.voicePlay.playingTTS=false;render()};
+  if(S.voicePlay){S.voicePlay.playingTTS=true;render()}
+  try{window.speechSynthesis.speak(u)}catch(e){}
+}
+function voicePlayIntro(){const p=S.voicePlay;if(!p)return;voiceSpeak(p.intro)}
+function voicePlayDrill(){const p=S.voicePlay;if(!p)return;voiceSpeak(p.drills[p.idx]||'')}
+function voiceNextDrill(){const p=S.voicePlay;if(!p)return;if(p.idx<p.drills.length-1){p.idx++;p.heard='';render();voiceSpeak(p.drills[p.idx])}else{voiceFinish()}}
+function voicePrevDrill(){const p=S.voicePlay;if(!p||p.idx<=0)return;p.idx--;p.heard='';render();voiceSpeak(p.drills[p.idx])}
+function _similarity(a,b){a=String(a||'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\\s+/g,' ').trim();b=String(b||'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\\s+/g,' ').trim();if(!a||!b)return 0;const wa=a.split(' '),wb=b.split(' ');const set=new Set(wa);let hits=0;wb.forEach(w=>{if(set.has(w))hits++});return Math.min(100,Math.round((hits/Math.max(wa.length,wb.length))*100))}
+function voiceRecord(){
+  const p=S.voicePlay;if(!p)return;
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){toast('\\u26A0\\uFE0F Voice recognition not supported on this browser. Use Chrome or Safari.','err');return}
+  const r=new SR();r.lang='en-US';r.continuous=false;r.interimResults=true;r.maxAlternatives=1;
+  S._voiceRec=r;p.recording=true;p.heard='';render();
+  r.onresult=e=>{let txt='';for(let i=0;i<e.results.length;i++)txt+=e.results[i][0].transcript;p.heard=txt;render()};
+  r.onerror=e=>{p.recording=false;render();toast('\\u26A0\\uFE0F '+(e.error||'Recognition error'),'err')};
+  r.onend=()=>{
+    if(!S.voicePlay)return;
+    p.recording=false;
+    const expected=p.drills[p.idx]||'';
+    const score=_similarity(expected,p.heard);
+    p.scores[p.idx]=score;
+    render();
+  };
+  try{r.start()}catch(e){p.recording=false;render();toast('\\u26A0\\uFE0F '+e.message,'err')}
+}
+async function voiceFinish(){
+  const p=S.voicePlay;if(!p)return;
+  // Average score across attempted drills, default 70 if none recorded (mark as completed without scoring)
+  const valid=p.scores.filter(s=>typeof s==='number');
+  const avg=valid.length?Math.round(valid.reduce((s,n)=>s+n,0)/valid.length):70;
+  const r=await api('/voice/complete',{method:'POST',body:JSON.stringify({day:p.day,score:avg})});
+  if(r&&r.ok){toast('\\u2705 Day '+p.day+' saved \\u2014 +'+r.points+' points');S.voice.progress.completed=r.completed;S.voice.progress.totalPoints=r.totalPoints;loadVoice()}
+  voiceClose();
+}
 async function _mgSave(game,xpAdd,best){const r=await api('/games/progress',{method:'POST',body:JSON.stringify({game,xpAdd:xpAdd|0,best:best!=null?best|0:null})});if(r&&r.ok){S.mg.progress[game]={level:r.level,xp:r.xp,best:r.best,plays:r.plays};if(r.leveledUp)toast('\\u{1F31F} Level up! '+game+' \\u2192 L'+r.level);render()}}
 function mgClose(){S.mgPlay=null;render()}
 function mgPercent(g){const p=S.mg.progress[g]||{level:1,xp:0};return Math.min(100,Math.round((p.xp/(5*100))*100))}
@@ -3594,7 +3870,7 @@ if(isMain){
   const dayOfYear=Math.floor((now-yStart)/86400000);
   const yearPct=Math.round(dayOfYear/365*100);
   const dateStr=now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-  const tabsHtml=[{k:'tasks',l:'Tasks'},{k:'board',l:'Board'},{k:'cal',l:'Calendar'},{k:'books',l:'Books'},{k:'meditation',l:'Meditate'},{k:'news',l:'News'}].map(x=>'<button class="tab tab-'+x.k+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(ID[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
+  const tabsHtml=[{k:'tasks',l:'Tasks'},{k:'board',l:'Board'},{k:'cal',l:'Calendar'},{k:'books',l:'Books'},{k:'meditation',l:'Meditate'},{k:'mindgym',l:'Mind Gym'},{k:'voice',l:'Voice'},{k:'news',l:'News'}].map(x=>'<button class="tab tab-'+x.k+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(ID[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
   // "Bro, do it!" mascot — a character with a speech bubble that animates
   const climbScene='<div class="bro-mascot" aria-hidden="true">'
     +'<svg class="bro-svg" viewBox="0 0 340 130" xmlns="http://www.w3.org/2000/svg">'
@@ -3721,42 +3997,97 @@ if(S.tab==='tasks'){
     h+='<div class="tc'+(d?' dn':'')+'" style="border-left-color:'+p.c+'"><div class="tc-top"><button class="chk'+(d?' on':'')+'" onclick="tog(\\''+t.id+'\\')">'+(d?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>':'')+'</button><div style="flex:1;min-width:0"><div class="tc-t'+(d?' dn':'')+'">'+esc(t.title)+'</div>'+(t.notes?'<div class="tc-n">'+esc(t.notes)+'</div>':'')+'<div class="tc-m"><button class="badge" style="background:'+st.bg+';color:'+st.c+'" onclick="cyc(\\''+t.id+'\\')">'+st.l+'</button>'+(t.due_date?'<span style="font-size:12px;font-weight:500;color:'+(isOD(t.due_date,t.status)?'#E8453C':isTd(t.due_date)?'#E8912C':'#94A3B8')+'">\\u{1F4C5} '+fD(t.due_date)+(isOD(t.due_date,t.status)?' overdue':'')+'</span>':'')+(t.reminder_time&&!d?'<span style="font-size:11px;color:#3B82F6;font-weight:600">\\u{1F514} '+fT(t.reminder_time)+'</span>':'')+(t.source==='whatsapp'?'<span style="font-size:10px;font-weight:700;color:#128C7E;background:#EDFCF2;border:1px solid #B7E8C4;padding:2px 7px;border-radius:6px;letter-spacing:.3px">\\u{1F4F2} WA</span>':'')+(addedTxt?'<span class="tc-added" title="Added '+esc(t.created_at||'')+'">\\u2795 '+esc(addedTxt)+'</span>':'')+'</div></div></div>';
     h+='<div class="tc-acts"><button class="ib" onclick="opE(\\''+t.id+'\\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>'+(S.profile&&S.profile.wa_phone?'<button class="ib" title="Send to WhatsApp" onclick="sWA(\\''+t.id+'\\')">'+WI+'</button>':'')+'<button class="ib" style="color:#E8453C" onclick="del(\\''+t.id+'\\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button></div></div>'});
   h+='</div>';
-  // ═══ MIND GYM ═══ — brain training games, server-tracked progress
-  {
-    const mg=S.mg;const overall=Math.round((mgPercent('math')+mgPercent('memory')+mgPercent('reaction'))/3);
-    h+='<section class="mg-sec">'
-      +'<div class="mg-sec-hd"><div class="mg-sec-l"><div class="mg-sec-emoji">\\u{1F9E0}</div><div><h2 class="mg-sec-t">Mind Gym</h2><div class="mg-sec-s">Train daily \\u2014 your level is saved across all your devices</div></div></div><div class="mg-sec-overall"><b>'+overall+'%</b><small>overall</small></div></div>'
-      +'<div class="mg-grid">';
-    // Math Sprint
-    {const p=mg.progress.math;const pct=mgPercent('math');h+='<button class="mg-card mg-math" onclick="mgMathStart()">'
-      +'<div class="mg-card-hd"><span class="mg-card-emoji">\\u{1F522}</span><span class="mg-card-name">Math Sprint</span><span class="mg-card-lvl">L'+p.level+'</span></div>'
-      +'<div class="mg-card-d">Solve as many as you can</div>'
-      +'<div class="mg-bar"><div class="mg-bar-fill" style="width:'+pct+'%"></div></div>'
-      +'<div class="mg-card-foot"><span>'+pct+'%</span><span>Best streak: <b>'+(p.best||0)+'</b></span></div>'
-    +'</button>'}
-    // Memory Tap
-    {const p=mg.progress.memory;const pct=mgPercent('memory');h+='<button class="mg-card mg-memory" onclick="mgMemoryStart()">'
-      +'<div class="mg-card-hd"><span class="mg-card-emoji">\\u{1F9E9}</span><span class="mg-card-name">Memory Tap</span><span class="mg-card-lvl">L'+p.level+'</span></div>'
-      +'<div class="mg-card-d">Repeat the flashing pattern</div>'
-      +'<div class="mg-bar"><div class="mg-bar-fill" style="width:'+pct+'%"></div></div>'
-      +'<div class="mg-card-foot"><span>'+pct+'%</span><span>Best round: <b>'+(p.best||0)+'</b></span></div>'
-    +'</button>'}
-    // Reaction
-    {const p=mg.progress.reaction;const pct=mgPercent('reaction');const bestStr=p.best?p.best+'ms':'\\u2014';h+='<button class="mg-card mg-reaction" onclick="mgReactionStart()">'
-      +'<div class="mg-card-hd"><span class="mg-card-emoji">\\u26A1</span><span class="mg-card-name">Reaction</span><span class="mg-card-lvl">L'+p.level+'</span></div>'
-      +'<div class="mg-card-d">Tap the moment it turns green</div>'
-      +'<div class="mg-bar"><div class="mg-bar-fill" style="width:'+pct+'%"></div></div>'
-      +'<div class="mg-card-foot"><span>'+pct+'%</span><span>Best: <b>'+bestStr+'</b></span></div>'
-    +'</button>'}
-    // Coin Flip — utility, no level
-    {const c=S.coin;const face=c.flipping?'?':(c.face==='heads'?'H':c.face==='tails'?'T':'\\u2014');h+='<button class="mg-card mg-coin" onclick="flipCoin()">'
-      +'<div class="mg-card-hd"><span class="mg-card-emoji">\\u{1FA99}</span><span class="mg-card-name">Coin Flip</span><span class="mg-card-lvl mg-card-lvl-utility">UTIL</span></div>'
-      +'<div class="mg-card-d">Quick decide-for-me</div>'
-      +'<div class="mg-coin-face '+(c.flipping?'coin-flipping':(c.face?'coin-'+c.face:''))+'">'+face+'</div>'
-      +'<div class="mg-card-foot"><span>H <b>'+c.heads+'</b></span><span>T <b>'+c.tails+'</b></span></div>'
-    +'</button>'}
-    h+='</div></section>';
-  }
+  // Mind Gym moved to its own dedicated tab.
+}
+
+// MIND GYM TAB — dedicated brain-training section, treated as its own product
+else if(S.tab==='mindgym'){
+  const mg=S.mg;const overall=Math.round((mgPercent('math')+mgPercent('memory')+mgPercent('reaction'))/3);
+  const totalLevel=mg.progress.math.level+mg.progress.memory.level+mg.progress.reaction.level;
+  const totalXp=(mg.progress.math.xp||0)+(mg.progress.memory.xp||0)+(mg.progress.reaction.xp||0);
+  const streak=mg.streak||{current:0,longest:0,total:0};
+  // Hero header — stats overview
+  h+='<section class="mg-hero">'
+    +'<div class="mg-hero-grad"></div>'
+    +'<div class="mg-hero-inner">'
+      +'<div class="mg-hero-l"><div class="mg-hero-eyebrow">\\u{1F9E0} BRODOIT \\u00B7 MIND GYM</div>'
+        +'<h1 class="mg-hero-t">Train your mind, daily.</h1>'
+        +'<div class="mg-hero-s">Your brain learns the same way muscles do \\u2014 one rep at a time. Three games, server-tracked progress, every device.</div>'
+      +'</div>'
+      +'<div class="mg-hero-stats">'
+        +'<div class="mg-stat"><b>'+overall+'%</b><small>Overall</small></div>'
+        +'<div class="mg-stat"><b>L'+totalLevel+'</b><small>Total levels</small></div>'
+        +'<div class="mg-stat mg-stat-streak"><b>\\u{1F525} '+streak.current+'</b><small>Day streak</small></div>'
+        +'<div class="mg-stat"><b>'+totalXp+'</b><small>XP earned</small></div>'
+      +'</div>'
+    +'</div>'
+  +'</section>';
+  h+='<div class="mg-grid mg-grid-tab">';
+  // Math Sprint
+  {const p=mg.progress.math;const pct=mgPercent('math');h+='<button class="mg-card mg-math" onclick="mgMathStart()">'
+    +'<div class="mg-card-hd"><span class="mg-card-emoji">\\u{1F522}</span><span class="mg-card-name">Math Sprint</span><span class="mg-card-lvl">L'+p.level+'</span></div>'
+    +'<div class="mg-card-d">Mental arithmetic against the clock</div>'
+    +'<div class="mg-bar"><div class="mg-bar-fill" style="width:'+pct+'%"></div></div>'
+    +'<div class="mg-card-foot"><span>'+pct+'%</span><span>Best streak: <b>'+(p.best||0)+'</b></span></div>'
+  +'</button>'}
+  // Memory Tap
+  {const p=mg.progress.memory;const pct=mgPercent('memory');h+='<button class="mg-card mg-memory" onclick="mgMemoryStart()">'
+    +'<div class="mg-card-hd"><span class="mg-card-emoji">\\u{1F9E9}</span><span class="mg-card-name">Memory Tap</span><span class="mg-card-lvl">L'+p.level+'</span></div>'
+    +'<div class="mg-card-d">Working-memory workout, Elevate-style</div>'
+    +'<div class="mg-bar"><div class="mg-bar-fill" style="width:'+pct+'%"></div></div>'
+    +'<div class="mg-card-foot"><span>'+pct+'%</span><span>Best round: <b>'+(p.best||0)+'</b></span></div>'
+  +'</button>'}
+  // Reaction
+  {const p=mg.progress.reaction;const pct=mgPercent('reaction');const bestStr=p.best?p.best+'ms':'\\u2014';h+='<button class="mg-card mg-reaction" onclick="mgReactionStart()">'
+    +'<div class="mg-card-hd"><span class="mg-card-emoji">\\u26A1</span><span class="mg-card-name">Reaction</span><span class="mg-card-lvl">L'+p.level+'</span></div>'
+    +'<div class="mg-card-d">Train pure reflexes, ms by ms</div>'
+    +'<div class="mg-bar"><div class="mg-bar-fill" style="width:'+pct+'%"></div></div>'
+    +'<div class="mg-card-foot"><span>'+pct+'%</span><span>Best: <b>'+bestStr+'</b></span></div>'
+  +'</button>'}
+  h+='</div>';
+  // Why train? — value-prop strip
+  h+='<div class="mg-why">'
+    +'<div class="mg-why-card"><span class="mg-why-emoji">\\u{1F4C8}</span><div><div class="mg-why-t">Trackable progress</div><div class="mg-why-d">Every play saves to your account. Your level travels with you across phone and laptop.</div></div></div>'
+    +'<div class="mg-why-card"><span class="mg-why-emoji">\\u23F1\\uFE0F</span><div><div class="mg-why-t">Five minutes a day</div><div class="mg-why-d">Each game is a sub-90-second commitment. Stack them for a 5-minute morning warm-up.</div></div></div>'
+    +'<div class="mg-why-card"><span class="mg-why-emoji">\\u{1F525}</span><div><div class="mg-why-t">Daily streaks</div><div class="mg-why-d">Build the habit. The streak counter rewards consistency over volume.</div></div></div>'
+  +'</div>';
+}
+
+// VOICE TRAINER TAB — 90-day AI accent + functional-English coach
+else if(S.tab==='voice'){
+  const vp=S.voice||{loaded:false,curriculum:{days:[]},progress:{completed:0,totalPoints:0,pct:0,level:1,maxLevel:4,rows:[]}};
+  const completedSet=new Set((vp.progress.rows||[]).map(r=>r.day));
+  h+='<section class="vc-hero">'
+    +'<div class="vc-hero-inner">'
+      +'<div class="vc-hero-l"><div class="vc-hero-eyebrow">\\u{1F399}\\uFE0F BRODOIT \\u00B7 VOICE TRAINER</div>'
+        +'<h1 class="vc-hero-t">Zero to fluent \\u2014 in 90 days.</h1>'
+        +'<div class="vc-hero-s">An AI coach guides you, you repeat aloud, your phone listens and scores. One short class a day, three months total. Earn points and unlock advanced phases.</div>'
+      +'</div>'
+      +'<div class="vc-hero-stats">'
+        +'<div class="vc-stat"><b>'+vp.progress.completed+'<small>/90</small></b><small>Days</small></div>'
+        +'<div class="vc-stat"><b>'+vp.progress.totalPoints+'</b><small>Points</small></div>'
+        +'<div class="vc-stat"><b>L'+vp.progress.level+'</b><small>Phase</small></div>'
+        +'<div class="vc-stat"><b>'+vp.progress.pct+'%</b><small>Complete</small></div>'
+      +'</div>'
+    +'</div>'
+  +'</section>';
+  // Phase strips
+  ['Foundation','Conversation','Mastery'].forEach((phase,pIdx)=>{
+    const startDay=pIdx*30+1,endDay=startDay+29;
+    h+='<div class="vc-phase"><div class="vc-phase-hd"><h3 class="vc-phase-t">Phase '+(pIdx+1)+' \\u2022 '+phase+'</h3><div class="vc-phase-s">Day '+startDay+' \\u2192 Day '+endDay+'</div></div>'
+      +'<div class="vc-day-grid">';
+    for(let d=startDay;d<=endDay;d++){
+      const done=completedSet.has(d);
+      const lesson=(vp.curriculum.days||[]).find(x=>x.day===d);
+      const t=lesson?lesson.title:'Day '+d;
+      h+='<button class="vc-day'+(done?' vc-day-done':'')+'" onclick="voiceOpenLesson('+d+')" title="'+esc(t)+'">'
+        +'<span class="vc-day-num">'+d+'</span>'
+        +(done?'<span class="vc-day-check">\\u2713</span>':'')
+      +'</button>';
+    }
+    h+='</div></div>';
+  });
+  if(!vp.loaded)h+='<div class="loading">Loading your voice journey\\u2026</div>';
 }
 
 // BOARD TAB (Kanban: To Do / Doing / Done with drag-and-drop)
@@ -4284,6 +4615,27 @@ if(S.mgPlay){
     h+='</div>';
   }
   h+='</div></div>';
+}
+
+// ─── VOICE TRAINER lesson player ───
+if(S.voicePlay){
+  const p=S.voicePlay;const total=p.drills.length;const cur=p.idx+1;const drill=p.drills[p.idx]||'';const lastScore=typeof p.scores[p.idx]==='number'?p.scores[p.idx]:null;
+  h+='<div class="ov ov-locked"><div class="mdl vc-mdl">';
+  h+='<div class="vc-mdl-hd"><div><div class="vc-mdl-eyebrow">DAY '+p.day+' \\u2022 '+esc(p.phase)+' \\u2022 PHASE '+p.phase_num+'</div><h2 class="vc-mdl-t">'+esc(p.title)+'</h2></div><button class="was-x" onclick="voiceClose()">\\u2715</button></div>';
+  h+='<div class="vc-mdl-progress"><div class="vc-mdl-progress-bar" style="width:'+Math.round((cur/total)*100)+'%"></div></div>';
+  h+='<div class="vc-mdl-body">';
+  // Coach intro
+  h+='<div class="vc-coach"><div class="vc-coach-row"><span class="vc-coach-emoji">\\u{1F399}\\uFE0F</span><div class="vc-coach-name">AI Coach <small>'+(p.playingTTS?'speaking\\u2026':'tap to listen')+'</small></div><button class="vc-coach-btn" onclick="voicePlayIntro()">'+(p.playingTTS?'\\u23F8':'\\u25B6')+' Intro</button></div><div class="vc-coach-text">'+esc(p.intro)+'</div></div>';
+  // Drill card
+  h+='<div class="vc-drill-card"><div class="vc-drill-meta">Drill '+cur+' of '+total+'</div><div class="vc-drill-text">"'+esc(drill)+'"</div>';
+  if(p.tip)h+='<div class="vc-drill-tip">\\u{1F4A1} '+esc(p.tip)+'</div>';
+  h+='<div class="vc-drill-row"><button class="vc-drill-btn vc-drill-listen" onclick="voicePlayDrill()">\\u{1F50A} Listen</button><button class="vc-drill-btn vc-drill-rec'+(p.recording?' vc-rec-on':'')+'" onclick="voiceRecord()"'+(p.recording?' disabled':'')+'>\\u{1F3A4} '+(p.recording?'Listening\\u2026':'Tap & speak')+'</button></div>';
+  if(p.heard)h+='<div class="vc-heard">You said: <i>"'+esc(p.heard)+'"</i></div>';
+  if(lastScore!=null)h+='<div class="vc-score vc-score-'+(lastScore>=70?'good':lastScore>=40?'ok':'bad')+'">Match: <b>'+lastScore+'%</b> '+(lastScore>=70?'\\u{1F525}':lastScore>=40?'\\u{1F44D}':'try again')+'</div>';
+  h+='</div>';
+  // Nav
+  h+='<div class="vc-mdl-nav"><button class="mb mb-c" onclick="voicePrevDrill()"'+(p.idx<=0?' disabled':'')+'>\\u2190 Prev</button>'+(p.idx>=total-1?'<button class="mb mb-s" onclick="voiceFinish()">\\u2713 Finish &amp; save</button>':'<button class="mb mb-s" onclick="voiceNextDrill()">Next \\u2192</button>')+'</div>';
+  h+='</div></div></div>';
 }
 
 if(S.showWASetup){
