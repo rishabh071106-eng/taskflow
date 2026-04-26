@@ -829,6 +829,21 @@ body[data-theme=aurora] .remember-thumb{background:rgba(255,255,255,.05)}
 .world-clocks .wc-time{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#0F172A;letter-spacing:-.02em}
 .world-clocks .wc-temp{font-family:'Instrument Serif',Georgia,serif;font-size:13px;font-weight:400;color:#E8912B;letter-spacing:-.02em;margin-top:0}
 body[data-theme=aurora] .world-clocks .wc-temp{color:#FCD34D}
+/* Your Life Goal — editable card that fills the bottom of the left chip */
+.life-goal{flex:1;display:flex;flex-direction:column;justify-content:flex-start;background:linear-gradient(135deg,rgba(99,102,241,.06),rgba(232,145,44,.05));border-top:1px dashed rgba(99,102,241,.22);padding:10px 12px 12px;cursor:pointer;transition:background .2s ease;position:relative;min-height:80px}
+.life-goal:hover{background:linear-gradient(135deg,rgba(99,102,241,.1),rgba(232,145,44,.08))}
+.life-goal .lg-label{font-size:9px;font-weight:800;color:#6366F1;letter-spacing:1.4px;text-transform:uppercase;display:flex;align-items:center;gap:5px}
+.life-goal .lg-star{color:#E8912C;font-size:11px;animation:lgStarPulse 3s ease-in-out infinite;display:inline-block}
+@keyframes lgStarPulse{0%,100%{transform:scale(1) rotate(0);opacity:.85}50%{transform:scale(1.18) rotate(15deg);opacity:1}}
+.life-goal .lg-text{font-family:'Instrument Serif',Georgia,serif;font-size:15.5px;font-weight:400;color:#0F172A;line-height:1.4;letter-spacing:-.005em;font-style:italic;margin-top:4px;flex:1;overflow:hidden;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;text-overflow:ellipsis}
+.life-goal .lg-text.lg-empty{color:#94A3B8;font-style:italic}
+.life-goal .lg-edit-hint{font-size:9px;color:#94A3B8;font-weight:600;letter-spacing:.4px;text-align:right;opacity:0;transition:opacity .15s ease;margin-top:4px}
+.life-goal:hover .lg-edit-hint{opacity:1}
+body[data-theme=aurora] .life-goal{background:linear-gradient(135deg,rgba(167,139,250,.12),rgba(232,145,44,.06));border-top-color:rgba(167,139,250,.22)}
+body[data-theme=aurora] .life-goal:hover{background:linear-gradient(135deg,rgba(167,139,250,.18),rgba(232,145,44,.1))}
+body[data-theme=aurora] .life-goal .lg-text{color:#F5F5FA}
+body[data-theme=aurora] .life-goal .lg-text.lg-empty{color:#9999B5}
+body[data-theme=aurora] .life-goal .lg-label{color:#A78BFA}
 /* Indian cities mini-grid in the left chip — denser fonts to use the space */
 .top-strip .india-cities{display:grid;grid-template-columns:repeat(2,1fr);gap:4px 10px;margin-top:6px;padding-top:8px;border-top:1px dashed rgba(99,102,241,.18);line-height:1.2}
 .top-strip .ic-item{display:flex;align-items:baseline;justify-content:space-between;gap:6px;padding:2px 0}
@@ -939,8 +954,8 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
 @media (min-width:1024px){
   .app{max-width:1440px;padding:12px 24px 40px;display:grid;grid-template-columns:220px 1fr;grid-template-areas:"hdr hdr" "topstrip moral" "nav main";column-gap:22px;row-gap:6px}
   .app>.hdr{grid-area:hdr;margin-bottom:0}
-  .app>.top-strip{grid-area:topstrip;margin-bottom:0}
-  .app>.moral-wrap{grid-area:moral;margin-bottom:0;display:flex;flex-direction:column;gap:6px}
+  .app>.top-strip{grid-area:topstrip;margin-bottom:0;align-self:stretch}
+  .app>.moral-wrap{grid-area:moral;margin-bottom:0;display:flex;flex-direction:column;gap:6px;align-self:stretch}
   .moral-wrap .moral{margin-bottom:0}
   .app>.tabs.page-t{grid-area:nav;flex-direction:column;align-self:start;position:sticky;top:22px;padding:8px;gap:4px;overflow:visible;margin-bottom:0;justify-content:flex-start}
   .app>.tabs.page-t .tab{width:100%;flex:0 0 auto;min-height:50px;padding:8px 10px;font-size:13.5px;font-weight:600;justify-content:flex-start;border-radius:10px;gap:10px;align-items:center;border:none}
@@ -2082,7 +2097,7 @@ books:[],booksLoading:false,booksCat:'all',bookSearch:'',playing:null,moralIdx:M
 knowledge:{loading:false,loaded:{},articles:{},events:[],topic:'history',sec:'today'},
 game:{active:false,board:Array(9).fill(null),turn:'X',status:'idle',winLine:null,wins:Number(localStorage.getItem('tf_ttt_wins')||0),losses:Number(localStorage.getItem('tf_ttt_losses')||0),draws:Number(localStorage.getItem('tf_ttt_draws')||0)},
 weather:{city:localStorage.getItem('tf_city')||'Bangalore',temp:null,aqi:null,country:'',loaded:false,loading:false,error:null},
-cityTemps:{},remember:{person:null,loaded:false},
+cityTemps:{},remember:{person:null,loaded:false},lifeGoal:localStorage.getItem('tf_life_goal')||'',
 medCat:localStorage.getItem('tf_medcat')||'vipassana',
 ticker:{items:[],idx:0,loaded:false},
 waConnected:localStorage.getItem('wa_connected')==='1',showWAOnboard:false,activeMeditation:null,
@@ -2430,6 +2445,7 @@ const WORLD_CITY_LIST=[
 ];
 async function loadCityTemps(){const all=[...INDIA_CITIES,...WORLD_CITY_LIST.map(c=>c.key)];const results=await Promise.all(all.map(c=>fetch('/api/weather?city='+encodeURIComponent(c)).then(r=>r.json()).catch(()=>({}))));const m={};results.forEach((r,i)=>{if(r&&!r.error)m[all[i].toLowerCase()]={temp:r.temp,city:r.city||all[i]}});S.cityTemps=m;render()}
 async function loadRemember(){try{const r=await fetch('/api/remember/today');const j=await r.json();S.remember={person:j.person||null,loaded:true};render()}catch(e){S.remember={person:null,loaded:true};render()}}
+function editLifeGoal(){const v=prompt('Your goal in life \\u2014 your north star.\\nEdit any time.',S.lifeGoal||'');if(v===null)return;const t=v.trim().slice(0,400);S.lifeGoal=t;localStorage.setItem('tf_life_goal',t);render()}
 async function loadTicker(){try{const r=await fetch('/api/news?cat=global',{cache:'no-store'});const j=await r.json();S.ticker={items:(j.items||[]).slice(0,12),idx:0,loaded:true};render();_startTicker()}catch(e){}}
 let _tickerTimer=null;
 function _startTicker(){if(_tickerTimer)clearInterval(_tickerTimer);if(!S.ticker.items.length)return;_tickerTimer=setInterval(()=>{if(!S.ticker.items.length)return;S.ticker.idx=(S.ticker.idx+3)%S.ticker.items.length;const stack=document.getElementById('newsTickerStack');if(stack)render()},9000)}
@@ -2631,7 +2647,14 @@ const m=MORALS[S.moralIdx];
     +'<svg class="side-now-wave" viewBox="0 0 100 30" preserveAspectRatio="none"><path d="M 0 15 Q 12.5 5 25 15 T 50 15 T 75 15 T 100 15" stroke="#6366F1" stroke-width="1.6" fill="none"><animate attributeName="d" dur="4s" repeatCount="indefinite" values="M 0 15 Q 12.5 5 25 15 T 50 15 T 75 15 T 100 15;M 0 15 Q 12.5 25 25 15 T 50 15 T 75 15 T 100 15;M 0 15 Q 12.5 5 25 15 T 50 15 T 75 15 T 100 15"/></path></svg>'
     +'</div>';
   h+='<nav class="tabs page-t">'+tabsHtml+'</nav>';
-  h+='<section class="top-strip" aria-hidden="true">'+sideNow+'</section>';
+  // Your Life Goal — editable, persists in localStorage, fills the bottom of the left chip
+  const goalText=S.lifeGoal||'';
+  const goalCard='<div class="life-goal" onclick="editLifeGoal()" title="Click to edit your life goal">'
+    +'<div class="lg-label"><span class="lg-star">\\u2605</span> Your Life Goal</div>'
+    +'<div class="lg-text'+(goalText?'':' lg-empty')+'">'+(goalText?esc(goalText):'Click here to write your north star\\u2026')+'</div>'
+    +'<div class="lg-edit-hint">tap to edit</div>'
+  +'</div>';
+  h+='<section class="top-strip">'+sideNow+goalCard+'</section>';
 }
 
 h+='<main class="main-col">';
