@@ -314,16 +314,10 @@ app.delete('/api/calendar/events/:id',auth,async(req,res)=>{
   }catch(e){res.status(500).json({error:e.message})}
 });
 
-app.post('/api/send-task/:id',auth,async(req,res)=>{
-  const t=db.prepare('SELECT * FROM tasks WHERE id=? AND user_phone=?').get(req.params.id,req.user.phone);if(!t)return res.status(404).json({error:'Not found'});
-  let msg=`📋 *Task Reminder*\n\n${PRI[t.priority]||'🟠'} *${t.title}*`;if(t.notes)msg+='\n'+t.notes;if(t.due_date)msg+='\n📅 Due: '+fmtD(t.due_date);
-  msg+='\n\n_Reply "done '+t.title.slice(0,20)+'" to complete_';res.json(await sendWA(req.user.phone,msg));
-});
-app.post('/api/send-all',auth,async(req,res)=>{
-  const tasks=db.prepare("SELECT * FROM tasks WHERE user_phone=? AND status!='done' ORDER BY priority DESC").all(req.user.phone);if(!tasks.length)return res.json({ok:true});
-  let msg='📋 *Pending Tasks ('+tasks.length+')*\n';tasks.forEach((t,i)=>{msg+='\n'+(i+1)+'. '+PRI[t.priority]+' '+t.title+(t.due_date?' _('+fmtD(t.due_date)+')_':'')});
-  msg+='\n\n_Reply "done <task>" to complete_';res.json(await sendWA(req.user.phone,msg));
-});
+// WhatsApp send endpoints disabled for closed-test phase (Twilio Sandbox requires
+// each recipient to text 'join <code>' first, which would break the tester experience).
+app.post('/api/send-task/:id',auth,(_,res)=>res.status(503).json({ok:false,error:'WhatsApp temporarily disabled'}));
+app.post('/api/send-all',auth,(_,res)=>res.status(503).json({ok:false,error:'WhatsApp temporarily disabled'}));
 app.get('/api/health',(_,res)=>res.json({status:'ok',twilio:!!tw,email:!!process.env.RESEND_API_KEY,users:db.prepare('SELECT COUNT(*)as c FROM users').get().c,tasks:db.prepare('SELECT COUNT(*)as c FROM tasks').get().c}));
 
 // Inject Twilio sandbox code into the HTML so frontend can build the wa.me link
@@ -2218,7 +2212,7 @@ weather:{city:localStorage.getItem('tf_city')||'Bangalore',temp:null,aqi:null,co
 cityTemps:{},remember:{person:null,loaded:false},lifeGoal:localStorage.getItem('tf_life_goal')||'',meditating:{active:false,title:'',mins:0,startedAt:0},
 medCat:localStorage.getItem('tf_medcat')||'vipassana',
 ticker:{items:[],idx:0,loaded:false},
-waConnected:localStorage.getItem('wa_connected')==='1',showWAOnboard:false,activeMeditation:null,
+waConnected:false,showWAOnboard:false,activeMeditation:null,
 google:{configured:false,accounts:[],loaded:false},gcalEvents:[],gcalLoading:false,showGcalAdd:false,gcalForm:{title:'',date:'',time:'',duration:30,notes:'',email:''},
 calMonth:new Date(),calSelectedDate:new Date().toISOString().slice(0,10),
 steps:[],stepGoal:parseInt(localStorage.getItem('step_goal')||'10000',10),stepLive:{active:false,count:0},
@@ -2470,9 +2464,10 @@ function speakIntro(){try{if(!('speechSynthesis' in window)){toast('\\u26A0\\uFE
 function stopSpeak(){try{speechSynthesis.cancel()}catch(e){}}
 function filterBooks(v){S.bookSearch=v;const grid=document.getElementById('books-grid');if(!grid){render();return}const q=(v||'').toLowerCase().trim();const fb=!q?S.books:S.books.filter(b=>{const t=(Array.isArray(b.title)?b.title[0]:b.title||'').toLowerCase();const a=(Array.isArray(b.creator)?b.creator[0]:b.creator||'').toLowerCase();return t.includes(q)||a.includes(q)});grid.innerHTML=renderBookCards(fb)}
 function renderBookCards(fb){if(!fb.length)return '<div class="empty"><div style="font-size:36px">\\u{1F4DA}</div><div style="font-size:14px;margin-top:8px">No books found</div></div>';let h='<div class="book-list">';fb.forEach(b=>{const id=b.identifier;const cover='https://archive.org/services/img/'+id;const author=Array.isArray(b.creator)?b.creator[0]:(b.creator||'Unknown');const title=Array.isArray(b.title)?b.title[0]:b.title;h+='<div class="book-card"><div class="book-cover"><img src="'+cover+'" loading="lazy" onerror="this.style.display=\\'none\\'"/></div><div class="book-info"><div class="book-title">'+esc(title)+'</div><div class="book-author">'+esc(author)+'</div><div class="book-meta"><span>\\u{1F3A7} '+(b.downloads?(+b.downloads).toLocaleString():'\\u2014')+' plays</span><span>\\u{1F4D6} LibriVox</span></div></div><button class="book-play" onclick="playBook(\\''+id+'\\')">\\u25B6</button></div>'});h+='</div>';return h}
-function openWAOnboard(){S.showWAOnboard=true;render()}
+// WhatsApp UI disabled for closed-test phase (Twilio Sandbox can't deliver to arbitrary recipients).
+function openWAOnboard(){return}
 function closeWAOnboard(){S.showWAOnboard=false;render()}
-function openWAJoin(){const code=window.__TWILIO_SANDBOX_CODE||'along-wool';window.open('https://wa.me/14155238886?text='+encodeURIComponent('join '+code),'_blank')}
+function openWAJoin(){return}
 function saveBroDoitContact(){const a=document.createElement('a');a.href='/brodoit.vcf';a.download='BroDoit.vcf';document.body.appendChild(a);a.click();setTimeout(()=>document.body.removeChild(a),1000);toast('\\u{1F4D2} Downloading BroDoit contact \\u2014 open it to save')}
 function confirmWAJoined(){S.waConnected=true;localStorage.setItem('wa_connected','1');S.showWAOnboard=false;toast('\\u2705 WhatsApp connected');render()}
 function disconnectWA(){S.waConnected=false;localStorage.removeItem('wa_connected');toast('\\u23F8 WhatsApp disconnected');render()}
@@ -2591,7 +2586,8 @@ h+='<div class="hero-photo"><img src="https://images.unsplash.com/photo-14844809
 h+='<div class="login-logo">Brodoit</div>';
 h+='<div class="login-tagline">Tasks. Books. Wisdom.</div>';
 h+='<div class="login-sub">A calm, focused space for the work that matters.</div>';
-h+='<div class="login-tabs"><button class="login-tab'+(S.loginMethod==='email'?' on':'')+'" onclick="S.loginMethod=\\'email\\';S.loginError=\\'\\';persistLoginState();render()"><span style="font-size:18px">\\u2709\\uFE0F</span>Email</button><button class="login-tab'+(S.loginMethod==='whatsapp'?' on':'')+'" onclick="S.loginMethod=\\'whatsapp\\';S.loginError=\\'\\';persistLoginState();render()"><span style="font-size:18px">\\u{1F4F1}</span>WhatsApp</button></div>';
+// Login tabs removed for closed-test phase — email-only.
+S.loginMethod='email';
 h+='<input id="loginName" type="text" placeholder="Your name" value="'+esc(S.loginName)+'" oninput="S.loginName=this.value;persistLoginState()" style="font-size:15px;letter-spacing:0">';
 if(S.loginMethod==='email'){
   h+='<input id="loginEmail" type="email" placeholder="you@example.com" value="'+esc(S.loginEmail)+'" oninput="S.loginEmail=this.value;persistLoginState()" autocomplete="email" style="font-size:15px;letter-spacing:0">';
@@ -2824,9 +2820,8 @@ if(S.tab!=='tasks')h+=_tabHeroHtml;
 if(S.tab==='dash')S.tab='tasks'; // Stats tab removed; redirect any stale state to Tasks
 if(S.tab==='tasks'){
   // TASKS LEAD — the most-used UI sits at the top
-  h+='<button class="add-bar" onclick="opA()"><span class="plus">+</span><span class="txt"><b>Add a new task</b><small>'+(S.waConnected?'Type, speak, or send via WhatsApp':'Type or use voice input')+'</small></span></button>';
-  if(S.waConnected&&S.waOk)h+='<div class="al" style="background:#EDFCF2;border:1px solid #B7E8C4;color:#1A9E47">\\u{1F4F1} WhatsApp connected</div>';
-  else h+='<div class="al" style="background:var(--bg-elev);border:1px solid var(--line);color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-radius:10px" onclick="openWAOnboard()"><span style="display:flex;align-items:center;gap:12px;line-height:1.4">'+WI+'<span><b style="font-size:14px;font-weight:500;color:var(--ink)">WhatsApp reminders</b><div style="font-size:12px;color:var(--ink-3);font-weight:450;margin-top:2px">Optional setup \\u2014 takes 10 seconds</div></span></span><span style="font-weight:400;font-size:18px;color:var(--ink-3)">\\u2192</span></div>';
+  h+='<button class="add-bar" onclick="opA()"><span class="plus">+</span><span class="txt"><b>Add a new task</b><small>Type or use voice input</small></span></button>';
+  // WhatsApp reminders prompt removed for closed-test phase
   h+='<div class="stats">'+[{l:'Total',v:s.total,c:'#0F172A'},{l:'To Do',v:s.pend,c:'#94A3B8'},{l:'Active',v:s.act,c:'#3B82F6'},{l:'Done',v:s.dn,c:'#3DAE5C'}].map(x=>'<div class="st"><b style="color:'+x.c+'">'+x.v+'</b><small>'+x.l+'</small></div>').join('')+'</div>';
   if(s.od>0)h+='<div class="al" style="background:#FEF1F0;border:1px solid #F5C6C2;color:#E8453C;cursor:pointer" onclick="S.view=\\'overdue\\';render()">\\u26A0\\uFE0F '+s.od+' overdue</div>';
   h+='<div class="srch"><input placeholder="Search tasks..." value="'+esc(S.search)+'" oninput="S.search=this.value;render()"></div>';
