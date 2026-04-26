@@ -628,7 +628,7 @@ input:focus,textarea:focus{outline:none;border-color:#0F172A}textarea{resize:ver
 /* Phone scenic masthead — desktop hidden by default */
 .phone-banner{display:none}
 @media (max-width:700px){
-  .phone-banner{display:block;position:relative;width:100%;height:110px;margin:0 0 14px;overflow:hidden;border-radius:14px;background:#0F172A;box-sizing:border-box;max-width:100%}
+  .phone-banner{display:block;position:relative;width:100%;height:60px;margin:0 0 8px;overflow:hidden;border-radius:10px;background:#0F172A;box-sizing:border-box;max-width:100%}
   .phone-banner-img{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;animation:phoneCycle 15s ease-in-out infinite;will-change:opacity,transform}
   .phone-banner-img:nth-child(1){opacity:.9;animation-delay:0s}
   .phone-banner-img:nth-child(2){animation-delay:5s}
@@ -641,10 +641,12 @@ input:focus,textarea:focus{outline:none;border-color:#0F172A}textarea{resize:ver
   .phone-banner::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,23,42,.18) 0%,rgba(15,23,42,.5) 100%);pointer-events:none;z-index:1}
   .phone-banner-tag{position:absolute;bottom:7px;left:0;right:0;text-align:center;font-size:9px;font-weight:800;letter-spacing:2px;color:rgba(255,255,255,.85);z-index:2;text-shadow:0 1px 4px rgba(0,0,0,.5)}
   .hdr-tagline{display:block}
-  .hdr{padding:0 2px;margin-bottom:14px}
+  .hdr{padding:0 2px;margin-bottom:8px}
   .app{overflow-x:hidden}
 }
-@media (max-width:380px){.phone-banner{height:90px}}
+@media (max-width:380px){.phone-banner{height:48px}}
+/* Mobile: hide the 3-headline top news so the task list is above the fold; full ticker is at the bottom. */
+@media (max-width:1023px){.top-news{display:none}}
 body[data-theme=aurora] .phone-banner{background:#0A0A14}
 body[data-theme=aurora] .hdr-tagline{color:#9999B5}
 .hdr-st{font-size:11px;font-weight:700;padding:8px 14px;border-radius:10px;background:#FFFFFF;border:1px solid #E8E9EF;display:flex;align-items:center;gap:7px;letter-spacing:.8px;box-shadow:0 2px 6px rgba(0,0,0,.04)}
@@ -1015,11 +1017,11 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
 @media (max-width:600px){.tabs{padding:4px;gap:4px}.tab{padding:11px 12px;font-size:12px}.tab .ti{font-size:15px}.tab .tl{font-size:11.5px}}
 /* Desktop sidebar layout */
 @media (min-width:1024px){
-  .app{max-width:1440px;padding:12px 24px 40px;display:grid;grid-template-columns:220px 1fr;grid-template-areas:"hdr hdr" "side main";column-gap:22px;row-gap:6px;align-items:start}
+  .app{max-width:1440px;padding:12px 24px 40px;display:grid;grid-template-columns:220px 1fr;grid-template-areas:"hdr hdr" "side main" "topstrip main";column-gap:22px;row-gap:6px;align-items:start}
   .app>.hdr{grid-area:hdr;margin-bottom:0}
   .app>.side-col{grid-area:side;display:flex;flex-direction:column;gap:14px;align-self:start}
   .app>.side-col>.tabs.page-t{margin:0;position:static}
-  .app>.side-col>.top-strip{margin:0}
+  .app>.top-strip{grid-area:topstrip;margin:0;align-self:start}
   .main-col>.moral-wrap{margin:0 0 14px;display:flex;flex-direction:column;gap:8px}
   .moral-wrap .moral{margin-bottom:0}
   .app .tabs.page-t{flex-direction:column;padding:8px;gap:4px;overflow:visible;margin-bottom:0;justify-content:flex-start}
@@ -2802,6 +2804,7 @@ if(isMain){
 }
 
 // Tabs
+let topStripHTML='';
 {
   const now=new Date();
   const yStart=new Date(now.getFullYear(),0,0);
@@ -2880,9 +2883,11 @@ if(isMain){
     +'<div class="lg-text'+(goalText?'':' lg-empty')+'">'+(goalText?esc(goalText):'Type your goal here \\u2014 your north star\\u2026')+'</div>'
     +(goalText?'':'<div class="lg-empty-hint">Tap anywhere to start typing</div>')
   +'</div>';
-  // Topstrip (clock + weather + cities + life-goal) only on Tasks tab — keeps other tabs focused.
-  if(isMain)h+='<section class="top-strip">'+sideNow+goalCard+'</section>';
   h+='</aside>';
+  // Topstrip (clock + weather + cities + life-goal) only on Tasks tab — keeps other tabs focused.
+  // Rendered AFTER </main> so on mobile the task list is above the fold;
+  // on desktop, grid-area:topstrip puts it back in the left column under the tab nav.
+  if(isMain)topStripHTML='<section class="top-strip">'+sideNow+goalCard+'</section>';
 }
 
 h+='<main class="main-col">';
@@ -3267,6 +3272,7 @@ else if(S.tab==='__obsolete_knowledge__'){
 
 
 h+='</main>';
+if(topStripHTML)h+=topStripHTML;
 // Global FAB+ — always rendered, fixed-position, bouncy animation. Adapts behavior per tab.
 {
   const isTaskTab=S.tab==='tasks'||S.tab==='board';
