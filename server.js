@@ -1272,7 +1272,22 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
 .tab:hover:not(.on){background:#F8FAFC;color:#0F172A}
 .tab.on{background:linear-gradient(135deg,#0F172A,#312E81);color:#F8FAFC;box-shadow:0 4px 14px rgba(45,42,38,.28);transform:translateY(-1px)}
 .tab.on .ti{transform:scale(1.08)}
-@media (max-width:600px){.tabs{padding:4px;gap:4px}.tab{padding:11px 12px;font-size:12px}.tab .ti{font-size:15px}.tab .tl{font-size:11.5px}}
+/* Mobile tab nav — bigger, more touch-friendly, sticky at top so users can always switch tabs */
+@media (max-width:1023px){
+  .tabs.page-t{padding:6px;gap:6px;border-radius:16px;position:sticky;top:6px;z-index:30;backdrop-filter:saturate(140%) blur(10px);-webkit-backdrop-filter:saturate(140%) blur(10px);background:rgba(255,255,255,.92);border:1px solid rgba(15,23,42,.08);box-shadow:0 4px 16px rgba(15,23,42,.08)}
+  .tabs.page-t .tab{padding:13px 14px;font-size:14px;border-radius:13px;gap:8px;min-height:46px;letter-spacing:-.005em}
+  .tabs.page-t .tab .ti{font-size:18px}
+  .tabs.page-t .tab .ti svg{width:20px!important;height:20px!important}
+  .tabs.page-t .tab .tl{font-size:14px;font-weight:700}
+  .tabs.page-t .tab.on{box-shadow:0 6px 18px rgba(45,42,38,.32),0 0 0 2px rgba(99,102,241,.45)}
+}
+@media (max-width:480px){
+  .tabs.page-t{padding:5px;gap:5px}
+  .tabs.page-t .tab{padding:11px 11px;font-size:13px;gap:6px;min-height:42px}
+  .tabs.page-t .tab .ti svg{width:18px!important;height:18px!important}
+  .tabs.page-t .tab .tl{font-size:13px}
+}
+body[data-theme=aurora] .tabs.page-t{background:rgba(20,20,40,.85);border-color:rgba(167,139,250,.18)}
 /* Desktop sidebar layout */
 @media (min-width:1024px){
   .app{max-width:1440px;padding:12px 24px 40px;display:grid;grid-template-columns:220px 1fr;grid-template-areas:"hdr hdr" "side main";column-gap:22px;row-gap:6px;align-items:start}
