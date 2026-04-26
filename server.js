@@ -727,8 +727,8 @@ input:focus,textarea:focus{outline:none;border-color:#0F172A}textarea{resize:ver
   .app{overflow-x:hidden}
 }
 @media (max-width:380px){.phone-banner{height:48px}}
-/* Mobile: hide top-news, time/weather/life-goal chip, AND the bottom news strip so the task list is the focus. */
-@media (max-width:1023px){.top-news{display:none}.app .top-strip{display:none}.bottom-strip{display:none}}
+/* (Mobile-hide rules for top-news, top-strip, bottom-strip live further down in the file,
+   AFTER their default-display rules, to win the CSS cascade.) */
 /* Home / Office / Combined board picker — image-backed cards with Ken-Burns zoom + tinted overlay */
 .board-pick{display:flex;gap:10px;margin:0 0 8px;padding:0;background:transparent;border:none}
 .board-pick .bp{flex:1;position:relative;overflow:hidden;border:none;background:#0F172A;color:#fff;border-radius:14px;padding:14px 14px 14px 16px;cursor:pointer;min-height:104px;display:flex;align-items:center;gap:12px;text-align:left;transition:transform .18s cubic-bezier(.2,.8,.2,1),box-shadow .25s ease;isolation:isolate;box-shadow:0 2px 8px rgba(15,23,42,.08)}
@@ -772,6 +772,31 @@ input:focus,textarea:focus{outline:none;border-color:#0F172A}textarea{resize:ver
 .board-pick{position:relative}
 .board-pick .bp.on::before{content:'';position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);width:0;height:0;border-style:solid;border-width:8px 8px 0 8px;border-color:var(--bk,#0F172A) transparent transparent transparent;z-index:4;filter:drop-shadow(0 1px 2px rgba(0,0,0,.18))}
 /* Active board's color used by helper-line/add-bar — set via inline --bk on .board-pick */
+/* Quick-start intro — first-visit orientation card at the very top of Tasks tab */
+.intro-card{background:linear-gradient(135deg,#FFFBF1 0%,#FEF3E0 50%,#EAF6EE 100%);border:1px solid #F3D9A0;border-radius:14px;padding:14px 14px 12px;margin:0 0 10px;animation:introIn .4s cubic-bezier(.2,.8,.2,1)}
+@keyframes introIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.intro-hd{margin-bottom:10px}
+.intro-logo{font-family:'Instrument Serif',Georgia,serif;font-size:24px;font-weight:400;color:#0F172A;letter-spacing:-.02em;line-height:1}
+.intro-logo .k{color:#3DAE5C}
+.intro-tag{font-size:12px;color:#7C5A00;font-style:italic;font-family:'Instrument Serif',Georgia,serif;margin-top:3px;line-height:1.4}
+.intro-steps{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
+.intro-steps li{display:flex;align-items:flex-start;gap:11px;background:rgba(255,255,255,.55);border:1px solid rgba(232,145,44,.12);border-radius:10px;padding:9px 11px}
+.intro-ic{font-size:20px;line-height:1;flex-shrink:0;width:30px;height:30px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.intro-steps li > div{flex:1;min-width:0;font-size:13px;line-height:1.45;color:#0F172A}
+.intro-steps li > div b{font-weight:700}
+.intro-d{color:#475569;font-weight:500}
+.intro-acts{margin-top:10px;text-align:right}
+.intro-btn-skip{background:#0F172A;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-weight:700;font-size:12.5px;cursor:pointer;font-family:inherit;letter-spacing:.01em;box-shadow:0 3px 10px rgba(15,23,42,.2);transition:transform .12s ease}
+.intro-btn-skip:hover{transform:translateY(-1px)}
+.intro-btn-skip:active{transform:scale(.97)}
+@media (max-width:600px){.intro-card{padding:12px 12px 10px}.intro-logo{font-size:22px}.intro-tag{font-size:11.5px}.intro-steps li{padding:8px 10px;gap:9px}.intro-ic{width:26px;height:26px;font-size:17px}.intro-steps li > div{font-size:12.5px;line-height:1.4}}
+body[data-theme=aurora] .intro-card{background:linear-gradient(135deg,rgba(232,145,44,.08),rgba(167,139,250,.06));border-color:rgba(232,145,44,.22)}
+body[data-theme=aurora] .intro-logo{color:#F5F5FA}
+body[data-theme=aurora] .intro-tag{color:#FCD34D}
+body[data-theme=aurora] .intro-steps li{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08);color:#F5F5FA}
+body[data-theme=aurora] .intro-steps li > div{color:#F5F5FA}
+body[data-theme=aurora] .intro-d{color:#9999B5}
+body[data-theme=aurora] .intro-ic{background:rgba(255,255,255,.08)}
 /* Connect-WhatsApp promo banner — top of Tasks tab when WA not linked yet */
 .wa-promo{display:flex;align-items:center;gap:10px;padding:11px 12px;margin:0 0 10px;background:linear-gradient(135deg,rgba(37,211,102,.1),rgba(18,140,126,.06));border:1px solid rgba(37,211,102,.28);border-radius:12px;position:relative}
 .wa-promo-emoji{font-size:24px;line-height:1;flex-shrink:0}
@@ -1210,6 +1235,9 @@ body[data-theme=aurora] .section-div::before{background:#1A1A2E;border-color:rgb
 @media (min-width:1024px){.hdr-remember{display:block;flex:1;max-width:540px;margin:0 18px}.hdr-remember .remember-card{margin:0;padding:8px 12px}.hdr-remember .remember-extract{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:11.5px;color:#64748B;line-height:1.35;margin-top:2px}}
 /* 3-headline floating top news — auto-fades each row in/out */
 .top-news{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+/* Mobile: hide news + time chip up top so the task list is the focus.
+   Placed AFTER the default display rules above so the cascade wins. */
+@media (max-width:1023px){.top-news,.app .top-strip,.bottom-strip{display:none!important}}
 .top-news-row{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:12px;background:var(--bg-elev,#fff);border:1px solid var(--line,#E2E8F0);text-decoration:none;color:inherit;font-size:14px;line-height:1.4;animation:topNewsFade 14s ease-in-out infinite;opacity:0}
 .top-news-pulse{width:7px;height:7px;border-radius:50%;background:#3DAE5C;flex-shrink:0;box-shadow:0 0 0 0 rgba(61,174,92,.5);animation:topNewsPulse 2s ease-in-out infinite}
 .top-news-src{font-size:10px;font-weight:800;color:#94A3B8;letter-spacing:.6px;text-transform:uppercase;flex-shrink:0}
@@ -3237,6 +3265,23 @@ if(S.tab!=='tasks')h+=_tabHeroHtml;
 // TASKS TAB
 if(S.tab==='dash')S.tab='tasks'; // Stats tab removed; redirect any stale state to Tasks
 if(S.tab==='tasks'){
+  // Quick-start guide — shows on first visits, dismissible. Pure orientation: how the app works in 3 lines.
+  if(localStorage.getItem('tf_intro_dismissed')!=='1'){
+    h+='<div class="intro-card">'
+      +'<div class="intro-hd">'
+        +'<div class="intro-logo">Bro<span class="k">Do</span>it</div>'
+        +'<div class="intro-tag">A calm space for what matters \\u2014 here\\u2019s how it works</div>'
+      +'</div>'
+      +'<ul class="intro-steps">'
+        +'<li><span class="intro-ic">\\u{1F4DA}</span><div><b>Pick a board.</b> <span class="intro-d"><b>Home Tasks</b> for personal &amp; self-improvement, <b>Office Tasks</b> for work, <b>Combined</b> for everything.</span></div></li>'
+        +'<li><span class="intro-ic">\\u270F\\uFE0F</span><div><b>Add a task.</b> <span class="intro-d">Tap the big <b>+ Add</b> bar, use the \\u{1F3A4} voice button, or message it on WhatsApp once you connect.</span></div></li>'
+        +'<li><span class="intro-ic">\\u{1F514}</span><div><b>Get reminded.</b> <span class="intro-d">Set a due date + time on a task. Connect WhatsApp from your profile to receive reminders right in chat.</span></div></li>'
+      +'</ul>'
+      +'<div class="intro-acts">'
+        +'<button class="intro-btn-skip" onclick="localStorage.setItem(\\'tf_intro_dismissed\\',\\'1\\');render()">Got it \\u2192</button>'
+      +'</div>'
+    +'</div>';
+  }
   // Connect-WhatsApp banner — shows when WA isn't linked AND user hasn't dismissed it.
   if(S.profile&&!S.profile.wa_phone&&localStorage.getItem('tf_wa_banner_x')!=='1'){
     h+='<div class="wa-promo">'
