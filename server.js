@@ -1124,6 +1124,35 @@ body[data-theme=aurora] .hdr-time-date{color:#9999B5}
 /* Section dividers — thin gradient line with a pulsing centered node */
 .section-div{height:1px;background:linear-gradient(90deg,transparent 0%,rgba(99,102,241,.18) 30%,rgba(232,145,44,.22) 50%,rgba(99,102,241,.18) 70%,transparent 100%);margin:6px 0;position:relative}
 /* Tap Sprint mini-game */
+/* MIND GYM Daily Workout card + confetti */
+.mg-daily{display:flex;align-items:center;gap:14px;padding:14px 16px;margin-bottom:14px;background:linear-gradient(135deg,#FCD34D 0%,#FB923C 100%);border-radius:14px;color:#0F172A;box-shadow:0 8px 22px rgba(252,211,77,.32)}
+.mg-daily-l{flex:1;min-width:0}
+.mg-daily-eyebrow{font-size:10.5px;font-weight:800;letter-spacing:1.6px;color:rgba(15,23,42,.6);margin-bottom:4px}
+.mg-daily-t{font-size:15px;font-weight:800;color:#0F172A;letter-spacing:-.005em;margin-bottom:8px;line-height:1.3}
+.mg-daily-t s{color:rgba(15,23,42,.5)}
+.mg-daily-pills{display:flex;gap:6px;flex-wrap:wrap}
+.mg-daily-pill{font-size:11px;font-weight:700;padding:4px 9px;border-radius:7px;background:rgba(255,255,255,.55);color:#0F172A;letter-spacing:.005em}
+.mg-daily-pill.mg-daily-done{background:rgba(15,23,42,.85);color:#FCD34D}
+.mg-daily-btn{flex-shrink:0;background:#0F172A;color:#FCD34D;border:none;border-radius:11px;padding:13px 18px;font-weight:800;font-size:13.5px;cursor:pointer;font-family:inherit;letter-spacing:.005em;box-shadow:0 6px 18px rgba(15,23,42,.32);transition:transform .12s ease}
+.mg-daily-btn:active{transform:scale(.96)}
+.mg-daily-done-tag{flex-shrink:0;background:rgba(15,23,42,.85);color:#FCD34D;border-radius:11px;padding:11px 14px;font-weight:800;font-size:13px;letter-spacing:.005em;font-family:'Space Mono',monospace}
+@media (max-width:600px){.mg-daily{flex-direction:column;align-items:stretch;text-align:center}.mg-daily-pills{justify-content:center}}
+/* Confetti — pure CSS, triggers via .mg-confetti class on body for 1.5s */
+.mg-confetti{position:fixed;inset:0;pointer-events:none;z-index:200;overflow:hidden}
+.mg-confetti i{position:absolute;width:9px;height:14px;background:#FCD34D;top:-10px;animation:mgFall 1.5s ease-in forwards;opacity:0}
+.mg-confetti i:nth-child(1){left:8%;background:#FCD34D;animation-delay:0s}
+.mg-confetti i:nth-child(2){left:16%;background:#FB923C;animation-delay:.05s}
+.mg-confetti i:nth-child(3){left:24%;background:#A855F7;animation-delay:.1s}
+.mg-confetti i:nth-child(4){left:32%;background:#22D3EE;animation-delay:.04s}
+.mg-confetti i:nth-child(5){left:40%;background:#34D399;animation-delay:.12s}
+.mg-confetti i:nth-child(6){left:48%;background:#F472B6;animation-delay:.07s}
+.mg-confetti i:nth-child(7){left:56%;background:#FCD34D;animation-delay:.15s}
+.mg-confetti i:nth-child(8){left:64%;background:#FB923C;animation-delay:.02s}
+.mg-confetti i:nth-child(9){left:72%;background:#A855F7;animation-delay:.18s}
+.mg-confetti i:nth-child(10){left:80%;background:#22D3EE;animation-delay:.06s}
+.mg-confetti i:nth-child(11){left:88%;background:#34D399;animation-delay:.13s}
+.mg-confetti i:nth-child(12){left:92%;background:#F472B6;animation-delay:.09s}
+@keyframes mgFall{0%{opacity:0;transform:translateY(0) rotate(0)}10%{opacity:1}100%{opacity:0;transform:translateY(110vh) rotate(720deg)}}
 /* MIND GYM dedicated tab — hero + cards + value strip */
 .mg-hero{position:relative;border-radius:20px;overflow:hidden;margin-bottom:18px;background:linear-gradient(135deg,#0F172A 0%,#312E81 50%,#5B21B6 100%);color:#fff;box-shadow:0 16px 40px rgba(15,23,42,.22)}
 .mg-hero-grad{position:absolute;inset:0;background:radial-gradient(circle at 80% 0%,rgba(252,211,77,.18),transparent 60%),radial-gradient(circle at 0% 100%,rgba(167,139,250,.32),transparent 55%);pointer-events:none}
@@ -3522,6 +3551,26 @@ function flipCoin(){if(S.coin.flipping)return;S.coin.flipping=true;S.coin.face=n
 
 // ─── MIND GYM ─────────────────────────────────────────────────────────────
 async function loadMindGym(){const r=await api('/games/progress');if(r&&r.progress){S.mg.progress=r.progress;S.mg.streak=r.streak||S.mg.streak;S.mg.loaded=true;render()}}
+// ─── Web Audio sound effects (no library, no asset, ~free) ───
+let _mgAudio=null;
+function _mgSound(kind){
+  try{
+    if(!_mgAudio)_mgAudio=new(window.AudioContext||window.webkitAudioContext)();
+    const ctx=_mgAudio,t=ctx.currentTime;
+    const beep=(freq,start,dur,gain)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.value=freq;g.gain.setValueAtTime(gain||0.16,t+start);g.gain.exponentialRampToValueAtTime(0.001,t+start+dur);o.connect(g).connect(ctx.destination);o.start(t+start);o.stop(t+start+dur)};
+    if(kind==='correct'){beep(523,0,0.16);beep(784,0.09,0.18)}
+    else if(kind==='wrong'){const o=ctx.createOscillator(),g=ctx.createGain();o.type='sawtooth';o.frequency.value=200;o.frequency.linearRampToValueAtTime(110,t+0.22);g.gain.setValueAtTime(0.13,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.22);o.connect(g).connect(ctx.destination);o.start(t);o.stop(t+0.22)}
+    else if(kind==='levelup'){[523,659,784,1047,1319].forEach((f,i)=>beep(f,i*0.08,0.22))}
+    else if(kind==='tap'){beep(680,0,0.05,0.08)}
+    else if(kind==='flash'){beep(440+Math.random()*440,0,0.12,0.1)}
+    else if(kind==='go'){beep(900,0,0.08);beep(900,0.1,0.08)}
+  }catch(e){}
+}
+// Daily workout ledger — which games the user completed *today*
+function _mgTodayKey(g){return 'tf_mg_done_'+g+'_'+todayStr()}
+function todayStr(){return new Date().toISOString().slice(0,10)}
+function _mgMarkDone(g){try{localStorage.setItem(_mgTodayKey(g),'1')}catch(e){}}
+function _mgIsDoneToday(g){try{return localStorage.getItem(_mgTodayKey(g))==='1'}catch(e){return false}}
 // ─── VOICE TRAINER ───
 async function loadVoice(){
   const [c,p]=await Promise.all([fetch('/api/voice/curriculum').then(r=>r.json()).catch(()=>null),api('/voice/progress')]);
@@ -3608,15 +3657,23 @@ function _mgMathProblem(level){
   const choices=[ans,...wrongs].sort(()=>Math.random()-.5);
   return {a,b,op,ans,choices}
 }
-function mgMathStart(){const lvl=S.mg.progress.math.level;S.mgPlay={game:'math',level:lvl,score:0,streak:0,best:0,problem:_mgMathProblem(lvl),feedback:null,startedAt:Date.now(),done:false};render()}
+function mgMathStart(){const lvl=S.mg.progress.math.level;S.mgPlay={game:'math',level:lvl,_baseLevel:lvl,score:0,streak:0,best:0,wrongs:0,problem:_mgMathProblem(lvl),feedback:null,startedAt:Date.now(),done:false};_mgSound('tap');render()}
 function mgMathAnswer(choice){
   const p=S.mgPlay;if(!p||p.game!=='math'||p.done)return;
-  if(choice===p.problem.ans){p.score++;p.streak++;if(p.streak>p.best)p.best=p.streak;p.feedback={ok:true,msg:'Correct!'}}
-  else{p.streak=0;p.feedback={ok:false,msg:'Answer was '+p.problem.ans}}
+  if(choice===p.problem.ans){
+    p.score++;p.streak++;if(p.streak>p.best)p.best=p.streak;p.feedback={ok:true,msg:'Correct!'};
+    _mgSound('correct');
+    // Adaptive: 5+ streak = bump difficulty by 1 (capped at 5). 2 wrongs in a row = drop 1 (min base level)
+    if(p.streak===5&&p.level<5)p.level++;
+  } else {
+    p.streak=0;p.wrongs++;p.feedback={ok:false,msg:'Answer was '+p.problem.ans};
+    _mgSound('wrong');
+    if(p.wrongs>=2&&p.level>p._baseLevel){p.level--;p.wrongs=0}
+  }
   render();
   setTimeout(()=>{
     const cur=S.mgPlay;if(!cur||cur.game!=='math')return;
-    if(cur.score>=10){cur.done=true;render();_mgSave('math',cur.score*5,cur.best)}
+    if(cur.score>=10){cur.done=true;_mgSound('levelup');_mgMarkDone('math');S._mgConfetti=Date.now();render();_mgSave('math',cur.score*5,cur.best)}
     else{cur.problem=_mgMathProblem(cur.level);cur.feedback=null;render()}
   },650);
 }
@@ -3624,14 +3681,14 @@ function mgMathAnswer(choice){
 // ── Memory Tap ──
 function mgMemoryStart(){const lvl=S.mg.progress.memory.level;const grid=lvl<=1?9:lvl===2?12:lvl===3?16:lvl===4?20:25;S.mgPlay={game:'memory',level:lvl,grid,seq:[],userIdx:0,phase:'show',round:1,best:0,done:false};_mgMemoryNext();render();}
 function _mgMemoryNext(){const p=S.mgPlay;if(!p||p.game!=='memory')return;const seqLen=p.round+(p.level-1);p.seq=Array.from({length:seqLen},()=>Math.floor(Math.random()*p.grid));p.userIdx=0;p.phase='show';p.flashIdx=-1;render();_mgMemoryFlash(0)}
-function _mgMemoryFlash(i){const p=S.mgPlay;if(!p||p.game!=='memory'||p.phase!=='show')return;if(i>=p.seq.length){p.phase='input';p.flashIdx=-1;render();return}p.flashIdx=p.seq[i];render();setTimeout(()=>{p.flashIdx=-1;render();setTimeout(()=>_mgMemoryFlash(i+1),200)},520)}
-function mgMemoryTap(idx){const p=S.mgPlay;if(!p||p.game!=='memory'||p.phase!=='input')return;if(idx===p.seq[p.userIdx]){p.userIdx++;if(p.userIdx>=p.seq.length){if(p.round>p.best)p.best=p.round;p.round++;p.phase='passed';render();setTimeout(_mgMemoryNext,650)}}
-  else{p.done=true;p.phase='lost';render();_mgSave('memory',p.best*5,p.best)}
+function _mgMemoryFlash(i){const p=S.mgPlay;if(!p||p.game!=='memory'||p.phase!=='show')return;if(i>=p.seq.length){p.phase='input';p.flashIdx=-1;render();return}p.flashIdx=p.seq[i];_mgSound('flash');render();setTimeout(()=>{p.flashIdx=-1;render();setTimeout(()=>_mgMemoryFlash(i+1),200)},520)}
+function mgMemoryTap(idx){const p=S.mgPlay;if(!p||p.game!=='memory'||p.phase!=='input')return;if(idx===p.seq[p.userIdx]){_mgSound('tap');p.userIdx++;if(p.userIdx>=p.seq.length){if(p.round>p.best)p.best=p.round;p.round++;p.phase='passed';_mgSound('correct');render();setTimeout(_mgMemoryNext,650)}}
+  else{p.done=true;p.phase='lost';_mgSound('wrong');_mgMarkDone('memory');render();_mgSave('memory',p.best*5,p.best)}
 }
 
 // ── Reaction ──
-function mgReactionStart(){S.mgPlay={game:'reaction',level:S.mg.progress.reaction.level,phase:'wait',time:null,best:S.mg.progress.reaction.best||0,done:false};render();const t=800+Math.floor(Math.random()*2200);S.mgPlay._timer=setTimeout(()=>{const p=S.mgPlay;if(!p||p.game!=='reaction')return;p.phase='go';p.startedAt=Date.now();render()},t)}
-function mgReactionTap(){const p=S.mgPlay;if(!p||p.game!=='reaction')return;if(p.phase==='wait'){clearTimeout(p._timer);p.phase='early';render();return}if(p.phase==='go'){const ms=Date.now()-p.startedAt;p.time=ms;p.phase='done';p.done=true;render();// XP based on tier: <250=20, <350=15, <500=10, <700=6, else 3
+function mgReactionStart(){S.mgPlay={game:'reaction',level:S.mg.progress.reaction.level,phase:'wait',time:null,best:S.mg.progress.reaction.best||0,done:false};_mgSound('tap');render();const t=800+Math.floor(Math.random()*2200);S.mgPlay._timer=setTimeout(()=>{const p=S.mgPlay;if(!p||p.game!=='reaction')return;p.phase='go';p.startedAt=Date.now();_mgSound('go');render()},t)}
+function mgReactionTap(){const p=S.mgPlay;if(!p||p.game!=='reaction')return;if(p.phase==='wait'){clearTimeout(p._timer);p.phase='early';_mgSound('wrong');render();return}if(p.phase==='go'){const ms=Date.now()-p.startedAt;p.time=ms;p.phase='done';p.done=true;_mgSound(ms<350?'levelup':'correct');_mgMarkDone('reaction');if(ms<500)S._mgConfetti=Date.now();render();
     const xp=ms<250?20:ms<350?15:ms<500?10:ms<700?6:3;_mgSave('reaction',xp,ms)}}
 // Rock / Paper / Scissors vs random bot
 function rpsPlay(p){
@@ -4006,6 +4063,18 @@ else if(S.tab==='mindgym'){
   const totalLevel=mg.progress.math.level+mg.progress.memory.level+mg.progress.reaction.level;
   const totalXp=(mg.progress.math.xp||0)+(mg.progress.memory.xp||0)+(mg.progress.reaction.xp||0);
   const streak=mg.streak||{current:0,longest:0,total:0};
+  // Daily workout — 3-game plan, ticked as user completes each today
+  const dGames=[{k:'math',n:'Math',e:'\\u{1F522}',fn:'mgMathStart()'},{k:'memory',n:'Memory',e:'\\u{1F9E9}',fn:'mgMemoryStart()'},{k:'reaction',n:'Reaction',e:'\\u26A1',fn:'mgReactionStart()'}];
+  const doneCount=dGames.filter(g=>_mgIsDoneToday(g.k)).length;
+  const nextGame=dGames.find(g=>!_mgIsDoneToday(g.k));
+  h+='<div class="mg-daily">'
+    +'<div class="mg-daily-l"><div class="mg-daily-eyebrow">TODAY \\u2022 5-MINUTE WORKOUT</div>'
+    +'<div class="mg-daily-t">'+(doneCount===3?'\\u{1F389} Workout complete!':'Plan: '+dGames.map(g=>(_mgIsDoneToday(g.k)?'<s>':'')+g.e+' '+g.n+(_mgIsDoneToday(g.k)?'</s>':'')).join(' \\u2192 '))+'</div>'
+    +'<div class="mg-daily-pills">';
+  dGames.forEach(g=>{const done=_mgIsDoneToday(g.k);h+='<span class="mg-daily-pill'+(done?' mg-daily-done':'')+'">'+(done?'\\u2713 ':'')+g.e+' '+g.n+'</span>'});
+  h+='</div></div>'
+    +(nextGame?'<button class="mg-daily-btn" onclick="'+nextGame.fn+'">'+(doneCount===0?'Start \\u2192':'Continue \\u2192')+'</button>':'<div class="mg-daily-done-tag">\\u{1F525} +1 streak day</div>')
+    +'</div>';
   // Hero header — stats overview
   h+='<section class="mg-hero">'
     +'<div class="mg-hero-grad"></div>'
@@ -4426,6 +4495,11 @@ if(S.playing){
 }
 
 if(S.toast)h+='<div class="toast toast-'+(S.toastType==='err'?'err':'ok')+'">'+S.toast+'</div>';
+// Confetti — fires for 1.5s after S._mgConfetti is set
+if(S._mgConfetti&&Date.now()-S._mgConfetti<1500){
+  h+='<div class="mg-confetti"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>';
+  setTimeout(()=>{S._mgConfetti=null;render()},1600);
+}
 
 if(S.showWAOnboard){
   h+='<div class="ov" onclick="closeWAOnboard()"><div class="mdl" onclick="event.stopPropagation()" style="max-width:440px">';
