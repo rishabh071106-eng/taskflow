@@ -372,11 +372,12 @@ app.get('/brodoit.vcf',(_,res)=>{
 
 // ═══ NEWS (shorts feed, RSS aggregator, 15-min server cache) ═══
 const NEWS_FEEDS={
-  // Merged AI + general tech into one feed list, deduped server-side after fetch
-  tech:['https://techcrunch.com/feed/','https://techcrunch.com/category/artificial-intelligence/feed/','https://www.theverge.com/rss/index.xml','https://www.theverge.com/rss/ai-artificial-intelligence/index.xml','https://feeds.arstechnica.com/arstechnica/index','https://www.wired.com/feed/rss','https://venturebeat.com/category/ai/feed/','https://www.technologyreview.com/feed/'],
-  sports:['https://feeds.bbci.co.uk/sport/cricket/rss.xml','https://www.thehindu.com/sport/cricket/feeder/default.rss','https://indianexpress.com/section/sports/cricket/feed/','https://feeds.bbci.co.uk/sport/rss.xml','https://www.espn.com/espn/rss/news','https://www.skysports.com/rss/12040'],
-  // World news (was 'global'); kept the alias below for backwards-compat with any cached client state
-  world:['https://feeds.bbci.co.uk/news/world/rss.xml','https://feeds.reuters.com/reuters/topNews','https://rss.nytimes.com/services/xml/rss/nyt/World.xml','https://feeds.npr.org/1004/rss.xml','https://feeds.bbci.co.uk/news/rss.xml']
+  // Tech & AI — AI-first ordering: AI-only feeds come first so dedupe favors them.
+  tech:['https://techcrunch.com/category/artificial-intelligence/feed/','https://www.theverge.com/rss/ai-artificial-intelligence/index.xml','https://venturebeat.com/category/ai/feed/','https://www.technologyreview.com/feed/','https://www.theinformation.com/feed','https://feeds.arstechnica.com/arstechnica/index','https://techcrunch.com/feed/','https://www.theverge.com/rss/index.xml','https://www.wired.com/feed/rss'],
+  // Sports — IPL/cricket + football scores up top, then general
+  sports:['https://www.thehindu.com/sport/cricket/feeder/default.rss','https://indianexpress.com/section/sports/cricket/feed/','https://feeds.bbci.co.uk/sport/cricket/rss.xml','https://feeds.bbci.co.uk/sport/football/rss.xml','https://www.espn.com/espn/rss/news','https://www.espn.com/espn/rss/soccer/news','https://feeds.bbci.co.uk/sport/rss.xml','https://www.skysports.com/rss/12040'],
+  // World — critical/breaking world news first
+  world:['https://feeds.reuters.com/reuters/topNews','https://feeds.bbci.co.uk/news/world/rss.xml','https://rss.nytimes.com/services/xml/rss/nyt/World.xml','https://feeds.npr.org/1004/rss.xml','https://feeds.bbci.co.uk/news/rss.xml']
 };
 // Legacy aliases — old client state pointing at ai/technology/global/movies should still resolve
 NEWS_FEEDS.ai=NEWS_FEEDS.tech;NEWS_FEEDS.technology=NEWS_FEEDS.tech;NEWS_FEEDS.global=NEWS_FEEDS.world;NEWS_FEEDS.movies=NEWS_FEEDS.world;
@@ -1290,20 +1291,21 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
 .tab:hover:not(.on){background:#F8FAFC;color:#0F172A}
 .tab.on{background:linear-gradient(135deg,#0F172A,#312E81);color:#F8FAFC;box-shadow:0 4px 14px rgba(45,42,38,.28);transform:translateY(-1px)}
 .tab.on .ti{transform:scale(1.08)}
-/* Mobile tab nav — bigger, more touch-friendly, sticky at top so users can always switch tabs */
+/* Mobile tab nav — substantially bigger, sticky at top, per-tab scenic photo backgrounds */
 @media (max-width:1023px){
-  .tabs.page-t{padding:6px;gap:6px;border-radius:16px;position:sticky;top:6px;z-index:30;backdrop-filter:saturate(140%) blur(10px);-webkit-backdrop-filter:saturate(140%) blur(10px);background:rgba(255,255,255,.92);border:1px solid rgba(15,23,42,.08);box-shadow:0 4px 16px rgba(15,23,42,.08)}
-  .tabs.page-t .tab{padding:13px 14px;font-size:14px;border-radius:13px;gap:8px;min-height:46px;letter-spacing:-.005em}
-  .tabs.page-t .tab .ti{font-size:18px}
-  .tabs.page-t .tab .ti svg{width:20px!important;height:20px!important}
-  .tabs.page-t .tab .tl{font-size:14px;font-weight:700}
-  .tabs.page-t .tab.on{box-shadow:0 6px 18px rgba(45,42,38,.32),0 0 0 2px rgba(99,102,241,.45)}
+  .tabs.page-t{padding:8px;gap:8px;border-radius:18px;position:sticky;top:6px;z-index:30;backdrop-filter:saturate(140%) blur(10px);-webkit-backdrop-filter:saturate(140%) blur(10px);background:rgba(255,255,255,.94);border:1px solid rgba(15,23,42,.08);box-shadow:0 4px 18px rgba(15,23,42,.1)}
+  .tabs.page-t .tab{padding:16px 16px;font-size:15px;border-radius:14px;gap:10px;min-height:56px;letter-spacing:-.01em;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+  .tabs.page-t .tab .ti{font-size:22px;width:32px;height:32px;display:flex;align-items:center;justify-content:center}
+  .tabs.page-t .tab .ti svg{width:24px!important;height:24px!important}
+  .tabs.page-t .tab .tl{font-size:13.5px;font-weight:700;letter-spacing:.005em}
+  .tabs.page-t .tab.on{transform:translateY(-2px);box-shadow:0 8px 22px rgba(45,42,38,.36),0 0 0 2px rgba(99,102,241,.5)}
 }
 @media (max-width:480px){
-  .tabs.page-t{padding:5px;gap:5px}
-  .tabs.page-t .tab{padding:11px 11px;font-size:13px;gap:6px;min-height:42px}
-  .tabs.page-t .tab .ti svg{width:18px!important;height:18px!important}
-  .tabs.page-t .tab .tl{font-size:13px}
+  .tabs.page-t{padding:6px;gap:6px}
+  .tabs.page-t .tab{padding:13px 10px;font-size:14px;gap:7px;min-height:50px}
+  .tabs.page-t .tab .ti{font-size:20px;width:28px;height:28px}
+  .tabs.page-t .tab .ti svg{width:21px!important;height:21px!important}
+  .tabs.page-t .tab .tl{font-size:12.5px}
 }
 body[data-theme=aurora] .tabs.page-t{background:rgba(20,20,40,.85);border-color:rgba(167,139,250,.18)}
 /* Desktop sidebar layout */
@@ -2150,17 +2152,16 @@ body[data-theme=aurora] .was-skip{color:#9999B5}
 .book-meta{font-size:11px;color:#94A3B8;display:flex;gap:8px;flex-wrap:wrap}
 .book-play{width:36px;height:36px;border-radius:50%;background:#0F172A;color:#F8FAFC;display:flex;align-items:center;justify-content:center;flex-shrink:0;align-self:center;transition:transform .15s}
 .book-play:hover{transform:scale(1.08);background:#3DAE5C}
-.player{position:fixed;bottom:8px;left:8px;right:8px;background:linear-gradient(135deg,#0F172A,#1F1F3A);color:#F8FAFC;padding:8px 10px;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.32);display:none;z-index:80;max-width:560px;margin:0 auto}
+.player{position:fixed;bottom:14px;left:10px;right:10px;background:linear-gradient(135deg,#0F172A,#1F1F3A);color:#F8FAFC;padding:8px 10px;border-radius:14px;box-shadow:0 10px 26px rgba(0,0,0,.34);display:none;z-index:80;max-width:560px;margin:0 auto}
 .player.on{display:flex;align-items:center;gap:10px}
-/* Push FAB up + reserve bottom space so taps land on the right thing while audio is playing.
-   Player itself is now smaller (~52px), floats with margins, and rounds the corners so it
-   reads as a contained pill instead of a full-bleed bar that blocks half the screen. */
-body.audio-on .app{padding-bottom:calc(80px + env(safe-area-inset-bottom,0px))}
-body.audio-on .fab-global{bottom:calc(76px + env(safe-area-inset-bottom,0px))!important}
+/* Reserve enough bottom space so the entire task list (including the LAST item + delete buttons)
+   sits comfortably above the floating audio player. Generous padding > too tight. */
+body.audio-on .app{padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))}
+body.audio-on .fab-global{bottom:calc(96px + env(safe-area-inset-bottom,0px))!important}
 @media (max-width:600px){
-  .player{padding:7px 10px;border-radius:12px;left:8px;right:8px;bottom:8px}
-  body.audio-on .app{padding-bottom:calc(82px + env(safe-area-inset-bottom,0px))}
-  body.audio-on .fab-global{bottom:calc(78px + env(safe-area-inset-bottom,0px))!important}
+  .player{padding:7px 10px;border-radius:12px;left:10px;right:10px;bottom:14px}
+  body.audio-on .app{padding-bottom:calc(120px + env(safe-area-inset-bottom,0px))}
+  body.audio-on .fab-global{bottom:calc(108px + env(safe-area-inset-bottom,0px))!important}
 }
 .player-info{flex:1;min-width:0}.player-title{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.player-author{font-size:11px;color:#94A3B8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .player audio{height:34px;max-width:200px;flex-shrink:0}.player-close{flex-shrink:0;padding:6px 11px;border-radius:8px;background:rgba(255,255,255,.18);font-size:13px;font-weight:700;color:#fff;border:1px solid rgba(255,255,255,.25);transition:background .15s ease;min-width:36px;min-height:36px}
@@ -2654,7 +2655,7 @@ google:{configured:false,accounts:[],loaded:false},gcalEvents:[],gcalLoading:fal
 calMonth:new Date(),calSelectedDate:new Date().toISOString().slice(0,10),
 steps:[],stepGoal:parseInt(localStorage.getItem('step_goal')||'10000',10),stepLive:{active:false,count:0},
 theme:localStorage.getItem('theme')||'classic',
-news:{},newsCat:'tech',newsLoading:false,
+news:{},newsCat:'world',newsLoading:false,
 bookStreak:{streak:0,total:0,today:false,days:[]},_bkSec:0,
 
 loginStep:'phone',loginMethod:'email',loginPhone:'',loginCountryCode:localStorage.getItem('tf_cc')||'+91',loginEmail:'',loginName:'',loginOTP:['','','','','',''],loginLoading:false,loginError:'',loginErrorDetail:'',loginErrorCode:0,loginSentTo:'',emailOk:false,
@@ -3347,7 +3348,7 @@ if(isMain){
   const dayOfYear=Math.floor((now-yStart)/86400000);
   const yearPct=Math.round(dayOfYear/365*100);
   const dateStr=now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-  const tabsHtml=[{k:'tasks',l:'Tasks'},{k:'board',l:'Board'},{k:'cal',l:'Calendar'},{k:'books',l:'Books'},{k:'meditation',l:'Meditate'},{k:'games',l:'Games'},{k:'news',l:'News'}].map(x=>'<button class="tab tab-'+x.k+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(ID[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
+  const tabsHtml=[{k:'tasks',l:'Tasks'},{k:'board',l:'Board'},{k:'cal',l:'Calendar'},{k:'books',l:'Books'},{k:'meditation',l:'Meditate'},{k:'news',l:'News'}].map(x=>'<button class="tab tab-'+x.k+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(ID[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
   // "Bro, do it!" mascot — a character with a speech bubble that animates
   const climbScene='<div class="bro-mascot" aria-hidden="true">'
     +'<svg class="bro-svg" viewBox="0 0 340 130" xmlns="http://www.w3.org/2000/svg">'
@@ -3464,7 +3465,16 @@ if(S.tab==='tasks'){
     h+='<div class="tc'+(d?' dn':'')+'" style="border-left-color:'+p.c+'"><div class="tc-top"><button class="chk'+(d?' on':'')+'" onclick="tog(\\''+t.id+'\\')">'+(d?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>':'')+'</button><div style="flex:1;min-width:0"><div class="tc-t'+(d?' dn':'')+'">'+esc(t.title)+'</div>'+(t.notes?'<div class="tc-n">'+esc(t.notes)+'</div>':'')+'<div class="tc-m"><button class="badge" style="background:'+st.bg+';color:'+st.c+'" onclick="cyc(\\''+t.id+'\\')">'+st.l+'</button>'+(t.due_date?'<span style="font-size:12px;font-weight:500;color:'+(isOD(t.due_date,t.status)?'#E8453C':isTd(t.due_date)?'#E8912C':'#94A3B8')+'">\\u{1F4C5} '+fD(t.due_date)+(isOD(t.due_date,t.status)?' overdue':'')+'</span>':'')+(t.reminder_time&&!d?'<span style="font-size:11px;color:#3B82F6;font-weight:600">\\u{1F514} '+fT(t.reminder_time)+'</span>':'')+(t.source==='whatsapp'?'<span style="font-size:10px;font-weight:700;color:#128C7E;background:#EDFCF2;border:1px solid #B7E8C4;padding:2px 7px;border-radius:6px;letter-spacing:.3px">\\u{1F4F2} WA</span>':'')+(addedTxt?'<span class="tc-added" title="Added '+esc(t.created_at||'')+'">\\u2795 '+esc(addedTxt)+'</span>':'')+'</div></div></div>';
     h+='<div class="tc-acts"><button class="ib" onclick="opE(\\''+t.id+'\\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>'+(S.profile&&S.profile.wa_phone?'<button class="ib" title="Send to WhatsApp" onclick="sWA(\\''+t.id+'\\')">'+WI+'</button>':'')+'<button class="ib" style="color:#E8453C" onclick="del(\\''+t.id+'\\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button></div></div>'});
   h+='</div>';
-  // Games + scenic banner moved to dedicated Games tab — keeps Tasks clean.
+  // Quick "decide for me" — single coin flip card at the bottom of Tasks
+  {
+    const c=S.coin;const face=c.flipping?'?':(c.face==='heads'?'H':c.face==='tails'?'T':'\\u2014');const label=c.flipping?'Flipping\\u2026':(c.face==='heads'?'Heads':c.face==='tails'?'Tails':'Need a quick decision? Flip a coin.');
+    h+='<div class="games-row" style="margin-top:18px"><div class="game-card coin-card">'
+      +'<div class="game-hd"><div class="game-ttl"><span class="game-emoji">\\u{1FA99}</span> Coin Flip</div><div class="game-best">H <b>'+c.heads+'</b> \\u2022 T <b>'+c.tails+'</b></div></div>'
+      +'<div class="game-status-line"><span class="game-status'+(c.face?' status-you':'')+'">'+label+'</span></div>'
+      +'<div class="coin-stage"><div class="coin'+(c.flipping?' coin-flipping':(c.face?' coin-'+c.face:''))+'" onclick="flipCoin()"><div class="coin-face coin-h">'+face+'</div></div></div>'
+      +'<div class="game-foot"><div class="game-hint">'+(c.flipping?'in the air\\u2026':'tap the coin to flip')+'</div><button class="game-btn coin-btn" onclick="flipCoin()"'+(c.flipping?' disabled':'')+'>'+(c.flipping?'\\u23F3 Flipping':'\\u{1FA99} Flip')+'</button></div>'
+    +'</div></div>';
+  }
 }
 
 // BOARD TAB (Kanban: To Do / Doing / Done with drag-and-drop)
@@ -3648,74 +3658,10 @@ else if(S.tab==='cal'){
   }
 }
 
-// GAMES TAB (5 mini-games — moved out of Tasks tab so it stays clean)
-else if(S.tab==='games'){
-  h+='<div class="news-hero"><div class="news-hero-l"><span class="news-hero-ic">\\u{1F3AE}</span><div><h2>Games</h2><p>5 quick mini-games for a 30-second break</p></div></div></div>';
-  h+='<div class="games-row">';
-  // 1) Tic Tac Toe
-  {
-    const g=S.game;
-    h+='<div class="game-card'+(g.active?' game-active':' game-idle')+'">';
-    h+='<div class="game-hd"><div class="game-ttl"><span class="game-emoji">\\u{1F3AF}</span> Tic Tac Toe</div><div class="game-best">W <b>'+g.wins+'</b> \\u2022 L <b>'+g.losses+'</b> \\u2022 D <b>'+g.draws+'</b></div></div>';
-    const status=!g.active?'Tap Start to play (you are X)':(g.turn==='X'?'Your turn (X)':'Bot thinking\\u2026');
-    h+='<div class="game-status-line"><span class="game-status'+(g.active?(g.turn==='X'?' status-you':' status-bot'):'')+'">'+status+'</span></div>';
-    h+='<div class="game-grid ttt-grid">';
-    for(let i=0;i<9;i++){const v=g.board[i];const won=g.winLine&&g.winLine.includes(i);h+='<button class="game-cell ttt-cell'+(v?' ttt-'+v.toLowerCase():'')+(won?' ttt-win':'')+(v?' ttt-filled':'')+'" onclick="gameTap('+i+')" aria-label="cell"'+(g.active?'':' tabindex="-1"')+'>'+(v||'')+'</button>'}
-    h+='</div>';
-    h+='<div class="game-foot"><div class="game-hint">'+(g.active?'tap any empty square':'click anywhere on the board to begin')+'</div>'+(g.active?'<button class="game-stop" onclick="gameEnd()">Stop</button>':'')+'</div>';
-    if(!g.active){let prompt='You play X, the bot plays O.';if(g.status==='won')prompt='\\u{1F3C6} You won the last round!';else if(g.status==='lost')prompt='Bot got that one \\u2014 redemption time?';else if(g.status==='draw')prompt='Last round was a draw. One more?';h+='<div class="game-overlay"><div class="game-overlay-inner"><div class="game-prompt">'+prompt+'</div><button class="game-btn" onclick="gameStart()">'+(g.status==='idle'?'\\u25B6 Start game':'\\u21BB Play again')+'</button></div></div>'}
-    h+='</div>';
-  }
-  // 2) Coin Flip
-  {
-    const c=S.coin;const face=c.flipping?'?':(c.face==='heads'?'H':c.face==='tails'?'T':'\\u2014');const label=c.flipping?'Flipping\\u2026':(c.face==='heads'?'Heads':c.face==='tails'?'Tails':'Tap to flip');
-    h+='<div class="game-card coin-card">';
-    h+='<div class="game-hd"><div class="game-ttl"><span class="game-emoji">\\u{1FA99}</span> Coin Flip</div><div class="game-best">H <b>'+c.heads+'</b> \\u2022 T <b>'+c.tails+'</b></div></div>';
-    h+='<div class="game-status-line"><span class="game-status'+(c.face?' status-you':'')+'">'+label+'</span></div>';
-    h+='<div class="coin-stage"><div class="coin'+(c.flipping?' coin-flipping':(c.face?' coin-'+c.face:''))+'" onclick="flipCoin()"><div class="coin-face coin-h">'+face+'</div></div></div>';
-    h+='<div class="game-foot"><div class="game-hint">'+(c.flipping?'in the air\\u2026':'tap the coin to flip')+'</div><button class="game-btn coin-btn" onclick="flipCoin()"'+(c.flipping?' disabled':'')+'>'+(c.flipping?'\\u23F3 Flipping':'\\u{1FA99} Flip')+'</button></div>';
-    h+='</div>';
-  }
-  // 3) Rock Paper Scissors
-  {
-    const r=S.rps;const lp=r.lastPlayer?(r.lastPlayer==='rock'?'\\u270A':r.lastPlayer==='paper'?'\\u270B':'\\u270C\\uFE0F'):'';const lb=r.lastBot?(r.lastBot==='rock'?'\\u270A':r.lastBot==='paper'?'\\u270B':'\\u270C\\uFE0F'):'';const resTxt=r.lastResult==='win'?'\\u{1F389} You won!':r.lastResult==='lose'?'Bot got it.':r.lastResult==='draw'?'Draw \\u2014 try again':'Pick rock, paper, or scissors';
-    h+='<div class="game-card mini-game">';
-    h+='<div class="game-hd"><div class="game-ttl"><span class="game-emoji">\\u270A</span> Rock Paper Scissors</div><div class="game-best">W <b>'+r.playerWins+'</b> \\u2022 L <b>'+r.botWins+'</b> \\u2022 D <b>'+r.draws+'</b></div></div>';
-    h+='<div class="game-status-line"><span class="game-status'+(r.lastResult==='win'?' status-you':r.lastResult==='lose'?' status-bot':'')+'">'+resTxt+'</span></div>';
-    if(r.lastPlayer)h+='<div class="rps-show"><div class="rps-vs"><span class="rps-emoji">'+lp+'</span><span class="rps-vs-txt">vs</span><span class="rps-emoji">'+lb+'</span></div></div>';
-    else h+='<div class="rps-show rps-show-empty">\\u270A \\u270B \\u270C</div>';
-    h+='<div class="rps-pick"><button class="rps-btn" onclick="rpsPlay(\\'rock\\')" aria-label="Rock">\\u270A<span>Rock</span></button><button class="rps-btn" onclick="rpsPlay(\\'paper\\')" aria-label="Paper">\\u270B<span>Paper</span></button><button class="rps-btn" onclick="rpsPlay(\\'scissors\\')" aria-label="Scissors">\\u270C\\uFE0F<span>Scissors</span></button></div>';
-    h+='</div>';
-  }
-  // 4) Number Guess
-  {
-    const g=S.guess;const playing=g.target!=null;
-    h+='<div class="game-card mini-game">';
-    h+='<div class="game-hd"><div class="game-ttl"><span class="game-emoji">\\u{1F522}</span> Number Guess</div><div class="game-best">'+(playing?'Tries: <b>'+g.attempts+'</b>':'1 \\u2192 100')+'</div></div>';
-    h+='<div class="game-status-line"><span class="game-status'+(g.ended?' status-you':playing?'':'')+'">'+(g.message||'I\\u2019m thinking of a number from 1 to 100.')+'</span></div>';
-    if(g.history.length)h+='<div class="rps-show" style="font-family:\\'Space Mono\\',monospace;font-size:14px;color:#94A3B8">Guesses: '+esc(g.history.slice(0,8).join(', '))+'</div>';
-    else h+='<div class="rps-show rps-show-empty" style="font-size:32px;color:#94A3B8">?</div>';
-    if(g.ended)h+='<div class="game-foot"><button class="game-btn" onclick="guessStart()">\\u21BB Play again</button></div>';
-    else if(!playing)h+='<div class="game-foot"><button class="game-btn" onclick="guessStart()">\\u25B6 Start</button></div>';
-    else h+='<div class="rps-pick" style="gap:8px"><input id="guessInput" type="number" min="1" max="100" inputmode="numeric" placeholder="1-100" style="flex:1;padding:11px 14px;border:1.5px solid #E2E8F0;border-radius:10px;font-size:16px;font-family:inherit" onkeydown="if(event.key===\\'Enter\\')guessSubmit()"><button class="game-btn" onclick="guessSubmit()" style="margin:0;padding:11px 20px">Guess</button></div>';
-    h+='</div>';
-  }
-  // 5) Dice Roll
-  {
-    const d=S.dice;const v=d.values;
-    h+='<div class="game-card mini-game">';
-    h+='<div class="game-hd"><div class="game-ttl"><span class="game-emoji">\\u{1F3B2}</span> Dice Roll</div><div class="game-best">'+(d.history.length?'Last sums: <b>'+esc(d.history.slice(0,6).join(\', \'))+'</b>':'Roll two d6')+'</div></div>';
-    h+='<div class="game-status-line"><span class="game-status'+(v.length?' status-you':'')+'">'+(d.rolling?'Rolling\\u2026':v.length?('Total: '+(v[0]+v[1])+(v[0]===v[1]?' \\u2014 doubles!':'')):'Tap roll to start')+'</span></div>';
-    h+='<div class="rps-show"><div class="rps-vs" style="gap:18px"><span class="rps-emoji'+(d.rolling?' dice-roll':'')+'" style="font-size:54px">'+(d.rolling?'\\u{1F3B2}':v.length?['\\u2680','\\u2681','\\u2682','\\u2683','\\u2684','\\u2685'][v[0]-1]:'\\u{1F3B2}')+'</span><span class="rps-emoji'+(d.rolling?' dice-roll':'')+'" style="font-size:54px;animation-delay:.15s">'+(d.rolling?'\\u{1F3B2}':v.length?['\\u2680','\\u2681','\\u2682','\\u2683','\\u2684','\\u2685'][v[1]-1]:'\\u{1F3B2}')+'</span></div></div>';
-    h+='<div class="game-foot"><button class="game-btn" onclick="rollDice()"'+(d.rolling?' disabled':'')+'>'+(d.rolling?'\\u23F3 Rolling':'\\u{1F3B2} Roll')+'</button></div>';
-    h+='</div>';
-  }
-  h+='</div>';
-}
 
 // NEWS TAB (shorts feed with categories + share)
 else if(S.tab==='news'){
-  const cats=[{k:'tech',l:'Tech & AI',ic:'tech'},{k:'sports',l:'Sports',ic:'sport'},{k:'world',l:'World',ic:'globe'}];
+  const cats=[{k:'world',l:'World',ic:'globe'},{k:'tech',l:'Tech & AI',ic:'tech'},{k:'sports',l:'Sports',ic:'sport'}];
   h+='<div class="news-hero"><div class="news-hero-l"><span class="news-hero-ic">'+ic('news',22)+'</span><div><h2>News</h2><p>Fresh headlines \\u2022 Tap share to send to any app</p></div></div><button class="news-refresh" onclick="loadNews(S.newsCat)" title="Refresh">'+ic('refresh',18)+'</button></div>';
   h+='<div class="flt flt-icons">';
   cats.forEach(c=>{h+='<button class="fb'+(S.newsCat===c.k?' on':'')+'" onclick="loadNews(\\''+c.k+'\\')"><span class="fb-ic">'+ic(c.ic,15)+'</span>'+c.l+'</button>'});
