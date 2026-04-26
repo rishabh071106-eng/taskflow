@@ -2407,7 +2407,7 @@ const COUNTRY_CODES=[
 ];
 function formatPhonePreview(p){const d=(p||'').replace(/[^0-9+]/g,'');if(!d)return '';if(d.length===10&&!d.startsWith('+'))return null;let out=d;if(!out.startsWith('+'))out='+'+out;return out}
 function updatePhonePreview(){const el=document.getElementById('phPreview');if(!el)return;const cc=S.loginCountryCode||'+91';const local=(S.loginPhone||'').replace(/[^0-9]/g,'');if(!local){el.innerHTML='<span style="color:#94A3B8">Type your number above</span>';return}if(local.length<6){el.innerHTML='<span style="color:#94A3B8">Keep typing\\u2026</span>';return}el.innerHTML='<span style="color:#16A34A">\\u2713 Will send to '+cc+' '+local+'</span>'}
-function persistLoginState(){try{localStorage.setItem('tf_login_state',JSON.stringify({step:S.loginStep,method:S.loginMethod,phone:S.loginPhone,cc:S.loginCountryCode,email:S.loginEmail,name:S.loginName,sentTo:S.loginSentTo,ts:Date.now()}));if(S.loginCountryCode)localStorage.setItem('tf_cc',S.loginCountryCode)}catch(e){}}
+function persistLoginState(){try{localStorage.setItem('tf_login_state',JSON.stringify({step:S.loginStep,method:S.loginMethod,phone:S.loginPhone,cc:S.loginCountryCode,email:S.loginEmail,name:S.loginName,sentTo:S.loginSentTo,otp:S.loginOTP,ts:Date.now()}));if(S.loginCountryCode)localStorage.setItem('tf_cc',S.loginCountryCode)}catch(e){}}
 function restoreLoginState(){
   // Pre-fill from previous session's saved name/email/phone (kept across logout)
   try{
@@ -2419,13 +2419,14 @@ function restoreLoginState(){
     else if(lastPhone){S.loginPhone=lastPhone;S.loginMethod='whatsapp'}
   }catch(e){}
   // Then layer the in-progress state (mid-OTP etc.) on top if it's still fresh
-  try{const raw=localStorage.getItem('tf_login_state');if(!raw)return;const d=JSON.parse(raw);if(!d||!d.ts||Date.now()-d.ts>15*60*1000){localStorage.removeItem('tf_login_state');return}S.loginStep=d.step||'phone';S.loginMethod=d.method||S.loginMethod||'email';S.loginPhone=d.phone||S.loginPhone;S.loginCountryCode=d.cc||S.loginCountryCode||'+91';S.loginEmail=d.email||S.loginEmail;S.loginName=d.name||S.loginName;S.loginSentTo=d.sentTo||''}catch(e){}
+  // 60-min TTL — long enough that switching to Gmail to read the OTP and back doesn't lose state.
+  try{const raw=localStorage.getItem('tf_login_state');if(!raw)return;const d=JSON.parse(raw);if(!d||!d.ts||Date.now()-d.ts>60*60*1000){localStorage.removeItem('tf_login_state');return}S.loginStep=d.step||'phone';S.loginMethod=d.method||S.loginMethod||'email';S.loginPhone=d.phone||S.loginPhone;S.loginCountryCode=d.cc||S.loginCountryCode||'+91';S.loginEmail=d.email||S.loginEmail;S.loginName=d.name||S.loginName;S.loginSentTo=d.sentTo||'';if(Array.isArray(d.otp)&&d.otp.length===6)S.loginOTP=d.otp.slice()}catch(e){}
 }
 function clearLoginState(){try{localStorage.removeItem('tf_login_state')}catch(e){}}
 async function sendOTP(){S.loginLoading=true;S.loginError='';render();let url,body;if(S.loginMethod==='email'){const em=(S.loginEmail||'').trim().toLowerCase();if(!/^[\\w.+-]+@[\\w-]+\\.[a-z]{2,}$/i.test(em)){S.loginError='Enter a valid email address';S.loginLoading=false;render();return}url='/api/send-otp-email';body={email:em}}else{const cc=(S.loginCountryCode||'+91').replace(/[^0-9+]/g,'');const local=(S.loginPhone||'').replace(/[^0-9]/g,'');if(!local){S.loginError='Enter your WhatsApp number';S.loginLoading=false;render();return}if(local.length<6){S.loginError='Phone number too short';S.loginLoading=false;render();return}const ph=cc+local;url='/api/send-otp';body={phone:ph}}const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(r=>r.json()).catch(()=>({ok:false,error:'Network error \\u2014 check your connection'}));S.loginLoading=false;if(r.ok){S.loginStep='otp';S.loginOTP=['','','','','',''];S.loginError='';S.loginSentTo=r.phone||S.loginEmail||((S.loginCountryCode||'')+S.loginPhone);persistLoginState();render();setTimeout(()=>{const el=document.getElementById('otp0');if(el)el.focus()},100)}else{S.loginError=r.error||'Failed to send OTP';S.loginErrorDetail=r.detail||'';S.loginErrorCode=r.code||0;render()}}
 async function verifyOTP(){const code=S.loginOTP.join('');if(code.length<6){S.loginError='Enter the 6-digit code';render();return}S.loginLoading=true;S.loginError='';render();let url,body;if(S.loginMethod==='email'){url='/api/verify-otp-email';body={email:(S.loginEmail||'').trim().toLowerCase(),code,name:S.loginName}}else{let ph=S.loginPhone.replace(/[^0-9+]/g,'');if(!ph.startsWith('+'))ph='+'+ph;url='/api/verify-otp';body={phone:ph,code,name:S.loginName}}const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(r=>r.json()).catch(()=>({error:'Network error'}));S.loginLoading=false;if(r.token){token=r.token;localStorage.setItem('tf_token',r.token);localStorage.setItem('tf_phone',r.phone);localStorage.setItem('tf_name',r.name||'');if(r.email)localStorage.setItem('tf_email',r.email);S.user=r;S.loginStep='phone';clearLoginState();load();chk();toast('\\u2705 Welcome!')}else{S.loginError=r.error||'Verification failed';render()}}
-function otpInput(i,v){const d=v.slice(-1);S.loginOTP[i]=d;const el=document.getElementById('otp'+i);if(el)el.value=d;if(d&&i<5){const nx=document.getElementById('otp'+(i+1));if(nx)nx.focus()}else if(d&&i===5){if(S.loginOTP.every(x=>x))verifyOTP()}}
-function otpKey(i,e){if(e.key==='Backspace'&&!S.loginOTP[i]&&i>0){const prev=document.getElementById('otp'+(i-1));if(prev){prev.focus();S.loginOTP[i-1]='';prev.value=''}}}
+function otpInput(i,v){const d=v.slice(-1);S.loginOTP[i]=d;const el=document.getElementById('otp'+i);if(el)el.value=d;persistLoginState();if(d&&i<5){const nx=document.getElementById('otp'+(i+1));if(nx)nx.focus()}else if(d&&i===5){if(S.loginOTP.every(x=>x))verifyOTP()}}
+function otpKey(i,e){if(e.key==='Backspace'&&!S.loginOTP[i]&&i>0){const prev=document.getElementById('otp'+(i-1));if(prev){prev.focus();S.loginOTP[i-1]='';prev.value='';persistLoginState()}}}
 function logout(){
   // Preserve name/email/phone so the next login is one-tap
   const lastName=localStorage.getItem('tf_name')||'';
@@ -3361,6 +3362,19 @@ document.getElementById('app').innerHTML=h;
 fetch('/api/config').then(r=>r.json()).then(c=>{window.__TWILIO_SANDBOX_CODE=c.sandboxCode||'';render()}).catch(()=>{});
 applyTheme();
 if(S.user){refreshSession();load();loadBookStreak();loadGoogleStatus();loadWeather();loadTicker();loadCityTemps();loadRemember();chk();setInterval(load,10000);setInterval(loadWeather,15*60*1000);setInterval(loadTicker,15*60*1000);setInterval(loadCityTemps,15*60*1000);setInterval(loadRemember,6*60*60*1000)}else render();
+// When the user returns from Gmail/another app, re-restore the in-progress login if the displayed step
+// doesn't match localStorage. Covers iOS Safari evicting the tab while she reads the OTP email.
+function _recoverLoginIfNeeded(){
+  if(S.user||token)return;
+  let saved=null;try{saved=JSON.parse(localStorage.getItem('tf_login_state')||'null')}catch(e){}
+  if(!saved||!saved.step)return;
+  if(saved.ts&&Date.now()-saved.ts>60*60*1000)return;
+  if(S.loginStep===saved.step&&S.loginEmail===(saved.email||'')&&S.loginPhone===(saved.phone||''))return;
+  try{restoreLoginState()}catch(e){}
+  render();
+}
+window.addEventListener('pageshow',function(e){if(e.persisted)_recoverLoginIfNeeded()});
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')_recoverLoginIfNeeded()});
 if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
 </script></body></html>`;
 
