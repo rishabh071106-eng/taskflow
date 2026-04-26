@@ -782,6 +782,15 @@ body[data-theme=aurora] .board-pick-hint{color:#7C7C97}
 .wa-link-x{margin-left:auto;background:transparent;border:1px solid #FCA5A5;color:#B91C1C;font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:8px;cursor:pointer}
 .wa-link-x:hover{background:#FEF2F2}
 .wa-linked-hint{font-size:11.5px;color:#64748B;margin-top:8px;line-height:1.5}
+.wa-helper{background:#FFF8E1;border:1px solid #F5D687;border-radius:10px;padding:11px 13px;margin-top:10px}
+.wa-helper-t{font-weight:700;font-size:12.5px;color:#7C5A00;margin-bottom:4px}
+.wa-helper-d{font-size:12px;color:#5D4400;line-height:1.5;margin-bottom:8px}
+.wa-helper-mini{font-size:11.5px;color:#1A9E47;background:#EDFCF2;border:1px solid #B7E8C4;padding:7px 10px;border-radius:8px;margin-top:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.wa-helper-reset{background:transparent;border:none;color:#6366F1;font-size:11px;font-weight:600;text-decoration:underline;cursor:pointer;padding:0;margin-left:auto;font-family:inherit}
+.wa-card{background:#fff;border:1px solid #E2E8F0;border-radius:10px;padding:13px;margin-top:10px}
+.wa-card-t{font-weight:700;font-size:13.5px;color:#0F172A;margin-bottom:3px}
+.wa-card-d{font-size:11.5px;color:#64748B;line-height:1.5;margin-bottom:10px}
+.wa-resend{display:block;width:100%;margin-top:8px;background:transparent;border:none;color:#64748B;font-size:11.5px;font-weight:600;cursor:pointer;padding:6px 0;text-decoration:underline;font-family:inherit}
 .wa-step{display:flex;gap:12px;background:#fff;border:1px solid #E2E8F0;border-radius:10px;padding:12px;margin-top:10px}
 .wa-step-n{flex:0 0 28px;height:28px;width:28px;border-radius:50%;background:#25D366;color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:13px;font-family:'Space Mono',monospace}
 .wa-step-b{flex:1;min-width:0}
@@ -805,6 +814,13 @@ body[data-theme=aurora] .wa-linked,body[data-theme=aurora] .wa-step{background:r
 body[data-theme=aurora] .wa-step-t{color:#F5F5FA}
 body[data-theme=aurora] .wa-step-d,body[data-theme=aurora] .wa-linked-hint{color:#9999B5}
 body[data-theme=aurora] .wa-cc,body[data-theme=aurora] .wa-num,body[data-theme=aurora] .wa-code{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14);color:#F5F5FA}
+body[data-theme=aurora] .wa-helper{background:rgba(245,214,135,.08);border-color:rgba(245,214,135,.25)}
+body[data-theme=aurora] .wa-helper-t,body[data-theme=aurora] .wa-helper-d{color:#F5D687}
+body[data-theme=aurora] .wa-helper-mini{background:rgba(37,211,102,.1);border-color:rgba(37,211,102,.25);color:#3DAE5C}
+body[data-theme=aurora] .wa-card{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12)}
+body[data-theme=aurora] .wa-card-t{color:#F5F5FA}
+body[data-theme=aurora] .wa-card-d{color:#9999B5}
+body[data-theme=aurora] .wa-resend{color:#9999B5}
 /* In-form Board picker (modal: New / Edit Task) */
 .form-board-pick{display:flex;gap:10px;margin-bottom:10px}
 .fbp{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:12px 8px;border:1.5px solid var(--line,#E2E8F0);background:var(--bg-elev,#fff);border-radius:12px;cursor:pointer;color:var(--ink-2,#475569);transition:border-color .15s ease,background .15s ease,transform .1s ease;text-align:center}
@@ -1911,6 +1927,9 @@ body[data-theme=aurora] .tc-added{color:#6B6B85;background:rgba(255,255,255,.04)
 .login-btn.sec{background:transparent;border:1px solid var(--line-2);color:var(--ink-2);margin-top:8px}
 .login-btn.sec:hover{background:var(--bg-sunken);border-color:var(--ink-4)}
 .login-hint{font-size:12px;color:#94A3B8;margin-top:16px;line-height:1.5}
+.login-wa-note{margin-top:14px;padding:11px 13px;background:linear-gradient(135deg,rgba(37,211,102,.08),rgba(18,140,126,.05));border:1px solid rgba(37,211,102,.22);border-radius:10px;font-size:12px;color:#1A6035;text-align:left;display:flex;align-items:flex-start;gap:9px;line-height:1.45}
+.login-wa-emoji{font-size:18px;line-height:1.1;flex-shrink:0}
+body[data-theme=aurora] .login-wa-note{background:linear-gradient(135deg,rgba(37,211,102,.1),rgba(18,140,126,.06));border-color:rgba(37,211,102,.25);color:#A8E6BC}
 .login-foot{margin-top:32px;padding-top:18px;border-top:1px solid rgba(15,23,42,.06);display:flex;align-items:center;justify-content:center;gap:10px;font-size:12px;color:#94A3B8;flex-wrap:wrap}
 .login-foot a{color:#64748B;text-decoration:none;font-weight:600}
 .login-foot a:hover{color:#0F172A;text-decoration:underline}
@@ -2872,6 +2891,7 @@ if(S.loginMethod==='email'){
   if(S.loginError)h+='<div style="color:#E8453C;font-size:13px;font-weight:600;margin:8px 0">'+S.loginError+'</div>';
   h+='<button class="login-btn" onclick="sendOTP()"'+(S.loginLoading?' disabled':'')+'>'+(S.loginLoading?'Sending code...':'\\u2709\\uFE0F Send code to email')+'</button>';
   h+='<div class="login-hint">We\\'ll email a 6-digit code. Check your inbox (and spam folder).</div>';
+  h+='<div class="login-wa-note"><span class="login-wa-emoji">\\u{1F4F2}</span><span>After signing in, you can <b>connect WhatsApp</b> to add tasks and get reminders by chat. Find it in your profile.</span></div>';
 }else{
   h+='<div class="wa-login-step"><div class="wa-step-num">1</div><div class="wa-step-body"><div class="wa-step-title">Save BroDoit on WhatsApp</div><div class="wa-step-desc">First save BroDoit to your contacts \\u2014 then sending the message feels safe and familiar.</div><button class="wa-save-btn" onclick="saveBroDoitContact()">\\u{1F4C7} Save BroDoit to contacts</button></div></div>';
   h+='<div class="wa-login-step"><div class="wa-step-num">2</div><div class="wa-step-body"><div class="wa-step-title">Say hi to BroDoit</div><div class="wa-step-desc">Tap below \\u2014 WhatsApp opens with a pre-filled message to BroDoit. Just hit <b>Send</b>.</div><button class="wa-join-btn" onclick="openWAJoin()"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>Open WhatsApp &amp; tap Send</button></div></div>';
@@ -3586,37 +3606,34 @@ if(S.showProfile){
     h+='<div class="wa-linked-hint">WhatsApp <b>'+esc(sandboxCode)+'</b> a task to <b>+1 415 523 8886</b> and it\\'ll appear in Home Tasks. Reply <b>list</b>, <b>done <i>x</i></b>, <b>doing <i>x</i></b>, or <b>delete <i>x</i></b>.</div>';
   } else if(!conn){
     h+='<button class="mb mb-s wa-connect-btn" onclick="waConnectStart()">\\u{1F517} Connect WhatsApp</button>';
+  } else if(conn.step==='verify'){
+    // After code is sent — single screen, just enter the 6-digit code.
+    h+='<div class="wa-card"><div class="wa-card-t">\\u2709\\uFE0F Code sent on WhatsApp</div>'
+      +'<div class="wa-card-d">We sent a 6-digit code to <b>'+esc(conn.phone)+'</b>. Open WhatsApp, copy the code, paste it below.</div>'
+      +'<input id="waConnCode" class="wa-code" type="tel" inputmode="numeric" maxlength="6" placeholder="\\u2022 \\u2022 \\u2022 \\u2022 \\u2022 \\u2022" autocomplete="one-time-code">'
+      +(conn.err?'<div class="wa-err">'+esc(conn.err)+'</div>':'')
+      +'<div class="wa-acts"><button class="mb mb-c" onclick="waConnectCancel()">Cancel</button><button class="mb mb-s" onclick="waConnectVerify()"'+(conn.verifying?' disabled':'')+'>'+(conn.verifying?'Verifying\\u2026':'Verify &amp; connect')+'</button></div>'
+      +'<button class="wa-resend" onclick="S.waConn={...S.waConn,step:\\'phone\\',err:\\'\\'};render()">\\u2190 Use a different number</button>'
+    +'</div>';
   } else {
-    // Step 1 — sandbox join (only if user hasn\\'t done it yet on this device)
+    // Single combined screen: Step 1 helper (collapsible if already joined) + phone form (always visible)
     if(!joined){
-      h+='<div class="wa-step"><div class="wa-step-n">1</div><div class="wa-step-b">'
-        +'<div class="wa-step-t">One-time WhatsApp setup</div>'
-        +'<div class="wa-step-d">Open WhatsApp and send <b>join '+esc(sandboxCode)+'</b> to <b>+1 415 523 8886</b>. You\\'ll get a confirmation reply. <i>Only needed once per phone.</i></div>'
-        +'<button class="wa-jb" onclick="waOpenJoin()">'+WI+' Open WhatsApp \\u2192 send join code</button>'
-        +'<button class="wa-skip" onclick="localStorage.setItem(\\'tf_wa_joined\\',\\'1\\');render()">I already joined \\u2192</button>'
-      +'</div></div>';
+      h+='<div class="wa-helper"><div class="wa-helper-t">\\u26A1 First time? One-time setup</div>'
+        +'<div class="wa-helper-d">Send <b>join '+esc(sandboxCode)+'</b> to <b>+1 415 523 8886</b> on WhatsApp once. After that, this number can talk to Brodoit.</div>'
+        +'<button class="wa-jb" onclick="waOpenJoin()">'+WI+' Open WhatsApp \\u2014 send join code</button>'
+        +'<button class="wa-skip" onclick="localStorage.setItem(\\'tf_wa_joined\\',\\'1\\');render()">Skip \\u2014 I already did this</button>'
+      +'</div>';
+    }else{
+      h+='<div class="wa-helper-mini">\\u2705 Sandbox joined on this device. <button class="wa-helper-reset" onclick="localStorage.removeItem(\\'tf_wa_joined\\');render()">Need to redo it?</button></div>';
     }
-    // Step 2 — phone entry
-    if(joined&&conn.step==='phone'){
-      h+='<div class="wa-step"><div class="wa-step-n">'+(joined?'1':'2')+'</div><div class="wa-step-b">'
-        +'<div class="wa-step-t">Your WhatsApp number</div>'
-        +'<div class="wa-step-d">Type the number you\\'ll WhatsApp from. We\\'ll send a 6-digit code to confirm.</div>'
-        +'<div class="wa-row"><select id="waConnCC" class="wa-cc"><option value="+91" selected>\\u{1F1EE}\\u{1F1F3} +91</option><option value="+1">\\u{1F1FA}\\u{1F1F8} +1</option><option value="+44">\\u{1F1EC}\\u{1F1E7} +44</option><option value="+61">\\u{1F1E6}\\u{1F1FA} +61</option><option value="+971">\\u{1F1E6}\\u{1F1EA} +971</option><option value="+65">\\u{1F1F8}\\u{1F1EC} +65</option></select>'
-        +'<input id="waConnPh" class="wa-num" type="tel" inputmode="tel" placeholder="98765 43210" autocomplete="tel-national"></div>'
-        +(conn.err?'<div class="wa-err">'+esc(conn.err)+(conn.needsJoin?' \\u2014 finish step 1 first':'')+'</div>':'')
-        +'<div class="wa-acts"><button class="mb mb-c" onclick="waConnectCancel()">Cancel</button><button class="mb mb-s" onclick="waConnectSend()"'+(conn.sending?' disabled':'')+'>'+(conn.sending?'Sending\\u2026':'Send code via WhatsApp')+'</button></div>'
-      +'</div></div>';
-    }
-    // Step 3 — verify code
-    if(conn.step==='verify'){
-      h+='<div class="wa-step"><div class="wa-step-n">'+(joined?'2':'3')+'</div><div class="wa-step-b">'
-        +'<div class="wa-step-t">Enter the 6-digit code</div>'
-        +'<div class="wa-step-d">Sent to <b>'+esc(conn.phone)+'</b> on WhatsApp.</div>'
-        +'<input id="waConnCode" class="wa-code" type="tel" inputmode="numeric" maxlength="6" placeholder="123456" autocomplete="one-time-code">'
-        +(conn.err?'<div class="wa-err">'+esc(conn.err)+'</div>':'')
-        +'<div class="wa-acts"><button class="mb mb-c" onclick="waConnectCancel()">Cancel</button><button class="mb mb-s" onclick="waConnectVerify()"'+(conn.verifying?' disabled':'')+'>'+(conn.verifying?'Verifying\\u2026':'Verify &amp; connect')+'</button></div>'
-      +'</div></div>';
-    }
+    // Phone form — ALWAYS visible
+    h+='<div class="wa-card"><div class="wa-card-t">Enter your WhatsApp number</div>'
+      +'<div class="wa-card-d">We\\'ll send a 6-digit code to confirm.</div>'
+      +'<div class="wa-row"><select id="waConnCC" class="wa-cc"><option value="+91" selected>\\u{1F1EE}\\u{1F1F3} +91</option><option value="+1">\\u{1F1FA}\\u{1F1F8} +1</option><option value="+44">\\u{1F1EC}\\u{1F1E7} +44</option><option value="+61">\\u{1F1E6}\\u{1F1FA} +61</option><option value="+971">\\u{1F1E6}\\u{1F1EA} +971</option><option value="+65">\\u{1F1F8}\\u{1F1EC} +65</option></select>'
+      +'<input id="waConnPh" class="wa-num" type="tel" inputmode="tel" placeholder="98765 43210" autocomplete="tel-national" value="'+esc(conn.phoneInput||'')+'" oninput="S.waConn={...S.waConn,phoneInput:this.value}"></div>'
+      +(conn.err?'<div class="wa-err">'+esc(conn.err)+(conn.needsJoin?' \\u2014 finish the one-time setup above first':'')+'</div>':'')
+      +'<div class="wa-acts"><button class="mb mb-c" onclick="waConnectCancel()">Cancel</button><button class="mb mb-s" onclick="waConnectSend()"'+(conn.sending?' disabled':'')+'>'+(conn.sending?'Sending\\u2026':'\\u{1F4F2} Send code via WhatsApp')+'</button></div>'
+    +'</div>';
   }
   h+='</div>';
 
