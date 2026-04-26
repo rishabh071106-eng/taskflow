@@ -971,11 +971,12 @@ body[data-theme=aurora] .section-div::before{background:#1A1A2E;border-color:rgb
 .hdr-remember{display:none}
 @media (min-width:1024px){.hdr-remember{display:block;flex:1;max-width:520px;margin:0 18px}.hdr-remember .remember-card{margin:0}.hdr-remember .remember-extract{display:none}}
 /* 3-headline floating top news — auto-fades each row in/out */
-.top-news{display:flex;flex-direction:column;gap:6px;margin-top:8px}
-.top-news-row{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;background:var(--bg-elev,#fff);border:1px solid var(--line,#E2E8F0);text-decoration:none;color:inherit;font-size:13px;line-height:1.35;animation:topNewsFade 12s ease-in-out infinite;opacity:0}
+.top-news{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.top-news-row{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:12px;background:var(--bg-elev,#fff);border:1px solid var(--line,#E2E8F0);text-decoration:none;color:inherit;font-size:14px;line-height:1.4;animation:topNewsFade 14s ease-in-out infinite;opacity:0}
 .top-news-pulse{width:7px;height:7px;border-radius:50%;background:#3DAE5C;flex-shrink:0;box-shadow:0 0 0 0 rgba(61,174,92,.5);animation:topNewsPulse 2s ease-in-out infinite}
 .top-news-src{font-size:10px;font-weight:800;color:#94A3B8;letter-spacing:.6px;text-transform:uppercase;flex-shrink:0}
 .top-news-link{flex:1;min-width:0;color:var(--ink,#0F172A);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (max-width:700px){.top-news-row{padding:12px 14px;font-size:14.5px;align-items:flex-start}.top-news-link{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.35}}
 @keyframes topNewsFade{0%,5%{opacity:0;transform:translateY(-4px)}10%,90%{opacity:1;transform:translateY(0)}95%,100%{opacity:0;transform:translateY(4px)}}
 @keyframes topNewsPulse{0%,100%{box-shadow:0 0 0 0 rgba(61,174,92,.5)}50%{box-shadow:0 0 0 6px rgba(61,174,92,0)}}
 body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,20,40,.9) 0%,rgba(20,20,40,.65) 70%,rgba(20,20,40,0) 100%)}
@@ -1000,7 +1001,7 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
 @media (max-width:600px){.tabs{padding:4px;gap:4px}.tab{padding:11px 12px;font-size:12px}.tab .ti{font-size:15px}.tab .tl{font-size:11.5px}}
 /* Desktop sidebar layout */
 @media (min-width:1024px){
-  .app{max-width:1440px;padding:12px 24px 40px;display:grid;grid-template-columns:220px 1fr;grid-template-areas:"hdr hdr" "topstrip main" "nav main";column-gap:22px;row-gap:6px;align-items:start}
+  .app{max-width:1440px;padding:12px 24px 40px;display:grid;grid-template-columns:220px 1fr;grid-template-areas:"hdr hdr" "nav main" "topstrip main";column-gap:22px;row-gap:6px;align-items:start}
   .app>.hdr{grid-area:hdr;margin-bottom:0}
   .app>.top-strip{grid-area:topstrip;margin-bottom:0;align-self:start}
   .main-col>.moral-wrap{margin:0 0 14px;display:flex;flex-direction:column;gap:8px}
@@ -2436,7 +2437,7 @@ const KNOWLEDGE_TOPICS=[
 ];
 function getKnowledgeTopic(k){return KNOWLEDGE_TOPICS.find(t=>t.k===k)||KNOWLEDGE_TOPICS[0]}
 function getKnowledgeSec(topicK,secK){const t=getKnowledgeTopic(topicK);return t.sections.find(s=>s.k===secK)||t.sections[0]}
-function switchTab(t){if(t==='steps'||t==='dash'||t==='history'||t==='geography'||t==='knowledge'||t==='ipl')t=t==='ipl'?'news':'tasks';S.tab=t;if(t==='news'){if(t==='news'&&!S.newsCat)S.newsCat='sports';if(!S.news[S.newsCat])loadNews(S.newsCat)}if(t==='books'&&!S.books.length)loadBooks('all');if(t==='meditation'&&!S.meditations)loadMeditations();if(t==='cal'){if(!S.google.loaded)loadGoogleStatus();else if(S.google.accounts.length&&!S.gcalEvents.length&&!S.gcalLoading)loadGcalEvents()}render()}
+function switchTab(t){if(t==='steps'||t==='dash'||t==='history'||t==='geography'||t==='knowledge'||t==='ipl')t=t==='ipl'?'news':'tasks';S.tab=t;if(t==='news'){if(t==='news'&&!S.newsCat)S.newsCat='sports';if(!S.news[S.newsCat])loadNews(S.newsCat)}if(t==='books'&&!S.books.length)loadBooks('all');if(t==='meditation'&&!S.meditations)loadMeditations();if(t==='cal'){if(!S.google.loaded)loadGoogleStatus();else if(S.google.accounts.length&&!S.gcalEvents.length&&!S.gcalLoading)loadGcalEvents()}render();try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}}
 async function loadKnowledge(topicK,secK){S.knowledge.topic=topicK;S.knowledge.sec=secK;S.knowledge.loading=true;render();const cacheKey=topicK+':'+secK;try{if(topicK==='history'&&secK==='today'){const r=await fetch('/api/history/today');const j=await r.json();S.knowledge.events=j.events||[]}else{const tObj=KNOWLEDGE_TOPICS.find(t=>t.k===topicK);const sObj=tObj&&tObj.sections.find(s=>s.k===secK);if(!sObj||!sObj.titles){S.knowledge.loaded[cacheKey]=true;S.knowledge.loading=false;render();return}const r=await fetch('/api/wiki/summaries?titles='+encodeURIComponent(sObj.titles.join(',')));const j=await r.json();S.knowledge.articles[cacheKey]=j.summaries||[]}}catch(e){}S.knowledge.loaded[cacheKey]=true;S.knowledge.loading=false;render()}
 function switchKnowledgeTopic(k){S.knowledge.topic=k;const tObj=KNOWLEDGE_TOPICS.find(t=>t.k===k);const sk=(tObj&&tObj.sections[0]&&tObj.sections[0].k)||'today';loadKnowledge(k,sk)}
 async function loadNews(cat){S.newsCat=cat;S.newsLoading=true;render();try{const r=await fetch('/api/news?cat='+encodeURIComponent(cat),{cache:'no-store'});const j=await r.json();S.news[cat]=j.items||[]}catch(e){S.news[cat]=[]}S.newsLoading=false;render()}
@@ -2830,7 +2831,8 @@ if(isMain){
     +'<div class="lg-text'+(goalText?'':' lg-empty')+'">'+(goalText?esc(goalText):'Type your goal here \\u2014 your north star\\u2026')+'</div>'
     +(goalText?'':'<div class="lg-empty-hint">Tap anywhere to start typing</div>')
   +'</div>';
-  h+='<section class="top-strip">'+sideNow+goalCard+'</section>';
+  // Topstrip (clock + weather + cities + life-goal) only on Tasks tab — keeps other tabs focused.
+  if(isMain)h+='<section class="top-strip">'+sideNow+goalCard+'</section>';
 }
 
 h+='<main class="main-col">';
