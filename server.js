@@ -1691,6 +1691,41 @@ body:not([data-theme=aurora]) .chk.on{background:linear-gradient(135deg,#10B981,
 @media (max-width:600px){.hdr-profile-name{display:none}.hdr-profile{padding:7px 8px}}
 body[data-theme=aurora] .hdr-profile{background:rgba(167,139,250,.14);border-color:rgba(167,139,250,.3);color:#F5F5FA}
 body[data-theme=aurora] .hdr-profile svg{color:#A78BFA}
+.hdr-help{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,rgba(99,102,241,.12),rgba(232,145,44,.1));border:1px solid rgba(99,102,241,.25);color:#6366F1;font-weight:800;font-size:15px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-family:inherit;transition:transform .15s ease,background .15s ease}
+.hdr-help:hover{background:linear-gradient(135deg,rgba(99,102,241,.2),rgba(232,145,44,.16));transform:translateY(-1px)}
+body[data-theme=aurora] .hdr-help{background:linear-gradient(135deg,rgba(167,139,250,.18),rgba(232,145,44,.12));border-color:rgba(167,139,250,.35);color:#A78BFA}
+/* HELP modal — full step-by-step guide */
+.help-mdl{max-width:560px;padding:0;overflow:hidden;display:flex;flex-direction:column;max-height:90vh}
+.help-hd{display:flex;align-items:center;gap:12px;padding:18px 20px 14px;background:linear-gradient(135deg,#0F172A,#312E81);color:#fff;position:relative;flex-shrink:0}
+.help-hd > div{flex:1;min-width:0}
+.help-t{margin:0;font-size:20px;font-weight:800;color:#fff;letter-spacing:-.01em}
+.help-s{font-size:12.5px;color:rgba(255,255,255,.78);margin-top:3px}
+.help-x{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.18);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:14px;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center;font-family:inherit}
+.help-x:hover{background:rgba(255,255,255,.28)}
+.help-body{flex:1;overflow-y:auto;padding:18px 20px 12px;background:#fff}
+.help-sec{margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid #F1F5F9}
+.help-sec:last-child{border-bottom:none;margin-bottom:0}
+.help-sec-hd{display:flex;align-items:center;gap:11px;margin-bottom:10px}
+.help-sec-num{flex-shrink:0;width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#6366F1,#8B5CF6);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:14px;font-family:'Space Mono',monospace;box-shadow:0 3px 10px rgba(99,102,241,.3)}
+.help-sec-t{margin:0;font-size:17px;font-weight:800;color:#0F172A;letter-spacing:-.01em}
+.help-list{padding-left:22px;margin:0;display:flex;flex-direction:column;gap:8px}
+.help-list li{font-size:14.5px;line-height:1.55;color:#1F2937}
+.help-list li b{color:#0F172A}
+.help-sublist{padding-left:18px;margin:6px 0 0;display:flex;flex-direction:column;gap:5px}
+.help-sublist li{font-size:13.5px;color:#475569}
+.help-callout{background:linear-gradient(135deg,#FFFBF1,#FEF3E0);border:1px solid #F3D9A0;border-radius:10px;padding:11px 13px;margin-bottom:12px;font-size:13.5px;line-height:1.55;color:#5D4400}
+.help-callout b{color:#7C5A00}
+.help-foot{padding:14px 20px;border-top:1px solid #E2E8F0;background:#FAFAF7;display:flex;justify-content:flex-end;flex-shrink:0}
+.help-foot .mb{padding:11px 22px;font-size:14px}
+@media (max-width:600px){.help-mdl{max-height:94vh;border-radius:16px 16px 0 0}.help-hd{padding:16px 16px 12px}.help-t{font-size:18px}.help-body{padding:14px 16px 10px}.help-sec{margin-bottom:18px;padding-bottom:14px}.help-sec-t{font-size:16px}.help-list li{font-size:14px}.help-foot{padding:12px 16px}}
+body[data-theme=aurora] .help-mdl{background:#1A1A2E}
+body[data-theme=aurora] .help-body,body[data-theme=aurora] .help-foot{background:rgba(255,255,255,.02)}
+body[data-theme=aurora] .help-sec{border-bottom-color:rgba(255,255,255,.08)}
+body[data-theme=aurora] .help-sec-t,body[data-theme=aurora] .help-list li b{color:#F5F5FA}
+body[data-theme=aurora] .help-list li{color:#C7C7D6}
+body[data-theme=aurora] .help-sublist li{color:#9999B5}
+body[data-theme=aurora] .help-callout{background:rgba(245,214,135,.08);border-color:rgba(245,214,135,.25);color:#F5D687}
+body[data-theme=aurora] .help-callout b{color:#FCD34D}
 .theme-tg{width:38px;height:38px;border-radius:50%;background:#FFFFFF;border:1px solid #E8E9EF;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;transition:all .3s cubic-bezier(.4,1.5,.5,1);box-shadow:0 2px 8px rgba(0,0,0,.05)}
 .theme-tg:hover{transform:rotate(25deg) scale(1.1);box-shadow:0 4px 14px rgba(0,0,0,.1)}
 .theme-tg:active{transform:scale(.92)}
@@ -2997,6 +3032,8 @@ async function saveGcalEvent(){const f=S.gcalForm;if(!f.title.trim()){toast('\\u
 function playMedSlot(mins){const doc=(S.meditations||{})[mins];if(!doc){toast('\\u23F3 Loading audio...','err');return}const t=Array.isArray(doc.title)?doc.title[0]:doc.title;playMeditation(doc.identifier,t,mins)}
 async function playMeditation(id,title,mins,preferFile){S.meditating={active:true,title:title||(mins+'-min meditation'),mins:mins||10,startedAt:Date.now()};S.playing={id,title:title||(mins+'-minute meditation'),author:'Guided meditation \\u2022 Internet Archive',loading:true};render();try{const r=await fetch('https://archive.org/metadata/'+encodeURIComponent(id));if(!r.ok)throw new Error('metadata '+r.status);const j=await r.json();if(!j.files||!j.files.length){toast('\\u26A0\\uFE0F No audio \\u2014 opening archive.org','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render();return}let mp3=null;if(preferFile){mp3=j.files.find(f=>f.name===preferFile||(f.name||'').endsWith('/'+preferFile))}if(!mp3){const mp3s=j.files.filter(f=>/\\.mp3$/i.test(f.name)&&!/sample|preview|announce|intro\\.mp3|sting/i.test(f.name)).sort((a,b)=>(parseFloat(b.length||'0')||0)-(parseFloat(a.length||'0')||0));mp3=mp3s[0]}if(!mp3)mp3=j.files.find(f=>/\\.(mp3|m4a|ogg)$/i.test(f.name));if(mp3){const server=j.server||'archive.org';const dir=j.dir||('/'+id);const directUrl='https://'+server+dir+'/'+mp3.name.split('/').map(encodeURIComponent).join('/');const dlUrl='https://archive.org/download/'+encodeURIComponent(id)+'/'+mp3.name.split('/').map(encodeURIComponent).join('/');S.playing={id,title:title||mins+'-min meditation',author:'\\u{1F9D8} Guided meditation \\u2022 Archive.org',url:directUrl,altUrl:dlUrl,external:'https://archive.org/details/'+id};render();setTimeout(()=>{const a=document.getElementById('audioEl');if(!a)return;a.setAttribute('playsinline','');a.preload='auto';a.addEventListener('error',function onErr(){a.removeEventListener('error',onErr);if(a.src!==dlUrl){a.src=dlUrl;a.load()}},{once:true});a.load();const p=a.play();if(p&&p.catch)p.catch(()=>toast('\\u25B6\\uFE0F Tap play on the bar','err'))},250)}else{toast('\\u26A0\\uFE0F No mp3 \\u2014 opening archive.org','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render()}}catch(e){toast('\\u26A0\\uFE0F '+e.message,'err');S.playing=null;render()}}
 async function openProfile(){S.showProfile=true;render();const me=await api('/me');if(me&&!me.error)S.profile=me;render()}
+function openHelp(){S.showHelp=true;render();setTimeout(()=>{const m=document.querySelector('.help-mdl');if(m)m.scrollTop=0},50)}
+function closeHelp(){S.showHelp=false;render()}
 function closeProfile(){S.showProfile=false;render()}
 async function saveName(){const n=(document.getElementById('pfName')||{}).value;if(!n||!n.trim())return;const r=await api('/me',{method:'PUT',body:JSON.stringify({name:n.trim()})});if(r&&r.name){S.user.name=r.name;localStorage.setItem('tf_name',r.name);S.profile=Object.assign(S.profile||{},{name:r.name});toast('\\u2705 Name updated');render()}}
 async function refreshSession(){if(!token)return;const r=await api('/me');if(r&&!r.error){S.user={phone:r.phone,name:r.name,token};S.profile=r;localStorage.setItem('tf_name',r.name||'');render()}else if(r&&r.error){logout()}}
@@ -3220,7 +3257,8 @@ if(S.remember&&S.remember.person){
 }
 // Tasks tab is the "main page" — moral, news, person-of-day, world-clocks render only here.
 const isMain=(S.tab==='tasks'||!S.tab);
-let h=(isMain?PHONE_BANNER:'')+'<div class="hdr"><div class="hdr-l"><div class="logo">Bro<span class="k">Do</span>it</div><div class="hdr-tagline">tasks &middot; books &middot; wisdom &middot; calm</div><div class="hdr-sub">'+JUMPER+HDR_TIME+'</div></div>'+(isMain&&remember?'<div class="hdr-remember">'+remember+'</div>':'')+'<div class="hdr-actions">'+PROFILE_BTN+'<button class="theme-tg" onclick="toggleTheme()" title="Switch theme">'+(S.theme==='aurora'?ic('sun',18):ic('moon',18))+'</button></div></div>';
+const HELP_BTN='<button class="hdr-help" onclick="openHelp()" aria-label="Help" title="How to use Brodoit">?</button>';
+let h=(isMain?PHONE_BANNER:'')+'<div class="hdr"><div class="hdr-l"><div class="logo">Bro<span class="k">Do</span>it</div><div class="hdr-tagline">tasks &middot; books &middot; wisdom &middot; calm</div><div class="hdr-sub">'+JUMPER+HDR_TIME+'</div></div>'+(isMain&&remember?'<div class="hdr-remember">'+remember+'</div>':'')+'<div class="hdr-actions">'+HELP_BTN+PROFILE_BTN+'<button class="theme-tg" onclick="toggleTheme()" title="Switch theme">'+(S.theme==='aurora'?ic('sun',18):ic('moon',18))+'</button></div></div>';
 
 const m=MORALS[S.moralIdx];
 let moralBlock='';
@@ -3342,22 +3380,6 @@ if(S.tab!=='tasks')h+=_tabHeroHtml;
 // TASKS TAB
 if(S.tab==='dash')S.tab='tasks'; // Stats tab removed; redirect any stale state to Tasks
 if(S.tab==='tasks'){
-  // Quick-start guide — shows on first visits, dismissible. Pure orientation: how the app works in 3 lines.
-  if(localStorage.getItem('tf_intro_dismissed')!=='1'){
-    h+='<div class="intro-card">'
-      +'<div class="intro-hd">'
-        +'<div class="intro-logo">Bro<span class="k">Do</span>it</div>'
-        +'<div class="intro-tag">A calm space for what matters \\u2014 here\\u2019s how it works</div>'
-      +'</div>'
-      +'<ul class="intro-steps">'
-        +'<li><span class="intro-ic">\\u270F\\uFE0F</span><div><b>Add tasks here, manage them on Board.</b> <span class="intro-d">Tap the <b>+ Add a new task</b> bar (or use the \\u{1F3A4} voice button) on the <b>Tasks</b> tab. Then switch to the <b>Board</b> tab to drag tasks across <b>To Do \\u2192 Doing \\u2192 Done</b>.</span></div></li>'
-        +'<li><span class="intro-ic">\\u2728</span><div><b>More inside the app.</b> <span class="intro-d">A daily moral, free public-domain audiobooks, guided meditations, calendar with Google sync, and headlines on the News tab \\u2014 explore the tab bar above. Want WhatsApp reminders? Open your profile (top-right) and tap <b>Set up WhatsApp</b>.</span></div></li>'
-      +'</ul>'
-      +'<div class="intro-acts">'
-        +'<button class="intro-btn-skip" onclick="localStorage.setItem(\\'tf_intro_dismissed\\',\\'1\\');render()">Got it \\u2192</button>'
-      +'</div>'
-    +'</div>';
-  }
   // Connect-WhatsApp banner — shows when WA isn't linked AND user hasn't dismissed it.
   if(S.profile&&!S.profile.wa_phone&&localStorage.getItem('tf_wa_banner_x')!=='1'){
     h+='<div class="wa-promo">'
@@ -3822,6 +3844,79 @@ if(S.showProfile){
   h+='</div>';
 
   h+='<div class="macts" style="margin-top:22px"><button class="mb mb-c" onclick="closeProfile()">Close</button><button class="mb mb-d" style="margin-top:0" onclick="logout()">Log out</button></div>';
+  h+='</div></div>';
+}
+
+// ─── HELP modal — full step-by-step guide ───
+if(S.showHelp){
+  const sandboxCode=window.__TWILIO_SANDBOX_CODE||'along-wool';
+  h+='<div class="ov" onclick="closeHelp()"><div class="mdl help-mdl" onclick="event.stopPropagation()">';
+  h+='<div class="help-hd"><div><h2 class="help-t">How to use Brodoit</h2><div class="help-s">Everything you need, step by step</div></div><button class="help-x" onclick="closeHelp()" aria-label="Close">\\u2715</button></div>';
+  h+='<div class="help-body">';
+
+  // Section 1 — Adding tasks
+  h+='<section class="help-sec"><div class="help-sec-hd"><span class="help-sec-num">1</span><h3 class="help-sec-t">Add a task</h3></div>'
+    +'<ol class="help-list">'
+      +'<li>Open the <b>Tasks</b> tab (the first tab in the bar at the top).</li>'
+      +'<li>Tap the big <b>+ Add a new task</b> bar near the top of the page.</li>'
+      +'<li>Type the task title. Optionally add notes, priority, a due date and a reminder time.</li>'
+      +'<li>Use the <b>\\u{1F3A4} Speak to add</b> button to dictate the task instead of typing. Phrases like <i>"Buy groceries tomorrow urgent"</i> auto-set the date and priority.</li>'
+      +'<li>Tap <b>Add Task</b> to save. The task appears at the top of the list.</li>'
+    +'</ol></section>';
+
+  // Section 2 — Manage on Board
+  h+='<section class="help-sec"><div class="help-sec-hd"><span class="help-sec-num">2</span><h3 class="help-sec-t">Move tasks on the Board</h3></div>'
+    +'<ol class="help-list">'
+      +'<li>Tap the <b>Board</b> tab in the top bar.</li>'
+      +'<li>You\\'ll see three columns: <b>To Do \\u2022 Doing \\u2022 Done</b>.</li>'
+      +'<li><b>On desktop</b>: drag a task card from one column to another to change its status.</li>'
+      +'<li><b>On mobile</b>: tap the small status badge on any task and it cycles To Do \\u2192 Doing \\u2192 Done.</li>'
+      +'<li>Tap the round circle on the left of a task to mark it complete instantly. Tap again to undo.</li>'
+    +'</ol></section>';
+
+  // Section 3 — WhatsApp setup (with Twilio disclosure)
+  h+='<section class="help-sec"><div class="help-sec-hd"><span class="help-sec-num">3</span><h3 class="help-sec-t">Connect WhatsApp</h3></div>'
+    +'<div class="help-callout"><b>How this works:</b> Brodoit doesn\\'t talk to WhatsApp directly. We use <b>Twilio</b>, a third-party messaging gateway. Your messages flow <b>your WhatsApp \\u2192 Twilio \\u2192 Brodoit\\u2019s server</b> and back. You opt in once per phone, then it just works.</div>'
+    +'<ol class="help-list">'
+      +'<li>Tap your <b>profile</b> button (top-right of the header).</li>'
+      +'<li>Scroll down in the Profile and tap <b>\\u{1F517} Set up WhatsApp \\u2192</b>.</li>'
+      +'<li><b>One-time setup</b>: open WhatsApp and send the message <b>join '+esc(sandboxCode)+'</b> to <b>+1 415 523 8886</b>. The pre-filled <b>Open WhatsApp</b> button does this for you.</li>'
+      +'<li>Wait for a confirmation reply from Twilio (usually within a few seconds).</li>'
+      +'<li>Back in Brodoit, pick your country code and type your WhatsApp number, then tap <b>Send code via WhatsApp</b>.</li>'
+      +'<li>Open WhatsApp, find the 6-digit code, copy it, paste it into Brodoit, and tap <b>Verify &amp; connect</b>.</li>'
+      +'<li>Done. Now you can:'
+        +'<ul class="help-sublist">'
+          +'<li>WhatsApp any message to <b>+1 415 523 8886</b> and it becomes a task.</li>'
+          +'<li>Send a single task to your WhatsApp by tapping the <b>\\u{1F4F2}</b> icon next to it.</li>'
+          +'<li>Send all your open tasks at once with <b>Send all tasks to WhatsApp</b>.</li>'
+          +'<li>Receive automatic reminders on WhatsApp at the scheduled time.</li>'
+        +'</ul>'
+      +'</li>'
+      +'<li>WhatsApp commands (reply to any Brodoit message): <b>list</b>, <b>done <i>title</i></b>, <b>doing <i>title</i></b>, <b>delete <i>title</i></b>, <b>help</b>.</li>'
+    +'</ol></section>';
+
+  // Section 4 — Other features
+  h+='<section class="help-sec"><div class="help-sec-hd"><span class="help-sec-num">4</span><h3 class="help-sec-t">More inside the app</h3></div>'
+    +'<ul class="help-list">'
+      +'<li><b>Calendar</b> tab: connect your Google account to see and add events without leaving Brodoit.</li>'
+      +'<li><b>Books</b> tab: free public-domain audiobooks from the Internet Archive. Tap any book to play; a 2-minute listen counts toward your daily streak.</li>'
+      +'<li><b>Meditate</b> tab: short guided meditations \\u2014 Vipassana breath-awareness and metta sessions, 10 or 20 minutes each.</li>'
+      +'<li><b>News</b> tab: latest headlines across Tech, Sports and World, refreshed every 15 minutes.</li>'
+      +'<li><b>Daily moral of the day</b>: a fresh quote on your Tasks landing every visit. Tap the \\u21BB button to rotate.</li>'
+      +'<li><b>Voice dictation</b> works inside the New Task modal \\u2014 it parses dates and priorities automatically.</li>'
+    +'</ul></section>';
+
+  // Section 5 — Privacy & data
+  h+='<section class="help-sec"><div class="help-sec-hd"><span class="help-sec-num">5</span><h3 class="help-sec-t">Privacy &amp; your data</h3></div>'
+    +'<ul class="help-list">'
+      +'<li>Login is <b>email-only OTP</b> \\u2014 no password to remember, no data shared with third parties.</li>'
+      +'<li>Your tasks are stored on Brodoit\\u2019s server and tied only to your email.</li>'
+      +'<li>WhatsApp messages pass through Twilio (the gateway). Brodoit never reads your WhatsApp chats outside our own number.</li>'
+      +'<li>Read the full <a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a> and <a href="/terms" target="_blank" rel="noopener">Terms</a>.</li>'
+    +'</ul></section>';
+
+  h+='</div>';
+  h+='<div class="help-foot"><button class="mb mb-s" onclick="closeHelp()">Got it</button></div>';
   h+='</div></div>';
 }
 
