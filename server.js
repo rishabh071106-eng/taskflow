@@ -3809,6 +3809,8 @@ async function coachStartRec(){
 function coachStopRec(){try{_coachRec&&_coachRec.state==='recording'&&_coachRec.stop()}catch(e){}}
 function coachReset(){coachStopSpeak();coachStopRec();S.coach.history=[];S.coach.scenario=null;coachInit()}
 function coachStartScenario(sc){coachStopSpeak();S.coach.scenario=sc;S.coach.history=[{role:'assistant',content:"Let's roleplay: **"+sc.title+"**. I'll play "+sc.role+". "+sc.opener}];render();coachSpeak("Let's roleplay. "+sc.opener);setTimeout(()=>{const el=document.getElementById('coachInput');if(el)el.focus()},120)}
+function coachStartScenarioByIdx(i){const sc=COACH_SCENARIOS[i];if(sc)coachStartScenario(sc)}
+function coachReplayLast(){if(!S.coach||!S.coach.history)return;const last=S.coach.history[S.coach.history.length-1];if(last&&last.role==='assistant')coachSpeak(last.content)}
 const COACH_SCENARIOS=[
   {id:'pitch',title:'Pitch your idea to a skeptical investor',role:'a sharp, skeptical venture-capital investor',opener:"So — you've got 60 seconds. What are you building, and why should I care?"},
   {id:'salary',title:'Negotiate a salary increase with your manager',role:'your direct manager who has limited budget flexibility',opener:"Thanks for setting up this meeting. I understand you wanted to talk about compensation?"},
@@ -4387,7 +4389,7 @@ else if(S.tab==='voice'){
   +'</div>';
   // Scenarios
   h+='<div class="cc-scenarios"><div class="cc-scenarios-t">\\u26A1 Pick a scenario \\u2014 or just chat below</div><div class="cc-scenario-row">';
-  COACH_SCENARIOS.forEach(sc=>{const on=c.scenario&&c.scenario.id===sc.id;h+='<button class="cc-sc'+(on?' cc-sc-on':'')+'" onclick="coachStartScenario('+esc(JSON.stringify(sc).replace(/'/g,"\\\\'"))+')">'+esc(sc.title)+'</button>'});
+  COACH_SCENARIOS.forEach((sc,i)=>{const on=c.scenario&&c.scenario.id===sc.id;h+='<button class="cc-sc'+(on?' cc-sc-on':'')+'" onclick="coachStartScenarioByIdx('+i+')">'+esc(sc.title)+'</button>'});
   h+='</div></div>';
   if(c.scenario)h+='<div class="cc-active-scenario">\\u{1F3AD} Roleplay: <b>'+esc(c.scenario.title)+'</b> <button class="cc-end" onclick="coachReset()">End \\u2715</button></div>';
   // Chat thread
@@ -4396,7 +4398,7 @@ else if(S.tab==='voice'){
     const role=m.role==='assistant'?'coach':'me';
     h+='<div class="cc-msg cc-'+role+'">'
       +(role==='coach'?'<div class="cc-avatar">\\u{1F399}\\uFE0F</div>':'')
-      +'<div class="cc-bubble">'+_renderCoachText(m.content)+(role==='coach'&&i===c.history.length-1?'<button class="cc-replay" onclick="coachSpeak('+esc(JSON.stringify(m.content).replace(/'/g,"\\\\'"))+')" title="Replay">\\u{1F50A}</button>':'')+'</div>'
+      +'<div class="cc-bubble">'+esc(m.content).replace(/\\*\\*([^*]+)\\*\\*/g,'<b>$1</b>').replace(/\\n/g,'<br>')+(role==='coach'&&i===c.history.length-1?'<button class="cc-replay" onclick="coachReplayLast()" title="Replay">\\u{1F50A}</button>':'')+'</div>'
     +'</div>';
   });
   if(c.sending)h+='<div class="cc-msg cc-coach"><div class="cc-avatar">\\u{1F399}\\uFE0F</div><div class="cc-bubble cc-typing"><span></span><span></span><span></span></div></div>';
@@ -4416,8 +4418,6 @@ else if(S.tab==='voice'){
   +'</div>';
   if(c.playing)h+='<div class="cc-playing">\\u{1F50A} Coach is speaking\\u2026 <button onclick="coachStopSpeak()">stop</button></div>';
 }
-// Helper: simple markdown-ish rendering for coach replies (paragraphs, bold)
-function _renderCoachText(t){return esc(t).replace(/\\*\\*([^*]+)\\*\\*/g,'<b>$1</b>').replace(/\\n/g,'<br>')}
 
 // BOARD TAB (Kanban: To Do / Doing / Done with drag-and-drop)
 else if(S.tab==='board'){
