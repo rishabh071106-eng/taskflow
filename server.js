@@ -119,8 +119,13 @@ app.post('/api/send-otp-email',async(req,res)=>{
     <p style="color:#9C968D;font-size:11px;text-align:center">Brodoit — Tasks, Books &amp; Wisdom in one place.</p>
   </div>`;
   const r=await sendEmail(email,'Your Brodoit code: '+code,html);
-  if(r.ok)res.json({ok:true,message:'Check your email (and spam folder)'});
-  else res.status(500).json({ok:false,error:'Failed to send email',detail:r.reason});
+  if(r.ok){
+    // Cookie survives iOS Safari tab kills better than localStorage. Read on / to force the OTP screen
+    // even if the user's localStorage was wiped while they were in Gmail. 10-min expiry.
+    res.set('Set-Cookie','pending_otp_email='+encodeURIComponent(email)+'; Path=/; Max-Age=600; SameSite=Lax');
+    return res.json({ok:true,message:'Check your email (and spam folder)'});
+  }
+  res.status(500).json({ok:false,error:'Failed to send email',detail:r.reason});
 });
 
 app.post('/api/verify-otp-email',(req,res)=>{
@@ -137,6 +142,7 @@ app.post('/api/verify-otp-email',(req,res)=>{
   const token=genToken();
   if(!user){db.prepare('INSERT INTO users(phone,name,email,token)VALUES(?,?,?,?)').run(key,name,email,token);user={phone:key,name,email,token}}
   else{db.prepare('UPDATE users SET token=?,name=COALESCE(NULLIF(?,\'\'),name)WHERE email=?').run(token,name,email);user.token=token;if(name)user.name=name}
+  res.set('Set-Cookie','pending_otp_email=; Path=/; Max-Age=0; SameSite=Lax');
   res.json({phone:user.phone,name:user.name||name,email,token});
 });
 
@@ -2076,6 +2082,11 @@ body[data-theme=aurora] .was-skip{color:#9999B5}
 .book-play:hover{transform:scale(1.08);background:#3DAE5C}
 .player{position:fixed;bottom:0;left:0;right:0;background:#0F172A;color:#F8FAFC;padding:10px 14px;box-shadow:0 -4px 20px rgba(0,0,0,.3);display:none;z-index:80}
 .player.on{display:flex;align-items:center;gap:10px}
+/* When the player is on, push the FAB up so it isn't covered + add bottom padding to the app
+   so the bottom tasks/list/tabs remain reachable above the player bar. */
+body.audio-on .app{padding-bottom:calc(100px + env(safe-area-inset-bottom,0px))}
+body.audio-on .fab-global{bottom:calc(96px + env(safe-area-inset-bottom,0px))!important}
+@media (max-width:600px){body.audio-on .app{padding-bottom:calc(120px + env(safe-area-inset-bottom,0px))}body.audio-on .fab-global{bottom:calc(116px + env(safe-area-inset-bottom,0px))!important}}
 .player-info{flex:1;min-width:0}.player-title{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.player-author{font-size:11px;color:#94A3B8}
 .player audio{height:36px;max-width:220px}.player-close{padding:6px 12px;border-radius:8px;background:rgba(255,255,255,.18);font-size:14px;font-weight:700;color:#fff;border:1px solid rgba(255,255,255,.25);transition:background .15s ease}
 .player-close:hover{background:rgba(232,69,60,.85);border-color:rgba(232,69,60,.9)}
@@ -2547,6 +2558,7 @@ body[data-theme=aurora] .hist-link a:hover{color:#C4B5FD}
 <noscript><div style="text-align:center;padding:40px 20px"><h1>Brodoit</h1><p>Brodoit needs JavaScript to run. Please enable JavaScript in your browser.</p><p><a href="/privacy">Privacy Policy</a> &middot; <a href="/terms">Terms of Service</a></p></div></noscript>
 <footer id="seo-foot" style="position:fixed;bottom:8px;left:50%;transform:translateX(-50%);font-size:11px;color:rgba(100,116,139,.7);z-index:1;pointer-events:auto;display:flex;gap:8px;background:rgba(255,255,255,.6);backdrop-filter:blur(8px);padding:4px 10px;border-radius:8px"><a href="/privacy" style="color:inherit;text-decoration:none">Privacy</a><span>&middot;</span><a href="/terms" style="color:inherit;text-decoration:none">Terms</a></footer>
 <style>@media (max-width:1023px){#seo-foot{display:none!important}}</style>
+<script>/*__SERVER_INJECT__*/</script>
 <script>
 const MORALS=[{t:"The secret of getting ahead is getting started.",a:"Mark Twain"},{t:"It does not matter how slowly you go as long as you do not stop.",a:"Confucius"},{t:"Small daily improvements are the key to staggering long-term results.",a:"Robin Sharma"},{t:"Discipline is choosing between what you want now and what you want most.",a:"Abraham Lincoln"},{t:"Don't count the days. Make the days count.",a:"Muhammad Ali"},{t:"The best way to predict the future is to create it.",a:"Peter Drucker"},{t:"Focus on being productive instead of busy.",a:"Tim Ferriss"},{t:"You don't have to be great to start, but you have to start to be great.",a:"Zig Ziglar"},{t:"The journey of a thousand miles begins with a single step.",a:"Lao Tzu"},{t:"Either you run the day or the day runs you.",a:"Jim Rohn"},{t:"A year from now you may wish you had started today.",a:"Karen Lamb"},{t:"Success is the sum of small efforts repeated day in and day out.",a:"Robert Collier"},{t:"Done is better than perfect.",a:"Sheryl Sandberg"},{t:"The way to get started is to quit talking and begin doing.",a:"Walt Disney"},{t:"You cannot escape the responsibility of tomorrow by evading it today.",a:"Abraham Lincoln"},{t:"Motivation gets you going, but discipline keeps you growing.",a:"John C. Maxwell"},{t:"Do something today that your future self will thank you for.",a:"Sean Patrick Flanery"},{t:"The harder I work, the luckier I get.",a:"Samuel Goldwyn"},{t:"Don't watch the clock; do what it does. Keep going.",a:"Sam Levenson"},{t:"Great things never come from comfort zones.",a:"Neil Strauss"},{t:"Sometimes later becomes never. Do it now.",a:"Anonymous"},{t:"Wake up with determination. Go to bed with satisfaction.",a:"Anonymous"},{t:"A goal without a plan is just a wish.",a:"Antoine de Saint-Exupéry"},{t:"Little by little, day by day, what is meant for you will find its way.",a:"Anonymous"},{t:"Success doesn't just find you — you have to go out and get it.",a:"Anonymous"},{t:"Push yourself, because no one else is going to do it for you.",a:"Anonymous"},{t:"Dream big. Start small. Act now.",a:"Robin Sharma"},{t:"Hard work beats talent when talent doesn't work hard.",a:"Tim Notke"},{t:"The only impossible journey is the one you never begin.",a:"Tony Robbins"},{t:"Opportunities don't happen. You create them.",a:"Chris Grosser"}];
 let S={tasks:[],view:'all',search:'',tab:'tasks',showAdd:false,editing:null,listening:false,toast:null,toastType:'ok',waOk:false,sending:{},user:null,
@@ -2572,8 +2584,16 @@ board:'combined'};  // Boards UI removed per user request — single unified tas
 try{localStorage.removeItem('tf_board')}catch(e){}  // clean up legacy key from previous boards UI
 let rec=null,token=localStorage.getItem('tf_token');
 if(token){S.user={phone:localStorage.getItem('tf_phone'),name:localStorage.getItem('tf_name'),token}}else{restoreLoginState();
-  // Belt-and-suspenders: if URL hash says we're mid-OTP, FORCE loginStep='otp' regardless of localStorage state.
-  // The URL survives anything (tab kill, reload, bfcache) — most reliable signal we have.
+  // Strongest fallback: server-side cookie (set on send-otp success) injected by the / route.
+  // Survives iOS Safari tab kills + localStorage purges. Cookie expires after 10 min or on verify success.
+  if(window.__PENDING_OTP_EMAIL){
+    S.loginEmail=window.__PENDING_OTP_EMAIL;
+    S.loginMethod='email';
+    S.loginStep='otp';
+    S.loginSentTo=window.__PENDING_OTP_EMAIL;
+    try{if(location.hash!=='#otp')history.replaceState(null,'','#otp')}catch(e){}
+  }
+  // Belt: URL hash says mid-OTP, force loginStep='otp' regardless of localStorage state.
   if(location.hash==='#otp'&&(S.loginEmail||S.loginPhone)){S.loginStep='otp'}
 }
 
@@ -3166,11 +3186,15 @@ const PROFILE_BTN='<button class="hdr-profile" onclick="openProfile()" title="'+
 // Person-of-the-day card — precomputed so it can be injected next to the logo on desktop.
 let remember='';
 if(S.remember&&S.remember.person){
-  const p=S.remember.person;const verb=p.type==='born'?'Born':'Remembering';const yrText=p.year?(p.type==='born'?p.year:'\\u2020 '+p.year):'';
+  const p=S.remember.person;
+  // Wording that can't be misread as today's date.
+  // Born:  "Born on this day in 1965"  /  Died: "Died on this day in 2017"
+  const yr=p.year?String(p.year):'';
+  const kicker=p.type==='born'?(yr?'Born on this day in '+yr:'Born on this day'):(yr?'Died on this day in '+yr:'Died on this day');
   remember='<a class="remember-card" href="'+esc(p.url||'#')+'" target="_blank" rel="noopener" title="Read on Wikipedia">'
     +(p.thumb?'<img class="remember-thumb" src="'+esc(p.thumb)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">':'<span class="remember-thumb remember-thumb-empty">\\u{1F4DC}</span>')
     +'<div class="remember-body">'
-      +'<div class="remember-kicker">'+esc(verb)+' on this day'+(yrText?' \\u2022 <b>'+esc(String(yrText))+'</b>':'')+'</div>'
+      +'<div class="remember-kicker">'+esc(kicker)+'</div>'
       +'<div class="remember-name">'+esc(p.title)+'</div>'
       +(p.extract?'<div class="remember-extract">'+esc(p.extract)+'</div>':'')
     +'</div>'
@@ -3847,6 +3871,8 @@ h+='</div></div>';}
 
 h+=bottomBlock;
 document.getElementById('app').innerHTML=h;
+// Toggle a body class so the page reserves bottom space when the audio player is visible.
+try{document.body.classList.toggle('audio-on',!!(S.playing&&(S.playing.url||S.playing.loading)))}catch(e){}
 }
 fetch('/api/config').then(r=>r.json()).then(c=>{window.__TWILIO_SANDBOX_CODE=c.sandboxCode||'';render()}).catch(()=>{});
 applyTheme();
@@ -3950,7 +3976,13 @@ app.get('/terms',(_,res)=>{
   res.type('html').send(`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Terms — Brodoit</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{font-family:-apple-system,Segoe UI,sans-serif;max-width:720px;margin:40px auto;padding:24px;color:#0F172A;background:#F8FAFC;line-height:1.7}h1{font-family:monospace;font-size:28px}h2{margin-top:28px;font-size:18px}p,li{font-size:15px;color:#312E81}a{color:#3DAE5C}</style></head><body><h1>Terms of Service</h1><p><em>Last updated: April 2026</em></p><h2>1. The service</h2><p>Brodoit is a personal productivity app that lets you track tasks, listen to free public-domain audiobooks, and view daily motivational quotes.</p><h2>2. Your account</h2><p>You register with an email address or phone number. Keep your verification codes private. You're responsible for activity on your account.</p><h2>3. Acceptable use</h2><p>Don't abuse the service: no spam, no impersonation, no automated scraping, no attempts to disrupt the service. We may suspend accounts that do.</p><h2>4. Content</h2><p>You own your tasks and notes. We store them to show back to you. Audiobook content belongs to its respective public-domain authors and is served from the Internet Archive's LibriVox collection.</p><h2>5. No warranty</h2><p>The service is provided "as is". We try hard to keep it running but can't promise zero downtime or that reminders will always be delivered (WhatsApp/email providers can fail).</p><h2>6. Limitation of liability</h2><p>Brodoit is a personal tool. We're not liable for missed deadlines, lost data, or any consequential damages from using (or not using) the service.</p><h2>7. Changes</h2><p>We may update these terms. Continued use after a change means you accept the new terms.</p><h2>8. Contact</h2><p><a href="mailto:hello@brodoit.com">hello@brodoit.com</a></p><p style="margin-top:40px;font-size:12px;color:#94A3B8"><a href="/">← Back to Brodoit</a></p></body></html>`);
 });
 app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.send('self.addEventListener("install",function(e){self.skipWaiting()});self.addEventListener("activate",function(e){self.clients.claim()});self.addEventListener("fetch",function(e){});')});
-app.get('/',(_,res)=>{res.set('Cache-Control','no-cache, no-store, must-revalidate').set('Pragma','no-cache').set('Expires','0');res.type('html').send(HTML)});
+function _readCookie(req,name){const c=req.headers.cookie||'';const m=c.match(new RegExp('(?:^|; )'+name+'=([^;]*)'));return m?decodeURIComponent(m[1]):''}
+app.get('/',(req,res)=>{
+  const pendingEmail=_readCookie(req,'pending_otp_email');
+  const inject=pendingEmail?'window.__PENDING_OTP_EMAIL='+JSON.stringify(pendingEmail.slice(0,254))+';':'';
+  const html=HTML.replace('/*__SERVER_INJECT__*/',inject);
+  res.set('Cache-Control','no-cache, no-store, must-revalidate').set('Pragma','no-cache').set('Expires','0').type('html').send(html);
+});
 app.get('*',(_,res)=>res.type('html').send(HTML));
 const PORT=process.env.PORT||3000;
 app.listen(PORT,()=>console.log('🚀 Brodoit running on port '+PORT));
