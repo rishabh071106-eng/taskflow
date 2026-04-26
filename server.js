@@ -3303,16 +3303,18 @@ app.get(['/icon-192.png','/icon-512.png','/icon-maskable-512.png'],(req,res)=>{
   res.redirect(302,'https://ui-avatars.com/api/?name=Bd&background=2D2A26&color=3DAE5C&size='+size+'&bold=true&format=png&font-size=0.5');
 });
 
-// Digital Asset Links for TWA (Google Play Store verification)
-// Fill SHA256_FINGERPRINT after running `bubblewrap init` — it prints the fingerprint
+// Digital Asset Links for TWA (Google Play Store verification).
+// Must include the Play app-signing key fingerprint (Google re-signs installs from Play
+// with this key). Without it, TWA falls back to Custom Tabs and shows the URL bar.
 app.get('/.well-known/assetlinks.json',(_,res)=>{
-  const fp=process.env.ANDROID_SHA256_FINGERPRINT||'REPLACE_AFTER_BUBBLEWRAP_INIT';
+  const def='F2:F5:17:C9:ED:59:76:BE:E8:BB:49:18:A6:5F:D9:69:6A:FF:9C:61:F8:7F:C9:54:F8:33:A6:A2:3B:3C:45:F4,EA:7E:0D:CB:02:DE:1B:07:45:EF:1B:2C:6B:3B:2F:22:4B:74:1C:19:0C:F2:4D:44:2B:AF:17:E5:E1:C7:C6:B3';
+  const fps=(process.env.ANDROID_SHA256_FINGERPRINT||def).split(',').map(s=>s.trim()).filter(Boolean);
   res.json([{
     relation:["delegate_permission/common.handle_all_urls"],
     target:{
       namespace:"android_app",
       package_name:process.env.ANDROID_PACKAGE_NAME||"com.brodoit.twa",
-      sha256_cert_fingerprints:[fp]
+      sha256_cert_fingerprints:fps
     }
   }]);
 });
