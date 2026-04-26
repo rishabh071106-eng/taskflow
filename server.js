@@ -411,6 +411,34 @@ app.get('/api/news',async(req,res)=>{
   res.json({items:dedup,cat,cached:false});
 });
 
+// ═══ IPL LIVE (CricAPI when CRICAPI_KEY env var set, plus Wikipedia summary, 60-sec cache) ═══
+const iplCache={live:null,wiki:null};
+app.get('/api/ipl/today',async(req,res)=>{
+  const out={matches:[],wiki:null,source:'wiki-only'};
+  // Wikipedia summary for the current season — always works, free, no key
+  try{
+    if(!iplCache.wiki||Date.now()-iplCache.wiki.ts>6*60*60*1000){
+      const yr=new Date().getFullYear();
+      const wk=await fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+yr+'_Indian_Premier_League',{headers:{'User-Agent':'Brodoit/1.0','Accept':'application/json'}}).then(r=>r.ok?r.json():null).catch(()=>null);
+      if(wk&&wk.extract){iplCache.wiki={ts:Date.now(),data:{title:wk.normalizedtitle||wk.title,extract:wk.extract,thumb:(wk.thumbnail||{}).source||null,url:((wk.content_urls||{}).desktop||{}).page||''}}}
+    }
+    if(iplCache.wiki)out.wiki=iplCache.wiki.data;
+  }catch(e){}
+  // Live matches via CricAPI (only if key present)
+  if(process.env.CRICAPI_KEY){
+    try{
+      if(!iplCache.live||Date.now()-iplCache.live.ts>60*1000){
+        const ctrl=new AbortController();const t=setTimeout(()=>ctrl.abort(),5000);
+        const r=await fetch('https://api.cricapi.com/v1/currentMatches?apikey='+encodeURIComponent(process.env.CRICAPI_KEY)+'&offset=0',{signal:ctrl.signal}).then(r=>r.ok?r.json():null).catch(()=>null);
+        clearTimeout(t);
+        if(r&&r.data){const matches=(r.data||[]).filter(m=>/IPL|Indian Premier League/i.test((m.name||'')+' '+(m.series||''))).slice(0,8);iplCache.live={ts:Date.now(),matches}}
+      }
+      if(iplCache.live){out.matches=iplCache.live.matches;out.source='cricapi'}
+    }catch(e){}
+  }
+  res.json(out);
+});
+
 // ═══ REMEMBER (Wikipedia "On This Day" births/deaths, 24-hour cache) — daily notable person ═══
 const rememberCache={};
 app.get('/api/remember/today',async(req,res)=>{
@@ -991,6 +1019,8 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
   .app>.tabs.page-t .tab.tab-meditation{--tab-tint:linear-gradient(135deg,rgba(124,58,237,.55),rgba(15,23,42,.45))}
   .app>.tabs.page-t .tab.tab-knowledge .ti{background-image:url("https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=200&q=70&auto=format&fit=crop")}
   .app>.tabs.page-t .tab.tab-knowledge{--tab-tint:linear-gradient(135deg,rgba(180,83,9,.55),rgba(15,23,42,.45))}
+  .app>.tabs.page-t .tab.tab-ipl .ti{background-image:url("https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=200&q=70&auto=format&fit=crop")}
+  .app>.tabs.page-t .tab.tab-ipl{--tab-tint:linear-gradient(135deg,rgba(232,69,60,.55),rgba(15,23,42,.45))}
   .app>.tabs.page-t .tab:hover:not(.on) .ti{transform:scale(1.06);box-shadow:0 8px 22px rgba(15,23,42,.24)}
   .app>.tabs.page-t .tab.on .ti{box-shadow:0 8px 24px rgba(15,23,42,.32),0 0 0 3px var(--ring,rgba(255,255,255,.7))}
   .app>.tabs.page-t .tab.on .ti::after{opacity:.45}
@@ -1001,6 +1031,7 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
   .app>.tabs.page-t .tab.tab-books.on{--ring:rgba(5,150,105,.85)}
   .app>.tabs.page-t .tab.tab-meditation.on{--ring:rgba(139,92,246,.85)}
   .app>.tabs.page-t .tab.tab-knowledge.on{--ring:rgba(180,83,9,.85)}
+  .app>.tabs.page-t .tab.tab-ipl.on{--ring:rgba(232,69,60,.9)}
   /* Active tab tile pulses softly */
   .app>.tabs.page-t .tab.on .ti{animation:tilePulse 2.4s ease-in-out infinite}
   @keyframes tilePulse{0%,100%{box-shadow:0 8px 24px rgba(15,23,42,.32),0 0 0 3px var(--ring,rgba(255,255,255,.7))}50%{box-shadow:0 12px 30px rgba(15,23,42,.36),0 0 0 6px var(--ring,rgba(255,255,255,.4))}}
@@ -1309,6 +1340,9 @@ body:not([data-theme=aurora]) .chk.on{background:linear-gradient(135deg,#10B981,
   .tabs.page-t .tab.tab-books{--tab-tint:linear-gradient(135deg,rgba(5,150,105,.55),rgba(15,23,42,.45))}
   .tabs.page-t .tab.tab-meditation .ti{background-image:url("https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=200&q=70&auto=format&fit=crop")}
   .tabs.page-t .tab.tab-meditation{--tab-tint:linear-gradient(135deg,rgba(124,58,237,.55),rgba(15,23,42,.45))}
+  .tabs.page-t .tab.tab-ipl .ti{background-image:url("https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=200&q=70&auto=format&fit=crop")}
+  .tabs.page-t .tab.tab-ipl{--tab-tint:linear-gradient(135deg,rgba(232,69,60,.55),rgba(15,23,42,.45))}
+  .tabs.page-t .tab.tab-ipl.on{--ring:rgba(232,69,60,.9)}
   /* Active state */
   .tabs.page-t .tab.on{background:transparent!important;color:#6366F1!important;transform:none!important;box-shadow:none!important}
   body[data-theme=aurora] .tabs.page-t .tab.on{color:#A78BFA!important;background:transparent!important}
@@ -1974,6 +2008,20 @@ body[data-theme=aurora] .med-foot{color:#9999B5}
 .med-loading{position:absolute;bottom:48px;color:rgba(255,255,255,.7);font-size:13px;font-style:italic;z-index:5}
 @media (max-width:600px){.med-info-title{font-size:26px}.med-breath-wrap{width:240px;height:240px}.med-breath-core{width:160px;height:160px}.med-breath-ring-1{width:200px;height:200px}.med-breath-ring-2{width:250px;height:250px}.med-breath-ring-3{width:310px;height:310px}}
 
+/* IPL tab — Wikipedia season card */
+.ipl-wiki{display:flex;gap:14px;background:#fff;border:1px solid #E8E9EF;border-radius:14px;padding:14px;text-decoration:none;color:inherit;margin-bottom:18px;transition:transform .2s ease,box-shadow .2s ease;align-items:flex-start}
+.ipl-wiki:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(15,23,42,.1)}
+.ipl-wiki-thumb{width:120px;height:120px;border-radius:10px;object-fit:cover;flex-shrink:0;background:#F1F5F9}
+.ipl-wiki-body{flex:1;min-width:0}
+.ipl-wiki-kicker{font-size:10px;font-weight:800;color:#6366F1;letter-spacing:1.4px;margin-bottom:4px}
+.ipl-wiki-h{font-family:'Instrument Serif',Georgia,serif;font-size:22px;font-weight:400;color:#0F172A;letter-spacing:-.01em;margin-bottom:6px;line-height:1.2}
+.ipl-wiki-x{font-size:13.5px;line-height:1.55;color:#475569;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+.ipl-wiki-cta{font-size:13px;font-weight:700;color:#6366F1;border-bottom:1.5px solid currentColor;padding-bottom:1px}
+body[data-theme=aurora] .ipl-wiki{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08)}
+body[data-theme=aurora] .ipl-wiki-h{color:#F5F5FA}
+body[data-theme=aurora] .ipl-wiki-x{color:#9999B5}
+body[data-theme=aurora] .ipl-wiki-cta{color:#A78BFA}
+@media (max-width:600px){.ipl-wiki{flex-direction:column;gap:10px}.ipl-wiki-thumb{width:100%;height:160px}}
 /* IPL Spotlight card on the Sports news category */
 .ipl-spotlight{background:linear-gradient(135deg,#0F172A 0%,#312E81 50%,#7E22CE 100%);color:#fff;border-radius:16px;padding:14px 16px 16px;margin-bottom:16px;box-shadow:0 8px 24px rgba(15,23,42,.18);position:relative;overflow:hidden}
 .ipl-spotlight::before{content:'';position:absolute;inset:0;background-image:url("https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=1200&q=70&auto=format&fit=crop");background-size:cover;background-position:center;opacity:.14;mix-blend-mode:screen;pointer-events:none}
@@ -2174,6 +2222,7 @@ knowledge:{loading:false,loaded:{},articles:{},events:[],topic:'history',sec:'to
 game:{active:false,board:Array(9).fill(null),turn:'X',status:'idle',winLine:null,wins:Number(localStorage.getItem('tf_ttt_wins')||0),losses:Number(localStorage.getItem('tf_ttt_losses')||0),draws:Number(localStorage.getItem('tf_ttt_draws')||0)},
 weather:{city:localStorage.getItem('tf_city')||'Bangalore',temp:null,aqi:null,country:'',loaded:false,loading:false,error:null},
 cityTemps:{},remember:{person:null,loaded:false},lifeGoal:localStorage.getItem('tf_life_goal')||'',meditating:{active:false,title:'',mins:0,startedAt:0},
+ipl:{loaded:false,loading:false,matches:[],wiki:null,news:[],source:''},
 medCat:localStorage.getItem('tf_medcat')||'vipassana',
 ticker:{items:[],idx:0,loaded:false},
 waConnected:localStorage.getItem('wa_connected')==='1',showWAOnboard:false,activeMeditation:null,
@@ -2281,7 +2330,8 @@ const TAB_HERO={
   news:{img:'1495020689067-958852a7765e',h:'What\\u2019s new today',s:'Curated stories from across the web'},
   books:{img:'1507842217343-583bb7270b66',h:'Read &amp; grow',s:'Free public-domain audio \\u2022 a few minutes a day'},
   meditation:{img:'1518609878373-06d740f60d8b',h:'Pause and breathe',s:'Guided sessions for a calm mind'},
-  knowledge:{img:'1481627834876-b7833e8f5570',h:'The Knowledge desk',s:'History \\u2022 Geography \\u2022 Space \\u2022 Karma & Dharma'}
+  knowledge:{img:'1481627834876-b7833e8f5570',h:'The Knowledge desk',s:'History \\u2022 Geography \\u2022 Space \\u2022 Karma & Dharma'},
+  ipl:{img:'1540747913346-19e32dc3e97e',h:'IPL 2026',s:'Live matches \\u2022 standings \\u2022 stats'}
 };
 function ic(n,sz){sz=sz||20;const s='width="'+sz+'" height="'+sz+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"';const m={
 tasks:'<svg '+s+'><path d="M9 11l2 2 4-4"/><path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c1.66 0 3.22.45 4.56 1.23"/></svg>',
@@ -2305,7 +2355,8 @@ moon:'<svg '+s+'><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill=
 sun:'<svg '+s+'><circle cx="12" cy="12" r="4" fill="currentColor"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.07" y2="4.93"/></svg>',
 refresh:'<svg '+s+'><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/><path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14"/></svg>',
 plus:'<svg '+s+'><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
-knowledge:'<svg '+s+'><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20v2H6.5A2.5 2.5 0 0 1 4 19.5z"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>'};return m[n]||''}
+knowledge:'<svg '+s+'><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20v2H6.5A2.5 2.5 0 0 1 4 19.5z"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
+ipl:'<svg '+s+'><path d="M3 12h18"/><path d="M5 7l3 3"/><path d="M16 14l3 3"/><circle cx="12" cy="12" r="9"/></svg>'};return m[n]||''}
 const ST={pending:{l:'To Do',c:'#94A3B8',bg:'#F1F5F9'},'in-progress':{l:'Doing',c:'#3B82F6',bg:'#EFF6FF'},done:{l:'Done',c:'#3DAE5C',bg:'#F2FBF4'}};
 const fD=d=>d?new Date(d+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
 const fT=t=>{if(!t)return'';const[h,m]=t.split(':');const hr=+h;return(hr>12?hr-12:hr||12)+':'+m+' '+(hr>=12?'PM':'AM')};
@@ -2387,7 +2438,8 @@ const KNOWLEDGE_TOPICS=[
 ];
 function getKnowledgeTopic(k){return KNOWLEDGE_TOPICS.find(t=>t.k===k)||KNOWLEDGE_TOPICS[0]}
 function getKnowledgeSec(topicK,secK){const t=getKnowledgeTopic(topicK);return t.sections.find(s=>s.k===secK)||t.sections[0]}
-function switchTab(t){if(t==='steps'||t==='dash'||t==='history'||t==='geography'||t==='knowledge')t='tasks';S.tab=t;if(t==='books'&&!S.books.length)loadBooks('all');if(t==='meditation'&&!S.meditations)loadMeditations();if(t==='news'&&!S.news[S.newsCat])loadNews(S.newsCat);if(t==='cal'){if(!S.google.loaded)loadGoogleStatus();else if(S.google.accounts.length&&!S.gcalEvents.length&&!S.gcalLoading)loadGcalEvents()}render()}
+function switchTab(t){if(t==='steps'||t==='dash'||t==='history'||t==='geography'||t==='knowledge')t='tasks';S.tab=t;if(t==='books'&&!S.books.length)loadBooks('all');if(t==='meditation'&&!S.meditations)loadMeditations();if(t==='news'&&!S.news[S.newsCat])loadNews(S.newsCat);if(t==='ipl'&&!S.ipl.loaded)loadIPLLive();if(t==='cal'){if(!S.google.loaded)loadGoogleStatus();else if(S.google.accounts.length&&!S.gcalEvents.length&&!S.gcalLoading)loadGcalEvents()}render()}
+async function loadIPLLive(){S.ipl.loading=true;render();try{const r=await fetch('/api/ipl/today');const j=await r.json();S.ipl={loaded:true,loading:false,matches:j.matches||[],wiki:j.wiki||null,source:j.source||'wiki-only',news:[]};const r2=await fetch('/api/news?cat=sports').catch(()=>null);if(r2){const j2=await r2.json();S.ipl.news=(j2.items||[]).filter(it=>/IPL|Indian Premier|RCB|MI|CSK|KKR|GT|RR|DC|PBKS|SRH|LSG/i.test(it.title||'')).slice(0,8)}}catch(e){S.ipl.loading=false}render()}
 async function loadKnowledge(topicK,secK){S.knowledge.topic=topicK;S.knowledge.sec=secK;S.knowledge.loading=true;render();const cacheKey=topicK+':'+secK;try{if(topicK==='history'&&secK==='today'){const r=await fetch('/api/history/today');const j=await r.json();S.knowledge.events=j.events||[]}else{const tObj=KNOWLEDGE_TOPICS.find(t=>t.k===topicK);const sObj=tObj&&tObj.sections.find(s=>s.k===secK);if(!sObj||!sObj.titles){S.knowledge.loaded[cacheKey]=true;S.knowledge.loading=false;render();return}const r=await fetch('/api/wiki/summaries?titles='+encodeURIComponent(sObj.titles.join(',')));const j=await r.json();S.knowledge.articles[cacheKey]=j.summaries||[]}}catch(e){}S.knowledge.loaded[cacheKey]=true;S.knowledge.loading=false;render()}
 function switchKnowledgeTopic(k){S.knowledge.topic=k;const tObj=KNOWLEDGE_TOPICS.find(t=>t.k===k);const sk=(tObj&&tObj.sections[0]&&tObj.sections[0].k)||'today';loadKnowledge(k,sk)}
 async function loadNews(cat){S.newsCat=cat;S.newsLoading=true;render();try{const r=await fetch('/api/news?cat='+encodeURIComponent(cat),{cache:'no-store'});const j=await r.json();S.news[cat]=j.items||[]}catch(e){S.news[cat]=[]}S.newsLoading=false;render()}
@@ -2698,7 +2750,7 @@ const m=MORALS[S.moralIdx];
   const dayOfYear=Math.floor((now-yStart)/86400000);
   const yearPct=Math.round(dayOfYear/365*100);
   const dateStr=now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-  const tabsHtml=[{k:'tasks',l:'Tasks'},{k:'board',l:'Board'},{k:'cal',l:'Calendar'},{k:'books',l:'Books'},{k:'meditation',l:'Meditate'},{k:'news',l:'News'}].map(x=>'<button class="tab tab-'+x.k+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(ID[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
+  const tabsHtml=[{k:'tasks',l:'Tasks'},{k:'board',l:'Board'},{k:'cal',l:'Calendar'},{k:'books',l:'Books'},{k:'meditation',l:'Meditate'},{k:'news',l:'News'},{k:'ipl',l:'IPL'}].map(x=>'<button class="tab tab-'+x.k+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(ID[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
   // "Bro, do it!" mascot — a character with a speech bubble that animates
   const climbScene='<div class="bro-mascot" aria-hidden="true">'
     +'<svg class="bro-svg" viewBox="0 0 340 130" xmlns="http://www.w3.org/2000/svg">'
@@ -3011,21 +3063,6 @@ else if(S.tab==='news'){
   h+='<div class="flt flt-icons">';
   cats.forEach(c=>{h+='<button class="fb'+(S.newsCat===c.k?' on':'')+'" onclick="loadNews(\\''+c.k+'\\')"><span class="fb-ic">'+ic(c.ic,15)+'</span>'+c.l+'</button>'});
   h+='</div>';
-  // IPL spotlight card on the Sports category — shows live-score deep links + key stats
-  if(S.newsCat==='sports'){
-    h+='<div class="ipl-spotlight">'
-      +'<div class="ipl-spot-hd"><span class="ipl-spot-pulse"></span><span class="ipl-spot-tag">IPL SPOTLIGHT</span><span class="ipl-spot-yr">2025 Season</span></div>'
-      +'<div class="ipl-spot-grid">'
-        +'<a class="ipl-spot-stat" href="https://en.wikipedia.org/wiki/2025_Indian_Premier_League" target="_blank" rel="noopener"><div class="iss-lbl">Champion</div><div class="iss-val">RCB</div><div class="iss-sub">Beat PBKS \\u2022 1st title</div></a>'
-        +'<a class="ipl-spot-stat" href="https://www.iplt20.com/stats/2025/most-runs" target="_blank" rel="noopener"><div class="iss-lbl">Top run-scorer</div><div class="iss-val">B Sai Sudharsan</div><div class="iss-sub">759 runs \\u2022 GT</div></a>'
-        +'<a class="ipl-spot-stat" href="https://www.iplt20.com/stats/2025/most-wickets" target="_blank" rel="noopener"><div class="iss-lbl">Top wicket-taker</div><div class="iss-val">Prasidh Krishna</div><div class="iss-sub">25 wkts \\u2022 GT</div></a>'
-        +'<a class="ipl-spot-stat" href="https://en.wikipedia.org/wiki/List_of_centuries_in_the_Indian_Premier_League" target="_blank" rel="noopener"><div class="iss-lbl">Highest score</div><div class="iss-val">175*</div><div class="iss-sub">C Gayle, all-time</div></a>'
-        +'<a class="ipl-spot-stat" href="https://en.wikipedia.org/wiki/List_of_five-wicket_hauls_in_the_Indian_Premier_League" target="_blank" rel="noopener"><div class="iss-lbl">Best bowling</div><div class="iss-val">6/12</div><div class="iss-sub">A Madhwal, all-time</div></a>'
-        +'<a class="ipl-spot-stat" href="https://en.wikipedia.org/wiki/List_of_Indian_Premier_League_seasons_and_results" target="_blank" rel="noopener"><div class="iss-lbl">Most titles</div><div class="iss-val">5</div><div class="iss-sub">CSK \\u2022 MI</div></a>'
-      +'</div>'
-      +'<div class="ipl-spot-cta"><a href="https://www.cricbuzz.com/cricket-match/live-scores" target="_blank" rel="noopener">Cricbuzz Live \\u2197</a><a href="https://www.iplt20.com/" target="_blank" rel="noopener">iplt20.com \\u2197</a><a href="https://www.espncricinfo.com/series/ipl-2025" target="_blank" rel="noopener">ESPN Cricinfo \\u2197</a></div>'
-    +'</div>';
-  }
   if(S.newsLoading&&!(S.news[S.newsCat]||[]).length){
     h+='<div class="loading">\\u{1F4E1} Fetching latest '+esc((cats.find(c=>c.k===S.newsCat)||{}).l||'')+' stories\\u2026</div>';
   } else {
@@ -3050,6 +3087,43 @@ else if(S.tab==='news'){
       h+='</div>';
     }
   }
+}
+
+// IPL TAB — live matches (CricAPI when CRICAPI_KEY env set), Wikipedia season summary, IPL news
+else if(S.tab==='ipl'){
+  const ipl=S.ipl||{};const yr=new Date().getFullYear();
+  h+='<div class="section-hd"><span class="section-ic" style="background:linear-gradient(135deg,#E8453C,#7C2D12)">'+ic('ipl',22)+'</span><div><h3>IPL '+yr+'</h3><p>Today\\u2019s matches \\u2022 standings \\u2022 IPL news</p></div></div>';
+  // Live scoring CTA
+  h+='<div class="ipl-live"><div class="ipl-live-body"><div class="ipl-live-lbl"><span class="ipl-live-dot"></span>LIVE NOW</div><div class="ipl-live-h">Today\\u2019s match centre</div><div class="ipl-live-s">Ball-by-ball updates and full scorecards from official sources \\u2014 brodoit links you straight in.</div><div class="ipl-live-acts"><a class="ipl-cta" href="https://www.cricbuzz.com/cricket-match/live-scores" target="_blank" rel="noopener">Cricbuzz Live \\u2197</a><a class="ipl-cta-sec" href="https://www.iplt20.com/" target="_blank" rel="noopener">iplt20.com \\u2197</a><a class="ipl-cta-sec" href="https://www.espncricinfo.com/series/ipl-2026" target="_blank" rel="noopener">ESPN Cricinfo \\u2197</a></div></div></div>';
+  // CricAPI live match cards (only if env key set)
+  if(ipl.matches&&ipl.matches.length){
+    h+='<div class="ipl-section-ttl">\\u{1F4E1} Live & today \\u2014 from CricAPI</div><div class="ipl-matches">';
+    ipl.matches.forEach((m,i)=>{const status=m.status||'';const teams=Array.isArray(m.teams)?m.teams.join(' vs '):(m.name||'');h+='<div class="ipl-match" style="animation-delay:'+(i*0.06)+'s"><div class="ipl-match-status"><span class="ipl-live-dot"></span>'+esc(status)+'</div><div class="ipl-match-teams">'+esc(teams)+'</div><div class="ipl-match-meta">'+esc(m.matchType||'T20')+' \\u2022 '+esc(m.venue||'')+'</div></div>'});
+    h+='</div>';
+  }
+  // Wikipedia summary of the current season — always works
+  if(ipl.wiki){
+    h+='<div class="ipl-section-ttl">\\u{1F4DA} '+esc(ipl.wiki.title||(yr+' Indian Premier League'))+'</div>';
+    h+='<a class="ipl-wiki" href="'+esc(ipl.wiki.url||'#')+'" target="_blank" rel="noopener">';
+    if(ipl.wiki.thumb)h+='<img class="ipl-wiki-thumb" src="'+esc(ipl.wiki.thumb)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">';
+    h+='<div class="ipl-wiki-body"><div class="ipl-wiki-kicker">SOURCE \\u2022 WIKIPEDIA</div><h4 class="ipl-wiki-h">'+esc(ipl.wiki.title||'')+'</h4><p class="ipl-wiki-x">'+esc((ipl.wiki.extract||'').slice(0,500))+'</p><span class="ipl-wiki-cta">Read full article \\u2197</span></div></a>';
+  }else if(ipl.loading){h+='<div class="loading">\\u{1F3CF} Loading IPL '+yr+'\\u2026</div>';}
+  // Filtered IPL news from existing sports feed
+  h+='<div class="ipl-section-ttl">\\u{1F4F0} IPL headlines</div>';
+  if((ipl.news||[]).length){
+    h+='<div class="inshort-feed">';
+    ipl.news.forEach(it=>{
+      const img=it.img||'';const when=timeAgo(it.date);const srcName=(it.source||'').charAt(0).toUpperCase()+(it.source||'').slice(1);
+      h+='<article class="inshort">';
+      if(img)h+='<div class="inshort-img"><img src="'+esc(img)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.classList.add(\\'inshort-img-placeholder\\');this.remove()"><div class="inshort-src">'+esc(srcName)+'</div></div>';
+      else h+='<div class="inshort-img inshort-img-placeholder"><div class="inshort-src">'+esc(srcName)+'</div><div style="font-size:64px;opacity:.25">\\u{1F3CF}</div></div>';
+      h+='<div class="inshort-body"><h3 class="inshort-title"><a href="'+esc(it.link||'#')+'" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">'+esc(it.title||'')+'</a></h3>';
+      if(it.desc)h+='<p class="inshort-desc">'+esc(it.desc)+'</p>';
+      h+='<div class="inshort-foot"><span class="inshort-time">'+(when?'\\u{1F552} '+esc(when):'')+'</span><a class="inshort-share" href="'+esc(it.link||'#')+'" target="_blank" rel="noopener">Read \\u2197</a></div>';
+      h+='</div></article>';
+    });
+    h+='</div>';
+  }else if(!ipl.loading){h+='<div class="empty"><div style="font-size:36px">\\u{1F3CF}</div><div style="font-size:13px;margin-top:6px;color:#64748B">No IPL stories in the feed right now</div></div>';}
 }
 
 // BOOKS TAB
