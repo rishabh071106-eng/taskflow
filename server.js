@@ -652,23 +652,53 @@ input:focus,textarea:focus{outline:none;border-color:#0F172A}textarea{resize:ver
 @media (max-width:380px){.phone-banner{height:48px}}
 /* Mobile: hide top-news, time/weather/life-goal chip, AND the bottom news strip so the task list is the focus. */
 @media (max-width:1023px){.top-news{display:none}.app .top-strip{display:none}.bottom-strip{display:none}}
-/* Home / Office / Combined board picker — sits at the very top of Tasks and Board tabs */
-.board-pick{display:flex;gap:8px;margin:0 0 6px;padding:4px;background:linear-gradient(135deg,rgba(99,102,241,.08),rgba(232,145,44,.05));border:1px solid rgba(99,102,241,.18);border-radius:14px}
-.board-pick .bp{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:10px 6px;border:none;background:transparent;color:var(--ink-2,#475569);border-radius:10px;cursor:pointer;font-weight:600;font-size:13px;letter-spacing:.01em;transition:background .15s ease,transform .1s ease,color .15s ease;position:relative}
-.board-pick .bp:hover{background:rgba(255,255,255,.5);color:var(--ink,#0F172A)}
-.board-pick .bp:active{transform:scale(.97)}
-.board-pick .bp.on{background:#fff;color:#0F172A;box-shadow:0 2px 8px rgba(15,23,42,.1),0 0 0 1px rgba(99,102,241,.25)}
-.board-pick .bp-emoji{font-size:20px;line-height:1;display:block}
-.board-pick .bp-l{font-weight:700;font-size:13px}
-.board-pick .bp-c{font-size:10.5px;font-weight:600;color:#94A3B8;background:rgba(15,23,42,.06);padding:1px 7px;border-radius:8px;font-family:'Space Mono',monospace}
-.board-pick .bp.on .bp-c{background:rgba(99,102,241,.16);color:#6366F1}
+/* Home / Office / Combined board picker — image-backed cards with Ken-Burns zoom + tinted overlay */
+.board-pick{display:flex;gap:10px;margin:0 0 8px;padding:0;background:transparent;border:none}
+.board-pick .bp{flex:1;position:relative;overflow:hidden;border:none;background:#0F172A;color:#fff;border-radius:14px;padding:14px 14px 14px 16px;cursor:pointer;min-height:104px;display:flex;align-items:center;gap:12px;text-align:left;transition:transform .18s cubic-bezier(.2,.8,.2,1),box-shadow .25s ease;isolation:isolate;box-shadow:0 2px 8px rgba(15,23,42,.08)}
+.board-pick .bp:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(15,23,42,.18)}
+.board-pick .bp:active{transform:translateY(-1px) scale(.99)}
+.board-pick .bp-bg{position:absolute;inset:0;background-size:cover;background-position:center;z-index:-2;animation:bpKenBurns 16s ease-in-out infinite alternate;will-change:transform}
+.board-pick .bp.on .bp-bg{animation-duration:8s}
+.board-pick .bp-overlay{position:absolute;inset:0;z-index:-1;transition:opacity .25s ease,background .25s ease}
+/* Per-board scenic photo + warm/cool/purple tint */
+.board-pick .bp-home .bp-bg{background-image:url("https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&q=70&auto=format&fit=crop")}
+.board-pick .bp-home .bp-overlay{background:linear-gradient(135deg,rgba(232,145,44,.78) 0%,rgba(180,83,9,.55) 55%,rgba(15,23,42,.45) 100%)}
+.board-pick .bp-home.on .bp-overlay{background:linear-gradient(135deg,rgba(232,145,44,.55) 0%,rgba(180,83,9,.35) 55%,rgba(15,23,42,.28) 100%)}
+.board-pick .bp-home.on{box-shadow:0 10px 28px rgba(232,145,44,.36),0 0 0 2px rgba(255,255,255,.85),0 0 0 4px rgba(232,145,44,.55)}
+.board-pick .bp-office .bp-bg{background-image:url("https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=600&q=70&auto=format&fit=crop")}
+.board-pick .bp-office .bp-overlay{background:linear-gradient(135deg,rgba(99,102,241,.78) 0%,rgba(49,46,129,.55) 55%,rgba(15,23,42,.45) 100%)}
+.board-pick .bp-office.on .bp-overlay{background:linear-gradient(135deg,rgba(99,102,241,.55) 0%,rgba(49,46,129,.35) 55%,rgba(15,23,42,.28) 100%)}
+.board-pick .bp-office.on{box-shadow:0 10px 28px rgba(99,102,241,.4),0 0 0 2px rgba(255,255,255,.85),0 0 0 4px rgba(99,102,241,.6)}
+.board-pick .bp-combined .bp-bg{background-image:url("https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=600&q=70&auto=format&fit=crop")}
+.board-pick .bp-combined .bp-overlay{background:linear-gradient(135deg,rgba(167,139,250,.78) 0%,rgba(124,58,237,.55) 55%,rgba(15,23,42,.45) 100%)}
+.board-pick .bp-combined.on .bp-overlay{background:linear-gradient(135deg,rgba(167,139,250,.55) 0%,rgba(124,58,237,.35) 55%,rgba(15,23,42,.28) 100%)}
+.board-pick .bp-combined.on{box-shadow:0 10px 28px rgba(167,139,250,.4),0 0 0 2px rgba(255,255,255,.85),0 0 0 4px rgba(167,139,250,.6)}
+.board-pick .bp-emoji{font-size:34px;line-height:1;flex-shrink:0;filter:drop-shadow(0 2px 8px rgba(0,0,0,.45));animation:bpFloat 3.5s ease-in-out infinite}
+.board-pick .bp-home .bp-emoji{animation-name:bpFloatHome}
+.board-pick .bp-office .bp-emoji{animation-name:bpFloatOffice}
+.board-pick .bp-combined .bp-emoji{animation-name:bpFloatCombined}
+.board-pick .bp-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.board-pick .bp-l{font-weight:800;font-size:14.5px;letter-spacing:-.02em;text-shadow:0 1px 3px rgba(0,0,0,.5);line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.board-pick .bp-s{font-size:11.5px;font-weight:500;color:rgba(255,255,255,.92);line-height:1.3;letter-spacing:.005em;text-shadow:0 1px 2px rgba(0,0,0,.45);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.board-pick .bp-c{position:absolute;top:8px;right:10px;font-size:11px;font-weight:700;background:rgba(255,255,255,.95);color:#0F172A;padding:2px 9px;border-radius:9px;font-family:'Space Mono',monospace;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+.board-pick .bp.on .bp-c{background:#fff;color:#0F172A}
+@keyframes bpKenBurns{0%{transform:scale(1.04) translate(0,0)}100%{transform:scale(1.18) translate(-3%,-2%)}}
+@keyframes bpFloatHome{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-4px) rotate(3deg)}}
+@keyframes bpFloatOffice{0%,100%{transform:translateX(0) rotate(-2deg)}50%{transform:translateX(3px) rotate(2deg)}}
+@keyframes bpFloatCombined{0%,100%{transform:scale(1) rotate(-3deg)}50%{transform:scale(1.08) rotate(3deg)}}
+@media (prefers-reduced-motion:reduce){.board-pick .bp-bg,.board-pick .bp-emoji{animation:none}}
 .board-pick-hint{font-size:11.5px;font-style:italic;color:#94A3B8;margin:0 4px 12px;letter-spacing:.01em}
-body[data-theme=aurora] .board-pick{background:linear-gradient(135deg,rgba(167,139,250,.1),rgba(232,145,44,.06));border-color:rgba(167,139,250,.22)}
-body[data-theme=aurora] .board-pick .bp{color:#9999B5}
-body[data-theme=aurora] .board-pick .bp:hover{background:rgba(255,255,255,.06);color:#F5F5FA}
-body[data-theme=aurora] .board-pick .bp.on{background:rgba(255,255,255,.08);color:#F5F5FA;box-shadow:0 2px 8px rgba(0,0,0,.4),0 0 0 1px rgba(167,139,250,.35)}
-body[data-theme=aurora] .board-pick .bp-c{background:rgba(255,255,255,.08);color:#9999B5}
-body[data-theme=aurora] .board-pick .bp.on .bp-c{background:rgba(167,139,250,.18);color:#A78BFA}
+/* Mobile: vertical layout (emoji on top, label below); subtitle hidden — the helper-line below the pills covers it. */
+@media (max-width:600px){
+  .board-pick{gap:7px}
+  .board-pick .bp{flex-direction:column;justify-content:center;align-items:center;text-align:center;min-height:90px;padding:10px 6px;gap:5px}
+  .board-pick .bp-emoji{font-size:26px}
+  .board-pick .bp-text{align-items:center;gap:0}
+  .board-pick .bp-l{font-size:12px;letter-spacing:-.01em}
+  .board-pick .bp-s{display:none}
+  .board-pick .bp-c{font-size:9.5px;padding:1px 6px;top:5px;right:5px}
+}
+body[data-theme=aurora] .board-pick .bp-c{background:rgba(255,255,255,.92);color:#0F172A}
 body[data-theme=aurora] .board-pick-hint{color:#7C7C97}
 /* In-form Board picker (modal: New / Edit Task) */
 .form-board-pick{display:flex;gap:10px;margin-bottom:10px}
@@ -2946,9 +2976,9 @@ if(S.tab==='tasks'){
   const _bcO=S.tasks.filter(t=>(t.board||'home')==='office').length;
   const _bcC=S.tasks.length;
   h+='<div class="board-pick">'
-    +'<button class="bp'+(S.board==='home'?' on':'')+'" onclick="setBoard(\\'home\\')"><span class="bp-emoji">\\u{1F3E0}</span><span class="bp-l">Home Tasks</span><span class="bp-c">'+_bcH+'</span></button>'
-    +'<button class="bp'+(S.board==='office'?' on':'')+'" onclick="setBoard(\\'office\\')"><span class="bp-emoji">\\u{1F4BC}</span><span class="bp-l">Office Tasks</span><span class="bp-c">'+_bcO+'</span></button>'
-    +'<button class="bp'+(S.board==='combined'?' on':'')+'" onclick="setBoard(\\'combined\\')"><span class="bp-emoji">\\u{1F4DA}</span><span class="bp-l">Combined Tasks</span><span class="bp-c">'+_bcC+'</span></button>'
+    +'<button class="bp bp-home'+(S.board==='home'?' on':'')+'" onclick="setBoard(\\'home\\')"><span class="bp-bg"></span><span class="bp-overlay"></span><span class="bp-emoji">\\u{1F3E0}</span><span class="bp-text"><span class="bp-l">Home Tasks</span><span class="bp-s">Personal life, errands &amp; self-improvement</span></span><span class="bp-c">'+_bcH+'</span></button>'
+    +'<button class="bp bp-office'+(S.board==='office'?' on':'')+'" onclick="setBoard(\\'office\\')"><span class="bp-bg"></span><span class="bp-overlay"></span><span class="bp-emoji">\\u{1F4BC}</span><span class="bp-text"><span class="bp-l">Office Tasks</span><span class="bp-s">Meetings, deliverables &amp; work deadlines</span></span><span class="bp-c">'+_bcO+'</span></button>'
+    +'<button class="bp bp-combined'+(S.board==='combined'?' on':'')+'" onclick="setBoard(\\'combined\\')"><span class="bp-bg"></span><span class="bp-overlay"></span><span class="bp-emoji">\\u{1F310}</span><span class="bp-text"><span class="bp-l">Combined Tasks</span><span class="bp-s">See everything across both boards</span></span><span class="bp-c">'+_bcC+'</span></button>'
   +'</div>'
   +'<div class="board-pick-hint">'+(S.board==='home'?'\\u{1F3E0} Home Tasks \\u2014 self-improvement &amp; personal activities':S.board==='office'?'\\u{1F4BC} Office Tasks \\u2014 work tasks only':'\\u{1F4DA} Combined Tasks \\u2014 everything from both boards')+'</div>';
   // TASKS LEAD — the most-used UI sits at the top
@@ -3014,9 +3044,9 @@ else if(S.tab==='board'){
   const _bcO=S.tasks.filter(t=>(t.board||'home')==='office').length;
   const _bcC=S.tasks.length;
   h+='<div class="board-pick">'
-    +'<button class="bp'+(S.board==='home'?' on':'')+'" onclick="setBoard(\\'home\\')"><span class="bp-emoji">\\u{1F3E0}</span><span class="bp-l">Home Tasks</span><span class="bp-c">'+_bcH+'</span></button>'
-    +'<button class="bp'+(S.board==='office'?' on':'')+'" onclick="setBoard(\\'office\\')"><span class="bp-emoji">\\u{1F4BC}</span><span class="bp-l">Office Tasks</span><span class="bp-c">'+_bcO+'</span></button>'
-    +'<button class="bp'+(S.board==='combined'?' on':'')+'" onclick="setBoard(\\'combined\\')"><span class="bp-emoji">\\u{1F4DA}</span><span class="bp-l">Combined Tasks</span><span class="bp-c">'+_bcC+'</span></button>'
+    +'<button class="bp bp-home'+(S.board==='home'?' on':'')+'" onclick="setBoard(\\'home\\')"><span class="bp-bg"></span><span class="bp-overlay"></span><span class="bp-emoji">\\u{1F3E0}</span><span class="bp-text"><span class="bp-l">Home Tasks</span><span class="bp-s">Personal life, errands &amp; self-improvement</span></span><span class="bp-c">'+_bcH+'</span></button>'
+    +'<button class="bp bp-office'+(S.board==='office'?' on':'')+'" onclick="setBoard(\\'office\\')"><span class="bp-bg"></span><span class="bp-overlay"></span><span class="bp-emoji">\\u{1F4BC}</span><span class="bp-text"><span class="bp-l">Office Tasks</span><span class="bp-s">Meetings, deliverables &amp; work deadlines</span></span><span class="bp-c">'+_bcO+'</span></button>'
+    +'<button class="bp bp-combined'+(S.board==='combined'?' on':'')+'" onclick="setBoard(\\'combined\\')"><span class="bp-bg"></span><span class="bp-overlay"></span><span class="bp-emoji">\\u{1F310}</span><span class="bp-text"><span class="bp-l">Combined Tasks</span><span class="bp-s">See everything across both boards</span></span><span class="bp-c">'+_bcC+'</span></button>'
   +'</div>'
   +'<div class="board-pick-hint">'+(S.board==='home'?'\\u{1F3E0} Home Tasks \\u2014 self-improvement &amp; personal activities':S.board==='office'?'\\u{1F4BC} Office Tasks \\u2014 work tasks only':'\\u{1F4DA} Combined Tasks \\u2014 everything from both boards')+'</div>';
   h+='<button class="add-bar" onclick="opA()"><span class="plus">+</span><span class="txt"><b>Add a new task</b><small>Lands in To Do under <b>'+(S.board==='office'?'Office Tasks':'Home Tasks')+'</b></small></span></button>';
