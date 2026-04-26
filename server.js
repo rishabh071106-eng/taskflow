@@ -1916,6 +1916,50 @@ body[data-theme=aurora] .med-player-hd h2{color:#F5F5FA}
 body[data-theme=aurora] .med-player-hd p{color:#9999B5}
 body[data-theme=aurora] .med-tip{color:#9999B5;background:rgba(167,139,250,.1)}
 body[data-theme=aurora] .med-foot{color:#9999B5}
+/* Immersive Meditation Overlay — full-screen calm scene */
+.med-scene{position:fixed;inset:0;background:linear-gradient(180deg,#0F172A 0%,#1E1B4B 25%,#5B21B6 55%,#7C2D12 80%,#F59E0B 100%);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;animation:medFadeIn .6s ease-out}
+@keyframes medFadeIn{from{opacity:0}to{opacity:1}}
+.med-scene::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 25% 35%,rgba(167,139,250,.18),transparent 55%),radial-gradient(ellipse at 75% 70%,rgba(232,145,44,.14),transparent 55%);animation:medAura 16s ease-in-out infinite alternate;pointer-events:none}
+@keyframes medAura{from{opacity:.7;transform:scale(1)}to{opacity:1;transform:scale(1.06)}}
+.med-stars{position:absolute;inset:0;pointer-events:none}
+.med-stars span{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff;box-shadow:0 0 6px rgba(255,255,255,.7);animation:starTwinkle 3s ease-in-out infinite}
+.med-stars span:nth-child(1){top:8%;left:12%;animation-delay:0s}
+.med-stars span:nth-child(2){top:14%;left:30%;animation-delay:.4s;width:1.5px;height:1.5px}
+.med-stars span:nth-child(3){top:6%;left:55%;animation-delay:.8s}
+.med-stars span:nth-child(4){top:20%;left:78%;animation-delay:1.2s}
+.med-stars span:nth-child(5){top:11%;left:88%;animation-delay:.3s;width:1.5px;height:1.5px}
+.med-stars span:nth-child(6){top:24%;left:18%;animation-delay:1.6s}
+.med-stars span:nth-child(7){top:32%;left:46%;animation-delay:.6s;width:2.5px;height:2.5px}
+.med-stars span:nth-child(8){top:18%;left:64%;animation-delay:1s}
+.med-stars span:nth-child(9){top:9%;left:42%;animation-delay:1.8s}
+.med-stars span:nth-child(10){top:28%;left:8%;animation-delay:.2s;width:1px;height:1px}
+.med-stars span:nth-child(11){top:35%;left:92%;animation-delay:1.4s}
+.med-stars span:nth-child(12){top:5%;left:72%;animation-delay:2s;width:2.5px;height:2.5px}
+@keyframes starTwinkle{0%,100%{opacity:.3;transform:scale(1)}50%{opacity:1;transform:scale(1.3)}}
+.med-waves{position:absolute;left:0;right:0;bottom:0;width:100%;height:36vh;pointer-events:none;z-index:1}
+.med-wave{transform-origin:center bottom}
+.med-wave-1{fill:rgba(167,139,250,.2);animation:waveSwell 11s ease-in-out infinite}
+.med-wave-2{fill:rgba(99,102,241,.18);animation:waveSwell 14s ease-in-out infinite reverse;animation-delay:-2s}
+.med-wave-3{fill:rgba(15,23,42,.45);animation:waveSwell 17s ease-in-out infinite;animation-delay:-4s}
+@keyframes waveSwell{0%,100%{transform:translateX(-30px) scaleY(1)}50%{transform:translateX(30px) scaleY(1.04)}}
+.med-info{position:relative;z-index:5;text-align:center;color:#fff;padding:0 24px 28px}
+.med-info-mins{font-size:11px;font-weight:800;letter-spacing:3px;color:rgba(255,255,255,.7);margin-bottom:8px}
+.med-info-title{font-family:'Instrument Serif',Georgia,serif;font-size:34px;font-weight:400;letter-spacing:-.01em;line-height:1.15;text-shadow:0 2px 16px rgba(0,0,0,.4)}
+.med-breath-wrap{position:relative;z-index:5;width:280px;height:280px;display:flex;align-items:center;justify-content:center}
+.med-breath-core,.med-breath-ring{position:absolute;border-radius:50%}
+.med-breath-core{width:200px;height:200px;background:radial-gradient(circle,rgba(255,255,255,.32),rgba(255,255,255,.08) 65%,transparent);border:1.5px solid rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;animation:breathe 10s ease-in-out infinite;box-shadow:0 0 60px rgba(255,255,255,.18) inset,0 0 40px rgba(167,139,250,.3)}
+.med-breath-ring-1{width:240px;height:240px;border:1px solid rgba(255,255,255,.25);animation:breatheRing 10s ease-in-out infinite;animation-delay:-.4s}
+.med-breath-ring-2{width:300px;height:300px;border:1px solid rgba(255,255,255,.16);animation:breatheRing 10s ease-in-out infinite;animation-delay:-.8s}
+.med-breath-ring-3{width:380px;height:380px;border:1px solid rgba(255,255,255,.08);animation:breatheRing 10s ease-in-out infinite;animation-delay:-1.2s}
+@keyframes breathe{0%,100%{transform:scale(.85)}40%{transform:scale(1.18)}60%{transform:scale(1.18)}}
+@keyframes breatheRing{0%,100%{transform:scale(.85);opacity:.4}40%{transform:scale(1.18);opacity:.85}60%{transform:scale(1.18);opacity:.85}}
+.med-breath-text{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-size:22px;color:rgba(255,255,255,.92);letter-spacing:.04em;transition:opacity .25s ease;text-shadow:0 1px 8px rgba(0,0,0,.3)}
+.med-tip{position:relative;z-index:5;color:rgba(255,255,255,.62);font-size:13px;margin-top:36px;font-style:italic;text-align:center;padding:0 24px}
+.med-close{position:absolute;top:24px;right:24px;width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.12);color:#fff;font-size:22px;border:1px solid rgba(255,255,255,.22);cursor:pointer;z-index:10;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(10px);transition:background .2s ease,transform .2s ease}
+.med-close:hover{background:rgba(232,69,60,.5);transform:scale(1.05)}
+.med-audio{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);max-width:360px;width:calc(100% - 48px);z-index:5;border-radius:16px;height:42px;outline:none;filter:invert(1) hue-rotate(180deg) opacity(.85)}
+.med-loading{position:absolute;bottom:48px;color:rgba(255,255,255,.7);font-size:13px;font-style:italic;z-index:5}
+@media (max-width:600px){.med-info-title{font-size:26px}.med-breath-wrap{width:240px;height:240px}.med-breath-core{width:160px;height:160px}.med-breath-ring-1{width:200px;height:200px}.med-breath-ring-2{width:250px;height:250px}.med-breath-ring-3{width:310px;height:310px}}
 
 /* IPL tab */
 .ipl-live{position:relative;background:linear-gradient(135deg,#0F172A 0%,#312E81 60%,#E8453C 140%);color:#fff;border-radius:18px;padding:22px 24px;margin-bottom:18px;overflow:hidden;box-shadow:0 10px 28px rgba(15,23,42,.18)}
@@ -2097,7 +2141,7 @@ books:[],booksLoading:false,booksCat:'all',bookSearch:'',playing:null,moralIdx:M
 knowledge:{loading:false,loaded:{},articles:{},events:[],topic:'history',sec:'today'},
 game:{active:false,board:Array(9).fill(null),turn:'X',status:'idle',winLine:null,wins:Number(localStorage.getItem('tf_ttt_wins')||0),losses:Number(localStorage.getItem('tf_ttt_losses')||0),draws:Number(localStorage.getItem('tf_ttt_draws')||0)},
 weather:{city:localStorage.getItem('tf_city')||'Bangalore',temp:null,aqi:null,country:'',loaded:false,loading:false,error:null},
-cityTemps:{},remember:{person:null,loaded:false},lifeGoal:localStorage.getItem('tf_life_goal')||'',
+cityTemps:{},remember:{person:null,loaded:false},lifeGoal:localStorage.getItem('tf_life_goal')||'',meditating:{active:false,title:'',mins:0,startedAt:0},
 medCat:localStorage.getItem('tf_medcat')||'vipassana',
 ticker:{items:[],idx:0,loaded:false},
 waConnected:localStorage.getItem('wa_connected')==='1',showWAOnboard:false,activeMeditation:null,
@@ -2384,7 +2428,7 @@ function openGcalAdd(){const def=S.google.accounts.find(a=>a.is_default)||S.goog
 function closeGcalAdd(){S.showGcalAdd=false;render()}
 async function saveGcalEvent(){const f=S.gcalForm;if(!f.title.trim()){toast('\\u26A0\\uFE0F Title required','err');return}const r=await api('/calendar/events',{method:'POST',body:JSON.stringify({title:f.title.trim(),date:f.date,time:f.time||null,duration:f.duration||30,notes:f.notes,email:f.email})});if(r&&r.ok){toast('\\u2705 Event added to '+(f.email||'Google Calendar'));S.showGcalAdd=false;loadGcalEvents()}else if(r&&r.error){toast('\\u26A0\\uFE0F '+r.error,'err')}}
 function playMedSlot(mins){const doc=(S.meditations||{})[mins];if(!doc){toast('\\u23F3 Loading audio...','err');return}const t=Array.isArray(doc.title)?doc.title[0]:doc.title;playMeditation(doc.identifier,t,mins)}
-async function playMeditation(id,title,mins){S.playing={id,title:title||(mins+'-minute meditation'),author:'Guided meditation \\u2022 Internet Archive',loading:true};render();try{const r=await fetch('https://archive.org/metadata/'+encodeURIComponent(id));if(!r.ok)throw new Error('metadata '+r.status);const j=await r.json();if(!j.files||!j.files.length){toast('\\u26A0\\uFE0F No audio \\u2014 opening archive.org','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render();return}let mp3=j.files.find(f=>/\\.mp3$/i.test(f.name)&&!/sample|preview/i.test(f.name));if(!mp3)mp3=j.files.find(f=>/\\.(mp3|m4a|ogg)$/i.test(f.name));if(mp3){const server=j.server||'archive.org';const dir=j.dir||('/'+id);const directUrl='https://'+server+dir+'/'+mp3.name.split('/').map(encodeURIComponent).join('/');const dlUrl='https://archive.org/download/'+encodeURIComponent(id)+'/'+mp3.name.split('/').map(encodeURIComponent).join('/');S.playing={id,title:title||mins+'-min meditation',author:'\\u{1F9D8} Guided meditation \\u2022 Archive.org',url:directUrl,altUrl:dlUrl,external:'https://archive.org/details/'+id};render();setTimeout(()=>{const a=document.getElementById('audioEl');if(!a)return;a.setAttribute('playsinline','');a.preload='auto';a.addEventListener('error',function onErr(){a.removeEventListener('error',onErr);if(a.src!==dlUrl){a.src=dlUrl;a.load()}},{once:true});a.load();const p=a.play();if(p&&p.catch)p.catch(()=>toast('\\u25B6\\uFE0F Tap play on the bar','err'))},250)}else{toast('\\u26A0\\uFE0F No mp3 \\u2014 opening archive.org','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render()}}catch(e){toast('\\u26A0\\uFE0F '+e.message,'err');S.playing=null;render()}}
+async function playMeditation(id,title,mins){S.meditating={active:true,title:title||(mins+'-min meditation'),mins:mins||10,startedAt:Date.now()};S.playing={id,title:title||(mins+'-minute meditation'),author:'Guided meditation \\u2022 Internet Archive',loading:true};render();try{const r=await fetch('https://archive.org/metadata/'+encodeURIComponent(id));if(!r.ok)throw new Error('metadata '+r.status);const j=await r.json();if(!j.files||!j.files.length){toast('\\u26A0\\uFE0F No audio \\u2014 opening archive.org','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render();return}const mp3s=j.files.filter(f=>/\\.(mp3|m4a|ogg)$/i.test(f.name)&&!/sample|preview|announce|intro\\.mp3|sting/i.test(f.name)).sort((a,b)=>(parseFloat(b.length||'0')||0)-(parseFloat(a.length||'0')||0));let mp3=mp3s[0];if(!mp3)mp3=j.files.find(f=>/\\.(mp3|m4a|ogg)$/i.test(f.name));if(mp3){const server=j.server||'archive.org';const dir=j.dir||('/'+id);const directUrl='https://'+server+dir+'/'+mp3.name.split('/').map(encodeURIComponent).join('/');const dlUrl='https://archive.org/download/'+encodeURIComponent(id)+'/'+mp3.name.split('/').map(encodeURIComponent).join('/');S.playing={id,title:title||mins+'-min meditation',author:'\\u{1F9D8} Guided meditation \\u2022 Archive.org',url:directUrl,altUrl:dlUrl,external:'https://archive.org/details/'+id};render();setTimeout(()=>{const a=document.getElementById('audioEl');if(!a)return;a.setAttribute('playsinline','');a.preload='auto';a.addEventListener('error',function onErr(){a.removeEventListener('error',onErr);if(a.src!==dlUrl){a.src=dlUrl;a.load()}},{once:true});a.load();const p=a.play();if(p&&p.catch)p.catch(()=>toast('\\u25B6\\uFE0F Tap play on the bar','err'))},250)}else{toast('\\u26A0\\uFE0F No mp3 \\u2014 opening archive.org','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render()}}catch(e){toast('\\u26A0\\uFE0F '+e.message,'err');S.playing=null;render()}}
 async function openProfile(){S.showProfile=true;render();const me=await api('/me');if(me&&!me.error)S.profile=me;render()}
 function closeProfile(){S.showProfile=false;render()}
 async function saveName(){const n=(document.getElementById('pfName')||{}).value;if(!n||!n.trim())return;const r=await api('/me',{method:'PUT',body:JSON.stringify({name:n.trim()})});if(r&&r.name){S.user.name=r.name;localStorage.setItem('tf_name',r.name);S.profile=Object.assign(S.profile||{},{name:r.name});toast('\\u2705 Name updated');render()}}
@@ -2455,7 +2499,8 @@ setInterval(()=>{const n=new Date();const hm=n.toLocaleTimeString('en-US',{hour:
 
 async function loadBooks(cat){S.booksCat=cat;S.booksLoading=true;render();try{const subjectMap={'self-help':'(subject:"self-help" OR subject:"self help" OR subject:"self improvement" OR subject:"non-fiction")'};const subj=subjectMap[cat]||('subject:'+cat);const q=cat==='all'?'collection:librivoxaudio AND mediatype:audio':'collection:librivoxaudio AND mediatype:audio AND '+subj;const url='https://archive.org/advancedsearch.php?q='+encodeURIComponent(q)+'&fl[]=identifier&fl[]=title&fl[]=creator&fl[]=downloads&rows=30&output=json&sort[]=downloads+desc';const r=await fetch(url);const j=await r.json();S.books=j.response.docs;}catch(e){S.books=[];toast('\\u26A0\\uFE0F Failed to load books','err')}S.booksLoading=false;render()}
 async function playBook(id){const b=S.books.find(x=>x.identifier===id);if(!b){toast('\\u26A0\\uFE0F Book not found','err');return}const title=Array.isArray(b.title)?b.title[0]:b.title;const author=Array.isArray(b.creator)?b.creator[0]:(b.creator||'Unknown');S.playing={id,title,author,loading:true};render();try{const r=await fetch('https://archive.org/metadata/'+encodeURIComponent(id));if(!r.ok)throw new Error('metadata '+r.status);const j=await r.json();if(!j.files||!j.files.length){toast('\\u26A0\\uFE0F No files \\u2014 opening archive.org','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render();return}let mp3=j.files.find(f=>/_64kb\\.mp3$/i.test(f.name));if(!mp3)mp3=j.files.find(f=>/_32kb\\.mp3$/i.test(f.name));if(!mp3)mp3=j.files.find(f=>/\\.mp3$/i.test(f.name)&&!/sample|test|spoken/i.test(f.name));if(!mp3)mp3=j.files.find(f=>/\\.(mp3|m4a|ogg)$/i.test(f.name));if(mp3){const server=j.server||'archive.org';const dir=j.dir||('/'+id);const directUrl='https://'+server+dir+'/'+mp3.name.split('/').map(encodeURIComponent).join('/');const dlUrl='https://archive.org/download/'+encodeURIComponent(id)+'/'+mp3.name.split('/').map(encodeURIComponent).join('/');S.playing={id,title,author,url:directUrl,altUrl:dlUrl,external:'https://archive.org/details/'+id};render();setTimeout(()=>{const a=document.getElementById('audioEl');if(!a)return;a.setAttribute('playsinline','');a.setAttribute('webkit-playsinline','');a.preload='auto';a.addEventListener('error',function onErr(){a.removeEventListener('error',onErr);if(a.src!==dlUrl){a.src=dlUrl;a.load()}},{once:true});a.load();a.addEventListener('play',startBookListenTimer);a.addEventListener('pause',()=>{/* keep timer; checks paused itself */});const p=a.play();if(p&&p.catch)p.catch(()=>toast('\\u25B6\\uFE0F Tap the play button on the bar','err'))},250)}else{toast('\\u26A0\\uFE0F No audio \\u2014 opening archive.org','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render()}}catch(e){toast('\\u26A0\\uFE0F '+e.message,'err');S.playing={id,title,author,url:null,external:'https://archive.org/details/'+id,error:e.message};render()}}
-function closePlayer(){stopBookListenTimer();S.playing=null;render()}
+function closePlayer(){stopBookListenTimer();S.playing=null;S.meditating={active:false,title:'',mins:0,startedAt:0};render()}
+function closeMeditation(){const a=document.getElementById('audioEl');if(a){try{a.pause()}catch(e){}}closePlayer()}
 let _bkTimer=null;
 function startBookListenTimer(){if(_bkTimer)return;S._bkSec=0;_bkTimer=setInterval(async()=>{const a=document.getElementById('audioEl');if(!a||a.paused||a.ended)return;S._bkSec+=5;if(S._bkSec===120&&S.user&&!S.bookStreak.today){const r=await api('/book-streak',{method:'POST',body:JSON.stringify({date:new Date().toISOString().slice(0,10),seconds:120})});if(r?.ok){S.bookStreak={streak:r.streak,total:r.total,today:true,days:S.bookStreak.days};toast('\\u{1F389} '+r.streak+'-day listening streak!');render()}}},5000)}
 function stopBookListenTimer(){if(_bkTimer){clearInterval(_bkTimer);_bkTimer=null}}
@@ -2513,6 +2558,40 @@ if(S.loginMethod==='whatsapp'&&S.loginStep==='phone')updatePhonePreview();
 return;
 }
 
+// Immersive meditation overlay — full-screen calm scene with breathing circle, ocean waves, drifting stars
+if(S.meditating&&S.meditating.active){
+  const med=S.meditating;
+  let h='<div class="med-scene">';
+  // Layered animated background
+  h+='<div class="med-stars"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>';
+  // SVG ocean waves at the bottom
+  h+='<svg class="med-waves" viewBox="0 0 1440 240" preserveAspectRatio="none">'
+    +'<path class="med-wave med-wave-1" d="M0 120 Q360 60 720 120 T1440 120 V240 H0 Z"/>'
+    +'<path class="med-wave med-wave-2" d="M0 150 Q360 90 720 150 T1440 150 V240 H0 Z"/>'
+    +'<path class="med-wave med-wave-3" d="M0 180 Q360 130 720 180 T1440 180 V240 H0 Z"/>'
+  +'</svg>';
+  // Top — title and close
+  h+='<button class="med-close" onclick="closeMeditation()" aria-label="Close meditation">\\u2715</button>';
+  h+='<div class="med-info"><div class="med-info-mins">'+med.mins+' MIN \\u2022 MEDITATION</div><div class="med-info-title">'+esc(med.title)+'</div></div>';
+  // Breathing circle
+  h+='<div class="med-breath-wrap"><div class="med-breath-ring med-breath-ring-3"></div><div class="med-breath-ring med-breath-ring-2"></div><div class="med-breath-ring med-breath-ring-1"></div><div class="med-breath-core"><span class="med-breath-text" id="medBreathText">Breathe in</span></div></div>';
+  // Hidden audio player
+  if(S.playing){
+    if(S.playing.url)h+='<audio id="audioEl" controls preload="auto" src="'+esc(S.playing.url)+'" autoplay class="med-audio"></audio>';
+    else if(S.playing.loading)h+='<div class="med-loading">Loading audio\\u2026</div>';
+    else if(S.playing.error)h+='<div class="med-loading">Audio unavailable</div>';
+  }
+  h+='<div class="med-tip">Sit comfortably. Let the sound carry you.</div>';
+  h+='</div>';
+  if(S.toast)h+='<div class="toast toast-'+(S.toastType==='err'?'err':'ok')+'">'+S.toast+'</div>';
+  document.getElementById('app').innerHTML=h;
+  // Cycle the breath text
+  if(!window._medBreathInterval){
+    const phrases=['Breathe in','Hold','Breathe out','Hold'];let i=0;
+    window._medBreathInterval=setInterval(()=>{const el=document.getElementById('medBreathText');if(!el){clearInterval(window._medBreathInterval);window._medBreathInterval=null;return}i=(i+1)%phrases.length;el.style.opacity='0';setTimeout(()=>{el.textContent=phrases[i];el.style.opacity='1'},200)},2500);
+  }
+  return;
+}
 const ts=S.tasks,f=ts.filter(t=>{if(S.search){const q=S.search.toLowerCase();if(!t.title.toLowerCase().includes(q)&&!(t.notes||'').toLowerCase().includes(q))return false}if(S.view==='all')return true;if(S.view==='today')return isTd(t.due_date);if(S.view==='overdue')return isOD(t.due_date,t.status);return t.status===S.view});
 const s={total:ts.length,pend:ts.filter(t=>t.status==='pending').length,act:ts.filter(t=>t.status==='in-progress').length,dn:ts.filter(t=>t.status==='done').length,od:ts.filter(t=>isOD(t.due_date,t.status)).length};
 
