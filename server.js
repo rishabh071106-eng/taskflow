@@ -1001,9 +1001,11 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
 @media (max-width:600px){.tabs{padding:4px;gap:4px}.tab{padding:11px 12px;font-size:12px}.tab .ti{font-size:15px}.tab .tl{font-size:11.5px}}
 /* Desktop sidebar layout */
 @media (min-width:1024px){
-  .app{max-width:1440px;padding:12px 24px 40px;display:grid;grid-template-columns:220px 1fr;grid-template-areas:"hdr hdr" "nav main" "topstrip main";column-gap:22px;row-gap:6px;align-items:start}
+  .app{max-width:1440px;padding:12px 24px 40px;display:grid;grid-template-columns:220px 1fr;grid-template-areas:"hdr hdr" "side main";column-gap:22px;row-gap:6px;align-items:start}
   .app>.hdr{grid-area:hdr;margin-bottom:0}
-  .app>.top-strip{grid-area:topstrip;margin-bottom:0;align-self:start}
+  .app>.side-col{grid-area:side;display:flex;flex-direction:column;gap:14px;align-self:start;position:sticky;top:22px}
+  .app>.side-col>.tabs.page-t{margin:0;position:static}
+  .app>.side-col>.top-strip{margin:0}
   .main-col>.moral-wrap{margin:0 0 14px;display:flex;flex-direction:column;gap:8px}
   .moral-wrap .moral{margin-bottom:0}
   .app>.tabs.page-t{grid-area:nav;flex-direction:column;align-self:start;position:sticky;top:22px;padding:8px;gap:4px;overflow:visible;margin-bottom:0;justify-content:flex-start}
@@ -2819,6 +2821,7 @@ if(isMain){
     +'<div class="side-now-foot"><span>'+yearPct+'%</span><span>Day '+dayOfYear+' / 365</span></div>'
     +'<svg class="side-now-wave" viewBox="0 0 100 30" preserveAspectRatio="none"><path d="M 0 15 Q 12.5 5 25 15 T 50 15 T 75 15 T 100 15" stroke="#6366F1" stroke-width="1.6" fill="none"><animate attributeName="d" dur="4s" repeatCount="indefinite" values="M 0 15 Q 12.5 5 25 15 T 50 15 T 75 15 T 100 15;M 0 15 Q 12.5 25 25 15 T 50 15 T 75 15 T 100 15;M 0 15 Q 12.5 5 25 15 T 50 15 T 75 15 T 100 15"/></path></svg>'
     +'</div>';
+  h+='<aside class="side-col">';
   h+='<nav class="tabs page-t">'+tabsHtml+'</nav>';
   // Your Life Goal — editable, persists in localStorage, fills the bottom of the left chip
   const goalText=S.lifeGoal||'';
@@ -2833,6 +2836,7 @@ if(isMain){
   +'</div>';
   // Topstrip (clock + weather + cities + life-goal) only on Tasks tab — keeps other tabs focused.
   if(isMain)h+='<section class="top-strip">'+sideNow+goalCard+'</section>';
+  h+='</aside>';
 }
 
 h+='<main class="main-col">';
