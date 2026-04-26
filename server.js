@@ -772,35 +772,48 @@ app.get('/api/history/today',async(req,res)=>{
   }catch(e){res.json({events:[],date:key,error:String(e)})}
 });
 
-// ═══ WEATHER + AQI (Open-Meteo, free, no key needed) — 15-min server cache ═══
+// ═══ WEATHER + AQI (Open-Meteo, free, no key needed) ═══
+// Caches successful temps for 15 min. Caches AQI-only/partial responses for only 90s so they
+// retry quickly. NEVER caches a fully-null response.
 const weatherCache={};
+function _fetchT(url,ms){return new Promise((resolve)=>{const ctrl=new AbortController();const tm=setTimeout(()=>{try{ctrl.abort()}catch(e){}resolve({})},ms);fetch(url,{signal:ctrl.signal,headers:{'User-Agent':'Brodoit/1.0'}}).then(r=>r.json()).then(j=>{clearTimeout(tm);resolve(j||{})}).catch(()=>{clearTimeout(tm);resolve({})})})}
 app.get('/api/weather',async(req,res)=>{
   const city=String(req.query.city||'Bangalore').slice(0,80).trim();
   const key=city.toLowerCase();
   const c=weatherCache[key];
-  if(c&&Date.now()-c.ts<15*60*1000)return res.json({...c.data,cached:true});
+  // Only honor cache if it has a real temp (or has a fresh partial that's <90s old)
+  if(c&&c.data){
+    const fresh=Date.now()-c.ts;
+    if(c.data.temp!=null&&fresh<15*60*1000)return res.json({...c.data,cached:true});
+    if(c.data.temp==null&&fresh<90*1000)return res.json({...c.data,cached:true,partial:true});
+  }
   try{
-    const ctrl=new AbortController();const tm=setTimeout(()=>ctrl.abort(),6000);
-    const geoR=await fetch('https://geocoding-api.open-meteo.com/v1/search?count=1&language=en&format=json&name='+encodeURIComponent(city),{signal:ctrl.signal,headers:{'User-Agent':'Brodoit/1.0'}});
-    clearTimeout(tm);
-    const geoJ=await geoR.json();
+    const geoJ=await _fetchT('https://geocoding-api.open-meteo.com/v1/search?count=1&language=en&format=json&name='+encodeURIComponent(city),5000);
     const place=(geoJ.results||[])[0];
     if(!place)return res.json({error:'city_not_found',city});
     const lat=place.latitude,lon=place.longitude,cityName=place.name,country=place.country_code||'';
+    // Use the modern Open-Meteo "current" param (current_weather is legacy and occasionally drops fields)
     const [wxR,aqR]=await Promise.all([
-      fetch('https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&current_weather=true').then(r=>r.json()).catch(()=>({})),
-      fetch('https://air-quality-api.open-meteo.com/v1/air-quality?latitude='+lat+'&longitude='+lon+'&current=us_aqi').then(r=>r.json()).catch(()=>({}))
+      _fetchT('https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&current=temperature_2m,weather_code',5000),
+      _fetchT('https://air-quality-api.open-meteo.com/v1/air-quality?latitude='+lat+'&longitude='+lon+'&current=us_aqi',5000)
     ]);
-    const cw=wxR&&wxR.current_weather;
-    const temp=cw&&typeof cw.temperature==='number'?Math.round(cw.temperature):null;
-    const code=cw?cw.weathercode:null;
+    // Modern shape first, then fall back to legacy
+    const cur=(wxR&&wxR.current)||null;
+    const legacy=(wxR&&wxR.current_weather)||null;
+    const tRaw=cur&&typeof cur.temperature_2m==='number'?cur.temperature_2m:(legacy&&typeof legacy.temperature==='number'?legacy.temperature:null);
+    const temp=tRaw!=null?Math.round(tRaw):null;
+    const code=cur&&cur.weather_code!=null?cur.weather_code:(legacy?legacy.weathercode:null);
     const aqRaw=aqR&&aqR.current&&aqR.current.us_aqi;
     const aqi=typeof aqRaw==='number'?Math.round(aqRaw):null;
     const data={city:cityName,country,lat,lon,temp,aqi,weatherCode:code};
+    // Only cache if at least temp came back. Partial caches fall through faster (90s).
     weatherCache[key]={ts:Date.now(),data};
     res.json(data);
-  }catch(e){res.json({error:String(e),city})}
+  }catch(e){res.json({error:String(e&&e.message||e),city})}
 });
+
+// Force-refresh endpoint to bust the cache (used by retry button + deploy hooks)
+app.post('/api/weather/refresh',(req,res)=>{const key=String(req.body&&req.body.city||'').toLowerCase().trim();if(key)delete weatherCache[key];res.json({ok:true,cleared:!!key})});
 
 // ═══ WIKIPEDIA SUMMARIES (24-hour cache) — powers History & Geography magazine cards ═══
 const wikiCache={};
