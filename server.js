@@ -14,6 +14,9 @@ try{db.exec("ALTER TABLE users ADD COLUMN email TEXT")}catch(e){}
 // task board column (Home / Office) — existing rows default to 'home'
 try{db.exec("ALTER TABLE tasks ADD COLUMN board TEXT DEFAULT 'home'")}catch(e){}
 try{db.exec("UPDATE tasks SET board='home' WHERE board IS NULL OR board=''")}catch(e){}
+// WhatsApp number linked to a (typically email-login) user account
+try{db.exec("ALTER TABLE users ADD COLUMN wa_phone TEXT")}catch(e){}
+try{db.exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_wa_phone ON users(wa_phone) WHERE wa_phone IS NOT NULL AND wa_phone!=''")}catch(e){}
 try{db.exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email) WHERE email IS NOT NULL AND email!=''")}catch(e){}
 try{db.exec("CREATE TABLE IF NOT EXISTS steps(id INTEGER PRIMARY KEY AUTOINCREMENT,user_phone TEXT NOT NULL,date TEXT NOT NULL,count INTEGER NOT NULL DEFAULT 0,source TEXT DEFAULT'manual',updated_at TEXT DEFAULT(datetime('now')))")}catch(e){}
 try{db.exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_steps_user_date ON steps(user_phone,date)")}catch(e){}
@@ -321,8 +324,26 @@ app.delete('/api/calendar/events/:id',auth,async(req,res)=>{
 
 // WhatsApp send endpoints disabled for closed-test phase (Twilio Sandbox requires
 // each recipient to text 'join <code>' first, which would break the tester experience).
-app.post('/api/send-task/:id',auth,(_,res)=>res.status(503).json({ok:false,error:'WhatsApp temporarily disabled'}));
-app.post('/api/send-all',auth,(_,res)=>res.status(503).json({ok:false,error:'WhatsApp temporarily disabled'}));
+app.post('/api/send-task/:id',auth,async(req,res)=>{
+  const u=db.prepare('SELECT wa_phone FROM users WHERE phone=?').get(req.user.phone);
+  if(!u||!u.wa_phone)return res.status(400).json({ok:false,error:'Connect your WhatsApp from your profile first.'});
+  const t=db.prepare('SELECT * FROM tasks WHERE id=? AND user_phone=?').get(req.params.id,req.user.phone);
+  if(!t)return res.status(404).json({ok:false,error:'Task not found'});
+  const body='📝 *'+t.title+'*'+(t.notes?'\n'+t.notes:'')+(t.due_date?'\n📅 '+fmtD(t.due_date):'')+'\n\n_Reply "done '+t.title.slice(0,20)+'" to mark complete_';
+  const r=await sendWA(u.wa_phone,body);
+  if(r.ok)return res.json({ok:true,sid:r.sid});
+  res.status(502).json({ok:false,error:waErrorMessage(r),code:r.code});
+});
+app.post('/api/send-all',auth,async(req,res)=>{
+  const u=db.prepare('SELECT wa_phone FROM users WHERE phone=?').get(req.user.phone);
+  if(!u||!u.wa_phone)return res.status(400).json({ok:false,error:'Connect your WhatsApp from your profile first.'});
+  const ts=db.prepare("SELECT * FROM tasks WHERE user_phone=? AND status!='done' ORDER BY priority DESC,created_at DESC").all(req.user.phone);
+  if(!ts.length)return res.json({ok:true,sent:0,empty:true});
+  let m='📋 *Your tasks ('+ts.length+')*\n';ts.slice(0,20).forEach((t,i)=>{m+='\n'+(i+1)+'. '+(PRI[t.priority]||'')+' '+t.title+(t.due_date?' _('+fmtD(t.due_date)+')_':'')});
+  const r=await sendWA(u.wa_phone,m);
+  if(r.ok)return res.json({ok:true,sent:ts.length,sid:r.sid});
+  res.status(502).json({ok:false,error:waErrorMessage(r),code:r.code});
+});
 app.get('/api/health',(_,res)=>res.json({status:'ok',twilio:!!tw,email:!!process.env.RESEND_API_KEY,users:db.prepare('SELECT COUNT(*)as c FROM users').get().c,tasks:db.prepare('SELECT COUNT(*)as c FROM tasks').get().c}));
 
 // Inject Twilio sandbox code into the HTML so frontend can build the wa.me link
@@ -554,9 +575,47 @@ app.get('/api/wiki/summaries',async(req,res)=>{
 
 // ═══ PROFILE (/api/me) ═══
 app.get('/api/me',auth,(req,res)=>{
-  const u=db.prepare('SELECT phone,name,created_at FROM users WHERE phone=?').get(req.user.phone);
+  const u=db.prepare('SELECT phone,name,email,wa_phone,created_at FROM users WHERE phone=?').get(req.user.phone);
   res.json(u||{error:'not found'});
 });
+// ═══ WHATSAPP LINK (connect a real WA number to an email-login account) ═══
+function normWA(p){let n=String(p||'').replace(/[^0-9+]/g,'');if(!n)return '';if(!n.startsWith('+'))n='+'+n;return n}
+app.post('/api/wa/connect',auth,async(req,res)=>{
+  const phone=normWA(req.body.phone);
+  if(phone.length<8)return res.status(400).json({error:'Enter your WhatsApp number with country code (e.g. +91 9876543210).'});
+  if(rateLimited('wac:'+req.user.phone))return res.status(429).json({error:'Too many attempts. Try again in 10 minutes.'});
+  // Block if this WA number is already linked to a different account
+  const owner=db.prepare("SELECT phone FROM users WHERE wa_phone=? AND phone!=?").get(phone,req.user.phone);
+  if(owner)return res.status(409).json({error:'That WhatsApp number is already linked to another Brodoit account.'});
+  if(!tw)return res.status(503).json({error:'WhatsApp is not configured on the server.'});
+  const code=genOTP();const expires=new Date(Date.now()+10*60*1000).toISOString();
+  db.prepare('INSERT OR REPLACE INTO otps(phone,code,expires_at)VALUES(?,?,?)').run('wac:'+phone,code,expires);
+  const r=await sendWA(phone,`🔗 *Brodoit — link this WhatsApp*\n\nYour code: *${code}*\n\nEnter it on brodoit.com to connect this number to your account.\nExpires in 10 minutes.`);
+  if(r.ok)return res.json({ok:true,sentTo:phone,sid:r.sid});
+  // Sandbox-not-joined cases — tell the client so the UI can show the join instructions.
+  const needsJoin=(r.code===63007||r.code===63015||r.code===63016||r.code===21610);
+  res.status(502).json({ok:false,error:waErrorMessage(r),code:r.code,needsJoin});
+});
+app.post('/api/wa/verify',auth,(req,res)=>{
+  const phone=normWA(req.body.phone),code=String(req.body.code||'').trim();
+  if(!phone||!code)return res.status(400).json({error:'Phone and code required'});
+  const key='wac:'+phone;
+  const otp=db.prepare('SELECT * FROM otps WHERE phone=?').get(key);
+  if(!otp)return res.status(400).json({error:'No verification code requested for this number.'});
+  if(new Date(otp.expires_at)<new Date()){db.prepare('DELETE FROM otps WHERE phone=?').run(key);return res.status(400).json({error:'Code expired. Request a new one.'})}
+  if(otp.code!==code)return res.status(400).json({error:'Wrong code. Try again.'});
+  db.prepare('DELETE FROM otps WHERE phone=?').run(key);
+  // Final dup check before commit
+  const owner=db.prepare("SELECT phone FROM users WHERE wa_phone=? AND phone!=?").get(phone,req.user.phone);
+  if(owner)return res.status(409).json({error:'That WhatsApp number is already linked to another Brodoit account.'});
+  db.prepare('UPDATE users SET wa_phone=? WHERE phone=?').run(phone,req.user.phone);
+  res.json({ok:true,wa_phone:phone});
+});
+app.post('/api/wa/disconnect',auth,(req,res)=>{
+  db.prepare('UPDATE users SET wa_phone=NULL WHERE phone=?').run(req.user.phone);
+  res.json({ok:true});
+});
+
 app.put('/api/me',auth,(req,res)=>{
   const name=(req.body.name||'').trim();
   if(!name)return res.status(400).json({error:'Name required'});
@@ -576,15 +635,22 @@ r.title=r.title.replace(/\s+/g,' ').trim();return r}
 
 app.post('/api/webhook/whatsapp',async(req,res)=>{
   const body=req.body.Body||'',from=req.body.From||'',phone=from.replace('whatsapp:','');
-  let user=db.prepare('SELECT * FROM users WHERE phone=?').get(phone);
-  if(!user){const tk=genToken();db.prepare('INSERT INTO users(phone,token)VALUES(?,?)').run(phone,tk);user={phone,token:tk}}
-  const p=parseIn(body);const twiml=new twilio.twiml.MessagingResponse();
-  if(p.command==='help')twiml.message('🤖 *Brodoit*\n\n📝 Type task to add\n📋 "list" — your tasks\n✅ "done <task>" — complete\n🔄 "doing <task>" — start\n🗑️ "delete <task>" — remove\n\n🌐 App: https://brodoit.com');
-  else if(p.command==='list'){const ts=db.prepare("SELECT * FROM tasks WHERE user_phone=? AND status!='done' ORDER BY priority DESC").all(phone);if(!ts.length)twiml.message('✨ No pending tasks!');else{let m='📋 *Your Tasks ('+ts.length+')*\n';ts.forEach((t,i)=>m+='\n'+(i+1)+'. '+PRI[t.priority]+' '+t.title+(t.due_date?' _('+fmtD(t.due_date)+')_':''));twiml.message(m)}}
-  else if(p.command==='done'){const t=db.prepare("SELECT * FROM tasks WHERE user_phone=? AND status!='done' AND LOWER(title) LIKE ?").get(phone,'%'+p.title+'%');if(t){db.prepare("UPDATE tasks SET status='done',updated_at=datetime('now')WHERE id=?").run(t.id);twiml.message('✅ Done: *'+t.title+'* 🎉')}else twiml.message('❌ No task matching "'+p.title+'"')}
-  else if(p.command==='doing'){const t=db.prepare("SELECT * FROM tasks WHERE user_phone=? AND status='pending' AND LOWER(title) LIKE ?").get(phone,'%'+p.title+'%');if(t){db.prepare("UPDATE tasks SET status='in-progress',updated_at=datetime('now')WHERE id=?").run(t.id);twiml.message('🔄 Started: *'+t.title+'*')}else twiml.message('❌ Not found')}
-  else if(p.command==='delete'){const t=db.prepare("SELECT * FROM tasks WHERE user_phone=? AND LOWER(title) LIKE ?").get(phone,'%'+p.title+'%');if(t){db.prepare('DELETE FROM tasks WHERE id=?').run(t.id);twiml.message('🗑️ Deleted: *'+t.title+'*')}else twiml.message('❌ Not found')}
-  else if(p.title){const id=genId();db.prepare("INSERT INTO tasks(id,user_phone,title,priority,due_date,source)VALUES(?,?,?,?,?,'whatsapp')").run(id,phone,p.title,p.priority,p.dueDate);let m='✅ *Added!*\n\n'+PRI[p.priority]+' '+p.title;if(p.dueDate)m+='\n📅 '+fmtD(p.dueDate);twiml.message(m)}
+  const twiml=new twilio.twiml.MessagingResponse();
+  // Find the Brodoit account that linked this WhatsApp number. NEVER auto-create users from incoming WA;
+  // that orphans tasks from the email-login account they belong to.
+  const linked=db.prepare('SELECT phone,name FROM users WHERE wa_phone=?').get(phone);
+  if(!linked){
+    twiml.message('👋 Hi! This number isn\'t linked to a Brodoit account yet.\n\nTo connect:\n1. Sign in at https://brodoit.com\n2. Tap your profile (top-right)\n3. Tap "📲 Connect WhatsApp"\n4. Enter this number and the code we send\n\nThen come back here and your tasks will sync. 🚀');
+    return res.type('text/xml').send(twiml.toString());
+  }
+  const acct=linked.phone; // account ID (email-derived for email users)
+  const p=parseIn(body);
+  if(p.command==='help')twiml.message('🤖 *Brodoit*\n\n📝 Type any task to add\n📋 "list" — your open tasks\n✅ "done <task>" — complete\n🔄 "doing <task>" — start\n🗑️ "delete <task>" — remove\n\n🌐 App: https://brodoit.com');
+  else if(p.command==='list'){const ts=db.prepare("SELECT * FROM tasks WHERE user_phone=? AND status!='done' ORDER BY priority DESC").all(acct);if(!ts.length)twiml.message('✨ No pending tasks!');else{let m='📋 *Your Tasks ('+ts.length+')*\n';ts.forEach((t,i)=>m+='\n'+(i+1)+'. '+PRI[t.priority]+' '+t.title+(t.due_date?' _('+fmtD(t.due_date)+')_':''));twiml.message(m)}}
+  else if(p.command==='done'){const t=db.prepare("SELECT * FROM tasks WHERE user_phone=? AND status!='done' AND LOWER(title) LIKE ?").get(acct,'%'+p.title+'%');if(t){db.prepare("UPDATE tasks SET status='done',updated_at=datetime('now')WHERE id=?").run(t.id);twiml.message('✅ Done: *'+t.title+'* 🎉')}else twiml.message('❌ No task matching "'+p.title+'"')}
+  else if(p.command==='doing'){const t=db.prepare("SELECT * FROM tasks WHERE user_phone=? AND status='pending' AND LOWER(title) LIKE ?").get(acct,'%'+p.title+'%');if(t){db.prepare("UPDATE tasks SET status='in-progress',updated_at=datetime('now')WHERE id=?").run(t.id);twiml.message('🔄 Started: *'+t.title+'*')}else twiml.message('❌ Not found')}
+  else if(p.command==='delete'){const t=db.prepare("SELECT * FROM tasks WHERE user_phone=? AND LOWER(title) LIKE ?").get(acct,'%'+p.title+'%');if(t){db.prepare('DELETE FROM tasks WHERE id=?').run(t.id);twiml.message('🗑️ Deleted: *'+t.title+'*')}else twiml.message('❌ Not found')}
+  else if(p.title){const id=genId();db.prepare("INSERT INTO tasks(id,user_phone,title,priority,due_date,source,board)VALUES(?,?,?,?,?,'whatsapp','home')").run(id,acct,p.title,p.priority,p.dueDate);let m='✅ *Added to Home Tasks!*\n\n'+PRI[p.priority]+' '+p.title;if(p.dueDate)m+='\n📅 '+fmtD(p.dueDate);twiml.message(m)}
   else twiml.message('Type "help" for commands');
   res.type('text/xml').send(twiml.toString());
 });
@@ -592,7 +658,12 @@ app.post('/api/webhook/whatsapp',async(req,res)=>{
 // ═══ REMINDERS ═══
 setInterval(async()=>{const now=new Date(),nd=todayStr(),nt=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
 const due=db.prepare("SELECT * FROM tasks WHERE status!='done' AND due_date=? AND reminder_time=? AND reminded=0").all(nd,nt);
-for(const t of due){await sendWA(t.user_phone,'⏰ *Reminder*\n\n'+PRI[t.priority]+' *'+t.title+'*'+(t.notes?'\n'+t.notes:'')+(t.due_date?'\n📅 '+fmtD(t.due_date):'')+'\n\n_Reply "done '+t.title.slice(0,20)+'" to complete_');db.prepare('UPDATE tasks SET reminded=1 WHERE id=?').run(t.id)}
+for(const t of due){
+  const u=db.prepare('SELECT wa_phone FROM users WHERE phone=?').get(t.user_phone);
+  if(u&&u.wa_phone){await sendWA(u.wa_phone,'⏰ *Reminder*\n\n'+PRI[t.priority]+' *'+t.title+'*'+(t.notes?'\n'+t.notes:'')+(t.due_date?'\n📅 '+fmtD(t.due_date):'')+'\n\n_Reply "done '+t.title.slice(0,20)+'" to complete_')}
+  // Mark reminded either way so we don't loop on users without WA linked.
+  db.prepare('UPDATE tasks SET reminded=1 WHERE id=?').run(t.id);
+}
 },60000);
 
 // ═══ FRONTEND ═══
@@ -700,6 +771,40 @@ input:focus,textarea:focus{outline:none;border-color:#0F172A}textarea{resize:ver
 }
 body[data-theme=aurora] .board-pick .bp-c{background:rgba(255,255,255,.92);color:#0F172A}
 body[data-theme=aurora] .board-pick-hint{color:#7C7C97}
+/* WhatsApp connect section in profile modal */
+.wa-sec{margin:24px 0 4px;padding:14px;background:linear-gradient(135deg,rgba(37,211,102,.06),rgba(18,140,126,.04));border:1px solid rgba(37,211,102,.18);border-radius:14px;text-align:left}
+.wa-sec-hd{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.wa-sec-emoji{font-size:28px;line-height:1}
+.wa-sec-t{font-weight:800;font-size:15px;color:var(--ink,#0F172A);letter-spacing:-.01em}
+.wa-sec-s{font-size:11.5px;color:#94A3B8;font-weight:500}
+.wa-connect-btn{width:100%;background:linear-gradient(135deg,#25D366,#128C7E)!important;color:#fff!important;border:none!important;font-weight:700;letter-spacing:.01em;padding:13px;font-size:14px;box-shadow:0 6px 18px rgba(37,211,102,.28)}
+.wa-linked{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #B7E8C4;color:#0F172A;padding:10px 12px;border-radius:10px;font-size:13.5px;flex-wrap:wrap}
+.wa-link-x{margin-left:auto;background:transparent;border:1px solid #FCA5A5;color:#B91C1C;font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:8px;cursor:pointer}
+.wa-link-x:hover{background:#FEF2F2}
+.wa-linked-hint{font-size:11.5px;color:#64748B;margin-top:8px;line-height:1.5}
+.wa-step{display:flex;gap:12px;background:#fff;border:1px solid #E2E8F0;border-radius:10px;padding:12px;margin-top:10px}
+.wa-step-n{flex:0 0 28px;height:28px;width:28px;border-radius:50%;background:#25D366;color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:13px;font-family:'Space Mono',monospace}
+.wa-step-b{flex:1;min-width:0}
+.wa-step-t{font-weight:700;font-size:13.5px;color:#0F172A;margin-bottom:4px}
+.wa-step-d{font-size:12px;color:#475569;line-height:1.5;margin-bottom:8px}
+.wa-jb{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;border:none;border-radius:8px;padding:10px 14px;font-weight:700;font-size:12.5px;cursor:pointer;box-shadow:0 4px 12px rgba(37,211,102,.28)}
+.wa-jb svg{width:14px;height:14px;fill:#fff}
+.wa-skip{display:block;margin-top:8px;background:transparent;border:none;color:#6366F1;font-size:11.5px;font-weight:600;cursor:pointer;padding:4px 0;text-decoration:underline}
+.wa-row{display:flex;gap:8px;margin-top:6px}
+.wa-cc{flex:0 0 auto;padding:10px 8px;border:1px solid #E2E8F0;border-radius:8px;background:#FAFAF7;font-size:13px;font-weight:600;font-family:inherit}
+.wa-num{flex:1;padding:10px 12px;border:1px solid #E2E8F0;border-radius:8px;font-size:14px;background:#fff;color:#0F172A;font-family:inherit}
+.wa-num:focus,.wa-cc:focus{outline:none;border-color:#25D366}
+.wa-code{width:100%;padding:14px;text-align:center;letter-spacing:8px;font-size:22px;font-weight:700;font-family:'Space Mono',monospace;border:1.5px solid #E2E8F0;border-radius:10px;background:#FAFAF7;color:#0F172A;margin-top:6px}
+.wa-code:focus{outline:none;border-color:#25D366;background:#fff}
+.wa-err{margin-top:8px;font-size:12px;color:#B91C1C;font-weight:600;background:#FEF2F2;border:1px solid #FCA5A5;padding:7px 10px;border-radius:8px}
+.wa-acts{display:flex;gap:8px;margin-top:10px}
+.wa-acts .mb{flex:1;margin-top:0;padding:10px;font-size:13px}
+body[data-theme=aurora] .wa-sec{background:linear-gradient(135deg,rgba(37,211,102,.1),rgba(18,140,126,.06));border-color:rgba(37,211,102,.25)}
+body[data-theme=aurora] .wa-sec-t{color:#F5F5FA}
+body[data-theme=aurora] .wa-linked,body[data-theme=aurora] .wa-step{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);color:#F5F5FA}
+body[data-theme=aurora] .wa-step-t{color:#F5F5FA}
+body[data-theme=aurora] .wa-step-d,body[data-theme=aurora] .wa-linked-hint{color:#9999B5}
+body[data-theme=aurora] .wa-cc,body[data-theme=aurora] .wa-num,body[data-theme=aurora] .wa-code{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14);color:#F5F5FA}
 /* In-form Board picker (modal: New / Edit Task) */
 .form-board-pick{display:flex;gap:10px;margin-bottom:10px}
 .fbp{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:12px 8px;border:1.5px solid var(--line,#E2E8F0);background:var(--bg-elev,#fff);border-radius:12px;cursor:pointer;color:var(--ink-2,#475569);transition:border-color .15s ease,background .15s ease,transform .1s ease;text-align:center}
@@ -2603,6 +2708,46 @@ function openWAJoin(){return}
 function saveBroDoitContact(){const a=document.createElement('a');a.href='/brodoit.vcf';a.download='BroDoit.vcf';document.body.appendChild(a);a.click();setTimeout(()=>document.body.removeChild(a),1000);toast('\\u{1F4D2} Downloading BroDoit contact \\u2014 open it to save')}
 function confirmWAJoined(){S.waConnected=true;localStorage.setItem('wa_connected','1');S.showWAOnboard=false;toast('\\u2705 WhatsApp connected');render()}
 function disconnectWA(){S.waConnected=false;localStorage.removeItem('wa_connected');toast('\\u23F8 WhatsApp disconnected');render()}
+// ─── Connect-WhatsApp flow (link a real WA number to this account) ───
+async function waConnectSend(){
+  const phone=(document.getElementById('waConnPh')||{}).value||'';
+  const cc=(document.getElementById('waConnCC')||{}).value||'+91';
+  const full=cc+phone.replace(/[^0-9]/g,'');
+  if(full.length<8){S.waConn={...(S.waConn||{}),err:'Enter your WhatsApp number'};render();return}
+  S.waConn={phone:full,sending:true,err:''};render();
+  const r=await api('/wa/connect',{method:'POST',body:JSON.stringify({phone:full})});
+  if(r&&r.ok){
+    localStorage.setItem('tf_wa_joined','1');
+    S.waConn={phone:full,step:'verify',sending:false,code:''};
+    toast('\\u{1F4F2} Code sent to your WhatsApp');
+  }else{
+    S.waConn={phone:full,sending:false,err:(r&&r.error)||'Failed to send',needsJoin:!!(r&&r.needsJoin)};
+    if(r&&r.needsJoin)localStorage.removeItem('tf_wa_joined');
+  }
+  render();
+}
+async function waConnectVerify(){
+  const code=((document.getElementById('waConnCode')||{}).value||'').trim();
+  if(!code||code.length<6){S.waConn={...(S.waConn||{}),err:'Enter the 6-digit code'};render();return}
+  S.waConn={...(S.waConn||{}),verifying:true,err:''};render();
+  const r=await api('/wa/verify',{method:'POST',body:JSON.stringify({phone:S.waConn.phone,code})});
+  if(r&&r.ok){
+    S.profile={...(S.profile||{}),wa_phone:r.wa_phone};
+    S.waConn=null;
+    toast('\\u2705 WhatsApp connected!');
+  }else{
+    S.waConn={...(S.waConn||{}),verifying:false,err:(r&&r.error)||'Verification failed'};
+  }
+  render();
+}
+async function waUnlink(){
+  if(!confirm('Disconnect WhatsApp from this account?'))return;
+  const r=await api('/wa/disconnect',{method:'POST'});
+  if(r&&r.ok){S.profile={...(S.profile||{}),wa_phone:null};toast('WhatsApp disconnected');render()}
+}
+function waConnectStart(){S.waConn={step:'phone',phone:'',code:'',err:''};render();setTimeout(()=>{const e=document.getElementById('waConnPh');if(e)e.focus()},80)}
+function waConnectCancel(){S.waConn=null;render()}
+function waOpenJoin(){const code=window.__TWILIO_SANDBOX_CODE||'along-wool';window.open('https://wa.me/14155238886?text='+encodeURIComponent('join '+code),'_blank')}
 // Three categories x two durations = six English-language meditation audios; durations VERIFIED to match the labels
 const MED_SLOTS=[
 {cat:'vipassana',mins:10,title:'Anāpāna + Mettā',desc:'Breath-awareness intro \\u2022 12 min',color:'#06B6D4',directId:'AnapanaEnglishMetta',directFile:'Anapana English+Metta.mp3'},
@@ -3428,6 +3573,53 @@ if(S.showProfile){
   h+='<div style="font-size:12px;color:#94A3B8;font-family:\\'Space Mono\\',monospace;margin-bottom:18px">'+esc(masked)+'</div>';
   h+='<div class="dash-grid" style="text-align:left"><div class="dash-card"><div class="lbl">Total tasks</div><div class="v">'+ts.length+'</div></div><div class="dash-card"><div class="lbl">Completed</div><div class="v" style="color:#3DAE5C">'+s.dn+'</div></div><div class="dash-card"><div class="lbl">Streak</div><div class="v">'+streak+'<small style="font-size:12px;color:#94A3B8;margin-left:4px">days</small></div></div><div class="dash-card"><div class="lbl">Member since</div><div class="v" style="font-size:14px">'+esc(mem)+'</div></div></div>';
   h+='<label class="lbl" style="text-align:left">Display name</label><div class="row"><input id="pfName" value="'+esc(S.user.name||'')+'" placeholder="Your name"><button class="mb mb-s" style="flex:0 0 auto;padding:11px 18px" onclick="saveName()">Save</button></div>';
+
+  // ─── WhatsApp section ───
+  const waPhone=p.wa_phone||'';
+  const conn=S.waConn||null;
+  const joined=localStorage.getItem('tf_wa_joined')==='1';
+  const sandboxCode=window.__TWILIO_SANDBOX_CODE||'along-wool';
+  h+='<div class="wa-sec">';
+  h+='<div class="wa-sec-hd"><span class="wa-sec-emoji">\\u{1F4F2}</span><div><div class="wa-sec-t">WhatsApp</div><div class="wa-sec-s">Add tasks and get reminders by chat</div></div></div>';
+  if(waPhone&&!conn){
+    h+='<div class="wa-linked">\\u2705 Connected to <b>'+esc(waPhone)+'</b><button class="wa-link-x" onclick="waUnlink()">Disconnect</button></div>';
+    h+='<div class="wa-linked-hint">WhatsApp <b>'+esc(sandboxCode)+'</b> a task to <b>+1 415 523 8886</b> and it\\'ll appear in Home Tasks. Reply <b>list</b>, <b>done <i>x</i></b>, <b>doing <i>x</i></b>, or <b>delete <i>x</i></b>.</div>';
+  } else if(!conn){
+    h+='<button class="mb mb-s wa-connect-btn" onclick="waConnectStart()">\\u{1F517} Connect WhatsApp</button>';
+  } else {
+    // Step 1 — sandbox join (only if user hasn\\'t done it yet on this device)
+    if(!joined){
+      h+='<div class="wa-step"><div class="wa-step-n">1</div><div class="wa-step-b">'
+        +'<div class="wa-step-t">One-time WhatsApp setup</div>'
+        +'<div class="wa-step-d">Open WhatsApp and send <b>join '+esc(sandboxCode)+'</b> to <b>+1 415 523 8886</b>. You\\'ll get a confirmation reply. <i>Only needed once per phone.</i></div>'
+        +'<button class="wa-jb" onclick="waOpenJoin()">'+WI+' Open WhatsApp \\u2192 send join code</button>'
+        +'<button class="wa-skip" onclick="localStorage.setItem(\\'tf_wa_joined\\',\\'1\\');render()">I already joined \\u2192</button>'
+      +'</div></div>';
+    }
+    // Step 2 — phone entry
+    if(joined&&conn.step==='phone'){
+      h+='<div class="wa-step"><div class="wa-step-n">'+(joined?'1':'2')+'</div><div class="wa-step-b">'
+        +'<div class="wa-step-t">Your WhatsApp number</div>'
+        +'<div class="wa-step-d">Type the number you\\'ll WhatsApp from. We\\'ll send a 6-digit code to confirm.</div>'
+        +'<div class="wa-row"><select id="waConnCC" class="wa-cc"><option value="+91" selected>\\u{1F1EE}\\u{1F1F3} +91</option><option value="+1">\\u{1F1FA}\\u{1F1F8} +1</option><option value="+44">\\u{1F1EC}\\u{1F1E7} +44</option><option value="+61">\\u{1F1E6}\\u{1F1FA} +61</option><option value="+971">\\u{1F1E6}\\u{1F1EA} +971</option><option value="+65">\\u{1F1F8}\\u{1F1EC} +65</option></select>'
+        +'<input id="waConnPh" class="wa-num" type="tel" inputmode="tel" placeholder="98765 43210" autocomplete="tel-national"></div>'
+        +(conn.err?'<div class="wa-err">'+esc(conn.err)+(conn.needsJoin?' \\u2014 finish step 1 first':'')+'</div>':'')
+        +'<div class="wa-acts"><button class="mb mb-c" onclick="waConnectCancel()">Cancel</button><button class="mb mb-s" onclick="waConnectSend()"'+(conn.sending?' disabled':'')+'>'+(conn.sending?'Sending\\u2026':'Send code via WhatsApp')+'</button></div>'
+      +'</div></div>';
+    }
+    // Step 3 — verify code
+    if(conn.step==='verify'){
+      h+='<div class="wa-step"><div class="wa-step-n">'+(joined?'2':'3')+'</div><div class="wa-step-b">'
+        +'<div class="wa-step-t">Enter the 6-digit code</div>'
+        +'<div class="wa-step-d">Sent to <b>'+esc(conn.phone)+'</b> on WhatsApp.</div>'
+        +'<input id="waConnCode" class="wa-code" type="tel" inputmode="numeric" maxlength="6" placeholder="123456" autocomplete="one-time-code">'
+        +(conn.err?'<div class="wa-err">'+esc(conn.err)+'</div>':'')
+        +'<div class="wa-acts"><button class="mb mb-c" onclick="waConnectCancel()">Cancel</button><button class="mb mb-s" onclick="waConnectVerify()"'+(conn.verifying?' disabled':'')+'>'+(conn.verifying?'Verifying\\u2026':'Verify &amp; connect')+'</button></div>'
+      +'</div></div>';
+    }
+  }
+  h+='</div>';
+
   h+='<div class="macts" style="margin-top:22px"><button class="mb mb-c" onclick="closeProfile()">Close</button><button class="mb mb-d" style="margin-top:0" onclick="logout()">Log out</button></div>';
   h+='</div></div>';
 }
