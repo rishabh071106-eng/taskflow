@@ -178,6 +178,89 @@ app.post('/api/verify-otp',(req,res)=>{
   res.json({phone:user.phone,name:user.name||name,token});
 });
 
+// ═══ AI COACH — proxy endpoints for Claude, Whisper, ElevenLabs ═══
+// API keys stay on the server. The browser never sees them.
+const ANTHROPIC_KEY=process.env.ANTHROPIC_API_KEY||'';
+const OPENAI_KEY=process.env.OPENAI_API_KEY||'';
+const ELEVENLABS_KEY=process.env.ELEVENLABS_API_KEY||'';
+const ELEVENLABS_VOICE=process.env.ELEVENLABS_VOICE||'29vD33N1CtxCmqQRPOHJ';  // Adam (deep male)
+console.log('[ai] anthropic',ANTHROPIC_KEY?'\\u2705':'\\u274C','openai',OPENAI_KEY?'\\u2705':'\\u274C','elevenlabs',ELEVENLABS_KEY?'\\u2705':'\\u274C');
+
+const COACH_SYSTEM=`You are an expert Business English coach speaking with a fluent professional who wants to sound MORE polished and use more sophisticated vocabulary in business contexts.
+
+When they say something, structure your reply in this exact short format:
+
+1. Brief acknowledgment of what they said (one sentence)
+2. A more polished/business-appropriate rewrite of their last sentence
+3. ONE vocabulary or idiom tip relevant to it (a sophisticated word/phrase + meaning + how to use it)
+4. A follow-up question that pushes the conversation forward
+
+Keep total response under 90 words. Use sophisticated vocabulary yourself naturally — words like "leverage", "nuance", "cadence", "granular", "alignment", "downstream", "actionable", "stakeholder", "throughput", "paradigm", "by and large", "in lieu of", "tantamount to", "circle back", "drill down".
+
+Be warm but direct. Never explain that you are an AI.`;
+
+app.post('/api/coach/chat',auth,async(req,res)=>{
+  if(!ANTHROPIC_KEY)return res.status(503).json({error:'AI coach not configured (ANTHROPIC_API_KEY missing).'});
+  const messages=Array.isArray(req.body&&req.body.messages)?req.body.messages.slice(-20):null;
+  if(!messages||!messages.length)return res.status(400).json({error:'messages required'});
+  const sys=req.body.system||COACH_SYSTEM;
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':ANTHROPIC_KEY,'anthropic-version':'2023-06-01'},
+      body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:600,system:sys,messages:messages.map(m=>({role:m.role==='assistant'?'assistant':'user',content:String(m.content||'').slice(0,4000)}))})
+    });
+    const j=await r.json();
+    if(!r.ok)return res.status(502).json({error:(j.error&&j.error.message)||'Claude error',detail:j});
+    const reply=(j.content&&j.content[0]&&j.content[0].text)||'';
+    res.json({reply,usage:j.usage});
+  }catch(e){res.status(500).json({error:String(e.message||e)})}
+});
+
+app.post('/api/coach/transcribe',auth,express.raw({type:'audio/*',limit:'10mb'}),async(req,res)=>{
+  if(!OPENAI_KEY)return res.status(503).json({error:'Transcription not configured (OPENAI_API_KEY missing).'});
+  const buf=req.body;if(!buf||!buf.length)return res.status(400).json({error:'audio required'});
+  const ct=req.get('content-type')||'audio/webm';
+  const ext=ct.includes('mp4')?'mp4':ct.includes('mpeg')?'mp3':ct.includes('wav')?'wav':'webm';
+  try{
+    const fd=new FormData();
+    fd.append('file',new Blob([buf],{type:ct}),'audio.'+ext);
+    fd.append('model','whisper-1');
+    fd.append('response_format','json');
+    fd.append('language','en');
+    const r=await fetch('https://api.openai.com/v1/audio/transcriptions',{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+OPENAI_KEY},
+      body:fd
+    });
+    const j=await r.json();
+    if(!r.ok)return res.status(502).json({error:(j.error&&j.error.message)||'Whisper error'});
+    res.json({text:j.text||''});
+  }catch(e){res.status(500).json({error:String(e.message||e)})}
+});
+
+app.post('/api/coach/speak',auth,async(req,res)=>{
+  if(!ELEVENLABS_KEY)return res.status(503).json({error:'TTS not configured',fallback:'browser-tts'});
+  const text=String((req.body&&req.body.text)||'').slice(0,2000);
+  if(!text)return res.status(400).json({error:'text required'});
+  const voice=String((req.body&&req.body.voice)||ELEVENLABS_VOICE).replace(/[^a-zA-Z0-9]/g,'');
+  try{
+    const r=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+voice,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','xi-api-key':ELEVENLABS_KEY,'Accept':'audio/mpeg'},
+      body:JSON.stringify({text,model_id:'eleven_turbo_v2_5',voice_settings:{stability:0.5,similarity_boost:0.78,style:0.15,use_speaker_boost:true}})
+    });
+    if(!r.ok){const t=await r.text();return res.status(502).json({error:t.slice(0,200)})}
+    const audio=Buffer.from(await r.arrayBuffer());
+    res.set('Content-Type','audio/mpeg').set('Cache-Control','no-store').send(audio);
+  }catch(e){res.status(500).json({error:String(e.message||e)})}
+});
+
+// AI status — client-only check, no key exposure
+app.get('/api/coach/status',(req,res)=>{
+  res.json({chat:!!ANTHROPIC_KEY,transcribe:!!OPENAI_KEY,tts:!!ELEVENLABS_KEY});
+});
+
 // ═══ VOICE TRAINER — 90-day "zero to hero" English accent + functional-English course ═══
 // Curriculum is a 30-theme cycle, repeated 3 times across 3 phases (Foundation / Conversation / Mastery).
 // Each user's progress (completed days + points) is server-tracked so they pick up where they left off.
@@ -1124,6 +1207,75 @@ body[data-theme=aurora] .hdr-time-date{color:#9999B5}
 /* Section dividers — thin gradient line with a pulsing centered node */
 .section-div{height:1px;background:linear-gradient(90deg,transparent 0%,rgba(99,102,241,.18) 30%,rgba(232,145,44,.22) 50%,rgba(99,102,241,.18) 70%,transparent 100%);margin:6px 0;position:relative}
 /* Tap Sprint mini-game */
+/* AI COACH (Voice tab) */
+.cc-hero{position:relative;border-radius:20px;overflow:hidden;margin-bottom:14px;background:linear-gradient(135deg,#0F172A 0%,#1E1B4B 50%,#7C3AED 100%);color:#fff;box-shadow:0 18px 44px rgba(15,23,42,.32);padding:22px;min-height:130px}
+.cc-hero-orb{position:absolute;top:-40%;right:-15%;width:380px;height:380px;background:radial-gradient(circle,rgba(167,139,250,.42),transparent 60%);pointer-events:none;animation:ccOrb 8s ease-in-out infinite alternate}
+@keyframes ccOrb{from{transform:translate(0,0) scale(1)}to{transform:translate(-30px,18px) scale(1.07)}}
+.cc-hero-l{position:relative;max-width:520px}
+.cc-hero-eyebrow{font-size:10.5px;font-weight:800;letter-spacing:2px;color:rgba(255,255,255,.74);margin-bottom:8px}
+.cc-hero-t{margin:0;font-size:30px;font-weight:900;line-height:1.05;letter-spacing:-.025em;color:#fff}
+@media (min-width:600px){.cc-hero-t{font-size:36px}}
+.cc-hero-s{font-size:14px;color:rgba(255,255,255,.82);line-height:1.55;margin-top:10px}
+.cc-caps{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.cc-cap{font-size:11px;font-weight:700;padding:5px 10px;border-radius:99px;background:#FEF2F2;color:#B91C1C;border:1px solid #FCA5A5}
+.cc-cap-on{background:#EDFCF2;color:#16A34A;border-color:#B7E8C4}
+.cc-scenarios{margin-bottom:14px}
+.cc-scenarios-t{font-size:12px;font-weight:700;color:#475569;letter-spacing:.4px;text-transform:uppercase;margin-bottom:8px}
+.cc-scenario-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+.cc-scenario-row::-webkit-scrollbar{display:none}
+.cc-sc{flex-shrink:0;scroll-snap-align:start;padding:10px 14px;border:1.5px solid #E2E8F0;background:#fff;border-radius:11px;cursor:pointer;font-size:12.5px;font-weight:700;color:#0F172A;font-family:inherit;letter-spacing:-.005em;transition:transform .12s ease,border-color .12s ease,background .12s ease}
+.cc-sc:hover{border-color:#7C3AED;background:#F5F3FF}
+.cc-sc:active{transform:scale(.97)}
+.cc-sc-on{background:#7C3AED;color:#fff;border-color:#7C3AED}
+.cc-active-scenario{padding:10px 14px;background:#F5F3FF;border:1px solid #DDD6FE;border-radius:11px;font-size:13px;color:#5B21B6;display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.cc-active-scenario b{color:#0F172A}
+.cc-end{margin-left:auto;background:transparent;border:1px solid #DDD6FE;color:#7C3AED;border-radius:8px;padding:5px 10px;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit}
+.cc-end:hover{background:#7C3AED;color:#fff}
+.cc-thread{display:flex;flex-direction:column;gap:11px;padding:6px 2px 12px;max-height:60vh;overflow-y:auto}
+.cc-msg{display:flex;gap:8px;align-items:flex-end}
+.cc-coach{justify-content:flex-start}
+.cc-me{justify-content:flex-end}
+.cc-avatar{flex-shrink:0;width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#1E1B4B);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px}
+.cc-bubble{max-width:78%;padding:11px 14px;border-radius:16px;line-height:1.5;font-size:14px;white-space:pre-wrap;word-wrap:break-word;position:relative}
+.cc-coach .cc-bubble{background:#F5F3FF;color:#0F172A;border:1px solid #DDD6FE;border-bottom-left-radius:4px}
+.cc-me .cc-bubble{background:linear-gradient(135deg,#0F172A,#312E81);color:#fff;border-bottom-right-radius:4px}
+.cc-bubble b{font-weight:800}
+.cc-replay{display:inline-block;margin-left:6px;background:rgba(124,58,237,.12);border:none;color:#7C3AED;font-size:13px;padding:2px 8px;border-radius:7px;cursor:pointer;font-family:inherit;line-height:1}
+.cc-replay:hover{background:#7C3AED;color:#fff}
+.cc-typing{display:flex;gap:4px;padding:14px}
+.cc-typing span{width:7px;height:7px;border-radius:50%;background:#7C3AED;opacity:.4;animation:ccTyping 1.2s ease-in-out infinite}
+.cc-typing span:nth-child(2){animation-delay:.18s}
+.cc-typing span:nth-child(3){animation-delay:.36s}
+@keyframes ccTyping{0%,80%,100%{opacity:.3;transform:scale(.85)}40%{opacity:1;transform:scale(1.1)}}
+.cc-composer{display:flex;align-items:flex-end;gap:8px;padding:10px;background:#fff;border:1.5px solid #E2E8F0;border-radius:18px;box-shadow:0 4px 16px rgba(15,23,42,.08);position:sticky;bottom:0;margin-top:8px}
+.cc-composer textarea{flex:1;min-width:0;resize:none;border:none;outline:none;font-family:inherit;font-size:15px;line-height:1.45;padding:8px 4px;color:#0F172A;background:transparent;max-height:120px;min-height:24px}
+.cc-mic{flex-shrink:0;width:42px;height:42px;border-radius:50%;background:#F1F5F9;border:none;font-size:18px;cursor:pointer;color:#0F172A;font-family:inherit;transition:background .12s ease,transform .1s ease}
+.cc-mic:hover{background:#E2E8F0}
+.cc-mic:active{transform:scale(.94)}
+.cc-rec{background:#DC2626!important;color:#fff!important;animation:ccRecPulse 1s ease-in-out infinite}
+@keyframes ccRecPulse{0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,.6)}50%{box-shadow:0 0 0 14px rgba(220,38,38,0)}}
+.cc-send{flex-shrink:0;width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#5B21B6);border:none;color:#fff;font-size:22px;font-weight:900;cursor:pointer;font-family:inherit;line-height:1;transition:transform .1s ease}
+.cc-send:hover:not(:disabled){transform:scale(1.05)}
+.cc-send:active:not(:disabled){transform:scale(.92)}
+.cc-send:disabled{opacity:.4;cursor:not-allowed}
+.cc-quick{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.cc-quick-btn{padding:7px 12px;font-size:12px;font-weight:600;background:#fff;border:1px solid #E2E8F0;border-radius:99px;cursor:pointer;color:#475569;font-family:inherit;letter-spacing:-.005em;transition:border-color .12s ease,background .12s ease,color .12s ease}
+.cc-quick-btn:hover{border-color:#7C3AED;background:#F5F3FF;color:#7C3AED}
+.cc-quick-reset{margin-left:auto;color:#64748B;border-color:#CBD5E1}
+.cc-playing{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#0F172A;color:#fff;padding:8px 14px;border-radius:99px;font-size:12px;font-weight:600;z-index:90;box-shadow:0 6px 16px rgba(15,23,42,.3)}
+.cc-playing button{background:rgba(255,255,255,.18);border:none;color:#fff;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:700;margin-left:8px;cursor:pointer;font-family:inherit}
+@media (max-width:600px){.cc-thread{max-height:50vh}.cc-bubble{max-width:84%;font-size:13.5px}}
+body[data-theme=aurora] .cc-cap{background:rgba(220,38,38,.12);color:#FCA5A5;border-color:rgba(220,38,38,.3)}
+body[data-theme=aurora] .cc-cap-on{background:rgba(34,197,94,.14);color:#4ADE80;border-color:rgba(34,197,94,.3)}
+body[data-theme=aurora] .cc-sc{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14);color:#F5F5FA}
+body[data-theme=aurora] .cc-sc:hover{background:rgba(124,58,237,.18);border-color:#A78BFA}
+body[data-theme=aurora] .cc-sc-on{background:#A78BFA;color:#1A1A2E;border-color:#A78BFA}
+body[data-theme=aurora] .cc-active-scenario{background:rgba(124,58,237,.14);border-color:rgba(167,139,250,.3);color:#C4B5FD}
+body[data-theme=aurora] .cc-coach .cc-bubble{background:rgba(167,139,250,.1);border-color:rgba(167,139,250,.22);color:#F5F5FA}
+body[data-theme=aurora] .cc-composer{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12)}
+body[data-theme=aurora] .cc-composer textarea{color:#F5F5FA}
+body[data-theme=aurora] .cc-mic{background:rgba(255,255,255,.08);color:#F5F5FA}
+body[data-theme=aurora] .cc-quick-btn{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12);color:#9999B5}
 /* MIND GYM Daily Workout card + confetti */
 .mg-daily{display:flex;align-items:center;gap:14px;padding:14px 16px;margin-bottom:14px;background:linear-gradient(135deg,#FCD34D 0%,#FB923C 100%);border-radius:14px;color:#0F172A;box-shadow:0 8px 22px rgba(252,211,77,.32)}
 .mg-daily-l{flex:1;min-width:0}
@@ -3054,6 +3206,8 @@ mgPlay:null,  // {game:'math|memory|reaction', ...gameSpecificState}
 // Voice Trainer
 voice:{loaded:false,curriculum:{days:[]},progress:{completed:0,totalPoints:0,pct:0,level:1,maxLevel:4,rows:[]}},
 voicePlay:null,
+// AI Coach (Phase 2)
+coach:{status:null,history:[],input:'',sending:false,recording:false,recAudio:null,playing:false,scenario:null},
 weather:{city:localStorage.getItem('tf_city')||'Bangalore',temp:null,aqi:null,country:'',loaded:false,loading:false,error:null},
 cityTemps:{},remember:{person:null,loaded:false},lifeGoal:localStorage.getItem('tf_life_goal')||'',meditating:{active:false,title:'',mins:0,startedAt:0},
 medCat:localStorage.getItem('tf_medcat')||'vipassana',
@@ -3354,7 +3508,7 @@ const KNOWLEDGE_TOPICS=[
 ];
 function getKnowledgeTopic(k){return KNOWLEDGE_TOPICS.find(t=>t.k===k)||KNOWLEDGE_TOPICS[0]}
 function getKnowledgeSec(topicK,secK){const t=getKnowledgeTopic(topicK);return t.sections.find(s=>s.k===secK)||t.sections[0]}
-function switchTab(t){if(t==='steps'||t==='dash'||t==='history'||t==='geography'||t==='knowledge'||t==='ipl'||t==='games')t=t==='ipl'?'news':t==='games'?'mindgym':'tasks';S.tab=t;if(t==='news'){if(!S.newsCat)S.newsCat='world';if(!S.news[S.newsCat])loadNews(S.newsCat)}if(t==='books'&&!S.books.length)loadBooks('all');if(t==='meditation'&&!S.meditations)loadMeditations();if(t==='cal'){if(!S.google.loaded)loadGoogleStatus();else if(S.google.accounts.length&&!S.gcalEvents.length&&!S.gcalLoading)loadGcalEvents()}if(t==='mindgym'&&!S.mg.loaded)loadMindGym();if(t==='voice'&&!S.voice.loaded)loadVoice();render();try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}}
+function switchTab(t){if(t==='steps'||t==='dash'||t==='history'||t==='geography'||t==='knowledge'||t==='ipl'||t==='games')t=t==='ipl'?'news':t==='games'?'mindgym':'tasks';S.tab=t;if(t==='news'){if(!S.newsCat)S.newsCat='world';if(!S.news[S.newsCat])loadNews(S.newsCat)}if(t==='books'&&!S.books.length)loadBooks('all');if(t==='meditation'&&!S.meditations)loadMeditations();if(t==='cal'){if(!S.google.loaded)loadGoogleStatus();else if(S.google.accounts.length&&!S.gcalEvents.length&&!S.gcalLoading)loadGcalEvents()}if(t==='mindgym'&&!S.mg.loaded)loadMindGym();if(t==='voice'){if(!S.coach.status)coachInit()}render();try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}}
 async function loadKnowledge(topicK,secK){S.knowledge.topic=topicK;S.knowledge.sec=secK;S.knowledge.loading=true;render();const cacheKey=topicK+':'+secK;try{if(topicK==='history'&&secK==='today'){const r=await fetch('/api/history/today');const j=await r.json();S.knowledge.events=j.events||[]}else{const tObj=KNOWLEDGE_TOPICS.find(t=>t.k===topicK);const sObj=tObj&&tObj.sections.find(s=>s.k===secK);if(!sObj||!sObj.titles){S.knowledge.loaded[cacheKey]=true;S.knowledge.loading=false;render();return}const r=await fetch('/api/wiki/summaries?titles='+encodeURIComponent(sObj.titles.join(',')));const j=await r.json();S.knowledge.articles[cacheKey]=j.summaries||[]}}catch(e){}S.knowledge.loaded[cacheKey]=true;S.knowledge.loading=false;render()}
 function switchKnowledgeTopic(k){S.knowledge.topic=k;const tObj=KNOWLEDGE_TOPICS.find(t=>t.k===k);const sk=(tObj&&tObj.sections[0]&&tObj.sections[0].k)||'today';loadKnowledge(k,sk)}
 async function loadNews(cat){S.newsCat=cat;S.newsLoading=true;render();try{const r=await fetch('/api/news?cat='+encodeURIComponent(cat),{cache:'no-store'});const j=await r.json();S.news[cat]=j.items||[]}catch(e){S.news[cat]=[]}S.newsLoading=false;render()}
@@ -3571,6 +3725,98 @@ function _mgTodayKey(g){return 'tf_mg_done_'+g+'_'+todayStr()}
 function todayStr(){return new Date().toISOString().slice(0,10)}
 function _mgMarkDone(g){try{localStorage.setItem(_mgTodayKey(g),'1')}catch(e){}}
 function _mgIsDoneToday(g){try{return localStorage.getItem(_mgTodayKey(g))==='1'}catch(e){return false}}
+// ─── AI COACH (Phase 2) ──────────────────────────────────────────────
+async function coachInit(){
+  const s=await fetch('/api/coach/status').then(r=>r.json()).catch(()=>null);
+  if(s)S.coach.status=s;
+  // Greet on first open
+  if(!S.coach.history.length){
+    S.coach.history=[{role:'assistant',content:"Hi, I'm your Business English coach. We can practise vocabulary, refine how you phrase ideas, or rehearse a real scenario — your call. Type or tap the mic to speak. Where shall we start?"}];
+  }
+  render();
+}
+async function coachSend(text){
+  const t=String(text||S.coach.input||'').trim();
+  if(!t||S.coach.sending)return;
+  S.coach.history=S.coach.history.concat([{role:'user',content:t}]);
+  S.coach.input='';S.coach.sending=true;render();
+  try{
+    const sys=S.coach.scenario?_coachScenarioSystem(S.coach.scenario):undefined;
+    const r=await api('/coach/chat',{method:'POST',body:JSON.stringify({messages:S.coach.history.map(m=>({role:m.role,content:m.content})),system:sys})});
+    S.coach.sending=false;
+    if(r&&r.reply){
+      S.coach.history=S.coach.history.concat([{role:'assistant',content:r.reply}]);
+      render();
+      coachSpeak(r.reply);
+    }else{
+      toast('\\u26A0\\uFE0F '+((r&&r.error)||'Coach unavailable'),'err');
+      render();
+    }
+  }catch(e){S.coach.sending=false;toast('\\u26A0\\uFE0F '+e.message,'err');render()}
+}
+function _coachScenarioSystem(sc){
+  const role=sc.role||'colleague';
+  return 'You are roleplaying as '+role+' in a Business English practice session. Stay strictly in character. The user is practising the scenario: "'+sc.title+'".\\n\\nRespond as the character would \\u2014 realistic, contextual, sometimes slightly challenging. Keep responses under 80 words. After 6-8 exchanges, naturally wrap up the scenario.\\n\\nIf the user says "STOP" or "feedback", break character and give a brief Business English coaching note about their performance: vocabulary, tone, pace, structure. Then offer to restart or try a new scenario.';
+}
+async function coachSpeak(text){
+  if(!S.coach.status||!S.coach.status.tts){
+    // Fallback to browser TTS
+    voiceSpeak(text);return;
+  }
+  try{
+    S.coach.playing=true;render();
+    const r=await fetch('/api/coach/speak',{method:'POST',headers:{'Content-Type':'application/json','x-token':token},body:JSON.stringify({text})});
+    if(!r.ok){S.coach.playing=false;render();voiceSpeak(text);return}
+    const blob=await r.blob();
+    const url=URL.createObjectURL(blob);
+    const a=new Audio(url);S._coachAudio=a;
+    a.onended=()=>{S.coach.playing=false;URL.revokeObjectURL(url);render()};
+    a.onerror=()=>{S.coach.playing=false;render()};
+    a.play().catch(()=>{S.coach.playing=false;render()});
+  }catch(e){S.coach.playing=false;render()}
+}
+function coachStopSpeak(){try{S._coachAudio&&S._coachAudio.pause();S._coachAudio=null}catch(e){}try{window.speechSynthesis&&window.speechSynthesis.cancel()}catch(e){}S.coach.playing=false;render()}
+let _coachRec=null,_coachChunks=[];
+async function coachStartRec(){
+  if(_coachRec){coachStopRec();return}
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){toast('\\u26A0\\uFE0F Mic not available','err');return}
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});
+    const mime=MediaRecorder.isTypeSupported('audio/webm;codecs=opus')?'audio/webm;codecs=opus':MediaRecorder.isTypeSupported('audio/webm')?'audio/webm':MediaRecorder.isTypeSupported('audio/mp4')?'audio/mp4':'';
+    _coachRec=new MediaRecorder(stream,mime?{mimeType:mime}:{});
+    _coachChunks=[];
+    _coachRec.ondataavailable=e=>{if(e.data&&e.data.size)_coachChunks.push(e.data)};
+    _coachRec.onstop=async()=>{
+      stream.getTracks().forEach(t=>t.stop());
+      const blob=new Blob(_coachChunks,{type:_coachRec.mimeType||'audio/webm'});
+      _coachRec=null;_coachChunks=[];
+      S.coach.recording=false;render();
+      if(blob.size<300){toast('\\u26A0\\uFE0F Recording too short','err');return}
+      // Send to Whisper
+      S.coach.sending=true;render();
+      try{
+        const r=await fetch('/api/coach/transcribe',{method:'POST',headers:{'Content-Type':blob.type,'x-token':token},body:blob});
+        const j=await r.json();
+        S.coach.sending=false;
+        if(j&&j.text){coachSend(j.text)}else{toast('\\u26A0\\uFE0F '+((j&&j.error)||'Transcribe failed'),'err');render()}
+      }catch(e){S.coach.sending=false;toast('\\u26A0\\uFE0F '+e.message,'err');render()}
+    };
+    _coachRec.start();S.coach.recording=true;render();
+    // Auto-stop after 30s safety cap
+    setTimeout(()=>{if(_coachRec)coachStopRec()},30000);
+  }catch(e){toast('\\u26A0\\uFE0F Mic blocked: '+(e.message||e),'err')}
+}
+function coachStopRec(){try{_coachRec&&_coachRec.state==='recording'&&_coachRec.stop()}catch(e){}}
+function coachReset(){coachStopSpeak();coachStopRec();S.coach.history=[];S.coach.scenario=null;coachInit()}
+function coachStartScenario(sc){coachStopSpeak();S.coach.scenario=sc;S.coach.history=[{role:'assistant',content:"Let's roleplay: **"+sc.title+"**. I'll play "+sc.role+". "+sc.opener}];render();coachSpeak("Let's roleplay. "+sc.opener);setTimeout(()=>{const el=document.getElementById('coachInput');if(el)el.focus()},120)}
+const COACH_SCENARIOS=[
+  {id:'pitch',title:'Pitch your idea to a skeptical investor',role:'a sharp, skeptical venture-capital investor',opener:"So — you've got 60 seconds. What are you building, and why should I care?"},
+  {id:'salary',title:'Negotiate a salary increase with your manager',role:'your direct manager who has limited budget flexibility',opener:"Thanks for setting up this meeting. I understand you wanted to talk about compensation?"},
+  {id:'reject',title:'Reject a vendor proposal politely',role:'a vendor who has just sent you a detailed proposal',opener:"Hi — wanted to follow up on the proposal we sent. Did you have a chance to review it?"},
+  {id:'feedback',title:'Give difficult feedback to a direct report',role:'your direct report who recently missed an important deadline',opener:"Hey, you wanted to chat? Everything okay?"},
+  {id:'qbr',title:'Present Q3 results to leadership',role:'a senior executive sitting in your QBR',opener:"Great, we're ready when you are. Walk us through Q3."},
+  {id:'network',title:'Networking at an industry event',role:'a potential client you just met at a conference',opener:"Hey, nice to meet you. So what's your story — what do you do?"}
+];
 // ─── VOICE TRAINER ───
 async function loadVoice(){
   const [c,p]=await Promise.all([fetch('/api/voice/curriculum').then(r=>r.json()).catch(()=>null),api('/voice/progress')]);
@@ -4122,42 +4368,56 @@ else if(S.tab==='mindgym'){
   +'</div>';
 }
 
-// VOICE TRAINER TAB — 90-day AI accent + functional-English coach
+// VOICE TAB — AI Coach (Phase 2 — live Claude conversation + Whisper STT + ElevenLabs TTS)
 else if(S.tab==='voice'){
-  const vp=S.voice||{loaded:false,curriculum:{days:[]},progress:{completed:0,totalPoints:0,pct:0,level:1,maxLevel:4,rows:[]}};
-  const completedSet=new Set((vp.progress.rows||[]).map(r=>r.day));
-  h+='<section class="vc-hero">'
-    +'<div class="vc-hero-inner">'
-      +'<div class="vc-hero-l"><div class="vc-hero-eyebrow">\\u{1F399}\\uFE0F BRODOIT \\u00B7 VOICE TRAINER</div>'
-        +'<h1 class="vc-hero-t">Zero to fluent \\u2014 in 90 days.</h1>'
-        +'<div class="vc-hero-s">An AI coach guides you, you repeat aloud, your phone listens and scores. One short class a day, three months total. Earn points and unlock advanced phases.</div>'
-      +'</div>'
-      +'<div class="vc-hero-stats">'
-        +'<div class="vc-stat"><b>'+vp.progress.completed+'<small>/90</small></b><small>Days</small></div>'
-        +'<div class="vc-stat"><b>'+vp.progress.totalPoints+'</b><small>Points</small></div>'
-        +'<div class="vc-stat"><b>L'+vp.progress.level+'</b><small>Phase</small></div>'
-        +'<div class="vc-stat"><b>'+vp.progress.pct+'%</b><small>Complete</small></div>'
-      +'</div>'
+  const c=S.coach||{};const st=c.status||{};
+  // Hero
+  h+='<section class="cc-hero">'
+    +'<div class="cc-hero-orb"></div>'
+    +'<div class="cc-hero-l"><div class="cc-hero-eyebrow">\\u{1F399}\\uFE0F BRODOIT \\u00B7 AI COACH</div>'
+      +'<h1 class="cc-hero-t">Talk. Refine. Sound sharper.</h1>'
+      +'<div class="cc-hero-s">A live Business English coach. Type or hit the mic \\u2014 your phone listens, the coach replies in a real human voice with vocabulary tips, polished rewrites, and follow-ups.</div>'
     +'</div>'
   +'</section>';
-  // Phase strips
-  ['Foundation','Conversation','Mastery'].forEach((phase,pIdx)=>{
-    const startDay=pIdx*30+1,endDay=startDay+29;
-    h+='<div class="vc-phase"><div class="vc-phase-hd"><h3 class="vc-phase-t">Phase '+(pIdx+1)+' \\u2022 '+phase+'</h3><div class="vc-phase-s">Day '+startDay+' \\u2192 Day '+endDay+'</div></div>'
-      +'<div class="vc-day-grid">';
-    for(let d=startDay;d<=endDay;d++){
-      const done=completedSet.has(d);
-      const lesson=(vp.curriculum.days||[]).find(x=>x.day===d);
-      const t=lesson?lesson.title:'Day '+d;
-      h+='<button class="vc-day'+(done?' vc-day-done':'')+'" onclick="voiceOpenLesson('+d+')" title="'+esc(t)+'">'
-        +'<span class="vc-day-num">'+d+'</span>'
-        +(done?'<span class="vc-day-check">\\u2713</span>':'')
-      +'</button>';
-    }
-    h+='</div></div>';
+  // Capability badges
+  h+='<div class="cc-caps">'
+    +'<span class="cc-cap'+(st.chat?' cc-cap-on':'')+'">\\u{1F4AC} '+(st.chat?'Live AI':'AI offline')+'</span>'
+    +'<span class="cc-cap'+(st.transcribe?' cc-cap-on':'')+'">\\u{1F3A4} '+(st.transcribe?'Voice in':'Type only')+'</span>'
+    +'<span class="cc-cap'+(st.tts?' cc-cap-on':'')+'">\\u{1F50A} '+(st.tts?'Human voice':'Browser voice')+'</span>'
+  +'</div>';
+  // Scenarios
+  h+='<div class="cc-scenarios"><div class="cc-scenarios-t">\\u26A1 Pick a scenario \\u2014 or just chat below</div><div class="cc-scenario-row">';
+  COACH_SCENARIOS.forEach(sc=>{const on=c.scenario&&c.scenario.id===sc.id;h+='<button class="cc-sc'+(on?' cc-sc-on':'')+'" onclick="coachStartScenario('+esc(JSON.stringify(sc).replace(/'/g,"\\\\'"))+')">'+esc(sc.title)+'</button>'});
+  h+='</div></div>';
+  if(c.scenario)h+='<div class="cc-active-scenario">\\u{1F3AD} Roleplay: <b>'+esc(c.scenario.title)+'</b> <button class="cc-end" onclick="coachReset()">End \\u2715</button></div>';
+  // Chat thread
+  h+='<div class="cc-thread" id="ccThread">';
+  (c.history||[]).forEach((m,i)=>{
+    const role=m.role==='assistant'?'coach':'me';
+    h+='<div class="cc-msg cc-'+role+'">'
+      +(role==='coach'?'<div class="cc-avatar">\\u{1F399}\\uFE0F</div>':'')
+      +'<div class="cc-bubble">'+_renderCoachText(m.content)+(role==='coach'&&i===c.history.length-1?'<button class="cc-replay" onclick="coachSpeak('+esc(JSON.stringify(m.content).replace(/'/g,"\\\\'"))+')" title="Replay">\\u{1F50A}</button>':'')+'</div>'
+    +'</div>';
   });
-  if(!vp.loaded)h+='<div class="loading">Loading your voice journey\\u2026</div>';
+  if(c.sending)h+='<div class="cc-msg cc-coach"><div class="cc-avatar">\\u{1F399}\\uFE0F</div><div class="cc-bubble cc-typing"><span></span><span></span><span></span></div></div>';
+  h+='</div>';
+  // Composer
+  h+='<div class="cc-composer">'
+    +'<textarea id="coachInput" placeholder="Type your message\\u2026 or tap the mic" rows="1" oninput="S.coach.input=this.value;this.style.height=\\'auto\\';this.style.height=Math.min(120,this.scrollHeight)+\\'px\\'" onkeydown="if(event.key===\\'Enter\\'&&!event.shiftKey){event.preventDefault();coachSend()}">'+esc(c.input||'')+'</textarea>'
+    +'<button class="cc-mic'+(c.recording?' cc-rec':'')+'" onclick="coachStartRec()" aria-label="Record" title="Tap to record">'+(c.recording?'\\u23F9':'\\u{1F3A4}')+'</button>'
+    +'<button class="cc-send" onclick="coachSend()" '+(c.sending||(!c.input||!c.input.trim())?'disabled':'')+' aria-label="Send">\\u2192</button>'
+  +'</div>';
+  // Quick actions
+  h+='<div class="cc-quick">'
+    +'<button class="cc-quick-btn" onclick="coachSend(\\'Teach me 3 advanced business words I can use today.\\')">3 advanced words</button>'
+    +'<button class="cc-quick-btn" onclick="coachSend(\\'Quiz me on idioms used in meetings.\\')">Idioms quiz</button>'
+    +'<button class="cc-quick-btn" onclick="coachSend(\\'How do I sound more confident in presentations?\\')">Confidence tips</button>'
+    +(c.history.length>1?'<button class="cc-quick-btn cc-quick-reset" onclick="coachReset()">\\u21BB Restart</button>':'')
+  +'</div>';
+  if(c.playing)h+='<div class="cc-playing">\\u{1F50A} Coach is speaking\\u2026 <button onclick="coachStopSpeak()">stop</button></div>';
 }
+// Helper: simple markdown-ish rendering for coach replies (paragraphs, bold)
+function _renderCoachText(t){return esc(t).replace(/\\*\\*([^*]+)\\*\\*/g,'<b>$1</b>').replace(/\\n/g,'<br>')}
 
 // BOARD TAB (Kanban: To Do / Doing / Done with drag-and-drop)
 else if(S.tab==='board'){
