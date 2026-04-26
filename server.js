@@ -781,6 +781,16 @@ body[data-theme=aurora] .news-ticker-src{color:#A78BFA;background:rgba(167,139,2
 .world-clocks .wc-item b{font-size:9px;font-weight:800;color:#6366F1;letter-spacing:1.1px}
 .world-clocks .wc-item.wc-night b{color:#7C3AED}
 .world-clocks .wc-time{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#0F172A;letter-spacing:-.02em}
+.world-clocks .wc-temp{font-family:'Instrument Serif',Georgia,serif;font-size:13px;font-weight:400;color:#E8912B;letter-spacing:-.02em;margin-top:0}
+body[data-theme=aurora] .world-clocks .wc-temp{color:#FCD34D}
+/* Indian cities mini-grid in the left chip */
+.top-strip .india-cities{display:grid;grid-template-columns:repeat(2,1fr);gap:3px 8px;margin-top:4px;padding-top:6px;border-top:1px dashed rgba(99,102,241,.18);font-size:10.5px;line-height:1.2}
+.top-strip .ic-item{display:flex;align-items:baseline;justify-content:space-between;gap:6px;padding:1px 0}
+.top-strip .ic-name{color:#475569;font-weight:600;font-style:italic;font-family:'Instrument Serif',Georgia,serif;font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top-strip .ic-temp{font-family:'Space Mono',monospace;color:#E8912C;font-weight:700;font-size:10.5px;flex-shrink:0}
+body[data-theme=aurora] .top-strip .india-cities{border-top-color:rgba(167,139,250,.22)}
+body[data-theme=aurora] .top-strip .ic-name{color:#9999B5}
+body[data-theme=aurora] .top-strip .ic-temp{color:#FCD34D}
 body[data-theme=aurora] .world-clocks::before{background:rgba(20,20,40,.85)}
 body[data-theme=aurora] .world-clocks .wc-item{background:rgba(255,255,255,.06)}
 body[data-theme=aurora] .world-clocks .wc-item.wc-day{background:linear-gradient(180deg,rgba(252,211,77,.18),rgba(252,165,165,.12))}
@@ -2026,6 +2036,7 @@ books:[],booksLoading:false,booksCat:'all',bookSearch:'',playing:null,moralIdx:M
 knowledge:{loading:false,loaded:{},articles:{},events:[],topic:'history',sec:'today'},
 game:{active:false,board:Array(9).fill(null),turn:'X',status:'idle',winLine:null,wins:Number(localStorage.getItem('tf_ttt_wins')||0),losses:Number(localStorage.getItem('tf_ttt_losses')||0),draws:Number(localStorage.getItem('tf_ttt_draws')||0)},
 weather:{city:localStorage.getItem('tf_city')||'Bangalore',temp:null,aqi:null,country:'',loaded:false,loading:false,error:null},
+cityTemps:{},
 medCat:localStorage.getItem('tf_medcat')||'vipassana',
 ticker:{items:[],idx:0,loaded:false},
 waConnected:localStorage.getItem('wa_connected')==='1',showWAOnboard:false,activeMeditation:null,
@@ -2362,6 +2373,16 @@ function tttFinish(result){
 }
 function gameEnd(){S.game.active=false;S.game.status='idle';render()}
 async function loadWeather(){if(S.weather.loading)return;S.weather.loading=true;S.weather.error=null;render();try{const r=await fetch('/api/weather?city='+encodeURIComponent(S.weather.city||'Bangalore'));const j=await r.json();if(j.error){S.weather.error=j.error}else{S.weather.city=j.city||S.weather.city;S.weather.country=j.country||'';S.weather.temp=j.temp;S.weather.aqi=j.aqi}}catch(e){S.weather.error=String(e)}S.weather.loaded=true;S.weather.loading=false;render()}
+const INDIA_CITIES=['Delhi','Mumbai','Chennai','Bengaluru','Pune','Shimla','Indore','Jaipur'];
+const WORLD_CITY_LIST=[
+  {key:'New York',label:'New York',tz:'America/New_York'},
+  {key:'London',label:'London',tz:'Europe/London'},
+  {key:'Singapore',label:'Singapore',tz:'Asia/Singapore'},
+  {key:'Shanghai',label:'Shanghai',tz:'Asia/Shanghai'},
+  {key:'Tokyo',label:'Tokyo',tz:'Asia/Tokyo'},
+  {key:'Sydney',label:'Sydney',tz:'Australia/Sydney'}
+];
+async function loadCityTemps(){const all=[...INDIA_CITIES,...WORLD_CITY_LIST.map(c=>c.key)];const results=await Promise.all(all.map(c=>fetch('/api/weather?city='+encodeURIComponent(c)).then(r=>r.json()).catch(()=>({}))));const m={};results.forEach((r,i)=>{if(r&&!r.error)m[all[i].toLowerCase()]={temp:r.temp,city:r.city||all[i]}});S.cityTemps=m;render()}
 async function loadTicker(){try{const r=await fetch('/api/news?cat=global',{cache:'no-store'});const j=await r.json();S.ticker={items:(j.items||[]).slice(0,12),idx:0,loaded:true};render();_startTicker()}catch(e){}}
 let _tickerTimer=null;
 function _startTicker(){if(_tickerTimer)clearInterval(_tickerTimer);if(!S.ticker.items.length)return;_tickerTimer=setInterval(()=>{if(!S.ticker.items.length)return;S.ticker.idx=(S.ticker.idx+3)%S.ticker.items.length;const stack=document.getElementById('newsTickerStack');if(stack)render()},9000)}
@@ -2475,18 +2496,10 @@ const m=MORALS[S.moralIdx];
   let ticker='<div class="news-ticker-stack" id="newsTickerStack">';
   visible.forEach((ti,i)=>{ticker+='<a class="news-ticker-row" style="animation-delay:'+(i*0.07)+'s" href="'+esc(ti.link||'#')+'" target="_blank" rel="noopener" title="'+esc(ti.title||'')+'"><span class="news-ticker-pulse"></span><span class="news-ticker-src">'+esc((ti.source||'').toUpperCase())+'</span><span class="news-ticker-link">'+esc(ti.title||'')+'</span></a>'});
   ticker+='</div>';
-  // World clocks at the bottom of the right column — west to east, with sun/moon day-night indicator
+  // World clocks at the bottom of the right column — full names, west to east, with sun/moon day-night indicator + temperature
   const fmtTZ2=(tz)=>{try{return new Date().toLocaleTimeString('en-US',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false})}catch(e){return '--:--'}};
   const isDayAt=(tz)=>{try{const h=Number(new Date().toLocaleString('en-US',{timeZone:tz,hour:'2-digit',hour12:false}).split(',')[1]||new Date().toLocaleString('en-US',{timeZone:tz,hour:'2-digit',hour12:false}));return h>=6&&h<18}catch(e){return true}};
-  const CITIES2=[
-    {l:'NYC',tz:'America/New_York'},
-    {l:'LDN',tz:'Europe/London'},
-    {l:'SGP',tz:'Asia/Singapore'},
-    {l:'SHA',tz:'Asia/Shanghai'},
-    {l:'TYO',tz:'Asia/Tokyo'},
-    {l:'SYD',tz:'Australia/Sydney'}
-  ];
-  const wc='<div class="world-clocks" id="worldClocks">'+CITIES2.map((c,i)=>{const day=isDayAt(c.tz);const icon=day?'<svg class="wc-icon wc-sun" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4" fill="#F59E0B"/><g stroke="#F59E0B" stroke-width="1.6" stroke-linecap="round"><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.9" y1="4.9" x2="7" y2="7"/><line x1="17" y1="17" x2="19.1" y2="19.1"/><line x1="4.9" y1="19.1" x2="7" y2="17"/><line x1="17" y1="7" x2="19.1" y2="4.9"/></g></svg>':'<svg class="wc-icon wc-moon" viewBox="0 0 24 24" fill="none"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="#A78BFA"/><circle class="wc-star" cx="6" cy="6" r="0.8" fill="#A78BFA"/><circle class="wc-star" cx="20" cy="20" r="0.7" fill="#A78BFA"/></svg>';return '<span class="wc-item '+(day?'wc-day':'wc-night')+'" style="animation-delay:'+(i*0.05)+'s"><span class="wc-icon-wrap">'+icon+'</span><b>'+c.l+'</b><span class="wc-time" data-tz="'+c.tz+'">'+fmtTZ2(c.tz)+'</span></span>'}).join('')+'</div>';
+  const wc='<div class="world-clocks" id="worldClocks">'+WORLD_CITY_LIST.map((c,i)=>{const day=isDayAt(c.tz);const icon=day?'<svg class="wc-icon wc-sun" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4" fill="#F59E0B"/><g stroke="#F59E0B" stroke-width="1.6" stroke-linecap="round"><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.9" y1="4.9" x2="7" y2="7"/><line x1="17" y1="17" x2="19.1" y2="19.1"/><line x1="4.9" y1="19.1" x2="7" y2="17"/><line x1="17" y1="7" x2="19.1" y2="4.9"/></g></svg>':'<svg class="wc-icon wc-moon" viewBox="0 0 24 24" fill="none"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="#A78BFA"/><circle class="wc-star" cx="6" cy="6" r="0.8" fill="#A78BFA"/><circle class="wc-star" cx="20" cy="20" r="0.7" fill="#A78BFA"/></svg>';const ct=(S.cityTemps||{})[c.key.toLowerCase()];const tempStr=ct&&ct.temp!=null?ct.temp+'\\u00B0':'';return '<span class="wc-item '+(day?'wc-day':'wc-night')+'" style="animation-delay:'+(i*0.05)+'s"><span class="wc-icon-wrap">'+icon+'</span><b>'+esc(c.label)+'</b><span class="wc-time" data-tz="'+c.tz+'">'+fmtTZ2(c.tz)+'</span>'+(tempStr?'<span class="wc-temp">'+tempStr+'</span>':'')+'</span>'}).join('')+'</div>';
   h+='<div class="moral-wrap">'+mWrap+ticker+wc+'</div>';
 }
 
@@ -2542,6 +2555,7 @@ const m=MORALS[S.moralIdx];
       +(w.aqi!=null?'<span class="side-now-sep">\\u2022</span><span class="weather-aqi" style="--aqi-c:'+aqiColor+'">AQI <b>'+w.aqi+'</b></span>':'')
       +(w.loading?'<span class="weather-loading">\\u2026</span>':'')
     +'</div>'
+    +'<div class="india-cities">'+INDIA_CITIES.map(c=>{const t=(S.cityTemps||{})[c.toLowerCase()];const tStr=t&&t.temp!=null?t.temp+'\\u00B0':'\\u2026';return '<span class="ic-item"><span class="ic-name">'+esc(c)+'</span><span class="ic-temp">'+tStr+'</span></span>'}).join('')+'</div>'
     +'<div class="side-now-bar"><div class="side-now-fill" style="width:'+yearPct+'%"></div><div class="side-now-walker" style="left:'+yearPct+'%">'
       +'<svg viewBox="0 0 14 18" xmlns="http://www.w3.org/2000/svg" fill="none" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">'
         +'<circle cx="7" cy="3" r="2" fill="#6366F1"/>'
@@ -3013,7 +3027,7 @@ document.getElementById('app').innerHTML=h;
 }
 fetch('/api/config').then(r=>r.json()).then(c=>{window.__TWILIO_SANDBOX_CODE=c.sandboxCode||'';render()}).catch(()=>{});
 applyTheme();
-if(S.user){refreshSession();load();loadBookStreak();loadGoogleStatus();loadWeather();loadTicker();chk();setInterval(load,10000);setInterval(loadWeather,15*60*1000);setInterval(loadTicker,15*60*1000)}else render();
+if(S.user){refreshSession();load();loadBookStreak();loadGoogleStatus();loadWeather();loadTicker();loadCityTemps();chk();setInterval(load,10000);setInterval(loadWeather,15*60*1000);setInterval(loadTicker,15*60*1000);setInterval(loadCityTemps,15*60*1000)}else render();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
 </script></body></html>`;
 
