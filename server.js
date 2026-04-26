@@ -340,7 +340,7 @@ app.get('/brodoit.vcf',(_,res)=>{
 const NEWS_FEEDS={
   // Merged AI + general tech into one feed list, deduped server-side after fetch
   tech:['https://techcrunch.com/feed/','https://techcrunch.com/category/artificial-intelligence/feed/','https://www.theverge.com/rss/index.xml','https://www.theverge.com/rss/ai-artificial-intelligence/index.xml','https://feeds.arstechnica.com/arstechnica/index','https://www.wired.com/feed/rss','https://venturebeat.com/category/ai/feed/','https://www.technologyreview.com/feed/'],
-  sports:['https://feeds.bbci.co.uk/sport/rss.xml','https://www.espn.com/espn/rss/news','https://www.skysports.com/rss/12040','https://feeds.bbci.co.uk/sport/cricket/rss.xml'],
+  sports:['https://feeds.bbci.co.uk/sport/cricket/rss.xml','https://www.thehindu.com/sport/cricket/feeder/default.rss','https://indianexpress.com/section/sports/cricket/feed/','https://feeds.bbci.co.uk/sport/rss.xml','https://www.espn.com/espn/rss/news','https://www.skysports.com/rss/12040'],
   // World news (was 'global'); kept the alias below for backwards-compat with any cached client state
   world:['https://feeds.bbci.co.uk/news/world/rss.xml','https://feeds.reuters.com/reuters/topNews','https://rss.nytimes.com/services/xml/rss/nyt/World.xml','https://feeds.npr.org/1004/rss.xml','https://feeds.bbci.co.uk/news/rss.xml']
 };
@@ -1974,6 +1974,25 @@ body[data-theme=aurora] .med-foot{color:#9999B5}
 .med-loading{position:absolute;bottom:48px;color:rgba(255,255,255,.7);font-size:13px;font-style:italic;z-index:5}
 @media (max-width:600px){.med-info-title{font-size:26px}.med-breath-wrap{width:240px;height:240px}.med-breath-core{width:160px;height:160px}.med-breath-ring-1{width:200px;height:200px}.med-breath-ring-2{width:250px;height:250px}.med-breath-ring-3{width:310px;height:310px}}
 
+/* IPL Spotlight card on the Sports news category */
+.ipl-spotlight{background:linear-gradient(135deg,#0F172A 0%,#312E81 50%,#7E22CE 100%);color:#fff;border-radius:16px;padding:14px 16px 16px;margin-bottom:16px;box-shadow:0 8px 24px rgba(15,23,42,.18);position:relative;overflow:hidden}
+.ipl-spotlight::before{content:'';position:absolute;inset:0;background-image:url("https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=1200&q=70&auto=format&fit=crop");background-size:cover;background-position:center;opacity:.14;mix-blend-mode:screen;pointer-events:none}
+.ipl-spot-hd{display:flex;align-items:center;gap:10px;margin-bottom:12px;position:relative;z-index:1}
+.ipl-spot-pulse{width:8px;height:8px;border-radius:50%;background:#E8453C;box-shadow:0 0 0 0 rgba(232,69,60,.7);animation:livePulse 1.5s ease-in-out infinite}
+.ipl-spot-tag{font-size:10.5px;font-weight:800;color:#F472B6;letter-spacing:1.6px}
+.ipl-spot-yr{font-size:10.5px;font-weight:600;color:rgba(255,255,255,.7);margin-left:auto;letter-spacing:.8px}
+.ipl-spot-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;position:relative;z-index:1}
+.ipl-spot-stat{display:flex;flex-direction:column;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:11px;padding:9px 12px;text-decoration:none;color:inherit;transition:transform .2s ease,background .2s ease}
+.ipl-spot-stat:hover{transform:translateY(-2px);background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.22)}
+.ipl-spot-stat .iss-lbl{font-size:9.5px;font-weight:800;color:rgba(255,255,255,.6);letter-spacing:1.1px;text-transform:uppercase}
+.ipl-spot-stat .iss-val{font-family:'Instrument Serif',Georgia,serif;font-size:18px;font-weight:400;color:#fff;letter-spacing:-.01em;margin:2px 0 1px;line-height:1.1}
+.ipl-spot-stat .iss-sub{font-size:10.5px;color:rgba(255,255,255,.7);font-weight:500}
+.ipl-spot-cta{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;position:relative;z-index:1}
+.ipl-spot-cta a{display:inline-flex;align-items:center;padding:7px 13px;border-radius:9px;font-size:11.5px;font-weight:700;text-decoration:none;color:#fff;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);transition:background .15s ease,border-color .15s ease;letter-spacing:.2px}
+.ipl-spot-cta a:hover{background:rgba(232,69,60,.65);border-color:rgba(232,69,60,.8)}
+.ipl-spot-cta a:first-child{background:#E8453C;border-color:#E8453C}
+.ipl-spot-cta a:first-child:hover{background:#DC2626;border-color:#DC2626}
+@media (max-width:600px){.ipl-spot-grid{grid-template-columns:repeat(2,1fr);gap:8px}.ipl-spot-stat{padding:7px 10px}.ipl-spot-stat .iss-val{font-size:16px}}
 /* IPL tab */
 .ipl-live{position:relative;background:linear-gradient(135deg,#0F172A 0%,#312E81 60%,#E8453C 140%);color:#fff;border-radius:18px;padding:22px 24px;margin-bottom:18px;overflow:hidden;box-shadow:0 10px 28px rgba(15,23,42,.18)}
 .ipl-live::before{content:'';position:absolute;inset:0;background-image:url("https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=1200&q=70&auto=format&fit=crop");background-size:cover;background-position:center;opacity:.18;mix-blend-mode:screen}
@@ -2992,6 +3011,21 @@ else if(S.tab==='news'){
   h+='<div class="flt flt-icons">';
   cats.forEach(c=>{h+='<button class="fb'+(S.newsCat===c.k?' on':'')+'" onclick="loadNews(\\''+c.k+'\\')"><span class="fb-ic">'+ic(c.ic,15)+'</span>'+c.l+'</button>'});
   h+='</div>';
+  // IPL spotlight card on the Sports category — shows live-score deep links + key stats
+  if(S.newsCat==='sports'){
+    h+='<div class="ipl-spotlight">'
+      +'<div class="ipl-spot-hd"><span class="ipl-spot-pulse"></span><span class="ipl-spot-tag">IPL SPOTLIGHT</span><span class="ipl-spot-yr">2025 Season</span></div>'
+      +'<div class="ipl-spot-grid">'
+        +'<a class="ipl-spot-stat" href="https://en.wikipedia.org/wiki/2025_Indian_Premier_League" target="_blank" rel="noopener"><div class="iss-lbl">Champion</div><div class="iss-val">RCB</div><div class="iss-sub">Beat PBKS \\u2022 1st title</div></a>'
+        +'<a class="ipl-spot-stat" href="https://www.iplt20.com/stats/2025/most-runs" target="_blank" rel="noopener"><div class="iss-lbl">Top run-scorer</div><div class="iss-val">B Sai Sudharsan</div><div class="iss-sub">759 runs \\u2022 GT</div></a>'
+        +'<a class="ipl-spot-stat" href="https://www.iplt20.com/stats/2025/most-wickets" target="_blank" rel="noopener"><div class="iss-lbl">Top wicket-taker</div><div class="iss-val">Prasidh Krishna</div><div class="iss-sub">25 wkts \\u2022 GT</div></a>'
+        +'<a class="ipl-spot-stat" href="https://en.wikipedia.org/wiki/List_of_centuries_in_the_Indian_Premier_League" target="_blank" rel="noopener"><div class="iss-lbl">Highest score</div><div class="iss-val">175*</div><div class="iss-sub">C Gayle, all-time</div></a>'
+        +'<a class="ipl-spot-stat" href="https://en.wikipedia.org/wiki/List_of_five-wicket_hauls_in_the_Indian_Premier_League" target="_blank" rel="noopener"><div class="iss-lbl">Best bowling</div><div class="iss-val">6/12</div><div class="iss-sub">A Madhwal, all-time</div></a>'
+        +'<a class="ipl-spot-stat" href="https://en.wikipedia.org/wiki/List_of_Indian_Premier_League_seasons_and_results" target="_blank" rel="noopener"><div class="iss-lbl">Most titles</div><div class="iss-val">5</div><div class="iss-sub">CSK \\u2022 MI</div></a>'
+      +'</div>'
+      +'<div class="ipl-spot-cta"><a href="https://www.cricbuzz.com/cricket-match/live-scores" target="_blank" rel="noopener">Cricbuzz Live \\u2197</a><a href="https://www.iplt20.com/" target="_blank" rel="noopener">iplt20.com \\u2197</a><a href="https://www.espncricinfo.com/series/ipl-2025" target="_blank" rel="noopener">ESPN Cricinfo \\u2197</a></div>'
+    +'</div>';
+  }
   if(S.newsLoading&&!(S.news[S.newsCat]||[]).length){
     h+='<div class="loading">\\u{1F4E1} Fetching latest '+esc((cats.find(c=>c.k===S.newsCat)||{}).l||'')+' stories\\u2026</div>';
   } else {
