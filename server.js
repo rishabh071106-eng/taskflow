@@ -1946,6 +1946,44 @@ body[data-theme=aurora] .tc-added{color:#6B6B85;background:rgba(255,255,255,.04)
 .login-wa-note{margin-top:14px;padding:11px 13px;background:linear-gradient(135deg,rgba(37,211,102,.08),rgba(18,140,126,.05));border:1px solid rgba(37,211,102,.22);border-radius:10px;font-size:12px;color:#1A6035;text-align:left;display:flex;align-items:flex-start;gap:9px;line-height:1.45}
 .login-wa-emoji{font-size:18px;line-height:1.1;flex-shrink:0}
 body[data-theme=aurora] .login-wa-note{background:linear-gradient(135deg,rgba(37,211,102,.1),rgba(18,140,126,.06));border-color:rgba(37,211,102,.25);color:#A8E6BC}
+/* Dedicated WhatsApp Setup modal — clean, focused, no profile clutter */
+.was-mdl{max-width:460px;padding:0;overflow:hidden}
+.was-hd{display:flex;align-items:center;gap:12px;padding:18px 18px 14px;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;position:relative}
+.was-emoji{font-size:30px;line-height:1;flex-shrink:0;filter:drop-shadow(0 2px 4px rgba(0,0,0,.2))}
+.was-t{margin:0;font-size:18px;font-weight:800;color:#fff;letter-spacing:-.01em}
+.was-s{font-size:12px;color:rgba(255,255,255,.85);font-weight:500;margin-top:2px}
+.was-x{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.18);border:none;color:#fff;width:30px;height:30px;border-radius:50%;font-size:14px;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center;font-family:inherit}
+.was-x:hover{background:rgba(255,255,255,.28)}
+.was-step{display:flex;gap:14px;padding:16px 18px;background:#fff;border-bottom:1px solid #F1F5F9}
+.was-step:last-child{border-bottom:none}
+.was-step-n{flex-shrink:0;width:30px;height:30px;border-radius:50%;background:#25D366;color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:14px;font-family:'Space Mono',monospace;box-shadow:0 3px 8px rgba(37,211,102,.3)}
+.was-step-b{flex:1;min-width:0}
+.was-step-t{font-weight:700;font-size:14.5px;color:#0F172A;margin-bottom:5px;letter-spacing:-.01em}
+.was-step-d{font-size:13px;color:#475569;line-height:1.55;margin-bottom:12px}
+.was-jb{display:inline-flex;align-items:center;gap:9px;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;border:none;border-radius:10px;padding:12px 16px;font-weight:700;font-size:13.5px;cursor:pointer;box-shadow:0 4px 14px rgba(37,211,102,.32);width:100%;justify-content:center;font-family:inherit;transition:transform .12s ease}
+.was-jb:active{transform:scale(.98)}
+.was-jb svg{width:16px;height:16px;fill:#fff}
+.was-skip{display:block;width:100%;margin-top:10px;background:transparent;border:none;color:#64748B;font-size:12.5px;font-weight:600;cursor:pointer;padding:8px 0;font-family:inherit}
+.was-skip:hover{color:#0F172A;text-decoration:underline}
+.was-mini{margin:14px 18px 0;padding:9px 12px;background:#EDFCF2;border:1px solid #B7E8C4;border-radius:9px;font-size:12px;color:#1A6035;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.was-mini-reset{background:transparent;border:none;color:#6366F1;font-size:11.5px;font-weight:600;text-decoration:underline;cursor:pointer;padding:0;margin-left:auto;font-family:inherit}
+.was-row{display:flex;gap:8px;margin-bottom:0}
+.was-cc{flex:0 0 auto;padding:13px 10px;border:1.5px solid #E2E8F0;border-radius:10px;background:#FAFAF7;font-size:14px;font-weight:600;font-family:inherit;color:#0F172A;cursor:pointer}
+.was-ph{flex:1;padding:13px 14px;border:1.5px solid #E2E8F0;border-radius:10px;font-size:16px;background:#fff;color:#0F172A;font-family:inherit;letter-spacing:.5px;-webkit-appearance:none;appearance:none}
+.was-ph:focus,.was-cc:focus{outline:none;border-color:#25D366;box-shadow:0 0 0 3px rgba(37,211,102,.18)}
+.was-code{width:100%;padding:18px;text-align:center;letter-spacing:14px;font-size:28px;font-weight:700;font-family:'Space Mono',monospace;border:1.5px solid #E2E8F0;border-radius:12px;background:#FAFAF7;color:#0F172A;-webkit-appearance:none;appearance:none}
+.was-code:focus{outline:none;border-color:#25D366;background:#fff;box-shadow:0 0 0 3px rgba(37,211,102,.18)}
+.was-err{margin-top:10px;font-size:12.5px;color:#B91C1C;font-weight:600;background:#FEF2F2;border:1px solid #FCA5A5;padding:9px 11px;border-radius:8px;line-height:1.4}
+.was-acts{display:flex;gap:9px;margin-top:14px}
+.was-acts .mb{flex:1;margin-top:0;padding:12px;font-size:13.5px}
+@media (max-width:520px){.was-step{padding:14px 14px}.was-hd{padding:16px 14px 12px}.was-step-d{font-size:12.5px}.was-ph{font-size:16px;padding:12px}.was-code{font-size:24px;letter-spacing:10px}}
+body[data-theme=aurora] .was-mdl{background:#1A1A2E}
+body[data-theme=aurora] .was-step{background:#1A1A2E;border-color:rgba(255,255,255,.08)}
+body[data-theme=aurora] .was-step-t{color:#F5F5FA}
+body[data-theme=aurora] .was-step-d{color:#9999B5}
+body[data-theme=aurora] .was-cc,body[data-theme=aurora] .was-ph,body[data-theme=aurora] .was-code{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14);color:#F5F5FA}
+body[data-theme=aurora] .was-mini{background:rgba(37,211,102,.12);border-color:rgba(37,211,102,.28);color:#A8E6BC}
+body[data-theme=aurora] .was-skip{color:#9999B5}
 .login-foot{margin-top:32px;padding-top:18px;border-top:1px solid rgba(15,23,42,.06);display:flex;align-items:center;justify-content:center;gap:10px;font-size:12px;color:#94A3B8;flex-wrap:wrap}
 .login-foot a{color:#64748B;text-decoration:none;font-weight:600}
 .login-foot a:hover{color:#0F172A;text-decoration:underline}
@@ -2653,7 +2691,11 @@ function logout(){
   try{history.replaceState(null,'','/')}catch(e){}
   render();
 }
-async function load(){const a=document.getElementById('audioEl');if(a&&!a.paused)return;const t=await api('/tasks');if(!t)return;const h=JSON.stringify(t);if(h===S._lastTasksHash)return;S._lastTasksHash=h;S.tasks=t;render()}
+async function load(){const a=document.getElementById('audioEl');if(a&&!a.paused)return;
+  // Skip background re-render churn while the user is typing in a modal — kills focus on mobile.
+  if(S.showWASetup||S.showAdd||S.showProfile){const ae=document.activeElement;if(ae&&(ae.tagName==='INPUT'||ae.tagName==='TEXTAREA'))return}
+  const t=await api('/tasks');if(!t)return;const h=JSON.stringify(t);if(h===S._lastTasksHash)return;S._lastTasksHash=h;S.tasks=t;render()
+}
 async function chk(){const h=await api('/health');if(h)S.waOk=h.twilio;render()}
 async function addT(){if(!S.form.title.trim())return;const r=await api('/tasks',{method:'POST',body:JSON.stringify({title:S.form.title,notes:S.form.notes,priority:S.form.priority,status:'pending',due_date:S.form.dueDate,reminder_time:S.form.reminderTime,board:S.form.board})});if(r?.id){S.tasks.unshift(r);clM();toast('\\u2705 Task added to '+(r.board==='office'?'Office Tasks':'Home Tasks')+'!')}}
 async function savE(){if(!S.form.title.trim()||!S.editing)return;const r=await api('/tasks/'+S.editing,{method:'PUT',body:JSON.stringify({title:S.form.title,notes:S.form.notes,priority:S.form.priority,status:S.form.status,due_date:S.form.dueDate,reminder_time:S.form.reminderTime,board:S.form.board})});if(r){const i=S.tasks.findIndex(t=>t.id===S.editing);if(i>-1)S.tasks[i]=r;clM();toast('\\u2705 Updated!')}}
@@ -2750,30 +2792,37 @@ function confirmWAJoined(){S.waConnected=true;localStorage.setItem('wa_connected
 function disconnectWA(){S.waConnected=false;localStorage.removeItem('wa_connected');toast('\\u23F8 WhatsApp disconnected');render()}
 // ─── Connect-WhatsApp flow (link a real WA number to this account) ───
 async function waConnectSend(){
-  const phone=(document.getElementById('waConnPh')||{}).value||'';
-  const cc=(document.getElementById('waConnCC')||{}).value||'+91';
+  const phEl=document.getElementById('waSetupPh')||document.getElementById('waConnPh');
+  const ccEl=document.getElementById('waSetupCC')||document.getElementById('waConnCC');
+  const phone=(phEl&&phEl.value)||'';
+  const cc=(ccEl&&ccEl.value)||'+91';
   const full=cc+phone.replace(/[^0-9]/g,'');
-  if(full.length<8){S.waConn={...(S.waConn||{}),err:'Enter your WhatsApp number'};render();return}
-  S.waConn={phone:full,sending:true,err:''};render();
+  if(full.length<8){S.waConn={...(S.waConn||{step:'phone'}),err:'Enter your WhatsApp number'};render();return}
+  S.waConn={...(S.waConn||{}),phone:full,step:'phone',sending:true,err:''};render();
   const r=await api('/wa/connect',{method:'POST',body:JSON.stringify({phone:full})});
   if(r&&r.ok){
     localStorage.setItem('tf_wa_joined','1');
-    S.waConn={phone:full,step:'verify',sending:false,code:''};
+    S.waConn={phone:full,step:'verify',sending:false};
     toast('\\u{1F4F2} Code sent to your WhatsApp');
-  }else{
-    S.waConn={phone:full,sending:false,err:(r&&r.error)||'Failed to send',needsJoin:!!(r&&r.needsJoin)};
-    if(r&&r.needsJoin)localStorage.removeItem('tf_wa_joined');
+    render();
+    setTimeout(()=>{const e=document.getElementById('waSetupCode');if(e)e.focus()},120);
+    return;
   }
+  S.waConn={phone:full,step:'phone',sending:false,err:(r&&r.error)||'Failed to send',needsJoin:!!(r&&r.needsJoin)};
+  if(r&&r.needsJoin)localStorage.removeItem('tf_wa_joined');
   render();
 }
 async function waConnectVerify(){
-  const code=((document.getElementById('waConnCode')||{}).value||'').trim();
+  const codeEl=document.getElementById('waSetupCode')||document.getElementById('waConnCode');
+  const code=((codeEl&&codeEl.value)||'').trim();
   if(!code||code.length<6){S.waConn={...(S.waConn||{}),err:'Enter the 6-digit code'};render();return}
   S.waConn={...(S.waConn||{}),verifying:true,err:''};render();
   const r=await api('/wa/verify',{method:'POST',body:JSON.stringify({phone:S.waConn.phone,code})});
   if(r&&r.ok){
     S.profile={...(S.profile||{}),wa_phone:r.wa_phone};
     S.waConn=null;
+    S.showWASetup=false;
+    localStorage.removeItem('tf_wa_banner_x');
     toast('\\u2705 WhatsApp connected!');
   }else{
     S.waConn={...(S.waConn||{}),verifying:false,err:(r&&r.error)||'Verification failed'};
@@ -2785,8 +2834,8 @@ async function waUnlink(){
   const r=await api('/wa/disconnect',{method:'POST'});
   if(r&&r.ok){S.profile={...(S.profile||{}),wa_phone:null};localStorage.removeItem('tf_wa_banner_x');toast('WhatsApp disconnected');render()}
 }
-function waConnectStart(){S.waConn={step:'phone',phone:'',code:'',err:''};render();setTimeout(()=>{const e=document.getElementById('waConnPh');if(e)e.focus()},80)}
-function waConnectCancel(){S.waConn=null;render()}
+function waConnectStart(){S.showProfile=false;S.showWASetup=true;S.waConn={step:'phone',err:''};render();setTimeout(()=>{const e=document.getElementById('waSetupPh');if(e)e.focus()},120)}
+function waConnectCancel(){S.waConn=null;S.showWASetup=false;render()}
 function waOpenJoin(){const code=window.__TWILIO_SANDBOX_CODE||'along-wool';window.open('https://wa.me/14155238886?text='+encodeURIComponent('join '+code),'_blank')}
 // Three categories x two durations = six English-language meditation audios; durations VERIFIED to match the labels
 const MED_SLOTS=[
@@ -3162,7 +3211,7 @@ if(S.tab==='tasks'){
     h+='<div class="wa-promo">'
       +'<span class="wa-promo-emoji">\\u{1F4F2}</span>'
       +'<div class="wa-promo-body"><div class="wa-promo-t">Connect WhatsApp</div><div class="wa-promo-s">Add tasks by chat &amp; get reminders on WhatsApp</div></div>'
-      +'<button class="wa-promo-go" onclick="openProfile()">Connect \\u2192</button>'
+      +'<button class="wa-promo-go" onclick="waConnectStart()">Connect \\u2192</button>'
       +'<button class="wa-promo-x" onclick="localStorage.setItem(\\'tf_wa_banner_x\\',\\'1\\');render()" aria-label="Dismiss">\\u2715</button>'
     +'</div>';
   }
@@ -3627,49 +3676,60 @@ if(S.showProfile){
   // ─── WhatsApp section ───
   const waPhone=p.wa_phone||'';
   const conn=S.waConn||null;
-  const joined=localStorage.getItem('tf_wa_joined')==='1';
-  const sandboxCode=window.__TWILIO_SANDBOX_CODE||'along-wool';
   h+='<div class="wa-sec">';
   h+='<div class="wa-sec-hd"><span class="wa-sec-emoji">\\u{1F4F2}</span><div><div class="wa-sec-t">WhatsApp</div><div class="wa-sec-s">Add tasks and get reminders by chat</div></div></div>';
-  if(waPhone&&!conn){
+  if(waPhone){
     h+='<div class="wa-linked">\\u2705 Connected to <b>'+esc(waPhone)+'</b><button class="wa-link-x" onclick="waUnlink()">Disconnect</button></div>';
-    h+='<div class="wa-linked-hint">WhatsApp <b>'+esc(sandboxCode)+'</b> a task to <b>+1 415 523 8886</b> and it\\'ll appear in Home Tasks. Reply <b>list</b>, <b>done <i>x</i></b>, <b>doing <i>x</i></b>, or <b>delete <i>x</i></b>.</div>';
-  } else if(!conn){
-    h+='<button class="mb mb-s wa-connect-btn" onclick="waConnectStart()">\\u{1F517} Connect WhatsApp</button>';
-  } else if(conn.step==='verify'){
-    // After code is sent — single screen, just enter the 6-digit code.
-    h+='<div class="wa-card"><div class="wa-card-t">\\u2709\\uFE0F Code sent on WhatsApp</div>'
-      +'<div class="wa-card-d">We sent a 6-digit code to <b>'+esc(conn.phone)+'</b>. Open WhatsApp, copy the code, paste it below.</div>'
-      +'<input id="waConnCode" class="wa-code" type="tel" inputmode="numeric" maxlength="6" placeholder="\\u2022 \\u2022 \\u2022 \\u2022 \\u2022 \\u2022" autocomplete="one-time-code">'
-      +(conn.err?'<div class="wa-err">'+esc(conn.err)+'</div>':'')
-      +'<div class="wa-acts"><button class="mb mb-c" onclick="waConnectCancel()">Cancel</button><button class="mb mb-s" onclick="waConnectVerify()"'+(conn.verifying?' disabled':'')+'>'+(conn.verifying?'Verifying\\u2026':'Verify &amp; connect')+'</button></div>'
-      +'<button class="wa-resend" onclick="S.waConn={...S.waConn,step:\\'phone\\',err:\\'\\'};render()">\\u2190 Use a different number</button>'
-    +'</div>';
   } else {
-    // Single combined screen: Step 1 helper (collapsible if already joined) + phone form (always visible)
-    if(!joined){
-      h+='<div class="wa-helper"><div class="wa-helper-t">\\u26A1 First time? One-time setup</div>'
-        +'<div class="wa-helper-d">Send <b>join '+esc(sandboxCode)+'</b> to <b>+1 415 523 8886</b> on WhatsApp once. After that, this number can talk to Brodoit.</div>'
-        +'<button class="wa-jb" onclick="waOpenJoin()">'+WI+' Open WhatsApp \\u2014 send join code</button>'
-        +'<button class="wa-skip" onclick="localStorage.setItem(\\'tf_wa_joined\\',\\'1\\');render()">Skip \\u2014 I already did this</button>'
-      +'</div>';
-    }else{
-      h+='<div class="wa-helper-mini">\\u2705 Sandbox joined on this device. <button class="wa-helper-reset" onclick="localStorage.removeItem(\\'tf_wa_joined\\');render()">Need to redo it?</button></div>';
-    }
-    // Phone form — ALWAYS visible
-    h+='<div class="wa-card"><div class="wa-card-t">Enter your WhatsApp number</div>'
-      +'<div class="wa-card-d">We\\'ll send a 6-digit code to confirm.</div>'
-      +'<div class="wa-row"><select id="waConnCC" class="wa-cc"><option value="+91" selected>\\u{1F1EE}\\u{1F1F3} +91</option><option value="+1">\\u{1F1FA}\\u{1F1F8} +1</option><option value="+44">\\u{1F1EC}\\u{1F1E7} +44</option><option value="+61">\\u{1F1E6}\\u{1F1FA} +61</option><option value="+971">\\u{1F1E6}\\u{1F1EA} +971</option><option value="+65">\\u{1F1F8}\\u{1F1EC} +65</option></select>'
-      +'<input id="waConnPh" class="wa-num" type="tel" inputmode="tel" placeholder="98765 43210" autocomplete="tel-national" value="'+esc(conn.phoneInput||'')+'" oninput="S.waConn={...S.waConn,phoneInput:this.value}"></div>'
-      +(conn.err?'<div class="wa-err">'+esc(conn.err)+(conn.needsJoin?' \\u2014 finish the one-time setup above first':'')+'</div>':'')
-      +'<div class="wa-acts"><button class="mb mb-c" onclick="waConnectCancel()">Cancel</button><button class="mb mb-s" onclick="waConnectSend()"'+(conn.sending?' disabled':'')+'>'+(conn.sending?'Sending\\u2026':'\\u{1F4F2} Send code via WhatsApp')+'</button></div>'
-    +'</div>';
+    h+='<button class="mb mb-s wa-connect-btn" onclick="waConnectStart()">\\u{1F517} Set up WhatsApp \\u2192</button>';
   }
   h+='</div>';
 
   h+='<div class="macts" style="margin-top:22px"><button class="mb mb-c" onclick="closeProfile()">Close</button><button class="mb mb-d" style="margin-top:0" onclick="logout()">Log out</button></div>';
   h+='</div></div>';
 }
+
+// ─── Dedicated WhatsApp Setup modal — clean, single-purpose, uncontrolled inputs ───
+if(S.showWASetup){
+  const conn=S.waConn||{step:'phone'};
+  const joined=localStorage.getItem('tf_wa_joined')==='1';
+  const sandboxCode=window.__TWILIO_SANDBOX_CODE||'along-wool';
+  h+='<div class="ov" onclick="waConnectCancel()"><div class="mdl was-mdl" onclick="event.stopPropagation()">';
+  h+='<div class="was-hd"><span class="was-emoji">\\u{1F4F2}</span><div><h2 class="was-t">Set up WhatsApp</h2><div class="was-s">2 minutes \\u2014 once per phone</div></div><button class="was-x" onclick="waConnectCancel()" aria-label="Close">\\u2715</button></div>';
+
+  if(conn.step==='verify'){
+    h+='<div class="was-step"><div class="was-step-n">2</div><div class="was-step-b">'
+      +'<div class="was-step-t">Enter the 6-digit code</div>'
+      +'<div class="was-step-d">Sent on WhatsApp to <b>'+esc(conn.phone||'')+'</b>. Check WhatsApp, copy the code.</div>'
+      +'<input id="waSetupCode" class="was-code" type="tel" inputmode="numeric" maxlength="6" placeholder="\\u2022\\u2022\\u2022\\u2022\\u2022\\u2022" autocomplete="one-time-code" autofocus>'
+      +(conn.err?'<div class="was-err">'+esc(conn.err)+'</div>':'')
+      +'<div class="was-acts"><button class="mb mb-c" onclick="S.waConn={step:\\'phone\\'};render();setTimeout(()=>{const e=document.getElementById(\\'waSetupPh\\');if(e)e.focus()},80)">\\u2190 Use a different number</button><button class="mb mb-s" onclick="waConnectVerify()"'+(conn.verifying?' disabled':'')+'>'+(conn.verifying?'Verifying\\u2026':'Verify &amp; connect')+'</button></div>'
+    +'</div></div>';
+  } else {
+    // Step 1 — sandbox join (collapsible if already done)
+    if(!joined){
+      h+='<div class="was-step"><div class="was-step-n">1</div><div class="was-step-b">'
+        +'<div class="was-step-t">First time only \\u2014 say hi to Brodoit on WhatsApp</div>'
+        +'<div class="was-step-d">Open WhatsApp and send <b>join '+esc(sandboxCode)+'</b> to <b>+1 415 523 8886</b>. You\\'ll get a confirmation reply.</div>'
+        +'<button class="was-jb" onclick="waOpenJoin()">'+WI+' Open WhatsApp \\u2014 send join code</button>'
+        +'<button class="was-skip" onclick="localStorage.setItem(\\'tf_wa_joined\\',\\'1\\');render()">I already did this \\u2192</button>'
+      +'</div></div>';
+    }else{
+      h+='<div class="was-mini">\\u2705 Step 1 done on this device. <button class="was-mini-reset" onclick="localStorage.removeItem(\\'tf_wa_joined\\');render()">Need to redo it?</button></div>';
+    }
+    // Step 2 — phone entry (uncontrolled inputs — browser owns the value)
+    h+='<div class="was-step"><div class="was-step-n">'+(joined?'1':'2')+'</div><div class="was-step-b">'
+      +'<div class="was-step-t">Your WhatsApp number</div>'
+      +'<div class="was-step-d">We\\'ll send a 6-digit code on WhatsApp to confirm.</div>'
+      +'<div class="was-row"><select id="waSetupCC" class="was-cc"><option value="+91" selected>\\u{1F1EE}\\u{1F1F3} +91</option><option value="+1">\\u{1F1FA}\\u{1F1F8} +1</option><option value="+44">\\u{1F1EC}\\u{1F1E7} +44</option><option value="+61">\\u{1F1E6}\\u{1F1FA} +61</option><option value="+971">\\u{1F1E6}\\u{1F1EA} +971</option><option value="+65">\\u{1F1F8}\\u{1F1EC} +65</option></select>'
+      +'<input id="waSetupPh" class="was-ph" type="tel" inputmode="tel" placeholder="98765 43210" autocomplete="tel-national"></div>'
+      +(conn.err?'<div class="was-err">'+esc(conn.err)+(conn.needsJoin?' \\u2014 finish step 1 above first':'')+'</div>':'')
+      +'<div class="was-acts"><button class="mb mb-c" onclick="waConnectCancel()">Cancel</button><button class="mb mb-s" onclick="waConnectSend()"'+(conn.sending?' disabled':'')+'>'+(conn.sending?'Sending\\u2026':'Send code via WhatsApp')+'</button></div>'
+    +'</div></div>';
+  }
+  h+='</div></div>';
+}
+
 if(S.showAdd){const isE=!!S.editing;
 h+='<div class="ov" onclick="clM()"><div class="mdl" onclick="event.stopPropagation()"><h2>'+(isE?'Edit Task':'\\u2728 New Task')+'</h2>';
 h+='<div style="text-align:center;margin-bottom:10px"><button class="voice-lg'+(S.listening?' rec':'')+'" onclick="'+(S.listening?'rec&&rec.stop();S.listening=false;render()':'stV()')+'"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>'+(S.listening?'<span class="vw"><span></span><span></span><span></span><span></span></span>Listening...':'\\u{1F3A4} Speak to add')+'</button><div style="font-size:11px;color:#94A3B8;margin-top:6px">Try: "Buy groceries tomorrow urgent"</div></div>';
