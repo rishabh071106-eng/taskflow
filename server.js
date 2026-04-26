@@ -2480,7 +2480,7 @@ function logout(){
 }
 async function load(){const a=document.getElementById('audioEl');if(a&&!a.paused)return;const t=await api('/tasks');if(!t)return;const h=JSON.stringify(t);if(h===S._lastTasksHash)return;S._lastTasksHash=h;S.tasks=t;render()}
 async function chk(){const h=await api('/health');if(h)S.waOk=h.twilio;render()}
-async function addT(){if(!S.form.title.trim())return;const r=await api('/tasks',{method:'POST',body:JSON.stringify({title:S.form.title,notes:S.form.notes,priority:S.form.priority,status:'pending',due_date:S.form.dueDate,reminder_time:S.form.reminderTime,board:S.form.board})});if(r?.id){S.tasks.unshift(r);clM();toast('\\u2705 Task added to '+(r.board==='office'?'Office':'Home')+'!')}}
+async function addT(){if(!S.form.title.trim())return;const r=await api('/tasks',{method:'POST',body:JSON.stringify({title:S.form.title,notes:S.form.notes,priority:S.form.priority,status:'pending',due_date:S.form.dueDate,reminder_time:S.form.reminderTime,board:S.form.board})});if(r?.id){S.tasks.unshift(r);clM();toast('\\u2705 Task added to '+(r.board==='office'?'Office Tasks':'Home Tasks')+'!')}}
 async function savE(){if(!S.form.title.trim()||!S.editing)return;const r=await api('/tasks/'+S.editing,{method:'PUT',body:JSON.stringify({title:S.form.title,notes:S.form.notes,priority:S.form.priority,status:S.form.status,due_date:S.form.dueDate,reminder_time:S.form.reminderTime,board:S.form.board})});if(r){const i=S.tasks.findIndex(t=>t.id===S.editing);if(i>-1)S.tasks[i]=r;clM();toast('\\u2705 Updated!')}}
 async function del(id){await api('/tasks/'+id,{method:'DELETE'});S.tasks=S.tasks.filter(t=>t.id!==id);render()}
 async function tog(id){const t=S.tasks.find(x=>x.id===id);if(!t)return;const r=await api('/tasks/'+id,{method:'PUT',body:JSON.stringify({status:t.status==='done'?'pending':'done'})});if(r){const i=S.tasks.findIndex(x=>x.id===id);if(i>-1)S.tasks[i]=r;render()}}
@@ -2946,13 +2946,13 @@ if(S.tab==='tasks'){
   const _bcO=S.tasks.filter(t=>(t.board||'home')==='office').length;
   const _bcC=S.tasks.length;
   h+='<div class="board-pick">'
-    +'<button class="bp'+(S.board==='home'?' on':'')+'" onclick="setBoard(\\'home\\')"><span class="bp-emoji">\\u{1F3E0}</span><span class="bp-l">Home</span><span class="bp-c">'+_bcH+'</span></button>'
-    +'<button class="bp'+(S.board==='office'?' on':'')+'" onclick="setBoard(\\'office\\')"><span class="bp-emoji">\\u{1F4BC}</span><span class="bp-l">Office</span><span class="bp-c">'+_bcO+'</span></button>'
-    +'<button class="bp'+(S.board==='combined'?' on':'')+'" onclick="setBoard(\\'combined\\')"><span class="bp-emoji">\\u{1F4DA}</span><span class="bp-l">Combined</span><span class="bp-c">'+_bcC+'</span></button>'
+    +'<button class="bp'+(S.board==='home'?' on':'')+'" onclick="setBoard(\\'home\\')"><span class="bp-emoji">\\u{1F3E0}</span><span class="bp-l">Home Tasks</span><span class="bp-c">'+_bcH+'</span></button>'
+    +'<button class="bp'+(S.board==='office'?' on':'')+'" onclick="setBoard(\\'office\\')"><span class="bp-emoji">\\u{1F4BC}</span><span class="bp-l">Office Tasks</span><span class="bp-c">'+_bcO+'</span></button>'
+    +'<button class="bp'+(S.board==='combined'?' on':'')+'" onclick="setBoard(\\'combined\\')"><span class="bp-emoji">\\u{1F4DA}</span><span class="bp-l">Combined Tasks</span><span class="bp-c">'+_bcC+'</span></button>'
   +'</div>'
-  +'<div class="board-pick-hint">'+(S.board==='home'?'\\u{1F3E0} Home \\u2014 self-improvement &amp; personal activities':S.board==='office'?'\\u{1F4BC} Office \\u2014 work tasks only':'\\u{1F4DA} Combined \\u2014 everything from both boards')+'</div>';
+  +'<div class="board-pick-hint">'+(S.board==='home'?'\\u{1F3E0} Home Tasks \\u2014 self-improvement &amp; personal activities':S.board==='office'?'\\u{1F4BC} Office Tasks \\u2014 work tasks only':'\\u{1F4DA} Combined Tasks \\u2014 everything from both boards')+'</div>';
   // TASKS LEAD — the most-used UI sits at the top
-  h+='<button class="add-bar" onclick="opA()"><span class="plus">+</span><span class="txt"><b>Add a new task</b><small>Adds to <b>'+(S.board==='office'?'Office':'Home')+'</b> \\u2014 type or use voice</small></span></button>';
+  h+='<button class="add-bar" onclick="opA()"><span class="plus">+</span><span class="txt"><b>Add a new task</b><small>Adds to <b>'+(S.board==='office'?'Office Tasks':'Home Tasks')+'</b> \\u2014 type or use voice</small></span></button>';
   // WhatsApp reminders prompt removed for closed-test phase
   h+='<div class="stats">'+[{l:'Total',v:s.total,c:'#0F172A'},{l:'To Do',v:s.pend,c:'#94A3B8'},{l:'Active',v:s.act,c:'#3B82F6'},{l:'Done',v:s.dn,c:'#3DAE5C'}].map(x=>'<div class="st"><b style="color:'+x.c+'">'+x.v+'</b><small>'+x.l+'</small></div>').join('')+'</div>';
   if(s.od>0)h+='<div class="al" style="background:#FEF1F0;border:1px solid #F5C6C2;color:#E8453C;cursor:pointer" onclick="S.view=\\'overdue\\';render()">\\u26A0\\uFE0F '+s.od+' overdue</div>';
@@ -3014,12 +3014,12 @@ else if(S.tab==='board'){
   const _bcO=S.tasks.filter(t=>(t.board||'home')==='office').length;
   const _bcC=S.tasks.length;
   h+='<div class="board-pick">'
-    +'<button class="bp'+(S.board==='home'?' on':'')+'" onclick="setBoard(\\'home\\')"><span class="bp-emoji">\\u{1F3E0}</span><span class="bp-l">Home</span><span class="bp-c">'+_bcH+'</span></button>'
-    +'<button class="bp'+(S.board==='office'?' on':'')+'" onclick="setBoard(\\'office\\')"><span class="bp-emoji">\\u{1F4BC}</span><span class="bp-l">Office</span><span class="bp-c">'+_bcO+'</span></button>'
-    +'<button class="bp'+(S.board==='combined'?' on':'')+'" onclick="setBoard(\\'combined\\')"><span class="bp-emoji">\\u{1F4DA}</span><span class="bp-l">Combined</span><span class="bp-c">'+_bcC+'</span></button>'
+    +'<button class="bp'+(S.board==='home'?' on':'')+'" onclick="setBoard(\\'home\\')"><span class="bp-emoji">\\u{1F3E0}</span><span class="bp-l">Home Tasks</span><span class="bp-c">'+_bcH+'</span></button>'
+    +'<button class="bp'+(S.board==='office'?' on':'')+'" onclick="setBoard(\\'office\\')"><span class="bp-emoji">\\u{1F4BC}</span><span class="bp-l">Office Tasks</span><span class="bp-c">'+_bcO+'</span></button>'
+    +'<button class="bp'+(S.board==='combined'?' on':'')+'" onclick="setBoard(\\'combined\\')"><span class="bp-emoji">\\u{1F4DA}</span><span class="bp-l">Combined Tasks</span><span class="bp-c">'+_bcC+'</span></button>'
   +'</div>'
-  +'<div class="board-pick-hint">'+(S.board==='home'?'\\u{1F3E0} Home \\u2014 self-improvement &amp; personal activities':S.board==='office'?'\\u{1F4BC} Office \\u2014 work tasks only':'\\u{1F4DA} Combined \\u2014 everything from both boards')+'</div>';
-  h+='<button class="add-bar" onclick="opA()"><span class="plus">+</span><span class="txt"><b>Add a new task</b><small>Lands in To Do on the <b>'+(S.board==='office'?'Office':'Home')+'</b> board</small></span></button>';
+  +'<div class="board-pick-hint">'+(S.board==='home'?'\\u{1F3E0} Home Tasks \\u2014 self-improvement &amp; personal activities':S.board==='office'?'\\u{1F4BC} Office Tasks \\u2014 work tasks only':'\\u{1F4DA} Combined Tasks \\u2014 everything from both boards')+'</div>';
+  h+='<button class="add-bar" onclick="opA()"><span class="plus">+</span><span class="txt"><b>Add a new task</b><small>Lands in To Do under <b>'+(S.board==='office'?'Office Tasks':'Home Tasks')+'</b></small></span></button>';
   h+='<div class="section-hd"><span class="section-ic">'+ic('board',22)+'</span><div><h3>Task Board</h3><p>Drag cards between columns or tap a move button</p></div></div>';
   const cols=[{k:'pending',l:'To Do',i:'\\u{1F4E5}',c:'#94A3B8'},{k:'in-progress',l:'Doing',i:'\\u26A1',c:'#3B82F6'},{k:'done',l:'Done',i:'\\u2705',c:'#3DAE5C'}];
   h+='<div class="board">';
@@ -3411,8 +3411,8 @@ h+='<div class="row"><div><label class="lbl">Priority</label><select onchange="S
 h+='<div><label class="lbl">Due Date</label><input type="date" value="'+S.form.dueDate+'" onchange="S.form.dueDate=this.value"></div></div>';
 h+='<label class="lbl">Reminder</label><input type="time" value="'+S.form.reminderTime+'" onchange="S.form.reminderTime=this.value">';
 h+='<label class="lbl">Board</label><div class="form-board-pick">'
-  +'<button type="button" class="fbp'+(S.form.board==='home'?' on':'')+'" onclick="S.form.board=\\'home\\';render()"><span class="fbp-emoji">\\u{1F3E0}</span><span class="fbp-l">Home</span><span class="fbp-s">Self-improvement &amp; personal</span></button>'
-  +'<button type="button" class="fbp'+(S.form.board==='office'?' on':'')+'" onclick="S.form.board=\\'office\\';render()"><span class="fbp-emoji">\\u{1F4BC}</span><span class="fbp-l">Office</span><span class="fbp-s">Work tasks only</span></button>'
+  +'<button type="button" class="fbp'+(S.form.board==='home'?' on':'')+'" onclick="S.form.board=\\'home\\';render()"><span class="fbp-emoji">\\u{1F3E0}</span><span class="fbp-l">Home Tasks</span><span class="fbp-s">Self-improvement &amp; personal</span></button>'
+  +'<button type="button" class="fbp'+(S.form.board==='office'?' on':'')+'" onclick="S.form.board=\\'office\\';render()"><span class="fbp-emoji">\\u{1F4BC}</span><span class="fbp-l">Office Tasks</span><span class="fbp-s">Work tasks only</span></button>'
 +'</div>';
 if(isE)h+='<label class="lbl">Status</label><select onchange="S.form.status=this.value"><option value="pending"'+(S.form.status==='pending'?' selected':'')+'>To Do</option><option value="in-progress"'+(S.form.status==='in-progress'?' selected':'')+'>Doing</option><option value="done"'+(S.form.status==='done'?' selected':'')+'>Done</option></select>';
 h+='<div class="macts"><button class="mb mb-c" onclick="clM()">Cancel</button><button class="mb mb-s" onclick="'+(isE?'savE()':'addT()')+'">'+(isE?'Update':'Add Task')+'</button></div>';
