@@ -122,7 +122,9 @@ app.post('/api/send-otp-email',async(req,res)=>{
   if(r.ok){
     // Cookie survives iOS Safari tab kills better than localStorage. Read on / to force the OTP screen
     // even if the user's localStorage was wiped while they were in Gmail. 10-min expiry.
-    res.set('Set-Cookie','pending_otp_email='+encodeURIComponent(email)+'; Path=/; Max-Age=600; SameSite=Lax');
+    // 30-min TTL (was 10) — gives generous slack for slow email delivery / multi-step iOS app switches.
+    // Secure flag because brodoit.com is HTTPS-only — without it, some browsers reject the cookie on reload.
+    res.set('Set-Cookie','pending_otp_email='+encodeURIComponent(email)+'; Path=/; Max-Age=1800; SameSite=Lax; Secure');
     return res.json({ok:true,message:'Check your email (and spam folder)'});
   }
   res.status(500).json({ok:false,error:'Failed to send email',detail:r.reason});
@@ -142,7 +144,7 @@ app.post('/api/verify-otp-email',(req,res)=>{
   const token=genToken();
   if(!user){db.prepare('INSERT INTO users(phone,name,email,token)VALUES(?,?,?,?)').run(key,name,email,token);user={phone:key,name,email,token}}
   else{db.prepare('UPDATE users SET token=?,name=COALESCE(NULLIF(?,\'\'),name)WHERE email=?').run(token,name,email);user.token=token;if(name)user.name=name}
-  res.set('Set-Cookie','pending_otp_email=; Path=/; Max-Age=0; SameSite=Lax');
+  res.set('Set-Cookie','pending_otp_email=; Path=/; Max-Age=0; SameSite=Lax; Secure');
   res.json({phone:user.phone,name:user.name||name,email,token});
 });
 
@@ -3981,7 +3983,9 @@ app.get('/',(req,res)=>{
   const pendingEmail=_readCookie(req,'pending_otp_email');
   const inject=pendingEmail?'window.__PENDING_OTP_EMAIL='+JSON.stringify(pendingEmail.slice(0,254))+';':'';
   const html=HTML.replace('/*__SERVER_INJECT__*/',inject);
-  res.set('Cache-Control','no-cache, no-store, must-revalidate').set('Pragma','no-cache').set('Expires','0').type('html').send(html);
+  // Vary: Cookie tells any CDN (Railway uses Fastly) that responses differ per cookie — never serve a
+  // user-A cookie response to user-B. Combined with no-store, this blocks all caching of /.
+  res.set('Cache-Control','no-cache, no-store, must-revalidate').set('Pragma','no-cache').set('Expires','0').set('Vary','Cookie').type('html').send(html);
 });
 app.get('*',(_,res)=>res.type('html').send(HTML));
 const PORT=process.env.PORT||3000;
