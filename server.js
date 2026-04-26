@@ -645,8 +645,9 @@ input:focus,textarea:focus{outline:none;border-color:#0F172A}textarea{resize:ver
   .app{overflow-x:hidden}
 }
 @media (max-width:380px){.phone-banner{height:48px}}
-/* Mobile: hide the 3-headline top news so the task list is above the fold; full ticker is at the bottom. */
-@media (max-width:1023px){.top-news{display:none}}
+/* Mobile: hide the 3-headline top news AND the time/weather/life-goal chip so the task list is above the fold.
+   (Time + date are already shown in the header; news ticker still renders at page bottom.) */
+@media (max-width:1023px){.top-news{display:none}.app .top-strip{display:none}}
 body[data-theme=aurora] .phone-banner{background:#0A0A14}
 body[data-theme=aurora] .hdr-tagline{color:#9999B5}
 .hdr-st{font-size:11px;font-weight:700;padding:8px 14px;border-radius:10px;background:#FFFFFF;border:1px solid #E8E9EF;display:flex;align-items:center;gap:7px;letter-spacing:.8px;box-shadow:0 2px 6px rgba(0,0,0,.04)}
@@ -1017,11 +1018,11 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
 @media (max-width:600px){.tabs{padding:4px;gap:4px}.tab{padding:11px 12px;font-size:12px}.tab .ti{font-size:15px}.tab .tl{font-size:11.5px}}
 /* Desktop sidebar layout */
 @media (min-width:1024px){
-  .app{max-width:1440px;padding:12px 24px 40px;display:grid;grid-template-columns:220px 1fr;grid-template-areas:"hdr hdr" "side main" "topstrip main";column-gap:22px;row-gap:6px;align-items:start}
+  .app{max-width:1440px;padding:12px 24px 40px;display:grid;grid-template-columns:220px 1fr;grid-template-areas:"hdr hdr" "side main";column-gap:22px;row-gap:6px;align-items:start}
   .app>.hdr{grid-area:hdr;margin-bottom:0}
   .app>.side-col{grid-area:side;display:flex;flex-direction:column;gap:14px;align-self:start}
   .app>.side-col>.tabs.page-t{margin:0;position:static}
-  .app>.top-strip{grid-area:topstrip;margin:0;align-self:start}
+  .app>.side-col>.top-strip{margin:0}
   .main-col>.moral-wrap{margin:0 0 14px;display:flex;flex-direction:column;gap:8px}
   .moral-wrap .moral{margin-bottom:0}
   .app .tabs.page-t{flex-direction:column;padding:8px;gap:4px;overflow:visible;margin-bottom:0;justify-content:flex-start}
@@ -2804,7 +2805,6 @@ if(isMain){
 }
 
 // Tabs
-let topStripHTML='';
 {
   const now=new Date();
   const yStart=new Date(now.getFullYear(),0,0);
@@ -2883,11 +2883,11 @@ let topStripHTML='';
     +'<div class="lg-text'+(goalText?'':' lg-empty')+'">'+(goalText?esc(goalText):'Type your goal here \\u2014 your north star\\u2026')+'</div>'
     +(goalText?'':'<div class="lg-empty-hint">Tap anywhere to start typing</div>')
   +'</div>';
-  h+='</aside>';
   // Topstrip (clock + weather + cities + life-goal) only on Tasks tab — keeps other tabs focused.
-  // Rendered AFTER </main> so on mobile the task list is above the fold;
-  // on desktop, grid-area:topstrip puts it back in the left column under the tab nav.
-  if(isMain)topStripHTML='<section class="top-strip">'+sideNow+goalCard+'</section>';
+  // Inside the sidebar so on desktop it sits right below the tab nav.
+  // On mobile it's hidden via CSS (tasks need to be above the fold; time/date is already in the header).
+  if(isMain)h+='<section class="top-strip">'+sideNow+goalCard+'</section>';
+  h+='</aside>';
 }
 
 h+='<main class="main-col">';
@@ -3272,7 +3272,6 @@ else if(S.tab==='__obsolete_knowledge__'){
 
 
 h+='</main>';
-if(topStripHTML)h+=topStripHTML;
 // Global FAB+ — always rendered, fixed-position, bouncy animation. Adapts behavior per tab.
 {
   const isTaskTab=S.tab==='tasks'||S.tab==='board';
