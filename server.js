@@ -407,6 +407,34 @@ app.get('/api/news',async(req,res)=>{
   res.json({items:dedup,cat,cached:false});
 });
 
+// ═══ REMEMBER (Wikipedia "On This Day" births/deaths, 24-hour cache) — daily notable person ═══
+const rememberCache={};
+app.get('/api/remember/today',async(req,res)=>{
+  const now=new Date();
+  const m=String(now.getMonth()+1).padStart(2,'0');
+  const d=String(now.getDate()).padStart(2,'0');
+  const key='r-'+m+'-'+d;
+  const c=rememberCache[key];
+  if(c&&Date.now()-c.ts<24*60*60*1000)return res.json({person:c.data,cached:true});
+  try{
+    const ctrl=new AbortController();const t=setTimeout(()=>ctrl.abort(),6000);
+    const url='https://en.wikipedia.org/api/rest_v1/feed/onthisday/all/'+m+'/'+d;
+    const r=await fetch(url,{signal:ctrl.signal,headers:{'User-Agent':'Brodoit/1.0','Accept':'application/json'}});
+    clearTimeout(t);
+    if(!r.ok)return res.json({person:null});
+    const j=await r.json();
+    const cand=[];
+    (j.births||[]).forEach(b=>{const p=(b.pages||[])[0];if(p&&p.thumbnail)cand.push({type:'born',year:b.year,page:p})});
+    (j.deaths||[]).forEach(b=>{const p=(b.pages||[])[0];if(p&&p.thumbnail)cand.push({type:'died',year:b.year,page:p})});
+    if(!cand.length)return res.json({person:null});
+    const pick=cand.sort((a,b)=>(b.year||0)-(a.year||0))[Math.min(2,cand.length-1)];
+    const p=pick.page;
+    const person={type:pick.type,year:pick.year,title:p.normalizedtitle||p.title||'',extract:(p.extract||'').slice(0,220),thumb:(p.thumbnail||{}).source||null,url:((p.content_urls||{}).desktop||{}).page||''};
+    rememberCache[key]={ts:Date.now(),data:person};
+    res.json({person});
+  }catch(e){res.json({person:null,error:String(e)})}
+});
+
 // ═══ HISTORY (Wikipedia "On This Day", 6-hour server cache) ═══
 const historyCache={};
 app.get('/api/history/today',async(req,res)=>{
@@ -705,13 +733,13 @@ body[data-theme=aurora] .bro-mascot .bro-figure circle:first-child{fill:#A78BFA}
 body[data-theme=aurora] .bro-mascot .bro-figure line{stroke:#A78BFA}
 .top-strip .side-now{flex:0 0 auto;background:transparent;border-top:1px dashed rgba(99,102,241,.18);border-left:none;padding:5px 12px 6px;display:flex;flex-direction:column;justify-content:center;gap:2px;position:relative;overflow:hidden;margin-top:0;min-width:0}
 .top-strip .side-now-lbl{font-size:9px;font-weight:800;color:#6366F1;letter-spacing:1.2px;text-transform:uppercase}
-.top-strip .side-now-time{font-family:'Instrument Serif',Georgia,serif;font-size:20px;font-weight:400;color:#0F172A;line-height:1;letter-spacing:-.03em;margin-top:0}
-.top-strip .side-now-time .sec{color:#E8453C;animation:secBlink 1s steps(2) infinite;font-size:13px;margin-left:1px;font-family:'Instrument Serif',Georgia,serif}
+.top-strip .side-now-time{font-family:'Instrument Serif',Georgia,serif;font-size:24px;font-weight:400;color:#0F172A;line-height:1;letter-spacing:-.03em;margin-top:0}
+.top-strip .side-now-time .sec{color:#E8453C;animation:secBlink 1s steps(2) infinite;font-size:15px;margin-left:1px;font-family:'Instrument Serif',Georgia,serif}
 .top-strip .side-now-row{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;line-height:1}
 .top-strip .side-now-sep{color:#CBD5E1;font-size:11px}
-.top-strip .side-now-date{font-size:12px;color:#64748B;font-weight:600;font-style:italic;font-family:'Instrument Serif',Georgia,serif}
-.top-strip .side-now-days{font-size:12px;color:#475569;font-weight:600}
-.top-strip .side-now-days b{font-family:'Instrument Serif',Georgia,serif;color:#E8453C;font-weight:400;font-size:16px;letter-spacing:-.02em}
+.top-strip .side-now-date{font-size:13px;color:#64748B;font-weight:600;font-style:italic;font-family:'Instrument Serif',Georgia,serif}
+.top-strip .side-now-days{font-size:12.5px;color:#475569;font-weight:600}
+.top-strip .side-now-days b{font-family:'Instrument Serif',Georgia,serif;color:#E8453C;font-weight:400;font-size:17px;letter-spacing:-.02em}
 .top-strip .side-now-walker{position:absolute;top:50%;width:14px;height:18px;transform:translate(-50%,-58%);z-index:2;pointer-events:none;transition:left .8s ease-out}
 .top-strip .side-now-walker svg{width:100%;height:100%;filter:drop-shadow(0 1px 2px rgba(15,23,42,.3))}
 .top-strip .side-now-walker .snw-leg-l{transform-origin:7px 11px;animation:snwLegL .42s ease-in-out infinite}
@@ -760,6 +788,24 @@ body[data-theme=aurora] .news-ticker-row:hover{background:rgba(255,255,255,.08)}
 body[data-theme=aurora] .news-ticker-link{color:#F5F5FA}
 body[data-theme=aurora] .news-ticker-row:hover .news-ticker-link{color:#A78BFA}
 body[data-theme=aurora] .news-ticker-src{color:#A78BFA;background:rgba(167,139,250,.16)}
+/* Remember Someone Today — daily notable birth/death from Wikipedia */
+.remember-card{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,rgba(232,145,44,.08),rgba(99,102,241,.06));border:1px solid rgba(232,145,44,.2);border-radius:10px;padding:8px 12px 8px 8px;text-decoration:none;color:inherit;transition:transform .2s ease,box-shadow .2s ease;animation:rememberIn .5s cubic-bezier(.2,.8,.2,1)}
+@keyframes rememberIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.remember-card:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(232,145,44,.18)}
+.remember-thumb{width:48px;height:48px;border-radius:8px;object-fit:cover;flex-shrink:0;background:#FEF3E0;display:flex;align-items:center;justify-content:center;font-size:22px}
+.remember-thumb.remember-thumb-empty{color:#B57B00}
+.remember-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.remember-kicker{font-size:9.5px;font-weight:800;color:#B57B00;text-transform:uppercase;letter-spacing:1.2px;line-height:1.2}
+.remember-kicker b{font-family:'Space Mono',monospace;color:#E8453C;font-weight:700;letter-spacing:.4px}
+.remember-name{font-family:'Instrument Serif',Georgia,serif;font-size:16px;font-weight:400;color:#0F172A;line-height:1.15;letter-spacing:-.01em}
+.remember-extract{font-size:11.5px;color:#475569;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:1px}
+.remember-arrow{flex-shrink:0;color:#B57B00;opacity:.6;transition:opacity .15s ease}
+.remember-card:hover .remember-arrow{opacity:1}
+body[data-theme=aurora] .remember-card{background:linear-gradient(135deg,rgba(232,145,44,.14),rgba(167,139,250,.08));border-color:rgba(232,145,44,.3)}
+body[data-theme=aurora] .remember-name{color:#F5F5FA}
+body[data-theme=aurora] .remember-extract{color:#9999B5}
+body[data-theme=aurora] .remember-thumb{background:rgba(255,255,255,.05)}
+@media (max-width:600px){.remember-thumb{width:40px;height:40px}.remember-name{font-size:14.5px}.remember-extract{font-size:11px}}
 /* World clocks — west-to-east horizon strip with sun/moon day-night indicator */
 .world-clocks{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;background:linear-gradient(90deg,#0F172A 0%,#312E81 30%,#7C3AED 50%,#F59E0B 75%,#FCD34D 100%);background-size:200% 100%;animation:dayShift 60s ease-in-out infinite;border:1px solid rgba(99,102,241,.18);border-radius:10px;padding:8px;position:relative;overflow:hidden}
 @keyframes dayShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
@@ -783,11 +829,11 @@ body[data-theme=aurora] .news-ticker-src{color:#A78BFA;background:rgba(167,139,2
 .world-clocks .wc-time{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#0F172A;letter-spacing:-.02em}
 .world-clocks .wc-temp{font-family:'Instrument Serif',Georgia,serif;font-size:13px;font-weight:400;color:#E8912B;letter-spacing:-.02em;margin-top:0}
 body[data-theme=aurora] .world-clocks .wc-temp{color:#FCD34D}
-/* Indian cities mini-grid in the left chip */
-.top-strip .india-cities{display:grid;grid-template-columns:repeat(2,1fr);gap:3px 8px;margin-top:4px;padding-top:6px;border-top:1px dashed rgba(99,102,241,.18);font-size:10.5px;line-height:1.2}
-.top-strip .ic-item{display:flex;align-items:baseline;justify-content:space-between;gap:6px;padding:1px 0}
-.top-strip .ic-name{color:#475569;font-weight:600;font-style:italic;font-family:'Instrument Serif',Georgia,serif;font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.top-strip .ic-temp{font-family:'Space Mono',monospace;color:#E8912C;font-weight:700;font-size:10.5px;flex-shrink:0}
+/* Indian cities mini-grid in the left chip — denser fonts to use the space */
+.top-strip .india-cities{display:grid;grid-template-columns:repeat(2,1fr);gap:4px 10px;margin-top:6px;padding-top:8px;border-top:1px dashed rgba(99,102,241,.18);line-height:1.2}
+.top-strip .ic-item{display:flex;align-items:baseline;justify-content:space-between;gap:6px;padding:2px 0}
+.top-strip .ic-name{color:#475569;font-weight:500;font-style:italic;font-family:'Instrument Serif',Georgia,serif;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.01em}
+.top-strip .ic-temp{font-family:'Instrument Serif',Georgia,serif;color:#E8912C;font-weight:400;font-size:14.5px;flex-shrink:0;letter-spacing:-.02em}
 body[data-theme=aurora] .top-strip .india-cities{border-top-color:rgba(167,139,250,.22)}
 body[data-theme=aurora] .top-strip .ic-name{color:#9999B5}
 body[data-theme=aurora] .top-strip .ic-temp{color:#FCD34D}
@@ -2036,7 +2082,7 @@ books:[],booksLoading:false,booksCat:'all',bookSearch:'',playing:null,moralIdx:M
 knowledge:{loading:false,loaded:{},articles:{},events:[],topic:'history',sec:'today'},
 game:{active:false,board:Array(9).fill(null),turn:'X',status:'idle',winLine:null,wins:Number(localStorage.getItem('tf_ttt_wins')||0),losses:Number(localStorage.getItem('tf_ttt_losses')||0),draws:Number(localStorage.getItem('tf_ttt_draws')||0)},
 weather:{city:localStorage.getItem('tf_city')||'Bangalore',temp:null,aqi:null,country:'',loaded:false,loading:false,error:null},
-cityTemps:{},
+cityTemps:{},remember:{person:null,loaded:false},
 medCat:localStorage.getItem('tf_medcat')||'vipassana',
 ticker:{items:[],idx:0,loaded:false},
 waConnected:localStorage.getItem('wa_connected')==='1',showWAOnboard:false,activeMeditation:null,
@@ -2383,6 +2429,7 @@ const WORLD_CITY_LIST=[
   {key:'Sydney',label:'Sydney',tz:'Australia/Sydney'}
 ];
 async function loadCityTemps(){const all=[...INDIA_CITIES,...WORLD_CITY_LIST.map(c=>c.key)];const results=await Promise.all(all.map(c=>fetch('/api/weather?city='+encodeURIComponent(c)).then(r=>r.json()).catch(()=>({}))));const m={};results.forEach((r,i)=>{if(r&&!r.error)m[all[i].toLowerCase()]={temp:r.temp,city:r.city||all[i]}});S.cityTemps=m;render()}
+async function loadRemember(){try{const r=await fetch('/api/remember/today');const j=await r.json();S.remember={person:j.person||null,loaded:true};render()}catch(e){S.remember={person:null,loaded:true};render()}}
 async function loadTicker(){try{const r=await fetch('/api/news?cat=global',{cache:'no-store'});const j=await r.json();S.ticker={items:(j.items||[]).slice(0,12),idx:0,loaded:true};render();_startTicker()}catch(e){}}
 let _tickerTimer=null;
 function _startTicker(){if(_tickerTimer)clearInterval(_tickerTimer);if(!S.ticker.items.length)return;_tickerTimer=setInterval(()=>{if(!S.ticker.items.length)return;S.ticker.idx=(S.ticker.idx+3)%S.ticker.items.length;const stack=document.getElementById('newsTickerStack');if(stack)render()},9000)}
@@ -2500,7 +2547,21 @@ const m=MORALS[S.moralIdx];
   const fmtTZ2=(tz)=>{try{return new Date().toLocaleTimeString('en-US',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false})}catch(e){return '--:--'}};
   const isDayAt=(tz)=>{try{const h=Number(new Date().toLocaleString('en-US',{timeZone:tz,hour:'2-digit',hour12:false}).split(',')[1]||new Date().toLocaleString('en-US',{timeZone:tz,hour:'2-digit',hour12:false}));return h>=6&&h<18}catch(e){return true}};
   const wc='<div class="world-clocks" id="worldClocks">'+WORLD_CITY_LIST.map((c,i)=>{const day=isDayAt(c.tz);const icon=day?'<svg class="wc-icon wc-sun" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4" fill="#F59E0B"/><g stroke="#F59E0B" stroke-width="1.6" stroke-linecap="round"><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.9" y1="4.9" x2="7" y2="7"/><line x1="17" y1="17" x2="19.1" y2="19.1"/><line x1="4.9" y1="19.1" x2="7" y2="17"/><line x1="17" y1="7" x2="19.1" y2="4.9"/></g></svg>':'<svg class="wc-icon wc-moon" viewBox="0 0 24 24" fill="none"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="#A78BFA"/><circle class="wc-star" cx="6" cy="6" r="0.8" fill="#A78BFA"/><circle class="wc-star" cx="20" cy="20" r="0.7" fill="#A78BFA"/></svg>';const ct=(S.cityTemps||{})[c.key.toLowerCase()];const tempStr=ct&&ct.temp!=null?ct.temp+'\\u00B0':'';return '<span class="wc-item '+(day?'wc-day':'wc-night')+'" style="animation-delay:'+(i*0.05)+'s"><span class="wc-icon-wrap">'+icon+'</span><b>'+esc(c.label)+'</b><span class="wc-time" data-tz="'+c.tz+'">'+fmtTZ2(c.tz)+'</span>'+(tempStr?'<span class="wc-temp">'+tempStr+'</span>':'')+'</span>'}).join('')+'</div>';
-  h+='<div class="moral-wrap">'+mWrap+ticker+wc+'</div>';
+  // Remember Someone Today — Wikipedia "On This Day" notable birth/death
+  let remember='';
+  if(S.remember&&S.remember.person){
+    const p=S.remember.person;const verb=p.type==='born'?'Born':'Remembering';const yrText=p.year?(p.type==='born'?p.year:'\\u2020 '+p.year):'';
+    remember='<a class="remember-card" href="'+esc(p.url||'#')+'" target="_blank" rel="noopener" title="Read on Wikipedia">'
+      +(p.thumb?'<img class="remember-thumb" src="'+esc(p.thumb)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">':'<span class="remember-thumb remember-thumb-empty">\\u{1F4DC}</span>')
+      +'<div class="remember-body">'
+        +'<div class="remember-kicker">'+esc(verb)+' on this day'+(yrText?' \\u2022 <b>'+esc(String(yrText))+'</b>':'')+'</div>'
+        +'<div class="remember-name">'+esc(p.title)+'</div>'
+        +(p.extract?'<div class="remember-extract">'+esc(p.extract)+'</div>':'')
+      +'</div>'
+      +'<svg class="remember-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>'
+    +'</a>';
+  }
+  h+='<div class="moral-wrap">'+mWrap+remember+ticker+wc+'</div>';
 }
 
 // Tabs
@@ -3027,7 +3088,7 @@ document.getElementById('app').innerHTML=h;
 }
 fetch('/api/config').then(r=>r.json()).then(c=>{window.__TWILIO_SANDBOX_CODE=c.sandboxCode||'';render()}).catch(()=>{});
 applyTheme();
-if(S.user){refreshSession();load();loadBookStreak();loadGoogleStatus();loadWeather();loadTicker();loadCityTemps();chk();setInterval(load,10000);setInterval(loadWeather,15*60*1000);setInterval(loadTicker,15*60*1000);setInterval(loadCityTemps,15*60*1000)}else render();
+if(S.user){refreshSession();load();loadBookStreak();loadGoogleStatus();loadWeather();loadTicker();loadCityTemps();loadRemember();chk();setInterval(load,10000);setInterval(loadWeather,15*60*1000);setInterval(loadTicker,15*60*1000);setInterval(loadCityTemps,15*60*1000);setInterval(loadRemember,6*60*60*1000)}else render();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
 </script></body></html>`;
 
