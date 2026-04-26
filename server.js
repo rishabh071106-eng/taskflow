@@ -834,20 +834,29 @@ body[data-theme=aurora] .remember-thumb{background:rgba(255,255,255,.05)}
 .world-clocks .wc-temp{font-family:'Instrument Serif',Georgia,serif;font-size:13px;font-weight:400;color:#E8912B;letter-spacing:-.02em;margin-top:0}
 body[data-theme=aurora] .world-clocks .wc-temp{color:#FCD34D}
 /* Your Life Goal — editable card that fills the bottom of the left chip */
-.life-goal{flex:1;display:flex;flex-direction:column;justify-content:flex-start;background:linear-gradient(135deg,rgba(99,102,241,.06),rgba(232,145,44,.05));border-top:1px dashed rgba(99,102,241,.22);padding:10px 12px 12px;cursor:pointer;transition:background .2s ease;position:relative;min-height:80px}
+.life-goal{flex:1;display:flex;flex-direction:column;justify-content:flex-start;background:linear-gradient(135deg,rgba(99,102,241,.06),rgba(232,145,44,.05));border-top:1px dashed rgba(99,102,241,.22);padding:10px 12px 12px;cursor:pointer;transition:background .2s ease;position:relative;min-height:90px}
 .life-goal:hover{background:linear-gradient(135deg,rgba(99,102,241,.1),rgba(232,145,44,.08))}
-.life-goal .lg-label{font-size:9px;font-weight:800;color:#6366F1;letter-spacing:1.4px;text-transform:uppercase;display:flex;align-items:center;gap:5px}
+.life-goal-empty{background:linear-gradient(135deg,rgba(99,102,241,.1),rgba(232,145,44,.08));animation:lgEmptyPulse 3.6s ease-in-out infinite}
+@keyframes lgEmptyPulse{0%,100%{box-shadow:inset 0 0 0 1px rgba(99,102,241,.2)}50%{box-shadow:inset 0 0 0 2px rgba(99,102,241,.45)}}
+.life-goal .lg-label-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.life-goal .lg-label{font-size:9px;font-weight:800;color:#6366F1;letter-spacing:1.4px;text-transform:uppercase;display:inline-flex;align-items:center;gap:5px}
 .life-goal .lg-star{color:#E8912C;font-size:11px;animation:lgStarPulse 3s ease-in-out infinite;display:inline-block}
 @keyframes lgStarPulse{0%,100%{transform:scale(1) rotate(0);opacity:.85}50%{transform:scale(1.18) rotate(15deg);opacity:1}}
-.life-goal .lg-text{font-family:'Instrument Serif',Georgia,serif;font-size:15.5px;font-weight:400;color:#0F172A;line-height:1.4;letter-spacing:-.005em;font-style:italic;margin-top:4px;flex:1;overflow:hidden;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;text-overflow:ellipsis}
-.life-goal .lg-text.lg-empty{color:#94A3B8;font-style:italic}
-.life-goal .lg-edit-hint{font-size:9px;color:#94A3B8;font-weight:600;letter-spacing:.4px;text-align:right;opacity:0;transition:opacity .15s ease;margin-top:4px}
-.life-goal:hover .lg-edit-hint{opacity:1}
+.life-goal .lg-edit-btn{display:inline-flex;align-items:center;gap:4px;background:rgba(99,102,241,.15);color:#6366F1;border:1px solid rgba(99,102,241,.3);border-radius:99px;padding:3px 9px 3px 7px;font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;transition:background .15s ease,transform .15s ease;line-height:1}
+.life-goal:hover .lg-edit-btn{background:#6366F1;color:#fff;border-color:#6366F1;transform:scale(1.04)}
+.life-goal .lg-pencil{width:11px;height:11px;flex-shrink:0}
+.life-goal-empty .lg-edit-btn{background:linear-gradient(135deg,#6366F1,#EC4899);color:#fff;border-color:transparent;animation:lgEditNudge 2.2s ease-in-out infinite;box-shadow:0 4px 12px rgba(99,102,241,.3)}
+@keyframes lgEditNudge{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.life-goal .lg-text{font-family:'Instrument Serif',Georgia,serif;font-size:15.5px;font-weight:400;color:#0F172A;line-height:1.4;letter-spacing:-.005em;font-style:italic;margin-top:6px;flex:1;overflow:hidden;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;text-overflow:ellipsis}
+.life-goal .lg-text.lg-empty{color:#64748B;font-style:italic}
+.life-goal .lg-empty-hint{font-size:10px;color:#94A3B8;font-weight:600;text-align:center;margin-top:4px;font-style:italic}
 body[data-theme=aurora] .life-goal{background:linear-gradient(135deg,rgba(167,139,250,.12),rgba(232,145,44,.06));border-top-color:rgba(167,139,250,.22)}
 body[data-theme=aurora] .life-goal:hover{background:linear-gradient(135deg,rgba(167,139,250,.18),rgba(232,145,44,.1))}
 body[data-theme=aurora] .life-goal .lg-text{color:#F5F5FA}
 body[data-theme=aurora] .life-goal .lg-text.lg-empty{color:#9999B5}
 body[data-theme=aurora] .life-goal .lg-label{color:#A78BFA}
+body[data-theme=aurora] .life-goal .lg-edit-btn{background:rgba(167,139,250,.18);color:#A78BFA;border-color:rgba(167,139,250,.35)}
+body[data-theme=aurora] .life-goal:hover .lg-edit-btn{background:#A78BFA;color:#0A0A14;border-color:#A78BFA}
 /* Indian cities mini-grid in the left chip — denser fonts to use the space */
 .top-strip .india-cities{display:grid;grid-template-columns:repeat(2,1fr);gap:4px 10px;margin-top:6px;padding-top:8px;border-top:1px dashed rgba(99,102,241,.18);line-height:1.2}
 .top-strip .ic-item{display:flex;align-items:baseline;justify-content:space-between;gap:6px;padding:2px 0}
@@ -2732,10 +2741,14 @@ const m=MORALS[S.moralIdx];
   h+='<nav class="tabs page-t">'+tabsHtml+'</nav>';
   // Your Life Goal — editable, persists in localStorage, fills the bottom of the left chip
   const goalText=S.lifeGoal||'';
-  const goalCard='<div class="life-goal" onclick="editLifeGoal()" title="Click to edit your life goal">'
-    +'<div class="lg-label"><span class="lg-star">\\u2605</span> Your Life Goal</div>'
-    +'<div class="lg-text'+(goalText?'':' lg-empty')+'">'+(goalText?esc(goalText):'Click here to write your north star\\u2026')+'</div>'
-    +'<div class="lg-edit-hint">tap to edit</div>'
+  const PENCIL='<svg class="lg-pencil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
+  const goalCard='<div class="life-goal'+(goalText?'':' life-goal-empty')+'" onclick="editLifeGoal()" title="Click to type your life goal">'
+    +'<div class="lg-label-row">'
+      +'<span class="lg-label"><span class="lg-star">\\u2605</span> Your Life Goal</span>'
+      +'<span class="lg-edit-btn" aria-label="Edit">'+PENCIL+'<span class="lg-edit-text">'+(goalText?'Edit':'Type')+'</span></span>'
+    +'</div>'
+    +'<div class="lg-text'+(goalText?'':' lg-empty')+'">'+(goalText?esc(goalText):'Type your goal here \\u2014 your north star\\u2026')+'</div>'
+    +(goalText?'':'<div class="lg-empty-hint">Tap anywhere to start typing</div>')
   +'</div>';
   h+='<section class="top-strip">'+sideNow+goalCard+'</section>';
 }
