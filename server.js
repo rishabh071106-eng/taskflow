@@ -3351,8 +3351,7 @@ if(S.tab==='tasks'){
       +'</div>'
       +'<ul class="intro-steps">'
         +'<li><span class="intro-ic">\\u270F\\uFE0F</span><div><b>Add tasks here, manage them on Board.</b> <span class="intro-d">Tap the <b>+ Add a new task</b> bar (or use the \\u{1F3A4} voice button) on the <b>Tasks</b> tab. Then switch to the <b>Board</b> tab to drag tasks across <b>To Do \\u2192 Doing \\u2192 Done</b>.</span></div></li>'
-        +'<li><span class="intro-ic">\\u{1F4F2}</span><div><b>Connect WhatsApp.</b> <span class="intro-d">WhatsApp is bridged through <b>Twilio</b> (3rd-party gateway) to Brodoit\\u2019s server \\u2014 your messages flow Twilio \\u2192 Brodoit and back. To set it up: open your profile (top-right), tap <b>Set up WhatsApp</b>, send <b>join</b> to <b>+1 415 523 8886</b> on WhatsApp once (this links you to the Twilio gateway), enter your number, paste the 6-digit code we send you, and you can WhatsApp tasks straight into Brodoit and get reminders in chat.</span></div></li>'
-        +'<li><span class="intro-ic">\\u2728</span><div><b>More inside the app.</b> <span class="intro-d">A daily moral, free public-domain audiobooks, guided meditations, calendar with Google sync, and headlines on the News tab \\u2014 explore the tab bar above.</span></div></li>'
+        +'<li><span class="intro-ic">\\u2728</span><div><b>More inside the app.</b> <span class="intro-d">A daily moral, free public-domain audiobooks, guided meditations, calendar with Google sync, and headlines on the News tab \\u2014 explore the tab bar above. Want WhatsApp reminders? Open your profile (top-right) and tap <b>Set up WhatsApp</b>.</span></div></li>'
       +'</ul>'
       +'<div class="intro-acts">'
         +'<button class="intro-btn-skip" onclick="localStorage.setItem(\\'tf_intro_dismissed\\',\\'1\\');render()">Got it \\u2192</button>'
@@ -3853,12 +3852,12 @@ if(S.showWASetup){
   } else {
     h+='<div class="was-body">';
     if(!joined){
-      h+='<div class="was-helper"><div class="was-helper-t">\\u26A1 First time only</div>'
-        +'<div class="was-helper-d">Send <b>join '+esc(sandboxCode)+'</b> to <b>+1 415 523 8886</b> on WhatsApp once. After that, this number can talk to Brodoit.</div>'
-        +'<div class="was-helper-acts"><button class="was-jb" onclick="waOpenJoin()">'+WI+' Open WhatsApp</button><button class="was-skip" onclick="localStorage.setItem(\\'tf_wa_joined\\',\\'1\\');render()">Already did this \\u2192</button></div>'
+      h+='<div class="was-helper"><div class="was-helper-t">\\u26A1 How this works \\u2014 first time only</div>'
+        +'<div class="was-helper-d">Brodoit talks to WhatsApp through <b>Twilio</b>, a third-party messaging gateway. Your tasks flow: <b>your WhatsApp \\u2192 Twilio \\u2192 Brodoit</b> and back. Before Twilio will deliver our messages to you, you have to <b>opt in</b> by sending one short message:<br><br>1. Open WhatsApp<br>2. Send <b>join '+esc(sandboxCode)+'</b> to <b>+1 415 523 8886</b><br>3. Wait for the confirmation reply<br><br>That\\'s it \\u2014 you only do this <b>once per phone</b>. Tap the button below and the message is pre-filled for you.</div>'
+        +'<div class="was-helper-acts"><button class="was-jb" onclick="waOpenJoin()">'+WI+' Open WhatsApp \\u2014 send join code</button><button class="was-skip" onclick="localStorage.setItem(\\'tf_wa_joined\\',\\'1\\');render()">Already did this \\u2192</button></div>'
       +'</div>';
     }else{
-      h+='<div class="was-mini">\\u2705 Sandbox joined on this device <button class="was-mini-reset" onclick="localStorage.removeItem(\\'tf_wa_joined\\');render()">Redo</button></div>';
+      h+='<div class="was-mini">\\u2705 Twilio bridge set up on this device <button class="was-mini-reset" onclick="localStorage.removeItem(\\'tf_wa_joined\\');render()">Redo</button></div>';
     }
     h+='<div class="was-card-t">Your WhatsApp number</div>'
       +'<div class="was-card-d">We\\'ll send a 6-digit code to confirm.</div>'
