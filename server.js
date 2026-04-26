@@ -338,21 +338,22 @@ app.get('/brodoit.vcf',(_,res)=>{
 
 // ═══ NEWS (shorts feed, RSS aggregator, 15-min server cache) ═══
 const NEWS_FEEDS={
-  ai:['https://techcrunch.com/category/artificial-intelligence/feed/','https://venturebeat.com/category/ai/feed/','https://www.theverge.com/rss/ai-artificial-intelligence/index.xml','https://www.technologyreview.com/feed/','https://openai.com/blog/rss.xml'],
+  // Merged AI + general tech into one feed list, deduped server-side after fetch
+  tech:['https://techcrunch.com/feed/','https://techcrunch.com/category/artificial-intelligence/feed/','https://www.theverge.com/rss/index.xml','https://www.theverge.com/rss/ai-artificial-intelligence/index.xml','https://feeds.arstechnica.com/arstechnica/index','https://www.wired.com/feed/rss','https://venturebeat.com/category/ai/feed/','https://www.technologyreview.com/feed/'],
   sports:['https://feeds.bbci.co.uk/sport/rss.xml','https://www.espn.com/espn/rss/news','https://www.skysports.com/rss/12040','https://feeds.bbci.co.uk/sport/cricket/rss.xml'],
-  technology:['https://techcrunch.com/feed/','https://www.theverge.com/rss/index.xml','https://feeds.arstechnica.com/arstechnica/index','https://www.wired.com/feed/rss'],
-  movies:['https://variety.com/v/film/feed/','https://www.hollywoodreporter.com/c/movies/movie-news/feed/','https://www.indiewire.com/c/film/feed/'],
-  global:['https://feeds.bbci.co.uk/news/world/rss.xml','https://feeds.reuters.com/reuters/topNews','https://rss.nytimes.com/services/xml/rss/nyt/World.xml','https://feeds.npr.org/1004/rss.xml']
+  // World news (was 'global'); kept the alias below for backwards-compat with any cached client state
+  world:['https://feeds.bbci.co.uk/news/world/rss.xml','https://feeds.reuters.com/reuters/topNews','https://rss.nytimes.com/services/xml/rss/nyt/World.xml','https://feeds.npr.org/1004/rss.xml','https://feeds.bbci.co.uk/news/rss.xml']
 };
+// Legacy aliases — old client state pointing at ai/technology/global/movies should still resolve
+NEWS_FEEDS.ai=NEWS_FEEDS.tech;NEWS_FEEDS.technology=NEWS_FEEDS.tech;NEWS_FEEDS.global=NEWS_FEEDS.world;NEWS_FEEDS.movies=NEWS_FEEDS.world;
 // Scenic Unsplash fallbacks (hot-link friendly CDN) — used when an article has no image
 const UNSPLASH=(id)=>'https://images.unsplash.com/photo-'+id+'?w=900&q=80&auto=format&fit=crop';
 const FALLBACK_IMAGES={
-  ai:[UNSPLASH('1677442136019-21780ecad995'),UNSPLASH('1620712943543-bcc4688e7485'),UNSPLASH('1488229297570-58520851e868'),UNSPLASH('1518770660439-4636190af475'),UNSPLASH('1551434678-e076c223a692'),UNSPLASH('1485827404703-89b55fcc595e')],
+  tech:[UNSPLASH('1677442136019-21780ecad995'),UNSPLASH('1518770660439-4636190af475'),UNSPLASH('1620712943543-bcc4688e7485'),UNSPLASH('1451187580459-43490279c0fa'),UNSPLASH('1531297484001-80022131f5a1'),UNSPLASH('1551434678-e076c223a692'),UNSPLASH('1550751827-4bd374c3f58b'),UNSPLASH('1485827404703-89b55fcc595e')],
   sports:[UNSPLASH('1461896836934-ffe607ba8211'),UNSPLASH('1517649763962-0c623066013b'),UNSPLASH('1556056504-5c7696c4c28d'),UNSPLASH('1431324155629-1a6deb1dec8d'),UNSPLASH('1574629810360-7efbbe195018'),UNSPLASH('1552674605-db6ffd4facb5')],
-  technology:[UNSPLASH('1518770660439-4636190af475'),UNSPLASH('1451187580459-43490279c0fa'),UNSPLASH('1531297484001-80022131f5a1'),UNSPLASH('1550751827-4bd374c3f58b'),UNSPLASH('1581091226825-a6a2a5aee158'),UNSPLASH('1460925895917-afdab827c52f')],
-  movies:[UNSPLASH('1489599849927-2ee91cede3ba'),UNSPLASH('1536440136628-849c177e76a1'),UNSPLASH('1517604931442-7e0c8ed2963c'),UNSPLASH('1542204165-65bf26472b9b'),UNSPLASH('1485846234645-a62644f84728'),UNSPLASH('1440404653325-ab127d49abc1')],
-  global:[UNSPLASH('1506905925346-21bda4d32df4'),UNSPLASH('1469854523086-cc02fe5d8800'),UNSPLASH('1501785888041-af3ef285b470'),UNSPLASH('1502602898657-3e91760cbb34'),UNSPLASH('1480714378408-67cf0d13bc1b'),UNSPLASH('1564507592333-c60657eea523')]
+  world:[UNSPLASH('1506905925346-21bda4d32df4'),UNSPLASH('1469854523086-cc02fe5d8800'),UNSPLASH('1501785888041-af3ef285b470'),UNSPLASH('1502602898657-3e91760cbb34'),UNSPLASH('1480714378408-67cf0d13bc1b'),UNSPLASH('1564507592333-c60657eea523')]
 };
+FALLBACK_IMAGES.ai=FALLBACK_IMAGES.tech;FALLBACK_IMAGES.technology=FALLBACK_IMAGES.tech;FALLBACK_IMAGES.global=FALLBACK_IMAGES.world;FALLBACK_IMAGES.movies=FALLBACK_IMAGES.world;
 const newsCache={};
 function stripXmlTags(s){return (s||'').replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g,'$1').replace(/<[^>]+>/g,'').replace(/&#(\d+);/g,(_,n)=>String.fromCharCode(+n)).replace(/&#x([0-9a-f]+);/gi,(_,n)=>String.fromCharCode(parseInt(n,16))).replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&apos;/g,"'").replace(/&nbsp;/g,' ').replace(/\s+/g,' ').trim()}
 function parseRSS(xml,sourceUrl){
@@ -381,7 +382,10 @@ async function fetchOgImage(url){
   try{const ctrl=new AbortController();const t=setTimeout(()=>ctrl.abort(),3500);const r=await fetch(url,{signal:ctrl.signal,headers:{'User-Agent':'Mozilla/5.0 (compatible; Brodoit/1.0; +https://brodoit.com)','Accept':'text/html,application/xhtml+xml'}});clearTimeout(t);if(!r.ok)return null;const html=await r.text();const head=html.slice(0,80000);const patterns=[/<meta[^>]+property=["']og:image(?::secure_url)?["'][^>]+content=["']([^"']+)["']/i,/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image(?::secure_url)?["']/i,/<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["']/i,/<meta[^>]+content=["']([^"']+)["'][^>]+name=["']twitter:image["']/i];for(const p of patterns){const m=head.match(p);if(m&&m[1])return m[1].replace(/&amp;/g,'&')}return null;}catch(e){return null}
 }
 app.get('/api/news',async(req,res)=>{
-  const cat=(req.query.cat||'technology').toLowerCase();
+  let cat=(req.query.cat||'tech').toLowerCase();
+  // Normalise old aliases
+  if(cat==='ai'||cat==='technology')cat='tech';
+  else if(cat==='global'||cat==='movies')cat='world';
   const feeds=NEWS_FEEDS[cat];
   if(!feeds)return res.json({items:[],cat});
   const c=newsCache[cat];
@@ -2149,7 +2153,7 @@ google:{configured:false,accounts:[],loaded:false},gcalEvents:[],gcalLoading:fal
 calMonth:new Date(),calSelectedDate:new Date().toISOString().slice(0,10),
 steps:[],stepGoal:parseInt(localStorage.getItem('step_goal')||'10000',10),stepLive:{active:false,count:0},
 theme:localStorage.getItem('theme')||'classic',
-news:{},newsCat:'technology',newsLoading:false,
+news:{},newsCat:'tech',newsLoading:false,
 bookStreak:{streak:0,total:0,today:false,days:[]},_bkSec:0,
 
 loginStep:'phone',loginMethod:'email',loginPhone:'',loginCountryCode:localStorage.getItem('tf_cc')||'+91',loginEmail:'',loginName:'',loginOTP:['','','','','',''],loginLoading:false,loginError:'',loginErrorDetail:'',loginErrorCode:0,loginSentTo:'',emailOk:false,
@@ -2490,7 +2494,7 @@ const WORLD_CITY_LIST=[
 async function loadCityTemps(){const all=[...INDIA_CITIES,...WORLD_CITY_LIST.map(c=>c.key)];const results=await Promise.all(all.map(c=>fetch('/api/weather?city='+encodeURIComponent(c)).then(r=>r.json()).catch(()=>({}))));const m={};results.forEach((r,i)=>{if(r&&!r.error)m[all[i].toLowerCase()]={temp:r.temp,city:r.city||all[i]}});S.cityTemps=m;render()}
 async function loadRemember(){try{const r=await fetch('/api/remember/today');const j=await r.json();S.remember={person:j.person||null,loaded:true};render()}catch(e){S.remember={person:null,loaded:true};render()}}
 function editLifeGoal(){const v=prompt('Your goal in life \\u2014 your north star.\\nEdit any time.',S.lifeGoal||'');if(v===null)return;const t=v.trim().slice(0,400);S.lifeGoal=t;localStorage.setItem('tf_life_goal',t);render()}
-async function loadTicker(){try{const r=await fetch('/api/news?cat=global',{cache:'no-store'});const j=await r.json();S.ticker={items:(j.items||[]).slice(0,12),idx:0,loaded:true};render();_startTicker()}catch(e){}}
+async function loadTicker(){try{const r=await fetch('/api/news?cat=world',{cache:'no-store'});const j=await r.json();S.ticker={items:(j.items||[]).slice(0,12),idx:0,loaded:true};render();_startTicker()}catch(e){}}
 let _tickerTimer=null;
 function _startTicker(){if(_tickerTimer)clearInterval(_tickerTimer);if(!S.ticker.items.length)return;_tickerTimer=setInterval(()=>{if(!S.ticker.items.length)return;S.ticker.idx=(S.ticker.idx+3)%S.ticker.items.length;const stack=document.getElementById('newsTickerStack');if(stack)render()},9000)}
 function setCity(){const c=prompt('Set your city',S.weather.city||'Bangalore');if(!c)return;const t=c.trim();if(!t)return;localStorage.setItem('tf_city',t);S.weather.city=t;S.weather.loaded=false;loadWeather()}
@@ -2970,7 +2974,7 @@ else if(S.tab==='cal'){
 
 // NEWS TAB (shorts feed with categories + share)
 else if(S.tab==='news'){
-  const cats=[{k:'ai',l:'AI',ic:'ai'},{k:'sports',l:'Sports',ic:'sport'},{k:'technology',l:'Tech',ic:'tech'},{k:'movies',l:'Movies',ic:'movies'},{k:'global',l:'World',ic:'globe'}];
+  const cats=[{k:'tech',l:'Tech & AI',ic:'tech'},{k:'sports',l:'Sports',ic:'sport'},{k:'world',l:'World',ic:'globe'}];
   h+='<div class="news-hero"><div class="news-hero-l"><span class="news-hero-ic">'+ic('news',22)+'</span><div><h2>News</h2><p>Fresh headlines \\u2022 Tap share to send to any app</p></div></div><button class="news-refresh" onclick="loadNews(S.newsCat)" title="Refresh">'+ic('refresh',18)+'</button></div>';
   h+='<div class="flt flt-icons">';
   cats.forEach(c=>{h+='<button class="fb'+(S.newsCat===c.k?' on':'')+'" onclick="loadNews(\\''+c.k+'\\')"><span class="fb-ic">'+ic(c.ic,15)+'</span>'+c.l+'</button>'});
