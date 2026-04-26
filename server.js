@@ -759,6 +759,22 @@ input:focus,textarea:focus{outline:none;border-color:#0F172A}textarea{resize:ver
 @keyframes bpFloatCombined{0%,100%{transform:scale(1) rotate(-3deg)}50%{transform:scale(1.08) rotate(3deg)}}
 @media (prefers-reduced-motion:reduce){.board-pick .bp-bg,.board-pick .bp-emoji{animation:none}}
 .board-pick-hint{font-size:11.5px;font-style:italic;color:#94A3B8;margin:0 4px 12px;letter-spacing:.01em}
+/* Connect-WhatsApp promo banner — top of Tasks tab when WA not linked yet */
+.wa-promo{display:flex;align-items:center;gap:10px;padding:11px 12px;margin:0 0 10px;background:linear-gradient(135deg,rgba(37,211,102,.1),rgba(18,140,126,.06));border:1px solid rgba(37,211,102,.28);border-radius:12px;position:relative}
+.wa-promo-emoji{font-size:24px;line-height:1;flex-shrink:0}
+.wa-promo-body{flex:1;min-width:0}
+.wa-promo-t{font-weight:700;font-size:13px;color:#0F172A;letter-spacing:-.01em}
+.wa-promo-s{font-size:11px;color:#475569;line-height:1.35;margin-top:1px}
+.wa-promo-go{flex-shrink:0;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;border:none;border-radius:8px;padding:8px 12px;font-weight:700;font-size:12.5px;cursor:pointer;box-shadow:0 3px 10px rgba(37,211,102,.28);font-family:inherit;transition:transform .12s ease}
+.wa-promo-go:active{transform:scale(.96)}
+.wa-promo-x{flex-shrink:0;background:transparent;border:none;color:#94A3B8;font-size:14px;cursor:pointer;padding:4px 6px;border-radius:6px;font-family:inherit;line-height:1}
+.wa-promo-x:hover{background:rgba(15,23,42,.06);color:#0F172A}
+@media (max-width:480px){.wa-promo-s{display:none}.wa-promo{padding:10px}}
+body[data-theme=aurora] .wa-promo{background:linear-gradient(135deg,rgba(37,211,102,.12),rgba(18,140,126,.08));border-color:rgba(37,211,102,.3)}
+body[data-theme=aurora] .wa-promo-t{color:#F5F5FA}
+body[data-theme=aurora] .wa-promo-s{color:#9999B5}
+body[data-theme=aurora] .wa-promo-x{color:#7C7C97}
+body[data-theme=aurora] .wa-promo-x:hover{background:rgba(255,255,255,.06);color:#F5F5FA}
 /* Mobile: vertical layout (emoji on top, label below); subtitle hidden — the helper-line below the pills covers it. */
 @media (max-width:600px){
   .board-pick{gap:7px}
@@ -2767,7 +2783,7 @@ async function waConnectVerify(){
 async function waUnlink(){
   if(!confirm('Disconnect WhatsApp from this account?'))return;
   const r=await api('/wa/disconnect',{method:'POST'});
-  if(r&&r.ok){S.profile={...(S.profile||{}),wa_phone:null};toast('WhatsApp disconnected');render()}
+  if(r&&r.ok){S.profile={...(S.profile||{}),wa_phone:null};localStorage.removeItem('tf_wa_banner_x');toast('WhatsApp disconnected');render()}
 }
 function waConnectStart(){S.waConn={step:'phone',phone:'',code:'',err:''};render();setTimeout(()=>{const e=document.getElementById('waConnPh');if(e)e.focus()},80)}
 function waConnectCancel(){S.waConn=null;render()}
@@ -2802,7 +2818,7 @@ async function playMeditation(id,title,mins,preferFile){S.meditating={active:tru
 async function openProfile(){S.showProfile=true;render();const me=await api('/me');if(me&&!me.error)S.profile=me;render()}
 function closeProfile(){S.showProfile=false;render()}
 async function saveName(){const n=(document.getElementById('pfName')||{}).value;if(!n||!n.trim())return;const r=await api('/me',{method:'PUT',body:JSON.stringify({name:n.trim()})});if(r&&r.name){S.user.name=r.name;localStorage.setItem('tf_name',r.name);S.profile=Object.assign(S.profile||{},{name:r.name});toast('\\u2705 Name updated');render()}}
-async function refreshSession(){if(!token)return;const r=await api('/me');if(r&&!r.error){S.user={phone:r.phone,name:r.name,token};localStorage.setItem('tf_name',r.name||'');render()}else if(r&&r.error){logout()}}
+async function refreshSession(){if(!token)return;const r=await api('/me');if(r&&!r.error){S.user={phone:r.phone,name:r.name,token};S.profile=r;localStorage.setItem('tf_name',r.name||'');render()}else if(r&&r.error){logout()}}
 function calPrev(){const d=new Date(S.calMonth);d.setMonth(d.getMonth()-1);S.calMonth=d;render()}
 function calNext(){const d=new Date(S.calMonth);d.setMonth(d.getMonth()+1);S.calMonth=d;render()}
 function calSelect(d){S.calSelectedDate=d;render()}
@@ -3141,6 +3157,15 @@ if(S.tab!=='tasks')h+=_tabHeroHtml;
 // TASKS TAB
 if(S.tab==='dash')S.tab='tasks'; // Stats tab removed; redirect any stale state to Tasks
 if(S.tab==='tasks'){
+  // Connect-WhatsApp banner — shows when WA isn't linked AND user hasn't dismissed it.
+  if(S.profile&&!S.profile.wa_phone&&localStorage.getItem('tf_wa_banner_x')!=='1'){
+    h+='<div class="wa-promo">'
+      +'<span class="wa-promo-emoji">\\u{1F4F2}</span>'
+      +'<div class="wa-promo-body"><div class="wa-promo-t">Connect WhatsApp</div><div class="wa-promo-s">Add tasks by chat &amp; get reminders on WhatsApp</div></div>'
+      +'<button class="wa-promo-go" onclick="openProfile()">Connect \\u2192</button>'
+      +'<button class="wa-promo-x" onclick="localStorage.setItem(\\'tf_wa_banner_x\\',\\'1\\');render()" aria-label="Dismiss">\\u2715</button>'
+    +'</div>';
+  }
   // Board picker (Home / Office / Combined) — sits above everything else so users frame their day first.
   const _bcH=S.tasks.filter(t=>(t.board||'home')==='home').length;
   const _bcO=S.tasks.filter(t=>(t.board||'home')==='office').length;
