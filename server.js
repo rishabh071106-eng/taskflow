@@ -337,11 +337,17 @@ app.post('/api/send-task/:id',auth,async(req,res)=>{
 app.post('/api/send-all',auth,async(req,res)=>{
   const u=db.prepare('SELECT wa_phone FROM users WHERE phone=?').get(req.user.phone);
   if(!u||!u.wa_phone)return res.status(400).json({ok:false,error:'Connect your WhatsApp from your profile first.'});
-  const ts=db.prepare("SELECT * FROM tasks WHERE user_phone=? AND status!='done' ORDER BY priority DESC,created_at DESC").all(req.user.phone);
-  if(!ts.length)return res.json({ok:true,sent:0,empty:true});
-  let m='📋 *Your tasks ('+ts.length+')*\n';ts.slice(0,20).forEach((t,i)=>{m+='\n'+(i+1)+'. '+(PRI[t.priority]||'')+' '+t.title+(t.due_date?' _('+fmtD(t.due_date)+')_':'')});
+  const board=(req.body&&req.body.board)==='home'?'home':(req.body&&req.body.board)==='office'?'office':null;
+  const label=board==='home'?'Home Tasks':board==='office'?'Office Tasks':'All Tasks';
+  const ts=board
+    ? db.prepare("SELECT * FROM tasks WHERE user_phone=? AND status!='done' AND COALESCE(board,'home')=? ORDER BY priority DESC,created_at DESC").all(req.user.phone,board)
+    : db.prepare("SELECT * FROM tasks WHERE user_phone=? AND status!='done' ORDER BY priority DESC,created_at DESC").all(req.user.phone);
+  if(!ts.length)return res.json({ok:true,sent:0,empty:true,label});
+  const emoji=board==='home'?'🏠':board==='office'?'💼':'📋';
+  let m=emoji+' *'+label+' ('+ts.length+')*\n';ts.slice(0,20).forEach((t,i)=>{m+='\n'+(i+1)+'. '+(PRI[t.priority]||'')+' '+t.title+(t.due_date?' _('+fmtD(t.due_date)+')_':'')});
+  if(ts.length>20)m+='\n\n_+ '+(ts.length-20)+' more in the app_';
   const r=await sendWA(u.wa_phone,m);
-  if(r.ok)return res.json({ok:true,sent:ts.length,sid:r.sid});
+  if(r.ok)return res.json({ok:true,sent:ts.length,sid:r.sid,label});
   res.status(502).json({ok:false,error:waErrorMessage(r),code:r.code});
 });
 app.get('/api/health',(_,res)=>res.json({status:'ok',twilio:!!tw,email:!!process.env.RESEND_API_KEY,users:db.prepare('SELECT COUNT(*)as c FROM users').get().c,tasks:db.prepare('SELECT COUNT(*)as c FROM tasks').get().c}));
@@ -775,15 +781,21 @@ body[data-theme=aurora] .wa-promo-t{color:#F5F5FA}
 body[data-theme=aurora] .wa-promo-s{color:#9999B5}
 body[data-theme=aurora] .wa-promo-x{color:#7C7C97}
 body[data-theme=aurora] .wa-promo-x:hover{background:rgba(255,255,255,.06);color:#F5F5FA}
-/* Mobile: vertical layout (emoji on top, label below); subtitle hidden — the helper-line below the pills covers it. */
+/* Mobile: vertical layout (emoji on top, label below); subtitle hidden — the helper-line below the pills covers it.
+   Inactive pills are visibly DIMMED so the active board jumps out at a glance. */
 @media (max-width:600px){
-  .board-pick{gap:7px}
-  .board-pick .bp{flex-direction:column;justify-content:center;align-items:center;text-align:center;min-height:90px;padding:10px 6px;gap:5px}
-  .board-pick .bp-emoji{font-size:26px}
+  .board-pick{gap:8px}
+  .board-pick .bp{flex-direction:column;justify-content:center;align-items:center;text-align:center;min-height:88px;padding:10px 6px;gap:6px;opacity:.55;filter:saturate(.7)}
+  .board-pick .bp.on{opacity:1;filter:none;transform:scale(1.04);z-index:2}
+  .board-pick .bp:not(.on) .bp-bg{animation:none}
+  .board-pick .bp-emoji{font-size:28px}
+  .board-pick .bp:not(.on) .bp-emoji{animation:none}
   .board-pick .bp-text{align-items:center;gap:0}
-  .board-pick .bp-l{font-size:12px;letter-spacing:-.01em}
+  .board-pick .bp-l{font-size:12.5px;letter-spacing:-.01em;font-weight:800}
   .board-pick .bp-s{display:none}
-  .board-pick .bp-c{font-size:9.5px;padding:1px 6px;top:5px;right:5px}
+  .board-pick .bp-c{font-size:10px;padding:1px 6px;top:5px;right:5px}
+  /* Active pill on mobile: thicker bottom highlight bar so the "selected" state is obvious */
+  .board-pick .bp.on::after{content:'';position:absolute;left:14%;right:14%;bottom:6px;height:3px;border-radius:3px;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.1)}
 }
 body[data-theme=aurora] .board-pick .bp-c{background:rgba(255,255,255,.92);color:#0F172A}
 body[data-theme=aurora] .board-pick-hint{color:#7C7C97}
@@ -2704,7 +2716,15 @@ async function del(id){await api('/tasks/'+id,{method:'DELETE'});S.tasks=S.tasks
 async function tog(id){const t=S.tasks.find(x=>x.id===id);if(!t)return;const r=await api('/tasks/'+id,{method:'PUT',body:JSON.stringify({status:t.status==='done'?'pending':'done'})});if(r){const i=S.tasks.findIndex(x=>x.id===id);if(i>-1)S.tasks[i]=r;render()}}
 async function cyc(id){const o=['pending','in-progress','done'],t=S.tasks.find(x=>x.id===id);if(!t)return;const r=await api('/tasks/'+id,{method:'PUT',body:JSON.stringify({status:o[(o.indexOf(t.status)+1)%3]})});if(r){const i=S.tasks.findIndex(x=>x.id===id);if(i>-1)S.tasks[i]=r;render()}}
 async function sWA(id){S.sending[id]=1;render();const r=await api('/send-task/'+id,{method:'POST'});delete S.sending[id];toast(r?.ok?'\\u{1F4F1} Sent!':'\\u26A0\\uFE0F Failed',r?.ok?'ok':'err');render()}
-async function sAll(){S.sending._a=1;render();const r=await api('/send-all',{method:'POST'});delete S.sending._a;toast(r?.ok?'\\u{1F4F1} All sent!':'\\u26A0\\uFE0F Failed',r?.ok?'ok':'err');render()}
+async function sAll(){
+  S.sending._a=1;render();
+  const board=S.board==='combined'?null:S.board;
+  const r=await api('/send-all',{method:'POST',body:JSON.stringify({board:board||''})});
+  delete S.sending._a;
+  if(r&&r.ok){const lbl=r.label||'Tasks';toast(r.empty?'\\u2728 No '+lbl.toLowerCase()+' to send':'\\u{1F4F1} '+lbl+' sent ('+r.sent+')!')}
+  else toast('\\u26A0\\uFE0F '+((r&&r.error)||'Send failed'),'err');
+  render();
+}
 function opA(){S.form={title:'',notes:'',priority:'medium',dueDate:'',reminderTime:'',status:'pending',board:S.board==='combined'?'home':S.board};S.editing=null;S.showAdd=true;render();setTimeout(()=>{const e=document.getElementById('ft');if(e)e.focus()},100)}
 function opE(id){const t=S.tasks.find(x=>x.id===id);if(!t)return;S.form={title:t.title,notes:t.notes||'',priority:t.priority,dueDate:t.due_date||'',reminderTime:t.reminder_time||'',status:t.status,board:t.board||'home'};S.editing=id;S.showAdd=true;render()}
 function setBoard(b){S.board=b;localStorage.setItem('tf_board',b);render()}
@@ -3233,13 +3253,16 @@ if(S.tab==='tasks'){
   if(s.od>0)h+='<div class="al" style="background:#FEF1F0;border:1px solid #F5C6C2;color:#E8453C;cursor:pointer" onclick="S.view=\\'overdue\\';render()">\\u26A0\\uFE0F '+s.od+' overdue</div>';
   h+='<div class="srch"><input placeholder="Search tasks..." value="'+esc(S.search)+'" oninput="S.search=this.value;render()"></div>';
   h+='<div class="flt">'+[{k:'all',l:'All'},{k:'pending',l:'To Do'},{k:'in-progress',l:'Doing'},{k:'done',l:'Done'},{k:'today',l:'Today'}].map(x=>'<button class="fb'+(S.view===x.k?' on':'')+'" onclick="S.view=\\''+x.k+'\\';render()">'+x.l+'</button>').join('')+'</div>';
-  if((s.pend+s.act)>0&&S.waConnected&&S.waOk)h+='<button class="bwa" onclick="sAll()">'+WI+' Send all to WhatsApp</button>';
+  if((s.pend+s.act)>0&&S.profile&&S.profile.wa_phone){
+    const sendLbl=S.board==='home'?'Send Home Tasks to WhatsApp':S.board==='office'?'Send Office Tasks to WhatsApp':'Send all tasks to WhatsApp';
+    h+='<button class="bwa" onclick="sAll()"'+(S.sending&&S.sending._a?' disabled':'')+'>'+WI+' '+(S.sending&&S.sending._a?'Sending\\u2026':sendLbl)+'</button>';
+  }
   h+='<div>';
   if(!f.length)h+='<div class="empty"><div style="font-size:36px;margin-bottom:8px">\\u2728</div><div style="font-size:15px;font-weight:600">No tasks yet</div><div style="font-size:13px;margin-top:4px">Tap + to add your first task</div></div>';
   else f.forEach(t=>{const p=P[t.priority]||P.medium,st=ST[t.status]||ST.pending,d=t.status==='done';
     const addedTxt=t.created_at?timeAgo((t.created_at||'').replace(' ','T')+'Z'):'';
-    h+='<div class="tc'+(d?' dn':'')+'" style="border-left-color:'+p.c+'"><div class="tc-top"><button class="chk'+(d?' on':'')+'" onclick="tog(\\''+t.id+'\\')">'+(d?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>':'')+'</button><div style="flex:1;min-width:0"><div class="tc-t'+(d?' dn':'')+'">'+esc(t.title)+'</div>'+(t.notes?'<div class="tc-n">'+esc(t.notes)+'</div>':'')+'<div class="tc-m"><button class="badge" style="background:'+st.bg+';color:'+st.c+'" onclick="cyc(\\''+t.id+'\\')">'+st.l+'</button>'+(t.due_date?'<span style="font-size:12px;font-weight:500;color:'+(isOD(t.due_date,t.status)?'#E8453C':isTd(t.due_date)?'#E8912C':'#94A3B8')+'">\\u{1F4C5} '+fD(t.due_date)+(isOD(t.due_date,t.status)?' overdue':'')+'</span>':'')+(t.reminder_time&&!d?'<span style="font-size:11px;color:#3B82F6;font-weight:600">\\u{1F514} '+fT(t.reminder_time)+'</span>':'')+(t.source==='whatsapp'?'<span style="font-size:10px;color:#CBD5E1">via WA</span>':'')+(addedTxt?'<span class="tc-added" title="Added '+esc(t.created_at||'')+'">\\u2795 '+esc(addedTxt)+'</span>':'')+'</div></div></div>';
-    h+='<div class="tc-acts"><button class="ib" onclick="opE(\\''+t.id+'\\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>'+(S.waConnected?'<button class="ib" onclick="sWA(\\''+t.id+'\\')">'+WI+'</button>':'')+'<button class="ib" style="color:#E8453C" onclick="del(\\''+t.id+'\\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button></div></div>'});
+    h+='<div class="tc'+(d?' dn':'')+'" style="border-left-color:'+p.c+'"><div class="tc-top"><button class="chk'+(d?' on':'')+'" onclick="tog(\\''+t.id+'\\')">'+(d?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>':'')+'</button><div style="flex:1;min-width:0"><div class="tc-t'+(d?' dn':'')+'">'+esc(t.title)+'</div>'+(t.notes?'<div class="tc-n">'+esc(t.notes)+'</div>':'')+'<div class="tc-m"><button class="badge" style="background:'+st.bg+';color:'+st.c+'" onclick="cyc(\\''+t.id+'\\')">'+st.l+'</button>'+(t.due_date?'<span style="font-size:12px;font-weight:500;color:'+(isOD(t.due_date,t.status)?'#E8453C':isTd(t.due_date)?'#E8912C':'#94A3B8')+'">\\u{1F4C5} '+fD(t.due_date)+(isOD(t.due_date,t.status)?' overdue':'')+'</span>':'')+(t.reminder_time&&!d?'<span style="font-size:11px;color:#3B82F6;font-weight:600">\\u{1F514} '+fT(t.reminder_time)+'</span>':'')+(t.source==='whatsapp'?'<span style="font-size:10px;font-weight:700;color:#128C7E;background:#EDFCF2;border:1px solid #B7E8C4;padding:2px 7px;border-radius:6px;letter-spacing:.3px">\\u{1F4F2} WA</span>':'')+(addedTxt?'<span class="tc-added" title="Added '+esc(t.created_at||'')+'">\\u2795 '+esc(addedTxt)+'</span>':'')+'</div></div></div>';
+    h+='<div class="tc-acts"><button class="ib" onclick="opE(\\''+t.id+'\\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>'+(S.profile&&S.profile.wa_phone?'<button class="ib" title="Send to WhatsApp" onclick="sWA(\\''+t.id+'\\')">'+WI+'</button>':'')+'<button class="ib" style="color:#E8453C" onclick="del(\\''+t.id+'\\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button></div></div>'});
   h+='</div>';
   // BOTTOM: scenic "Make today count" banner + games row (Tic Tac Toe + Coin Flip side-by-side on desktop)
   h+=_tabHeroHtml;
