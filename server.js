@@ -764,7 +764,14 @@ input:focus,textarea:focus{outline:none;border-color:#0F172A}textarea{resize:ver
 @keyframes bpFloatOffice{0%,100%{transform:translateX(0) rotate(-2deg)}50%{transform:translateX(3px) rotate(2deg)}}
 @keyframes bpFloatCombined{0%,100%{transform:scale(1) rotate(-3deg)}50%{transform:scale(1.08) rotate(3deg)}}
 @media (prefers-reduced-motion:reduce){.board-pick .bp-bg,.board-pick .bp-emoji{animation:none}}
-.board-pick-hint{font-size:11.5px;font-style:italic;color:#94A3B8;margin:0 4px 12px;letter-spacing:.01em}
+/* Helper line + Add Task bar pick up the active board's accent so the page reads as one continuous theme */
+.board-pick-hint{font-size:12px;font-weight:600;color:var(--bk,#475569);margin:10px 4px 14px;padding:10px 12px 10px 14px;letter-spacing:.005em;background:var(--bk-soft,rgba(15,23,42,.04));border-left:3px solid var(--bk,#94A3B8);border-radius:0 8px 8px 0;line-height:1.45;position:relative;animation:bkHintIn .25s ease}
+@keyframes bkHintIn{from{opacity:0;transform:translateX(-4px)}to{opacity:1;transform:translateX(0)}}
+.board-pick[data-bk] + .board-pick-hint{margin-top:14px}
+/* Downward arrow pointing from active pill into the helper line — visual handshake */
+.board-pick{position:relative}
+.board-pick .bp.on::before{content:'';position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);width:0;height:0;border-style:solid;border-width:8px 8px 0 8px;border-color:var(--bk,#0F172A) transparent transparent transparent;z-index:4;filter:drop-shadow(0 1px 2px rgba(0,0,0,.18))}
+/* Active board's color used by helper-line/add-bar — set via inline --bk on .board-pick */
 /* Connect-WhatsApp promo banner — top of Tasks tab when WA not linked yet */
 .wa-promo{display:flex;align-items:center;gap:10px;padding:11px 12px;margin:0 0 10px;background:linear-gradient(135deg,rgba(37,211,102,.1),rgba(18,140,126,.06));border:1px solid rgba(37,211,102,.28);border-radius:12px;position:relative}
 .wa-promo-emoji{font-size:24px;line-height:1;flex-shrink:0}
@@ -794,8 +801,8 @@ body[data-theme=aurora] .wa-promo-x:hover{background:rgba(255,255,255,.06);color
   .board-pick .bp-l{font-size:12.5px;letter-spacing:-.01em;font-weight:800}
   .board-pick .bp-s{display:none}
   .board-pick .bp-c{font-size:10px;padding:1px 6px;top:5px;right:5px}
-  /* Active pill on mobile: thicker bottom highlight bar so the "selected" state is obvious */
-  .board-pick .bp.on::after{content:'';position:absolute;left:14%;right:14%;bottom:6px;height:3px;border-radius:3px;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.1)}
+  /* Mobile-only: bigger triangle so the connection between pill and content is unmistakable */
+  .board-pick .bp.on::before{border-width:9px 9px 0 9px;bottom:-9px}
 }
 body[data-theme=aurora] .board-pick .bp-c{background:rgba(255,255,255,.92);color:#0F172A}
 body[data-theme=aurora] .board-pick-hint{color:#7C7C97}
@@ -2074,6 +2081,9 @@ body[data-theme=aurora] .was-skip{color:#9999B5}
 *::-webkit-scrollbar{width:6px;height:6px}*::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:3px}*::-webkit-scrollbar-track{background:transparent}
 /* Inline Add Task button */
 .add-bar{background:linear-gradient(135deg,#0F172A,#312E81);color:#F8FAFC;padding:18px 20px;border-radius:16px;display:flex;align-items:center;gap:14px;margin-bottom:16px;cursor:pointer;transition:all .2s cubic-bezier(.2,.8,.2,1);border:none;width:100%;font-family:inherit;box-shadow:0 4px 14px rgba(45,42,38,.15)}
+.add-bar-board{position:relative;border-left:5px solid var(--bk,transparent);padding-left:16px}
+.add-bar-board::after{content:'';position:absolute;top:14px;right:14px;width:8px;height:8px;border-radius:50%;background:var(--bk,#fff);box-shadow:0 0 0 3px rgba(255,255,255,.18),0 0 12px var(--bk,#fff);animation:bkDotPulse 2s ease-in-out infinite}
+@keyframes bkDotPulse{0%,100%{opacity:.7;transform:scale(1)}50%{opacity:1;transform:scale(1.15)}}
 .add-bar:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(45,42,38,.3)}
 .add-bar:active{transform:translateY(0) scale(.98)}
 .add-bar .plus{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#3DAE5C,#2D8A4E);color:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;flex-shrink:0;box-shadow:0 3px 10px rgba(61,174,92,.4);position:relative;animation:plusBreathe 2.4s ease-in-out infinite;transition:transform .3s cubic-bezier(.4,1.5,.5,1)}
@@ -3240,14 +3250,16 @@ if(S.tab==='tasks'){
   const _bcH=S.tasks.filter(t=>(t.board||'home')==='home').length;
   const _bcO=S.tasks.filter(t=>(t.board||'home')==='office').length;
   const _bcC=S.tasks.length;
-  h+='<div class="board-pick">'
+  const _bk=S.board==='home'?'#E8912C':S.board==='office'?'#6366F1':'#A78BFA';
+  const _bkSoft=S.board==='home'?'rgba(232,145,44,.08)':S.board==='office'?'rgba(99,102,241,.08)':'rgba(167,139,250,.08)';
+  h+='<div class="board-pick" data-bk="'+S.board+'" style="--bk:'+_bk+';--bk-soft:'+_bkSoft+'">'
     +'<button class="bp bp-home'+(S.board==='home'?' on':'')+'" onclick="setBoard(\\'home\\')"><span class="bp-bg"></span><span class="bp-overlay"></span><span class="bp-emoji">\\u{1F3E0}</span><span class="bp-text"><span class="bp-l">Home Tasks</span><span class="bp-s">Personal life, errands &amp; self-improvement</span></span><span class="bp-c">'+_bcH+'</span></button>'
     +'<button class="bp bp-office'+(S.board==='office'?' on':'')+'" onclick="setBoard(\\'office\\')"><span class="bp-bg"></span><span class="bp-overlay"></span><span class="bp-emoji">\\u{1F4BC}</span><span class="bp-text"><span class="bp-l">Office Tasks</span><span class="bp-s">Meetings, deliverables &amp; work deadlines</span></span><span class="bp-c">'+_bcO+'</span></button>'
     +'<button class="bp bp-combined'+(S.board==='combined'?' on':'')+'" onclick="setBoard(\\'combined\\')"><span class="bp-bg"></span><span class="bp-overlay"></span><span class="bp-emoji">\\u{1F310}</span><span class="bp-text"><span class="bp-l">Combined Tasks</span><span class="bp-s">See everything across both boards</span></span><span class="bp-c">'+_bcC+'</span></button>'
   +'</div>'
   +'<div class="board-pick-hint">'+(S.board==='home'?'\\u{1F3E0} Home Tasks \\u2014 self-improvement &amp; personal activities':S.board==='office'?'\\u{1F4BC} Office Tasks \\u2014 work tasks only':'\\u{1F4DA} Combined Tasks \\u2014 everything from both boards')+'</div>';
   // TASKS LEAD — the most-used UI sits at the top
-  h+='<button class="add-bar" onclick="opA()"><span class="plus">+</span><span class="txt"><b>Add a new task</b><small>Adds to <b>'+(S.board==='office'?'Office Tasks':'Home Tasks')+'</b> \\u2014 type or use voice</small></span></button>';
+  h+='<button class="add-bar add-bar-board" style="--bk:'+_bk+'" onclick="opA()"><span class="plus">+</span><span class="txt"><b>Add a new task</b><small>Adds to <b>'+(S.board==='office'?'Office Tasks':'Home Tasks')+'</b> \\u2014 type or use voice</small></span></button>';
   // WhatsApp reminders prompt removed for closed-test phase
   h+='<div class="stats">'+[{l:'Total',v:s.total,c:'#0F172A'},{l:'To Do',v:s.pend,c:'#94A3B8'},{l:'Active',v:s.act,c:'#3B82F6'},{l:'Done',v:s.dn,c:'#3DAE5C'}].map(x=>'<div class="st"><b style="color:'+x.c+'">'+x.v+'</b><small>'+x.l+'</small></div>').join('')+'</div>';
   if(s.od>0)h+='<div class="al" style="background:#FEF1F0;border:1px solid #F5C6C2;color:#E8453C;cursor:pointer" onclick="S.view=\\'overdue\\';render()">\\u26A0\\uFE0F '+s.od+' overdue</div>';
@@ -3311,13 +3323,15 @@ else if(S.tab==='board'){
   const _bcH=S.tasks.filter(t=>(t.board||'home')==='home').length;
   const _bcO=S.tasks.filter(t=>(t.board||'home')==='office').length;
   const _bcC=S.tasks.length;
-  h+='<div class="board-pick">'
+  const _bk=S.board==='home'?'#E8912C':S.board==='office'?'#6366F1':'#A78BFA';
+  const _bkSoft=S.board==='home'?'rgba(232,145,44,.08)':S.board==='office'?'rgba(99,102,241,.08)':'rgba(167,139,250,.08)';
+  h+='<div class="board-pick" data-bk="'+S.board+'" style="--bk:'+_bk+';--bk-soft:'+_bkSoft+'">'
     +'<button class="bp bp-home'+(S.board==='home'?' on':'')+'" onclick="setBoard(\\'home\\')"><span class="bp-bg"></span><span class="bp-overlay"></span><span class="bp-emoji">\\u{1F3E0}</span><span class="bp-text"><span class="bp-l">Home Tasks</span><span class="bp-s">Personal life, errands &amp; self-improvement</span></span><span class="bp-c">'+_bcH+'</span></button>'
     +'<button class="bp bp-office'+(S.board==='office'?' on':'')+'" onclick="setBoard(\\'office\\')"><span class="bp-bg"></span><span class="bp-overlay"></span><span class="bp-emoji">\\u{1F4BC}</span><span class="bp-text"><span class="bp-l">Office Tasks</span><span class="bp-s">Meetings, deliverables &amp; work deadlines</span></span><span class="bp-c">'+_bcO+'</span></button>'
     +'<button class="bp bp-combined'+(S.board==='combined'?' on':'')+'" onclick="setBoard(\\'combined\\')"><span class="bp-bg"></span><span class="bp-overlay"></span><span class="bp-emoji">\\u{1F310}</span><span class="bp-text"><span class="bp-l">Combined Tasks</span><span class="bp-s">See everything across both boards</span></span><span class="bp-c">'+_bcC+'</span></button>'
   +'</div>'
   +'<div class="board-pick-hint">'+(S.board==='home'?'\\u{1F3E0} Home Tasks \\u2014 self-improvement &amp; personal activities':S.board==='office'?'\\u{1F4BC} Office Tasks \\u2014 work tasks only':'\\u{1F4DA} Combined Tasks \\u2014 everything from both boards')+'</div>';
-  h+='<button class="add-bar" onclick="opA()"><span class="plus">+</span><span class="txt"><b>Add a new task</b><small>Lands in To Do under <b>'+(S.board==='office'?'Office Tasks':'Home Tasks')+'</b></small></span></button>';
+  h+='<button class="add-bar add-bar-board" style="--bk:'+_bk+'" onclick="opA()"><span class="plus">+</span><span class="txt"><b>Add a new task</b><small>Lands in To Do under <b>'+(S.board==='office'?'Office Tasks':'Home Tasks')+'</b></small></span></button>';
   h+='<div class="section-hd"><span class="section-ic">'+ic('board',22)+'</span><div><h3>Task Board</h3><p>Drag cards between columns or tap a move button</p></div></div>';
   const cols=[{k:'pending',l:'To Do',i:'\\u{1F4E5}',c:'#94A3B8'},{k:'in-progress',l:'Doing',i:'\\u26A1',c:'#3B82F6'},{k:'done',l:'Done',i:'\\u2705',c:'#3DAE5C'}];
   h+='<div class="board">';
