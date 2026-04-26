@@ -11,6 +11,9 @@ CREATE TABLE IF NOT EXISTS tasks(id TEXT PRIMARY KEY,user_phone TEXT NOT NULL,ti
 CREATE TABLE IF NOT EXISTS otps(phone TEXT PRIMARY KEY,code TEXT,expires_at TEXT);`);
 // email column + unique index (idempotent)
 try{db.exec("ALTER TABLE users ADD COLUMN email TEXT")}catch(e){}
+// task board column (Home / Office) — existing rows default to 'home'
+try{db.exec("ALTER TABLE tasks ADD COLUMN board TEXT DEFAULT 'home'")}catch(e){}
+try{db.exec("UPDATE tasks SET board='home' WHERE board IS NULL OR board=''")}catch(e){}
 try{db.exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email) WHERE email IS NOT NULL AND email!=''")}catch(e){}
 try{db.exec("CREATE TABLE IF NOT EXISTS steps(id INTEGER PRIMARY KEY AUTOINCREMENT,user_phone TEXT NOT NULL,date TEXT NOT NULL,count INTEGER NOT NULL DEFAULT 0,source TEXT DEFAULT'manual',updated_at TEXT DEFAULT(datetime('now')))")}catch(e){}
 try{db.exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_steps_user_date ON steps(user_phone,date)")}catch(e){}
@@ -151,14 +154,16 @@ app.post('/api/verify-otp',(req,res)=>{
 // ═══ TASKS API ═══
 app.get('/api/tasks',auth,(req,res)=>{res.json(db.prepare('SELECT * FROM tasks WHERE user_phone=? ORDER BY created_at DESC').all(req.user.phone))});
 app.post('/api/tasks',auth,async(req,res)=>{
-  const{title,notes,priority,status,due_date,reminder_time}=req.body;if(!title?.trim())return res.status(400).json({error:'Title required'});
-  const id=genId();db.prepare('INSERT INTO tasks(id,user_phone,title,notes,priority,status,due_date,reminder_time,source)VALUES(?,?,?,?,?,?,?,?,?)').run(id,req.user.phone,title.trim(),notes||'',priority||'medium',status||'pending',due_date||'',reminder_time||'','app');
+  const{title,notes,priority,status,due_date,reminder_time,board}=req.body;if(!title?.trim())return res.status(400).json({error:'Title required'});
+  const b=board==='office'?'office':'home';
+  const id=genId();db.prepare('INSERT INTO tasks(id,user_phone,title,notes,priority,status,due_date,reminder_time,source,board)VALUES(?,?,?,?,?,?,?,?,?,?)').run(id,req.user.phone,title.trim(),notes||'',priority||'medium',status||'pending',due_date||'',reminder_time||'','app',b);
   res.json(db.prepare('SELECT * FROM tasks WHERE id=?').get(id));
 });
 app.put('/api/tasks/:id',auth,(req,res)=>{
   const t=db.prepare('SELECT * FROM tasks WHERE id=? AND user_phone=?').get(req.params.id,req.user.phone);if(!t)return res.status(404).json({error:'Not found'});
-  const{title,notes,priority,status,due_date,reminder_time}=req.body;
-  db.prepare("UPDATE tasks SET title=?,notes=?,priority=?,status=?,due_date=?,reminder_time=?,reminded=0,updated_at=datetime('now')WHERE id=?").run(title??t.title,notes??t.notes,priority??t.priority,status??t.status,due_date??t.due_date,reminder_time??t.reminder_time,req.params.id);
+  const{title,notes,priority,status,due_date,reminder_time,board}=req.body;
+  const b=(board==='office'||board==='home')?board:t.board;
+  db.prepare("UPDATE tasks SET title=?,notes=?,priority=?,status=?,due_date=?,reminder_time=?,board=?,reminded=0,updated_at=datetime('now')WHERE id=?").run(title??t.title,notes??t.notes,priority??t.priority,status??t.status,due_date??t.due_date,reminder_time??t.reminder_time,b,req.params.id);
   res.json(db.prepare('SELECT * FROM tasks WHERE id=?').get(req.params.id));
 });
 app.delete('/api/tasks/:id',auth,(req,res)=>{db.prepare('DELETE FROM tasks WHERE id=? AND user_phone=?').run(req.params.id,req.user.phone);res.json({ok:true})});
@@ -645,9 +650,39 @@ input:focus,textarea:focus{outline:none;border-color:#0F172A}textarea{resize:ver
   .app{overflow-x:hidden}
 }
 @media (max-width:380px){.phone-banner{height:48px}}
-/* Mobile: hide the 3-headline top news AND the time/weather/life-goal chip so the task list is above the fold.
-   (Time + date are already shown in the header; news ticker still renders at page bottom.) */
-@media (max-width:1023px){.top-news{display:none}.app .top-strip{display:none}}
+/* Mobile: hide top-news, time/weather/life-goal chip, AND the bottom news strip so the task list is the focus. */
+@media (max-width:1023px){.top-news{display:none}.app .top-strip{display:none}.bottom-strip{display:none}}
+/* Home / Office / Combined board picker — sits at the very top of Tasks and Board tabs */
+.board-pick{display:flex;gap:8px;margin:0 0 6px;padding:4px;background:linear-gradient(135deg,rgba(99,102,241,.08),rgba(232,145,44,.05));border:1px solid rgba(99,102,241,.18);border-radius:14px}
+.board-pick .bp{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:10px 6px;border:none;background:transparent;color:var(--ink-2,#475569);border-radius:10px;cursor:pointer;font-weight:600;font-size:13px;letter-spacing:.01em;transition:background .15s ease,transform .1s ease,color .15s ease;position:relative}
+.board-pick .bp:hover{background:rgba(255,255,255,.5);color:var(--ink,#0F172A)}
+.board-pick .bp:active{transform:scale(.97)}
+.board-pick .bp.on{background:#fff;color:#0F172A;box-shadow:0 2px 8px rgba(15,23,42,.1),0 0 0 1px rgba(99,102,241,.25)}
+.board-pick .bp-emoji{font-size:20px;line-height:1;display:block}
+.board-pick .bp-l{font-weight:700;font-size:13px}
+.board-pick .bp-c{font-size:10.5px;font-weight:600;color:#94A3B8;background:rgba(15,23,42,.06);padding:1px 7px;border-radius:8px;font-family:'Space Mono',monospace}
+.board-pick .bp.on .bp-c{background:rgba(99,102,241,.16);color:#6366F1}
+.board-pick-hint{font-size:11.5px;font-style:italic;color:#94A3B8;margin:0 4px 12px;letter-spacing:.01em}
+body[data-theme=aurora] .board-pick{background:linear-gradient(135deg,rgba(167,139,250,.1),rgba(232,145,44,.06));border-color:rgba(167,139,250,.22)}
+body[data-theme=aurora] .board-pick .bp{color:#9999B5}
+body[data-theme=aurora] .board-pick .bp:hover{background:rgba(255,255,255,.06);color:#F5F5FA}
+body[data-theme=aurora] .board-pick .bp.on{background:rgba(255,255,255,.08);color:#F5F5FA;box-shadow:0 2px 8px rgba(0,0,0,.4),0 0 0 1px rgba(167,139,250,.35)}
+body[data-theme=aurora] .board-pick .bp-c{background:rgba(255,255,255,.08);color:#9999B5}
+body[data-theme=aurora] .board-pick .bp.on .bp-c{background:rgba(167,139,250,.18);color:#A78BFA}
+body[data-theme=aurora] .board-pick-hint{color:#7C7C97}
+/* In-form Board picker (modal: New / Edit Task) */
+.form-board-pick{display:flex;gap:10px;margin-bottom:10px}
+.fbp{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:12px 8px;border:1.5px solid var(--line,#E2E8F0);background:var(--bg-elev,#fff);border-radius:12px;cursor:pointer;color:var(--ink-2,#475569);transition:border-color .15s ease,background .15s ease,transform .1s ease;text-align:center}
+.fbp:hover{border-color:#94A3B8}
+.fbp:active{transform:scale(.98)}
+.fbp.on{border-color:#6366F1;background:rgba(99,102,241,.06);color:#0F172A;box-shadow:0 0 0 3px rgba(99,102,241,.12)}
+.fbp-emoji{font-size:22px;line-height:1}
+.fbp-l{font-weight:700;font-size:14px}
+.fbp-s{font-size:10.5px;color:#94A3B8;font-weight:500;letter-spacing:.01em}
+.fbp.on .fbp-s{color:#6B7280}
+body[data-theme=aurora] .fbp{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12);color:#9999B5}
+body[data-theme=aurora] .fbp.on{border-color:#A78BFA;background:rgba(167,139,250,.1);color:#F5F5FA;box-shadow:0 0 0 3px rgba(167,139,250,.16)}
+body[data-theme=aurora] .fbp-s{color:#7C7C97}
 body[data-theme=aurora] .phone-banner{background:#0A0A14}
 body[data-theme=aurora] .hdr-tagline{color:#9999B5}
 .hdr-st{font-size:11px;font-weight:700;padding:8px 14px;border-radius:10px;background:#FFFFFF;border:1px solid #E8E9EF;display:flex;align-items:center;gap:7px;letter-spacing:.8px;box-shadow:0 2px 6px rgba(0,0,0,.04)}
@@ -2259,7 +2294,8 @@ news:{},newsCat:'tech',newsLoading:false,
 bookStreak:{streak:0,total:0,today:false,days:[]},_bkSec:0,
 
 loginStep:'phone',loginMethod:'email',loginPhone:'',loginCountryCode:localStorage.getItem('tf_cc')||'+91',loginEmail:'',loginName:'',loginOTP:['','','','','',''],loginLoading:false,loginError:'',loginErrorDetail:'',loginErrorCode:0,loginSentTo:'',emailOk:false,
-form:{title:'',notes:'',priority:'medium',dueDate:'',reminderTime:'',status:'pending'}};
+form:{title:'',notes:'',priority:'medium',dueDate:'',reminderTime:'',status:'pending'},
+board:(localStorage.getItem('tf_board')||'combined')};
 let rec=null,token=localStorage.getItem('tf_token');
 if(token){S.user={phone:localStorage.getItem('tf_phone'),name:localStorage.getItem('tf_name'),token}}else{restoreLoginState()}
 
@@ -2444,15 +2480,16 @@ function logout(){
 }
 async function load(){const a=document.getElementById('audioEl');if(a&&!a.paused)return;const t=await api('/tasks');if(!t)return;const h=JSON.stringify(t);if(h===S._lastTasksHash)return;S._lastTasksHash=h;S.tasks=t;render()}
 async function chk(){const h=await api('/health');if(h)S.waOk=h.twilio;render()}
-async function addT(){if(!S.form.title.trim())return;const r=await api('/tasks',{method:'POST',body:JSON.stringify({title:S.form.title,notes:S.form.notes,priority:S.form.priority,status:'pending',due_date:S.form.dueDate,reminder_time:S.form.reminderTime})});if(r?.id){S.tasks.unshift(r);clM();toast('\\u2705 Task added!')}}
-async function savE(){if(!S.form.title.trim()||!S.editing)return;const r=await api('/tasks/'+S.editing,{method:'PUT',body:JSON.stringify({title:S.form.title,notes:S.form.notes,priority:S.form.priority,status:S.form.status,due_date:S.form.dueDate,reminder_time:S.form.reminderTime})});if(r){const i=S.tasks.findIndex(t=>t.id===S.editing);if(i>-1)S.tasks[i]=r;clM();toast('\\u2705 Updated!')}}
+async function addT(){if(!S.form.title.trim())return;const r=await api('/tasks',{method:'POST',body:JSON.stringify({title:S.form.title,notes:S.form.notes,priority:S.form.priority,status:'pending',due_date:S.form.dueDate,reminder_time:S.form.reminderTime,board:S.form.board})});if(r?.id){S.tasks.unshift(r);clM();toast('\\u2705 Task added to '+(r.board==='office'?'Office':'Home')+'!')}}
+async function savE(){if(!S.form.title.trim()||!S.editing)return;const r=await api('/tasks/'+S.editing,{method:'PUT',body:JSON.stringify({title:S.form.title,notes:S.form.notes,priority:S.form.priority,status:S.form.status,due_date:S.form.dueDate,reminder_time:S.form.reminderTime,board:S.form.board})});if(r){const i=S.tasks.findIndex(t=>t.id===S.editing);if(i>-1)S.tasks[i]=r;clM();toast('\\u2705 Updated!')}}
 async function del(id){await api('/tasks/'+id,{method:'DELETE'});S.tasks=S.tasks.filter(t=>t.id!==id);render()}
 async function tog(id){const t=S.tasks.find(x=>x.id===id);if(!t)return;const r=await api('/tasks/'+id,{method:'PUT',body:JSON.stringify({status:t.status==='done'?'pending':'done'})});if(r){const i=S.tasks.findIndex(x=>x.id===id);if(i>-1)S.tasks[i]=r;render()}}
 async function cyc(id){const o=['pending','in-progress','done'],t=S.tasks.find(x=>x.id===id);if(!t)return;const r=await api('/tasks/'+id,{method:'PUT',body:JSON.stringify({status:o[(o.indexOf(t.status)+1)%3]})});if(r){const i=S.tasks.findIndex(x=>x.id===id);if(i>-1)S.tasks[i]=r;render()}}
 async function sWA(id){S.sending[id]=1;render();const r=await api('/send-task/'+id,{method:'POST'});delete S.sending[id];toast(r?.ok?'\\u{1F4F1} Sent!':'\\u26A0\\uFE0F Failed',r?.ok?'ok':'err');render()}
 async function sAll(){S.sending._a=1;render();const r=await api('/send-all',{method:'POST'});delete S.sending._a;toast(r?.ok?'\\u{1F4F1} All sent!':'\\u26A0\\uFE0F Failed',r?.ok?'ok':'err');render()}
-function opA(){S.form={title:'',notes:'',priority:'medium',dueDate:'',reminderTime:'',status:'pending'};S.editing=null;S.showAdd=true;render();setTimeout(()=>{const e=document.getElementById('ft');if(e)e.focus()},100)}
-function opE(id){const t=S.tasks.find(x=>x.id===id);if(!t)return;S.form={title:t.title,notes:t.notes||'',priority:t.priority,dueDate:t.due_date||'',reminderTime:t.reminder_time||'',status:t.status};S.editing=id;S.showAdd=true;render()}
+function opA(){S.form={title:'',notes:'',priority:'medium',dueDate:'',reminderTime:'',status:'pending',board:S.board==='combined'?'home':S.board};S.editing=null;S.showAdd=true;render();setTimeout(()=>{const e=document.getElementById('ft');if(e)e.focus()},100)}
+function opE(id){const t=S.tasks.find(x=>x.id===id);if(!t)return;S.form={title:t.title,notes:t.notes||'',priority:t.priority,dueDate:t.due_date||'',reminderTime:t.reminder_time||'',status:t.status,board:t.board||'home'};S.editing=id;S.showAdd=true;render()}
+function setBoard(b){S.board=b;localStorage.setItem('tf_board',b);render()}
 function clM(){S.showAdd=false;S.editing=null;if(rec)try{rec.stop()}catch(e){}S.listening=false;render()}
 function stV(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){toast('\\u26A0\\uFE0F Voice not supported','err');return}rec=new SR();rec.continuous=false;rec.interimResults=true;rec.lang='en-US';rec.onresult=e=>{let t='';for(let i=0;i<e.results.length;i++)t+=e.results[i][0].transcript;if(e.results[0].isFinal){S.form.title=t;const l=t.toLowerCase();if(/urgent|important|asap/.test(l)){S.form.priority='high';S.form.title=S.form.title.replace(/urgent|important|asap/gi,'').trim()}if(/\\btoday\\b/.test(l))S.form.dueDate=new Date().toISOString().split('T')[0];else if(/\\btomorrow\\b/.test(l)){const d=new Date();d.setDate(d.getDate()+1);S.form.dueDate=d.toISOString().split('T')[0]}}else S.form.title=t;render()};rec.onend=()=>{S.listening=false;render()};rec.onerror=e=>{S.listening=false;toast('\\u26A0\\uFE0F '+e.error,'err');render()};rec.start();S.listening=true;render()}
 
@@ -2570,7 +2607,7 @@ async function refreshSession(){if(!token)return;const r=await api('/me');if(r&&
 function calPrev(){const d=new Date(S.calMonth);d.setMonth(d.getMonth()-1);S.calMonth=d;render()}
 function calNext(){const d=new Date(S.calMonth);d.setMonth(d.getMonth()+1);S.calMonth=d;render()}
 function calSelect(d){S.calSelectedDate=d;render()}
-function calAddForDate(){S.form={title:'',notes:'',priority:'medium',dueDate:S.calSelectedDate||'',reminderTime:'',status:'pending'};S.editing=null;S.showAdd=true;render();setTimeout(()=>{const e=document.getElementById('ft');if(e)e.focus()},100)}
+function calAddForDate(){S.form={title:'',notes:'',priority:'medium',dueDate:S.calSelectedDate||'',reminderTime:'',status:'pending',board:S.board==='combined'?'home':S.board};S.editing=null;S.showAdd=true;render();setTimeout(()=>{const e=document.getElementById('ft');if(e)e.focus()},100)}
 function rotateMoral(){const a=document.getElementById('audioEl');if(a&&!a.paused)return;S.moralIdx=(S.moralIdx+1)%MORALS.length;render()}
 setInterval(()=>{if(S.user)rotateMoral()},45000);
 // Tic Tac Toe vs a simple bot (you play X, bot plays O)
@@ -2728,7 +2765,9 @@ if(S.meditating&&S.meditating.active){
   }
   return;
 }
-const ts=S.tasks,f=ts.filter(t=>{if(S.search){const q=S.search.toLowerCase();if(!t.title.toLowerCase().includes(q)&&!(t.notes||'').toLowerCase().includes(q))return false}if(S.view==='all')return true;if(S.view==='today')return isTd(t.due_date);if(S.view==='overdue')return isOD(t.due_date,t.status);return t.status===S.view});
+// Filter by board first (Home / Office / Combined). Combined shows everything.
+const ts=(S.board==='combined'?S.tasks:S.tasks.filter(t=>(t.board||'home')===S.board));
+const f=ts.filter(t=>{if(S.search){const q=S.search.toLowerCase();if(!t.title.toLowerCase().includes(q)&&!(t.notes||'').toLowerCase().includes(q))return false}if(S.view==='all')return true;if(S.view==='today')return isTd(t.due_date);if(S.view==='overdue')return isOD(t.due_date,t.status);return t.status===S.view});
 const s={total:ts.length,pend:ts.filter(t=>t.status==='pending').length,act:ts.filter(t=>t.status==='in-progress').length,dn:ts.filter(t=>t.status==='done').length,od:ts.filter(t=>isOD(t.due_date,t.status)).length};
 
 const JUMPER='<svg class="hdr-jumper" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">'
@@ -2902,8 +2941,18 @@ if(S.tab!=='tasks')h+=_tabHeroHtml;
 // TASKS TAB
 if(S.tab==='dash')S.tab='tasks'; // Stats tab removed; redirect any stale state to Tasks
 if(S.tab==='tasks'){
+  // Board picker (Home / Office / Combined) — sits above everything else so users frame their day first.
+  const _bcH=S.tasks.filter(t=>(t.board||'home')==='home').length;
+  const _bcO=S.tasks.filter(t=>(t.board||'home')==='office').length;
+  const _bcC=S.tasks.length;
+  h+='<div class="board-pick">'
+    +'<button class="bp'+(S.board==='home'?' on':'')+'" onclick="setBoard(\\'home\\')"><span class="bp-emoji">\\u{1F3E0}</span><span class="bp-l">Home</span><span class="bp-c">'+_bcH+'</span></button>'
+    +'<button class="bp'+(S.board==='office'?' on':'')+'" onclick="setBoard(\\'office\\')"><span class="bp-emoji">\\u{1F4BC}</span><span class="bp-l">Office</span><span class="bp-c">'+_bcO+'</span></button>'
+    +'<button class="bp'+(S.board==='combined'?' on':'')+'" onclick="setBoard(\\'combined\\')"><span class="bp-emoji">\\u{1F4DA}</span><span class="bp-l">Combined</span><span class="bp-c">'+_bcC+'</span></button>'
+  +'</div>'
+  +'<div class="board-pick-hint">'+(S.board==='home'?'\\u{1F3E0} Home \\u2014 self-improvement &amp; personal activities':S.board==='office'?'\\u{1F4BC} Office \\u2014 work tasks only':'\\u{1F4DA} Combined \\u2014 everything from both boards')+'</div>';
   // TASKS LEAD — the most-used UI sits at the top
-  h+='<button class="add-bar" onclick="opA()"><span class="plus">+</span><span class="txt"><b>Add a new task</b><small>Type or use voice input</small></span></button>';
+  h+='<button class="add-bar" onclick="opA()"><span class="plus">+</span><span class="txt"><b>Add a new task</b><small>Adds to <b>'+(S.board==='office'?'Office':'Home')+'</b> \\u2014 type or use voice</small></span></button>';
   // WhatsApp reminders prompt removed for closed-test phase
   h+='<div class="stats">'+[{l:'Total',v:s.total,c:'#0F172A'},{l:'To Do',v:s.pend,c:'#94A3B8'},{l:'Active',v:s.act,c:'#3B82F6'},{l:'Done',v:s.dn,c:'#3DAE5C'}].map(x=>'<div class="st"><b style="color:'+x.c+'">'+x.v+'</b><small>'+x.l+'</small></div>').join('')+'</div>';
   if(s.od>0)h+='<div class="al" style="background:#FEF1F0;border:1px solid #F5C6C2;color:#E8453C;cursor:pointer" onclick="S.view=\\'overdue\\';render()">\\u26A0\\uFE0F '+s.od+' overdue</div>';
@@ -2960,7 +3009,17 @@ if(S.tab==='tasks'){
 
 // BOARD TAB (Kanban: To Do / Doing / Done with drag-and-drop)
 else if(S.tab==='board'){
-  h+='<button class="add-bar" onclick="opA()"><span class="plus">+</span><span class="txt"><b>Add a new task</b><small>It will land in To Do</small></span></button>';
+  // Same Home / Office / Combined picker — stays consistent with Tasks tab.
+  const _bcH=S.tasks.filter(t=>(t.board||'home')==='home').length;
+  const _bcO=S.tasks.filter(t=>(t.board||'home')==='office').length;
+  const _bcC=S.tasks.length;
+  h+='<div class="board-pick">'
+    +'<button class="bp'+(S.board==='home'?' on':'')+'" onclick="setBoard(\\'home\\')"><span class="bp-emoji">\\u{1F3E0}</span><span class="bp-l">Home</span><span class="bp-c">'+_bcH+'</span></button>'
+    +'<button class="bp'+(S.board==='office'?' on':'')+'" onclick="setBoard(\\'office\\')"><span class="bp-emoji">\\u{1F4BC}</span><span class="bp-l">Office</span><span class="bp-c">'+_bcO+'</span></button>'
+    +'<button class="bp'+(S.board==='combined'?' on':'')+'" onclick="setBoard(\\'combined\\')"><span class="bp-emoji">\\u{1F4DA}</span><span class="bp-l">Combined</span><span class="bp-c">'+_bcC+'</span></button>'
+  +'</div>'
+  +'<div class="board-pick-hint">'+(S.board==='home'?'\\u{1F3E0} Home \\u2014 self-improvement &amp; personal activities':S.board==='office'?'\\u{1F4BC} Office \\u2014 work tasks only':'\\u{1F4DA} Combined \\u2014 everything from both boards')+'</div>';
+  h+='<button class="add-bar" onclick="opA()"><span class="plus">+</span><span class="txt"><b>Add a new task</b><small>Lands in To Do on the <b>'+(S.board==='office'?'Office':'Home')+'</b> board</small></span></button>';
   h+='<div class="section-hd"><span class="section-ic">'+ic('board',22)+'</span><div><h3>Task Board</h3><p>Drag cards between columns or tap a move button</p></div></div>';
   const cols=[{k:'pending',l:'To Do',i:'\\u{1F4E5}',c:'#94A3B8'},{k:'in-progress',l:'Doing',i:'\\u26A1',c:'#3B82F6'},{k:'done',l:'Done',i:'\\u2705',c:'#3DAE5C'}];
   h+='<div class="board">';
@@ -3351,6 +3410,10 @@ h+='<label class="lbl">Notes</label><textarea oninput="S.form.notes=this.value" 
 h+='<div class="row"><div><label class="lbl">Priority</label><select onchange="S.form.priority=this.value"><option value="high"'+(S.form.priority==='high'?' selected':'')+'>High</option><option value="medium"'+(S.form.priority==='medium'?' selected':'')+'>Medium</option><option value="low"'+(S.form.priority==='low'?' selected':'')+'>Low</option></select></div>';
 h+='<div><label class="lbl">Due Date</label><input type="date" value="'+S.form.dueDate+'" onchange="S.form.dueDate=this.value"></div></div>';
 h+='<label class="lbl">Reminder</label><input type="time" value="'+S.form.reminderTime+'" onchange="S.form.reminderTime=this.value">';
+h+='<label class="lbl">Board</label><div class="form-board-pick">'
+  +'<button type="button" class="fbp'+(S.form.board==='home'?' on':'')+'" onclick="S.form.board=\\'home\\';render()"><span class="fbp-emoji">\\u{1F3E0}</span><span class="fbp-l">Home</span><span class="fbp-s">Self-improvement &amp; personal</span></button>'
+  +'<button type="button" class="fbp'+(S.form.board==='office'?' on':'')+'" onclick="S.form.board=\\'office\\';render()"><span class="fbp-emoji">\\u{1F4BC}</span><span class="fbp-l">Office</span><span class="fbp-s">Work tasks only</span></button>'
++'</div>';
 if(isE)h+='<label class="lbl">Status</label><select onchange="S.form.status=this.value"><option value="pending"'+(S.form.status==='pending'?' selected':'')+'>To Do</option><option value="in-progress"'+(S.form.status==='in-progress'?' selected':'')+'>Doing</option><option value="done"'+(S.form.status==='done'?' selected':'')+'>Done</option></select>';
 h+='<div class="macts"><button class="mb mb-c" onclick="clM()">Cancel</button><button class="mb mb-s" onclick="'+(isE?'savE()':'addT()')+'">'+(isE?'Update':'Add Task')+'</button></div>';
 if(isE)h+='<button class="mb mb-d" onclick="del(\\''+S.editing+'\\');clM()">Delete</button>';
