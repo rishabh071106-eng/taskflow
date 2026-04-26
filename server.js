@@ -1957,6 +1957,7 @@ body[data-theme=aurora] .login-wa-note{background:linear-gradient(135deg,rgba(37
 .was-step{display:flex;gap:14px;padding:16px 18px;background:#fff;border-bottom:1px solid #F1F5F9}
 .was-step:last-child{border-bottom:none}
 .was-step-n{flex-shrink:0;width:30px;height:30px;border-radius:50%;background:#25D366;color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:14px;font-family:'Space Mono',monospace;box-shadow:0 3px 8px rgba(37,211,102,.3)}
+.was-step-n.was-step-done{background:#94A3B8;box-shadow:none;font-size:16px}
 .was-step-b{flex:1;min-width:0}
 .was-step-t{font-weight:700;font-size:14.5px;color:#0F172A;margin-bottom:5px;letter-spacing:-.01em}
 .was-step-d{font-size:13px;color:#475569;line-height:1.55;margin-bottom:12px}
@@ -1967,9 +1968,9 @@ body[data-theme=aurora] .login-wa-note{background:linear-gradient(135deg,rgba(37
 .was-skip:hover{color:#0F172A;text-decoration:underline}
 .was-mini{margin:14px 18px 0;padding:9px 12px;background:#EDFCF2;border:1px solid #B7E8C4;border-radius:9px;font-size:12px;color:#1A6035;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .was-mini-reset{background:transparent;border:none;color:#6366F1;font-size:11.5px;font-weight:600;text-decoration:underline;cursor:pointer;padding:0;margin-left:auto;font-family:inherit}
-.was-row{display:flex;gap:8px;margin-bottom:0}
-.was-cc{flex:0 0 auto;padding:13px 10px;border:1.5px solid #E2E8F0;border-radius:10px;background:#FAFAF7;font-size:14px;font-weight:600;font-family:inherit;color:#0F172A;cursor:pointer}
-.was-ph{flex:1;padding:13px 14px;border:1.5px solid #E2E8F0;border-radius:10px;font-size:16px;background:#fff;color:#0F172A;font-family:inherit;letter-spacing:.5px;-webkit-appearance:none;appearance:none}
+.was-row{display:flex;gap:8px;margin-bottom:0;align-items:stretch}
+.was-cc{flex:0 0 96px;width:96px;min-width:0;padding:13px 8px;border:1.5px solid #E2E8F0;border-radius:10px;background:#FAFAF7;font-size:13.5px;font-weight:600;font-family:inherit;color:#0F172A;cursor:pointer;-webkit-appearance:menulist;appearance:menulist;box-sizing:border-box;text-align:left}
+.was-ph{flex:1 1 0;min-width:0;padding:13px 14px;border:1.5px solid #E2E8F0;border-radius:10px;font-size:16px;background:#fff;color:#0F172A;font-family:inherit;letter-spacing:.5px;-webkit-appearance:none;appearance:none;width:100%;box-sizing:border-box}
 .was-ph:focus,.was-cc:focus{outline:none;border-color:#25D366;box-shadow:0 0 0 3px rgba(37,211,102,.18)}
 .was-code{width:100%;padding:18px;text-align:center;letter-spacing:14px;font-size:28px;font-weight:700;font-family:'Space Mono',monospace;border:1.5px solid #E2E8F0;border-radius:12px;background:#FAFAF7;color:#0F172A;-webkit-appearance:none;appearance:none}
 .was-code:focus{outline:none;border-color:#25D366;background:#fff;box-shadow:0 0 0 3px rgba(37,211,102,.18)}
@@ -3718,7 +3719,8 @@ if(S.showWASetup){
       h+='<div class="was-mini">\\u2705 Step 1 done on this device. <button class="was-mini-reset" onclick="localStorage.removeItem(\\'tf_wa_joined\\');render()">Need to redo it?</button></div>';
     }
     // Step 2 — phone entry (uncontrolled inputs — browser owns the value)
-    h+='<div class="was-step"><div class="was-step-n">'+(joined?'1':'2')+'</div><div class="was-step-b">'
+    // When step 1 is already done, drop the redundant step badge — keep the layout clean.
+    h+='<div class="was-step'+(joined?' was-step-solo':'')+'">'+(joined?'<div class="was-step-n was-step-done">\\u2713</div>':'<div class="was-step-n">2</div>')+'<div class="was-step-b">'
       +'<div class="was-step-t">Your WhatsApp number</div>'
       +'<div class="was-step-d">We\\'ll send a 6-digit code on WhatsApp to confirm.</div>'
       +'<div class="was-row"><select id="waSetupCC" class="was-cc"><option value="+91" selected>\\u{1F1EE}\\u{1F1F3} +91</option><option value="+1">\\u{1F1FA}\\u{1F1F8} +1</option><option value="+44">\\u{1F1EC}\\u{1F1E7} +44</option><option value="+61">\\u{1F1E6}\\u{1F1FA} +61</option><option value="+971">\\u{1F1E6}\\u{1F1EA} +971</option><option value="+65">\\u{1F1F8}\\u{1F1EC} +65</option></select>'
