@@ -731,7 +731,7 @@ input:focus,textarea:focus{outline:none;border-color:#0F172A}textarea{resize:ver
    AFTER their default-display rules, to win the CSS cascade.) */
 /* Home / Office / Combined board picker — image-backed cards with Ken-Burns zoom + tinted overlay */
 .board-pick{display:flex;gap:10px;margin:0 0 8px;padding:0;background:transparent;border:none}
-.board-pick .bp{flex:1;position:relative;overflow:hidden;border:none;background:#0F172A;color:#fff;border-radius:14px;padding:14px 14px 14px 16px;cursor:pointer;min-height:104px;display:flex;align-items:center;gap:12px;text-align:left;transition:transform .18s cubic-bezier(.2,.8,.2,1),box-shadow .25s ease;isolation:isolate;box-shadow:0 2px 8px rgba(15,23,42,.08)}
+.board-pick .bp{flex:1;position:relative;overflow:hidden;border:none;background:#0F172A;color:#fff;border-radius:14px;padding:16px 14px;cursor:pointer;min-height:84px;display:flex;align-items:center;justify-content:flex-start;text-align:left;transition:transform .18s cubic-bezier(.2,.8,.2,1),box-shadow .25s ease;isolation:isolate;box-shadow:0 2px 8px rgba(15,23,42,.08)}
 .board-pick .bp:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(15,23,42,.18)}
 .board-pick .bp:active{transform:translateY(-1px) scale(.99)}
 .board-pick .bp-bg{position:absolute;inset:0;background-size:cover;background-position:center;z-index:-2;animation:bpKenBurns 16s ease-in-out infinite alternate;will-change:transform}
@@ -817,7 +817,7 @@ body[data-theme=aurora] .wa-promo-x:hover{background:rgba(255,255,255,.06);color
    Inactive pills are visibly DIMMED so the active board jumps out at a glance. */
 @media (max-width:600px){
   .board-pick{gap:8px}
-  .board-pick .bp{flex-direction:column;justify-content:center;align-items:center;text-align:center;min-height:88px;padding:10px 6px;gap:6px;opacity:.55;filter:saturate(.7)}
+  .board-pick .bp{flex-direction:column;justify-content:center;align-items:center;text-align:center;min-height:64px;padding:12px 6px;gap:0;opacity:.55;filter:saturate(.7)}
   .board-pick .bp.on{opacity:1;filter:none;transform:scale(1.04);z-index:2}
   .board-pick .bp:not(.on) .bp-bg{animation:none}
   .board-pick .bp-emoji{font-size:28px}
@@ -3298,9 +3298,9 @@ if(S.tab==='tasks'){
   const _bk=S.board==='home'?'#E8912C':S.board==='office'?'#6366F1':'#A78BFA';
   const _bkSoft=S.board==='home'?'rgba(232,145,44,.08)':S.board==='office'?'rgba(99,102,241,.08)':'rgba(167,139,250,.08)';
   h+='<div class="board-pick" data-bk="'+S.board+'" style="--bk:'+_bk+';--bk-soft:'+_bkSoft+'">'
-    +'<button class="bp bp-home'+(S.board==='home'?' on':'')+'" onclick="setBoard(\\'home\\')"><span class="bp-bg"></span><span class="bp-overlay"></span><span class="bp-emoji">\\u{1F3E0}</span><span class="bp-text"><span class="bp-l">Home Tasks</span><span class="bp-s">Personal life, errands &amp; self-improvement</span></span><span class="bp-c">'+_bcH+'</span></button>'
-    +'<button class="bp bp-office'+(S.board==='office'?' on':'')+'" onclick="setBoard(\\'office\\')"><span class="bp-bg"></span><span class="bp-overlay"></span><span class="bp-emoji">\\u{1F4BC}</span><span class="bp-text"><span class="bp-l">Office Tasks</span><span class="bp-s">Meetings, deliverables &amp; work deadlines</span></span><span class="bp-c">'+_bcO+'</span></button>'
-    +'<button class="bp bp-combined'+(S.board==='combined'?' on':'')+'" onclick="setBoard(\\'combined\\')"><span class="bp-bg"></span><span class="bp-overlay"></span><span class="bp-emoji">\\u{1F310}</span><span class="bp-text"><span class="bp-l">Combined Tasks</span><span class="bp-s">See everything across both boards</span></span><span class="bp-c">'+_bcC+'</span></button>'
+    +'<button class="bp bp-office'+(S.board==='office'?' on':'')+'" onclick="setBoard(\\'office\\')"><span class="bp-bg"></span><span class="bp-overlay"></span><span class="bp-text"><span class="bp-l">Office Tasks</span><span class="bp-s">Meetings, deliverables &amp; work deadlines</span></span><span class="bp-c">'+_bcO+'</span></button>'
+    +'<button class="bp bp-home'+(S.board==='home'?' on':'')+'" onclick="setBoard(\\'home\\')"><span class="bp-bg"></span><span class="bp-overlay"></span><span class="bp-text"><span class="bp-l">Home Tasks</span><span class="bp-s">Personal life, errands &amp; self-improvement</span></span><span class="bp-c">'+_bcH+'</span></button>'
+    +'<button class="bp bp-combined'+(S.board==='combined'?' on':'')+'" onclick="setBoard(\\'combined\\')"><span class="bp-bg"></span><span class="bp-overlay"></span><span class="bp-text"><span class="bp-l">Combined Tasks</span><span class="bp-s">See everything across both boards</span></span><span class="bp-c">'+_bcC+'</span></button>'
   +'</div>'
   +'<div class="board-pick-hint">'+(S.board==='home'?'\\u{1F3E0} Home Tasks \\u2014 self-improvement &amp; personal activities':S.board==='office'?'\\u{1F4BC} Office Tasks \\u2014 work tasks only':'\\u{1F4DA} Combined Tasks \\u2014 everything from both boards')+'</div>';
   // TASKS LEAD — the most-used UI sits at the top
@@ -3371,9 +3371,9 @@ else if(S.tab==='board'){
   const _bk=S.board==='home'?'#E8912C':S.board==='office'?'#6366F1':'#A78BFA';
   const _bkSoft=S.board==='home'?'rgba(232,145,44,.08)':S.board==='office'?'rgba(99,102,241,.08)':'rgba(167,139,250,.08)';
   h+='<div class="board-pick" data-bk="'+S.board+'" style="--bk:'+_bk+';--bk-soft:'+_bkSoft+'">'
-    +'<button class="bp bp-home'+(S.board==='home'?' on':'')+'" onclick="setBoard(\\'home\\')"><span class="bp-bg"></span><span class="bp-overlay"></span><span class="bp-emoji">\\u{1F3E0}</span><span class="bp-text"><span class="bp-l">Home Tasks</span><span class="bp-s">Personal life, errands &amp; self-improvement</span></span><span class="bp-c">'+_bcH+'</span></button>'
-    +'<button class="bp bp-office'+(S.board==='office'?' on':'')+'" onclick="setBoard(\\'office\\')"><span class="bp-bg"></span><span class="bp-overlay"></span><span class="bp-emoji">\\u{1F4BC}</span><span class="bp-text"><span class="bp-l">Office Tasks</span><span class="bp-s">Meetings, deliverables &amp; work deadlines</span></span><span class="bp-c">'+_bcO+'</span></button>'
-    +'<button class="bp bp-combined'+(S.board==='combined'?' on':'')+'" onclick="setBoard(\\'combined\\')"><span class="bp-bg"></span><span class="bp-overlay"></span><span class="bp-emoji">\\u{1F310}</span><span class="bp-text"><span class="bp-l">Combined Tasks</span><span class="bp-s">See everything across both boards</span></span><span class="bp-c">'+_bcC+'</span></button>'
+    +'<button class="bp bp-office'+(S.board==='office'?' on':'')+'" onclick="setBoard(\\'office\\')"><span class="bp-bg"></span><span class="bp-overlay"></span><span class="bp-text"><span class="bp-l">Office Tasks</span><span class="bp-s">Meetings, deliverables &amp; work deadlines</span></span><span class="bp-c">'+_bcO+'</span></button>'
+    +'<button class="bp bp-home'+(S.board==='home'?' on':'')+'" onclick="setBoard(\\'home\\')"><span class="bp-bg"></span><span class="bp-overlay"></span><span class="bp-text"><span class="bp-l">Home Tasks</span><span class="bp-s">Personal life, errands &amp; self-improvement</span></span><span class="bp-c">'+_bcH+'</span></button>'
+    +'<button class="bp bp-combined'+(S.board==='combined'?' on':'')+'" onclick="setBoard(\\'combined\\')"><span class="bp-bg"></span><span class="bp-overlay"></span><span class="bp-text"><span class="bp-l">Combined Tasks</span><span class="bp-s">See everything across both boards</span></span><span class="bp-c">'+_bcC+'</span></button>'
   +'</div>'
   +'<div class="board-pick-hint">'+(S.board==='home'?'\\u{1F3E0} Home Tasks \\u2014 self-improvement &amp; personal activities':S.board==='office'?'\\u{1F4BC} Office Tasks \\u2014 work tasks only':'\\u{1F4DA} Combined Tasks \\u2014 everything from both boards')+'</div>';
   h+='<button class="add-bar add-bar-board" style="--bk:'+_bk+'" onclick="opA()"><span class="plus">+</span><span class="txt"><b>Add a new task</b><small>Lands in To Do under <b>'+(S.board==='office'?'Office Tasks':'Home Tasks')+'</b></small></span></button>';
