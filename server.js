@@ -682,7 +682,21 @@ body[data-theme=aurora] .hdr-time-date{color:#9999B5}
 /* Section dividers — thin gradient line with a pulsing centered node */
 .section-div{height:1px;background:linear-gradient(90deg,transparent 0%,rgba(99,102,241,.18) 30%,rgba(232,145,44,.22) 50%,rgba(99,102,241,.18) 70%,transparent 100%);margin:6px 0;position:relative}
 /* Tap Sprint mini-game */
-.game-card{background:linear-gradient(135deg,rgba(99,102,241,.06),rgba(236,72,153,.05));border:1px solid rgba(99,102,241,.18);border-radius:16px;padding:18px 22px 20px;margin-bottom:18px;display:flex;flex-direction:column;gap:10px;position:relative;overflow:hidden;min-height:440px}
+.games-row{display:flex;flex-direction:column;gap:18px;margin-bottom:18px}
+@media (min-width:768px){.games-row{flex-direction:row;align-items:stretch}.games-row>.game-card{flex:1 1 0;min-width:0;margin-bottom:0}}
+.game-card{background:linear-gradient(135deg,rgba(99,102,241,.06),rgba(236,72,153,.05));border:1px solid rgba(99,102,241,.18);border-radius:16px;padding:18px 22px 20px;margin-bottom:0;display:flex;flex-direction:column;gap:10px;position:relative;overflow:hidden;min-height:440px}
+.coin-card{background:linear-gradient(135deg,rgba(245,158,11,.08),rgba(99,102,241,.05));border-color:rgba(245,158,11,.22)}
+.coin-stage{flex:1;display:flex;align-items:center;justify-content:center;perspective:800px}
+.coin{width:140px;height:140px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#FCD34D,#B45309 80%);box-shadow:0 12px 28px rgba(180,83,9,.35),inset 0 -6px 14px rgba(0,0,0,.2),inset 0 6px 12px rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .25s cubic-bezier(.2,.8,.2,1);position:relative;transform-style:preserve-3d}
+.coin:hover{transform:scale(1.05)}
+.coin-face{font-size:62px;font-weight:900;color:#7C2D12;text-shadow:0 2px 4px rgba(255,255,255,.5);font-family:Georgia,serif}
+.coin-flipping{animation:coinFlip .9s cubic-bezier(.4,0,.2,1) forwards}
+@keyframes coinFlip{0%{transform:rotateY(0) translateY(0)}25%{transform:rotateY(540deg) translateY(-40px)}50%{transform:rotateY(1080deg) translateY(-60px)}75%{transform:rotateY(1620deg) translateY(-30px)}100%{transform:rotateY(2160deg) translateY(0)}}
+.coin-heads{animation:coinSettle .35s ease-out}.coin-tails{animation:coinSettle .35s ease-out}
+@keyframes coinSettle{0%{transform:scale(1.15)}100%{transform:scale(1)}}
+.coin-btn{background:linear-gradient(135deg,#F59E0B,#B45309);color:#fff;border:none;padding:8px 16px;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;letter-spacing:.02em}
+.coin-btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 14px rgba(180,83,9,.3)}
+.coin-btn:disabled{opacity:.6;cursor:wait}
 .game-card.game-idle .game-grid{opacity:.55;filter:saturate(.6);pointer-events:none}
 .game-card.game-idle .game-status-line{opacity:.6}
 .game-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(255,251,247,.85) 0%,rgba(254,243,231,.78) 100%);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);z-index:5;border-radius:16px;animation:overlayFade .25s ease-out}
@@ -969,7 +983,7 @@ body[data-theme=aurora] .section-div::before{background:#1A1A2E;border-color:rgb
 @media (min-width:1024px){.bottom-strip{grid-column:1/-1}}
 /* Person-of-the-day card next to the BroDoit logo (desktop only) */
 .hdr-remember{display:none}
-@media (min-width:1024px){.hdr-remember{display:block;flex:1;max-width:520px;margin:0 18px}.hdr-remember .remember-card{margin:0}.hdr-remember .remember-extract{display:none}}
+@media (min-width:1024px){.hdr-remember{display:block;flex:1;max-width:540px;margin:0 18px}.hdr-remember .remember-card{margin:0;padding:8px 12px}.hdr-remember .remember-extract{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:11.5px;color:#64748B;line-height:1.35;margin-top:2px}}
 /* 3-headline floating top news — auto-fades each row in/out */
 .top-news{display:flex;flex-direction:column;gap:8px;margin-top:10px}
 .top-news-row{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:12px;background:var(--bg-elev,#fff);border:1px solid var(--line,#E2E8F0);text-decoration:none;color:inherit;font-size:14px;line-height:1.4;animation:topNewsFade 14s ease-in-out infinite;opacity:0}
@@ -2224,6 +2238,7 @@ let S={tasks:[],view:'all',search:'',tab:'tasks',showAdd:false,editing:null,list
 books:[],booksLoading:false,booksCat:'all',bookSearch:'',playing:null,moralIdx:Math.floor(Math.random()*MORALS.length),
 knowledge:{loading:false,loaded:{},articles:{},events:[],topic:'history',sec:'today'},
 game:{active:false,board:Array(9).fill(null),turn:'X',status:'idle',winLine:null,wins:Number(localStorage.getItem('tf_ttt_wins')||0),losses:Number(localStorage.getItem('tf_ttt_losses')||0),draws:Number(localStorage.getItem('tf_ttt_draws')||0)},
+coin:{face:null,flipping:false,heads:Number(localStorage.getItem('tf_coin_h')||0),tails:Number(localStorage.getItem('tf_coin_t')||0)},
 weather:{city:localStorage.getItem('tf_city')||'Bangalore',temp:null,aqi:null,country:'',loaded:false,loading:false,error:null},
 cityTemps:{},remember:{person:null,loaded:false},lifeGoal:localStorage.getItem('tf_life_goal')||'',meditating:{active:false,title:'',mins:0,startedAt:0},
 medCat:localStorage.getItem('tf_medcat')||'vipassana',
@@ -2562,6 +2577,7 @@ function tttFinish(result){
   S.game.active=false;render();
 }
 function gameEnd(){S.game.active=false;S.game.status='idle';render()}
+function flipCoin(){if(S.coin.flipping)return;S.coin.flipping=true;S.coin.face=null;render();setTimeout(()=>{const f=Math.random()<0.5?'heads':'tails';S.coin.face=f;S.coin.flipping=false;if(f==='heads'){S.coin.heads++;localStorage.setItem('tf_coin_h',S.coin.heads)}else{S.coin.tails++;localStorage.setItem('tf_coin_t',S.coin.tails)}render()},900)}
 async function loadWeather(){if(S.weather.loading)return;S.weather.loading=true;S.weather.error=null;render();try{const r=await fetch('/api/weather?city='+encodeURIComponent(S.weather.city||'Bangalore'));const j=await r.json();if(j.error){S.weather.error=j.error}else{S.weather.city=j.city||S.weather.city;S.weather.country=j.country||'';S.weather.temp=j.temp;S.weather.aqi=j.aqi}}catch(e){S.weather.error=String(e)}S.weather.loaded=true;S.weather.loading=false;render()}
 const INDIA_CITIES=['Delhi','Mumbai','Chennai','Bengaluru','Pune','Shimla','Indore','Jaipur'];
 const WORLD_CITY_LIST=[
@@ -2730,7 +2746,7 @@ if(S.remember&&S.remember.person){
 }
 // Tasks tab is the "main page" — moral, news, person-of-day, world-clocks render only here.
 const isMain=(S.tab==='tasks'||!S.tab);
-let h=PHONE_BANNER+'<div class="hdr"><div class="hdr-l"><div class="logo">Bro<span class="k">Do</span>it</div><div class="hdr-tagline">tasks &middot; books &middot; wisdom &middot; calm</div><div class="hdr-sub">'+JUMPER+HDR_TIME+'</div></div>'+(isMain&&remember?'<div class="hdr-remember">'+remember+'</div>':'')+'<div class="hdr-actions">'+PROFILE_BTN+'<button class="theme-tg" onclick="toggleTheme()" title="Switch theme">'+(S.theme==='aurora'?ic('sun',18):ic('moon',18))+'</button></div></div>';
+let h=(isMain?PHONE_BANNER:'')+'<div class="hdr"><div class="hdr-l"><div class="logo">Bro<span class="k">Do</span>it</div><div class="hdr-tagline">tasks &middot; books &middot; wisdom &middot; calm</div><div class="hdr-sub">'+JUMPER+HDR_TIME+'</div></div>'+(isMain&&remember?'<div class="hdr-remember">'+remember+'</div>':'')+'<div class="hdr-actions">'+PROFILE_BTN+'<button class="theme-tg" onclick="toggleTheme()" title="Switch theme">'+(S.theme==='aurora'?ic('sun',18):ic('moon',18))+'</button></div></div>';
 
 const m=MORALS[S.moralIdx];
 let moralBlock='';
@@ -2865,8 +2881,9 @@ if(S.tab==='tasks'){
     h+='<div class="tc'+(d?' dn':'')+'" style="border-left-color:'+p.c+'"><div class="tc-top"><button class="chk'+(d?' on':'')+'" onclick="tog(\\''+t.id+'\\')">'+(d?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>':'')+'</button><div style="flex:1;min-width:0"><div class="tc-t'+(d?' dn':'')+'">'+esc(t.title)+'</div>'+(t.notes?'<div class="tc-n">'+esc(t.notes)+'</div>':'')+'<div class="tc-m"><button class="badge" style="background:'+st.bg+';color:'+st.c+'" onclick="cyc(\\''+t.id+'\\')">'+st.l+'</button>'+(t.due_date?'<span style="font-size:12px;font-weight:500;color:'+(isOD(t.due_date,t.status)?'#E8453C':isTd(t.due_date)?'#E8912C':'#94A3B8')+'">\\u{1F4C5} '+fD(t.due_date)+(isOD(t.due_date,t.status)?' overdue':'')+'</span>':'')+(t.reminder_time&&!d?'<span style="font-size:11px;color:#3B82F6;font-weight:600">\\u{1F514} '+fT(t.reminder_time)+'</span>':'')+(t.source==='whatsapp'?'<span style="font-size:10px;color:#CBD5E1">via WA</span>':'')+(addedTxt?'<span class="tc-added" title="Added '+esc(t.created_at||'')+'">\\u2795 '+esc(addedTxt)+'</span>':'')+'</div></div></div>';
     h+='<div class="tc-acts"><button class="ib" onclick="opE(\\''+t.id+'\\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>'+(S.waConnected?'<button class="ib" onclick="sWA(\\''+t.id+'\\')">'+WI+'</button>':'')+'<button class="ib" style="color:#E8453C" onclick="del(\\''+t.id+'\\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button></div></div>'});
   h+='</div>';
-  // BOTTOM: scenic "Make today count" banner + Tic Tac Toe game (less important, kept out of the way)
+  // BOTTOM: scenic "Make today count" banner + games row (Tic Tac Toe + Coin Flip side-by-side on desktop)
   h+=_tabHeroHtml;
+  h+='<div class="games-row">';
   // Tic Tac Toe vs a simple bot — grid always rendered at full size; Start overlays it when idle so the layout never shifts
   {
     const g=S.game;
@@ -2890,6 +2907,19 @@ if(S.tab==='tasks'){
     }
     h+='</div>';
   }
+  // Coin Flip — quick "decide for me" mini game beside Tic Tac Toe
+  {
+    const c=S.coin;
+    const face=c.flipping?'?':(c.face==='heads'?'H':c.face==='tails'?'T':'\\u2014');
+    const label=c.flipping?'Flipping\\u2026':(c.face==='heads'?'Heads':c.face==='tails'?'Tails':'Tap to flip');
+    h+='<div class="game-card coin-card">';
+    h+='<div class="game-hd"><div class="game-ttl"><span class="game-emoji">\\u{1FA99}</span> Coin Flip</div><div class="game-best">H <b>'+c.heads+'</b> \\u2022 T <b>'+c.tails+'</b></div></div>';
+    h+='<div class="game-status-line"><span class="game-status'+(c.face?' status-you':'')+'">'+label+'</span></div>';
+    h+='<div class="coin-stage"><div class="coin'+(c.flipping?' coin-flipping':(c.face?' coin-'+c.face:''))+'" onclick="flipCoin()"><div class="coin-face coin-h">'+face+'</div></div></div>';
+    h+='<div class="game-foot"><div class="game-hint">'+(c.flipping?'in the air\\u2026':'tap the coin to flip')+'</div><button class="game-btn coin-btn" onclick="flipCoin()"'+(c.flipping?' disabled':'')+'>'+(c.flipping?'\\u23F3 Flipping':'\\u{1FA99} Flip')+'</button></div>';
+    h+='</div>';
+  }
+  h+='</div>'; // .games-row
 }
 
 // BOARD TAB (Kanban: To Do / Doing / Done with drag-and-drop)
