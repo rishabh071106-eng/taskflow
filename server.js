@@ -1291,6 +1291,51 @@ body[data-theme=aurora] .cc-composer{background:rgba(255,255,255,.04);border-col
 body[data-theme=aurora] .cc-composer textarea{color:#F5F5FA}
 body[data-theme=aurora] .cc-mic{background:rgba(255,255,255,.08);color:#F5F5FA}
 body[data-theme=aurora] .cc-quick-btn{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12);color:#9999B5}
+/* Math Sprint v2 — time-pressure quiz with animated tiles + particles */
+.ms-body{padding:18px;background:#fff;display:flex;flex-direction:column;gap:14px}
+.ms-stats{display:flex;align-items:center;gap:14px}
+.ms-stat{display:flex;align-items:baseline;gap:3px;background:rgba(15,23,42,.05);padding:7px 11px;border-radius:10px}
+.ms-stat b{font-family:'Space Mono',monospace;font-size:18px;font-weight:900;color:#0F172A}
+.ms-stat small{font-size:10px;font-weight:700;color:#94A3B8;letter-spacing:.5px;text-transform:uppercase}
+.ms-stat-streak b{color:#7C3AED}
+.ms-streak-hot{background:linear-gradient(135deg,#FCD34D,#FB923C);animation:msHotPulse 1s ease-in-out infinite alternate}
+.ms-streak-hot b,.ms-streak-hot small{color:#7C2D12!important}
+@keyframes msHotPulse{from{box-shadow:0 0 0 0 rgba(252,211,77,.6)}to{box-shadow:0 0 0 8px rgba(252,211,77,0)}}
+.ms-combo{margin-left:auto;font-family:'Space Mono',monospace;font-weight:900;font-size:22px;color:#A855F7;letter-spacing:-.02em;animation:msPop .35s cubic-bezier(.2,1.5,.5,1)}
+@keyframes msPop{from{transform:scale(.5) rotate(-8deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+.ms-time-track{height:6px;background:rgba(15,23,42,.06);border-radius:99px;overflow:hidden}
+.ms-time-fill{height:100%;background:linear-gradient(90deg,#22D3EE,#34D399);border-radius:99px;transition:width .1s linear,background .3s ease}
+.ms-problem-wrap{padding:18px 0;text-align:center}
+.ms-problem{display:inline-flex;gap:14px;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:900;font-size:46px;color:#0F172A;letter-spacing:-.03em;animation:msSlideIn .35s cubic-bezier(.2,1.4,.5,1)}
+@keyframes msSlideIn{from{transform:translateX(40px) scale(.92);opacity:0}to{transform:translateX(0) scale(1);opacity:1}}
+.ms-num{display:inline-block}
+.ms-op{color:#7C3AED;font-size:38px}
+.ms-eq{color:#94A3B8;font-size:38px;margin-left:4px}
+.ms-q{color:#FB923C;font-size:46px;animation:msBlink 1.6s ease-in-out infinite}
+@keyframes msBlink{0%,100%{opacity:1}50%{opacity:.5}}
+.ms-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.ms-choice{position:relative;padding:24px 14px;font-family:'Space Mono',monospace;font-size:30px;font-weight:900;background:#fff;border:2px solid #E2E8F0;border-radius:16px;color:#0F172A;cursor:pointer;font-family:inherit;font-weight:900;font-family:'Space Mono',monospace;transition:transform .12s cubic-bezier(.2,1.5,.5,1),background .15s ease,border-color .15s ease,box-shadow .15s ease;letter-spacing:-.02em}
+.ms-choice:hover:not(:disabled){border-color:#7C3AED;background:#F5F3FF;transform:translateY(-2px);box-shadow:0 8px 22px rgba(124,58,237,.18)}
+.ms-choice:active:not(:disabled){transform:scale(.96)}
+.ms-choice-ok{background:linear-gradient(135deg,#34D399,#10B981)!important;border-color:#10B981!important;color:#fff!important;box-shadow:0 12px 30px rgba(16,185,129,.5)!important;animation:msChoiceOk .45s cubic-bezier(.2,1.6,.5,1)}
+@keyframes msChoiceOk{0%{transform:scale(1)}40%{transform:scale(1.12)}100%{transform:scale(1.05)}}
+.ms-choice-wrong{background:linear-gradient(135deg,#F87171,#DC2626)!important;border-color:#DC2626!important;color:#fff!important;animation:msShake .4s ease-in-out}
+@keyframes msShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}50%{transform:translateX(6px)}75%{transform:translateX(-3px)}}
+.ms-choice-fade{opacity:.4}
+.ms-bolt{position:absolute;top:6px;right:9px;font-size:14px;animation:msBoltSpin .5s ease-out}
+@keyframes msBoltSpin{from{transform:scale(.3) rotate(-180deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+.ms-fb{text-align:center;font-size:14.5px;font-weight:800;padding:11px;border-radius:11px;letter-spacing:-.005em}
+.ms-fb-ok{background:#EDFCF2;color:#16A34A}
+.ms-fb-bad{background:#FEF2F2;color:#DC2626}
+.ms-bonus{text-align:center;font-size:18px;font-weight:900;background:linear-gradient(135deg,#FCD34D,#FB923C);color:#7C2D12;padding:12px;border-radius:12px;animation:msPop .4s cubic-bezier(.2,1.5,.5,1)}
+.ms-particle{position:fixed;width:9px;height:9px;border-radius:50%;pointer-events:none;z-index:200;animation:msFly .9s cubic-bezier(.4,0,.6,1) forwards}
+@keyframes msFly{0%{transform:translate(-50%,-50%) scale(1);opacity:1}100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(.4);opacity:0}}
+body[data-theme=aurora] .ms-body{background:#1A1A2E}
+body[data-theme=aurora] .ms-problem,body[data-theme=aurora] .ms-stat b{color:#F5F5FA}
+body[data-theme=aurora] .ms-choice{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14);color:#F5F5FA}
+body[data-theme=aurora] .ms-choice:hover:not(:disabled){border-color:#A78BFA;background:rgba(167,139,250,.12)}
+body[data-theme=aurora] .ms-time-track{background:rgba(255,255,255,.08)}
+body[data-theme=aurora] .ms-stat{background:rgba(255,255,255,.06)}
 /* Memory Tap canvas-game */
 .mt-shell{padding:0;background:linear-gradient(180deg,#1E1B4B,#0F172A);border-radius:0 0 18px 18px;overflow:hidden;position:relative}
 .mt-hud{display:flex;justify-content:space-between;align-items:center;padding:14px 18px 4px;background:transparent;color:rgba(255,255,255,.85);font-family:'Space Mono',monospace;font-size:12px;letter-spacing:1.2px;font-weight:700}
@@ -3949,7 +3994,7 @@ async function voiceFinish(){
   voiceClose();
 }
 async function _mgSave(game,xpAdd,best){const r=await api('/games/progress',{method:'POST',body:JSON.stringify({game,xpAdd:xpAdd|0,best:best!=null?best|0:null})});if(r&&r.ok){S.mg.progress[game]={level:r.level,xp:r.xp,best:r.best,plays:r.plays};if(r.leveledUp)toast('\\u{1F31F} Level up! '+game+' \\u2192 L'+r.level);render()}}
-function mgClose(){_mtCleanup();S.mgPlay=null;render()}
+function mgClose(){_mtCleanup();if(S._msTimer){clearInterval(S._msTimer);S._msTimer=null}S.mgPlay=null;render()}
 function mgPercent(g){const p=S.mg.progress[g]||{level:1,xp:0};return Math.min(100,Math.round((p.xp/(5*100))*100))}
 
 // ── Math Sprint ──
@@ -3966,25 +4011,90 @@ function _mgMathProblem(level){
   const choices=[ans,...wrongs].sort(()=>Math.random()-.5);
   return {a,b,op,ans,choices}
 }
-function mgMathStart(){const lvl=S.mg.progress.math.level;S.mgPlay={game:'math',level:lvl,_baseLevel:lvl,score:0,streak:0,best:0,wrongs:0,problem:_mgMathProblem(lvl),feedback:null,startedAt:Date.now(),done:false};_mgSound('tap');render()}
+// Math Sprint v2 — time pressure, combo multiplier, particles, smooth transitions, end-screen with stars
+function _msTimePerProblem(lvl){return [10,8,7,6,5][Math.min(4,Math.max(0,lvl-1))]||10}
+function mgMathStart(){
+  const lvl=S.mg.progress.math.level;
+  S.mgPlay={game:'math',level:lvl,_baseLevel:lvl,score:0,streak:0,best:0,wrongs:0,combo:1,problem:_mgMathProblem(lvl),feedback:null,feedbackChoice:null,startedAt:Date.now(),done:false,problemIdx:0,timeMax:_msTimePerProblem(lvl),timeStart:Date.now(),slideIn:Date.now(),particles:[],bonus:null};
+  _mgSound('tap');render();
+  if(S._msTimer)clearInterval(S._msTimer);
+  S._msTimer=setInterval(_msTick,100);
+}
+function _msTick(){
+  const p=S.mgPlay;if(!p||p.game!=='math'||p.done){if(S._msTimer){clearInterval(S._msTimer);S._msTimer=null}return}
+  if(p.feedback)return;  // pause timer during feedback
+  const elapsed=(Date.now()-p.timeStart)/1000;
+  const left=Math.max(0,p.timeMax-elapsed);
+  // Force-render timer bar by triggering a partial DOM update for the bar element
+  const bar=document.getElementById('msBar');
+  if(bar){bar.style.width=((left/p.timeMax)*100)+'%';bar.style.background=left<2?'linear-gradient(90deg,#DC2626,#F87171)':left<4?'linear-gradient(90deg,#F59E0B,#FCD34D)':'linear-gradient(90deg,#22D3EE,#34D399)'}
+  if(left<=0&&!p.feedback){
+    // Timeout = wrong
+    p.feedback={ok:false,msg:'Time! Answer was '+p.problem.ans,timeout:true};
+    p.feedbackChoice=null;p.streak=0;p.combo=1;p.wrongs++;
+    _mgSound('wrong');
+    render();
+    setTimeout(()=>_msNextProblem(),900);
+  }
+}
 function mgMathAnswer(choice){
-  const p=S.mgPlay;if(!p||p.game!=='math'||p.done)return;
-  if(choice===p.problem.ans){
-    p.score++;p.streak++;if(p.streak>p.best)p.best=p.streak;p.feedback={ok:true,msg:'Correct!'};
-    _mgSound('correct');
-    // Adaptive: 5+ streak = bump difficulty by 1 (capped at 5). 2 wrongs in a row = drop 1 (min base level)
-    if(p.streak===5&&p.level<5)p.level++;
+  const p=S.mgPlay;if(!p||p.game!=='math'||p.done||p.feedback)return;
+  const correct=choice===p.problem.ans;
+  const elapsed=(Date.now()-p.timeStart)/1000;
+  const fast=correct&&elapsed<2;  // sub-2s answer = bonus
+  if(correct){
+    p.score++;p.streak++;p.combo=Math.min(5,p.combo+1);
+    if(p.streak>p.best)p.best=p.streak;
+    p.feedback={ok:true,fast,msg:fast?'Lightning!':'Nice'};
+    p.feedbackChoice=choice;
+    _mgSound(fast?'levelup':'correct');
+    // Particle burst at the choice tile
+    setTimeout(()=>_msSpawnParticles(choice,fast?20:12),0);
+    if(p.streak>=5&&p.level<5){p.level++;p.bonus={text:'Level Up! L'+p.level};setTimeout(()=>{if(S.mgPlay)S.mgPlay.bonus=null;render()},1500)}
   } else {
-    p.streak=0;p.wrongs++;p.feedback={ok:false,msg:'Answer was '+p.problem.ans};
+    p.streak=0;p.combo=1;p.wrongs++;
+    p.feedback={ok:false,msg:'Answer: '+p.problem.ans};
+    p.feedbackChoice=choice;
     _mgSound('wrong');
     if(p.wrongs>=2&&p.level>p._baseLevel){p.level--;p.wrongs=0}
   }
   render();
-  setTimeout(()=>{
-    const cur=S.mgPlay;if(!cur||cur.game!=='math')return;
-    if(cur.score>=10){cur.done=true;_mgSound('levelup');_mgMarkDone('math');S._mgConfetti=Date.now();render();_mgSave('math',cur.score*5,cur.best)}
-    else{cur.problem=_mgMathProblem(cur.level);cur.feedback=null;render()}
-  },650);
+  setTimeout(()=>{const cur=S.mgPlay;if(!cur||cur.game!=='math'||cur.done)return;_msNextProblem()},correct?650:1100);
+}
+function _msNextProblem(){
+  const p=S.mgPlay;if(!p||p.game!=='math')return;
+  p.problemIdx++;
+  if(p.problemIdx>=10){
+    // Game complete
+    p.done=true;
+    if(S._msTimer){clearInterval(S._msTimer);S._msTimer=null}
+    _mgSound('levelup');_mgMarkDone('math');
+    if(p.score>=8)S._mgConfetti=Date.now();
+    render();
+    _mgSave('math',p.score*5,p.best);
+    return;
+  }
+  p.problem=_mgMathProblem(p.level);
+  p.feedback=null;p.feedbackChoice=null;
+  p.timeMax=_msTimePerProblem(p.level);
+  p.timeStart=Date.now();
+  p.slideIn=Date.now();
+  render();
+}
+function _msSpawnParticles(choice,n){
+  // Find the tile DOM node and spawn floating particles around it
+  const el=document.querySelector('[data-msc="'+choice+'"]');if(!el)return;
+  const r=el.getBoundingClientRect();
+  const cx=r.left+r.width/2,cy=r.top+r.height/2;
+  const colors=['#FCD34D','#FB923C','#A855F7','#22D3EE','#34D399','#F472B6'];
+  for(let i=0;i<n;i++){
+    const d=document.createElement('div');
+    d.className='ms-particle';
+    const a=Math.random()*Math.PI*2,sp=80+Math.random()*120;
+    d.style.cssText='left:'+cx+'px;top:'+cy+'px;background:'+colors[i%colors.length]+';--dx:'+(Math.cos(a)*sp)+'px;--dy:'+(Math.sin(a)*sp-40)+'px';
+    document.body.appendChild(d);
+    setTimeout(()=>d.remove(),900);
+  }
 }
 
 // ── Memory Tap (canvas-based, Elevate-quality rebuild) ──
@@ -5182,17 +5292,42 @@ if(S.mgPlay){
 
   if(p.game==='math'){
     if(p.done){
-      h+='<div class="mg-body mg-end"><div class="mg-end-emoji">\\u{1F389}</div><div class="mg-end-t">'+p.score+' / 10 correct</div><div class="mg-end-s">Best streak: <b>'+p.best+'</b> \\u2022 +'+(p.score*5)+' XP</div><div class="was-acts"><button class="mb mb-c" onclick="mgClose()">Done</button><button class="mb mb-s" onclick="mgMathStart()">\\u21BB Play again</button></div></div>';
-    }else{
+      const stars=p.score>=10?3:p.score>=8?2:p.score>=4?1:0;
+      const starsHTML=[1,2,3].map(n=>'<span class="mt-star'+(n<=stars?' mt-star-on':'')+'">\\u2605</span>').join('');
+      h+='<div class="mg-body mt-end">'
+        +'<div class="mt-end-stars">'+starsHTML+'</div>'
+        +'<div class="mt-end-t"><b>'+p.score+'</b> / 10 correct</div>'
+        +'<div class="mt-end-s">Best streak: '+p.best+' \\u2022 +'+(p.score*5)+' XP saved</div>'
+        +'<div class="was-acts"><button class="mb mb-c" onclick="mgClose()">Done</button><button class="mb mb-s" onclick="mgMathStart()">\\u21BB Play again</button></div>'
+      +'</div>';
+    } else {
       const q=p.problem;
-      h+='<div class="mg-body">'
-        +'<div class="mg-progress"><div class="mg-progress-bar" style="width:'+(p.score*10)+'%"></div></div>'
-        +'<div class="mg-math-q">'+q.a+' '+q.op+' '+q.b+' = ?</div>'
-        +'<div class="mg-math-choices">';
-      q.choices.forEach(c=>{const cls=p.feedback?(c===q.ans?' mg-choice-ok':' mg-choice-wrong'):'';h+='<button class="mg-choice'+cls+'" onclick="mgMathAnswer('+c+')"'+(p.feedback?' disabled':'')+'>'+c+'</button>'});
+      const elapsed=(Date.now()-p.timeStart)/1000;
+      const timePct=Math.max(0,Math.min(100,((p.timeMax-elapsed)/p.timeMax)*100));
+      h+='<div class="ms-body">'
+        // Stats bar
+        +'<div class="ms-stats"><div class="ms-stat"><b>'+p.score+'</b><small>/10</small></div>'
+          +'<div class="ms-stat ms-stat-streak'+(p.streak>=3?' ms-streak-hot':'')+'"><b>'+p.streak+'</b><small>streak</small></div>'
+          +(p.combo>1?'<div class="ms-combo">x'+p.combo+'</div>':'')
+        +'</div>'
+        // Time pressure bar
+        +'<div class="ms-time-track"><div class="ms-time-fill" id="msBar" style="width:'+timePct+'%"></div></div>'
+        // Problem (slide-in animated via key)
+        +'<div class="ms-problem-wrap"><div class="ms-problem" key="'+p.problemIdx+'"><span class="ms-num">'+q.a+'</span><span class="ms-op">'+q.op+'</span><span class="ms-num">'+q.b+'</span><span class="ms-eq">=</span><span class="ms-q">?</span></div></div>'
+        // Choices
+        +'<div class="ms-choices">';
+      q.choices.forEach((c,idx)=>{
+        let cls='ms-choice';
+        if(p.feedback){
+          if(c===q.ans)cls+=' ms-choice-ok';
+          else if(c===p.feedbackChoice)cls+=' ms-choice-wrong';
+          else cls+=' ms-choice-fade';
+        }
+        h+='<button class="'+cls+'" data-msc="'+c+'" onclick="mgMathAnswer('+c+')"'+(p.feedback?' disabled':'')+'>'+c+(p.feedback&&p.feedback.fast&&c===q.ans?'<span class="ms-bolt">\\u26A1</span>':'')+'</button>';
+      });
       h+='</div>'
-        +(p.feedback?'<div class="mg-feedback '+(p.feedback.ok?'mg-fb-ok':'mg-fb-bad')+'">'+esc(p.feedback.msg)+'</div>':'')
-        +'<div class="mg-meta">Score <b>'+p.score+'</b>/10 \\u2022 Streak <b>'+p.streak+'</b></div>'
+        +(p.feedback?'<div class="ms-fb '+(p.feedback.ok?'ms-fb-ok':'ms-fb-bad')+'">'+(p.feedback.ok?(p.feedback.fast?'\\u26A1 Lightning fast!':'\\u2705 '+p.feedback.msg):p.feedback.msg)+'</div>':'')
+        +(p.bonus?'<div class="ms-bonus">\\u{1F389} '+esc(p.bonus.text)+'</div>':'')
       +'</div>';
     }
   } else if(p.game==='memory'){
