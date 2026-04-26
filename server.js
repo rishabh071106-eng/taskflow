@@ -963,8 +963,10 @@ body[data-theme=aurora] .section-div::before{background:#1A1A2E;border-color:rgb
 .moral::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:linear-gradient(180deg,#E8912C,#3DAE5C);z-index:2}
 .moral-doodle{position:absolute;top:0;right:0;bottom:0;width:42%;max-width:480px;height:100%;pointer-events:none;z-index:0;opacity:.95;filter:drop-shadow(0 1px 2px rgba(15,23,42,.05))}
 .moral::after{content:'';position:absolute;top:0;left:0;bottom:0;width:58%;background:linear-gradient(90deg,rgba(255,251,241,.97) 0%,rgba(254,243,224,.75) 80%,rgba(254,243,224,0) 100%);pointer-events:none;z-index:0}
-@media (max-width:700px){.moral-doodle{width:36%;opacity:.8}.moral::after{width:64%}.moral{min-height:auto;padding:18px 18px 16px}.moral-txt{font-size:14.5px;line-height:1.4}.moral-by{font-size:12px}.moral-emoji{font-size:22px}}
-@media (max-width:480px){.moral-doodle{display:none}.moral::after{display:none}.moral-txt{font-size:14px}}
+@media (max-width:700px){.moral-doodle{width:36%;opacity:.8}.moral::after{width:64%}.moral{min-height:auto;padding:8px 12px;gap:8px}.moral-txt{font-size:13px;line-height:1.35}.moral-by{font-size:11px;margin-top:1px}.moral-emoji{font-size:16px}.moral-lbl{font-size:9px}}
+@media (max-width:480px){.moral-doodle{display:none}.moral::after{display:none}.moral-txt{font-size:12.5px}}
+.bottom-strip{display:flex;flex-direction:column;gap:12px;margin-top:28px;padding-top:20px;border-top:1px solid var(--line)}
+@media (min-width:1024px){.bottom-strip{grid-column:1/-1}}
 body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,20,40,.9) 0%,rgba(20,20,40,.65) 70%,rgba(20,20,40,0) 100%)}
 .moral-emoji{font-size:16px;flex-shrink:0;filter:drop-shadow(0 1px 3px rgba(232,145,44,.3));position:relative;z-index:1}
 .moral-body{flex:1;min-width:0;position:relative;z-index:1}
@@ -2699,8 +2701,9 @@ const PHONE_BANNER='<div class="phone-banner" aria-hidden="true">'
 const PROFILE_BTN='<button class="hdr-profile" onclick="openProfile()" title="'+esc(S.user.name||S.user.phone||'Profile')+'" aria-label="Profile"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg><span class="hdr-profile-name">'+esc((S.user.name||S.user.phone||'').split(' ')[0])+'</span></button>';
 let h=PHONE_BANNER+'<div class="hdr"><div><div class="logo">Bro<span class="k">Do</span>it</div><div class="hdr-tagline">tasks &middot; books &middot; wisdom &middot; calm</div><div class="hdr-sub">'+JUMPER+HDR_TIME+'</div></div><div class="hdr-actions">'+PROFILE_BTN+'<button class="theme-tg" onclick="toggleTheme()" title="Switch theme">'+(S.theme==='aurora'?ic('sun',18):ic('moon',18))+'</button></div></div>';
 
-// Moral chip
+// Moral chip stays at top. Remember + news ticker + world clocks moved to the bottom.
 const m=MORALS[S.moralIdx];
+let bottomBlock='';
 {
   const mWrap='<div class="moral">'+MORAL_DOODLE+'<div class="moral-emoji">\\u{1F4A1}</div><div class="moral-body"><div class="moral-lbl">Moral of the Day</div><div class="moral-txt">"'+esc(m.t)+'"</div><div class="moral-by">\\u2014 '+esc(m.a)+'</div></div><button class="moral-ref" onclick="rotateMoral()" title="New quote">\\u21BB</button></div>';
   // News ticker — 5 stacked WORLD-news headlines below the moral chip
@@ -2726,7 +2729,8 @@ const m=MORALS[S.moralIdx];
       +'<svg class="remember-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>'
     +'</a>';
   }
-  h+='<div class="moral-wrap">'+mWrap+remember+ticker+wc+'</div>';
+  h+='<div class="moral-wrap">'+mWrap+'</div>';
+  bottomBlock='<div class="bottom-strip">'+remember+ticker+wc+'</div>';
 }
 
 // Tabs
@@ -3259,6 +3263,7 @@ h+='<div class="macts"><button class="mb mb-c" onclick="clM()">Cancel</button><b
 if(isE)h+='<button class="mb mb-d" onclick="del(\\''+S.editing+'\\');clM()">Delete</button>';
 h+='</div></div>';}
 
+h+=bottomBlock;
 document.getElementById('app').innerHTML=h;
 }
 fetch('/api/config').then(r=>r.json()).then(c=>{window.__TWILIO_SANDBOX_CODE=c.sandboxCode||'';render()}).catch(()=>{});
