@@ -1669,14 +1669,16 @@ body[data-theme=aurora] .tc-added{color:#6B6B85;background:rgba(255,255,255,.04)
 .loading{text-align:center;padding:30px;color:#94A3B8;font-size:13px}
 .toast{position:fixed;top:14px;left:50%;transform:translateX(-50%);padding:10px 18px;border-radius:10px;font-size:13px;font-weight:600;z-index:300;box-shadow:0 4px 16px rgba(0,0,0,.08);border:1px solid}
 .toast-ok{background:#F2FBF4;border-color:#B7E8C4;color:#2D8A4E}.toast-err{background:#FEF1F0;border-color:#F5C6C2;color:#E8453C}
-.login{max-width:440px;margin:0 auto;padding:32px 24px 48px;text-align:center;min-height:100vh;display:flex;flex-direction:column;justify-content:center;gap:0}
+.login{max-width:520px;margin:0 auto;padding:48px 32px 56px;text-align:center;min-height:100vh;display:flex;flex-direction:column;justify-content:center;gap:0}
+@media (min-width:1024px){.login{max-width:560px;padding:64px 40px 72px}}
 .hero-photo{position:relative;width:100%;aspect-ratio:5/3;border-radius:14px;overflow:hidden;margin-bottom:32px;background:var(--bg-sunken);box-shadow:var(--shadow-2)}
 .hero-photo img{width:100%;height:100%;object-fit:cover;display:block;animation:photoFade .9s ease}
 .hero-photo-overlay{position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(0,0,0,.18) 100%);pointer-events:none}
 @keyframes photoFade{from{opacity:0;transform:scale(1.04)}to{opacity:1;transform:scale(1)}}
-.login-logo{font-family:'Instrument Serif',Georgia,serif;font-size:46px;font-weight:400;margin-bottom:6px;letter-spacing:-1.5px;color:var(--ink);line-height:1}
-.login-tagline{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-size:18px;color:var(--ink-3);margin-bottom:20px;letter-spacing:.01em}
-.login-sub{font-size:15px;color:var(--ink-3);margin-bottom:28px;line-height:1.6;font-weight:450;max-width:360px;margin-left:auto;margin-right:auto}
+.login-logo{font-family:'Instrument Serif',Georgia,serif;font-size:56px;font-weight:400;margin-bottom:8px;letter-spacing:-1.8px;color:var(--ink);line-height:1}
+.login-tagline{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-size:20px;color:var(--ink-3);margin-bottom:24px;letter-spacing:.01em}
+.login-sub{font-size:16px;color:var(--ink-3);margin-bottom:32px;line-height:1.6;font-weight:450;max-width:420px;margin-left:auto;margin-right:auto}
+@media (min-width:1024px){.login-logo{font-size:72px;letter-spacing:-2.2px}.login-tagline{font-size:22px;margin-bottom:32px}.login-sub{font-size:17px;margin-bottom:36px}}
 .hero-stage{width:100%;max-width:380px;margin:0 auto 6px;position:relative;animation:heroIn .9s cubic-bezier(.2,.8,.2,1) backwards}
 .hero-art{width:100%;height:auto;display:block;filter:drop-shadow(0 24px 48px rgba(99,102,241,.22))}
 .hero-bubble{transform-origin:240px 70px;animation:bubbleFloat 4s ease-in-out infinite alternate}
@@ -1728,7 +1730,8 @@ body[data-theme=aurora] .tc-added{color:#6B6B85;background:rgba(255,255,255,.04)
 .login input{margin-bottom:12px;text-align:left;font-size:15px;letter-spacing:0;padding:14px 16px;border:1px solid var(--line);border-radius:10px;background:var(--bg-elev);color:var(--ink);transition:border-color .15s ease,box-shadow .15s ease;width:100%;font-weight:450}
 .login input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
 .login input::placeholder{color:var(--ink-4)}
-.login-btn{width:100%;padding:14px;font-size:15px;border-radius:10px;font-weight:600;background:var(--ink);color:#FAFAF7;border:none;margin-top:6px;letter-spacing:-.005em;transition:background .15s ease,transform .1s ease}
+.login-btn{width:100%;padding:16px;font-size:16px;border-radius:12px;font-weight:600;background:var(--ink);color:#FAFAF7;border:none;margin-top:8px;letter-spacing:-.005em;transition:background .15s ease,transform .1s ease}
+@media (min-width:1024px){.login-btn{padding:18px;font-size:17px}}
 .login-btn:hover{background:#000}
 .login-btn:active{transform:scale(.99)}
 .login-btn:disabled{opacity:.5;cursor:not-allowed}
@@ -1740,7 +1743,8 @@ body[data-theme=aurora] .tc-added{color:#6B6B85;background:rgba(255,255,255,.04)
 .login-foot a:hover{color:#0F172A;text-decoration:underline}
 .login-foot span{opacity:.5}
 .otp-inputs{display:flex;gap:8px;justify-content:center;margin:16px 0}
-.otp-inputs input{width:44px;height:52px;text-align:center;font-size:22px;font-family:'Space Mono',monospace;font-weight:700;padding:0;border-radius:10px}
+.otp-inputs input{width:48px;height:58px;text-align:center;font-size:24px;font-family:'Space Mono',monospace;font-weight:700;padding:0;border-radius:12px}
+@media (min-width:1024px){.otp-inputs input{width:56px;height:66px;font-size:28px}}
 .user-bar{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#FFFFFF;border:1px solid #E8E9EF;border-radius:12px;margin-bottom:14px;font-size:14px;font-weight:600;transition:all .18s;box-shadow:0 2px 8px rgba(0,0,0,.03)}
 .user-bar:hover{border-color:#CBD5E1;box-shadow:0 4px 12px rgba(0,0,0,.06)}
 .user-bar button{font-size:13px;color:#E8453C;font-weight:700;padding:6px 12px;border-radius:8px;transition:all .15s}
@@ -2401,13 +2405,39 @@ const COUNTRY_CODES=[
 function formatPhonePreview(p){const d=(p||'').replace(/[^0-9+]/g,'');if(!d)return '';if(d.length===10&&!d.startsWith('+'))return null;let out=d;if(!out.startsWith('+'))out='+'+out;return out}
 function updatePhonePreview(){const el=document.getElementById('phPreview');if(!el)return;const cc=S.loginCountryCode||'+91';const local=(S.loginPhone||'').replace(/[^0-9]/g,'');if(!local){el.innerHTML='<span style="color:#94A3B8">Type your number above</span>';return}if(local.length<6){el.innerHTML='<span style="color:#94A3B8">Keep typing\\u2026</span>';return}el.innerHTML='<span style="color:#16A34A">\\u2713 Will send to '+cc+' '+local+'</span>'}
 function persistLoginState(){try{localStorage.setItem('tf_login_state',JSON.stringify({step:S.loginStep,method:S.loginMethod,phone:S.loginPhone,cc:S.loginCountryCode,email:S.loginEmail,name:S.loginName,sentTo:S.loginSentTo,ts:Date.now()}));if(S.loginCountryCode)localStorage.setItem('tf_cc',S.loginCountryCode)}catch(e){}}
-function restoreLoginState(){try{const raw=localStorage.getItem('tf_login_state');if(!raw)return;const d=JSON.parse(raw);if(!d||!d.ts||Date.now()-d.ts>15*60*1000){localStorage.removeItem('tf_login_state');return}S.loginStep=d.step||'phone';S.loginMethod=d.method||'email';S.loginPhone=d.phone||'';S.loginCountryCode=d.cc||S.loginCountryCode||'+91';S.loginEmail=d.email||'';S.loginName=d.name||'';S.loginSentTo=d.sentTo||''}catch(e){}}
+function restoreLoginState(){
+  // Pre-fill from previous session's saved name/email/phone (kept across logout)
+  try{
+    const lastName=localStorage.getItem('tf_name')||'';
+    const lastEmail=localStorage.getItem('tf_email')||'';
+    const lastPhone=localStorage.getItem('tf_phone')||'';
+    if(lastName)S.loginName=lastName;
+    if(lastEmail){S.loginEmail=lastEmail;S.loginMethod='email'}
+    else if(lastPhone){S.loginPhone=lastPhone;S.loginMethod='whatsapp'}
+  }catch(e){}
+  // Then layer the in-progress state (mid-OTP etc.) on top if it's still fresh
+  try{const raw=localStorage.getItem('tf_login_state');if(!raw)return;const d=JSON.parse(raw);if(!d||!d.ts||Date.now()-d.ts>15*60*1000){localStorage.removeItem('tf_login_state');return}S.loginStep=d.step||'phone';S.loginMethod=d.method||S.loginMethod||'email';S.loginPhone=d.phone||S.loginPhone;S.loginCountryCode=d.cc||S.loginCountryCode||'+91';S.loginEmail=d.email||S.loginEmail;S.loginName=d.name||S.loginName;S.loginSentTo=d.sentTo||''}catch(e){}
+}
 function clearLoginState(){try{localStorage.removeItem('tf_login_state')}catch(e){}}
 async function sendOTP(){S.loginLoading=true;S.loginError='';render();let url,body;if(S.loginMethod==='email'){const em=(S.loginEmail||'').trim().toLowerCase();if(!/^[\\w.+-]+@[\\w-]+\\.[a-z]{2,}$/i.test(em)){S.loginError='Enter a valid email address';S.loginLoading=false;render();return}url='/api/send-otp-email';body={email:em}}else{const cc=(S.loginCountryCode||'+91').replace(/[^0-9+]/g,'');const local=(S.loginPhone||'').replace(/[^0-9]/g,'');if(!local){S.loginError='Enter your WhatsApp number';S.loginLoading=false;render();return}if(local.length<6){S.loginError='Phone number too short';S.loginLoading=false;render();return}const ph=cc+local;url='/api/send-otp';body={phone:ph}}const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(r=>r.json()).catch(()=>({ok:false,error:'Network error \\u2014 check your connection'}));S.loginLoading=false;if(r.ok){S.loginStep='otp';S.loginOTP=['','','','','',''];S.loginError='';S.loginSentTo=r.phone||S.loginEmail||((S.loginCountryCode||'')+S.loginPhone);persistLoginState();render();setTimeout(()=>{const el=document.getElementById('otp0');if(el)el.focus()},100)}else{S.loginError=r.error||'Failed to send OTP';S.loginErrorDetail=r.detail||'';S.loginErrorCode=r.code||0;render()}}
 async function verifyOTP(){const code=S.loginOTP.join('');if(code.length<6){S.loginError='Enter the 6-digit code';render();return}S.loginLoading=true;S.loginError='';render();let url,body;if(S.loginMethod==='email'){url='/api/verify-otp-email';body={email:(S.loginEmail||'').trim().toLowerCase(),code,name:S.loginName}}else{let ph=S.loginPhone.replace(/[^0-9+]/g,'');if(!ph.startsWith('+'))ph='+'+ph;url='/api/verify-otp';body={phone:ph,code,name:S.loginName}}const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(r=>r.json()).catch(()=>({error:'Network error'}));S.loginLoading=false;if(r.token){token=r.token;localStorage.setItem('tf_token',r.token);localStorage.setItem('tf_phone',r.phone);localStorage.setItem('tf_name',r.name||'');if(r.email)localStorage.setItem('tf_email',r.email);S.user=r;S.loginStep='phone';clearLoginState();load();chk();toast('\\u2705 Welcome!')}else{S.loginError=r.error||'Verification failed';render()}}
 function otpInput(i,v){const d=v.slice(-1);S.loginOTP[i]=d;const el=document.getElementById('otp'+i);if(el)el.value=d;if(d&&i<5){const nx=document.getElementById('otp'+(i+1));if(nx)nx.focus()}else if(d&&i===5){if(S.loginOTP.every(x=>x))verifyOTP()}}
 function otpKey(i,e){if(e.key==='Backspace'&&!S.loginOTP[i]&&i>0){const prev=document.getElementById('otp'+(i-1));if(prev){prev.focus();S.loginOTP[i-1]='';prev.value=''}}}
-function logout(){token=null;S.user=null;S.tasks=[];S.loginStep='phone';S.loginOTP=['','','','','',''];localStorage.removeItem('tf_token');localStorage.removeItem('tf_phone');localStorage.removeItem('tf_name');render()}
+function logout(){
+  // Preserve name/email/phone so the next login is one-tap
+  const lastName=localStorage.getItem('tf_name')||'';
+  const lastEmail=localStorage.getItem('tf_email')||'';
+  const lastPhone=localStorage.getItem('tf_phone')||'';
+  token=null;S.user=null;S.tasks=[];
+  S.loginStep='phone';S.loginOTP=['','','','','',''];
+  S.loginName=lastName;S.loginEmail=lastEmail;S.loginPhone=lastPhone;
+  S.loginMethod=lastEmail?'email':(lastPhone?'whatsapp':'email');
+  S.loginError='';S.loginErrorDetail='';S.loginErrorCode=0;S.loginSentTo='';
+  localStorage.removeItem('tf_token');
+  // Keep tf_name, tf_email, tf_phone in localStorage so we can pre-fill on relogin
+  try{localStorage.removeItem('tf_login_state')}catch(e){}
+  render();
+}
 async function load(){const a=document.getElementById('audioEl');if(a&&!a.paused)return;const t=await api('/tasks');if(!t)return;const h=JSON.stringify(t);if(h===S._lastTasksHash)return;S._lastTasksHash=h;S.tasks=t;render()}
 async function chk(){const h=await api('/health');if(h)S.waOk=h.twilio;render()}
 async function addT(){if(!S.form.title.trim())return;const r=await api('/tasks',{method:'POST',body:JSON.stringify({title:S.form.title,notes:S.form.notes,priority:S.form.priority,status:'pending',due_date:S.form.dueDate,reminder_time:S.form.reminderTime})});if(r?.id){S.tasks.unshift(r);clM();toast('\\u2705 Task added!')}}
@@ -2649,8 +2679,8 @@ for(let i=0;i<6;i++)h+='<input id="otp'+i+'" type="tel" maxlength="1" value="'+S
 h+='</div>';
 if(S.loginError)h+='<div style="color:#E8453C;font-size:13px;font-weight:600;margin:8px 0">'+S.loginError+'</div>';
 h+='<button class="login-btn" onclick="verifyOTP()"'+(S.loginLoading?' disabled':'')+'>'+(S.loginLoading?'Verifying...':'Verify & Login')+'</button>';
-h+='<button class="login-btn sec" onclick="S.loginStep=\\'phone\\';S.loginError=\\'\\';render()">\\u2190 Change number</button>';
-h+='<div class="login-hint">Didn\\'t get the code? Check your spam folder or click "Change number" to retry.</div>';
+h+='<button class="login-btn sec" onclick="S.loginStep=\\'phone\\';S.loginError=\\'\\';render()">\\u2190 '+(S.loginMethod==='email'?'Change email':'Change number')+'</button>';
+h+='<div class="login-hint">Didn\\'t get the code? Check your '+(S.loginMethod==='email'?'spam folder or tap "Change email"':'WhatsApp or tap "Change number"')+' to retry.</div>';
 }
 h+='<footer class="login-foot"><a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a><span>\\u2022</span><a href="/terms" target="_blank" rel="noopener">Terms of Service</a><span>\\u2022</span><a href="mailto:hello@brodoit.com">Contact</a></footer>';
 h+='</div>';
