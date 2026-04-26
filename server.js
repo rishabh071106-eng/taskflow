@@ -3351,7 +3351,7 @@ if(S.tab==='tasks'){
       +'</div>'
       +'<ul class="intro-steps">'
         +'<li><span class="intro-ic">\\u270F\\uFE0F</span><div><b>Add tasks here, manage them on Board.</b> <span class="intro-d">Tap the <b>+ Add a new task</b> bar (or use the \\u{1F3A4} voice button) on the <b>Tasks</b> tab. Then switch to the <b>Board</b> tab to drag tasks across <b>To Do \\u2192 Doing \\u2192 Done</b>.</span></div></li>'
-        +'<li><span class="intro-ic">\\u{1F4F2}</span><div><b>Connect WhatsApp.</b> <span class="intro-d">Open your profile (top-right), tap <b>Set up WhatsApp</b>, send <b>join</b> to <b>+1 415 523 8886</b> on WhatsApp once, enter your number, paste the 6-digit code we send you, and you can WhatsApp tasks straight into Brodoit and get reminders in chat.</span></div></li>'
+        +'<li><span class="intro-ic">\\u{1F4F2}</span><div><b>Connect WhatsApp.</b> <span class="intro-d">WhatsApp is bridged through <b>Twilio</b> (3rd-party gateway) to Brodoit\\u2019s server \\u2014 your messages flow Twilio \\u2192 Brodoit and back. To set it up: open your profile (top-right), tap <b>Set up WhatsApp</b>, send <b>join</b> to <b>+1 415 523 8886</b> on WhatsApp once (this links you to the Twilio gateway), enter your number, paste the 6-digit code we send you, and you can WhatsApp tasks straight into Brodoit and get reminders in chat.</span></div></li>'
         +'<li><span class="intro-ic">\\u2728</span><div><b>More inside the app.</b> <span class="intro-d">A daily moral, free public-domain audiobooks, guided meditations, calendar with Google sync, and headlines on the News tab \\u2014 explore the tab bar above.</span></div></li>'
       +'</ul>'
       +'<div class="intro-acts">'
