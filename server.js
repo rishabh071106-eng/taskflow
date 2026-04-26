@@ -2,9 +2,19 @@ require('dotenv').config();
 const express=require('express'),cors=require('cors'),Database=require('better-sqlite3'),twilio=require('twilio'),path=require('path'),crypto=require('crypto');
 const app=express();app.use(cors());app.use(express.json());app.use(express.urlencoded({extended:true}));
 
-const DB_PATH=process.env.DB_PATH||path.join(__dirname,'taskflow.db');
+// DB path — explicit DB_PATH env var wins. Otherwise, if /data exists (Railway Volume convention),
+// use /data/taskflow.db so the SQLite file SURVIVES redeploys. Last resort: __dirname (NOT durable
+// across deploys — every Railway redeploy spins a fresh container and that file is wiped). Set up
+// a Railway Volume at /data and restart to make this auto-pick the durable path.
+const _resolveDbPath=()=>{
+  if(process.env.DB_PATH)return process.env.DB_PATH;
+  try{if(require('fs').existsSync('/data')&&require('fs').statSync('/data').isDirectory())return '/data/taskflow.db'}catch(e){}
+  return path.join(__dirname,'taskflow.db');
+};
+const DB_PATH=_resolveDbPath();
 try{require('fs').mkdirSync(path.dirname(DB_PATH),{recursive:true})}catch(e){}
-console.log('[db] using',DB_PATH);
+const _isDurable=DB_PATH.startsWith('/data')||(process.env.DB_PATH&&!DB_PATH.includes(__dirname));
+console.log('[db] using',DB_PATH,_isDurable?'\\u2705 (durable across deploys)':'\\u26A0\\uFE0F  (EPHEMERAL — set DB_PATH or mount /data on Railway to keep tasks across redeploys)');
 const db=new Database(DB_PATH);db.pragma('journal_mode=WAL');
 db.exec(`CREATE TABLE IF NOT EXISTS users(phone TEXT PRIMARY KEY,name TEXT DEFAULT'',token TEXT,created_at TEXT DEFAULT(datetime('now')));
 CREATE TABLE IF NOT EXISTS tasks(id TEXT PRIMARY KEY,user_phone TEXT NOT NULL,title TEXT NOT NULL,notes TEXT DEFAULT'',priority TEXT DEFAULT'medium',status TEXT DEFAULT'pending',due_date TEXT DEFAULT'',reminder_time TEXT DEFAULT'',reminded INTEGER DEFAULT 0,source TEXT DEFAULT'app',created_at TEXT DEFAULT(datetime('now')),updated_at TEXT DEFAULT(datetime('now')));
@@ -160,6 +170,26 @@ app.post('/api/verify-otp',(req,res)=>{
   if(!user){db.prepare('INSERT INTO users(phone,name,token)VALUES(?,?,?)').run(phone,name,token);user={phone,name,token}}
   else{db.prepare('UPDATE users SET token=?,name=COALESCE(NULLIF(?,\'\'),name)WHERE phone=?').run(token,name,phone);user.token=token;if(name)user.name=name}
   res.json({phone:user.phone,name:user.name||name,token});
+});
+
+// ═══ USER EXPORT / IMPORT — last-resort safety net ═══
+// Lets a user pull all their tasks as JSON ("download backup") and push the same JSON back if the
+// server DB ever loses them (e.g. a Railway redeploy without a persistent volume mounted). Auth-scoped
+// so users can only ever see/restore their own data.
+app.get('/api/me/export',auth,(req,res)=>{
+  const u=db.prepare('SELECT phone,name,email,wa_phone,created_at FROM users WHERE phone=?').get(req.user.phone)||{};
+  const tasks=db.prepare('SELECT * FROM tasks WHERE user_phone=? ORDER BY created_at ASC').all(req.user.phone);
+  res.set('Content-Type','application/json').set('Content-Disposition','attachment; filename="brodoit-backup-'+new Date().toISOString().slice(0,10)+'.json"');
+  res.send(JSON.stringify({version:1,exportedAt:new Date().toISOString(),account:u,tasks},null,2));
+});
+app.post('/api/me/import',auth,(req,res)=>{
+  const tasks=Array.isArray(req.body&&req.body.tasks)?req.body.tasks:null;
+  if(!tasks)return res.status(400).json({ok:false,error:'Body must be {tasks:[...]}'});
+  let inserted=0,skipped=0;
+  const exists=new Set(db.prepare('SELECT id FROM tasks WHERE user_phone=?').all(req.user.phone).map(r=>r.id));
+  const ins=db.prepare("INSERT INTO tasks(id,user_phone,title,notes,priority,status,due_date,reminder_time,source,board,created_at,updated_at)VALUES(?,?,?,?,?,?,?,?,?,?,?,?)");
+  const tx=db.transaction(rows=>{for(const t of rows){if(!t||!t.title)continue;const id=t.id||genId();if(exists.has(id)){skipped++;continue}ins.run(id,req.user.phone,String(t.title).slice(0,500),t.notes||'',t.priority||'medium',t.status||'pending',t.due_date||'',t.reminder_time||'',t.source||'app',t.board||'home',t.created_at||new Date().toISOString().replace('T',' ').slice(0,19),t.updated_at||new Date().toISOString().replace('T',' ').slice(0,19));inserted++}});
+  try{tx(tasks);res.json({ok:true,inserted,skipped})}catch(e){res.status(500).json({ok:false,error:String(e)})}
 });
 
 // ═══ TASKS API ═══
@@ -806,6 +836,28 @@ body[data-theme=aurora] .intro-steps li{background:rgba(255,255,255,.04);border-
 body[data-theme=aurora] .intro-steps li > div{color:#F5F5FA}
 body[data-theme=aurora] .intro-d{color:#9999B5}
 body[data-theme=aurora] .intro-ic{background:rgba(255,255,255,.08)}
+/* Restore-from-backup banner — shows only when server tasks=0 but localStorage has a backup */
+.restore-banner{display:flex;align-items:center;gap:11px;padding:12px 14px;margin:0 0 12px;background:linear-gradient(135deg,rgba(232,145,44,.1),rgba(180,83,9,.06));border:1.5px solid rgba(232,145,44,.32);border-radius:12px;animation:bkHintIn .3s ease}
+.restore-emoji{font-size:24px;line-height:1;flex-shrink:0}
+.restore-body{flex:1;min-width:0}
+.restore-t{font-weight:800;font-size:14px;color:#7C5A00;letter-spacing:-.01em}
+.restore-s{font-size:11.5px;color:#5D4400;line-height:1.4;margin-top:2px}
+.restore-go{flex-shrink:0;background:linear-gradient(135deg,#E8912C,#B45309);color:#fff;border:none;border-radius:8px;padding:9px 14px;font-weight:800;font-size:12.5px;cursor:pointer;font-family:inherit;box-shadow:0 3px 10px rgba(232,145,44,.32)}
+.restore-x{flex-shrink:0;background:transparent;border:none;color:#94A3B8;font-size:14px;cursor:pointer;padding:4px 6px;border-radius:6px;font-family:inherit;line-height:1}
+.restore-x:hover{background:rgba(15,23,42,.06);color:#0F172A}
+@media (max-width:480px){.restore-s{display:none}}
+body[data-theme=aurora] .restore-banner{background:linear-gradient(135deg,rgba(232,145,44,.14),rgba(180,83,9,.08));border-color:rgba(232,145,44,.4)}
+body[data-theme=aurora] .restore-t{color:#FCD34D}
+body[data-theme=aurora] .restore-s{color:#F5D687}
+/* Backup section in profile modal */
+.bkp-sec{margin:18px 0 4px;padding:14px;background:linear-gradient(135deg,rgba(99,102,241,.05),rgba(232,145,44,.03));border:1px solid rgba(99,102,241,.16);border-radius:14px;text-align:left}
+.bkp-sec-hd{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.bkp-sec-emoji{font-size:24px;line-height:1}
+.bkp-sec-t{font-weight:800;font-size:14.5px;color:var(--ink,#0F172A);letter-spacing:-.01em}
+.bkp-sec-s{font-size:11.5px;color:#94A3B8;font-weight:500;line-height:1.4;margin-top:2px}
+.bkp-btn{width:100%;padding:11px 14px;font-size:13.5px;margin-top:0}
+body[data-theme=aurora] .bkp-sec{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(232,145,44,.04));border-color:rgba(167,139,250,.2)}
+body[data-theme=aurora] .bkp-sec-t{color:#F5F5FA}
 /* Connect-WhatsApp promo banner — top of Tasks tab when WA not linked yet */
 .wa-promo{display:flex;align-items:center;gap:10px;padding:11px 12px;margin:0 0 10px;background:linear-gradient(135deg,rgba(37,211,102,.1),rgba(18,140,126,.06));border:1px solid rgba(37,211,102,.28);border-radius:12px;position:relative}
 .wa-promo-emoji{font-size:24px;line-height:1;flex-shrink:0}
@@ -2861,8 +2913,35 @@ function logout(){
 async function load(){const a=document.getElementById('audioEl');if(a&&!a.paused)return;
   // Skip background re-render churn while the user is typing in a modal — kills focus on mobile.
   if(S.showWASetup||S.showAdd||S.showProfile){const ae=document.activeElement;if(ae&&(ae.tagName==='INPUT'||ae.tagName==='TEXTAREA'))return}
-  const t=await api('/tasks');if(!t)return;const h=JSON.stringify(t);if(h===S._lastTasksHash)return;S._lastTasksHash=h;S.tasks=t;render()
+  const t=await api('/tasks');if(!t)return;
+  // Local backup: every successful tasks fetch, snapshot to localStorage. If the server ever loses
+  // the data (e.g. Railway redeploy without a persistent volume), the user can restore from this.
+  try{
+    if(t.length){localStorage.setItem('tf_tasks_backup',JSON.stringify({savedAt:Date.now(),user:S.user&&S.user.phone||'',tasks:t}))}
+    else{
+      // Server says zero tasks but we have a recent backup with tasks: offer to restore.
+      const raw=localStorage.getItem('tf_tasks_backup');
+      if(raw&&!S._restoreOffered){
+        try{const d=JSON.parse(raw);if(d&&Array.isArray(d.tasks)&&d.tasks.length&&d.user===(S.user&&S.user.phone||'')){
+          S._restoreOffered=true;
+          S.restoreOffer={count:d.tasks.length,savedAt:d.savedAt};
+        }}catch(e){}
+      }
+    }
+  }catch(e){}
+  const h=JSON.stringify(t);if(h===S._lastTasksHash)return;S._lastTasksHash=h;S.tasks=t;render();
 }
+async function restoreFromBackup(){
+  const raw=localStorage.getItem('tf_tasks_backup');if(!raw)return toast('\\u26A0\\uFE0F No backup found','err');
+  let d=null;try{d=JSON.parse(raw)}catch(e){return toast('\\u26A0\\uFE0F Backup corrupted','err')}
+  if(!d||!Array.isArray(d.tasks)||!d.tasks.length)return toast('\\u26A0\\uFE0F Backup is empty','err');
+  if(!confirm('Restore '+d.tasks.length+' task'+(d.tasks.length===1?'':'s')+' from your local backup? Tasks already on the server will be kept; backup tasks with new IDs will be added.'))return;
+  const r=await api('/me/import',{method:'POST',body:JSON.stringify({tasks:d.tasks})});
+  if(r&&r.ok){S.restoreOffer=null;toast('\\u2705 Restored '+r.inserted+' tasks ('+r.skipped+' already there)');load()}
+  else toast('\\u26A0\\uFE0F Restore failed: '+((r&&r.error)||''),'err');
+}
+function dismissRestoreOffer(){S.restoreOffer=null;render()}
+function downloadBackup(){window.open('/api/me/export','_blank')}
 async function chk(){const h=await api('/health');if(h)S.waOk=h.twilio;render()}
 async function addT(){if(!S.form.title.trim())return;const r=await api('/tasks',{method:'POST',body:JSON.stringify({title:S.form.title,notes:S.form.notes,priority:S.form.priority,status:'pending',due_date:S.form.dueDate,reminder_time:S.form.reminderTime,board:S.form.board})});if(r?.id){S.tasks.unshift(r);clM();toast('\\u2705 Task added!')}}
 async function savE(){if(!S.form.title.trim()||!S.editing)return;const r=await api('/tasks/'+S.editing,{method:'PUT',body:JSON.stringify({title:S.form.title,notes:S.form.notes,priority:S.form.priority,status:S.form.status,due_date:S.form.dueDate,reminder_time:S.form.reminderTime,board:S.form.board})});if(r){const i=S.tasks.findIndex(t=>t.id===S.editing);if(i>-1)S.tasks[i]=r;clM();toast('\\u2705 Updated!')}}
@@ -3438,6 +3517,16 @@ if(S.tab!=='tasks')h+=_tabHeroHtml;
 // TASKS TAB
 if(S.tab==='dash')S.tab='tasks'; // Stats tab removed; redirect any stale state to Tasks
 if(S.tab==='tasks'){
+  // Restore-from-backup banner — surfaces only if the server returned 0 tasks but a local snapshot exists.
+  if(S.restoreOffer&&S.restoreOffer.count){
+    const when=S.restoreOffer.savedAt?new Date(S.restoreOffer.savedAt).toLocaleString():'';
+    h+='<div class="restore-banner">'
+      +'<span class="restore-emoji">\\u{1F4BE}</span>'
+      +'<div class="restore-body"><div class="restore-t">Restore your tasks?</div><div class="restore-s">We have a local backup of <b>'+S.restoreOffer.count+'</b> task'+(S.restoreOffer.count===1?'':'s')+(when?' (saved '+esc(when)+')':'')+'. The server\\u2019s task list is empty.</div></div>'
+      +'<button class="restore-go" onclick="restoreFromBackup()">Restore</button>'
+      +'<button class="restore-x" onclick="dismissRestoreOffer()" aria-label="Dismiss">\\u2715</button>'
+    +'</div>';
+  }
   // Connect-WhatsApp banner — shows when WA isn't linked AND user hasn't dismissed it.
   if(S.profile&&!S.profile.wa_phone&&localStorage.getItem('tf_wa_banner_x')!=='1'){
     h+='<div class="wa-promo">'
@@ -3872,6 +3961,12 @@ if(S.showProfile){
     h+='<button class="mb mb-s wa-connect-btn" onclick="waConnectStart()">\\u{1F517} Set up WhatsApp \\u2192</button>';
   }
   h+='</div>';
+
+  // Backup / Restore section
+  h+='<div class="bkp-sec"><div class="bkp-sec-hd"><span class="bkp-sec-emoji">\\u{1F4BE}</span><div><div class="bkp-sec-t">Backup your tasks</div><div class="bkp-sec-s">Download a JSON file of all your tasks. Auto-saved to this device on every load.</div></div></div>'
+    +'<button class="mb mb-s bkp-btn" onclick="downloadBackup()">\\u2B07 Download backup (JSON)</button>'
+    +(localStorage.getItem('tf_tasks_backup')?'<button class="mb mb-c bkp-btn" style="margin-top:8px" onclick="restoreFromBackup()">\\u21BB Restore from this device\\u2019s backup</button>':'')
+  +'</div>';
 
   h+='<div class="macts" style="margin-top:22px"><button class="mb mb-c" onclick="closeProfile()">Close</button><button class="mb mb-d" style="margin-top:0" onclick="logout()">Log out</button></div>';
   h+='</div></div>';
