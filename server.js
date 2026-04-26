@@ -967,6 +967,17 @@ body[data-theme=aurora] .section-div::before{background:#1A1A2E;border-color:rgb
 @media (max-width:480px){.moral-doodle{display:none}.moral::after{display:none}.moral-txt{font-size:12.5px}}
 .bottom-strip{display:flex;flex-direction:column;gap:12px;margin-top:28px;padding-top:20px;border-top:1px solid var(--line)}
 @media (min-width:1024px){.bottom-strip{grid-column:1/-1}}
+/* Person-of-the-day card next to the BroDoit logo (desktop only) */
+.hdr-remember{display:none}
+@media (min-width:1024px){.hdr-remember{display:block;flex:1;max-width:520px;margin:0 18px}.hdr-remember .remember-card{margin:0}.hdr-remember .remember-extract{display:none}}
+/* 3-headline floating top news — auto-fades each row in/out */
+.top-news{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.top-news-row{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;background:var(--bg-elev,#fff);border:1px solid var(--line,#E2E8F0);text-decoration:none;color:inherit;font-size:13px;line-height:1.35;animation:topNewsFade 12s ease-in-out infinite;opacity:0}
+.top-news-pulse{width:7px;height:7px;border-radius:50%;background:#3DAE5C;flex-shrink:0;box-shadow:0 0 0 0 rgba(61,174,92,.5);animation:topNewsPulse 2s ease-in-out infinite}
+.top-news-src{font-size:10px;font-weight:800;color:#94A3B8;letter-spacing:.6px;text-transform:uppercase;flex-shrink:0}
+.top-news-link{flex:1;min-width:0;color:var(--ink,#0F172A);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@keyframes topNewsFade{0%,5%{opacity:0;transform:translateY(-4px)}10%,90%{opacity:1;transform:translateY(0)}95%,100%{opacity:0;transform:translateY(4px)}}
+@keyframes topNewsPulse{0%,100%{box-shadow:0 0 0 0 rgba(61,174,92,.5)}50%{box-shadow:0 0 0 6px rgba(61,174,92,0)}}
 body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,20,40,.9) 0%,rgba(20,20,40,.65) 70%,rgba(20,20,40,0) 100%)}
 .moral-emoji{font-size:16px;flex-shrink:0;filter:drop-shadow(0 1px 3px rgba(232,145,44,.3));position:relative;z-index:1}
 .moral-body{flex:1;min-width:0;position:relative;z-index:1}
@@ -989,10 +1000,10 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
 @media (max-width:600px){.tabs{padding:4px;gap:4px}.tab{padding:11px 12px;font-size:12px}.tab .ti{font-size:15px}.tab .tl{font-size:11.5px}}
 /* Desktop sidebar layout */
 @media (min-width:1024px){
-  .app{max-width:1440px;padding:12px 24px 40px;display:grid;grid-template-columns:220px 1fr;grid-template-areas:"hdr hdr" "topstrip moral" "nav main";column-gap:22px;row-gap:6px}
+  .app{max-width:1440px;padding:12px 24px 40px;display:grid;grid-template-columns:220px 1fr;grid-template-areas:"hdr hdr" "topstrip main" "nav main";column-gap:22px;row-gap:6px;align-items:start}
   .app>.hdr{grid-area:hdr;margin-bottom:0}
-  .app>.top-strip{grid-area:topstrip;margin-bottom:0;align-self:stretch}
-  .app>.moral-wrap{grid-area:moral;margin-bottom:0;display:flex;flex-direction:column;gap:6px;align-self:stretch}
+  .app>.top-strip{grid-area:topstrip;margin-bottom:0;align-self:start}
+  .main-col>.moral-wrap{margin:0 0 14px;display:flex;flex-direction:column;gap:8px}
   .moral-wrap .moral{margin-bottom:0}
   .app>.tabs.page-t{grid-area:nav;flex-direction:column;align-self:start;position:sticky;top:22px;padding:8px;gap:4px;overflow:visible;margin-bottom:0;justify-content:flex-start}
   .app>.tabs.page-t .tab{width:100%;flex:0 0 auto;min-height:50px;padding:8px 10px;font-size:13.5px;font-weight:600;justify-content:flex-start;border-radius:10px;gap:10px;align-items:center;border:none}
@@ -2699,38 +2710,46 @@ const PHONE_BANNER='<div class="phone-banner" aria-hidden="true">'
   +'<div class="phone-banner-tag">\\u2022  T A S K S  \\u2022  B O O K S  \\u2022  W I S D O M  \\u2022  C A L M  \\u2022</div>'
 +'</div>';
 const PROFILE_BTN='<button class="hdr-profile" onclick="openProfile()" title="'+esc(S.user.name||S.user.phone||'Profile')+'" aria-label="Profile"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg><span class="hdr-profile-name">'+esc((S.user.name||S.user.phone||'').split(' ')[0])+'</span></button>';
-let h=PHONE_BANNER+'<div class="hdr"><div><div class="logo">Bro<span class="k">Do</span>it</div><div class="hdr-tagline">tasks &middot; books &middot; wisdom &middot; calm</div><div class="hdr-sub">'+JUMPER+HDR_TIME+'</div></div><div class="hdr-actions">'+PROFILE_BTN+'<button class="theme-tg" onclick="toggleTheme()" title="Switch theme">'+(S.theme==='aurora'?ic('sun',18):ic('moon',18))+'</button></div></div>';
 
-// Moral chip stays at top. Remember + news ticker + world clocks moved to the bottom.
+// Person-of-the-day card — precomputed so it can be injected next to the logo on desktop.
+let remember='';
+if(S.remember&&S.remember.person){
+  const p=S.remember.person;const verb=p.type==='born'?'Born':'Remembering';const yrText=p.year?(p.type==='born'?p.year:'\\u2020 '+p.year):'';
+  remember='<a class="remember-card" href="'+esc(p.url||'#')+'" target="_blank" rel="noopener" title="Read on Wikipedia">'
+    +(p.thumb?'<img class="remember-thumb" src="'+esc(p.thumb)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">':'<span class="remember-thumb remember-thumb-empty">\\u{1F4DC}</span>')
+    +'<div class="remember-body">'
+      +'<div class="remember-kicker">'+esc(verb)+' on this day'+(yrText?' \\u2022 <b>'+esc(String(yrText))+'</b>':'')+'</div>'
+      +'<div class="remember-name">'+esc(p.title)+'</div>'
+      +(p.extract?'<div class="remember-extract">'+esc(p.extract)+'</div>':'')
+    +'</div>'
+    +'<svg class="remember-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>'
+  +'</a>';
+}
+// Tasks tab is the "main page" — moral, news, person-of-day, world-clocks render only here.
+const isMain=(S.tab==='tasks'||!S.tab);
+let h=PHONE_BANNER+'<div class="hdr"><div class="hdr-l"><div class="logo">Bro<span class="k">Do</span>it</div><div class="hdr-tagline">tasks &middot; books &middot; wisdom &middot; calm</div><div class="hdr-sub">'+JUMPER+HDR_TIME+'</div></div>'+(isMain&&remember?'<div class="hdr-remember">'+remember+'</div>':'')+'<div class="hdr-actions">'+PROFILE_BTN+'<button class="theme-tg" onclick="toggleTheme()" title="Switch theme">'+(S.theme==='aurora'?ic('sun',18):ic('moon',18))+'</button></div></div>';
+
 const m=MORALS[S.moralIdx];
+let moralBlock='';
 let bottomBlock='';
-{
+if(isMain){
   const mWrap='<div class="moral">'+MORAL_DOODLE+'<div class="moral-emoji">\\u{1F4A1}</div><div class="moral-body"><div class="moral-lbl">Moral of the Day</div><div class="moral-txt">"'+esc(m.t)+'"</div><div class="moral-by">\\u2014 '+esc(m.a)+'</div></div><button class="moral-ref" onclick="rotateMoral()" title="New quote">\\u21BB</button></div>';
-  // News ticker — 5 stacked WORLD-news headlines below the moral chip
-  const items=S.ticker.items||[];const baseIdx=S.ticker.idx||0;const visible=[0,1,2,3,4].map(o=>items[(baseIdx+o)%(items.length||1)]||{title:'Loading\\u2026',link:'#',source:''});
+  // 3 highlight headlines for the TOP of the tasks page — auto-rotating with fade animation
+  const items=S.ticker.items||[];const baseIdx=S.ticker.idx||0;
+  const top3=[0,1,2].map(o=>items[(baseIdx+o)%(items.length||1)]||{title:'Loading\\u2026',link:'#',source:''});
+  let topNews='<div class="top-news" id="topNewsStack">';
+  top3.forEach((ti,i)=>{topNews+='<a class="top-news-row" style="animation-delay:'+(i*0.5)+'s" href="'+esc(ti.link||'#')+'" target="_blank" rel="noopener" title="'+esc(ti.title||'')+'"><span class="top-news-pulse"></span><span class="top-news-src">'+esc((ti.source||'').toUpperCase())+'</span><span class="top-news-link">'+esc(ti.title||'')+'</span></a>'});
+  topNews+='</div>';
+  // Bottom: full 5-headline ticker + world clocks (person-of-day already in header on main page).
+  const visible=[0,1,2,3,4].map(o=>items[(baseIdx+o)%(items.length||1)]||{title:'Loading\\u2026',link:'#',source:''});
   let ticker='<div class="news-ticker-stack" id="newsTickerStack">';
   visible.forEach((ti,i)=>{ticker+='<a class="news-ticker-row" style="animation-delay:'+(i*0.07)+'s" href="'+esc(ti.link||'#')+'" target="_blank" rel="noopener" title="'+esc(ti.title||'')+'"><span class="news-ticker-pulse"></span><span class="news-ticker-src">'+esc((ti.source||'').toUpperCase())+'</span><span class="news-ticker-link">'+esc(ti.title||'')+'</span></a>'});
   ticker+='</div>';
-  // World clocks at the bottom of the right column — full names, west to east, with sun/moon day-night indicator + temperature
   const fmtTZ2=(tz)=>{try{return new Date().toLocaleTimeString('en-US',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false})}catch(e){return '--:--'}};
   const isDayAt=(tz)=>{try{const h=Number(new Date().toLocaleString('en-US',{timeZone:tz,hour:'2-digit',hour12:false}).split(',')[1]||new Date().toLocaleString('en-US',{timeZone:tz,hour:'2-digit',hour12:false}));return h>=6&&h<18}catch(e){return true}};
   const wc='<div class="world-clocks" id="worldClocks">'+WORLD_CITY_LIST.map((c,i)=>{const day=isDayAt(c.tz);const icon=day?'<svg class="wc-icon wc-sun" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4" fill="#F59E0B"/><g stroke="#F59E0B" stroke-width="1.6" stroke-linecap="round"><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.9" y1="4.9" x2="7" y2="7"/><line x1="17" y1="17" x2="19.1" y2="19.1"/><line x1="4.9" y1="19.1" x2="7" y2="17"/><line x1="17" y1="7" x2="19.1" y2="4.9"/></g></svg>':'<svg class="wc-icon wc-moon" viewBox="0 0 24 24" fill="none"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="#A78BFA"/><circle class="wc-star" cx="6" cy="6" r="0.8" fill="#A78BFA"/><circle class="wc-star" cx="20" cy="20" r="0.7" fill="#A78BFA"/></svg>';const ct=(S.cityTemps||{})[c.key.toLowerCase()];const tempStr=ct&&ct.temp!=null?ct.temp+'\\u00B0':'';return '<span class="wc-item '+(day?'wc-day':'wc-night')+'" style="animation-delay:'+(i*0.05)+'s"><span class="wc-icon-wrap">'+icon+'</span><b>'+esc(c.label)+'</b><span class="wc-time" data-tz="'+c.tz+'">'+fmtTZ2(c.tz)+'</span>'+(tempStr?'<span class="wc-temp">'+tempStr+'</span>':'')+'</span>'}).join('')+'</div>';
-  // Remember Someone Today — Wikipedia "On This Day" notable birth/death
-  let remember='';
-  if(S.remember&&S.remember.person){
-    const p=S.remember.person;const verb=p.type==='born'?'Born':'Remembering';const yrText=p.year?(p.type==='born'?p.year:'\\u2020 '+p.year):'';
-    remember='<a class="remember-card" href="'+esc(p.url||'#')+'" target="_blank" rel="noopener" title="Read on Wikipedia">'
-      +(p.thumb?'<img class="remember-thumb" src="'+esc(p.thumb)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">':'<span class="remember-thumb remember-thumb-empty">\\u{1F4DC}</span>')
-      +'<div class="remember-body">'
-        +'<div class="remember-kicker">'+esc(verb)+' on this day'+(yrText?' \\u2022 <b>'+esc(String(yrText))+'</b>':'')+'</div>'
-        +'<div class="remember-name">'+esc(p.title)+'</div>'
-        +(p.extract?'<div class="remember-extract">'+esc(p.extract)+'</div>':'')
-      +'</div>'
-      +'<svg class="remember-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>'
-    +'</a>';
-  }
-  h+='<div class="moral-wrap">'+mWrap+'</div>';
-  bottomBlock='<div class="bottom-strip">'+remember+ticker+wc+'</div>';
+  moralBlock='<div class="moral-wrap">'+mWrap+topNews+'</div>';
+  bottomBlock='<div class="bottom-strip">'+ticker+wc+'</div>';
 }
 
 // Tabs
@@ -2815,6 +2834,8 @@ let bottomBlock='';
 }
 
 h+='<main class="main-col">';
+// Moral chip + 3-headline top news at the top of the main column (Tasks tab only).
+h+=moralBlock;
 // User-bar + section-div removed; Profile lives in the header top-right.
 // Scenic tab hero — rendered at top of every tab EXCEPT Tasks (where it moves to the bottom of the list)
 const _tabHeroHtml=(()=>{const hero=TAB_HERO[S.tab];if(!hero)return '';const url='https://images.unsplash.com/photo-'+hero.img+'?w=1400&q=80&auto=format&fit=crop';return '<div class="tab-hero" style="background-image:linear-gradient(135deg,rgba(15,23,42,.62) 0%,rgba(15,23,42,.32) 55%,rgba(15,23,42,.18) 100%),url(&quot;'+url+'&quot;)"><div class="tab-hero-particles"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><div class="tab-hero-body"><h2 class="tab-hero-h">'+hero.h+'</h2><p class="tab-hero-s">'+hero.s+'</p></div></div>'})();
