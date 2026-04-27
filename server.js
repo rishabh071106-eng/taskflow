@@ -2784,6 +2784,8 @@ body[data-theme=aurora] .was-step-d{color:#9999B5}
 body[data-theme=aurora] .was-cc,body[data-theme=aurora] .was-ph,body[data-theme=aurora] .was-code{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14);color:#F5F5FA}
 body[data-theme=aurora] .was-mini{background:rgba(37,211,102,.12);border-color:rgba(37,211,102,.28);color:#A8E6BC}
 body[data-theme=aurora] .was-skip{color:#9999B5}
+@keyframes wn-pulse{0%,100%{opacity:.55;transform:scale(1)}50%{opacity:1;transform:scale(1.4)}}
+.whatsnew-pill:hover{background:rgba(31,77,63,.12)!important;border-color:rgba(31,77,63,.35)!important;transform:translateY(-1px);transition:all .25s}
 .login-foot{margin-top:32px;padding-top:18px;border-top:1px solid rgba(15,23,42,.06);display:flex;align-items:center;justify-content:center;gap:10px;font-size:12px;color:#94A3B8;flex-wrap:wrap}
 .login-foot a{color:#64748B;text-decoration:none;font-weight:600}
 .login-foot a:hover{color:#0F172A;text-decoration:underline}
@@ -4405,6 +4407,7 @@ if(S.loginStep==='phone'){
 h+='<div class="hero-photo"><img src="https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?auto=format&fit=crop&w=1200&q=80" alt="Calm productive workspace" loading="eager"/><div class="hero-photo-overlay"></div></div>';
 h+='<div class="login-logo">Brodoit</div>';
 h+='<div class="login-tagline">Tasks. Books. Wisdom.</div>';
+h+='<a class="whatsnew-pill" href="/pricing" style="display:inline-flex;align-items:center;gap:8px;padding:7px 14px;margin:0 0 18px;background:rgba(31,77,63,.08);border:1px solid rgba(31,77,63,.2);border-radius:999px;font-size:12px;font-weight:500;letter-spacing:.04em;color:#1F4D3F;text-decoration:none;font-family:\\'JetBrains Mono\\',monospace;text-transform:uppercase"><span style="width:6px;height:6px;border-radius:999px;background:#1F4D3F;box-shadow:0 0 8px #1F4D3F;animation:wn-pulse 2s ease-in-out infinite"></span>NEW · Pricing &amp; Pro tier <span style="opacity:.7">→</span></a>';
 h+='<div class="login-sub">A calm, focused space for the work that matters.</div>';
 // Login tabs removed for closed-test phase — email-only.
 S.loginMethod='email';
@@ -4441,7 +4444,7 @@ h+='<button class="login-btn" onclick="verifyOTP()"'+(S.loginLoading?' disabled'
 h+='<button class="login-btn sec" onclick="S.loginStep=\\'phone\\';S.loginError=\\'\\';try{history.replaceState(null,\\'\\',\\'/\\')}catch(e){}render()">\\u2190 '+(S.loginMethod==='email'?'Change email':'Change number')+'</button>';
 h+='<div class="login-hint">Didn\\'t get the code? Check your '+(S.loginMethod==='email'?'spam folder or tap "Change email"':'WhatsApp or tap "Change number"')+' to retry.</div>';
 }
-h+='<footer class="login-foot"><a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a><span>\\u2022</span><a href="/terms" target="_blank" rel="noopener">Terms of Service</a><span>\\u2022</span><a href="mailto:hello@brodoit.com">Contact</a></footer>';
+h+='<footer class="login-foot"><a href="/pricing">Pricing</a><span>\\u2022</span><a href="/about">About</a><span>\\u2022</span><a href="/changelog">What\\'s new</a><span>\\u2022</span><a href="/privacy" target="_blank" rel="noopener">Privacy</a><span>\\u2022</span><a href="/terms" target="_blank" rel="noopener">Terms</a><span>\\u2022</span><a href="mailto:hello@brodoit.com">Contact</a></footer>';
 h+='</div>';
 if(S.toast)h+='<div class="toast toast-'+(S.toastType==='err'?'err':'ok')+'">'+S.toast+'</div>';
 document.getElementById('app').innerHTML=h;
