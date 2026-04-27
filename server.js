@@ -3283,6 +3283,56 @@ body[data-theme=aurora] .hist-link a:hover{color:#C4B5FD}
 .section-ic svg{width:18px;height:18px}
 
 
+/* ═══════════════ VOICE · AI tutor next-age UI ═══════════════ */
+.vc-lesson{position:relative;border-radius:20px;overflow:hidden;margin-bottom:18px;padding:24px 22px;color:#fff;background:radial-gradient(900px 500px at 0% 0%, rgba(167,139,250,.34) 0%, transparent 55%),radial-gradient(700px 400px at 100% 100%, rgba(46,255,169,.20) 0%, transparent 55%),linear-gradient(135deg, #0E0A1F 0%, #1B1245 50%, #3D1F8A 100%);box-shadow:0 24px 50px -18px rgba(91,33,182,.5),0 1px 0 rgba(255,255,255,.08) inset;animation:intlFadeUp .65s cubic-bezier(.16,1,.3,1) both}
+.vc-lesson::after{content:'';position:absolute;inset:0;background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.07) 50%,transparent 65%);transform:translateX(-100%);animation:intlShimmer 7s ease-in-out infinite;pointer-events:none}
+.vc-lesson-eyebrow{font-family:'JetBrains Mono','Space Mono',monospace;font-weight:500;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.78);margin-bottom:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.vc-lesson-eyebrow .day-num{padding:3px 10px;background:rgba(255,255,255,.16);border-radius:999px;font-weight:600;color:#fff;font-size:10px}
+.vc-lesson h2{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400;font-size:32px;line-height:1.05;letter-spacing:-.02em;color:#fff;margin:0 0 10px}
+.vc-lesson .desc{font-size:14.5px;line-height:1.55;color:rgba(255,255,255,.82);max-width:560px;margin-bottom:18px}
+.vc-lesson-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.vc-lesson-row .vc-go{padding:11px 22px;border-radius:12px;background:#fff;color:#0E0A1F;border:0;font-weight:600;font-size:14px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:8px;transition:transform .2s,box-shadow .25s}
+.vc-lesson-row .vc-go:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(255,255,255,.15)}
+.vc-lesson-row .vc-meta{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;color:rgba(255,255,255,.7);text-transform:uppercase}
+
+.vc-vocab-row{margin-bottom:18px}
+.vc-vocab-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.vc-vocab-h h3{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:#1F4D3F;margin:0}
+.vc-vocab-h .meta{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;color:#6B6B6B}
+.vc-vocab-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media (max-width:760px){.vc-vocab-grid{grid-template-columns:1fr}}
+.vc-vocab-card{padding:18px 18px 16px;background:#fff;border:1px solid #E8E6E0;border-radius:14px;cursor:pointer;transition:transform .35s cubic-bezier(.16,1,.3,1),border-color .25s,box-shadow .3s;text-align:left;font-family:inherit;display:flex;flex-direction:column;gap:8px}
+.vc-vocab-card:hover{transform:translateY(-3px);border-color:#1F4D3F;box-shadow:0 12px 28px -14px rgba(31,77,63,.35)}
+.vc-vocab-card .word{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400;font-size:24px;line-height:1;letter-spacing:-.015em;color:#1A1A1A}
+.vc-vocab-card .pos{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#6B6B6B}
+.vc-vocab-card .def{font-size:13px;color:#3D3D3D;line-height:1.45}
+.vc-vocab-card .ex{font-size:12.5px;color:#1F4D3F;font-style:italic;line-height:1.45;border-top:1px dashed #E8E6E0;padding-top:8px;margin-top:auto}
+
+.vc-path{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.vc-path-pill{padding:7px 14px;border-radius:999px;font-size:12px;font-weight:500;letter-spacing:-.005em;border:1px solid #E8E6E0;background:#fff;color:#3D3D3D;cursor:pointer;transition:all .2s;font-family:inherit}
+.vc-path-pill:hover{border-color:#1F4D3F;color:#1F4D3F}
+.vc-path-pill.on{background:#1A1A1A;color:#fff;border-color:#1A1A1A}
+
+/* MIND GYM extras: achievements row + week stats */
+.mg-achievements{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px;margin-bottom:18px}
+@media (max-width:600px){.mg-achievements{grid-template-columns:repeat(2,1fr)}}
+.mg-ach{padding:14px 12px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.12);border-radius:14px;text-align:center;color:#fff;display:flex;flex-direction:column;align-items:center;gap:6px;transition:transform .35s cubic-bezier(.16,1,.3,1),border-color .25s;cursor:default}
+.mg-ach:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.22)}
+.mg-ach.locked{opacity:.5}
+.mg-ach .medal{width:36px;height:36px;border-radius:999px;display:grid;place-items:center;font-size:18px;background:linear-gradient(135deg,#FCD34D,#F59E0B);color:#1A1A1A;box-shadow:0 0 16px rgba(252,211,77,.4)}
+.mg-ach.locked .medal{background:rgba(255,255,255,.08);color:rgba(255,255,255,.4);box-shadow:none}
+.mg-ach.streak .medal{background:linear-gradient(135deg,#FB923C,#DC2626);box-shadow:0 0 16px rgba(251,146,60,.4)}
+.mg-ach.cool .medal{background:linear-gradient(135deg,#6EE7B7,#10B981);box-shadow:0 0 16px rgba(110,231,183,.4)}
+.mg-ach.purple .medal{background:linear-gradient(135deg,#C4B5FD,#7C3AED);box-shadow:0 0 16px rgba(196,181,253,.4)}
+.mg-ach .name{font-size:11px;font-weight:600;color:#fff;letter-spacing:-.005em}
+.mg-ach .desc{font-size:10.5px;color:rgba(255,255,255,.7);line-height:1.3;font-family:'JetBrains Mono',monospace;letter-spacing:.02em}
+
+/* "Coming soon" preview card for next-gen game */
+.mg-card-preview{position:relative;overflow:hidden}
+.mg-card-preview::before{content:'COMING SOON';position:absolute;top:12px;right:12px;padding:3px 8px;background:rgba(252,211,77,.18);border:1px solid rgba(252,211,77,.4);border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;letter-spacing:.08em;color:#FCD34D;z-index:2}
+.mg-card-preview{cursor:not-allowed !important}
+.mg-card-preview:hover{transform:none !important}
+
 /* ═══════════════ BOOKS · 15-min summaries ═══════════════ */
 .bk-mode-toggle{display:inline-flex;gap:4px;padding:4px;background:#F4F3EE;border:1px solid #E8E6E0;border-radius:999px;margin-bottom:18px}
 .bk-mode-toggle button{padding:8px 16px;border-radius:999px;font-weight:500;font-size:13.5px;color:#6B6B6B;background:transparent;border:0;cursor:pointer;transition:all .2s;font-family:inherit}
@@ -4621,6 +4671,51 @@ function openBookSummary(id){const b=BOOK_SUMMARIES.find(x=>x.id===id);if(!b)ret
 function closeBookReader(){if(window.speechSynthesis)try{speechSynthesis.cancel()}catch(e){}S.bookReader={open:false};render()}
 function bookReaderToggleTTS(){const r=S.bookReader;if(!r||!r.book)return;if(!('speechSynthesis' in window)){toast('\\u26A0\\uFE0F Voice not supported on this device','err');return}if(r.playing){try{speechSynthesis.cancel()}catch(e){}r.playing=false}else{const u=new SpeechSynthesisUtterance(r.book.summary);u.rate=r.rate||1;u.pitch=.95;const vs=speechSynthesis.getVoices();const pri=[/Daniel/i,/Alex/i,/Google US English/i,/Samantha/i,/Microsoft.*David/i];for(const re of pri){const v=vs.find(x=>re.test(x.name));if(v){u.voice=v;break}}u.onend=function(){const cur=S.bookReader;if(cur&&cur.book){cur.playing=false;render()}};try{speechSynthesis.speak(u);r.playing=true}catch(e){toast('\\u26A0\\uFE0F '+e.message,'err');return}}render()}
 function bookReaderSpeed(){const r=S.bookReader;if(!r)return;const next={1:1.25,1.25:1.5,1.5:1.75,1.75:2,2:1}[r.rate||1]||1;r.rate=next;if(r.playing){try{speechSynthesis.cancel()}catch(e){}r.playing=false;bookReaderToggleTTS()}render()}
+
+// ═══ VOICE TUTOR — daily lessons + vocabulary ═══
+const VOICE_LESSONS=[
+  {day:'Sun',k:'review',e:'\\u{1F4DD}',title:'Reflection &amp; review',desc:'Look back at the week. What new word stuck? Which conversation felt easier than last week? Tell the coach in three sentences.',prompt:'Walk me through one moment this week where you used English well. What worked? What would you change?'},
+  {day:'Mon',k:'vocab',e:'\\u{1F4DA}',title:'Vocabulary builder',desc:'Three new advanced words for the working week. Read the definitions, hear them spoken, then use each in your own sentence.',prompt:'Use the words "mitigate", "pivot", and "synergy" in three different professional sentences \\u2014 one for each.'},
+  {day:'Tue',k:'phrases',e:'\\u{1F4AC}',title:'Confident phrases',desc:'Five power phrases for meetings. Replace weak hedging with crisp business English that lands.',prompt:'Teach me five professional phrases I can use to push back politely in a meeting. Give an example for each.'},
+  {day:'Wed',k:'pronounce',e:'\\u{1F399}\\uFE0F',title:'Pronunciation drill',desc:'Say a tricky phrase, get instant feedback. Today: tongue twisters and the difference between "v" and "w".',prompt:'Help me practise saying "I really value the work we did" \\u2014 listen and tell me how my pronunciation lands.'},
+  {day:'Thu',k:'idioms',e:'\\u{1F3AD}',title:'Idioms &amp; expressions',desc:'Idioms make you sound native. Three new ones today, with the story behind each and a real-world example.',prompt:'Teach me three idioms that English speakers actually use in business \\u2014 with the meaning and a short story for each.'},
+  {day:'Fri',k:'negotiate',e:'\\u{1F91D}',title:'Negotiation language',desc:'How to make an ask, hold ground, and find common footing. The exact phrases that move a deal forward.',prompt:'Roleplay a salary negotiation with me. You are the manager, I am asking for a raise. Coach me as we go.'},
+  {day:'Sat',k:'story',e:'\\u{1F4D6}',title:'Storytelling skills',desc:'A great story sells anything. Today: the three-beat structure that hooks, holds, and lands.',prompt:'Help me tell the story of how I joined my current company \\u2014 in 90 seconds, with a clear hook and ending.'},
+];
+const VOICE_VOCAB=[
+  // Set 0 (week 1)
+  {w:'Mitigate',pos:'verb',def:'To make something less severe or harmful.',ex:'We mitigated the risk by adding a second supplier.'},
+  {w:'Pivot',pos:'verb',def:'To change strategy fundamentally while keeping the team and product.',ex:'After the user research, we pivoted from B2C to B2B.'},
+  {w:'Synergy',pos:'noun',def:'The combined effect of two things being greater than their sum.',ex:'There is real synergy between the design and engineering teams.'},
+  // Set 1 (week 2)
+  {w:'Iterate',pos:'verb',def:'To improve something through repeated cycles of refinement.',ex:'We iterated on the prototype five times before shipping.'},
+  {w:'Catalyze',pos:'verb',def:'To cause or accelerate a reaction or change.',ex:'Her speech catalyzed a wave of fresh investment.'},
+  {w:'Resonate',pos:'verb',def:'To strike a chord with someone — to feel deeply right.',ex:'The new mission statement really resonated with the team.'},
+  // Set 2 (week 3)
+  {w:'Articulate',pos:'verb / adj',def:'To express clearly; or someone who speaks fluently and clearly.',ex:'She articulated the strategy in three sentences.'},
+  {w:'Pragmatic',pos:'adj',def:'Practical, focused on what works rather than what is ideal.',ex:'He took a pragmatic approach to the budget cuts.'},
+  {w:'Holistic',pos:'adj',def:'Considering the whole, not just isolated parts.',ex:'We need a holistic view of customer experience.'},
+  // Set 3 (week 4)
+  {w:'Empirical',pos:'adj',def:'Based on observation or data, not theory.',ex:'The decision was empirical \\u2014 the numbers told us so.'},
+  {w:'Imperative',pos:'noun / adj',def:'Of vital importance; or an essential duty.',ex:'Speed is the imperative this quarter.'},
+  {w:'Methodical',pos:'adj',def:'Done in a systematic, orderly way.',ex:'His methodical approach caught three bugs we missed.'},
+  // Set 4 (week 5)
+  {w:'Nuanced',pos:'adj',def:'Subtle, with fine distinctions worth noticing.',ex:'Her feedback was nuanced \\u2014 not just yes or no.'},
+  {w:'Plausible',pos:'adj',def:'Believable, reasonable as a possibility.',ex:'It is plausible that we hit the target by Q3.'},
+  {w:'Rigorous',pos:'adj',def:'Extremely thorough, careful, and precise.',ex:'The research was rigorous and well documented.'},
+  // Set 5 (week 6)
+  {w:'Decisive',pos:'adj',def:'Settling an issue quickly and effectively.',ex:'Her decisive call kept the project on track.'},
+  {w:'Quintessential',pos:'adj',def:'Representing the most perfect example of a quality or class.',ex:'He is the quintessential founder \\u2014 fast, kind, relentless.'},
+  {w:'Orchestrate',pos:'verb',def:'To arrange or direct elements to achieve a desired effect.',ex:'She orchestrated the launch across six time zones.'},
+  // Set 6 (week 7)
+  {w:'Strategic',pos:'adj',def:'Carefully aimed at a long-term goal.',ex:'A strategic hire shapes the next two years.'},
+  {w:'Tactical',pos:'adj',def:'Aimed at a short-term, specific outcome.',ex:'That was a tactical move, not a strategy shift.'},
+  {w:'Diligent',pos:'adj',def:'Showing careful, persistent effort.',ex:'She was diligent in following up after every meeting.'},
+];
+function _voiceLessonOfDay(){const d=new Date();return VOICE_LESSONS[d.getDay()]}
+function _voiceVocabOfDay(){const d=new Date();const yStart=new Date(d.getFullYear(),0,0);const day=Math.floor((d-yStart)/86400000);const setIdx=day%7;const start=setIdx*3;return VOICE_VOCAB.slice(start,start+3)}
+function voiceStartLesson(){const l=_voiceLessonOfDay();if(typeof coachSend==='function'){try{coachSend(l.prompt)}catch(e){toast('\\u26A0\\uFE0F '+e.message,'err')}}}
+function voiceSpeakWord(w){if(!('speechSynthesis' in window))return;try{speechSynthesis.cancel()}catch(e){}const u=new SpeechSynthesisUtterance(w);u.rate=.9;u.pitch=1.0;const vs=speechSynthesis.getVoices();const pri=[/Daniel/i,/Alex/i,/Google US English/i,/Samantha/i];for(const re of pri){const v=vs.find(x=>re.test(x.name));if(v){u.voice=v;break}}try{speechSynthesis.speak(u)}catch(e){}}
 function closePlayer(){stopBookListenTimer();S.playing=null;S.meditating={active:false,title:'',mins:0,startedAt:0};render()}
 function closeMeditation(){const a=document.getElementById('audioEl');if(a){try{a.pause()}catch(e){}}closePlayer()}
 let _bkTimer=null;
@@ -4997,7 +5092,33 @@ else if(S.tab==='mindgym'){
     +'<div class="mg-bar"><div class="mg-bar-fill" style="width:'+pct+'%"></div></div>'
     +'<div class="mg-card-foot"><span>'+pct+'%</span><span>Best: <b>'+bestStr+'</b></span></div>'
   +'</button>'}
+  // Word Sprint (preview / coming soon)
+  h+='<button class="mg-card mg-card-preview" onclick="toast(\\'\\u{1F4AD} Word Sprint launches next week\\u2014the anagram trainer is being calibrated\\',\\'ok\\')" style="background:linear-gradient(135deg,#0F1320 0%,#1F2937 60%,#374151 100%)">'
+    +'<div class="mg-card-hd"><span class="mg-card-emoji">\\u{1F520}</span><span class="mg-card-name">Word Sprint</span><span class="mg-card-lvl mg-card-lvl-utility">Soon</span></div>'
+    +'<div class="mg-card-d">Seven scrambled letters. Find every word in 90 seconds.</div>'
+    +'<div class="mg-bar"><div class="mg-bar-fill" style="width:0%;background:#FCD34D"></div></div>'
+    +'<div class="mg-card-foot"><span>Calibrating</span><span>Best: <b>\\u2014</b></span></div>'
+  +'</button>';
   h+='</div>';
+  // Achievements row — 4 badges, some unlocked based on real progress
+  {
+    const totalLvl=mg.progress.math.level+mg.progress.memory.level+mg.progress.reaction.level;
+    const ach=[
+      {k:'first',cls:'',name:'First step',desc:'Played your first game',unlocked:totalLvl>3},
+      {k:'week',cls:'streak',name:'Week warrior',desc:'7-day streak',unlocked:streak.current>=7},
+      {k:'sharp',cls:'cool',name:'Sharp mind',desc:'L5 in any game',unlocked:Math.max(mg.progress.math.level,mg.progress.memory.level,mg.progress.reaction.level)>=5},
+      {k:'flow',cls:'purple',name:'In the flow',desc:'500 XP earned',unlocked:totalXp>=500}
+    ];
+    h+='<div class="mg-achievements">';
+    ach.forEach(a=>{
+      h+='<div class="mg-ach '+(a.unlocked?a.cls:'locked')+'">'
+        +'<div class="medal">'+(a.unlocked?(a.k==='first'?'\\u2728':a.k==='week'?'\\u{1F525}':a.k==='sharp'?'\\u26A1':'\\u{1F4AB}'):'\\u{1F512}')+'</div>'
+        +'<div class="name">'+a.name+'</div>'
+        +'<div class="desc">'+a.desc+'</div>'
+      +'</div>';
+    });
+    h+='</div>';
+  }
   // Why train? — value-prop strip
   h+='<div class="mg-why">'
     +'<div class="mg-why-card"><span class="mg-why-emoji">\\u{1F4C8}</span><div><div class="mg-why-t">Trackable progress</div><div class="mg-why-d">Every play saves to your account. Your level travels with you across phone and laptop.</div></div></div>'
@@ -5009,6 +5130,37 @@ else if(S.tab==='mindgym'){
 // VOICE TAB — AI Coach (Phase 2 — live Claude conversation + Whisper STT + ElevenLabs TTS)
 else if(S.tab==='voice'){
   const c=S.coach||{};const st=c.status||{};
+  // Daily lesson card (rotates by weekday) — renders at the very top
+  {
+    const lesson=_voiceLessonOfDay();
+    const today=new Date();
+    const weekDay=today.toLocaleDateString('en-US',{weekday:'long'});
+    h+='<div class="vc-lesson">'
+      +'<div class="vc-lesson-eyebrow">'+lesson.e+' Today\\u2019s lesson <span class="day-num">'+esc(weekDay)+'</span></div>'
+      +'<h2>'+lesson.title+'</h2>'
+      +'<div class="desc">'+lesson.desc+'</div>'
+      +'<div class="vc-lesson-row">'
+        +'<button class="vc-go" onclick="voiceStartLesson()">Start lesson \\u2192</button>'
+        +'<span class="vc-meta">~ 4 min \\u00B7 AI tutor will guide you</span>'
+      +'</div>'
+    +'</div>';
+  }
+  // Vocabulary trio for today — 3 hand-picked advanced words
+  {
+    const vocab=_voiceVocabOfDay();
+    h+='<div class="vc-vocab-row">'
+      +'<div class="vc-vocab-h"><h3>\\u{1F4DA} Three words for today</h3><span class="meta">Tap any word to hear it</span></div>'
+      +'<div class="vc-vocab-grid">';
+    vocab.forEach(v=>{
+      h+='<button class="vc-vocab-card" onclick="voiceSpeakWord(\\''+esc(v.w)+'\\')">'
+        +'<div class="word">'+esc(v.w)+' \\u{1F50A}</div>'
+        +'<div class="pos">'+esc(v.pos)+'</div>'
+        +'<div class="def">'+esc(v.def)+'</div>'
+        +'<div class="ex">"'+esc(v.ex)+'"</div>'
+      +'</button>';
+    });
+    h+='</div></div>';
+  }
   // Hero
   h+='<section class="cc-hero">'
     +'<div class="cc-hero-orb"></div>'
