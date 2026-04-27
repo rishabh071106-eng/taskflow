@@ -941,9 +941,35 @@ for(const t of due){
 
 // ═══ FRONTEND ═══
 const HTML=`<!DOCTYPE html><html lang="en"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="google-site-verification" content="0dus2qjhVhSPP2gWIDJlVBb7LxvrMDbrhECxY8tiO4U" />
-<meta name="theme-color" content="#1A1816"><link rel="manifest" href="/manifest.json"><title>Brodoit</title>
+<title>Brodoit — Tasks, audiobooks &amp; daily wisdom</title>
+<meta name="description" content="Brodoit is your calm productivity companion. Manage tasks with WhatsApp reminders, listen to free public-domain audiobooks, sharpen your mind, and build a daily ritual that sticks.">
+<link rel="canonical" href="https://brodoit.com/">
+<meta name="theme-color" content="#1A1816">
+<meta name="format-detection" content="telephone=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Brodoit">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Brodoit">
+<meta property="og:title" content="Brodoit — Tasks, audiobooks &amp; daily wisdom">
+<meta property="og:description" content="Your calm productivity companion. Tasks, WhatsApp reminders, free audiobooks, mind-gym drills, and daily wisdom — in one quiet place.">
+<meta property="og:url" content="https://brodoit.com/">
+<meta property="og:image" content="https://brodoit.com/icon-512.png">
+<meta property="og:image:width" content="512">
+<meta property="og:image:height" content="512">
+<meta property="og:locale" content="en_US">
+<!-- Twitter -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Brodoit — Tasks, audiobooks &amp; daily wisdom">
+<meta name="twitter:description" content="Your calm productivity companion. Tasks, WhatsApp reminders, free audiobooks, mind-gym drills, and daily wisdom — in one quiet place.">
+<meta name="twitter:image" content="https://brodoit.com/icon-512.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
@@ -5493,8 +5519,8 @@ app.get('/manifest.json',(_,res)=>res.json({
   id:"/",
   display:"standalone",
   orientation:"portrait",
-  background_color:"#F8FAFC",
-  theme_color:"#0F172A",
+  background_color:"#FAFAF7",
+  theme_color:"#1A1816",
   lang:"en",
   dir:"ltr",
   categories:["productivity","lifestyle","utilities","education"],
