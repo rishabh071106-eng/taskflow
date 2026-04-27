@@ -3282,6 +3282,138 @@ body[data-theme=aurora] .hist-link a:hover{color:#C4B5FD}
 .section-ic{width:36px;height:36px;border-radius:8px;background:var(--bg-sunken);color:var(--ink-2);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:none;border:1px solid var(--line)}
 .section-ic svg{width:18px;height:18px}
 
+
+/* ═══════════════ INTERNATIONAL POLISH — visible tab upgrades ═══════════════ */
+/* Smoother spring + refined motion tokens */
+@keyframes intlFadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes intlShimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+@keyframes intlGlow{0%,100%{filter:drop-shadow(0 0 0 transparent)}50%{filter:drop-shadow(0 0 24px rgba(167,139,250,.45))}}
+
+/* MIND GYM hero — richer aurora mesh, depth, subtle float */
+.mg-hero{
+  background:
+    radial-gradient(1100px 600px at 0% 0%, rgba(167,139,250,.32) 0%, transparent 55%),
+    radial-gradient(900px 500px at 100% 0%, rgba(252,211,77,.18) 0%, transparent 55%),
+    radial-gradient(1200px 700px at 50% 130%, rgba(91,33,182,.5) 0%, transparent 55%),
+    linear-gradient(135deg, #0B0F1A 0%, #1A1244 38%, #3B1675 100%) !important;
+  border:1px solid rgba(255,255,255,.08);
+  box-shadow:
+    0 24px 60px -20px rgba(91,33,182,.55),
+    0 1px 0 rgba(255,255,255,.06) inset,
+    0 -1px 0 rgba(0,0,0,.3) inset !important;
+  animation:intlFadeUp .7s cubic-bezier(.16,1,.3,1) both;
+  position:relative;
+}
+.mg-hero::after{
+  content:''; position:absolute; inset:0; pointer-events:none; border-radius:inherit;
+  background:linear-gradient(105deg, transparent 35%, rgba(255,255,255,.08) 50%, transparent 65%);
+  transform:translateX(-100%);
+  animation:intlShimmer 6s ease-in-out infinite;
+}
+.mg-hero-t{
+  font-family:'Instrument Serif', Georgia, serif !important;
+  font-weight:400 !important;
+  font-size:clamp(34px, 4.4vw, 46px) !important;
+  letter-spacing:-.025em !important;
+  line-height:1.02 !important;
+}
+.mg-hero-s{ font-size:14.5px !important; line-height:1.55 !important; max-width:560px }
+
+/* Stat tiles — glassy, with a subtle inner glow */
+.mg-stat{
+  background:linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.04)) !important;
+  border:1px solid rgba(255,255,255,.18) !important;
+  box-shadow:0 1px 0 rgba(255,255,255,.08) inset, 0 8px 24px -12px rgba(0,0,0,.4);
+  transition:transform .35s cubic-bezier(.16,1,.3,1), background .25s, border-color .25s;
+  padding:14px 14px !important;
+  border-radius:14px !important;
+}
+.mg-stat:hover{
+  transform:translateY(-2px);
+  background:linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.06)) !important;
+  border-color:rgba(255,255,255,.26) !important;
+}
+.mg-stat b{
+  font-family:'Inter', sans-serif !important;
+  font-weight:600 !important;
+  font-size:26px !important;
+  background:linear-gradient(180deg, #FCD34D, #F59E0B);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  filter:drop-shadow(0 0 14px rgba(252,211,77,.35));
+}
+.mg-stat-streak b{
+  background:linear-gradient(180deg, #FB923C, #DC2626) !important;
+  -webkit-background-clip:text !important; background-clip:text !important;
+  filter:drop-shadow(0 0 14px rgba(251,146,60,.45)) !important;
+}
+.mg-stat small{ font-size:10px !important; letter-spacing:.12em !important; opacity:.7 }
+
+/* Game cards — premium glass with mouse spotlight, lift, soft glow */
+.mg-card{
+  background:
+    radial-gradient(circle at var(--sx, 50%) var(--sy, 50%), rgba(255,255,255,.14) 0%, transparent 50%),
+    linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)) !important;
+  border:1px solid rgba(255,255,255,.12) !important;
+  border-radius:16px !important;
+  padding:18px 16px 16px !important;
+  transition:transform .45s cubic-bezier(.34,1.56,.64,1), border-color .3s, box-shadow .35s !important;
+  box-shadow:0 1px 0 rgba(255,255,255,.05) inset, 0 8px 24px -16px rgba(0,0,0,.4);
+  animation:intlFadeUp .6s cubic-bezier(.16,1,.3,1) both;
+}
+.mg-card:nth-of-type(2){ animation-delay:.06s }
+.mg-card:nth-of-type(3){ animation-delay:.12s }
+.mg-card:nth-of-type(4){ animation-delay:.18s }
+.mg-card:hover{
+  transform:translateY(-5px) !important;
+  border-color:rgba(255,255,255,.24) !important;
+  box-shadow:0 1px 0 rgba(255,255,255,.1) inset, 0 24px 48px -16px rgba(0,0,0,.6) !important;
+}
+.mg-card-name{ font-family:'Inter', sans-serif !important; font-weight:600 !important; letter-spacing:.04em !important; font-size:13.5px !important }
+.mg-card-d{ font-size:12.5px !important; color:rgba(255,255,255,.72) !important; line-height:1.45 !important }
+.mg-card-emoji{ font-size:24px !important; filter:drop-shadow(0 4px 12px rgba(0,0,0,.3)) }
+.mg-card-lvl{
+  background:linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.1)) !important;
+  border:1px solid rgba(255,255,255,.2);
+  font-weight:600 !important; font-size:10.5px !important; letter-spacing:.06em !important;
+  padding:3px 9px !important;
+}
+.mg-card-foot{ font-size:11px !important; opacity:.85 }
+.mg-card-foot b{ font-weight:600 !important; letter-spacing:.02em !important }
+
+/* VOICE tab cc-hero — same premium treatment */
+.cc-hero{
+  background:
+    radial-gradient(1100px 600px at 0% 0%, rgba(167,139,250,.34) 0%, transparent 55%),
+    radial-gradient(800px 500px at 100% 100%, rgba(124,58,237,.55) 0%, transparent 55%),
+    linear-gradient(135deg, #0B0F1A 0%, #1E1B4B 50%, #5B21B6 100%) !important;
+  border:1px solid rgba(255,255,255,.08);
+  box-shadow:0 24px 60px -20px rgba(124,58,237,.55), 0 1px 0 rgba(255,255,255,.06) inset !important;
+  animation:intlFadeUp .7s cubic-bezier(.16,1,.3,1) both;
+}
+.cc-hero-t{
+  font-family:'Instrument Serif', Georgia, serif !important;
+  font-weight:400 !important;
+  font-size:clamp(34px, 4.4vw, 46px) !important;
+  letter-spacing:-.025em !important;
+  line-height:1.02 !important;
+}
+.cc-hero-s{ font-size:14.5px !important; line-height:1.55 !important; max-width:580px }
+.cc-hero-orb{ animation:ccOrb 8s ease-in-out infinite alternate, intlGlow 4s ease-in-out infinite }
+
+/* Section spacing breath room */
+.mg-hero-eyebrow, .cc-hero-eyebrow{
+  font-family:'JetBrains Mono','Space Mono',monospace !important;
+  font-weight:500 !important;
+  font-size:11px !important;
+  letter-spacing:.18em !important;
+  opacity:.75;
+}
+
+/* Reduced motion respect */
+@media (prefers-reduced-motion: reduce){
+  .mg-hero,.cc-hero,.mg-card{animation:none !important}
+  .mg-hero::after{display:none}
+}
 </style></head><body>
 <div class="bg-blob a"></div><div class="bg-blob b"></div><div class="bg-blob c"></div><div class="bg-blob d"></div>
 <div class="ocean" aria-hidden="true">
