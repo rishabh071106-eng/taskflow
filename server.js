@@ -358,13 +358,13 @@ function _streakFor(userPhone,kind){
 app.get('/api/games/progress',auth,(req,res)=>{
   const rows=db.prepare("SELECT game,level,xp,best,plays,updated_at FROM user_progress WHERE user_phone=?").all(req.user.phone);
   const map={};rows.forEach(r=>{map[r.game]=r});
-  ['math','memory','reaction'].forEach(g=>{if(!map[g])map[g]={game:g,level:1,xp:0,best:0,plays:0,updated_at:null}});
+  ['math','memory','reaction','word'].forEach(g=>{if(!map[g])map[g]={game:g,level:1,xp:0,best:0,plays:0,updated_at:null}});
   const streak=_streakFor(req.user.phone,'mindgym');
   res.json({progress:map,maxLevel:MAX_LEVEL,xpPerLevel:100,streak});
 });
 app.post('/api/games/progress',auth,(req,res)=>{
   const game=String((req.body&&req.body.game)||'').toLowerCase();
-  if(!['math','memory','reaction'].includes(game))return res.status(400).json({error:'Unknown game'});
+  if(!['math','memory','reaction','word'].includes(game))return res.status(400).json({error:'Unknown game'});
   const xpAdd=Math.max(0,Math.min(50,parseInt(req.body.xpAdd,10)||0));
   const newBest=req.body.best!=null?Math.max(0,Math.min(99999,parseInt(req.body.best,10)||0)):null;
   // Reaction: lower-is-better. Other games: higher-is-better.
@@ -3327,6 +3327,30 @@ body[data-theme=aurora] .hist-link a:hover{color:#C4B5FD}
 .mg-ach .name{font-size:11px;font-weight:600;color:#fff;letter-spacing:-.005em}
 .mg-ach .desc{font-size:10.5px;color:rgba(255,255,255,.7);line-height:1.3;font-family:'JetBrains Mono',monospace;letter-spacing:.02em}
 
+/* Word Sprint game UI */
+.mw-body{padding:18px 22px 22px;display:flex;flex-direction:column;gap:14px;align-items:center}
+.mw-stats{display:flex;gap:24px;font-family:'JetBrains Mono','Space Mono',monospace;font-size:11px;font-weight:500;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.06em}
+.mw-stats span{display:flex;flex-direction:column;align-items:center}
+.mw-stats b{font-family:'Inter','Space Mono',sans-serif;font-size:22px;color:#fff;display:block;letter-spacing:-.02em;margin-bottom:3px}
+.mw-letters{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.mw-let{width:48px;height:58px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.06));border:1.5px solid rgba(255,255,255,.22);color:#fff;font:600 24px/1 'Inter',sans-serif;display:grid;place-items:center;cursor:pointer;user-select:none;transition:transform .15s cubic-bezier(.34,1.56,.64,1),background .2s,border-color .2s;font-family:inherit}
+.mw-let:hover{background:linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,.1));border-color:rgba(255,255,255,.4);transform:translateY(-2px)}
+.mw-let.used{opacity:.3;pointer-events:none}
+@media (max-width:480px){.mw-let{width:40px;height:50px;font-size:20px}}
+.mw-cur{min-height:48px;padding:10px 22px;border:2px dashed rgba(255,255,255,.22);border-radius:12px;font:600 22px/1 'Inter',sans-serif;letter-spacing:.06em;color:#fff;min-width:240px;text-align:center;background:rgba(255,255,255,.03);display:flex;align-items:center;justify-content:center;transition:all .25s}
+.mw-cur.flash-good{border-color:#10B981;background:rgba(16,185,129,.18);color:#6EE7B7;animation:mw-flash .4s cubic-bezier(.34,1.56,.64,1)}
+.mw-cur.flash-bad{border-color:#F87171;background:rgba(248,113,113,.16);color:#FCA5A5}
+@keyframes mw-flash{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.mw-acts{display:flex;gap:8px;flex-wrap:wrap}
+.mw-btn{padding:10px 18px;border-radius:10px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.06);color:#fff;font:600 13px/1 'Inter',sans-serif;cursor:pointer;transition:all .2s;font-family:inherit}
+.mw-btn:hover{border-color:rgba(255,255,255,.4);background:rgba(255,255,255,.12)}
+.mw-btn-primary{background:#fff;color:#0F172A;border-color:#fff}
+.mw-btn-primary:hover{background:#FCD34D;border-color:#FCD34D}
+.mw-found{width:100%;max-width:520px;min-height:54px;padding:10px 14px;border:1px solid rgba(255,255,255,.12);border-radius:12px;background:rgba(255,255,255,.03);display:flex;flex-wrap:wrap;gap:5px;justify-content:center;align-content:flex-start}
+.mw-found .empty{font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(255,255,255,.5);letter-spacing:.06em;text-transform:uppercase;margin:auto;padding:10px}
+.mw-found span{padding:5px 11px;background:rgba(110,231,183,.18);border:1px solid rgba(110,231,183,.4);border-radius:999px;font:500 12px/1 'JetBrains Mono','Space Mono',monospace;color:#6EE7B7;letter-spacing:.04em;animation:mw-wordin .4s cubic-bezier(.34,1.56,.64,1)}
+@keyframes mw-wordin{from{opacity:0;transform:scale(.7)}}
+
 /* "Coming soon" preview card for next-gen game */
 .mg-card-preview{position:relative;overflow:hidden}
 .mg-card-preview::before{content:'COMING SOON';position:absolute;top:12px;right:12px;padding:3px 8px;background:rgba(252,211,77,.18);border:1px solid rgba(252,211,77,.4);border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;letter-spacing:.08em;color:#FCD34D;z-index:2}
@@ -3553,7 +3577,7 @@ rps:{playerWins:Number(localStorage.getItem('tf_rps_w')||0),botWins:Number(local
 guess:{target:null,attempts:0,history:[],message:'',ended:false},
 dice:{values:[],history:[],rolling:false},
 // Mind Gym — server-tracked progress + ephemeral per-play state
-mg:{progress:{math:{level:1,xp:0,best:0},memory:{level:1,xp:0,best:0},reaction:{level:1,xp:0,best:0}},streak:{current:0,longest:0,total:0},loaded:false},
+mg:{progress:{math:{level:1,xp:0,best:0},memory:{level:1,xp:0,best:0},reaction:{level:1,xp:0,best:0},word:{level:1,xp:0,best:0}},streak:{current:0,longest:0,total:0},loaded:false},
 mgPlay:null,  // {game:'math|memory|reaction', ...gameSpecificState}
 // Voice Trainer
 voice:{loaded:false,curriculum:{days:[]},progress:{completed:0,totalPoints:0,pct:0,level:1,maxLevel:4,rows:[]}},
@@ -4268,7 +4292,75 @@ async function voiceFinish(){
   voiceClose();
 }
 async function _mgSave(game,xpAdd,best){const r=await api('/games/progress',{method:'POST',body:JSON.stringify({game,xpAdd:xpAdd|0,best:best!=null?best|0:null})});if(r&&r.ok){S.mg.progress[game]={level:r.level,xp:r.xp,best:r.best,plays:r.plays};if(r.leveledUp)toast('\\u{1F31F} Level up! '+game+' \\u2192 L'+r.level);render()}}
-function mgClose(){_mtCleanup();if(S._msTimer){clearInterval(S._msTimer);S._msTimer=null}S.mgPlay=null;render()}
+function mgClose(){_mtCleanup();if(S._msTimer){clearInterval(S._msTimer);S._msTimer=null}if(S._mwTimer){clearInterval(S._mwTimer);S._mwTimer=null}try{document.removeEventListener('keydown',_mwOnKey)}catch(e){}S.mgPlay=null;render()}
+
+// ── Word Sprint (anagram unscrambler, 90-sec timer, length-squared scoring) ──
+const MG_PUZZLES=[
+  {base:'MASTER',valid:['MASTER','STREAM','MATES','TEAMS','MEATS','STEAM','TEARS','MARES','SMART','TAMES','RATES','MAST','EARS','SEAT','RATE','TEAM','TEAR','ARMS','EAT','TEA','SAT','SEA','RAM','MAR','ATE','RAT','ART','MAT','TEAS','STAR','ARTS','RATS','TARS']},
+  {base:'PLANET',valid:['PLANET','PLATE','PLEAT','PLANE','PETAL','LATEN','LATE','PLAN','LEAN','PALE','PEAL','LEAP','TALE','TEAL','NEAT','PANE','LANE','PAN','PEN','TEN','NAP','TAP','PAL','LET','EAT','ATE','TEA','PET','ANT','PAT','LAP','APE','APT','NET','NAPE','PEAT']},
+  {base:'CRAVING',valid:['CRAVING','RACING','CARING','CARVING','GRAIN','CARGO','CRAG','GAIN','RAIN','RING','RAG','VAN','CAN','CAR','VAR','AIR','ARC','GIN','CIG','CRAVE']},
+  {base:'FOCUSED',valid:['FOCUSED','FOCUS','CODES','DECOY','DOSE','CODE','FUSE','FUSED','DUE','SUE','CUE','FOE','SOD','OUD','USE','ODE','DOE','OUDS','FOES','CUES','SUED','DUES','USED']},
+  {base:'STRENGTH',valid:['STRENGTH','STENT','TENT','TENTS','RENTS','TERN','GENT','GENTS','GETS','HENS','HENS','NETS','TEN','GET','SET','GEN','HEN','HER','EHRENH','THE','THEE','THESE','THERE','RENT','TREE','TREES','TREET']},
+  {base:'CONQUER',valid:['CONQUER','CORE','ROC','ORE','REC','UN','OUR','RUE','OUNCE','ONCE','CONE','CORN','CORN','RUN','RUNE','RUNES','OURS','SOUR','CORE','CORES']}
+];
+function mgWordStart(){
+  const lvl=(S.mg.progress.word&&S.mg.progress.word.level)||1;
+  const puzzle=MG_PUZZLES[Math.floor(Math.random()*MG_PUZZLES.length)];
+  const letters=puzzle.base.split('').sort(()=>Math.random()-.5);
+  S.mgPlay={game:'word',level:lvl,_baseLevel:lvl,base:puzzle.base,letters,valid:puzzle.valid.map(w=>w.toUpperCase()),used:[],score:0,foundSet:new Set(),feedback:null,timeStart:Date.now(),timeMax:90,done:false};
+  _mgSound('tap');render();
+  if(S._mwTimer)clearInterval(S._mwTimer);
+  S._mwTimer=setInterval(_mwTick,100);
+  document.addEventListener('keydown',_mwOnKey);
+}
+function _mwTick(){
+  const p=S.mgPlay;if(!p||p.game!=='word'||p.done){if(S._mwTimer){clearInterval(S._mwTimer);S._mwTimer=null}return}
+  const elapsed=(Date.now()-p.timeStart)/1000;
+  const left=Math.max(0,p.timeMax-elapsed);
+  const bar=document.getElementById('mwBar');
+  if(bar){bar.style.width=((left/p.timeMax)*100)+'%';bar.style.background=left<10?'linear-gradient(90deg,#DC2626,#F87171)':left<25?'linear-gradient(90deg,#F59E0B,#FCD34D)':'linear-gradient(90deg,#22D3EE,#34D399)'}
+  const tn=document.getElementById('mwTime');if(tn)tn.textContent=Math.ceil(left);
+  if(left<=0)_mwFinish();
+}
+function _mwFinish(){
+  const p=S.mgPlay;if(!p||p.done)return;
+  p.done=true;
+  if(S._mwTimer){clearInterval(S._mwTimer);S._mwTimer=null}
+  try{document.removeEventListener('keydown',_mwOnKey)}catch(e){}
+  _mgSound('levelup');_mgMarkDone('word');
+  if(p.foundSet.size>=8)S._mgConfetti=Date.now();
+  render();
+  _mgSave('word',Math.min(50,p.score),p.foundSet.size);
+}
+function mgWordTap(idx){
+  const p=S.mgPlay;if(!p||p.game!=='word'||p.done)return;
+  if(p.used.indexOf(idx)>=0)return;
+  p.used.push(idx);_mgSound('tap');render();
+}
+function mgWordBack(){const p=S.mgPlay;if(!p||p.game!=='word'||p.done)return;p.used.pop();render()}
+function mgWordClear(){const p=S.mgPlay;if(!p||p.game!=='word'||p.done)return;p.used=[];render()}
+function mgWordSubmit(){
+  const p=S.mgPlay;if(!p||p.game!=='word'||p.done)return;
+  const word=p.used.map(i=>p.letters[i]).join('');
+  const flash=(ok,msg)=>{p.feedback={ok,msg};render();setTimeout(()=>{const cur=S.mgPlay;if(cur&&cur.game==='word'){cur.feedback=null;render()}},650)};
+  if(word.length<3){_mgSound('wrong');flash(false,'Min 3 letters');return}
+  if(p.foundSet.has(word)){_mgSound('wrong');flash(false,'Already found');return}
+  if(p.valid.indexOf(word)>=0){
+    p.foundSet.add(word);
+    const pts=word.length*word.length;p.score+=pts;
+    _mgSound(word.length>=5?'levelup':'correct');
+    p.used=[];flash(true,'+'+pts+' \\u2728');
+  } else {
+    _mgSound('wrong');flash(false,'Not in list');
+  }
+}
+function _mwOnKey(e){
+  if(!S.mgPlay||S.mgPlay.game!=='word'||S.mgPlay.done)return;
+  if(e.key==='Enter'){e.preventDefault();mgWordSubmit();return}
+  if(e.key==='Backspace'){e.preventDefault();mgWordBack();return}
+  if(e.key==='Escape'){return}
+  if(e.key&&e.key.length===1){const k=e.key.toUpperCase();if(/^[A-Z]$/.test(k)){const p=S.mgPlay;const idx=p.letters.findIndex((c,i)=>c===k&&p.used.indexOf(i)<0);if(idx>=0){e.preventDefault();mgWordTap(idx)}}}
+}
 function mgPercent(g){const p=S.mg.progress[g]||{level:1,xp:0};return Math.min(100,Math.round((p.xp/(5*100))*100))}
 
 // ── Math Sprint ──
@@ -5039,16 +5131,16 @@ if(S.tab==='tasks'){
 // MIND GYM TAB — dedicated brain-training section, treated as its own product
 else if(S.tab==='mindgym'){
   const mg=S.mg;const overall=Math.round((mgPercent('math')+mgPercent('memory')+mgPercent('reaction'))/3);
-  const totalLevel=mg.progress.math.level+mg.progress.memory.level+mg.progress.reaction.level;
-  const totalXp=(mg.progress.math.xp||0)+(mg.progress.memory.xp||0)+(mg.progress.reaction.xp||0);
+  const totalLevel=mg.progress.math.level+mg.progress.memory.level+mg.progress.reaction.level+((mg.progress.word&&mg.progress.word.level)||1);
+  const totalXp=(mg.progress.math.xp||0)+(mg.progress.memory.xp||0)+(mg.progress.reaction.xp||0)+((mg.progress.word&&mg.progress.word.xp)||0);
   const streak=mg.streak||{current:0,longest:0,total:0};
   // Daily workout — 3-game plan, ticked as user completes each today
-  const dGames=[{k:'math',n:'Math',e:'\\u{1F522}',fn:'mgMathStart()'},{k:'memory',n:'Memory',e:'\\u{1F9E9}',fn:'mgMemoryStart()'},{k:'reaction',n:'Reaction',e:'\\u26A1',fn:'mgReactionStart()'}];
-  const doneCount=dGames.filter(g=>_mgIsDoneToday(g.k)).length;
+  const dGames=[{k:'math',n:'Math',e:'\\u{1F522}',fn:'mgMathStart()'},{k:'memory',n:'Memory',e:'\\u{1F9E9}',fn:'mgMemoryStart()'},{k:'reaction',n:'Reaction',e:'\\u26A1',fn:'mgReactionStart()'},{k:'word',n:'Word',e:'\\u{1F520}',fn:'mgWordStart()'}];
+  const doneCount=dGames.filter(g=>_mgIsDoneToday(g.k)).length;const totalGames=dGames.length;
   const nextGame=dGames.find(g=>!_mgIsDoneToday(g.k));
   h+='<div class="mg-daily">'
     +'<div class="mg-daily-l"><div class="mg-daily-eyebrow">TODAY \\u2022 5-MINUTE WORKOUT</div>'
-    +'<div class="mg-daily-t">'+(doneCount===3?'\\u{1F389} Workout complete!':'Plan: '+dGames.map(g=>(_mgIsDoneToday(g.k)?'<s>':'')+g.e+' '+g.n+(_mgIsDoneToday(g.k)?'</s>':'')).join(' \\u2192 '))+'</div>'
+    +'<div class="mg-daily-t">'+(doneCount===totalGames?'\\u{1F389} Workout complete!':'Plan: '+dGames.map(g=>(_mgIsDoneToday(g.k)?'<s>':'')+g.e+' '+g.n+(_mgIsDoneToday(g.k)?'</s>':'')).join(' \\u2192 '))+'</div>'
     +'<div class="mg-daily-pills">';
   dGames.forEach(g=>{const done=_mgIsDoneToday(g.k);h+='<span class="mg-daily-pill'+(done?' mg-daily-done':'')+'">'+(done?'\\u2713 ':'')+g.e+' '+g.n+'</span>'});
   h+='</div></div>'
@@ -5092,13 +5184,13 @@ else if(S.tab==='mindgym'){
     +'<div class="mg-bar"><div class="mg-bar-fill" style="width:'+pct+'%"></div></div>'
     +'<div class="mg-card-foot"><span>'+pct+'%</span><span>Best: <b>'+bestStr+'</b></span></div>'
   +'</button>'}
-  // Word Sprint (preview / coming soon)
-  h+='<button class="mg-card mg-card-preview" onclick="toast(\\'\\u{1F4AD} Word Sprint launches next week\\u2014the anagram trainer is being calibrated\\',\\'ok\\')" style="background:linear-gradient(135deg,#0F1320 0%,#1F2937 60%,#374151 100%)">'
-    +'<div class="mg-card-hd"><span class="mg-card-emoji">\\u{1F520}</span><span class="mg-card-name">Word Sprint</span><span class="mg-card-lvl mg-card-lvl-utility">Soon</span></div>'
-    +'<div class="mg-card-d">Seven scrambled letters. Find every word in 90 seconds.</div>'
-    +'<div class="mg-bar"><div class="mg-bar-fill" style="width:0%;background:#FCD34D"></div></div>'
-    +'<div class="mg-card-foot"><span>Calibrating</span><span>Best: <b>\\u2014</b></span></div>'
-  +'</button>';
+  // Word Sprint — anagram unscrambler (real game)
+  {const p=mg.progress.word||{level:1,xp:0,best:0};const pct=Math.min(100,Math.round(((p.xp||0)/(5*100))*100));const bestStr=p.best?p.best+' words':'\\u2014';h+='<button class="mg-card mg-word" onclick="mgWordStart()" style="background:linear-gradient(135deg,#0a1414,#0a1d2a)">'
+    +'<div class="mg-card-hd"><span class="mg-card-emoji">\\u{1F520}</span><span class="mg-card-name">Word Sprint</span><span class="mg-card-lvl">L'+p.level+'</span></div>'
+    +'<div class="mg-card-d">Seven scrambled letters. Find every word in 90s.</div>'
+    +'<div class="mg-bar"><div class="mg-bar-fill" style="width:'+pct+'%;background:linear-gradient(90deg,#22D3EE,#10B981)"></div></div>'
+    +'<div class="mg-card-foot"><span>'+pct+'%</span><span>Best: <b>'+bestStr+'</b></span></div>'
+  +'</button>'}
   h+='</div>';
   // Achievements row — 4 badges, some unlocked based on real progress
   {
@@ -5106,7 +5198,7 @@ else if(S.tab==='mindgym'){
     const ach=[
       {k:'first',cls:'',name:'First step',desc:'Played your first game',unlocked:totalLvl>3},
       {k:'week',cls:'streak',name:'Week warrior',desc:'7-day streak',unlocked:streak.current>=7},
-      {k:'sharp',cls:'cool',name:'Sharp mind',desc:'L5 in any game',unlocked:Math.max(mg.progress.math.level,mg.progress.memory.level,mg.progress.reaction.level)>=5},
+      {k:'sharp',cls:'cool',name:'Sharp mind',desc:'L5 in any game',unlocked:Math.max(mg.progress.math.level,mg.progress.memory.level,mg.progress.reaction.level,(mg.progress.word&&mg.progress.word.level)||0)>=5},
       {k:'flow',cls:'purple',name:'In the flow',desc:'500 XP earned',unlocked:totalXp>=500}
     ];
     h+='<div class="mg-achievements">';
@@ -5735,7 +5827,7 @@ if(S.showHelp){
 if(S.mgPlay){
   const p=S.mgPlay;
   h+='<div class="ov ov-locked"><div class="mdl mg-mdl">';
-  h+='<div class="mg-hd"><div><h2 class="mg-t">'+(p.game==='math'?'\\u{1F522} Math Sprint':p.game==='memory'?'\\u{1F9E9} Memory Tap':'\\u26A1 Reaction')+' \\u2022 L'+p.level+'</h2><div class="mg-s">'+(p.game==='math'?'Solve 10 to win XP':p.game==='memory'?'Repeat the pattern \\u2014 it grows each round':'Tap when the screen turns green')+'</div></div><button class="was-x" onclick="mgClose()">\\u2715</button></div>';
+  h+='<div class="mg-hd"><div><h2 class="mg-t">'+(p.game==='math'?'\\u{1F522} Math Sprint':p.game==='memory'?'\\u{1F9E9} Memory Tap':p.game==='word'?'\\u{1F520} Word Sprint':'\\u26A1 Reaction')+' \\u2022 L'+p.level+'</h2><div class="mg-s">'+(p.game==='math'?'Solve 10 to win XP':p.game==='memory'?'Repeat the pattern \\u2014 it grows each round':p.game==='word'?'90 seconds. Find every word you can.':'Tap when the screen turns green')+'</div></div><button class="was-x" onclick="mgClose()">\\u2715</button></div>';
 
   if(p.game==='math'){
     if(p.done){
@@ -5794,6 +5886,36 @@ if(S.mgPlay){
         +'<div class="mt-hud"><span class="mt-hud-l">ROUND <b>'+p.round+'</b></span><span class="mt-hud-r">BEST <b>'+p.best+'</b></span></div>'
         +'<canvas id="mtCanvas" class="mt-canvas"></canvas>'
       +'</div>';
+    }
+  } else if(p.game==='word'){
+    if(p.done){
+      const stars=p.foundSet.size>=10?3:p.foundSet.size>=6?2:p.foundSet.size>=3?1:0;
+      const starsHTML=[1,2,3].map(n=>'<span class="mt-star'+(n<=stars?' mt-star-on':'')+'">\\u2605</span>').join('');
+      h+='<div class="mg-body mt-end">'
+        +'<div class="mt-end-stars">'+starsHTML+'</div>'
+        +'<div class="mt-end-t">Found <b>'+p.foundSet.size+'</b> words \\u2022 <b>'+p.score+'</b> pts</div>'
+        +'<div class="mt-end-s">Base word: <b>'+p.base+'</b> \\u2022 +'+Math.min(50,p.score)+' XP saved</div>'
+        +(p.foundSet.size>0?'<div class="mw-found" style="margin-top:14px">'+[...p.foundSet].map(w=>'<span>'+w+'</span>').join('')+'</div>':'')
+        +'<div class="was-acts"><button class="mb mb-c" onclick="mgClose()">Done</button><button class="mb mb-s" onclick="mgWordStart()">\\u21BB Play again</button></div>'
+      +'</div>';
+    } else {
+      const elapsed=(Date.now()-p.timeStart)/1000;
+      const timePct=Math.max(0,Math.min(100,((p.timeMax-elapsed)/p.timeMax)*100));
+      const cur=p.used.map(i=>p.letters[i]).join('');
+      h+='<div class="mw-body">'
+        +'<div class="mw-stats"><span><b>'+p.foundSet.size+'</b>words</span><span><b>'+p.score+'</b>points</span><span><b id="mwTime">'+Math.ceil(Math.max(0,p.timeMax-elapsed))+'</b>sec</span></div>'
+        +'<div class="ms-time-track"><div class="ms-time-fill" id="mwBar" style="width:'+timePct+'%"></div></div>'
+        +'<div class="mw-letters">';
+      p.letters.forEach((c,i)=>{
+        const used=p.used.indexOf(i)>=0;
+        h+='<button class="mw-let'+(used?' used':'')+'" onclick="mgWordTap('+i+')">'+c+'</button>';
+      });
+      h+='</div>'
+        +'<div class="mw-cur'+(p.feedback?(p.feedback.ok?' flash-good':' flash-bad'):'')+'">'+(p.feedback?p.feedback.msg:(cur||'Tap or type letters'))+'</div>'
+        +'<div class="mw-acts"><button class="mw-btn" onclick="mgWordClear()">Clear</button><button class="mw-btn" onclick="mgWordBack()">\\u232B Back</button><button class="mw-btn mw-btn-primary" onclick="mgWordSubmit()">Submit \\u21B5</button></div>'
+        +'<div class="mw-found">'
+        +(p.foundSet.size===0?'<span class="empty">Found words appear here \\u2022 use keyboard or tap tiles</span>':[...p.foundSet].map(w=>'<span>'+w+'</span>').join(''))
+      +'</div></div>';
     }
   } else if(p.game==='reaction'){
     h+='<div class="mg-body">';
