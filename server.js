@@ -258,11 +258,11 @@ app.post('/api/coach/speak',auth,async(req,res)=>{
     const r=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+voice,{
       method:'POST',
       headers:{'Content-Type':'application/json','xi-api-key':ELEVENLABS_KEY,'Accept':'audio/mpeg'},
-      // multilingual_v2 = higher fidelity than turbo (~2x latency but Headspace-quality output).
-      // stability 0.75 keeps the narrator measured and consistent (less robotic up-and-down cadence).
-      // style 0.0 = no expressive stylization — closer to a calm meditation guide than a podcaster.
-      // similarity_boost 0.85 stays loyal to the chosen voice's natural timbre.
-      body:JSON.stringify({text,model_id:'eleven_multilingual_v2',voice_settings:{stability:0.75,similarity_boost:0.85,style:0.0,use_speaker_boost:true}})
+      // turbo_v2_5 = ~3-5x lower latency than multilingual_v2 with very close audio quality.
+      // For book narration we want fast first-byte over the marginal quality bump.
+      // stability 0.7 keeps the narrator measured. style 0.05 = barely any stylization (calm).
+      // similarity_boost 0.85 stays loyal to George's natural British timbre.
+      body:JSON.stringify({text,model_id:'eleven_turbo_v2_5',voice_settings:{stability:0.7,similarity_boost:0.85,style:0.05,use_speaker_boost:true}})
     });
     if(!r.ok){const t=await r.text();return res.status(502).json({error:t.slice(0,200)})}
     const audio=Buffer.from(await r.arrayBuffer());
@@ -3698,6 +3698,19 @@ body[data-theme=aurora] .hist-link a:hover{color:#C4B5FD}
 .mg-react-time small{font-size:.4em;opacity:.65;margin-left:6px}
 .mg-react-msg{position:relative;z-index:1;text-shadow:0 2px 6px rgba(0,0,0,.25)}
 
+/* ═══════════════ Persistent book mini-player (Spotify-style) ═══════════════ */
+.bk-mini{position:fixed;bottom:20px;right:20px;z-index:150;display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #ECEAE3;border-radius:18px;padding:10px 14px;box-shadow:0 14px 40px -12px rgba(0,0,0,.25),0 4px 12px rgba(0,0,0,.06);max-width:380px;min-width:300px;animation:bk-up .35s cubic-bezier(.16,1,.3,1);cursor:pointer;transition:transform .25s,box-shadow .3s}
+.bk-mini:hover{transform:translateY(-2px);box-shadow:0 22px 50px -12px rgba(0,0,0,.32)}
+.bk-mini-cover{width:42px;height:54px;border-radius:8px;background:var(--bm-grad,#1F4D3F);flex-shrink:0;box-shadow:0 4px 10px rgba(0,0,0,.15)}
+.bk-mini-info{flex:1;min-width:0;line-height:1.3}
+.bk-mini-info b{display:block;font-size:13px;font-weight:600;letter-spacing:-.005em;color:#1A1A1A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bk-mini-info small{display:block;font-family:'JetBrains Mono','Space Mono',monospace;font-size:10px;color:#6B6B6B;letter-spacing:.06em;text-transform:uppercase;margin-top:2px}
+.bk-mini-btn{width:38px;height:38px;border-radius:50%;border:0;cursor:pointer;display:grid;place-items:center;background:#1A1A1A;color:#fff;font-size:14px;font-family:inherit;transition:background .2s,transform .2s;flex-shrink:0}
+.bk-mini-btn:hover{background:#1F4D3F;transform:scale(1.05)}
+.bk-mini-x{width:26px;height:26px;border-radius:50%;border:1px solid #ECEAE3;background:#fff;color:#6B6B6B;font-family:inherit;font-size:11px;cursor:pointer;display:grid;place-items:center;flex-shrink:0;transition:all .2s}
+.bk-mini-x:hover{background:#FEF2F2;color:#DC2626;border-color:#FCA5A5}
+@media (max-width:600px){.bk-mini{left:14px;right:14px;bottom:14px;max-width:none;min-width:0}}
+
 /* ═══════════════ COMMUNITY ARTICLES — Medium-style ═══════════════ */
 .art-feed{display:flex;flex-direction:column;gap:18px;margin-top:8px}
 .art-card{display:flex;flex-direction:column;background:#fff;border:1px solid #ECEAE3;border-radius:18px;overflow:hidden;cursor:pointer;transition:transform .35s cubic-bezier(.16,1,.3,1),box-shadow .3s,border-color .25s}
@@ -4761,7 +4774,15 @@ function openHelp(){S.showHelp=true;render();setTimeout(()=>{const m=document.qu
 function closeHelp(){S.showHelp=false;render()}
 function closeProfile(){S.showProfile=false;render()}
 async function saveName(){const n=(document.getElementById('pfName')||{}).value;if(!n||!n.trim())return;const r=await api('/me',{method:'PUT',body:JSON.stringify({name:n.trim()})});if(r&&r.name){S.user.name=r.name;localStorage.setItem('tf_name',r.name);S.profile=Object.assign(S.profile||{},{name:r.name});toast('\\u2705 Name updated');render()}}
-async function refreshSession(){if(!token)return;const r=await api('/me');if(r&&!r.error){S.user={phone:r.phone,name:r.name,token};S.profile=r;localStorage.setItem('tf_name',r.name||'');render()}else if(r&&r.error){logout()}}
+async function refreshSession(){
+  if(!token)return;
+  const r=await api('/me');
+  if(r&&!r.error){S.user={phone:r.phone,name:r.name,token};S.profile=r;localStorage.setItem('tf_name',r.name||'');render();return}
+  // Only force logout on a CLEAR auth failure (token rejected). Transient network errors,
+  // 502s during redeploys, and undefined responses keep the cached login intact so a hard
+  // refresh during a redeploy doesn't kick the user back to login.
+  if(r&&r.error&&/invalid|expired|unauthor|401/i.test(String(r.error))){logout()}
+}
 function calPrev(){const d=new Date(S.calMonth);d.setMonth(d.getMonth()-1);S.calMonth=d;render()}
 function calNext(){const d=new Date(S.calMonth);d.setMonth(d.getMonth()+1);S.calMonth=d;render()}
 function calSelect(d){S.calSelectedDate=d;render()}
@@ -5548,7 +5569,36 @@ const BOOK_SUMMARIES=[
    summary:'Cal Newport\\'s long argument against the "follow your passion" gospel. Passion, he argues, is not how you find work you love. It is what happens after you become good at something. The reason most twenty-somethings hate their jobs is not that they picked the wrong career — it is that they are at the bottom of the skill ladder in every career, where the work is least autonomous and least meaningful. The fix is to stop asking "what should I do with my life" and start asking "what skills can I get rare-and-valuable at right now". Newport calls this career capital. The more rare and valuable your skills, the more leverage you have to negotiate for autonomy, mission, and money. The mantra he borrows from Steve Martin: be so good they cannot ignore you. Mission needs traction — you cannot pick a meaningful mission from a blank page. Mission emerges from accumulated expertise. Adopt the craftsman mindset: focus on what you produce, not how it makes you feel. Feeling follows production, not the other way around.'}
 ];
 function openBookSummary(id){const b=BOOK_SUMMARIES.find(x=>x.id===id);if(!b)return;S.bookReader={open:true,book:b,playing:false,rate:1};render()}
-function closeBookReader(){if(window.speechSynthesis)try{speechSynthesis.cancel()}catch(e){}S.bookReader={open:false};render()}
+function closeBookReader(){
+  // If audio is currently playing, keep it going as a persistent mini-player at the bottom
+  if(S.bookReader&&S.bookReader.playing&&S.bookReader.book){
+    S.bkMini={book:S.bookReader.book,startedAt:S.bookReader.startedAt,rate:S.bookReader.rate,progress:S.bookReader.progress,usingEleven:S.bookReader.usingEleven};
+    S.bookReader={open:false};
+    render();
+    return;
+  }
+  // Otherwise stop everything as before
+  _premiumStop();
+  if(window.speechSynthesis)try{speechSynthesis.cancel()}catch(e){}
+  S.bookReader={open:false};render();
+}
+function bkMiniToggle(){
+  if(!S.bkMini)return;
+  // If audio is currently playing (window._narration active or speech synthesis), pause; else resume
+  const isActive=!!(window._narration&&window._narration.audio&&!window._narration.audio.paused)||!!(window.speechSynthesis&&speechSynthesis.speaking&&!speechSynthesis.paused);
+  if(isActive){
+    if(window._narration&&window._narration.audio)try{window._narration.audio.pause()}catch(e){}
+    if(window.speechSynthesis)try{speechSynthesis.pause()}catch(e){}
+    S.bkMini.paused=true;
+  } else {
+    if(window._narration&&window._narration.audio)try{window._narration.audio.play()}catch(e){}
+    if(window.speechSynthesis)try{speechSynthesis.resume()}catch(e){}
+    S.bkMini.paused=false;
+  }
+  render();
+}
+function bkMiniClose(){_premiumStop();if(window.speechSynthesis)try{speechSynthesis.cancel()}catch(e){}S.bkMini=null;render()}
+function bkMiniReopen(){if(!S.bkMini||!S.bkMini.book)return;S.bookReader={open:true,book:S.bkMini.book,playing:!S.bkMini.paused,rate:S.bkMini.rate,progress:S.bkMini.progress,startedAt:S.bkMini.startedAt,usingEleven:S.bkMini.usingEleven};S.bkMini=null;render()}
 function _pickPremiumVoice(){
   if(!('speechSynthesis' in window))return null;
   const vs=speechSynthesis.getVoices();
@@ -5585,10 +5635,15 @@ async function _premiumNarrate(text,opts,onAllDone,onProgress){
   const useEleven=!!(S.coach&&S.coach.status&&S.coach.status.tts);
   console.log('[narr] tts available:',useEleven,'status:',S.coach&&S.coach.status);
   if(!useEleven){console.log('[narr] falling back to browser TTS — set ELEVENLABS_API_KEY');return _browserTtsSpeak(text,opts,onAllDone,onProgress)}
-  // Chunk for ElevenLabs — max 2000 chars per request, smaller = faster first byte
+  // Chunk small for fast first-byte — first chunk ~300 chars (~3-5s to first audio)
+  // After that, larger chunks (~1500 chars) for fewer round trips during playback
   const sentences=(text.match(/[^.!?\\u2026]+[.!?\\u2026]+["\\u2019\\u201d)]?\\s*/g))||[text];
-  const chunks=[];let cur='';
-  for(const s of sentences){if((cur+s).length>1500){if(cur)chunks.push(cur.trim());cur=s}else cur+=s}
+  const chunks=[];let cur='';let firstChunkSize=300;
+  for(const s of sentences){
+    const limit=chunks.length===0?firstChunkSize:1500;
+    if((cur+s).length>limit){if(cur)chunks.push(cur.trim());cur=s}
+    else cur+=s;
+  }
   if(cur.trim())chunks.push(cur.trim());
   if(!chunks.length)return false;
   const queue={chunks,idx:0,audio:null,cancelled:false};
@@ -5610,21 +5665,34 @@ async function _premiumNarrate(text,opts,onAllDone,onProgress){
       }
       if(queue.idx===0&&typeof toast==='function')toast('\\u{1F3AC} Studio voice loaded','ok');
       const blob=await r.blob();
+      console.log('[narr] chunk',queue.idx+1,'received blob size:',blob.size,'type:',blob.type);
       if(queue.cancelled)return;
       const url=URL.createObjectURL(blob);
-      const a=new Audio(url);
+      // Use a persistent in-DOM audio element — survives async transitions, browsers respect it more
+      let a=document.getElementById('bk-narr-audio');
+      if(!a){a=document.createElement('audio');a.id='bk-narr-audio';a.preload='auto';a.controls=false;document.body.appendChild(a)}
+      a.src=url;
+      a.volume=1.0;
+      a.muted=false;
       queue.audio=a;
       a.playbackRate=Math.max(0.5,Math.min(2.0,(opts&&opts.rate)||1.0));
-      a.onended=function(){URL.revokeObjectURL(url);queue.idx++;playNext()};
-      a.onerror=function(){URL.revokeObjectURL(url);queue.idx++;playNext()};
+      a.onended=function(){console.log('[narr] chunk',queue.idx+1,'ended');URL.revokeObjectURL(url);queue.idx++;playNext()};
+      a.onerror=function(){console.warn('[narr] chunk',queue.idx+1,'audio error',a.error);URL.revokeObjectURL(url);queue.idx++;playNext()};
+      a.oncanplay=function(){console.log('[narr] chunk',queue.idx+1,'canplay (duration:',a.duration,')')};
+      a.onplay=function(){console.log('[narr] chunk',queue.idx+1,'play started')};
+      console.log('[narr] calling audio.play() for chunk',queue.idx+1);
       const p=a.play();
-      if(p&&p.catch)p.catch(function(err){
-        // Autoplay blocked or audio decode failed — fall back to browser TTS for the rest
-        URL.revokeObjectURL(url);
-        if(queue.cancelled)return;
-        const rem=queue.chunks.slice(queue.idx).join(' ');
-        _browserTtsSpeak(rem,opts,onAllDone,function(i,t,l){if(typeof onProgress==='function')try{onProgress(queue.idx+i,queue.chunks.length,l)}catch(e){}});
-      });
+      if(p&&p.then){
+        p.then(function(){console.log('[narr] chunk',queue.idx+1,'play() resolved')});
+        p.catch(function(err){
+          console.warn('[narr] chunk',queue.idx+1,'play() rejected:',err&&err.message);
+          if(queue.idx===0&&typeof toast==='function')toast('\\u26A0\\uFE0F Browser blocked autoplay \\u2014 using browser TTS','err');
+          URL.revokeObjectURL(url);
+          if(queue.cancelled)return;
+          const rem=queue.chunks.slice(queue.idx).join(' ');
+          _browserTtsSpeak(rem,opts,onAllDone,function(i,t,l){if(typeof onProgress==='function')try{onProgress(queue.idx+i,queue.chunks.length,l)}catch(e){}});
+        });
+      }
     }catch(e){if(queue.cancelled)return;queue.idx++;playNext()}
   }
   playNext();
@@ -6949,6 +7017,18 @@ if(S.toast)h+='<div class="toast toast-'+(S.toastType==='err'?'err':'ok')+'">'+S
 if(S._mgConfetti&&Date.now()-S._mgConfetti<1500){
   h+='<div class="mg-confetti"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>';
   setTimeout(()=>{S._mgConfetti=null;render()},1600);
+}
+
+// ═══ Persistent book mini-player (Spotify-style) — keeps audio playing when reader is closed ═══
+if(S.bkMini&&S.bkMini.book){
+  const m=S.bkMini.book;
+  const isPaused=S.bkMini.paused;
+  h+='<div class="bk-mini" onclick="bkMiniReopen()" style="--bm-grad:'+m.grad.replace(/"/g,'&quot;')+'">'
+    +'<div class="bk-mini-cover" style="background:'+m.grad+'"></div>'
+    +'<div class="bk-mini-info"><b>'+esc(m.title)+'</b><small>'+esc(m.author)+(S.bkMini.usingEleven?' \\u00B7 STUDIO':' \\u00B7 BROWSER')+'</small></div>'
+    +'<button class="bk-mini-btn" onclick="event.stopPropagation();bkMiniToggle()" aria-label="'+(isPaused?'Resume':'Pause')+'">'+(isPaused?'\\u25B6':'\\u23F8')+'</button>'
+    +'<button class="bk-mini-x" onclick="event.stopPropagation();bkMiniClose()" aria-label="Stop">\\u2715</button>'
+  +'</div>';
 }
 
 // ═══ ARTICLE EDITOR (Medium-style writing) ═══
