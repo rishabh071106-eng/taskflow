@@ -3297,6 +3297,217 @@ body[data-theme=aurora] .hist-link a:hover{color:#C4B5FD}
 .vc-lesson-row .vc-go:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(255,255,255,.15)}
 .vc-lesson-row .vc-meta{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;color:rgba(255,255,255,.7);text-transform:uppercase}
 
+/* Headspace-style chat thread + scenarios + composer */
+.cc-scenarios{margin-bottom:18px !important}
+.cc-scenarios-t{
+  font-family:'JetBrains Mono','Space Mono',monospace !important;
+  font-size:11px !important;font-weight:500 !important;
+  letter-spacing:.14em !important;color:#1F4D3F !important;
+  text-transform:uppercase !important;margin-bottom:14px !important;
+}
+.cc-scenario-row{padding-bottom:8px !important;gap:10px !important}
+.cc-sc{
+  flex-shrink:0 !important;
+  padding:14px 18px !important;
+  border-radius:14px !important;
+  border:1px solid #E8E6E0 !important;
+  background:#fff !important;
+  color:#1A1A1A !important;
+  font-family:inherit !important;
+  font-weight:500 !important;
+  font-size:13.5px !important;
+  letter-spacing:-.005em !important;
+  cursor:pointer;
+  transition:transform .35s cubic-bezier(.16,1,.3,1), border-color .25s, background .25s, box-shadow .3s !important;
+  box-shadow:0 1px 2px rgba(0,0,0,.03), 0 2px 6px rgba(0,0,0,.04) !important;
+  scroll-snap-align:start;
+}
+.cc-sc:hover{
+  border-color:#FF8A4F !important;
+  background:linear-gradient(135deg,#FFF8F2,#FFFFFF) !important;
+  transform:translateY(-2px) !important;
+  box-shadow:0 8px 20px -8px rgba(255,138,79,.3) !important;
+}
+.cc-sc-on{
+  background:linear-gradient(135deg,#FF6B47,#FF8A4F) !important;
+  border-color:#FF6B47 !important;color:#fff !important;
+  box-shadow:0 8px 20px -8px rgba(255,107,71,.5) !important;
+}
+.cc-sc-on:hover{
+  background:linear-gradient(135deg,#E54D2A,#F26935) !important;
+  border-color:#E54D2A !important;color:#fff !important;
+}
+.cc-active-scenario{
+  background:linear-gradient(135deg,#FFF1E8,#FFEBE0) !important;
+  border:1px solid #FFD0B5 !important;
+  color:#7A2F0E !important;
+  border-radius:14px !important;padding:14px 18px !important;
+  font-size:13.5px !important;
+}
+.cc-active-scenario b{color:#1A1A1A !important;font-weight:600 !important}
+.cc-end{
+  background:#fff !important;border:1px solid #FFD0B5 !important;
+  color:#7A2F0E !important;font-family:'JetBrains Mono',monospace !important;
+  font-weight:500 !important;font-size:11px !important;letter-spacing:.06em !important;
+  text-transform:uppercase !important;padding:6px 12px !important;border-radius:999px !important;
+}
+.cc-end:hover{background:#FF6B47 !important;color:#fff !important;border-color:#FF6B47 !important}
+
+/* Chat thread — bigger breathing room */
+.cc-thread{
+  padding:8px 0 14px !important;gap:14px !important;max-height:none !important;
+}
+.cc-bubble{
+  max-width:82% !important;
+  padding:14px 18px !important;
+  border-radius:20px !important;
+  font-size:14.5px !important;
+  line-height:1.55 !important;
+  letter-spacing:-.005em !important;
+  font-family:'Inter',sans-serif !important;
+}
+.cc-coach .cc-bubble{
+  background:#FAFAF7 !important;
+  color:#1A1A1A !important;
+  border:1px solid #ECEAE3 !important;
+  border-bottom-left-radius:6px !important;
+  box-shadow:0 1px 2px rgba(0,0,0,.02) !important;
+}
+.cc-me .cc-bubble{
+  background:linear-gradient(135deg,#FF6B47,#FF8A4F) !important;
+  color:#fff !important;
+  border:0 !important;
+  border-bottom-right-radius:6px !important;
+  box-shadow:0 4px 14px -4px rgba(255,107,71,.4) !important;
+}
+.cc-msg{align-items:flex-end !important;gap:10px !important}
+.cc-avatar{
+  width:34px !important;height:34px !important;border-radius:50% !important;
+  background:linear-gradient(135deg,#FF6B47,#FFB05E) !important;
+  display:grid !important;place-items:center !important;
+  font-size:14px !important;flex-shrink:0;
+  box-shadow:0 4px 10px -2px rgba(255,107,71,.4) !important;
+}
+.cc-replay{
+  background:rgba(255,107,71,.12) !important;
+  color:#FF6B47 !important;
+  border:0 !important;
+  margin-left:8px !important;padding:3px 9px !important;border-radius:8px !important;
+  font-size:13px !important;
+}
+.cc-replay:hover{background:#FF6B47 !important;color:#fff !important}
+.cc-typing{padding:14px 18px !important}
+.cc-typing span{
+  background:#FF6B47 !important;width:7px !important;height:7px !important;
+}
+
+/* Composer — Headspace warmth */
+.cc-composer{
+  padding:12px !important;
+  border:1px solid #ECEAE3 !important;
+  border-radius:22px !important;
+  background:#fff !important;
+  box-shadow:0 4px 18px -6px rgba(0,0,0,.08) !important;
+  margin-top:14px !important;
+}
+.cc-composer textarea{
+  font-size:15.5px !important;
+  line-height:1.5 !important;
+  padding:10px 6px !important;
+  font-family:'Inter',sans-serif !important;
+}
+.cc-composer textarea::placeholder{color:#9A9A9A !important;font-style:normal !important}
+.cc-mic{
+  width:44px !important;height:44px !important;
+  background:#F4F3EE !important;
+  color:#1A1A1A !important;
+  font-size:18px !important;
+  transition:background .25s, transform .35s cubic-bezier(.34,1.56,.64,1) !important;
+}
+.cc-mic:hover{background:#FFE1D1 !important;color:#FF6B47 !important;transform:scale(1.05)}
+.cc-mic.cc-rec, .cc-rec{
+  background:linear-gradient(135deg,#FF6B47,#FF8A4F) !important;
+  color:#fff !important;
+  animation:cc-rec-pulse 1.4s ease-in-out infinite !important;
+}
+@keyframes cc-rec-pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,107,71,.6)}50%{box-shadow:0 0 0 12px rgba(255,107,71,0)}}
+.cc-send{
+  flex-shrink:0;width:44px !important;height:44px !important;
+  border-radius:50% !important;border:0;cursor:pointer;
+  background:linear-gradient(135deg,#FF6B47,#FF8A4F) !important;
+  color:#fff !important;font-size:18px !important;font-family:inherit !important;
+  transition:transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .3s !important;
+  box-shadow:0 4px 12px -2px rgba(255,107,71,.45) !important;
+}
+.cc-send:hover{transform:scale(1.06);box-shadow:0 6px 18px -2px rgba(255,107,71,.55) !important}
+.cc-send:disabled{background:#E8E6E0 !important;color:#9A9A9A !important;box-shadow:none !important;cursor:not-allowed}
+
+/* Quick-action chips */
+.cc-quick{margin-top:14px !important;gap:8px !important;flex-wrap:wrap;display:flex}
+.cc-quick-btn{
+  padding:9px 16px !important;
+  border-radius:999px !important;
+  border:1px solid #E8E6E0 !important;
+  background:#fff !important;
+  color:#1A1A1A !important;
+  font-family:inherit !important;
+  font-weight:500 !important;
+  font-size:13px !important;
+  cursor:pointer;
+  transition:all .25s !important;
+}
+.cc-quick-btn:hover{
+  border-color:#FF6B47 !important;color:#FF6B47 !important;
+  background:#FFF8F4 !important;
+}
+.cc-quick-reset{color:#9A9A9A !important;border-style:dashed !important}
+.cc-quick-reset:hover{color:#1A1A1A !important;border-style:solid !important}
+
+.cc-playing{
+  margin-top:10px;padding:10px 14px;
+  background:linear-gradient(135deg,#FFF1E8,#FFEBE0);
+  border:1px solid #FFD0B5;border-radius:12px;
+  font-size:13px;color:#7A2F0E;
+  display:flex;align-items:center;gap:10px;
+}
+.cc-playing button{background:transparent;border:1px solid #FFD0B5;color:#FF6B47;font-family:inherit;font-weight:500;padding:4px 10px;border-radius:8px;font-size:12px;cursor:pointer}
+.cc-playing button:hover{background:#FF6B47;color:#fff}
+
+/* Skill grid + pronunciation drill — next-gen AI English trainer */
+.vc-skills{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:18px}
+@media (max-width:760px){.vc-skills{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:380px){.vc-skills{grid-template-columns:1fr}}
+.vc-skill{position:relative;padding:18px 14px 14px;background:#fff;border:1px solid #ECEAE3;border-radius:16px;text-align:center;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:6px;transition:transform .35s cubic-bezier(.16,1,.3,1),border-color .25s,box-shadow .3s}
+.vc-skill:hover{transform:translateY(-3px);border-color:var(--vs-c,#FF6B47);box-shadow:0 14px 28px -12px var(--vs-shadow,rgba(255,107,71,.3))}
+.vc-skill .vs-ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:20px;background:var(--vs-bg,linear-gradient(135deg,#FF8A4F,#FF6B47));box-shadow:0 6px 14px -4px var(--vs-shadow,rgba(255,107,71,.4));margin-bottom:6px;transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
+.vc-skill:hover .vs-ic{transform:rotate(-6deg) scale(1.06)}
+.vc-skill .vs-name{font-size:12.5px;font-weight:600;letter-spacing:-.005em;color:#1A1A1A}
+.vc-skill .vs-lvl{font-family:'JetBrains Mono','Space Mono',monospace;font-size:10px;color:#6B6B6B;letter-spacing:.06em;text-transform:uppercase}
+.vc-skill[data-k=pronounce]{--vs-c:#0EA5E9;--vs-bg:linear-gradient(135deg,#7DD3FC,#0284C7);--vs-shadow:rgba(14,165,233,.4)}
+.vc-skill[data-k=vocab]{--vs-c:#A855F7;--vs-bg:linear-gradient(135deg,#D8B4FE,#7E22CE);--vs-shadow:rgba(168,85,247,.4)}
+.vc-skill[data-k=grammar]{--vs-c:#10B981;--vs-bg:linear-gradient(135deg,#6EE7B7,#059669);--vs-shadow:rgba(16,185,129,.4)}
+.vc-skill[data-k=conv]{--vs-c:#FF6B47;--vs-bg:linear-gradient(135deg,#FF8A4F,#FF6B47);--vs-shadow:rgba(255,107,71,.4)}
+.vc-skill[data-k=write]{--vs-c:#EC4899;--vs-bg:linear-gradient(135deg,#F9A8D4,#DB2777);--vs-shadow:rgba(236,72,153,.4)}
+/* Pronunciation drill card */
+.vc-pron{margin-bottom:18px;padding:24px;background:linear-gradient(135deg,#F0FBFF,#FFFFFF);border:1px solid #BAE6FD;border-radius:18px;display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center}
+@media (max-width:560px){.vc-pron{grid-template-columns:1fr;text-align:center}}
+.vc-pron-h{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#0284C7;font-weight:600}
+.vc-pron-phrase{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400;font-size:24px;line-height:1.2;color:#1A1A1A;margin:8px 0 4px}
+.vc-pron-meta{font-size:13px;color:#6B6B6B;line-height:1.5}
+.vc-pron-actions{display:flex;flex-direction:column;gap:8px}
+@media (max-width:560px){.vc-pron-actions{flex-direction:row;justify-content:center}}
+.vc-pron-btn{padding:11px 18px;border-radius:12px;border:0;cursor:pointer;font-family:inherit;font-weight:500;font-size:13.5px;display:inline-flex;align-items:center;gap:8px;justify-content:center;transition:transform .25s,background .2s}
+.vc-pron-listen{background:#fff;color:#0284C7;border:1px solid #BAE6FD}
+.vc-pron-listen:hover{background:#F0F9FF;transform:translateY(-1px)}
+.vc-pron-rec{background:linear-gradient(135deg,#0EA5E9,#0284C7);color:#fff;box-shadow:0 6px 14px -4px rgba(14,165,233,.5)}
+.vc-pron-rec:hover{transform:translateY(-1px);box-shadow:0 10px 20px -4px rgba(14,165,233,.6)}
+.vc-pron-rec.recording{animation:cc-rec-pulse 1.4s ease-in-out infinite;background:linear-gradient(135deg,#EF4444,#DC2626)}
+.vc-pron-result{margin-top:14px;padding:12px 14px;border-radius:10px;font-size:13.5px;line-height:1.5;font-family:'Inter',sans-serif}
+.vc-pron-result.good{background:#ECFDF5;border:1px solid #A7F3D0;color:#065F46}
+.vc-pron-result.ok{background:#FFFBEB;border:1px solid #FDE68A;color:#92400E}
+.vc-pron-result.miss{background:#FEF2F2;border:1px solid #FECACA;color:#991B1B}
+.vc-pron-result b{font-weight:600}
+
 .vc-vocab-row{margin-bottom:18px}
 .vc-vocab-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .vc-vocab-h h3{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:#1F4D3F;margin:0}
@@ -5057,6 +5268,55 @@ function _voiceVocabOfDay(){const d=new Date();const yStart=new Date(d.getFullYe
 function voiceStartLesson(){const l=_voiceLessonOfDay();if(typeof coachSend==='function'){try{coachSend(l.prompt)}catch(e){toast('\\u26A0\\uFE0F '+e.message,'err')}}}
 function voiceSpeakWord(w){_ttsSpeak(w,{rate:.82,pitch:1.0,volume:1.0})}
 function voiceCelebrateStreak(){if(!('speechSynthesis' in window))return;_ttsSpeak('Lovely work. Your daily streak is alive.',{rate:.92,pitch:1.0,volume:1.0})}
+
+// Pronunciation drill — daily phrase rotation + record-and-score with Web Speech Recognition
+const VOICE_PRON_PHRASES=[
+  'I really value the work we did together.',
+  'Could we circle back on that next week?',
+  'Let me think about it and get back to you.',
+  'I appreciate the thoughtful feedback.',
+  'That is a great question — let me find out.',
+  'I am happy to clarify if anything is unclear.',
+  'We are aligned on the next steps.',
+  'I would like to suggest a slightly different approach.',
+  'Thank you for making the time today.',
+  'I hear what you are saying and I see the trade-off.',
+  'Let us focus on what is most important right now.',
+  'I want to make sure I understood you correctly.',
+  'Could you walk me through that one more time?',
+  'I think we are very close to a solution.',
+];
+function _voicePronOfDay(){const d=new Date();const yStart=new Date(d.getFullYear(),0,0);const day=Math.floor((d-yStart)/86400000);return VOICE_PRON_PHRASES[day%VOICE_PRON_PHRASES.length]}
+function voicePronListen(){const p=_voicePronOfDay();_ttsSpeak(p,{rate:.92,pitch:1.0,volume:1.0})}
+function _normaliseForMatch(s){return String(s||'').toLowerCase().replace(/[^a-z0-9\\s]/g,'').replace(/\\s+/g,' ').trim()}
+function _scorePronunciation(target,heard){
+  const t=_normaliseForMatch(target).split(' ').filter(Boolean);
+  const h=_normaliseForMatch(heard).split(' ').filter(Boolean);
+  if(!t.length)return{pct:0,matched:0,total:0,missed:[]};
+  const hSet=new Set(h);let matched=0;const missed=[];
+  for(const w of t){if(hSet.has(w))matched++;else missed.push(w)}
+  return{pct:Math.round((matched/t.length)*100),matched,total:t.length,missed,heard};
+}
+function voicePronRecord(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){toast('\\u26A0\\uFE0F Speech recognition not supported on this device','err');return}
+  if(S._pronRec){try{S._pronRec.stop()}catch(e){}S._pronRec=null;S.pron={...(S.pron||{}),recording:false};render();return}
+  const r=new SR();r.continuous=false;r.interimResults=false;r.lang='en-US';
+  S.pron={...(S.pron||{}),recording:true,heard:'',result:null};render();
+  r.onresult=function(e){
+    let h='';for(let i=0;i<e.results.length;i++)h+=e.results[i][0].transcript;
+    const target=_voicePronOfDay();
+    const score=_scorePronunciation(target,h);
+    S.pron={recording:false,heard:h,result:score};
+    if(score.pct>=80)_ttsSpeak('Beautiful pronunciation. You nailed it.',{rate:.92,pitch:1.0,volume:1.0});
+    else if(score.pct>=50)_ttsSpeak('Good attempt. Try once more, slow and clear.',{rate:.92,pitch:1.0,volume:1.0});
+    else _ttsSpeak('Listen to the phrase one more time, then say it back.',{rate:.92,pitch:1.0,volume:1.0});
+    render();
+  };
+  r.onerror=function(){S._pronRec=null;S.pron={...(S.pron||{}),recording:false};toast('\\u26A0\\uFE0F Microphone error \\u2014 check permissions','err');render()};
+  r.onend=function(){S._pronRec=null;if(S.pron&&S.pron.recording){S.pron.recording=false;render()}};
+  try{r.start();S._pronRec=r}catch(e){toast('\\u26A0\\uFE0F '+e.message,'err');S._pronRec=null;S.pron={...(S.pron||{}),recording:false};render()}
+}
 function closePlayer(){stopBookListenTimer();S.playing=null;S.meditating={active:false,title:'',mins:0,startedAt:0};render()}
 function closeMeditation(){const a=document.getElementById('audioEl');if(a){try{a.pause()}catch(e){}}closePlayer()}
 let _bkTimer=null;
@@ -5501,6 +5761,39 @@ else if(S.tab==='voice'){
       +'</button>';
     });
     h+='</div></div>';
+  }
+  // Skill grid — Duolingo-style 5 categories with brand colors
+  {
+    const lc=S.coach&&S.coach.scenario?S.coach.scenario.id:null;
+    const skills=[
+      {k:'pronounce',e:'\\u{1F399}\\uFE0F',n:'Pronounce',lvl:'L'+((S.mg.progress.word&&S.mg.progress.word.level)||1)},
+      {k:'vocab',e:'\\u{1F4DA}',n:'Vocabulary',lvl:'21 words'},
+      {k:'grammar',e:'\\u{1F9E9}',n:'Grammar',lvl:'Daily'},
+      {k:'conv',e:'\\u{1F4AC}',n:'Conversation',lvl:(S.coach&&S.coach.history?S.coach.history.length:0)+' turns'},
+      {k:'write',e:'\\u270D\\uFE0F',n:'Writing',lvl:'Beta'}
+    ];
+    h+='<div class="vc-skills">';
+    skills.forEach(s=>{
+      const click=s.k==='pronounce'?'document.getElementById(\\'vcPron\\')&&document.getElementById(\\'vcPron\\').scrollIntoView({behavior:\\'smooth\\',block:\\'center\\'})':s.k==='vocab'?'document.querySelector(\\'.vc-vocab-row\\')&&document.querySelector(\\'.vc-vocab-row\\').scrollIntoView({behavior:\\'smooth\\',block:\\'center\\'})':s.k==='conv'?'document.querySelector(\\'.cc-thread\\')&&document.querySelector(\\'.cc-thread\\').scrollIntoView({behavior:\\'smooth\\',block:\\'center\\'})':s.k==='grammar'?'coachSend(\\'Teach me one grammar rule that English learners get wrong most often, with three examples.\\')':'coachSend(\\'Help me write a polished email asking for a quick meeting next Tuesday.\\')';
+      h+='<button class="vc-skill" data-k="'+s.k+'" onclick="'+click+'"><div class="vs-ic">'+s.e+'</div><div class="vs-name">'+s.n+'</div><div class="vs-lvl">'+s.lvl+'</div></button>';
+    });
+    h+='</div>';
+  }
+  // Pronunciation drill — daily phrase + record + score
+  {
+    const phrase=_voicePronOfDay();
+    const pr=S.pron||{};
+    h+='<div class="vc-pron" id="vcPron">'
+      +'<div><div class="vc-pron-h">\\u{1F399}\\uFE0F Today\\u2019s pronunciation drill</div>'
+      +'<div class="vc-pron-phrase">"'+esc(phrase)+'"</div>'
+      +'<div class="vc-pron-meta">Tap <b>Listen</b> to hear it, then <b>Speak</b> to record. We score how close your version is.</div>'
+      +(pr.result?'<div class="vc-pron-result '+(pr.result.pct>=80?'good':pr.result.pct>=50?'ok':'miss')+'"><b>'+pr.result.pct+'%</b> match \\u00B7 '+pr.result.matched+' of '+pr.result.total+' words. '+(pr.heard?'You said: <i>"'+esc(pr.heard)+'"</i>':'')+(pr.result.missed&&pr.result.missed.length?' \\u00B7 missed: '+pr.result.missed.slice(0,4).map(esc).join(', '):'')+'</div>':'')
+      +'</div>'
+      +'<div class="vc-pron-actions">'
+        +'<button class="vc-pron-btn vc-pron-listen" onclick="voicePronListen()">\\u{1F50A} Listen</button>'
+        +'<button class="vc-pron-btn vc-pron-rec'+(pr.recording?' recording':'')+'" onclick="voicePronRecord()">\\u{1F3A4} '+(pr.recording?'Listening\\u2026':'Speak')+'</button>'
+      +'</div>'
+    +'</div>';
   }
   // Hero
   h+='<section class="cc-hero">'
