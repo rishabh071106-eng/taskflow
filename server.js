@@ -3422,6 +3422,41 @@ body[data-theme=aurora] .hist-link a:hover{color:#C4B5FD}
   background:#FFFFFF !important;border-color:#ECEAE3 !important;
 }
 
+/* Word Sprint — light-theme override for the main app modal (mg-mdl context) */
+.mg-mdl .mw-body{padding:24px 22px 22px !important;background:#FAFAF7 !important}
+.mg-mdl .mw-stats{color:#3D3D3D !important}
+.mg-mdl .mw-stats b{color:#1A1A1A !important}
+.mg-mdl .mw-let{
+  background:linear-gradient(180deg,#FFFFFF,#F4F3EE) !important;
+  border:1.5px solid #E8E6E0 !important;
+  color:#1A1A1A !important;
+  box-shadow:0 1px 2px rgba(0,0,0,.04),0 2px 6px rgba(0,0,0,.05) !important;
+}
+.mg-mdl .mw-let:hover{
+  background:linear-gradient(180deg,#fff,#FAFAF7) !important;
+  border-color:#1F4D3F !important;
+  box-shadow:0 4px 12px rgba(31,77,63,.18) !important;
+  transform:translateY(-2px) !important;
+}
+.mg-mdl .mw-let.used{opacity:.35 !important;background:#F4F3EE !important}
+.mg-mdl .mw-cur{
+  border:2px dashed #CFCFCF !important;
+  background:#fff !important;
+  color:#1A1A1A !important;
+  box-shadow:0 1px 3px rgba(0,0,0,.05) inset !important;
+}
+.mg-mdl .mw-cur.flash-good{border-color:#10B981 !important;background:#EDFCF2 !important;color:#0E6D33 !important}
+.mg-mdl .mw-cur.flash-bad{border-color:#F87171 !important;background:#FEF1F0 !important;color:#A02B23 !important}
+.mg-mdl .mw-btn{
+  background:#fff !important;border:1.5px solid #E8E6E0 !important;color:#1A1A1A !important;
+}
+.mg-mdl .mw-btn:hover{border-color:#1A1A1A !important;background:#FAFAF7 !important}
+.mg-mdl .mw-btn-primary{background:#1A1A1A !important;color:#fff !important;border-color:#1A1A1A !important}
+.mg-mdl .mw-btn-primary:hover{background:#1F4D3F !important;border-color:#1F4D3F !important}
+.mg-mdl .mw-found{background:#fff !important;border:1px solid #E8E6E0 !important}
+.mg-mdl .mw-found .empty{color:#9A9A9A !important}
+.mg-mdl .mw-found span{background:#EDFCF2 !important;border:1px solid #B7E8C4 !important;color:#0E6D33 !important}
+
 /* Word Sprint game UI */
 .mw-body{padding:18px 22px 22px;display:flex;flex-direction:column;gap:14px;align-items:center}
 .mw-stats{display:flex;gap:24px;font-family:'JetBrains Mono','Space Mono',monospace;font-size:11px;font-weight:500;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.06em}
@@ -5419,9 +5454,21 @@ else if(S.tab==='voice'){
       +'<div class="cc-hero-s">A live Business English coach. Type or hit the mic \\u2014 your phone listens, the coach replies in a real human voice with vocabulary tips, polished rewrites, and follow-ups.</div>'
     +'</div>'
   +'</section>';
-  // Tutor mode indicator — single quiet status pill (replaces the 3 cringe badges)
+  // Tutor mode indicator — green when configured, an actionable setup card when not
   if(st.chat){
     h+='<div style="display:inline-flex;align-items:center;gap:8px;padding:7px 14px;background:rgba(31,77,63,.08);border:1px solid rgba(31,77,63,.22);border-radius:999px;font-family:\\'JetBrains Mono\\',\\'Space Mono\\',monospace;font-size:11px;font-weight:500;letter-spacing:.06em;color:#1F4D3F;text-transform:uppercase;margin-bottom:14px"><span style="width:6px;height:6px;border-radius:999px;background:#10B981;box-shadow:0 0 8px #10B981;animation:wn-pulse 2s ease-in-out infinite"></span>AI tutor \\u00B7 ready</div>';
+  } else {
+    // Inline setup card — visible state of what is needed to bring the AI tutor online
+    h+='<div style="margin-bottom:18px;padding:18px 20px;background:#fff;border:1px solid #E8E6E0;border-radius:14px">'
+      +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><span style="width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#FCD34D,#F59E0B);display:grid;place-items:center;font-size:14px">\\u26A1</span><div style="font-family:\\'JetBrains Mono\\',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#B45309;font-weight:600">AI tutor not configured</div></div>'
+      +'<div style="font-size:14px;line-height:1.55;color:#3D3D3D;margin-bottom:12px">The AI conversation engine is ready in the codebase but needs API credentials to come online. Set these in your Railway environment:</div>'
+      +'<div style="font-family:\\'JetBrains Mono\\',monospace;font-size:11.5px;line-height:1.7;color:#1A1A1A;background:#F4F3EE;border:1px solid #E8E6E0;border-radius:8px;padding:10px 14px;margin-bottom:12px">'
+        +'<div><b>ANTHROPIC_API_KEY</b> \\u00B7 chat <span style="color:#9A9A9A">(<a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener" style="color:#1F4D3F">get one \\u2197</a>)</span></div>'
+        +'<div><b>OPENAI_API_KEY</b> \\u00B7 voice in <span style="color:#9A9A9A">(<a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener" style="color:#1F4D3F">get one \\u2197</a>)</span></div>'
+        +'<div><b>ELEVENLABS_API_KEY</b> \\u00B7 human voice <span style="color:#9A9A9A">(<a href="https://elevenlabs.io/app/settings/api-keys" target="_blank" rel="noopener" style="color:#1F4D3F">get one \\u2197</a>)</span></div>'
+      +'</div>'
+      +'<div style="font-size:12.5px;color:#6B6B6B;line-height:1.5">Until then, the chat below works in <b>local-only mode</b> \\u2014 typed messages, browser TTS, no AI replies.</div>'
+    +'</div>';
   }
   // Scenarios
   h+='<div class="cc-scenarios"><div class="cc-scenarios-t">\\u26A1 Pick a scenario \\u2014 or just chat below</div><div class="cc-scenario-row">';
