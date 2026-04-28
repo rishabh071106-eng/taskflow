@@ -3327,6 +3327,101 @@ body[data-theme=aurora] .hist-link a:hover{color:#C4B5FD}
 .mg-ach .name{font-size:11px;font-weight:600;color:#fff;letter-spacing:-.005em}
 .mg-ach .desc{font-size:10.5px;color:rgba(255,255,255,.7);line-height:1.3;font-family:'JetBrains Mono',monospace;letter-spacing:.02em}
 
+/* ═══════════════ MIND GYM · Elevate-style card overhaul ═══════════════ */
+.mg-grid-tab{grid-template-columns:repeat(2,1fr) !important;gap:14px !important}
+@media (min-width:760px){.mg-grid-tab{grid-template-columns:repeat(2,1fr) !important}}
+@media (min-width:1024px){.mg-grid-tab{grid-template-columns:repeat(4,1fr) !important}}
+.mg-grid-tab .mg-card{
+  background:#FFFFFF !important;
+  border:1px solid #ECEAE3 !important;
+  border-radius:18px !important;
+  padding:22px 20px 20px !important;
+  min-height:200px !important;
+  position:relative;
+  overflow:hidden;
+  display:flex !important;
+  flex-direction:column !important;
+  gap:14px !important;
+  transition:transform .4s cubic-bezier(.16,1,.3,1), box-shadow .35s, border-color .25s !important;
+  box-shadow:0 1px 2px rgba(0,0,0,.02), 0 1px 3px rgba(0,0,0,.04) !important;
+}
+.mg-grid-tab .mg-card:hover{
+  transform:translateY(-5px) !important;
+  box-shadow:0 18px 36px -14px rgba(0,0,0,.16), 0 4px 10px rgba(0,0,0,.05) !important;
+  border-color:#CFCBC0 !important;
+}
+.mg-grid-tab .mg-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:5px;background:var(--mg-accent, #6366F1);transition:height .35s cubic-bezier(.16,1,.3,1);
+}
+.mg-grid-tab .mg-card:hover::before{ height:8px }
+
+/* Replace inline emoji with proper gradient icon "tile" */
+.mg-grid-tab .mg-card-hd{display:flex !important;align-items:flex-start !important;justify-content:space-between !important;gap:12px !important}
+.mg-grid-tab .mg-card-emoji{
+  width:54px !important;height:54px !important;
+  border-radius:16px !important;
+  display:grid !important;place-items:center !important;
+  background:var(--mg-icon-bg, linear-gradient(135deg,#A5B4FC,#6366F1)) !important;
+  font-size:26px !important;line-height:1 !important;
+  box-shadow:0 8px 16px -6px var(--mg-icon-shadow, rgba(99,102,241,.4)) !important;
+  flex-shrink:0 !important;
+  transition:transform .4s cubic-bezier(.34,1.56,.64,1);
+}
+.mg-grid-tab .mg-card:hover .mg-card-emoji{ transform:rotate(-6deg) scale(1.06) }
+.mg-grid-tab .mg-card-name{
+  font-family:'Inter',sans-serif !important;
+  font-weight:600 !important;
+  font-size:16px !important;
+  letter-spacing:-.015em !important;
+  text-transform:none !important;
+  color:#1A1A1A !important;
+  line-height:1.2 !important;
+  margin-top:2px;
+}
+.mg-grid-tab .mg-card-lvl{
+  background:rgba(0,0,0,.04) !important;color:#3D3D3D !important;
+  font-family:'JetBrains Mono','Space Mono',monospace !important;
+  font-weight:600 !important;font-size:10.5px !important;
+  letter-spacing:.06em !important;
+  padding:4px 10px !important;border-radius:999px !important;
+}
+.mg-grid-tab .mg-card-d{
+  font-size:12.5px !important;color:#6B6B6B !important;
+  line-height:1.45 !important;
+  margin-top:-4px;
+  font-weight:450 !important;
+}
+.mg-grid-tab .mg-bar{
+  background:#F1EFE8 !important;border-radius:999px;overflow:hidden;
+  height:4px !important;margin-top:auto;
+}
+.mg-grid-tab .mg-bar-fill{
+  background:var(--mg-accent, #6366F1) !important;
+  height:100% !important;border-radius:999px;
+  transition:width .8s cubic-bezier(.16,1,.3,1);
+}
+.mg-grid-tab .mg-card-foot{
+  display:flex !important;justify-content:space-between !important;align-items:center;
+  font-family:'JetBrains Mono','Space Mono',monospace !important;
+  font-size:10.5px !important;letter-spacing:.06em !important;
+  text-transform:uppercase !important;color:#9A9A9A !important;
+  margin-top:4px !important;
+}
+.mg-grid-tab .mg-card-foot b{
+  color:#1A1A1A !important;font-weight:600 !important;font-size:13px !important;
+  font-family:'Inter',sans-serif !important;letter-spacing:-.01em !important;
+  text-transform:none !important;
+}
+
+/* Per-game color tokens */
+.mg-grid-tab .mg-math{    --mg-accent:#6366F1; --mg-icon-bg:linear-gradient(135deg,#818CF8,#4338CA); --mg-icon-shadow:rgba(99,102,241,.45) }
+.mg-grid-tab .mg-memory{  --mg-accent:#EC4899; --mg-icon-bg:linear-gradient(135deg,#F9A8D4,#DB2777); --mg-icon-shadow:rgba(236,72,153,.45) }
+.mg-grid-tab .mg-reaction{--mg-accent:#F59E0B; --mg-icon-bg:linear-gradient(135deg,#FCD34D,#D97706); --mg-icon-shadow:rgba(245,158,11,.45) }
+.mg-grid-tab .mg-word{    --mg-accent:#10B981; --mg-icon-bg:linear-gradient(135deg,#6EE7B7,#059669); --mg-icon-shadow:rgba(16,185,129,.45) }
+.mg-grid-tab .mg-math, .mg-grid-tab .mg-memory, .mg-grid-tab .mg-reaction, .mg-grid-tab .mg-word{
+  background:#FFFFFF !important;border-color:#ECEAE3 !important;
+}
+
 /* Word Sprint game UI */
 .mw-body{padding:18px 22px 22px;display:flex;flex-direction:column;gap:14px;align-items:center}
 .mw-stats{display:flex;gap:24px;font-family:'JetBrains Mono','Space Mono',monospace;font-size:11px;font-weight:500;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.06em}
@@ -4757,11 +4852,74 @@ const BOOK_SUMMARIES=[
   {id:'now',title:'The Power of Now',author:'Eckhart Tolle',tag:'mind',mins:12,grad:'linear-gradient(135deg,#06121a 0%,#0e2a3d 50%,#2effa9 100%)',
    why:'A spiritual teacher on the simplest, most overlooked truth: the present is the only moment that is real.',
    insights:[['You are not your mind','The voice in your head is not you. It is a tool you have mistaken for your self.'],['The present is all there is','The past is memory. The future is projection. Now is the only thing that exists.'],['The pain-body','Old emotional pain lives in the body and wakes up to feed on more pain. Watch it without feeding it.'],['Surrender, then act','Accept the moment as it is. Then, from that ground, do what needs doing.'],['Stillness is the answer','Beneath the noise of the mind there is a deeper intelligence. Get quiet enough to hear it.']],
-   summary:'Tolle\\'s message is almost embarrassingly simple, which is why it is so often missed. The present moment is all you ever have. The past is memory; the future is projection. Both happen, when they happen at all, in the present. Yet most of us spend almost no time here. We are lost in the voice in our head — the running commentary, the rehearsed argument, the imagined future. We have mistaken that voice for who we are. The first move is to notice that you can hear the voice. If you can hear it, you are not it. The second is the pain-body — old emotional pain that lives on in you and seeks out more pain to feed itself. You don\\'t fight it. You watch it without feeding it, and it weakens. The third is surrender, which Tolle is careful to distinguish from passivity. Accept the moment as it is — then, from that ground, do what needs doing. Resistance is what creates suffering on top of pain. The fourth is stillness. Beneath the noise of the mind there is an intelligence that is older and quieter than thought. Get quiet enough, often enough, and you start to live from there.'}
+   summary:'Tolle\\'s message is almost embarrassingly simple, which is why it is so often missed. The present moment is all you ever have. The past is memory; the future is projection. Both happen, when they happen at all, in the present. Yet most of us spend almost no time here. We are lost in the voice in our head — the running commentary, the rehearsed argument, the imagined future. We have mistaken that voice for who we are. The first move is to notice that you can hear the voice. If you can hear it, you are not it. The second is the pain-body — old emotional pain that lives on in you and seeks out more pain to feed itself. You don\\'t fight it. You watch it without feeding it, and it weakens. The third is surrender, which Tolle is careful to distinguish from passivity. Accept the moment as it is — then, from that ground, do what needs doing. Resistance is what creates suffering on top of pain. The fourth is stillness. Beneath the noise of the mind there is an intelligence that is older and quieter than thought. Get quiet enough, often enough, and you start to live from there.'},
+  {id:'subtle',title:'The Subtle Art',author:'Mark Manson',tag:'mind',mins:13,grad:'linear-gradient(135deg,#1a0606 0%,#3a0c0c 50%,#ff5050 100%)',
+   why:'Stop trying to feel good all the time. Pick the right struggles and the rest follows.',
+   insights:[['Care less, but better','You only have so many f**ks to give. Spend them on a few things that actually matter.'],['The good life is built on good problems','You will always have problems. Choose problems you enjoy solving.'],['Pain is the price of meaning','Anything worth doing has discomfort baked in. Avoid the discomfort, you avoid the meaning.'],['Failure is the path','You only learn what works by finding what doesn\\'t. Get more failures, faster.'],['You are responsible, not at fault','You didn\\'t cause every bad thing. But you are responsible for what you do next.']],
+   summary:'Mark Manson\\'s thesis is a counter-punch to a culture obsessed with positivity. The relentless message that you should always feel good, always be your best self, always be optimising — Manson argues — is itself the source of much of our anxiety. Real growth comes from caring less, but caring better. You have a finite supply of attention. Spend it on a small number of things that actually matter and let everything else go. The good life is not the absence of problems; it is having good problems. The kind you enjoy solving. Pain is not the enemy. It is the price of any meaningful life. Avoid the pain, you avoid the meaning. Failure is not a setback but the path itself — every successful person you admire has failed more times than you have tried. The deepest move is the distinction between fault and responsibility. You are not at fault for every bad thing that happened to you. But you are responsible for what you do about it. Once you accept that, you stop being a victim of circumstance and start being the protagonist of your story.'},
+  {id:'flow',title:'Flow',author:'Mihaly Csikszentmihalyi',tag:'focus',mins:13,grad:'linear-gradient(135deg,#020a14 0%,#062041 50%,#22D3EE 100%)',
+   why:'The state of total absorption in what you do — and how to engineer your life around it.',
+   insights:[['Flow is the optimal experience','When skill matches challenge, attention narrows, ego dissolves, time disappears.'],['Set clear goals','You can\\'t enter flow without knowing what success looks like in this moment.'],['Get instant feedback','You need to see if your action is working. Otherwise the mind drifts.'],['Match challenge to skill','Too easy = bored. Too hard = anxious. The sweet spot is just beyond your edge.'],['Autotelic personality','People who can find flow anywhere have built the habit of meaning. You can train it.']],
+   summary:'Csikszentmihalyi spent decades asking surgeons, chess players, rock climbers, and assembly-line workers what made them feel most alive. The answer was the same: a state he called flow — total immersion in a task where attention narrows, the ego falls away, and time bends. Flow is not luck. It has conditions. The challenge has to match your skill — too easy and you are bored, too hard and you are anxious. You need a clear goal so you know what to aim at. You need immediate feedback so you can adjust. And you need to be able to concentrate without interruption. The deepest insight of the book is that flow is teachable. People who routinely enter flow — what Csikszentmihalyi calls autotelic personalities — have built the habit of finding meaning in whatever they do. They can be in flow doing dishes if they choose to. Flow is not just productivity. It is the texture of a well-lived life.'},
+  {id:'grit',title:'Grit',author:'Angela Duckworth',tag:'mind',mins:12,grad:'linear-gradient(135deg,#0c0805 0%,#3a1c0a 50%,#FB923C 100%)',
+   why:'Talent is overrated. Sustained effort over years is what predicts success.',
+   insights:[['Grit beats talent','In every field studied, sustained passion + perseverance beat raw talent.'],['Effort counts twice','Talent × effort = skill. Skill × effort = achievement. Effort shows up on both sides.'],['Find your "why"','You don\\'t persist for any goal — you persist for one that connects to a meaning you care about.'],['Deliberate practice','Drill the specific weak spot. Get coached. Repeat until it\\'s easy. Then find the next weak spot.'],['Hope is a skill','The grittiest don\\'t avoid setbacks. They have a built-in muscle for getting back up.']],
+   summary:'Angela Duckworth set out to discover what predicts elite performance. She studied West Point cadets, spelling-bee champions, Olympic athletes, and Fortune 500 CEOs. The single best predictor of success was not IQ, not talent, not family income. It was grit — sustained passion and perseverance toward long-term goals. In her formula, talent multiplied by effort produces skill. Skill multiplied by effort produces achievement. Effort shows up twice. Grit is partly innate but mostly built. It grows when you find a why that genuinely matters to you, when you practice deliberately rather than just putting in hours, and when you treat setbacks as information rather than verdicts. The grittiest people Duckworth studied had a "high-level goal" — a guiding purpose — that gave coherence to all the smaller goals beneath it. They were also gritty because they were optimistic. They believed effort would pay off, and that belief itself made the effort pay off.'},
+  {id:'mindset',title:'Mindset',author:'Carol Dweck',tag:'mind',mins:11,grad:'linear-gradient(135deg,#0c0a14 0%,#1f1245 50%,#A78BFA 100%)',
+   why:'How you think about your abilities shapes how you grow them. Two mindsets, two very different lives.',
+   insights:[['Two mindsets','Fixed: ability is given. Growth: ability is built. The framework you choose changes everything.'],['Fixed mindset hates effort','If talent is innate, needing to work hard means you don\\'t have it. So fixed-mindset people avoid challenge.'],['Growth mindset loves it','Effort is what makes you better. Failure is just data on the way to mastery.'],['Praise process, not person','Tell a child she is smart, she protects the label. Tell her she worked hard, she keeps working.'],['Mindset is changeable','You catch yourself in fixed thinking. You name it. You re-frame. The growth muscle gets stronger.']],
+   summary:'Carol Dweck\\'s research distills decades of work on how children, and adults, respond to challenge. She found two underlying mindsets. People with a fixed mindset believe abilities are essentially set — you are smart or you aren\\'t, athletic or not, creative or not. People with a growth mindset believe abilities are built through practice. The difference looks small. The consequences are enormous. Fixed-mindset people avoid challenge because failure threatens the identity they\\'ve built around being talented. They give up sooner, plateau earlier, and feel deeply threatened by other people\\'s success. Growth-mindset people lean into challenge because effort is the path to becoming. They stick with hard things, see setbacks as feedback, and feel inspired by others\\' achievements rather than diminished. The deepest move in the book is that mindset is not a fixed trait — it can be learned. You catch yourself in fixed thinking ("I\\'m just not a math person"), you name it, you reframe it ("I\\'m not a math person yet"), and over time the growth voice becomes louder than the fixed one.'},
+  {id:'4hour',title:'The 4-Hour Workweek',author:'Tim Ferriss',tag:'productivity',mins:12,grad:'linear-gradient(135deg,#0a0c14 0%,#0f2030 50%,#22D3EE 100%)',
+   why:'Stop trading time for money. Design a life of mini-retirements instead of one big one at 65.',
+   insights:[['Define your dreamline','Concrete dreams in dollars + dates beat vague "freedom" goals every time.'],['Eliminate before optimizing','Doing less of the wrong thing beats doing more of the right thing efficiently.'],['Pareto everywhere','80% of your output comes from 20% of your inputs. Find the 20%. Cut the rest.'],['Automate it','Once a process works, hand it to a system or a contractor. Free yourself for the next problem.'],['Mini-retirements','Don\\'t save freedom for 65. Take 1-month retirements throughout life — much more meaningful.']],
+   summary:'Tim Ferriss popularised a way of life that treats traditional career math as broken. The deal you are sold — work hard for forty years, retire at sixty-five, then enjoy yourself — assumes you will still be young enough, healthy enough, and inspired enough to enjoy what you saved for. Most of the time, you won\\'t. Ferriss proposes the opposite. Define exactly what your ideal life looks like — in concrete numbers and dates. Most people\\'s dreams are dramatically cheaper than they think. Then engineer your work life backwards from that. The first move is elimination. Don\\'t optimise email — stop checking it. Don\\'t make meetings shorter — refuse them. Apply Pareto everywhere: most of your output comes from a small slice of your inputs. The second move is automation. Once a task works, build a system or hire someone to do it. Outsource your inbox, your calendar, your customer support. The third move is liberation — the geographic freedom that comes from working remotely and on results, not hours. Take mini-retirements throughout your life rather than waiting for one giant retirement that may never feel as good as you imagined.'},
+  {id:'showup',title:'Show Your Work',author:'Austin Kleon',tag:'productivity',mins:11,grad:'linear-gradient(135deg,#0a0a0a 0%,#3a2c1a 50%,#FCD34D 100%)',
+   why:'You don\\'t need to be a genius. You need to share your work as you make it.',
+   insights:[['Share something every day','Write a post, post a sketch, ship a tiny prototype. Tiny over perfect, every time.'],['Document your process','Behind-the-scenes is more interesting than the final piece. Show the mess.'],['Talk about what you love','Enthusiasm is the strongest signal you can send. Be unironic about your obsessions.'],['Find the through-line','Over time, what you share will reveal what you actually care about. Trust that.'],['Don\\'t be a spammer','Sharing is generous when you give more than you take. Useful before promotional.']],
+   summary:'Austin Kleon\\'s short, sharp book is a manifesto for the slightly-nervous creative who has not yet started sharing their work in public. His thesis is that you don\\'t need to be a genius. You need to be a node in a network. Share something small every day. Document the process, not just the polished output — the mess is more interesting than the masterpiece. Talk about what you love, unironically and specifically. Over time, the things you share reveal a through-line you couldn\\'t have planned. The world finds you through the work you put out, not the work you keep in a drawer. The book is full of tactical moves: keep an idea diary, learn to tell stories about your work in three sentences, give credit generously, ignore haters but listen to thoughtful critics. The deeper point is about generosity. The internet rewards people who give more than they take. Share useful things before you ever ask for anything. The audience accumulates quietly, and one day you wake up and realise the work has its own legs.'},
+  {id:'sevenh',title:'The 7 Habits',author:'Stephen Covey',tag:'productivity',mins:14,grad:'linear-gradient(135deg,#0a0c14 0%,#102545 50%,#3B82F6 100%)',
+   why:'Be proactive. Begin with the end in mind. Put first things first. The classic frame for an effective life.',
+   insights:[['Be proactive','You are not your circumstances. You are how you respond to them. That is your superpower.'],['Begin with the end in mind','Write your own eulogy. Then live the life that earns it.'],['Put first things first','Important > urgent. Schedule the rocks first; the gravel and sand fit around them.'],['Think win-win','Every relationship works better when both sides leave better off. Anything else is brittle.'],['Sharpen the saw','You are the instrument. Maintain your body, mind, heart, and spirit, or you blunt over time.']],
+   summary:'Covey\\'s seven habits have become so absorbed into business culture that they feel obvious — which is exactly why people miss the depth. Habit 1 is to be proactive: between what happens to you and how you respond, there is a space, and your power lives in that space. Habit 2 is to begin with the end in mind. Imagine your own funeral. What would you want said? Live the life that earns it. Habit 3 is to put first things first. Distinguish important from urgent. Schedule the big rocks (the things that matter) before the gravel of meetings, calls, and emails fills your week. Habits 4-6 govern how you work with others. Think win-win in every negotiation; the long-term relationship is more valuable than any single deal. Seek first to understand, then to be understood — most arguments dissolve the moment one side feels truly heard. Synergise — the right combination of complementary skills is more than the sum of its parts. Habit 7 is the most often skipped: sharpen the saw. You are the instrument all the others run on. Maintain your body, mind, heart, and spirit, or every other habit decays.'},
+  {id:'whymatters',title:'Start with Why',author:'Simon Sinek',tag:'productivity',mins:11,grad:'linear-gradient(135deg,#0a0c0c 0%,#1f3030 50%,#10B981 100%)',
+   why:'People don\\'t buy what you do. They buy why you do it.',
+   insights:[['The Golden Circle','Most companies start with What. Great ones start with Why. The order changes everything.'],['Why earns trust','When you lead with belief, the right people follow. The wrong ones self-select out.'],['Why outlasts What','Products change. Your why doesn\\'t. Build your brand around the why and you survive every pivot.'],['Manipulation has a cost','Discounts, fear, peer pressure work short-term. They erode loyalty long-term.'],['Find your why','Look at the moments in your past when you felt fully alive. The pattern is your why.']],
+   summary:'Simon Sinek\\'s thesis is structural. Every company can describe what they do. Most can describe how they do it. Very few know why. And the rare ones that do — Apple, the Wright brothers, Martin Luther King — communicate from the inside out. They start with the why. The Golden Circle is three concentric rings: why on the inside, how next, what on the outside. Most companies advertise from the outside in: here is the product, here are its features, please buy. Apple advertises from the inside out: we believe in challenging the status quo (why); we make beautifully designed, easy-to-use computers (how); want to buy one? (what). The first style is forgettable. The second creates devoted customers. The same is true for individuals and movements. People don\\'t follow leaders for what they say. They follow leaders for what they believe. Manipulation — discounts, fear, peer pressure, novelty — works in the short term but erodes loyalty over time. Inspiration earns the long game. Finding your why is not a marketing exercise. Look at the moments in your past when you felt fully alive, look at the through-line, and that is your why.'},
+  {id:'rich',title:'Rich Dad Poor Dad',author:'Robert Kiyosaki',tag:'productivity',mins:12,grad:'linear-gradient(135deg,#0c0a06 0%,#3a2406 50%,#FCD34D 100%)',
+   why:'Schools teach you to be a good employee. Almost no one teaches you to make money work for you.',
+   insights:[['Assets vs liabilities','An asset puts money in your pocket. A liability takes it out. Most "wealth" is liability.'],['The rich don\\'t work for money','They work for assets that generate money while they sleep. Then they reinvest the cash flow.'],['Your house is not an asset','Until it produces rental income, it costs you. Be honest about that.'],['Pay yourself first','Save and invest before paying bills. You\\'ll find the money for the rest.'],['Mind your business','Your job is your income. Your business is your assets. Both matter. Build both.']],
+   summary:'Kiyosaki uses the device of two fathers — his biological father, an educated employee who lived paycheck to paycheck, and the father of his best friend, a high-school dropout who became wealthy by buying assets. The book\\'s framework is brutally simple. An asset is something that puts money in your pocket. A liability is something that takes money out. Most middle-class wealth — the bigger house, the new car, the lifestyle upgrades — are liabilities dressed up as assets. The rich, in Kiyosaki\\'s telling, work for assets, not for money. They use the cash flow from those assets to acquire more assets, and gradually their portfolio of holdings produces enough income that they no longer need a job. The path requires financial literacy that schools don\\'t teach: how to read a balance sheet, what kinds of assets actually produce income, how to use leverage and tax law in your favour. Pay yourself first — save and invest before paying any bills — and you\\'ll discover, almost magically, that the money for everything else still appears. Mind your business: your job is your income, but your business is your asset column. Build both, but never confuse them.'},
+  {id:'showups',title:'Show Up',author:'Daily ritual',tag:'productivity',mins:10,grad:'linear-gradient(135deg,#06121a 0%,#102045 50%,#A78BFA 100%)',
+   why:'The simplest productivity rule that beats every system: show up, every day, for the smallest possible version.',
+   insights:[['Two-minute rule','Make the bar so low you cannot fail. Two minutes of writing. One push-up. One page read.'],['Consistency beats intensity','Six days of two minutes beats one day of two hours. Always. Every time.'],['Track the chain','Mark today done. Don\\'t break the chain. The chain protects you from yourself on hard days.'],['Identity, not outcome','You are a writer, not someone trying to write a book. The identity carries you when motivation runs out.'],['Stop on a high','End your session while you still want to keep going. You\\'ll be eager to start tomorrow.']],
+   summary:'This is the practical distillation of advice from a dozen books on habits, training, and creative work. The headline rule is showing up. Most people fail not because they aren\\'t talented or motivated — they fail because they show up irregularly. They go all-in for two weeks, miss three days, lose momentum, and quit. The fix is to make the bar absurdly low. Two minutes of writing. One push-up. One paragraph read. So low you cannot fail, even on your worst day. On most days you\\'ll do more — but on bad days, the two minutes is enough to keep the chain alive. Consistency beats intensity, always. Six days at low effort beats one day at peak effort, every time. Track the chain. Mark every day you showed up on a calendar. The visible streak becomes self-perpetuating. Adopt the identity, not the outcome. Don\\'t say "I\\'m trying to write a book" — say "I\\'m a writer". The identity carries you on the days motivation doesn\\'t. Finally: stop on a high. End the session while you still want to keep going. Tomorrow you\\'ll show up eager.'},
+  {id:'soft',title:'Soft Skills',author:'Cal Newport (essay)',tag:'focus',mins:10,grad:'linear-gradient(135deg,#0a0a14 0%,#102140 50%,#3B82F6 100%)',
+   why:'Following your passion is bad advice. Get good first — passion follows mastery.',
+   insights:[['Passion is downstream of mastery','You don\\'t love things because they feel right. They feel right because you are good at them.'],['Career capital','Build rare and valuable skills. They become the currency you trade for autonomy and meaning.'],['Be so good they cannot ignore you','The Steve Martin advice. Skill speaks louder than self-promotion.'],['Mission needs traction','You can\\'t pick a mission from a blank page. Mission emerges from skill, not before it.'],['The craftsman mindset','Focus on what you produce, not how it makes you feel. Feeling follows production.']],
+   summary:'Cal Newport\\'s long argument against the "follow your passion" gospel. Passion, he argues, is not how you find work you love. It is what happens after you become good at something. The reason most twenty-somethings hate their jobs is not that they picked the wrong career — it is that they are at the bottom of the skill ladder in every career, where the work is least autonomous and least meaningful. The fix is to stop asking "what should I do with my life" and start asking "what skills can I get rare-and-valuable at right now". Newport calls this career capital. The more rare and valuable your skills, the more leverage you have to negotiate for autonomy, mission, and money. The mantra he borrows from Steve Martin: be so good they cannot ignore you. Mission needs traction — you cannot pick a meaningful mission from a blank page. Mission emerges from accumulated expertise. Adopt the craftsman mindset: focus on what you produce, not how it makes you feel. Feeling follows production, not the other way around.'}
 ];
 function openBookSummary(id){const b=BOOK_SUMMARIES.find(x=>x.id===id);if(!b)return;S.bookReader={open:true,book:b,playing:false,rate:1};render()}
 function closeBookReader(){if(window.speechSynthesis)try{speechSynthesis.cancel()}catch(e){}S.bookReader={open:false};render()}
-function bookReaderToggleTTS(){const r=S.bookReader;if(!r||!r.book)return;if(!('speechSynthesis' in window)){toast('\\u26A0\\uFE0F Voice not supported on this device','err');return}if(r.playing){try{speechSynthesis.cancel()}catch(e){}r.playing=false}else{const u=new SpeechSynthesisUtterance(r.book.summary);u.rate=r.rate||1;u.pitch=.95;const vs=speechSynthesis.getVoices();const pri=[/Daniel/i,/Alex/i,/Google US English/i,/Samantha/i,/Microsoft.*David/i];for(const re of pri){const v=vs.find(x=>re.test(x.name));if(v){u.voice=v;break}}u.onend=function(){const cur=S.bookReader;if(cur&&cur.book){cur.playing=false;render()}};try{speechSynthesis.speak(u);r.playing=true}catch(e){toast('\\u26A0\\uFE0F '+e.message,'err');return}}render()}
+function _pickPremiumVoice(){
+  if(!('speechSynthesis' in window))return null;
+  const vs=speechSynthesis.getVoices();
+  if(!vs||!vs.length)return null;
+  // Premium voice priority — most natural-sounding voices first
+  const pri=[
+    /Microsoft\\s+(Aria|Jenny|Ava|Andrew|Brian|Christopher|Eric|Guy)\\s+Online/i, // Microsoft Neural voices
+    /Google\\s+UK\\s+English\\s+Female/i, // Google enhanced
+    /Google\\s+US\\s+English/i,
+    /Samantha\\s+\\(Enhanced\\)/i, /Samantha\\s+\\(Premium\\)/i, /^Samantha$/i, // Apple premium voices (macOS/iOS)
+    /Karen\\s+\\(Enhanced\\)/i, /Moira\\s+\\(Enhanced\\)/i, /Tessa\\s+\\(Enhanced\\)/i,
+    /Daniel\\s+\\(Enhanced\\)/i, /Alex\\s+\\(Enhanced\\)/i, /^Alex$/i, /^Daniel$/i,
+    /Microsoft\\s+(Zira|David|Mark|Hazel|George|Susan)\\s+/i, // Microsoft legacy
+    /^en-US$/i, /^en-GB$/i,
+  ];
+  for(const re of pri){const v=vs.find(x=>(x.name&&re.test(x.name))||(x.lang&&re.test(x.lang)));if(v)return v}
+  // Fall back to any English voice
+  return vs.find(x=>x.lang&&x.lang.startsWith('en'))||vs[0];
+}
+function bookReaderToggleTTS(){const r=S.bookReader;if(!r||!r.book)return;if(!('speechSynthesis' in window)){toast('\\u26A0\\uFE0F Voice not supported on this device','err');return}if(r.playing){try{speechSynthesis.cancel()}catch(e){}r.playing=false}else{const u=new SpeechSynthesisUtterance(r.book.summary);u.rate=r.rate||1;u.pitch=1.0;u.volume=1.0;const v=_pickPremiumVoice();if(v){u.voice=v;u.lang=v.lang||'en-US'}u.onend=function(){const cur=S.bookReader;if(cur&&cur.book){cur.playing=false;render()}};try{speechSynthesis.speak(u);r.playing=true}catch(e){toast('\\u26A0\\uFE0F '+e.message,'err');return}}render()}
 function bookReaderSpeed(){const r=S.bookReader;if(!r)return;const next={1:1.25,1.25:1.5,1.5:1.75,1.75:2,2:1}[r.rate||1]||1;r.rate=next;if(r.playing){try{speechSynthesis.cancel()}catch(e){}r.playing=false;bookReaderToggleTTS()}render()}
 
 // ═══ VOICE TUTOR — daily lessons + vocabulary ═══
@@ -4807,7 +4965,7 @@ const VOICE_VOCAB=[
 function _voiceLessonOfDay(){const d=new Date();return VOICE_LESSONS[d.getDay()]}
 function _voiceVocabOfDay(){const d=new Date();const yStart=new Date(d.getFullYear(),0,0);const day=Math.floor((d-yStart)/86400000);const setIdx=day%7;const start=setIdx*3;return VOICE_VOCAB.slice(start,start+3)}
 function voiceStartLesson(){const l=_voiceLessonOfDay();if(typeof coachSend==='function'){try{coachSend(l.prompt)}catch(e){toast('\\u26A0\\uFE0F '+e.message,'err')}}}
-function voiceSpeakWord(w){if(!('speechSynthesis' in window))return;try{speechSynthesis.cancel()}catch(e){}const u=new SpeechSynthesisUtterance(w);u.rate=.9;u.pitch=1.0;const vs=speechSynthesis.getVoices();const pri=[/Daniel/i,/Alex/i,/Google US English/i,/Samantha/i];for(const re of pri){const v=vs.find(x=>re.test(x.name));if(v){u.voice=v;break}}try{speechSynthesis.speak(u)}catch(e){}}
+function voiceSpeakWord(w){if(!('speechSynthesis' in window))return;try{speechSynthesis.cancel()}catch(e){}const u=new SpeechSynthesisUtterance(w);u.rate=.85;u.pitch=1.0;u.volume=1.0;const v=_pickPremiumVoice();if(v){u.voice=v;u.lang=v.lang||'en-US'}try{speechSynthesis.speak(u)}catch(e){}}
 function closePlayer(){stopBookListenTimer();S.playing=null;S.meditating={active:false,title:'',mins:0,startedAt:0};render()}
 function closeMeditation(){const a=document.getElementById('audioEl');if(a){try{a.pause()}catch(e){}}closePlayer()}
 let _bkTimer=null;
@@ -5261,12 +5419,10 @@ else if(S.tab==='voice'){
       +'<div class="cc-hero-s">A live Business English coach. Type or hit the mic \\u2014 your phone listens, the coach replies in a real human voice with vocabulary tips, polished rewrites, and follow-ups.</div>'
     +'</div>'
   +'</section>';
-  // Capability badges
-  h+='<div class="cc-caps">'
-    +'<span class="cc-cap'+(st.chat?' cc-cap-on':'')+'">\\u{1F4AC} '+(st.chat?'Live AI':'AI offline')+'</span>'
-    +'<span class="cc-cap'+(st.transcribe?' cc-cap-on':'')+'">\\u{1F3A4} '+(st.transcribe?'Voice in':'Type only')+'</span>'
-    +'<span class="cc-cap'+(st.tts?' cc-cap-on':'')+'">\\u{1F50A} '+(st.tts?'Human voice':'Browser voice')+'</span>'
-  +'</div>';
+  // Tutor mode indicator — single quiet status pill (replaces the 3 cringe badges)
+  if(st.chat){
+    h+='<div style="display:inline-flex;align-items:center;gap:8px;padding:7px 14px;background:rgba(31,77,63,.08);border:1px solid rgba(31,77,63,.22);border-radius:999px;font-family:\\'JetBrains Mono\\',\\'Space Mono\\',monospace;font-size:11px;font-weight:500;letter-spacing:.06em;color:#1F4D3F;text-transform:uppercase;margin-bottom:14px"><span style="width:6px;height:6px;border-radius:999px;background:#10B981;box-shadow:0 0 8px #10B981;animation:wn-pulse 2s ease-in-out infinite"></span>AI tutor \\u00B7 ready</div>';
+  }
   // Scenarios
   h+='<div class="cc-scenarios"><div class="cc-scenarios-t">\\u26A1 Pick a scenario \\u2014 or just chat below</div><div class="cc-scenario-row">';
   COACH_SCENARIOS.forEach((sc,i)=>{const on=c.scenario&&c.scenario.id===sc.id;h+='<button class="cc-sc'+(on?' cc-sc-on':'')+'" onclick="coachStartScenarioByIdx('+i+')">'+esc(sc.title)+'</button>'});
