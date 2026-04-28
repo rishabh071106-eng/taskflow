@@ -2047,11 +2047,14 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
   .tabs.page-t .tab.on{transform:translateY(-2px);box-shadow:0 8px 22px rgba(45,42,38,.36),0 0 0 2px rgba(99,102,241,.5)}
 }
 @media (max-width:480px){
-  .tabs.page-t{padding:6px;gap:6px}
-  .tabs.page-t .tab{padding:13px 10px;font-size:14px;gap:7px;min-height:50px}
-  .tabs.page-t .tab .ti{font-size:20px;width:28px;height:28px}
-  .tabs.page-t .tab .ti svg{width:21px!important;height:21px!important}
-  .tabs.page-t .tab .tl{font-size:12.5px}
+  /* Bigger, finger-friendly tabs on mobile (international-app sizing). Roughly 3x previous touch
+     area with larger icons and 16px label — much easier to read and tap accurately one-handed. */
+  .tabs.page-t{padding:10px;gap:10px;border-radius:22px}
+  .tabs.page-t .tab{padding:18px 14px 14px;font-size:16px;gap:10px;min-height:84px;border-radius:16px}
+  .tabs.page-t .tab .ti{font-size:30px;width:42px;height:42px}
+  .tabs.page-t .tab .ti svg{width:32px!important;height:32px!important}
+  .tabs.page-t .tab .tl{font-size:14px;font-weight:600;letter-spacing:-.005em}
+  .tabs.page-t .tab.on{box-shadow:0 6px 20px rgba(45,42,38,.32),0 0 0 2.5px rgba(99,102,241,.55)}
 }
 body[data-theme=aurora] .tabs.page-t{background:rgba(20,20,40,.85);border-color:rgba(167,139,250,.18)}
 /* Desktop sidebar layout */
