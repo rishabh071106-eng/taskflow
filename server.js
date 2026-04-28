@@ -5571,6 +5571,8 @@ function _ttsStop(){try{speechSynthesis.cancel()}catch(e){}if(window._ttsKeepali
 // gracefully falls back to chunked browser TTS otherwise. Same callback signature as _ttsSpeak.
 async function _premiumNarrate(text,opts,onAllDone,onProgress){
   _premiumStop();
+  // If status not loaded yet, fetch it once before deciding
+  if(!S.coach||!S.coach.status){try{const r=await fetch('/api/coach/status');const j=await r.json();if(!S.coach)S.coach={};S.coach.status=j}catch(e){}}
   const useEleven=!!(S.coach&&S.coach.status&&S.coach.status.tts);
   if(!useEleven)return _ttsSpeak(text,opts,onAllDone,onProgress);
   // Chunk for ElevenLabs — max 2000 chars per request, smaller = faster first byte
@@ -7366,7 +7368,7 @@ try{document.body.classList.toggle('audio-on',!!(S.playing&&(S.playing.url||S.pl
 }
 fetch('/api/config').then(r=>r.json()).then(c=>{window.__TWILIO_SANDBOX_CODE=c.sandboxCode||'';render()}).catch(()=>{});
 applyTheme();
-if(S.user){_waRestore();refreshSession();load();loadBookStreak();loadGoogleStatus();loadWeather();loadTicker();loadCityTemps();loadRemember();loadMindGym();chk();setInterval(load,10000);setInterval(loadWeather,15*60*1000);setInterval(loadTicker,15*60*1000);setInterval(loadCityTemps,15*60*1000);setInterval(loadRemember,6*60*60*1000)}else render();
+if(S.user){_waRestore();refreshSession();load();loadBookStreak();loadGoogleStatus();loadWeather();loadTicker();loadCityTemps();loadRemember();loadMindGym();coachInit();chk();setInterval(load,10000);setInterval(loadWeather,15*60*1000);setInterval(loadTicker,15*60*1000);setInterval(loadCityTemps,15*60*1000);setInterval(loadRemember,6*60*60*1000)}else render();
 // When the user returns from Gmail/another app, re-restore the in-progress login if the displayed step
 // doesn't match what the URL hash + localStorage say. Covers iOS Safari evicting the tab while she reads
 // the OTP email. The URL hash (#otp) is the most durable signal — survives even a full tab kill + reload.
