@@ -5593,7 +5593,7 @@ async function _premiumNarrate(text,opts,onAllDone,onProgress){
       if(!r.ok){
         // ElevenLabs failed — fall back to browser TTS for remaining text
         const rem=queue.chunks.slice(queue.idx).join(' ');
-        return _ttsSpeak(rem,opts,onAllDone,function(i,t,l){if(typeof onProgress==='function')try{onProgress(queue.idx+i,queue.chunks.length,l)}catch(e){}});
+        return _browserTtsSpeak(rem,opts,onAllDone,function(i,t,l){if(typeof onProgress==='function')try{onProgress(queue.idx+i,queue.chunks.length,l)}catch(e){}});
       }
       const blob=await r.blob();
       if(queue.cancelled)return;
@@ -5603,7 +5603,14 @@ async function _premiumNarrate(text,opts,onAllDone,onProgress){
       a.playbackRate=Math.max(0.5,Math.min(2.0,(opts&&opts.rate)||1.0));
       a.onended=function(){URL.revokeObjectURL(url);queue.idx++;playNext()};
       a.onerror=function(){URL.revokeObjectURL(url);queue.idx++;playNext()};
-      const p=a.play();if(p&&p.catch)p.catch(()=>{queue.idx++;playNext()});
+      const p=a.play();
+      if(p&&p.catch)p.catch(function(err){
+        // Autoplay blocked or audio decode failed — fall back to browser TTS for the rest
+        URL.revokeObjectURL(url);
+        if(queue.cancelled)return;
+        const rem=queue.chunks.slice(queue.idx).join(' ');
+        _browserTtsSpeak(rem,opts,onAllDone,function(i,t,l){if(typeof onProgress==='function')try{onProgress(queue.idx+i,queue.chunks.length,l)}catch(e){}});
+      });
     }catch(e){if(queue.cancelled)return;queue.idx++;playNext()}
   }
   playNext();
