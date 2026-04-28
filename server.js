@@ -2901,6 +2901,7 @@ body[data-theme=aurora] .was-skip{color:#9999B5}
 .book-play{width:36px;height:36px;border-radius:50%;background:#0F172A;color:#F8FAFC;display:flex;align-items:center;justify-content:center;flex-shrink:0;align-self:center;transition:transform .15s}
 .book-play:hover{transform:scale(1.08);background:#3DAE5C}
 .player{position:fixed;bottom:14px;left:10px;right:10px;background:linear-gradient(135deg,#0F172A,#1F1F3A);color:#F8FAFC;padding:8px 10px;border-radius:14px;box-shadow:0 10px 26px rgba(0,0,0,.34);display:none;z-index:80;max-width:560px;margin:0 auto}
+@media (max-width:600px){.player{bottom:96px !important;left:12px !important;right:96px !important}}
 .player.on{display:flex;align-items:center;gap:10px}
 /* Reserve enough bottom space so the entire task list (including the LAST item + delete buttons)
    sits comfortably above the floating audio player. Generous padding > too tight. */
@@ -3717,6 +3718,8 @@ body[data-theme=aurora] .hist-link a:hover{color:#C4B5FD}
 .bk-mini-btn:hover{background:#1F4D3F;transform:scale(1.05)}
 .bk-mini-x{width:26px;height:26px;border-radius:50%;border:1px solid #ECEAE3;background:#fff;color:#6B6B6B;font-family:inherit;font-size:11px;cursor:pointer;display:grid;place-items:center;flex-shrink:0;transition:all .2s}
 .bk-mini-x:hover{background:#FEF2F2;color:#DC2626;border-color:#FCA5A5}
+/* When the audiobook player is also visible, stack the summary mini-player above it */
+body:has(.player.on) .bk-mini{bottom:170px !important}
 @media (max-width:600px){
   .bk-mini{
     left:auto !important;
@@ -3727,6 +3730,7 @@ body[data-theme=aurora] .hist-link a:hover{color:#C4B5FD}
     padding:10px 14px 10px 10px !important;
     gap:10px !important;
   }
+  body:has(.player.on) .bk-mini{bottom:170px !important}
   .bk-mini-cover{width:38px !important;height:48px !important}
   .bk-mini-info b{font-size:12px !important;max-width:120px}
   .bk-mini-info small{font-size:9.5px !important}
