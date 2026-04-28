@@ -5568,13 +5568,13 @@ function _pickPremiumVoice(){
 // Plus a keepalive pause/resume hack that fights the well-known Web Speech cutoff bug
 function _ttsStop(){try{speechSynthesis.cancel()}catch(e){}if(window._ttsKeepalive){clearInterval(window._ttsKeepalive);window._ttsKeepalive=null}if(window._ttsQueue)window._ttsQueue.cancelled=true;window._ttsQueue=null}
 // Premium narration — uses ElevenLabs (deep male studio voice) when configured server-side,
-// gracefully falls back to chunked browser TTS otherwise. Same callback signature as _ttsSpeak.
+// gracefully falls back to chunked browser TTS otherwise. Now THE primary entry point for
+// every TTS call across the app — _ttsSpeak is aliased to this below.
 async function _premiumNarrate(text,opts,onAllDone,onProgress){
   _premiumStop();
-  // If status not loaded yet, fetch it once before deciding
   if(!S.coach||!S.coach.status){try{const r=await fetch('/api/coach/status');const j=await r.json();if(!S.coach)S.coach={};S.coach.status=j}catch(e){}}
   const useEleven=!!(S.coach&&S.coach.status&&S.coach.status.tts);
-  if(!useEleven)return _ttsSpeak(text,opts,onAllDone,onProgress);
+  if(!useEleven)return _browserTtsSpeak(text,opts,onAllDone,onProgress);
   // Chunk for ElevenLabs — max 2000 chars per request, smaller = faster first byte
   const sentences=(text.match(/[^.!?\\u2026]+[.!?\\u2026]+["\\u2019\\u201d)]?\\s*/g))||[text];
   const chunks=[];let cur='';
@@ -5610,7 +5610,16 @@ async function _premiumNarrate(text,opts,onAllDone,onProgress){
   return true;
 }
 function _premiumStop(){_ttsStop();if(window._narration){window._narration.cancelled=true;if(window._narration.audio){try{window._narration.audio.pause();window._narration.audio.src=''}catch(e){}}window._narration=null}}
-function _ttsSpeak(text,opts,onAllDone,onProgress){
+// _ttsSpeak is the public entry point for every TTS call across the app.
+// Routes through _premiumNarrate so callers automatically get ElevenLabs when configured,
+// and the chunked browser-TTS fallback when not. Old code that called _ttsSpeak still works
+// (Voice trainer drills, game celebrations, vocabulary cards, lesson runner, etc.) and now
+// gets studio voice for free.
+function _ttsSpeak(text,opts,onAllDone,onProgress){return _premiumNarrate(text,opts,onAllDone,onProgress)}
+// Browser-only chunked TTS — used as fallback inside _premiumNarrate when ElevenLabs is unavailable.
+// All public callers should use _ttsSpeak (the dispatcher alias defined below) so they get the
+// premium voice automatically when configured.
+function _browserTtsSpeak(text,opts,onAllDone,onProgress){
   if(!('speechSynthesis' in window))return false;
   _ttsStop();
   const sentences=(text.match(/[^.!?\\u2026]+[.!?\\u2026]+["\\u2019\\u201d)]?\\s*/g))||[text];
