@@ -3283,8 +3283,10 @@ body[data-theme=aurora] .hist-link a:hover{color:#C4B5FD}
 .section-ic svg{width:18px;height:18px}
 
 
-/* ═══════════════ VOICE · AI tutor next-age UI ═══════════════ */
-.vc-lesson{position:relative;border-radius:20px;overflow:hidden;margin-bottom:18px;padding:24px 22px;color:#fff;background:radial-gradient(900px 500px at 0% 0%, rgba(167,139,250,.34) 0%, transparent 55%),radial-gradient(700px 400px at 100% 100%, rgba(46,255,169,.20) 0%, transparent 55%),linear-gradient(135deg, #0E0A1F 0%, #1B1245 50%, #3D1F8A 100%);box-shadow:0 24px 50px -18px rgba(91,33,182,.5),0 1px 0 rgba(255,255,255,.08) inset;animation:intlFadeUp .65s cubic-bezier(.16,1,.3,1) both}
+/* ═══════════════ VOICE · Headspace-style calm tutor UI ═══════════════ */
+.vc-lesson{position:relative;border-radius:24px;overflow:hidden;margin-bottom:18px;padding:32px 28px 30px;color:#fff;background:radial-gradient(900px 500px at 100% 0%, rgba(255,196,127,.42) 0%, transparent 55%),radial-gradient(700px 600px at 0% 100%, rgba(255,143,107,.30) 0%, transparent 55%),linear-gradient(135deg, #FF6B47 0%, #FF8A4F 35%, #FFB05E 100%);box-shadow:0 20px 50px -16px rgba(255,107,71,.45),0 1px 0 rgba(255,255,255,.18) inset;animation:intlFadeUp .65s cubic-bezier(.16,1,.3,1) both}
+.vc-lesson::before{content:'';position:absolute;top:-30%;right:-15%;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.18) 0%,transparent 65%);animation:vc-breathe 7s ease-in-out infinite alternate;pointer-events:none}
+@keyframes vc-breathe{0%{transform:scale(1) translate(0,0);opacity:.55}100%{transform:scale(1.18) translate(-12px,16px);opacity:.85}}
 .vc-lesson::after{content:'';position:absolute;inset:0;background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.07) 50%,transparent 65%);transform:translateX(-100%);animation:intlShimmer 7s ease-in-out infinite;pointer-events:none}
 .vc-lesson-eyebrow{font-family:'JetBrains Mono','Space Mono',monospace;font-weight:500;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.78);margin-bottom:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .vc-lesson-eyebrow .day-num{padding:3px 10px;background:rgba(255,255,255,.16);border-radius:999px;font-weight:600;color:#fff;font-size:10px}
@@ -4381,13 +4383,13 @@ function _pickMaleVoice(){
 function voiceSpeak(text,onEnd){
   if(!('speechSynthesis' in window))return onEnd&&onEnd();
   voiceStopAll();
-  const u=new SpeechSynthesisUtterance(String(text||''));
-  const v=_pickMaleVoice();if(v){u.voice=v;u.lang=v.lang||'en-US'}else u.lang='en-US';
-  u.rate=.94;u.pitch=.92;u.volume=1;
-  u.onend=()=>{if(S.voicePlay)S.voicePlay.playingTTS=false;render();onEnd&&onEnd()};
-  u.onerror=()=>{if(S.voicePlay)S.voicePlay.playingTTS=false;render()};
   if(S.voicePlay){S.voicePlay.playingTTS=true;render()}
-  try{window.speechSynthesis.speak(u)}catch(e){}
+  // Use chunked TTS so long passages don't get cut off mid-sentence (Chrome ~15s bug)
+  _ttsSpeak(String(text||''),{rate:.94,pitch:.96,volume:1},function(){
+    if(S.voicePlay)S.voicePlay.playingTTS=false;
+    render();
+    if(onEnd)onEnd();
+  });
 }
 function voicePlayIntro(){const p=S.voicePlay;if(!p)return;voiceSpeak(p.intro)}
 function voicePlayDrill(){const p=S.voicePlay;if(!p)return;voiceSpeak(p.drills[p.idx]||'')}
@@ -4954,7 +4956,60 @@ function _pickPremiumVoice(){
   // Fall back to any English voice
   return vs.find(x=>x.lang&&x.lang.startsWith('en'))||vs[0];
 }
-function bookReaderToggleTTS(){const r=S.bookReader;if(!r||!r.book)return;if(!('speechSynthesis' in window)){toast('\\u26A0\\uFE0F Voice not supported on this device','err');return}if(r.playing){try{speechSynthesis.cancel()}catch(e){}r.playing=false}else{const u=new SpeechSynthesisUtterance(r.book.summary);u.rate=r.rate||1;u.pitch=1.0;u.volume=1.0;const v=_pickPremiumVoice();if(v){u.voice=v;u.lang=v.lang||'en-US'}u.onend=function(){const cur=S.bookReader;if(cur&&cur.book){cur.playing=false;render()}};try{speechSynthesis.speak(u);r.playing=true}catch(e){toast('\\u26A0\\uFE0F '+e.message,'err');return}}render()}
+// Chunked TTS — splits long text into sentence groups so Chrome doesn't time out at ~15s
+// Plus a keepalive pause/resume hack that fights the well-known Web Speech cutoff bug
+function _ttsStop(){try{speechSynthesis.cancel()}catch(e){}if(window._ttsKeepalive){clearInterval(window._ttsKeepalive);window._ttsKeepalive=null}window._ttsQueue=null}
+function _ttsSpeak(text,opts,onAllDone){
+  if(!('speechSynthesis' in window))return false;
+  _ttsStop();
+  // Split by sentence-ending punctuation, then group into ~180-char chunks
+  const sentences=(text.match(/[^.!?\\u2026]+[.!?\\u2026]+["\\u2019\\u201d)]?\\s*/g))||[text];
+  const chunks=[];let cur='';
+  for(const s of sentences){
+    if((cur+s).length>180){if(cur)chunks.push(cur.trim());cur=s}
+    else cur+=s;
+  }
+  if(cur.trim())chunks.push(cur.trim());
+  if(!chunks.length)return false;
+  const queue={chunks,idx:0,opts:opts||{},onAllDone,cancelled:false};
+  window._ttsQueue=queue;
+  function speakNext(){
+    if(queue.cancelled)return;
+    if(queue.idx>=queue.chunks.length){
+      if(window._ttsKeepalive){clearInterval(window._ttsKeepalive);window._ttsKeepalive=null}
+      if(typeof onAllDone==='function')onAllDone();
+      return;
+    }
+    const u=new SpeechSynthesisUtterance(queue.chunks[queue.idx]);
+    u.rate=queue.opts.rate||1;u.pitch=queue.opts.pitch||1.0;u.volume=queue.opts.volume||1.0;
+    const v=_pickPremiumVoice();if(v){u.voice=v;u.lang=v.lang||'en-US'}
+    u.onend=function(){queue.idx++;speakNext()};
+    u.onerror=function(){queue.idx++;speakNext()};
+    try{speechSynthesis.speak(u)}catch(e){queue.idx++;speakNext()}
+  }
+  // Keepalive — Chrome silently kills speech after ~15s. Pulse pause/resume to keep it alive.
+  if(window._ttsKeepalive)clearInterval(window._ttsKeepalive);
+  window._ttsKeepalive=setInterval(function(){try{if(speechSynthesis.speaking&&!speechSynthesis.paused){speechSynthesis.pause();speechSynthesis.resume()}}catch(e){}},10000);
+  speakNext();
+  return true;
+}
+function bookReaderToggleTTS(){
+  const r=S.bookReader;if(!r||!r.book)return;
+  if(!('speechSynthesis' in window)){toast('\\u26A0\\uFE0F Voice not supported on this device','err');return}
+  if(r.playing){_ttsStop();r.playing=false;render();return}
+  const ok=_ttsSpeak(r.book.summary,{rate:r.rate||1,pitch:1.0,volume:1.0},function(){
+    // Headspace-style completion celebration
+    const cur=S.bookReader;if(!cur||!cur.book)return;
+    cur.playing=false;cur.completed=true;render();
+    setTimeout(function(){
+      _ttsSpeak('Beautiful. That is another summary completed. One more step on your daily streak.',{rate:.92,pitch:1.0,volume:1.0});
+    },800);
+    // Also log a book listen (extends the listening streak)
+    try{api('/book-streak',{method:'POST',body:JSON.stringify({seconds:r.book.mins*60})}).then(()=>loadBookStreak())}catch(e){}
+    toast('\\u2728 Summary complete \\u2014 streak +1');
+  });
+  if(ok){r.playing=true;render()}
+}
 function bookReaderSpeed(){const r=S.bookReader;if(!r)return;const next={1:1.25,1.25:1.5,1.5:1.75,1.75:2,2:1}[r.rate||1]||1;r.rate=next;if(r.playing){try{speechSynthesis.cancel()}catch(e){}r.playing=false;bookReaderToggleTTS()}render()}
 
 // ═══ VOICE TUTOR — daily lessons + vocabulary ═══
@@ -5000,7 +5055,8 @@ const VOICE_VOCAB=[
 function _voiceLessonOfDay(){const d=new Date();return VOICE_LESSONS[d.getDay()]}
 function _voiceVocabOfDay(){const d=new Date();const yStart=new Date(d.getFullYear(),0,0);const day=Math.floor((d-yStart)/86400000);const setIdx=day%7;const start=setIdx*3;return VOICE_VOCAB.slice(start,start+3)}
 function voiceStartLesson(){const l=_voiceLessonOfDay();if(typeof coachSend==='function'){try{coachSend(l.prompt)}catch(e){toast('\\u26A0\\uFE0F '+e.message,'err')}}}
-function voiceSpeakWord(w){if(!('speechSynthesis' in window))return;try{speechSynthesis.cancel()}catch(e){}const u=new SpeechSynthesisUtterance(w);u.rate=.85;u.pitch=1.0;u.volume=1.0;const v=_pickPremiumVoice();if(v){u.voice=v;u.lang=v.lang||'en-US'}try{speechSynthesis.speak(u)}catch(e){}}
+function voiceSpeakWord(w){_ttsSpeak(w,{rate:.82,pitch:1.0,volume:1.0})}
+function voiceCelebrateStreak(){if(!('speechSynthesis' in window))return;_ttsSpeak('Lovely work. Your daily streak is alive.',{rate:.92,pitch:1.0,volume:1.0})}
 function closePlayer(){stopBookListenTimer();S.playing=null;S.meditating={active:false,title:'',mins:0,startedAt:0};render()}
 function closeMeditation(){const a=document.getElementById('audioEl');if(a){try{a.pause()}catch(e){}}closePlayer()}
 let _bkTimer=null;
