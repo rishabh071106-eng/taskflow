@@ -6887,7 +6887,7 @@ if(S.articleEditor&&S.articleEditor.open){
   h+='<div class="ae-body">';
   h+='<input class="ae-title" placeholder="Title" maxlength="180" value="'+esc(e.title)+'" oninput="S.articleEditor.title=this.value">';
   h+='<input class="ae-image" placeholder="Image URL (optional, https://...)" value="'+esc(e.image_url)+'" oninput="S.articleEditor.image_url=this.value">';
-  if(e.image_url&&/^https?:\/\//i.test(e.image_url))h+='<div class="ae-img-prev"><img src="'+esc(e.image_url)+'" onerror="this.parentElement.style.display=\\'none\\'"></div>';
+  if(e.image_url&&/^https?:\\/\\//i.test(e.image_url))h+='<div class="ae-img-prev"><img src="'+esc(e.image_url)+'" onerror="this.parentElement.style.display=\\'none\\'"></div>';
   h+='<div class="ae-cats">';
   ['tech','business','life','wellness','culture','opinion','general'].forEach(c=>{
     h+='<button class="ae-cat'+(e.category===c?' on':'')+'" onclick="S.articleEditor.category=\\''+c+'\\';render()">'+(c.charAt(0).toUpperCase()+c.slice(1))+'</button>';
