@@ -3473,6 +3473,112 @@ body[data-theme=aurora] .hist-link a:hover{color:#C4B5FD}
 .cc-playing button{background:transparent;border:1px solid #FFD0B5;color:#FF6B47;font-family:inherit;font-weight:500;padding:4px 10px;border-radius:8px;font-size:12px;cursor:pointer}
 .cc-playing button:hover{background:#FF6B47;color:#fff}
 
+/* Math Sprint polish — premium typography, bigger problems, refined choices */
+.ms-body{padding:24px 22px !important;gap:18px !important;background:#FAFAF7 !important}
+.ms-stats{justify-content:space-between !important}
+.ms-stat{
+  background:#fff !important;border:1px solid #ECEAE3 !important;
+  padding:10px 14px !important;border-radius:14px !important;
+  box-shadow:0 1px 2px rgba(0,0,0,.03) !important;
+}
+.ms-stat b{
+  font-family:'Inter',sans-serif !important;
+  font-weight:600 !important;font-size:22px !important;
+  letter-spacing:-.02em !important;color:#1A1A1A !important;
+}
+.ms-stat small{
+  font-family:'JetBrains Mono','Space Mono',monospace !important;
+  font-weight:500 !important;font-size:10px !important;
+  letter-spacing:.1em !important;color:#9A9A9A !important;
+  text-transform:uppercase !important;
+}
+.ms-stat-streak b{color:#FF6B47 !important}
+.ms-time-track{height:6px !important;background:#ECEAE3 !important;border-radius:999px !important}
+.ms-problem-wrap{padding:32px 0 !important}
+.ms-problem{
+  font-family:'Inter',sans-serif !important;
+  font-weight:600 !important;
+  font-size:clamp(48px,9vw,84px) !important;
+  letter-spacing:-.04em !important;
+  color:#1A1A1A !important;
+  gap:18px !important;
+}
+.ms-num{
+  background:linear-gradient(180deg,#1A1A1A,#3D3D3D);
+  -webkit-background-clip:text;background-clip:text;color:transparent !important;
+}
+.ms-op{color:#9A9A9A !important;font-weight:500 !important}
+.ms-eq{color:#9A9A9A !important;font-weight:500 !important}
+.ms-q{color:#FF6B47 !important;font-weight:700 !important}
+.ms-choices{display:grid !important;grid-template-columns:repeat(2,1fr) !important;gap:10px !important;margin-top:6px}
+.ms-choice{
+  background:#fff !important;border:1.5px solid #ECEAE3 !important;
+  border-radius:16px !important;padding:18px 14px !important;
+  font-family:'Inter',sans-serif !important;
+  font-weight:600 !important;font-size:30px !important;
+  letter-spacing:-.02em !important;color:#1A1A1A !important;
+  cursor:pointer;
+  transition:transform .25s cubic-bezier(.34,1.56,.64,1), border-color .2s, background .2s, box-shadow .25s !important;
+  box-shadow:0 1px 2px rgba(0,0,0,.03), 0 2px 6px rgba(0,0,0,.04) !important;
+}
+.ms-choice:hover{
+  transform:translateY(-3px) !important;
+  border-color:#1A1A1A !important;
+  background:#fff !important;
+  box-shadow:0 8px 20px -8px rgba(0,0,0,.18) !important;
+}
+.ms-choice-ok{
+  background:linear-gradient(135deg,#ECFDF5,#D1FAE5) !important;
+  border-color:#10B981 !important;color:#065F46 !important;
+  box-shadow:0 8px 20px -6px rgba(16,185,129,.4) !important;
+  transform:translateY(-2px) !important;
+}
+.ms-choice-wrong{
+  background:linear-gradient(135deg,#FEF2F2,#FEE2E2) !important;
+  border-color:#EF4444 !important;color:#991B1B !important;
+}
+.ms-choice-fade{opacity:.35;transform:scale(.98)}
+.ms-fb{
+  font-family:'Inter',sans-serif !important;
+  font-weight:500 !important;font-size:14.5px !important;
+  text-align:center !important;padding:10px;border-radius:10px;
+}
+.ms-fb-ok{color:#065F46 !important;background:#ECFDF5}
+.ms-fb-bad{color:#991B1B !important;background:#FEF2F2}
+
+/* Memory Tap polish — premium round indicator + canvas frame */
+.mt-shell{padding:24px 22px !important;background:#FAFAF7 !important}
+.mt-hud{
+  font-family:'JetBrains Mono','Space Mono',monospace !important;
+  font-size:11px !important;letter-spacing:.1em !important;
+  color:#9A9A9A !important;text-transform:uppercase !important;
+  padding:10px 14px !important;background:#fff !important;
+  border:1px solid #ECEAE3 !important;border-radius:12px !important;
+  margin-bottom:16px !important;
+}
+.mt-hud b{font-family:'Inter',sans-serif !important;font-weight:600 !important;color:#1A1A1A !important;font-size:14px !important;letter-spacing:-.01em !important}
+.mt-canvas{border-radius:18px !important;box-shadow:0 14px 36px -16px rgba(0,0,0,.18) !important}
+.mt-end{padding:30px 22px !important;background:#FAFAF7 !important}
+.mt-end-stars{font-size:36px !important;letter-spacing:6px !important;margin-bottom:14px}
+.mt-star{color:#E8E6E0 !important;transition:all .4s cubic-bezier(.34,1.56,.64,1)}
+.mt-star-on{color:#F59E0B !important;text-shadow:0 0 18px rgba(245,158,11,.55) !important}
+.mt-end-t{font-family:'Inter',sans-serif !important;font-weight:500 !important;font-size:18px !important;letter-spacing:-.01em !important;color:#3D3D3D !important;margin-bottom:6px}
+.mt-end-t b{font-weight:700 !important;color:#1A1A1A !important;font-size:32px !important;display:block;letter-spacing:-.02em;margin-bottom:4px}
+.mt-end-s{font-family:'JetBrains Mono',monospace !important;font-size:11.5px !important;color:#9A9A9A !important;letter-spacing:.06em !important;text-transform:uppercase}
+
+/* Modal header polish */
+.mg-mdl{border-radius:20px !important;overflow:hidden}
+.mg-hd{padding:18px 22px 14px !important;border-bottom:1px solid #ECEAE3}
+.mg-t{font-family:'Inter',sans-serif !important;font-weight:600 !important;font-size:18px !important;letter-spacing:-.015em !important;color:#1A1A1A !important}
+.mg-s{font-size:13px !important;color:#6B6B6B !important;font-weight:450 !important;margin-top:3px}
+.was-x{
+  width:32px !important;height:32px !important;border-radius:50% !important;
+  background:#fff !important;border:1px solid #ECEAE3 !important;
+  color:#6B6B6B !important;cursor:pointer;
+  transition:background .2s, color .2s, border-color .2s;
+}
+.was-x:hover{background:#FEF2F2 !important;color:#DC2626 !important;border-color:#FCA5A5 !important}
+
 /* Reaction game polish — radial energy + pulsing rings, less flat */
 .mg-react-stage{
   position:relative !important;
@@ -5200,19 +5306,23 @@ function _pickPremiumVoice(){
   if(!('speechSynthesis' in window))return null;
   const vs=speechSynthesis.getVoices();
   if(!vs||!vs.length)return null;
-  // Premium voice priority — most natural-sounding voices first
-  const pri=[
-    /Microsoft\\s+(Aria|Jenny|Ava|Andrew|Brian|Christopher|Eric|Guy)\\s+Online/i, // Microsoft Neural voices
-    /Google\\s+UK\\s+English\\s+Female/i, // Google enhanced
-    /Google\\s+US\\s+English/i,
-    /Samantha\\s+\\(Enhanced\\)/i, /Samantha\\s+\\(Premium\\)/i, /^Samantha$/i, // Apple premium voices (macOS/iOS)
-    /Karen\\s+\\(Enhanced\\)/i, /Moira\\s+\\(Enhanced\\)/i, /Tessa\\s+\\(Enhanced\\)/i,
-    /Daniel\\s+\\(Enhanced\\)/i, /Alex\\s+\\(Enhanced\\)/i, /^Alex$/i, /^Daniel$/i,
-    /Microsoft\\s+(Zira|David|Mark|Hazel|George|Susan)\\s+/i, // Microsoft legacy
-    /^en-US$/i, /^en-GB$/i,
+  // MALE voice priority — soft, warm, narrator-quality. User explicitly asked for a man's voice.
+  const malePri=[
+    /Microsoft\\s+(Brian|Andrew|Guy|Christopher|Eric|Davis|Jason)\\s+Online/i, // Microsoft Neural male
+    /Daniel\\s+\\(Enhanced\\)/i, /Daniel\\s+\\(Premium\\)/i, /^Daniel$/i, // Apple Daniel (UK male, warm)
+    /Alex\\s+\\(Enhanced\\)/i, /Alex\\s+\\(Premium\\)/i, /^Alex$/i,         // Apple Alex (US male, classic narrator)
+    /Tom\\s+\\(Enhanced\\)/i, /^Tom$/i,
+    /Aaron\\s+\\(Enhanced\\)/i, /^Aaron$/i,
+    /Fred\\s+\\(Enhanced\\)/i, /^Fred$/i,
+    /Oliver\\s+\\(Enhanced\\)/i, /^Oliver$/i,
+    /Google\\s+UK\\s+English\\s+Male/i, // Chrome on desktop
+    /Microsoft\\s+(David|Mark|George|James)\\s+/i, // Microsoft legacy male
   ];
-  for(const re of pri){const v=vs.find(x=>(x.name&&re.test(x.name))||(x.lang&&re.test(x.lang)));if(v)return v}
-  // Fall back to any English voice
+  for(const re of malePri){const v=vs.find(x=>x.name&&re.test(x.name));if(v)return v}
+  // Heuristic — anything with "male" in the name and English language
+  const heur=vs.find(x=>x.lang&&x.lang.startsWith('en')&&/male/i.test(x.name||'')&&!/female/i.test(x.name||''));
+  if(heur)return heur;
+  // Last-resort fallback to any English voice
   return vs.find(x=>x.lang&&x.lang.startsWith('en'))||vs[0];
 }
 // Chunked TTS — splits long text into sentence groups so Chrome doesn't time out at ~15s
@@ -5252,24 +5362,40 @@ function _ttsSpeak(text,opts,onAllDone){
   speakNext();
   return true;
 }
+// Structured narration — assembles a full ~12-15 min audio experience from the book's parts:
+// title, why-pitch, each numbered insight, then the long summary. Slow male narrator pace.
+function _bookFullNarration(book){
+  const parts=[];
+  parts.push(book.title+', by '+book.author+'.');
+  parts.push(book.why);
+  parts.push('Five key insights to take with you.');
+  book.insights.forEach((it,i)=>{
+    parts.push('Insight '+(i+1)+'. '+it[0]+'.');
+    parts.push(it[1]);
+  });
+  parts.push('Now, the full fifteen-minute summary.');
+  parts.push(book.summary);
+  parts.push('Beautiful. That is another summary completed. One more step on your daily streak.');
+  // Strip HTML entities the data uses (e.g. \\u2014 em-dash) and normalise quotes so TTS reads cleanly
+  return parts.join('  ').replace(/\\\\u2019/g,"'").replace(/\\\\u2014/g,', ').replace(/\\u2026/g,'...');
+}
 function bookReaderToggleTTS(){
   const r=S.bookReader;if(!r||!r.book)return;
   if(!('speechSynthesis' in window)){toast('\\u26A0\\uFE0F Voice not supported on this device','err');return}
   if(r.playing){_ttsStop();r.playing=false;render();return}
-  const ok=_ttsSpeak(r.book.summary,{rate:r.rate||1,pitch:1.0,volume:1.0},function(){
-    // Headspace-style completion celebration
+  // Soft, slow, male-narrator pace — user explicitly asked for "man's voice with soft and slow tone"
+  // Default rate is now 0.78 (was 1.0). Range: 0.78x → 0.95x → 1.1x → 1.25x → 1.5x → 0.78x
+  const baseRate=r.rate||0.78;
+  const fullText=_bookFullNarration(r.book);
+  const ok=_ttsSpeak(fullText,{rate:baseRate,pitch:0.95,volume:1.0},function(){
     const cur=S.bookReader;if(!cur||!cur.book)return;
     cur.playing=false;cur.completed=true;render();
-    setTimeout(function(){
-      _ttsSpeak('Beautiful. That is another summary completed. One more step on your daily streak.',{rate:.92,pitch:1.0,volume:1.0});
-    },800);
-    // Also log a book listen (extends the listening streak)
     try{api('/book-streak',{method:'POST',body:JSON.stringify({seconds:r.book.mins*60})}).then(()=>loadBookStreak())}catch(e){}
     toast('\\u2728 Summary complete \\u2014 streak +1');
   });
   if(ok){r.playing=true;render()}
 }
-function bookReaderSpeed(){const r=S.bookReader;if(!r)return;const next={1:1.25,1.25:1.5,1.5:1.75,1.75:2,2:1}[r.rate||1]||1;r.rate=next;if(r.playing){try{speechSynthesis.cancel()}catch(e){}r.playing=false;bookReaderToggleTTS()}render()}
+function bookReaderSpeed(){const r=S.bookReader;if(!r)return;const cycle={0.78:0.95,0.95:1.1,1.1:1.25,1.25:1.5,1.5:0.78};const cur=r.rate||0.78;r.rate=cycle[cur]||0.78;if(r.playing){_ttsStop();r.playing=false;bookReaderToggleTTS()}render()}
 
 // ═══ VOICE TUTOR — daily lessons + vocabulary ═══
 const VOICE_LESSONS=[
