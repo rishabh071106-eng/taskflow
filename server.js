@@ -5572,9 +5572,11 @@ function _ttsStop(){try{speechSynthesis.cancel()}catch(e){}if(window._ttsKeepali
 // every TTS call across the app — _ttsSpeak is aliased to this below.
 async function _premiumNarrate(text,opts,onAllDone,onProgress){
   _premiumStop();
-  if(!S.coach||!S.coach.status){try{const r=await fetch('/api/coach/status');const j=await r.json();if(!S.coach)S.coach={};S.coach.status=j}catch(e){}}
+  // Always re-fetch status on each call (cheap, ensures fresh state after env-var changes)
+  try{const r=await fetch('/api/coach/status',{cache:'no-store'});const j=await r.json();if(!S.coach)S.coach={};S.coach.status=j}catch(e){console.warn('[narr] status check failed',e)}
   const useEleven=!!(S.coach&&S.coach.status&&S.coach.status.tts);
-  if(!useEleven)return _browserTtsSpeak(text,opts,onAllDone,onProgress);
+  console.log('[narr] tts available:',useEleven,'status:',S.coach&&S.coach.status);
+  if(!useEleven){console.log('[narr] falling back to browser TTS — set ELEVENLABS_API_KEY');return _browserTtsSpeak(text,opts,onAllDone,onProgress)}
   // Chunk for ElevenLabs — max 2000 chars per request, smaller = faster first byte
   const sentences=(text.match(/[^.!?\\u2026]+[.!?\\u2026]+["\\u2019\\u201d)]?\\s*/g))||[text];
   const chunks=[];let cur='';
@@ -5589,12 +5591,16 @@ async function _premiumNarrate(text,opts,onAllDone,onProgress){
     if(typeof onProgress==='function')try{onProgress(queue.idx,queue.chunks.length,queue.chunks[queue.idx])}catch(e){}
     try{
       const r=await fetch('/api/coach/speak',{method:'POST',headers:{'Content-Type':'application/json','x-token':token},body:JSON.stringify({text:queue.chunks[queue.idx]})});
+      console.log('[narr] /api/coach/speak chunk',queue.idx+1,'/',queue.chunks.length,'status:',r.status);
       if(queue.cancelled)return;
       if(!r.ok){
-        // ElevenLabs failed — fall back to browser TTS for remaining text
+        let errBody='';try{errBody=await r.text();}catch(e){}
+        console.warn('[narr] ElevenLabs request failed:',r.status,errBody);
+        if(queue.idx===0&&typeof toast==='function')toast('\\u26A0\\uFE0F Studio voice failed: '+r.status+' — using browser fallback','err');
         const rem=queue.chunks.slice(queue.idx).join(' ');
         return _browserTtsSpeak(rem,opts,onAllDone,function(i,t,l){if(typeof onProgress==='function')try{onProgress(queue.idx+i,queue.chunks.length,l)}catch(e){}});
       }
+      if(queue.idx===0&&typeof toast==='function')toast('\\u{1F3AC} Studio voice loaded','ok');
       const blob=await r.blob();
       if(queue.cancelled)return;
       const url=URL.createObjectURL(blob);
