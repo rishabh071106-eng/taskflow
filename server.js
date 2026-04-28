@@ -3717,7 +3717,26 @@ body[data-theme=aurora] .hist-link a:hover{color:#C4B5FD}
 .bk-mini-btn:hover{background:#1F4D3F;transform:scale(1.05)}
 .bk-mini-x{width:26px;height:26px;border-radius:50%;border:1px solid #ECEAE3;background:#fff;color:#6B6B6B;font-family:inherit;font-size:11px;cursor:pointer;display:grid;place-items:center;flex-shrink:0;transition:all .2s}
 .bk-mini-x:hover{background:#FEF2F2;color:#DC2626;border-color:#FCA5A5}
-@media (max-width:600px){.bk-mini{left:14px;right:14px;bottom:14px;max-width:none;min-width:0}}
+@media (max-width:600px){
+  .bk-mini{
+    left:auto !important;
+    right:12px !important;
+    bottom:96px !important; /* clears the global FAB+ button and any bottom nav */
+    min-width:0 !important;
+    max-width:calc(100vw - 24px) !important;
+    padding:10px 14px 10px 10px !important;
+    gap:10px !important;
+  }
+  .bk-mini-cover{width:38px !important;height:48px !important}
+  .bk-mini-info b{font-size:12px !important;max-width:120px}
+  .bk-mini-info small{font-size:9.5px !important}
+  .bk-mini-btn{width:34px !important;height:34px !important;font-size:13px !important}
+  .bk-mini-x{width:24px !important;height:24px !important;font-size:10px !important}
+}
+@media (max-width:380px){
+  .bk-mini-info{max-width:90px}
+  .bk-mini-info b{max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+}
 
 /* ═══════════════ COMMUNITY ARTICLES — Medium-style ═══════════════ */
 .art-feed{display:flex;flex-direction:column;gap:18px;margin-top:8px}
