@@ -2046,15 +2046,39 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
   .tabs.page-t .tab .tl{font-size:13.5px;font-weight:700;letter-spacing:.005em}
   .tabs.page-t .tab.on{transform:translateY(-2px);box-shadow:0 8px 22px rgba(45,42,38,.36),0 0 0 2px rgba(99,102,241,.5)}
 }
+/* International-app touch sizing for tabs on every mobile + tablet width below the desktop sidebar.
+   Covers iPhones, iPads in portrait, foldables, large Android — anything <=1023px gets these. */
+@media (max-width:1023px){
+  .tabs.page-t{padding:10px !important;gap:10px !important;border-radius:22px !important}
+  .tabs.page-t .tab{padding:20px 16px 16px !important;font-size:17px !important;gap:11px !important;min-height:96px !important;border-radius:18px !important}
+  .tabs.page-t .tab .ti{font-size:34px !important;width:48px !important;height:48px !important}
+  .tabs.page-t .tab .ti svg{width:36px !important;height:36px !important}
+  .tabs.page-t .tab .tl{font-size:15px !important;font-weight:600 !important;letter-spacing:-.005em !important}
+  .tabs.page-t .tab.on{box-shadow:0 8px 24px rgba(45,42,38,.36),0 0 0 3px rgba(99,102,241,.55) !important}
+  /* Filter buttons (Tasks: All/Doing/Done, Mind Gym filter, etc.) also juiced up */
+  .flt button.fb,.fb{padding:14px 18px !important;font-size:15px !important;min-height:48px !important;border-radius:14px !important}
+  /* Add-bar button (the big "+ Add a new task" CTA) */
+  .add-bar{padding:18px 18px !important}
+  .add-bar .plus{font-size:34px !important;width:50px !important;height:50px !important}
+  .add-bar .txt b{font-size:16px !important}
+  .add-bar .txt small{font-size:13px !important}
+  /* Section headers */
+  .section-hd h3{font-size:20px !important}
+  .section-hd p{font-size:13.5px !important}
+  /* Stat cards */
+  .stats .st b{font-size:24px !important}
+  .stats .st small{font-size:11.5px !important}
+  /* Books mode toggle (Summaries / Audiobooks) */
+  .bk-mode-toggle button{padding:13px 22px !important;font-size:15px !important}
+  /* Generic body buttons */
+  .mb,button.mb{padding:14px 20px !important;font-size:15px !important;min-height:48px !important}
+}
+/* Even bigger on phones specifically */
 @media (max-width:480px){
-  /* Bigger, finger-friendly tabs on mobile (international-app sizing). Roughly 3x previous touch
-     area with larger icons and 16px label — much easier to read and tap accurately one-handed. */
-  .tabs.page-t{padding:10px;gap:10px;border-radius:22px}
-  .tabs.page-t .tab{padding:18px 14px 14px;font-size:16px;gap:10px;min-height:84px;border-radius:16px}
-  .tabs.page-t .tab .ti{font-size:30px;width:42px;height:42px}
-  .tabs.page-t .tab .ti svg{width:32px!important;height:32px!important}
-  .tabs.page-t .tab .tl{font-size:14px;font-weight:600;letter-spacing:-.005em}
-  .tabs.page-t .tab.on{box-shadow:0 6px 20px rgba(45,42,38,.32),0 0 0 2.5px rgba(99,102,241,.55)}
+  .tabs.page-t .tab{padding:22px 18px 18px !important;min-height:104px !important}
+  .tabs.page-t .tab .ti{font-size:38px !important;width:54px !important;height:54px !important}
+  .tabs.page-t .tab .ti svg{width:40px !important;height:40px !important}
+  .tabs.page-t .tab .tl{font-size:16px !important}
 }
 body[data-theme=aurora] .tabs.page-t{background:rgba(20,20,40,.85);border-color:rgba(167,139,250,.18)}
 /* Desktop sidebar layout */
