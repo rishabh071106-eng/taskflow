@@ -2046,70 +2046,79 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
   .tabs.page-t .tab .tl{font-size:13.5px;font-weight:700;letter-spacing:.005em}
   .tabs.page-t .tab.on{transform:translateY(-2px);box-shadow:0 8px 22px rgba(45,42,38,.36),0 0 0 2px rgba(99,102,241,.5)}
 }
-/* Mobile + tablet (<=1023px): tabs become a FIXED VERTICAL LEFT RAIL — Discord/Slack style.
-   The rail is always visible, scrolls vertically if there are more tabs than fit.
-   Main content is shifted right to make room. */
+/* ═══════════════ MOBILE BOTTOM TAB BAR — international grade ═══════════════
+   Fixed bottom bar like Instagram/Spotify/Headspace — but generously sized,
+   horizontally scrollable so all 9 tabs are reachable without truncation,
+   springy active state, smooth motion. Tab names always visible, never abbreviated. */
 @media (max-width:1023px){
+  body{padding-left:0 !important;padding-bottom:128px !important}
   .tabs.page-t{
     position:fixed !important;
-    top:0 !important;left:0 !important;bottom:0 !important;
-    width:78px !important;
-    flex-direction:column !important;
-    overflow-y:auto !important;overflow-x:hidden !important;
-    background:#FFFFFF !important;
-    border-right:1px solid #ECEAE3 !important;
+    bottom:0 !important;left:0 !important;right:0 !important;top:auto !important;
+    width:100% !important;
+    flex-direction:row !important;
+    overflow-x:auto !important;overflow-y:hidden !important;
+    background:rgba(255,255,255,.92) !important;
+    backdrop-filter:saturate(180%) blur(20px) !important;
+    -webkit-backdrop-filter:saturate(180%) blur(20px) !important;
+    border-top:1px solid #ECEAE3 !important;
+    border-bottom:0 !important;border-left:0 !important;border-right:0 !important;
     border-radius:0 !important;
-    padding:14px 8px 14px 8px !important;
-    gap:8px !important;
+    padding:14px 16px calc(14px + env(safe-area-inset-bottom,0px)) !important;
+    gap:10px !important;
     z-index:60 !important;
-    box-shadow:2px 0 18px rgba(0,0,0,.06) !important;
+    box-shadow:0 -8px 30px rgba(0,0,0,.06) !important;
     margin:0 !important;
-    backdrop-filter:saturate(160%) blur(12px) !important;
-    -webkit-backdrop-filter:saturate(160%) blur(12px) !important;
+    scroll-snap-type:x proximity !important;
+    -webkit-overflow-scrolling:touch !important;
   }
   .tabs.page-t::-webkit-scrollbar{display:none}
   .tabs.page-t .tab{
-    width:100% !important;
-    padding:10px 4px !important;
+    flex:0 0 auto !important;
+    min-width:104px !important;
+    padding:14px 18px !important;
     flex-direction:column !important;
     align-items:center !important;
     justify-content:center !important;
     text-align:center !important;
-    min-height:64px !important;
-    border-radius:12px !important;
-    gap:4px !important;
-    flex:0 0 auto !important;
-    font-size:11px !important;
+    min-height:90px !important;
+    border-radius:18px !important;
+    gap:8px !important;
+    scroll-snap-align:start !important;
+    transition:transform .35s cubic-bezier(.34,1.56,.64,1), background .25s, box-shadow .3s !important;
+    background:rgba(0,0,0,.025) !important;
+    color:#1A1A1A !important;
   }
   .tabs.page-t .tab .ti{
-    font-size:24px !important;
-    width:32px !important;height:32px !important;
+    font-size:32px !important;
+    width:42px !important;height:42px !important;
     display:flex !important;align-items:center !important;justify-content:center !important;
+    transition:transform .4s cubic-bezier(.34,1.56,.64,1) !important;
   }
-  .tabs.page-t .tab .ti svg{width:24px !important;height:24px !important}
+  .tabs.page-t .tab .ti svg{width:30px !important;height:30px !important}
   .tabs.page-t .tab .tl{
-    font-size:10.5px !important;
+    font-size:13.5px !important;
     font-weight:600 !important;
-    letter-spacing:0 !important;
+    letter-spacing:-.005em !important;
     white-space:nowrap !important;
-    overflow:hidden !important;
-    text-overflow:ellipsis !important;
-    max-width:100% !important;
+    color:#1A1A1A !important;
   }
   .tabs.page-t .tab.on{
-    background:linear-gradient(135deg,#6366F1,#8B5CF6) !important;
+    background:linear-gradient(135deg,#6366F1 0%,#8B5CF6 100%) !important;
     color:#fff !important;
-    box-shadow:0 6px 16px rgba(99,102,241,.4) !important;
+    box-shadow:0 10px 28px rgba(99,102,241,.5),0 4px 10px rgba(99,102,241,.3) !important;
+    transform:translateY(-4px) !important;
   }
-  .tabs.page-t .tab.on .tl{color:#fff !important}
-  /* Push the main app content to the right to clear the rail */
-  body{padding-left:78px !important}
-  /* Pull mini-player and audio player out of the rail's column too */
-  .bk-mini{right:14px !important}
-  .player{left:90px !important;right:14px !important}
-  /* Toast and FAB+ also need to dodge the rail on the left */
-  .fab{right:18px !important}
-  /* Other surfaces — moderate sizes (not the prior 96px monster, but readable) */
+  .tabs.page-t .tab.on .ti{
+    transform:scale(1.12) rotate(-5deg) !important;
+    filter:drop-shadow(0 2px 6px rgba(255,255,255,.4));
+  }
+  .tabs.page-t .tab.on .tl{color:#fff !important;font-weight:700 !important}
+  /* Float other UI above the new bottom bar */
+  .bk-mini{bottom:140px !important;right:14px !important}
+  .player{bottom:140px !important;left:12px !important;right:96px !important}
+  .fab{bottom:138px !important;right:18px !important}
+  /* Other surfaces stay readable — not bloated */
   .flt button.fb,.fb{padding:11px 16px !important;font-size:14.5px !important;min-height:44px !important;border-radius:12px !important}
   .add-bar .plus{font-size:30px !important;width:46px !important;height:46px !important}
   .add-bar .txt b{font-size:15.5px !important}
