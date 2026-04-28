@@ -39,6 +39,8 @@ try{db.exec("CREATE TABLE IF NOT EXISTS user_progress(user_phone TEXT NOT NULL,g
 try{db.exec("CREATE TABLE IF NOT EXISTS voice_progress(user_phone TEXT NOT NULL,day INTEGER NOT NULL,score INTEGER DEFAULT 0,points INTEGER DEFAULT 0,completed_at TEXT DEFAULT(datetime('now')),PRIMARY KEY(user_phone,day))")}catch(e){}
 // Daily-play log so we can compute streaks for both Mind Gym and Voice Trainer
 try{db.exec("CREATE TABLE IF NOT EXISTS play_log(user_phone TEXT NOT NULL,kind TEXT NOT NULL,played_on TEXT NOT NULL,PRIMARY KEY(user_phone,kind,played_on))")}catch(e){}
+// Voice curriculum — Duolingo-style step-by-step lesson progress per user
+try{db.exec("CREATE TABLE IF NOT EXISTS voice_lesson_progress(user_phone TEXT NOT NULL,unit_id INTEGER NOT NULL,lesson_id INTEGER NOT NULL,score INTEGER DEFAULT 0,stars INTEGER DEFAULT 0,xp INTEGER DEFAULT 0,completed_at TEXT DEFAULT(datetime('now')),PRIMARY KEY(user_phone,unit_id,lesson_id))")}catch(e){}
 
 let tw=null;const TW_FROM=process.env.TWILIO_WHATSAPP_FROM||'whatsapp:+14155238886';
 try{if(process.env.TWILIO_ACCOUNT_SID&&process.env.TWILIO_AUTH_TOKEN){tw=twilio(process.env.TWILIO_ACCOUNT_SID,process.env.TWILIO_AUTH_TOKEN);console.log('✅ Twilio connected')}}catch(e){console.log('⚠️',e.message)}
@@ -333,6 +335,29 @@ app.post('/api/voice/complete',auth,(req,res)=>{
   db.prepare("INSERT INTO voice_progress(user_phone,day,score,points,completed_at)VALUES(?,?,?,?,datetime('now'))ON CONFLICT(user_phone,day)DO UPDATE SET score=MAX(score,excluded.score),points=MAX(points,excluded.points),completed_at=excluded.completed_at").run(req.user.phone,day,score,points);
   const rows=db.prepare('SELECT day,score,points FROM voice_progress WHERE user_phone=?').all(req.user.phone);
   res.json({ok:true,day,score,points,completed:rows.length,totalPoints:rows.reduce((s,r)=>s+r.points,0)});
+});
+
+// ═══ VOICE CURRICULUM — Duolingo-style step-by-step lessons ═══
+app.get('/api/voice/lessons',auth,(req,res)=>{
+  const rows=db.prepare('SELECT unit_id,lesson_id,score,stars,xp,completed_at FROM voice_lesson_progress WHERE user_phone=?').all(req.user.phone);
+  const map={};rows.forEach(r=>{map[r.unit_id+':'+r.lesson_id]={score:r.score,stars:r.stars,xp:r.xp,completed_at:r.completed_at}});
+  const totalXp=rows.reduce((s,r)=>s+(r.xp||0),0);
+  const totalStars=rows.reduce((s,r)=>s+(r.stars||0),0);
+  res.json({progress:map,totalXp,totalStars,completed:rows.length});
+});
+app.post('/api/voice/lesson-complete',auth,(req,res)=>{
+  const unit=parseInt(req.body&&req.body.unit_id,10);
+  const lesson=parseInt(req.body&&req.body.lesson_id,10);
+  const score=Math.max(0,Math.min(100,parseInt(req.body&&req.body.score,10)||0));
+  if(!unit||unit<1||unit>20||!lesson||lesson<1||lesson>10)return res.status(400).json({error:'Invalid unit or lesson'});
+  const stars=score>=85?3:score>=65?2:score>=40?1:0;
+  const xp=Math.round((score/100)*30); // up to 30 XP per lesson
+  db.prepare("INSERT INTO voice_lesson_progress(user_phone,unit_id,lesson_id,score,stars,xp,completed_at)VALUES(?,?,?,?,?,?,datetime('now'))ON CONFLICT(user_phone,unit_id,lesson_id)DO UPDATE SET score=MAX(score,excluded.score),stars=MAX(stars,excluded.stars),xp=MAX(xp,excluded.xp),completed_at=excluded.completed_at").run(req.user.phone,unit,lesson,score,stars,xp);
+  // Log today's play for streak
+  try{db.prepare("INSERT OR IGNORE INTO play_log(user_phone,kind,played_on)VALUES(?,?,?)").run(req.user.phone,'voice',todayStr())}catch(e){}
+  const rows=db.prepare('SELECT unit_id,lesson_id,score,stars,xp FROM voice_lesson_progress WHERE user_phone=?').all(req.user.phone);
+  const totalXp=rows.reduce((s,r)=>s+(r.xp||0),0);
+  res.json({ok:true,unit,lesson,score,stars,xp,totalXp,completed:rows.length});
 });
 
 // ═══ MIND GYM — per-user game progress (level + xp + best) ═══
@@ -3612,6 +3637,81 @@ body[data-theme=aurora] .hist-link a:hover{color:#C4B5FD}
 .mg-react-time small{font-size:.4em;opacity:.65;margin-left:6px}
 .mg-react-msg{position:relative;z-index:1;text-shadow:0 2px 6px rgba(0,0,0,.25)}
 
+/* ═══════════════ DUOLINGO-STYLE LEARNING PATH ═══════════════ */
+.vp-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin:24px 0 14px;flex-wrap:wrap}
+.vp-h{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:28px;letter-spacing:-.02em;color:#1A1A1A;margin:0;line-height:1.05}
+.vp-sub{font-family:'JetBrains Mono','Space Mono',monospace;font-size:11px;letter-spacing:.06em;color:#6B6B6B;text-transform:uppercase;margin-top:4px}
+.vp-stats{display:flex;gap:8px}
+.vp-stat{padding:10px 14px;background:#fff;border:1px solid #ECEAE3;border-radius:14px;text-align:center;min-width:64px}
+.vp-stat b{display:block;font-family:'Inter',sans-serif;font-weight:600;font-size:18px;letter-spacing:-.02em;color:#1A1A1A}
+.vp-stat small{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.08em;color:#9A9A9A;text-transform:uppercase;margin-top:2px;display:block}
+.vp-path{display:flex;flex-direction:column;gap:14px;margin-bottom:18px}
+.vp-unit{position:relative;background:#fff;border:1px solid #ECEAE3;border-radius:18px;padding:18px;transition:border-color .25s,box-shadow .35s}
+.vp-unit:hover{border-color:var(--vp-c,#FF6B47);box-shadow:0 14px 32px -16px rgba(0,0,0,.12)}
+.vp-unit::before{content:'';position:absolute;top:0;left:0;width:5px;height:100%;background:var(--vp-c,#FF6B47);border-radius:18px 0 0 18px}
+.vp-unit-done{background:linear-gradient(135deg,rgba(16,185,129,.04),#fff)}
+.vp-unit-hd{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;margin-bottom:14px;padding-left:6px}
+.vp-unit-ic{width:48px;height:48px;border-radius:14px;background:var(--vp-c,#FF6B47);display:grid;place-items:center;font-size:24px;box-shadow:0 8px 18px -6px var(--vp-c,#FF6B47);flex-shrink:0}
+.vp-unit-tag{font-family:'JetBrains Mono','Space Mono',monospace;font-size:10px;letter-spacing:.16em;color:var(--vp-c,#FF6B47);font-weight:600;text-transform:uppercase}
+.vp-unit-name{font-family:'Inter',sans-serif;font-weight:600;font-size:18px;letter-spacing:-.015em;color:#1A1A1A;margin-top:2px}
+.vp-unit-desc{font-size:13px;color:#6B6B6B;line-height:1.45;margin-top:3px}
+.vp-unit-prog{font-family:'Inter',sans-serif;font-weight:600;font-size:20px;color:var(--vp-c,#FF6B47);letter-spacing:-.02em}
+.vp-unit-prog span{font-weight:400;color:#9A9A9A;font-size:14px}
+.vp-lessons{display:flex;flex-direction:column;gap:6px;padding-left:6px}
+.vp-lesson{display:grid;grid-template-columns:48px 1fr;gap:14px;align-items:center;padding:14px 16px;background:#FAFAF7;border:1px solid #ECEAE3;border-radius:14px;cursor:pointer;font-family:inherit;text-align:left;transition:transform .25s cubic-bezier(.16,1,.3,1),background .2s,border-color .2s}
+.vp-lesson:hover{transform:translateX(4px);background:#fff;border-color:var(--vp-c,#FF6B47)}
+.vp-lesson-locked{opacity:.55;cursor:not-allowed;background:#F4F3EE}
+.vp-lesson-locked:hover{transform:none;border-color:#ECEAE3;background:#F4F3EE}
+.vp-lesson-done{background:linear-gradient(135deg,rgba(16,185,129,.06),#fff);border-color:rgba(16,185,129,.3)}
+.vp-l-num{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-family:'Inter',sans-serif;font-weight:600;font-size:14px;color:#fff;background:var(--vp-c,#FF6B47);box-shadow:0 4px 10px -3px var(--vp-c,#FF6B47);justify-self:center}
+.vp-lesson-locked .vp-l-num{background:#CFCFCF;box-shadow:none;font-size:13px}
+.vp-lesson-done .vp-l-num{background:#10B981;box-shadow:0 4px 10px -3px #10B981;font-size:16px;font-weight:700}
+.vp-l-name{font-size:15px;font-weight:500;letter-spacing:-.005em;color:#1A1A1A}
+.vp-l-stars{margin-top:4px;color:#E8E6E0;font-size:12px;letter-spacing:1.5px}
+.vp-l-stars span.on{color:#F59E0B;text-shadow:0 0 6px rgba(245,158,11,.5)}
+.vp-l-stars-empty{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#9A9A9A;letter-spacing:.05em;text-transform:uppercase}
+.vp-lesson-locked .vp-l-name{color:#9A9A9A}
+
+/* Lesson runner modal */
+.vl-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:18px;animation:bk-fade .3s cubic-bezier(.16,1,.3,1)}
+.vl-box{width:min(520px,100%);background:#FAFAF7;border-radius:22px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.5);animation:bk-up .35s cubic-bezier(.16,1,.3,1)}
+.vl-top{display:grid;grid-template-columns:1fr auto;gap:14px;padding:20px 22px 14px;border-bottom:1px solid #ECEAE3;background:#fff;align-items:center}
+.vl-tag{font-family:'JetBrains Mono','Space Mono',monospace;font-size:10px;letter-spacing:.14em;color:var(--vl-c,#FF6B47);font-weight:600}
+.vl-h{font-family:'Inter',sans-serif;font-weight:600;font-size:20px;letter-spacing:-.02em;color:#1A1A1A;margin-top:2px}
+.vl-x{width:34px;height:34px;border-radius:50%;border:1px solid #ECEAE3;background:#fff;cursor:pointer;font-family:inherit;font-size:14px;color:#6B6B6B;display:grid;place-items:center;transition:all .2s}
+.vl-x:hover{background:#FEF2F2;color:#DC2626;border-color:#FCA5A5}
+.vl-progress{height:5px;background:#ECEAE3}
+.vl-progress-fill{height:100%;background:var(--vl-c,#FF6B47);transition:width .5s cubic-bezier(.16,1,.3,1);box-shadow:0 0 8px var(--vl-c,#FF6B47)}
+.vl-body{padding:30px 24px 22px;text-align:center;display:flex;flex-direction:column;gap:18px}
+.vl-step{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;color:#9A9A9A;text-transform:uppercase}
+.vl-phrase{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400;font-size:clamp(22px,3.4vw,30px);line-height:1.3;color:#1A1A1A;padding:0 8px}
+.vl-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.vl-btn{padding:13px 22px;border-radius:14px;border:0;cursor:pointer;font-family:inherit;font-weight:500;font-size:14px;display:inline-flex;align-items:center;gap:8px;transition:all .25s}
+.vl-btn-ghost{background:#fff;color:#1A1A1A;border:1px solid #ECEAE3}
+.vl-btn-ghost:hover{border-color:#1A1A1A}
+.vl-btn-rec{background:linear-gradient(135deg,var(--vl-c,#FF6B47),color-mix(in oklab,var(--vl-c,#FF6B47) 70%,#000));color:#fff;box-shadow:0 8px 18px -6px var(--vl-c,#FF6B47);font-weight:600}
+.vl-btn-rec:hover{transform:translateY(-1px);box-shadow:0 12px 24px -8px var(--vl-c,#FF6B47)}
+.vl-btn-rec.recording{animation:cc-rec-pulse 1.4s ease-in-out infinite}
+.vl-btn-primary{background:#1A1A1A;color:#fff;font-weight:600}
+.vl-btn-primary:hover{background:#1F4D3F}
+.vl-btn-primary:disabled{background:#CFCFCF;cursor:not-allowed}
+.vl-result{padding:18px;border-radius:14px;font-family:'Inter',sans-serif}
+.vl-r-good{background:linear-gradient(135deg,#ECFDF5,#D1FAE5);border:1px solid #6EE7B7;color:#065F46}
+.vl-r-ok{background:linear-gradient(135deg,#FFFBEB,#FEF3C7);border:1px solid #FCD34D;color:#92400E}
+.vl-r-miss{background:linear-gradient(135deg,#FEF2F2,#FEE2E2);border:1px solid #FCA5A5;color:#991B1B}
+.vl-r-pct{font-family:'Inter',sans-serif;font-weight:700;font-size:36px;letter-spacing:-.03em;line-height:1}
+.vl-r-meta{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;margin-top:6px}
+.vl-r-heard{font-size:13.5px;line-height:1.5;margin-top:10px;font-style:italic;opacity:.85}
+.vl-foot{margin-top:6px}
+.vl-foot .vl-btn-primary{width:100%;justify-content:center;font-size:15px;padding:15px}
+.vl-end{padding:30px 24px;text-align:center}
+.vl-end-stars{font-size:42px;letter-spacing:6px;margin-bottom:18px;color:#E8E6E0}
+.vl-end-stars span.on{color:#F59E0B;text-shadow:0 0 18px rgba(245,158,11,.5)}
+.vl-end-h{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-style:italic;font-size:32px;letter-spacing:-.02em;color:#1A1A1A;margin-bottom:8px}
+.vl-end-s{font-size:15px;color:#3D3D3D}
+.vl-end-s b{font-weight:600;color:#1A1A1A;font-size:18px}
+.vl-end-acts{display:flex;gap:10px;justify-content:center;margin-top:24px;flex-wrap:wrap}
+
 /* Skill grid + pronunciation drill — next-gen AI English trainer */
 .vc-skills{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:18px}
 @media (max-width:760px){.vc-skills{grid-template-columns:repeat(2,1fr)}}
@@ -5475,6 +5575,119 @@ const VOICE_PRON_PHRASES=[
 ];
 function _voicePronOfDay(){const d=new Date();const yStart=new Date(d.getFullYear(),0,0);const day=Math.floor((d-yStart)/86400000);return VOICE_PRON_PHRASES[day%VOICE_PRON_PHRASES.length]}
 function voicePronListen(){const p=_voicePronOfDay();_ttsSpeak(p,{rate:.92,pitch:1.0,volume:1.0})}
+
+// ═══ VOICE CURRICULUM — Duolingo-style learning path ═══
+const VOICE_CURRICULUM=[
+  {id:1,name:'Foundations',color:'#FF6B47',e:'\\u{1F331}',desc:'Build the basics. Greetings, introductions, simple talk.',lessons:[
+    {id:1,name:'Hello & introductions',drills:['Hi, I am happy to meet you.','My name is Alex. What is your name?','Where are you from? I am from India.','It is a pleasure to meet you today.','How is your day going so far?']},
+    {id:2,name:'Asking simple questions',drills:['Could you tell me what time it is?','How long have you been working here?','What do you do for a living?','Do you have a moment to chat?','Where can I find a good coffee shop?']},
+    {id:3,name:'Numbers, days, time',drills:['I will see you on Monday at three.','We have twenty-four hours to finish this.','The meeting starts at half past nine.','I have been here for about six months.','My birthday is on the fifteenth of June.']},
+  ]},
+  {id:2,name:'Daily Conversation',color:'#F59E0B',e:'\\u{2615}',desc:'Real-life chat. Food, travel, weekends.',lessons:[
+    {id:1,name:'Talking about your day',drills:['I had a productive morning at work.','I went for a long walk after lunch.','I spent the evening reading a good book.','It was a busy day but a good one.','I am planning to take it easy tomorrow.']},
+    {id:2,name:'Food & ordering',drills:['I would like the chicken curry, please.','Could we have the bill when you are ready?','Is this dish very spicy?','Could I get water without ice, please?','That was absolutely delicious, thank you.']},
+    {id:3,name:'Travel & directions',drills:['Excuse me, how do I get to the museum?','Is there a train station nearby?','Could you help me find the right platform?','How long does it take to get there?','Thank you so much for your help.']},
+  ]},
+  {id:3,name:'At Work',color:'#10B981',e:'\\u{1F4BC}',desc:'Office English. Meetings, email, team talk.',lessons:[
+    {id:1,name:'Office vocabulary',drills:['Could you forward me that report?','I will block off some time on my calendar.','Let us circle back on this next week.','We need to align on the priorities.','I will keep you in the loop on this.']},
+    {id:2,name:'Meeting language',drills:['I would like to start by saying thank you.','Let us go around the room and share updates.','That is a great question, let me think.','I want to push back on that idea, gently.','Let us park that and come back to it.']},
+    {id:3,name:'Writing emails',drills:['I hope you are doing well today.','Just a quick follow-up on our chat yesterday.','Could you let me know your thoughts when you have a moment?','I really appreciate your help with this.','Looking forward to hearing from you soon.']},
+  ]},
+  {id:4,name:'Confident Communication',color:'#0EA5E9',e:'\\u{1F4AC}',desc:'Sound clear, sound certain. Replace hedging with crisp English.',lessons:[
+    {id:1,name:'Active listening',drills:['I want to make sure I understood you correctly.','So what you are saying is, the timeline is the issue.','Let me reflect that back, just to be clear.','That is really helpful context, thank you.','Could you walk me through that one more time?']},
+    {id:2,name:'Disagreeing politely',drills:['I see your point, but I see it slightly differently.','I want to push back on that, just a little.','Have we considered the other side of this?','I respectfully disagree, and here is why.','I think we are looking at this from different angles.']},
+    {id:3,name:'Asking better questions',drills:['What is the goal we are really trying to hit?','Who decides if this is successful?','What does winning look like here?','What is the one thing we cannot get wrong?','If we had to cut something, what would go first?']},
+  ]},
+  {id:5,name:'Business English',color:'#A855F7',e:'\\u{1F4C8}',desc:'Pitching, negotiating, presenting. Big-stakes language.',lessons:[
+    {id:1,name:'Pitching ideas',drills:['Here is the problem we are solving.','What if we approached it from a different angle?','The key insight is hidden in the data.','Imagine a world where this works perfectly.','I would love your honest reaction to this.']},
+    {id:2,name:'Negotiation',drills:['I appreciate the offer, and I have a counter to discuss.','Could we meet somewhere in the middle?','What is the most flexible part of this for you?','I want this to work for both of us.','Let us focus on what each side really needs.']},
+    {id:3,name:'Presentations',drills:['Today, I want to share three big ideas with you.','Let me start with a story that landed for me.','The number to remember from this slide is two.','I want to leave you with one question to sit with.','Thank you for your time, I am happy to take questions.']},
+  ]},
+  {id:6,name:'Pronunciation Mastery',color:'#EC4899',e:'\\u{1F399}\\uFE0F',desc:'Sharper sounds, clearer speech. Tongue twisters and stress patterns.',lessons:[
+    {id:1,name:'Vowel sounds',drills:['The cat sat on the mat under the hat.','She sees the sea by the seashore today.','Tom walked along the long lawn at dawn.','I think the pink ink is in the sink.','The blue moon shone over the smooth lagoon.']},
+    {id:2,name:'Tricky consonants',drills:['She sells seashells by the seashore.','Three thin thieves thought a thousand thoughts.','Red lorry, yellow lorry, red lorry, yellow lorry.','Peter Piper picked a peck of pickled peppers.','How can a clam cram in a clean cream can?']},
+    {id:3,name:'Word stress',drills:['I will record the meeting for the record.','We need to present a present to the team.','The desert is no place to desert your friends.','I object to that object on principle.','The minute hand is moving in a minute way.']},
+  ]},
+  {id:7,name:'Idioms & Expressions',color:'#FCD34D',e:'\\u{1F3AD}',desc:'Native-level phrases. Sound like someone who lives in the language.',lessons:[
+    {id:1,name:'Common idioms',drills:['It is a piece of cake, do not worry.','Let us not beat around the bush, time matters.','I am all ears, please tell me everything.','That decision really hit the nail on the head.','We need to bite the bullet and start tomorrow.']},
+    {id:2,name:'Business idioms',drills:['That client is a real game changer for us.','We are going to have to think outside the box.','Let us cut to the chase and get to the offer.','The ball is in your court now, take your time.','We are on the same page about the next steps.']},
+    {id:3,name:'Cultural references',drills:['It is a marathon, not a sprint, remember that.','We need to read the room before we push harder.','That is the elephant in the room nobody mentions.','At the end of the day, the work speaks for itself.','When push comes to shove, we do the right thing.']},
+  ]},
+  {id:8,name:'Mastery',color:'#1A1A1A',e:'\\u{1F3C6}',desc:'Native-level fluency. Tell stories. Lead conversations. Hold the room.',lessons:[
+    {id:1,name:'Storytelling',drills:['Let me take you back to a Tuesday afternoon last spring.','At first it seemed like just another quiet meeting.','Then everything changed in a single sentence.','Looking back, that was the moment that made the project.','And that is why I always start with the customer.']},
+    {id:2,name:'Holding the room',drills:['Let us pause here for one moment, this is important.','I want to make sure everyone is with me on this.','Take a breath, and look at the data on this slide.','I know this is a lot, so let us go slowly.','If you remember one thing today, remember this.']},
+    {id:3,name:'Final test',drills:['I want to thank everyone who showed up for this.','We did not get here by accident, we got here by design.','The next chapter is going to ask more of all of us.','I trust this team more than any I have worked with.','Let us go and make something we are proud of.']},
+  ]},
+];
+
+function voiceLessonOpen(unitId,lessonId){
+  const unit=VOICE_CURRICULUM.find(u=>u.id===unitId);if(!unit)return;
+  const lesson=unit.lessons.find(l=>l.id===lessonId);if(!lesson)return;
+  // Check unlock — first lesson of unit 1 always unlocked; otherwise previous lesson must be completed
+  const prog=(S.voiceCurriculum&&S.voiceCurriculum.progress)||{};
+  const unlocked=_voiceIsLessonUnlocked(unitId,lessonId,prog);
+  if(!unlocked){toast('\\u{1F512} Complete the previous lesson to unlock this one','err');return}
+  S.voiceLesson={unit,lesson,idx:0,scores:[],heard:'',recording:false,phase:'intro',startedAt:Date.now()};
+  render();
+  setTimeout(()=>{
+    _ttsSpeak('Lesson '+lesson.id+'. '+lesson.name+'. We have five phrases to practise. Listen, then speak. Take your time.',{rate:.92,pitch:1.0,volume:1.0});
+  },300);
+}
+function _voiceIsLessonUnlocked(unitId,lessonId,prog){
+  if(unitId===1&&lessonId===1)return true;
+  // Must have completed (lessonId-1) of same unit, OR last lesson of (unitId-1) if lessonId===1
+  if(lessonId>1)return !!prog[unitId+':'+(lessonId-1)];
+  // First lesson of a unit > 1 — need last lesson of previous unit
+  const prev=VOICE_CURRICULUM.find(u=>u.id===unitId-1);
+  if(!prev)return false;
+  return !!prog[prev.id+':'+prev.lessons[prev.lessons.length-1].id];
+}
+function voiceLessonClose(){_ttsStop();if(S._voiceLessonRec){try{S._voiceLessonRec.stop()}catch(e){}S._voiceLessonRec=null}S.voiceLesson=null;render()}
+function voiceLessonListen(){const p=S.voiceLesson;if(!p||!p.lesson)return;const phrase=p.lesson.drills[p.idx];_ttsSpeak(phrase,{rate:.85,pitch:1.0,volume:1.0})}
+function voiceLessonRecord(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){toast('\\u26A0\\uFE0F Speech recognition not supported','err');return}
+  const p=S.voiceLesson;if(!p||!p.lesson)return;
+  if(S._voiceLessonRec){try{S._voiceLessonRec.stop()}catch(e){}S._voiceLessonRec=null;p.recording=false;render();return}
+  const r=new SR();r.continuous=false;r.interimResults=false;r.lang='en-US';
+  p.recording=true;p.heard='';render();
+  r.onresult=function(e){
+    let h='';for(let i=0;i<e.results.length;i++)h+=e.results[i][0].transcript;
+    const target=p.lesson.drills[p.idx];
+    const sc=_scorePronunciation(target,h);
+    p.heard=h;p.lastScore=sc;p.scores[p.idx]=sc.pct;p.recording=false;
+    if(sc.pct>=80)_ttsSpeak('Excellent.',{rate:.95,pitch:1.0});
+    else if(sc.pct>=50)_ttsSpeak('Close. Try once more.',{rate:.95,pitch:1.0});
+    else _ttsSpeak('Listen again, then speak it back.',{rate:.95,pitch:1.0});
+    render();
+  };
+  r.onerror=function(){S._voiceLessonRec=null;p.recording=false;toast('\\u26A0\\uFE0F Mic error','err');render()};
+  r.onend=function(){S._voiceLessonRec=null;if(p.recording){p.recording=false;render()}};
+  try{r.start();S._voiceLessonRec=r}catch(e){toast('\\u26A0\\uFE0F '+e.message,'err');S._voiceLessonRec=null;p.recording=false;render()}
+}
+function voiceLessonNext(){
+  const p=S.voiceLesson;if(!p||!p.lesson)return;
+  if(p.idx<p.lesson.drills.length-1){p.idx++;p.heard='';p.lastScore=null;render();setTimeout(voiceLessonListen,400);return}
+  // Lesson complete
+  const avg=p.scores.length?Math.round(p.scores.reduce((a,b)=>a+b,0)/p.scores.length):0;
+  p.phase='done';p.finalScore=avg;render();
+  // Save progress
+  api('/voice/lesson-complete',{method:'POST',body:JSON.stringify({unit_id:p.unit.id,lesson_id:p.lesson.id,score:avg})}).then(r=>{
+    if(r&&r.ok){
+      if(!S.voiceCurriculum)S.voiceCurriculum={progress:{},totalXp:0};
+      S.voiceCurriculum.progress[p.unit.id+':'+p.lesson.id]={score:avg,stars:r.stars,xp:r.xp};
+      S.voiceCurriculum.totalXp=r.totalXp;
+      const stars=r.stars;
+      const phrase=stars===3?'Three stars. Beautiful work.':stars===2?'Two stars. Strong effort.':stars===1?'One star. Keep going.':'Try the lesson again to unlock the next.';
+      _ttsSpeak('Lesson complete. '+phrase,{rate:.92,pitch:1.0});
+      render();
+    }
+  }).catch(()=>{});
+}
+async function voiceCurriculumLoad(){
+  const r=await api('/voice/lessons');
+  if(r){S.voiceCurriculum={progress:r.progress||{},totalXp:r.totalXp||0,totalStars:r.totalStars||0,completed:r.completed||0};render()}
+}
 function _normaliseForMatch(s){return String(s||'').toLowerCase().replace(/[^a-z0-9\\s]/g,'').replace(/\\s+/g,' ').trim()}
 function _scorePronunciation(target,heard){
   const t=_normaliseForMatch(target).split(' ').filter(Boolean);
@@ -5949,6 +6162,45 @@ else if(S.tab==='voice'){
     });
     h+='</div></div>';
   }
+  // ═══ Learning path — Duolingo-style level-by-level progression ═══
+  {
+    if(!S.voiceCurriculum){S.voiceCurriculum={progress:{},totalXp:0,totalStars:0,completed:0};setTimeout(voiceCurriculumLoad,200)}
+    const cur=S.voiceCurriculum||{progress:{},totalXp:0,totalStars:0};
+    const totalLessons=VOICE_CURRICULUM.reduce((s,u)=>s+u.lessons.length,0);
+    h+='<div class="vp-head">'
+      +'<div><h3 class="vp-h">Your learning path</h3><div class="vp-sub">'+VOICE_CURRICULUM.length+' units \\u00B7 '+totalLessons+' lessons \\u00B7 unlock as you go</div></div>'
+      +'<div class="vp-stats">'
+        +'<div class="vp-stat"><b>'+(cur.totalStars||0)+'</b><small>\\u2605 stars</small></div>'
+        +'<div class="vp-stat"><b>'+(cur.totalXp||0)+'</b><small>XP</small></div>'
+        +'<div class="vp-stat"><b>'+(cur.completed||0)+'<span style="font-weight:400;color:#9A9A9A">/'+totalLessons+'</span></b><small>lessons</small></div>'
+      +'</div>'
+    +'</div>';
+    h+='<div class="vp-path">';
+    VOICE_CURRICULUM.forEach((unit,uIdx)=>{
+      const unitProgress=unit.lessons.filter(l=>cur.progress[unit.id+':'+l.id]).length;
+      const unitDone=unitProgress===unit.lessons.length;
+      h+='<div class="vp-unit'+(unitDone?' vp-unit-done':'')+'" style="--vp-c:'+unit.color+'">'
+        +'<div class="vp-unit-hd">'
+          +'<div class="vp-unit-ic">'+unit.e+'</div>'
+          +'<div class="vp-unit-meta"><div class="vp-unit-tag">UNIT '+unit.id+'</div><div class="vp-unit-name">'+esc(unit.name)+'</div><div class="vp-unit-desc">'+esc(unit.desc)+'</div></div>'
+          +'<div class="vp-unit-prog">'+unitProgress+'<span>/'+unit.lessons.length+'</span></div>'
+        +'</div>'
+        +'<div class="vp-lessons">';
+      unit.lessons.forEach((lesson,lIdx)=>{
+        const key=unit.id+':'+lesson.id;
+        const done=!!cur.progress[key];
+        const stars=done?(cur.progress[key].stars||0):0;
+        const unlocked=_voiceIsLessonUnlocked(unit.id,lesson.id,cur.progress);
+        const cls=done?'vp-lesson-done':unlocked?'vp-lesson-open':'vp-lesson-locked';
+        h+='<button class="vp-lesson '+cls+'" onclick="voiceLessonOpen('+unit.id+','+lesson.id+')">'
+          +'<div class="vp-l-num">'+(done?'\\u2713':unlocked?lesson.id:'\\u{1F512}')+'</div>'
+          +'<div class="vp-l-meta"><div class="vp-l-name">'+esc(lesson.name)+'</div>'+(done?'<div class="vp-l-stars">'+[1,2,3].map(n=>'<span'+(n<=stars?' class="on"':'')+'>\\u2605</span>').join('')+'</div>':'<div class="vp-l-stars vp-l-stars-empty">5 phrases \\u00B7 ~3 min</div>')+'</div>'
+        +'</button>';
+      });
+      h+='</div></div>';
+    });
+    h+='</div>';
+  }
   // Skill grid — Duolingo-style 5 categories with brand colors
   {
     const lc=S.coach&&S.coach.scenario?S.coach.scenario.id:null;
@@ -6402,6 +6654,39 @@ if(S._mgConfetti&&Date.now()-S._mgConfetti<1500){
   setTimeout(()=>{S._mgConfetti=null;render()},1600);
 }
 
+// ═══ VOICE LESSON RUNNER ═══
+if(S.voiceLesson&&S.voiceLesson.lesson){
+  const p=S.voiceLesson;const total=p.lesson.drills.length;const cur=p.idx+1;const drill=p.lesson.drills[p.idx]||'';
+  h+='<div class="vl-overlay" onclick="if(event.target===this)voiceLessonClose()"><div class="vl-box" style="--vl-c:'+p.unit.color+'">';
+  h+='<header class="vl-top"><div><div class="vl-tag">UNIT '+p.unit.id+' \\u00B7 '+esc(p.unit.name).toUpperCase()+'</div><div class="vl-h">'+esc(p.lesson.name)+'</div></div><button class="vl-x" onclick="voiceLessonClose()">\\u2715</button></header>';
+  h+='<div class="vl-progress"><div class="vl-progress-fill" style="width:'+((p.scores.filter(s=>s!=null).length/total)*100)+'%"></div></div>';
+  if(p.phase==='done'){
+    const stars=p.finalScore>=85?3:p.finalScore>=65?2:p.finalScore>=40?1:0;
+    h+='<div class="vl-end"><div class="vl-end-stars">'+[1,2,3].map(n=>'<span'+(n<=stars?' class="on"':'')+'>\\u2605</span>').join('')+'</div>';
+    h+='<div class="vl-end-h">'+(stars===3?'Beautiful work':stars===2?'Strong effort':stars===1?'Good start':'Try again')+'</div>';
+    h+='<div class="vl-end-s"><b>'+p.finalScore+'%</b> average across '+total+' phrases</div>';
+    h+='<div class="vl-end-acts"><button class="vl-btn vl-btn-ghost" onclick="voiceLessonClose()">Done</button><button class="vl-btn vl-btn-primary" onclick="voiceLessonOpen('+p.unit.id+','+p.lesson.id+')">\\u21BB Try again</button></div></div>';
+  } else {
+    h+='<div class="vl-body">'
+      +'<div class="vl-step">Phrase '+cur+' of '+total+'</div>'
+      +'<div class="vl-phrase">"'+esc(drill)+'"</div>'
+      +'<div class="vl-actions">'
+        +'<button class="vl-btn vl-btn-ghost" onclick="voiceLessonListen()">\\u{1F50A} Listen</button>'
+        +'<button class="vl-btn vl-btn-rec'+(p.recording?' recording':'')+'" onclick="voiceLessonRecord()">\\u{1F3A4} '+(p.recording?'Listening\\u2026':'Speak')+'</button>'
+      +'</div>';
+    if(p.lastScore){
+      const sc=p.lastScore;
+      h+='<div class="vl-result vl-r-'+(sc.pct>=80?'good':sc.pct>=50?'ok':'miss')+'">'
+        +'<div class="vl-r-pct">'+sc.pct+'%</div>'
+        +'<div class="vl-r-meta">'+sc.matched+' of '+sc.total+' words matched</div>'
+        +(p.heard?'<div class="vl-r-heard">You said: <i>"'+esc(p.heard)+'"</i></div>':'')
+      +'</div>';
+    }
+    h+='<div class="vl-foot"><button class="vl-btn vl-btn-primary" onclick="voiceLessonNext()" '+(p.lastScore?'':'disabled')+'>'+(p.idx<total-1?'Next phrase \\u2192':'Finish lesson \\u2192')+'</button></div>';
+    h+='</div>';
+  }
+  h+='</div></div>';
+}
 if(S.bookReader&&S.bookReader.open&&S.bookReader.book){
   const b=S.bookReader.book;const r=S.bookReader;
   h+='<div class="bk-reader" onclick="if(event.target===this)closeBookReader()"><div class="bk-reader-box">';
