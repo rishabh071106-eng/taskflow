@@ -2046,39 +2046,76 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
   .tabs.page-t .tab .tl{font-size:13.5px;font-weight:700;letter-spacing:.005em}
   .tabs.page-t .tab.on{transform:translateY(-2px);box-shadow:0 8px 22px rgba(45,42,38,.36),0 0 0 2px rgba(99,102,241,.5)}
 }
-/* International-app touch sizing for tabs on every mobile + tablet width below the desktop sidebar.
-   Covers iPhones, iPads in portrait, foldables, large Android — anything <=1023px gets these. */
+/* Mobile + tablet (<=1023px): tabs become a FIXED VERTICAL LEFT RAIL — Discord/Slack style.
+   The rail is always visible, scrolls vertically if there are more tabs than fit.
+   Main content is shifted right to make room. */
 @media (max-width:1023px){
-  .tabs.page-t{padding:10px !important;gap:10px !important;border-radius:22px !important}
-  .tabs.page-t .tab{padding:20px 16px 16px !important;font-size:17px !important;gap:11px !important;min-height:96px !important;border-radius:18px !important}
-  .tabs.page-t .tab .ti{font-size:34px !important;width:48px !important;height:48px !important}
-  .tabs.page-t .tab .ti svg{width:36px !important;height:36px !important}
-  .tabs.page-t .tab .tl{font-size:15px !important;font-weight:600 !important;letter-spacing:-.005em !important}
-  .tabs.page-t .tab.on{box-shadow:0 8px 24px rgba(45,42,38,.36),0 0 0 3px rgba(99,102,241,.55) !important}
-  /* Filter buttons (Tasks: All/Doing/Done, Mind Gym filter, etc.) also juiced up */
-  .flt button.fb,.fb{padding:14px 18px !important;font-size:15px !important;min-height:48px !important;border-radius:14px !important}
-  /* Add-bar button (the big "+ Add a new task" CTA) */
-  .add-bar{padding:18px 18px !important}
-  .add-bar .plus{font-size:34px !important;width:50px !important;height:50px !important}
-  .add-bar .txt b{font-size:16px !important}
-  .add-bar .txt small{font-size:13px !important}
-  /* Section headers */
-  .section-hd h3{font-size:20px !important}
-  .section-hd p{font-size:13.5px !important}
-  /* Stat cards */
-  .stats .st b{font-size:24px !important}
-  .stats .st small{font-size:11.5px !important}
-  /* Books mode toggle (Summaries / Audiobooks) */
-  .bk-mode-toggle button{padding:13px 22px !important;font-size:15px !important}
-  /* Generic body buttons */
-  .mb,button.mb{padding:14px 20px !important;font-size:15px !important;min-height:48px !important}
-}
-/* Even bigger on phones specifically */
-@media (max-width:480px){
-  .tabs.page-t .tab{padding:22px 18px 18px !important;min-height:104px !important}
-  .tabs.page-t .tab .ti{font-size:38px !important;width:54px !important;height:54px !important}
-  .tabs.page-t .tab .ti svg{width:40px !important;height:40px !important}
-  .tabs.page-t .tab .tl{font-size:16px !important}
+  .tabs.page-t{
+    position:fixed !important;
+    top:0 !important;left:0 !important;bottom:0 !important;
+    width:78px !important;
+    flex-direction:column !important;
+    overflow-y:auto !important;overflow-x:hidden !important;
+    background:#FFFFFF !important;
+    border-right:1px solid #ECEAE3 !important;
+    border-radius:0 !important;
+    padding:14px 8px 14px 8px !important;
+    gap:8px !important;
+    z-index:60 !important;
+    box-shadow:2px 0 18px rgba(0,0,0,.06) !important;
+    margin:0 !important;
+    backdrop-filter:saturate(160%) blur(12px) !important;
+    -webkit-backdrop-filter:saturate(160%) blur(12px) !important;
+  }
+  .tabs.page-t::-webkit-scrollbar{display:none}
+  .tabs.page-t .tab{
+    width:100% !important;
+    padding:10px 4px !important;
+    flex-direction:column !important;
+    align-items:center !important;
+    justify-content:center !important;
+    text-align:center !important;
+    min-height:64px !important;
+    border-radius:12px !important;
+    gap:4px !important;
+    flex:0 0 auto !important;
+    font-size:11px !important;
+  }
+  .tabs.page-t .tab .ti{
+    font-size:24px !important;
+    width:32px !important;height:32px !important;
+    display:flex !important;align-items:center !important;justify-content:center !important;
+  }
+  .tabs.page-t .tab .ti svg{width:24px !important;height:24px !important}
+  .tabs.page-t .tab .tl{
+    font-size:10.5px !important;
+    font-weight:600 !important;
+    letter-spacing:0 !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+    max-width:100% !important;
+  }
+  .tabs.page-t .tab.on{
+    background:linear-gradient(135deg,#6366F1,#8B5CF6) !important;
+    color:#fff !important;
+    box-shadow:0 6px 16px rgba(99,102,241,.4) !important;
+  }
+  .tabs.page-t .tab.on .tl{color:#fff !important}
+  /* Push the main app content to the right to clear the rail */
+  body{padding-left:78px !important}
+  /* Pull mini-player and audio player out of the rail's column too */
+  .bk-mini{right:14px !important}
+  .player{left:90px !important;right:14px !important}
+  /* Toast and FAB+ also need to dodge the rail on the left */
+  .fab{right:18px !important}
+  /* Other surfaces — moderate sizes (not the prior 96px monster, but readable) */
+  .flt button.fb,.fb{padding:11px 16px !important;font-size:14.5px !important;min-height:44px !important;border-radius:12px !important}
+  .add-bar .plus{font-size:30px !important;width:46px !important;height:46px !important}
+  .add-bar .txt b{font-size:15.5px !important}
+  .add-bar .txt small{font-size:12.5px !important}
+  .section-hd h3{font-size:19px !important}
+  .stats .st b{font-size:22px !important}
 }
 body[data-theme=aurora] .tabs.page-t{background:rgba(20,20,40,.85);border-color:rgba(167,139,250,.18)}
 /* Desktop sidebar layout */
