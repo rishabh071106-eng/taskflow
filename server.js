@@ -3473,6 +3473,39 @@ body[data-theme=aurora] .hist-link a:hover{color:#C4B5FD}
 .cc-playing button{background:transparent;border:1px solid #FFD0B5;color:#FF6B47;font-family:inherit;font-weight:500;padding:4px 10px;border-radius:8px;font-size:12px;cursor:pointer}
 .cc-playing button:hover{background:#FF6B47;color:#fff}
 
+/* Reaction game polish — radial energy + pulsing rings, less flat */
+.mg-react-stage{
+  position:relative !important;
+  border-radius:20px !important;
+  height:320px !important;
+  font-family:'Inter',sans-serif !important;
+  font-weight:600 !important;
+  font-size:28px !important;
+  letter-spacing:-.02em !important;
+  overflow:hidden !important;
+  box-shadow:0 14px 36px -16px rgba(0,0,0,.3) !important;
+}
+.mg-react-stage::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 50%, rgba(255,255,255,.18) 0%, transparent 55%);pointer-events:none}
+.mg-react-stage::after{content:'';position:absolute;width:200px;height:200px;border:2px solid rgba(255,255,255,.4);border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);animation:mgr-ring 2.4s ease-in-out infinite;pointer-events:none}
+@keyframes mgr-ring{0%{transform:translate(-50%,-50%) scale(.6);opacity:.7}100%{transform:translate(-50%,-50%) scale(1.4);opacity:0}}
+.mg-react-wait{background:radial-gradient(circle at 50% 30%, #F87171 0%, #DC2626 40%, #7F1D1D 100%) !important}
+.mg-react-go{
+  background:radial-gradient(circle at 50% 30%, #6EE7B7 0%, #10B981 40%, #047857 100%) !important;
+  animation:mgReactPulse .5s ease infinite alternate !important;
+}
+.mg-react-go::after{animation-duration:.9s !important;border-color:rgba(255,255,255,.7) !important}
+.mg-react-early{background:radial-gradient(circle at 50% 30%, #FCA5A5 0%, #DC2626 50%, #7F1D1D 100%) !important}
+.mg-react-done{background:radial-gradient(circle at 50% 30%, #DBEAFE 0%, #93C5FD 50%, #1E3A8A 100%) !important}
+.mg-react-time{
+  font:600 clamp(64px,10vw,108px)/1 'Inter',sans-serif !important;
+  letter-spacing:-.04em !important;color:#fff !important;
+  background:linear-gradient(180deg,#fff,rgba(255,255,255,.6));
+  -webkit-background-clip:text;background-clip:text;
+  filter:drop-shadow(0 4px 20px rgba(255,255,255,.4));
+}
+.mg-react-time small{font-size:.4em;opacity:.65;margin-left:6px}
+.mg-react-msg{position:relative;z-index:1;text-shadow:0 2px 6px rgba(0,0,0,.25)}
+
 /* Skill grid + pronunciation drill — next-gen AI English trainer */
 .vc-skills{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:18px}
 @media (max-width:760px){.vc-skills{grid-template-columns:repeat(2,1fr)}}
@@ -4442,7 +4475,22 @@ function _mgSound(kind){
 // Daily workout ledger — which games the user completed *today*
 function _mgTodayKey(g){return 'tf_mg_done_'+g+'_'+todayStr()}
 function todayStr(){return new Date().toISOString().slice(0,10)}
-function _mgMarkDone(g){try{localStorage.setItem(_mgTodayKey(g),'1')}catch(e){}}
+function _mgMarkDone(g){
+  try{localStorage.setItem(_mgTodayKey(g),'1')}catch(e){}
+  // Headspace-style celebrations on game completion + ritual completion
+  setTimeout(function(){
+    const all=['math','memory','reaction','word'];
+    const done=all.filter(k=>{try{return localStorage.getItem(_mgTodayKey(k))==='1'}catch(e){return false}});
+    if(done.length===all.length){
+      // Full daily ritual complete — biggest celebration
+      _ttsSpeak('You completed the full daily ritual. The streak grows.',{rate:.92,pitch:1.0,volume:1.0});
+      S._mgConfetti=Date.now();render();
+    } else {
+      const phrases={math:'Beautiful arithmetic. The mind sharpens with reps.',memory:'Memory is a muscle. You just trained it.',reaction:'Lightning reflexes. Lovely work.',word:'Words built up. That is craft, not luck.'};
+      _ttsSpeak(phrases[g]||'Game complete. Daily streak alive.',{rate:.95,pitch:1.0,volume:1.0});
+    }
+  },350);
+}
 function _mgIsDoneToday(g){try{return localStorage.getItem(_mgTodayKey(g))==='1'}catch(e){return false}}
 // ─── AI COACH (Phase 2) ──────────────────────────────────────────────
 async function coachInit(){
