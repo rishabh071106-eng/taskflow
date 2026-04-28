@@ -189,7 +189,11 @@ app.post('/api/verify-otp',(req,res)=>{
 const ANTHROPIC_KEY=process.env.ANTHROPIC_API_KEY||'';
 const OPENAI_KEY=process.env.OPENAI_API_KEY||'';
 const ELEVENLABS_KEY=process.env.ELEVENLABS_API_KEY||'';
-const ELEVENLABS_VOICE=process.env.ELEVENLABS_VOICE||'29vD33N1CtxCmqQRPOHJ';  // Adam (deep male)
+// George — warm, calm British male narrator. Widely regarded as the closest ElevenLabs voice
+// to Headspace-style soothing narration. Override via ELEVENLABS_VOICE env var.
+// Other strong narration choices: Brian (nPczCjzI2devNBz1zQrb), Daniel (onwK4e9ZLuTAKqWW03F9),
+// Bill (pqHfZKP75CvOlQylNhV4 — older, calming).
+const ELEVENLABS_VOICE=process.env.ELEVENLABS_VOICE||'JBFqnCBsd6RMkjVDRZzb';  // George (warm British male)
 console.log('[ai] anthropic',ANTHROPIC_KEY?'\\u2705':'\\u274C','openai',OPENAI_KEY?'\\u2705':'\\u274C','elevenlabs',ELEVENLABS_KEY?'\\u2705':'\\u274C');
 
 const COACH_SYSTEM=`You are an expert Business English coach speaking with a fluent professional who wants to sound MORE polished and use more sophisticated vocabulary in business contexts.
@@ -254,7 +258,11 @@ app.post('/api/coach/speak',auth,async(req,res)=>{
     const r=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+voice,{
       method:'POST',
       headers:{'Content-Type':'application/json','xi-api-key':ELEVENLABS_KEY,'Accept':'audio/mpeg'},
-      body:JSON.stringify({text,model_id:'eleven_turbo_v2_5',voice_settings:{stability:0.5,similarity_boost:0.78,style:0.15,use_speaker_boost:true}})
+      // multilingual_v2 = higher fidelity than turbo (~2x latency but Headspace-quality output).
+      // stability 0.75 keeps the narrator measured and consistent (less robotic up-and-down cadence).
+      // style 0.0 = no expressive stylization — closer to a calm meditation guide than a podcaster.
+      // similarity_boost 0.85 stays loyal to the chosen voice's natural timbre.
+      body:JSON.stringify({text,model_id:'eleven_multilingual_v2',voice_settings:{stability:0.75,similarity_boost:0.85,style:0.0,use_speaker_boost:true}})
     });
     if(!r.ok){const t=await r.text();return res.status(502).json({error:t.slice(0,200)})}
     const audio=Buffer.from(await r.arrayBuffer());
