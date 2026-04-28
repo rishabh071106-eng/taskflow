@@ -5327,11 +5327,10 @@ function _pickPremiumVoice(){
 }
 // Chunked TTS — splits long text into sentence groups so Chrome doesn't time out at ~15s
 // Plus a keepalive pause/resume hack that fights the well-known Web Speech cutoff bug
-function _ttsStop(){try{speechSynthesis.cancel()}catch(e){}if(window._ttsKeepalive){clearInterval(window._ttsKeepalive);window._ttsKeepalive=null}window._ttsQueue=null}
-function _ttsSpeak(text,opts,onAllDone){
+function _ttsStop(){try{speechSynthesis.cancel()}catch(e){}if(window._ttsKeepalive){clearInterval(window._ttsKeepalive);window._ttsKeepalive=null}if(window._ttsQueue)window._ttsQueue.cancelled=true;window._ttsQueue=null}
+function _ttsSpeak(text,opts,onAllDone,onProgress){
   if(!('speechSynthesis' in window))return false;
   _ttsStop();
-  // Split by sentence-ending punctuation, then group into ~180-char chunks
   const sentences=(text.match(/[^.!?\\u2026]+[.!?\\u2026]+["\\u2019\\u201d)]?\\s*/g))||[text];
   const chunks=[];let cur='';
   for(const s of sentences){
@@ -5340,7 +5339,7 @@ function _ttsSpeak(text,opts,onAllDone){
   }
   if(cur.trim())chunks.push(cur.trim());
   if(!chunks.length)return false;
-  const queue={chunks,idx:0,opts:opts||{},onAllDone,cancelled:false};
+  const queue={chunks,idx:0,opts:opts||{},onAllDone,onProgress,cancelled:false};
   window._ttsQueue=queue;
   function speakNext(){
     if(queue.cancelled)return;
@@ -5349,6 +5348,7 @@ function _ttsSpeak(text,opts,onAllDone){
       if(typeof onAllDone==='function')onAllDone();
       return;
     }
+    if(typeof onProgress==='function')try{onProgress(queue.idx,queue.chunks.length,queue.chunks[queue.idx])}catch(e){}
     const u=new SpeechSynthesisUtterance(queue.chunks[queue.idx]);
     u.rate=queue.opts.rate||1;u.pitch=queue.opts.pitch||1.0;u.volume=queue.opts.volume||1.0;
     const v=_pickPremiumVoice();if(v){u.voice=v;u.lang=v.lang||'en-US'}
@@ -5356,7 +5356,6 @@ function _ttsSpeak(text,opts,onAllDone){
     u.onerror=function(){queue.idx++;speakNext()};
     try{speechSynthesis.speak(u)}catch(e){queue.idx++;speakNext()}
   }
-  // Keepalive — Chrome silently kills speech after ~15s. Pulse pause/resume to keep it alive.
   if(window._ttsKeepalive)clearInterval(window._ttsKeepalive);
   window._ttsKeepalive=setInterval(function(){try{if(speechSynthesis.speaking&&!speechSynthesis.paused){speechSynthesis.pause();speechSynthesis.resume()}}catch(e){}},10000);
   speakNext();
@@ -5383,16 +5382,30 @@ function bookReaderToggleTTS(){
   const r=S.bookReader;if(!r||!r.book)return;
   if(!('speechSynthesis' in window)){toast('\\u26A0\\uFE0F Voice not supported on this device','err');return}
   if(r.playing){_ttsStop();r.playing=false;render();return}
-  // Soft, slow, male-narrator pace — user explicitly asked for "man's voice with soft and slow tone"
-  // Default rate is now 0.78 (was 1.0). Range: 0.78x → 0.95x → 1.1x → 1.25x → 1.5x → 0.78x
   const baseRate=r.rate||0.78;
   const fullText=_bookFullNarration(r.book);
-  const ok=_ttsSpeak(fullText,{rate:baseRate,pitch:0.95,volume:1.0},function(){
-    const cur=S.bookReader;if(!cur||!cur.book)return;
-    cur.playing=false;cur.completed=true;render();
-    try{api('/book-streak',{method:'POST',body:JSON.stringify({seconds:r.book.mins*60})}).then(()=>loadBookStreak())}catch(e){}
-    toast('\\u2728 Summary complete \\u2014 streak +1');
-  });
+  r.startedAt=Date.now();r.progress={idx:0,total:0,line:'Starting narration...'};
+  const ok=_ttsSpeak(fullText,{rate:baseRate,pitch:0.95,volume:1.0},
+    function(){
+      const cur=S.bookReader;if(!cur||!cur.book)return;
+      cur.playing=false;cur.completed=true;cur.progress=null;render();
+      try{api('/book-streak',{method:'POST',body:JSON.stringify({seconds:r.book.mins*60})}).then(()=>loadBookStreak())}catch(e){}
+      toast('\\u2728 Summary complete \\u2014 streak +1');
+    },
+    function(idx,total,line){
+      const cur=S.bookReader;if(!cur||!cur.book)return;
+      cur.progress={idx,total,line};
+      // Throttled re-render — only re-render every ~300ms via DOM patch (avoids full SPA re-render churn)
+      const bar=document.getElementById('bkProgFill');
+      const txt=document.getElementById('bkProgText');
+      const pct=document.getElementById('bkProgPct');
+      const t=document.getElementById('bkProgTime');
+      if(bar)bar.style.transform='scaleX('+(idx/total)+')';
+      if(txt)txt.textContent=String(line||'').slice(0,90)+(String(line||'').length>90?'...':'');
+      if(pct)pct.textContent=Math.round((idx/total)*100)+'%';
+      if(t){const elapsed=Math.floor((Date.now()-(cur.startedAt||Date.now()))/1000);t.textContent=Math.floor(elapsed/60)+':'+String(elapsed%60).padStart(2,'0')}
+    }
+  );
   if(ok){r.playing=true;render()}
 }
 function bookReaderSpeed(){const r=S.bookReader;if(!r)return;const cycle={0.78:0.95,0.95:1.1,1.1:1.25,1.25:1.5,1.5:0.78};const cur=r.rate||0.78;r.rate=cycle[cur]||0.78;if(r.playing){_ttsStop();r.playing=false;bookReaderToggleTTS()}render()}
@@ -6401,7 +6414,20 @@ if(S.bookReader&&S.bookReader.open&&S.bookReader.book){
   b.insights.forEach((it,i)=>{h+='<div class="bk-insight"><div class="n">'+String(i+1).padStart(2,'0')+'</div><div><h4>'+esc(it[0])+'</h4><p>'+esc(it[1])+'</p></div></div>'});
   h+='</div>';
   h+='<div class="bk-section" id="bk-summary-anchor"><h3>The 15-minute summary</h3><div class="bk-summary"><p>'+esc(b.summary).split('. ').reduce((acc,s,i,a)=>{if(i===0)acc.push(s);else if(i%4===0)acc.push('</p><p>'+s);else acc.push('. '+s);return acc},[]).join('')+(b.summary.endsWith('.')?'':'.')+'</p></div></div>';
-  h+='<div class="bk-tts"><button class="play" onclick="bookReaderToggleTTS()">'+(r.playing?'\\u23F8':'\\u25B6')+'</button><div class="info"><b>'+esc(b.title)+'</b><small>'+(r.playing?'Narrating with browser voice \\u00B7 '+(r.rate||1)+'x':'Tap play to start narration')+'</small></div><button class="speed" onclick="bookReaderSpeed()">'+(r.rate||1).toFixed(2).replace(/\\.?0+$/,'')+'x</button></div>';
+  // Podcast-style audio bar with real progress, current line, elapsed time
+  const prog=r.progress||{idx:0,total:0,line:'Tap play to begin'};
+  const pctNow=prog.total?Math.round((prog.idx/prog.total)*100):0;
+  const elapsedNow=r.startedAt&&r.playing?Math.floor((Date.now()-r.startedAt)/1000):0;
+  h+='<div class="bk-tts">'
+    +'<button class="play" onclick="bookReaderToggleTTS()">'+(r.playing?'\\u23F8':'\\u25B6')+'</button>'
+    +'<div class="info" style="overflow:hidden">'
+      +'<b>'+esc(b.title)+' \\u00B7 by '+esc(b.author)+'</b>'
+      +'<small id="bkProgText">'+(r.playing?esc(String(prog.line||'').slice(0,90)):'Soft male narrator \\u00B7 '+(r.rate||0.78)+'x \\u00B7 ~'+b.mins+' min')+'</small>'
+      +'<div style="height:3px;background:#ECEAE3;border-radius:999px;margin-top:6px;overflow:hidden"><div id="bkProgFill" style="height:100%;background:linear-gradient(90deg,#FF6B47,#FF8A4F);transform:scaleX('+(pctNow/100)+');transform-origin:left;transition:transform .4s ease"></div></div>'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;font-family:\\'JetBrains Mono\\',monospace;font-size:10px;letter-spacing:.04em;color:#9A9A9A"><span id="bkProgTime">'+Math.floor(elapsedNow/60)+':'+String(elapsedNow%60).padStart(2,'0')+'</span><span id="bkProgPct">'+pctNow+'%</span></div>'
+    +'</div>'
+    +'<button class="speed" onclick="bookReaderSpeed()" title="Click to change speed">'+(r.rate||0.78).toFixed(2).replace(/\\.?0+$/,'')+'x</button>'
+  +'</div>';
   h+='</div></div>';
 }
 if(S.showWAOnboard){
