@@ -5567,6 +5567,47 @@ function _pickPremiumVoice(){
 // Chunked TTS — splits long text into sentence groups so Chrome doesn't time out at ~15s
 // Plus a keepalive pause/resume hack that fights the well-known Web Speech cutoff bug
 function _ttsStop(){try{speechSynthesis.cancel()}catch(e){}if(window._ttsKeepalive){clearInterval(window._ttsKeepalive);window._ttsKeepalive=null}if(window._ttsQueue)window._ttsQueue.cancelled=true;window._ttsQueue=null}
+// Premium narration — uses ElevenLabs (deep male studio voice) when configured server-side,
+// gracefully falls back to chunked browser TTS otherwise. Same callback signature as _ttsSpeak.
+async function _premiumNarrate(text,opts,onAllDone,onProgress){
+  _premiumStop();
+  const useEleven=!!(S.coach&&S.coach.status&&S.coach.status.tts);
+  if(!useEleven)return _ttsSpeak(text,opts,onAllDone,onProgress);
+  // Chunk for ElevenLabs — max 2000 chars per request, smaller = faster first byte
+  const sentences=(text.match(/[^.!?\\u2026]+[.!?\\u2026]+["\\u2019\\u201d)]?\\s*/g))||[text];
+  const chunks=[];let cur='';
+  for(const s of sentences){if((cur+s).length>1500){if(cur)chunks.push(cur.trim());cur=s}else cur+=s}
+  if(cur.trim())chunks.push(cur.trim());
+  if(!chunks.length)return false;
+  const queue={chunks,idx:0,audio:null,cancelled:false};
+  window._narration=queue;
+  async function playNext(){
+    if(queue.cancelled)return;
+    if(queue.idx>=queue.chunks.length){if(typeof onAllDone==='function')onAllDone();return}
+    if(typeof onProgress==='function')try{onProgress(queue.idx,queue.chunks.length,queue.chunks[queue.idx])}catch(e){}
+    try{
+      const r=await fetch('/api/coach/speak',{method:'POST',headers:{'Content-Type':'application/json','x-token':token},body:JSON.stringify({text:queue.chunks[queue.idx]})});
+      if(queue.cancelled)return;
+      if(!r.ok){
+        // ElevenLabs failed — fall back to browser TTS for remaining text
+        const rem=queue.chunks.slice(queue.idx).join(' ');
+        return _ttsSpeak(rem,opts,onAllDone,function(i,t,l){if(typeof onProgress==='function')try{onProgress(queue.idx+i,queue.chunks.length,l)}catch(e){}});
+      }
+      const blob=await r.blob();
+      if(queue.cancelled)return;
+      const url=URL.createObjectURL(blob);
+      const a=new Audio(url);
+      queue.audio=a;
+      a.playbackRate=Math.max(0.5,Math.min(2.0,(opts&&opts.rate)||1.0));
+      a.onended=function(){URL.revokeObjectURL(url);queue.idx++;playNext()};
+      a.onerror=function(){URL.revokeObjectURL(url);queue.idx++;playNext()};
+      const p=a.play();if(p&&p.catch)p.catch(()=>{queue.idx++;playNext()});
+    }catch(e){if(queue.cancelled)return;queue.idx++;playNext()}
+  }
+  playNext();
+  return true;
+}
+function _premiumStop(){_ttsStop();if(window._narration){window._narration.cancelled=true;if(window._narration.audio){try{window._narration.audio.pause();window._narration.audio.src=''}catch(e){}}window._narration=null}}
 function _ttsSpeak(text,opts,onAllDone,onProgress){
   if(!('speechSynthesis' in window))return false;
   _ttsStop();
@@ -5619,12 +5660,12 @@ function _bookFullNarration(book){
 }
 function bookReaderToggleTTS(){
   const r=S.bookReader;if(!r||!r.book)return;
-  if(!('speechSynthesis' in window)){toast('\\u26A0\\uFE0F Voice not supported on this device','err');return}
-  if(r.playing){_ttsStop();r.playing=false;render();return}
-  const baseRate=r.rate||0.78;
+  if(r.playing){_premiumStop();r.playing=false;render();return}
+  const baseRate=r.rate||(S.coach&&S.coach.status&&S.coach.status.tts?1.0:0.78);
   const fullText=_bookFullNarration(r.book);
-  r.startedAt=Date.now();r.progress={idx:0,total:0,line:'Starting narration...'};
-  const ok=_ttsSpeak(fullText,{rate:baseRate,pitch:0.95,volume:1.0},
+  r.startedAt=Date.now();r.progress={idx:0,total:0,line:'Loading studio voice...'};
+  r.usingEleven=!!(S.coach&&S.coach.status&&S.coach.status.tts);
+  const ok=_premiumNarrate(fullText,{rate:baseRate,pitch:0.95,volume:1.0},
     function(){
       const cur=S.bookReader;if(!cur||!cur.book)return;
       cur.playing=false;cur.completed=true;cur.progress=null;render();
@@ -5634,7 +5675,6 @@ function bookReaderToggleTTS(){
     function(idx,total,line){
       const cur=S.bookReader;if(!cur||!cur.book)return;
       cur.progress={idx,total,line};
-      // Throttled re-render — only re-render every ~300ms via DOM patch (avoids full SPA re-render churn)
       const bar=document.getElementById('bkProgFill');
       const txt=document.getElementById('bkProgText');
       const pct=document.getElementById('bkProgPct');
@@ -5645,7 +5685,7 @@ function bookReaderToggleTTS(){
       if(t){const elapsed=Math.floor((Date.now()-(cur.startedAt||Date.now()))/1000);t.textContent=Math.floor(elapsed/60)+':'+String(elapsed%60).padStart(2,'0')}
     }
   );
-  if(ok){r.playing=true;render()}
+  if(ok!==false){r.playing=true;render()}
 }
 function bookReaderSpeed(){const r=S.bookReader;if(!r)return;const cycle={0.78:0.95,0.95:1.1,1.1:1.25,1.25:1.5,1.5:0.78};const cur=r.rate||0.78;r.rate=cycle[cur]||0.78;if(r.playing){_ttsStop();r.playing=false;bookReaderToggleTTS()}render()}
 
@@ -6970,15 +7010,20 @@ if(S.bookReader&&S.bookReader.open&&S.bookReader.book){
   b.insights.forEach((it,i)=>{h+='<div class="bk-insight"><div class="n">'+String(i+1).padStart(2,'0')+'</div><div><h4>'+esc(it[0])+'</h4><p>'+esc(it[1])+'</p></div></div>'});
   h+='</div>';
   h+='<div class="bk-section" id="bk-summary-anchor"><h3>The 15-minute summary</h3><div class="bk-summary"><p>'+esc(b.summary).split('. ').reduce((acc,s,i,a)=>{if(i===0)acc.push(s);else if(i%4===0)acc.push('</p><p>'+s);else acc.push('. '+s);return acc},[]).join('')+(b.summary.endsWith('.')?'':'.')+'</p></div></div>';
+  // Upgrade prompt — only when ElevenLabs is NOT configured and user clicks Listen
+  if(!(S.coach&&S.coach.status&&S.coach.status.tts)){
+    h+='<div class="bk-section" style="padding-bottom:14px"><div style="padding:18px 22px;background:linear-gradient(135deg,#FFF8F2,#FFFFFF);border:1px solid #FFD0B5;border-radius:14px;display:flex;gap:14px;align-items:flex-start"><span style="font-size:24px">\\u{1F3AC}</span><div style="flex:1;font-size:13.5px;line-height:1.55;color:#3D3D3D"><b style="color:#1A1A1A;font-weight:600">Want a real human-quality narrator?</b><br/>The current voice is your browser\\u2019s built-in TTS \\u2014 functional, but robotic. Add an <a href="https://elevenlabs.io/app/settings/api-keys" target="_blank" rel="noopener" style="color:#1F4D3F;font-weight:600">ElevenLabs API key</a> to <code style="font-family:\\'JetBrains Mono\\',monospace;font-size:11px;background:rgba(0,0,0,.05);padding:2px 6px;border-radius:4px">ELEVENLABS_API_KEY</code> in your Railway env, redeploy, and the reader switches to studio-quality Adam (deep, warm, deliberate). Free tier covers ~10 books/month.</div></div></div>';
+  }
   // Podcast-style audio bar with real progress, current line, elapsed time
   const prog=r.progress||{idx:0,total:0,line:'Tap play to begin'};
   const pctNow=prog.total?Math.round((prog.idx/prog.total)*100):0;
   const elapsedNow=r.startedAt&&r.playing?Math.floor((Date.now()-r.startedAt)/1000):0;
+  const isStudio=!!(S.coach&&S.coach.status&&S.coach.status.tts);
   h+='<div class="bk-tts">'
     +'<button class="play" onclick="bookReaderToggleTTS()">'+(r.playing?'\\u23F8':'\\u25B6')+'</button>'
     +'<div class="info" style="overflow:hidden">'
-      +'<b>'+esc(b.title)+' \\u00B7 by '+esc(b.author)+'</b>'
-      +'<small id="bkProgText">'+(r.playing?esc(String(prog.line||'').slice(0,90)):'Soft male narrator \\u00B7 '+(r.rate||0.78)+'x \\u00B7 ~'+b.mins+' min')+'</small>'
+      +'<b>'+esc(b.title)+' \\u00B7 by '+esc(b.author)+(isStudio?' <span style="display:inline-block;margin-left:6px;padding:2px 7px;background:rgba(31,77,63,.12);color:#1F4D3F;border-radius:6px;font-size:9px;font-weight:600;letter-spacing:.06em;font-family:\\'JetBrains Mono\\',monospace;text-transform:uppercase;vertical-align:1px">\\u{1F3AC} STUDIO</span>':' <span style="display:inline-block;margin-left:6px;padding:2px 7px;background:rgba(180,83,9,.12);color:#92400E;border-radius:6px;font-size:9px;font-weight:600;letter-spacing:.06em;font-family:\\'JetBrains Mono\\',monospace;text-transform:uppercase;vertical-align:1px">browser voice</span>')+'</b>'
+      +'<small id="bkProgText">'+(r.playing?esc(String(prog.line||'').slice(0,90)):(isStudio?'Adam \\u00B7 ElevenLabs studio voice \\u00B7 ~'+b.mins+' min':'Soft male narrator \\u00B7 '+(r.rate||0.78)+'x \\u00B7 ~'+b.mins+' min'))+'</small>'
       +'<div style="height:3px;background:#ECEAE3;border-radius:999px;margin-top:6px;overflow:hidden"><div id="bkProgFill" style="height:100%;background:linear-gradient(90deg,#FF6B47,#FF8A4F);transform:scaleX('+(pctNow/100)+');transform-origin:left;transition:transform .4s ease"></div></div>'
       +'<div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;font-family:\\'JetBrains Mono\\',monospace;font-size:10px;letter-spacing:.04em;color:#9A9A9A"><span id="bkProgTime">'+Math.floor(elapsedNow/60)+':'+String(elapsedNow%60).padStart(2,'0')+'</span><span id="bkProgPct">'+pctNow+'%</span></div>'
     +'</div>'
