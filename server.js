@@ -21,6 +21,9 @@ try{db.exec("CREATE TABLE IF NOT EXISTS oauth_states(state TEXT PRIMARY KEY,user
 let tw=null;const TW_FROM=process.env.TWILIO_WHATSAPP_FROM||'whatsapp:+14155238886';
 try{if(process.env.TWILIO_ACCOUNT_SID&&process.env.TWILIO_AUTH_TOKEN){tw=twilio(process.env.TWILIO_ACCOUNT_SID,process.env.TWILIO_AUTH_TOKEN);console.log('✅ Twilio connected')}}catch(e){console.log('⚠️',e.message)}
 
+let anthropic=null;
+try{if(process.env.ANTHROPIC_API_KEY){const Anthropic=require('@anthropic-ai/sdk');anthropic=new Anthropic.default({apiKey:process.env.ANTHROPIC_API_KEY});console.log('✅ Anthropic connected')}else console.log('ℹ️  ANTHROPIC_API_KEY not set — English coach disabled')}catch(e){console.log('⚠️ Anthropic init:',e.message)}
+
 const genId=()=>'t_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);
 const genToken=()=>crypto.randomBytes(32).toString('hex');
 const genOTP=()=>String(Math.floor(100000+Math.random()*900000));
@@ -405,6 +408,82 @@ app.get('/api/news',async(req,res)=>{
   for(const it of dedup){if(!it.img){it.img=fb[fbIdx%fb.length];it.imgFallback=true;fbIdx++}}
   newsCache[cat]={ts:Date.now(),items:dedup};
   res.json({items:dedup,cat,cached:false});
+});
+
+// ═══ ENGLISH COACH (Claude API, streaming) ═══
+const ENGLISH_MODES={
+  conversation:{label:'Conversation',system:`You are an elite English coach for working professionals. The student is speaking with you to build natural, confident, business-grade fluency.
+
+Your job in conversation mode:
+- Hold a real, substantive conversation. Ask thoughtful follow-up questions about the student's work, ideas, and life.
+- After each student turn, if there is a meaningful issue, give one short correction in this exact format:
+  ✏️ You said: "<their phrase>" → Better: "<corrected phrase>" (<one-line reason>)
+- Keep corrections rare and high-value. If the student spoke well, skip the correction and just continue the dialogue.
+- Vary vocabulary and gently introduce one slightly more advanced word or idiom when natural; briefly gloss it in parentheses.
+- Keep responses to 2–4 sentences plus an optional correction. No long lectures.
+- Never break character to discuss prompts, models, or AI.`},
+  email:{label:'Business Email',system:`You are a senior business writing coach. The student wants to write clear, professional emails.
+
+When the student sends a draft or a request:
+- If it is a draft, return a polished version first (subject + body), then a short "Why I changed it" list of 2–3 bullet points naming the writing principle (concision, active voice, clear ask, polite directness, etc.).
+- If it is a request ("write an email to X about Y"), produce the email, then explain your structural choices in 2–3 bullets.
+- Default to a warm, direct, executive tone. No filler ("I hope this email finds you well"). Lead with the ask.
+- Keep emails under 120 words unless the student asks for more.`},
+  presentation:{label:'Presentation Prep',system:`You are an executive presentation coach. The student is preparing to speak in a meeting, interview, or talk.
+
+Help them:
+- Sharpen their opening hook (one sentence).
+- Structure their point as Claim → Evidence → Implication.
+- Replace hedging language ("I think maybe", "kind of", "sort of") with confident equivalents.
+- Coach delivery: pacing, pauses, where to emphasize.
+- When they share a draft, give a rewritten version, then 2–3 specific delivery notes.
+- Keep responses focused and actionable. No more than 5 bullets per reply.`},
+  grammar:{label:'Grammar Check',system:`You are a precise grammar and clarity editor. The student will paste sentences or paragraphs.
+
+For each submission:
+1. Return the corrected version first.
+2. Then list the changes as: Original → Correction (short rule, e.g. "subject-verb agreement", "article missing", "wrong preposition").
+3. If the original is already correct, say so plainly and offer one optional stylistic upgrade.
+- Be precise and brief. No moralizing. No "great job!"`},
+  vocabulary:{label:'Vocabulary',system:`You are a vocabulary coach for professionals. Help the student expand their working vocabulary with words that sound natural in business contexts.
+
+When asked for words on a theme, give 5 words with: word — short definition — example sentence in a workplace setting — register note (formal/neutral/informal).
+When the student uses a weak word, suggest 2–3 stronger alternatives with the same nuance distinctions.
+Avoid obscure words no one uses. Aim for words a senior professional would actually say.`}
+};
+
+app.post('/api/english/chat',auth,async(req,res)=>{
+  if(!anthropic)return res.status(503).json({error:'English coach is not configured. Set ANTHROPIC_API_KEY.'});
+  const mode=ENGLISH_MODES[req.body.mode]?req.body.mode:'conversation';
+  const incoming=Array.isArray(req.body.messages)?req.body.messages:[];
+  const messages=[];
+  for(const m of incoming.slice(-20)){
+    if(!m||typeof m.content!=='string')continue;
+    const role=m.role==='assistant'?'assistant':'user';
+    const content=m.content.trim().slice(0,4000);
+    if(!content)continue;
+    if(messages.length&&messages[messages.length-1].role===role)messages[messages.length-1].content+='\n\n'+content;
+    else messages.push({role,content});
+  }
+  if(!messages.length||messages[0].role!=='user')return res.status(400).json({error:'First message must be from user.'});
+  res.set({'Content-Type':'text/event-stream','Cache-Control':'no-cache','Connection':'keep-alive','X-Accel-Buffering':'no'});
+  res.flushHeaders&&res.flushHeaders();
+  const send=(o)=>{try{res.write('data: '+JSON.stringify(o)+'\n\n')}catch(e){}};
+  try{
+    const stream=await anthropic.messages.stream({
+      model:'claude-opus-4-7',
+      max_tokens:1024,
+      system:ENGLISH_MODES[mode].system,
+      messages
+    });
+    stream.on('text',(delta)=>send({type:'text',delta}));
+    const final=await stream.finalMessage();
+    send({type:'done',usage:final.usage,stop_reason:final.stop_reason});
+  }catch(e){
+    console.log('[english-coach]',e.message);
+    send({type:'error',message:e.message||'Coach unavailable'});
+  }
+  res.end();
 });
 
 // ═══ HISTORY (Wikipedia "On This Day", 6-hour server cache) ═══
@@ -1704,6 +1783,66 @@ body[data-theme=aurora] .hist-link a:hover{color:#C4B5FD}
 .section-ic{width:36px;height:36px;border-radius:8px;background:var(--bg-sunken);color:var(--ink-2);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:none;border:1px solid var(--line)}
 .section-ic svg{width:18px;height:18px}
 
+/* ── English Coach ── */
+.eng-wrap{display:flex;flex-direction:column;gap:18px;max-width:880px;margin:0 auto;padding-bottom:24px}
+.eng-hero{position:relative;border-radius:24px;padding:32px 28px;color:#fff;background:linear-gradient(135deg,#0F172A 0%,#1E1B4B 45%,#4C1D95 100%);overflow:hidden;box-shadow:0 24px 60px -20px rgba(76,29,149,.45),0 0 0 1px rgba(255,255,255,.06) inset}
+.eng-hero::before{content:"";position:absolute;inset:-2px;background:radial-gradient(60% 80% at 80% 0%,rgba(168,85,247,.45) 0%,transparent 60%),radial-gradient(50% 70% at 0% 100%,rgba(56,189,248,.35) 0%,transparent 60%);pointer-events:none}
+.eng-hero-grain{position:absolute;inset:0;opacity:.06;background-image:radial-gradient(rgba(255,255,255,.8) 1px,transparent 1px);background-size:3px 3px;pointer-events:none}
+.eng-hero-tag{position:relative;display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:5px 11px;border-radius:30px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(6px);color:#E9D5FF;margin-bottom:14px}
+.eng-hero-h{position:relative;font-size:30px;line-height:1.1;font-weight:700;letter-spacing:-.02em;margin:0 0 10px;max-width:620px}
+.eng-hero-p{position:relative;font-size:15px;line-height:1.55;color:#CBD5E1;margin:0;max-width:560px;font-weight:400}
+.eng-modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.eng-mode{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:14px 14px;border-radius:14px;background:var(--bg-sunken);border:1px solid var(--line);cursor:pointer;text-align:left;transition:all .18s ease;color:var(--ink-1)}
+.eng-mode:hover{border-color:#A78BFA;transform:translateY(-1px);box-shadow:0 6px 20px -8px rgba(124,58,237,.3)}
+.eng-mode.on{background:linear-gradient(135deg,#7C3AED,#4C1D95);border-color:transparent;color:#fff;box-shadow:0 10px 26px -10px rgba(124,58,237,.55)}
+.eng-mode.on .eng-mode-d{color:rgba(255,255,255,.78)}
+.eng-mode-e{font-size:18px;line-height:1}
+.eng-mode-l{font-size:14px;font-weight:600;letter-spacing:-.01em}
+.eng-mode-d{font-size:11.5px;color:var(--ink-3);font-weight:450}
+.eng-chat{min-height:280px;max-height:560px;overflow-y:auto;display:flex;flex-direction:column;gap:14px;padding:20px;border-radius:20px;background:var(--bg-card);border:1px solid var(--line);box-shadow:0 2px 12px rgba(15,23,42,.04)}
+.eng-chat::-webkit-scrollbar{width:6px}
+.eng-chat::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+.eng-empty{text-align:center;padding:30px 14px;color:var(--ink-3)}
+.eng-empty-ic{font-size:42px;margin-bottom:10px}
+.eng-empty-h{font-size:17px;font-weight:600;color:var(--ink-1);margin-bottom:6px}
+.eng-empty-p{font-size:13.5px;line-height:1.5;max-width:420px;margin:0 auto 18px}
+.eng-starters{display:flex;flex-direction:column;gap:8px;align-items:center}
+.eng-starter{font-size:13px;color:#7C3AED;background:rgba(124,58,237,.07);border:1px solid rgba(124,58,237,.18);padding:9px 14px;border-radius:24px;cursor:pointer;transition:all .15s;font-weight:500;max-width:520px;text-align:left}
+.eng-starter:hover{background:rgba(124,58,237,.13);border-color:rgba(124,58,237,.32)}
+.eng-msg{display:flex;align-items:flex-start;gap:10px;animation:engFade .25s ease}
+.eng-msg-u{justify-content:flex-end}
+.eng-avatar{width:30px;height:30px;flex-shrink:0;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#EC4899);display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 4px 12px -4px rgba(124,58,237,.5)}
+.eng-bubble{max-width:78%;padding:12px 15px;border-radius:18px;font-size:14.5px;line-height:1.55;white-space:pre-wrap;word-wrap:break-word}
+.eng-msg-u .eng-bubble{background:linear-gradient(135deg,#0F172A,#312E81);color:#fff;border-bottom-right-radius:6px}
+.eng-msg-a .eng-bubble{background:var(--bg-sunken);color:var(--ink-1);border:1px solid var(--line);border-bottom-left-radius:6px}
+.eng-msg-a .eng-bubble b{color:#7C3AED}
+.eng-msg-a .eng-bubble em{font-style:normal;background:linear-gradient(180deg,transparent 65%,rgba(124,58,237,.18) 65%);padding:0 2px}
+.eng-msg-a .eng-bubble code{background:rgba(124,58,237,.1);color:#6D28D9;padding:1px 6px;border-radius:5px;font-size:13px;font-family:'Space Mono',ui-monospace,monospace}
+.eng-cursor{display:inline-block;width:7px;height:14px;background:#7C3AED;margin-left:3px;vertical-align:text-bottom;animation:engBlink 1s steps(2) infinite;border-radius:1px}
+@keyframes engBlink{50%{opacity:0}}
+@keyframes engFade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.eng-speak{flex-shrink:0;width:30px;height:30px;border:none;background:transparent;color:var(--ink-3);font-size:14px;cursor:pointer;border-radius:50%;transition:all .15s;align-self:flex-end;margin-bottom:2px}
+.eng-speak:hover{background:rgba(124,58,237,.1);color:#7C3AED}
+.eng-bar{position:sticky;bottom:12px;display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg-card);border:1px solid var(--line);border-radius:18px;box-shadow:0 12px 30px -12px rgba(15,23,42,.18),0 2px 8px rgba(15,23,42,.04)}
+.eng-input{flex:1;border:none;background:transparent;font-size:15px;color:var(--ink-1);padding:10px 6px;outline:none;font-family:inherit}
+.eng-input::placeholder{color:var(--ink-3)}
+.eng-input:disabled{opacity:.5}
+.eng-mic,.eng-send{flex-shrink:0;width:42px;height:42px;border-radius:14px;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .18s}
+.eng-mic{background:var(--bg-sunken);color:var(--ink-2);border:1px solid var(--line)}
+.eng-mic:hover{background:rgba(124,58,237,.1);color:#7C3AED;border-color:rgba(124,58,237,.3)}
+.eng-mic.rec{background:#FEF1F0;color:#E8453C;border-color:#E8453C;animation:recPulse 1.5s infinite}
+.eng-send{background:linear-gradient(135deg,#7C3AED,#4C1D95);color:#fff;box-shadow:0 6px 18px -4px rgba(124,58,237,.55)}
+.eng-send:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 8px 22px -4px rgba(124,58,237,.7)}
+.eng-send:disabled{opacity:.4;cursor:not-allowed;box-shadow:none}
+.eng-spin{width:16px;height:16px;border:2.5px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:engSpin .7s linear infinite}
+@keyframes engSpin{to{transform:rotate(360deg)}}
+.eng-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 6px;font-size:12.5px;color:var(--ink-3)}
+.eng-toggle{display:inline-flex;align-items:center;gap:7px;cursor:pointer;user-select:none}
+.eng-toggle input{accent-color:#7C3AED;width:14px;height:14px}
+.eng-clear{background:none;border:none;color:var(--ink-3);font-size:12.5px;cursor:pointer;padding:4px 8px;border-radius:8px;font-weight:500}
+.eng-clear:hover{color:#E8453C;background:rgba(232,69,60,.08)}
+@media (max-width:520px){.eng-hero{padding:24px 20px;border-radius:20px}.eng-hero-h{font-size:24px}.eng-hero-p{font-size:14px}.eng-bubble{max-width:85%;font-size:14px}.eng-modes{grid-template-columns:repeat(2,1fr)}}
+
 </style></head><body>
 <div class="bg-blob a"></div><div class="bg-blob b"></div><div class="bg-blob c"></div><div class="bg-blob d"></div>
 <div class="ocean" aria-hidden="true">
@@ -1721,6 +1860,7 @@ body[data-theme=aurora] .hist-link a:hover{color:#C4B5FD}
 <script>
 const MORALS=[{t:"The secret of getting ahead is getting started.",a:"Mark Twain"},{t:"It does not matter how slowly you go as long as you do not stop.",a:"Confucius"},{t:"Small daily improvements are the key to staggering long-term results.",a:"Robin Sharma"},{t:"Discipline is choosing between what you want now and what you want most.",a:"Abraham Lincoln"},{t:"Don't count the days. Make the days count.",a:"Muhammad Ali"},{t:"The best way to predict the future is to create it.",a:"Peter Drucker"},{t:"Focus on being productive instead of busy.",a:"Tim Ferriss"},{t:"You don't have to be great to start, but you have to start to be great.",a:"Zig Ziglar"},{t:"The journey of a thousand miles begins with a single step.",a:"Lao Tzu"},{t:"Either you run the day or the day runs you.",a:"Jim Rohn"},{t:"A year from now you may wish you had started today.",a:"Karen Lamb"},{t:"Success is the sum of small efforts repeated day in and day out.",a:"Robert Collier"},{t:"Done is better than perfect.",a:"Sheryl Sandberg"},{t:"The way to get started is to quit talking and begin doing.",a:"Walt Disney"},{t:"You cannot escape the responsibility of tomorrow by evading it today.",a:"Abraham Lincoln"},{t:"Motivation gets you going, but discipline keeps you growing.",a:"John C. Maxwell"},{t:"Do something today that your future self will thank you for.",a:"Sean Patrick Flanery"},{t:"The harder I work, the luckier I get.",a:"Samuel Goldwyn"},{t:"Don't watch the clock; do what it does. Keep going.",a:"Sam Levenson"},{t:"Great things never come from comfort zones.",a:"Neil Strauss"},{t:"Sometimes later becomes never. Do it now.",a:"Anonymous"},{t:"Wake up with determination. Go to bed with satisfaction.",a:"Anonymous"},{t:"A goal without a plan is just a wish.",a:"Antoine de Saint-Exupéry"},{t:"Little by little, day by day, what is meant for you will find its way.",a:"Anonymous"},{t:"Success doesn't just find you — you have to go out and get it.",a:"Anonymous"},{t:"Push yourself, because no one else is going to do it for you.",a:"Anonymous"},{t:"Dream big. Start small. Act now.",a:"Robin Sharma"},{t:"Hard work beats talent when talent doesn't work hard.",a:"Tim Notke"},{t:"The only impossible journey is the one you never begin.",a:"Tony Robbins"},{t:"Opportunities don't happen. You create them.",a:"Chris Grosser"}];
 let S={tasks:[],view:'all',search:'',tab:'tasks',showAdd:false,editing:null,listening:false,toast:null,toastType:'ok',waOk:false,sending:{},user:null,
+english:{mode:'conversation',messages:[],draft:'',sending:false,listening:false,speakReplies:true,started:false},
 books:[],booksLoading:false,booksCat:'all',bookSearch:'',playing:null,moralIdx:Math.floor(Math.random()*MORALS.length),
 history:{loading:false,loaded:{},events:[],articles:{}},historySec:'today',geography:{loading:false,loaded:{},articles:{}},geoSec:'earth',
 waConnected:localStorage.getItem('wa_connected')==='1',showWAOnboard:false,activeMeditation:null,
@@ -1855,7 +1995,8 @@ sun:'<svg '+s+'><circle cx="12" cy="12" r="4" fill="currentColor"/><line x1="12"
 refresh:'<svg '+s+'><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/><path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14"/></svg>',
 plus:'<svg '+s+'><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
 history:'<svg '+s+'><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 16 14"/><path d="M3 12 a9 9 0 0 1 9 -9"/></svg>',
-geography:'<svg '+s+'><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><path d="M12 3 a14 9 0 0 1 0 18"/><path d="M12 3 a14 9 0 0 0 0 18"/></svg>'};return m[n]||''}
+geography:'<svg '+s+'><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><path d="M12 3 a14 9 0 0 1 0 18"/><path d="M12 3 a14 9 0 0 0 0 18"/></svg>',
+english:'<svg '+s+'><path d="M3 5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M16 3v5h5"/><path d="M8 13h6"/><path d="M8 17h8"/><circle cx="17" cy="6" r="1.4" fill="currentColor" stroke="none"/></svg>'};return m[n]||''}
 const ST={pending:{l:'To Do',c:'#94A3B8',bg:'#F1F5F9'},'in-progress':{l:'Doing',c:'#3B82F6',bg:'#EFF6FF'},done:{l:'Done',c:'#3DAE5C',bg:'#F2FBF4'}};
 const fD=d=>d?new Date(d+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
 const fT=t=>{if(!t)return'';const[h,m]=t.split(':');const hr=+h;return(hr>12?hr-12:hr||12)+':'+m+' '+(hr>=12?'PM':'AM')};
@@ -1922,7 +2063,7 @@ const GEOGRAPHY_SECTIONS=[
   {k:'climate',l:'Climate & Weather',e:'\\u{1F324}\\uFE0F',titles:['Climate_change','Monsoon','Tropical_cyclone','Desert','Permafrost','Aurora','Tornado','Glacier']},
   {k:'space',l:'Space',e:'\\u{1F680}',titles:['Mars','Moon','Sun','Saturn','Jupiter','International_Space_Station','James_Webb_Space_Telescope','Voyager_program']}
 ];
-function switchTab(t){if(t==='steps'||t==='dash')t='tasks';S.tab=t;if(t==='books'&&!S.books.length)loadBooks('all');if(t==='meditation'&&!S.meditations)loadMeditations();if(t==='news'&&!S.news[S.newsCat])loadNews(S.newsCat);if(t==='history'&&!S.history.loaded[S.historySec||'today'])loadHistorySec(S.historySec||'today');if(t==='geography'&&!S.geography.loaded[S.geoSec||'earth'])loadGeoSec(S.geoSec||'earth');if(t==='cal'){if(!S.google.loaded)loadGoogleStatus();else if(S.google.accounts.length&&!S.gcalEvents.length&&!S.gcalLoading)loadGcalEvents()}render()}
+function switchTab(t){if(t==='steps'||t==='dash')t='tasks';S.tab=t;if(t==='books'&&!S.books.length)loadBooks('all');if(t==='meditation'&&!S.meditations)loadMeditations();if(t==='news'&&!S.news[S.newsCat])loadNews(S.newsCat);if(t==='history'&&!S.history.loaded[S.historySec||'today'])loadHistorySec(S.historySec||'today');if(t==='geography'&&!S.geography.loaded[S.geoSec||'earth'])loadGeoSec(S.geoSec||'earth');if(t==='english'&&!S.english.started){S.english.started=true;setTimeout(()=>{const el=document.getElementById('eng-input');if(el)el.focus()},120)}if(t==='cal'){if(!S.google.loaded)loadGoogleStatus();else if(S.google.accounts.length&&!S.gcalEvents.length&&!S.gcalLoading)loadGcalEvents()}render()}
 async function loadHistorySec(k){S.historySec=k;S.history.loading=true;render();try{if(k==='today'){const r=await fetch('/api/history/today');const j=await r.json();S.history.events=j.events||[]}else{const sec=HISTORY_SECTIONS.find(s=>s.k===k);if(!sec){S.history.loaded[k]=true;S.history.loading=false;render();return}const r=await fetch('/api/wiki/summaries?titles='+encodeURIComponent(sec.titles.join(',')));const j=await r.json();S.history.articles=S.history.articles||{};S.history.articles[k]=j.summaries||[]}}catch(e){}S.history.loaded[k]=true;S.history.loading=false;render()}
 async function loadGeoSec(k){S.geoSec=k;S.geography.loading=true;render();try{const sec=GEOGRAPHY_SECTIONS.find(s=>s.k===k);if(!sec){S.geography.loaded[k]=true;S.geography.loading=false;render();return}const r=await fetch('/api/wiki/summaries?titles='+encodeURIComponent(sec.titles.join(',')));const j=await r.json();S.geography.articles=S.geography.articles||{};S.geography.articles[k]=j.summaries||[]}catch(e){}S.geography.loaded[k]=true;S.geography.loading=false;render()}
 async function loadNews(cat){S.newsCat=cat;S.newsLoading=true;render();try{const r=await fetch('/api/news?cat='+encodeURIComponent(cat),{cache:'no-store'});const j=await r.json();S.news[cat]=j.items||[]}catch(e){S.news[cat]=[]}S.newsLoading=false;render()}
@@ -1961,6 +2102,76 @@ meditation:"Take a mindful break. Pick a one, five, ten, twenty, or thirty minut
 function pickBestVoice(){try{const vs=speechSynthesis.getVoices()||[];if(!vs.length)return null;const pref=['Samantha','Google UK English Female','Microsoft Aria Online (Natural) - English (United States)','Microsoft Jenny Online (Natural) - English (United States)','Google US English','Karen','Moira','Tessa','Veena','Fiona','Allison','Ava','Susan'];for(const name of pref){const v=vs.find(x=>x.name===name||x.name.indexOf(name)===0);if(v)return v}const en=vs.filter(v=>(v.lang||'').toLowerCase().startsWith('en'));const natural=en.find(v=>/natural|neural|premium|enhanced/i.test(v.name));if(natural)return natural;const female=en.find(v=>/female|samantha|karen|moira|tessa|veena|fiona|allison|ava|susan|aria|jenny/i.test(v.name));if(female)return female;return en[0]||vs[0]}catch(e){return null}}
 function speakIntro(){try{if(!('speechSynthesis' in window)){toast('\\u26A0\\uFE0F Voice not supported on this device','err');return}const t=TAB_INTROS[S.tab];if(!t)return;speechSynthesis.cancel();const go=()=>{const u=new SpeechSynthesisUtterance(t);const v=pickBestVoice();if(v){u.voice=v;u.lang=v.lang}u.rate=.92;u.pitch=1.05;u.volume=1;speechSynthesis.speak(u);toast('\\u{1F50A} Playing intro')};const vs=speechSynthesis.getVoices();if(!vs||!vs.length){speechSynthesis.onvoiceschanged=()=>{speechSynthesis.onvoiceschanged=null;go()};setTimeout(go,250)}else go()}catch(e){toast('\\u26A0\\uFE0F Voice error','err')}}
 function stopSpeak(){try{speechSynthesis.cancel()}catch(e){}}
+
+/* ── English coach ── */
+function formatEngMsg(s){
+  const e=esc(s);
+  return e.replace(/\\*\\*([^*]+)\\*\\*/g,'<b>$1</b>')
+          .replace(/\\*([^*\\n]+)\\*/g,'<em>$1</em>')
+          .replace(/\`([^\`]+)\`/g,'<code>$1</code>')
+          .replace(/\\u270F\\uFE0F[^\\n]*/g,m=>'<div style="margin-top:8px;padding:9px 11px;background:rgba(124,58,237,.07);border-left:3px solid #7C3AED;border-radius:7px;font-size:13.5px">'+m+'</div>');
+}
+function setEngMode(k){if(S.english.sending)return;S.english.mode=k;render()}
+function clearEng(){if(S.english.sending)return;try{speechSynthesis.cancel()}catch(e){}S.english.messages=[];render()}
+let _engRec=null;
+function engMic(){
+  if(S.english.listening){if(_engRec){try{_engRec.stop()}catch(e){}}return}
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){toast('\\u26A0\\uFE0F Voice not supported','err');return}
+  _engRec=new SR();_engRec.continuous=false;_engRec.interimResults=true;_engRec.lang='en-US';
+  let finalText='';
+  _engRec.onresult=e=>{let t='';for(let i=0;i<e.results.length;i++)t+=e.results[i][0].transcript;S.english.draft=t;if(e.results[e.results.length-1].isFinal)finalText=t;const inp=document.getElementById('eng-input');if(inp)inp.value=t};
+  _engRec.onend=()=>{S.english.listening=false;render();if(finalText.trim())sendEng()};
+  _engRec.onerror=ev=>{S.english.listening=false;toast('\\u26A0\\uFE0F '+ev.error,'err');render()};
+  try{_engRec.start();S.english.listening=true;render()}catch(e){toast('\\u26A0\\uFE0F Mic busy','err')}
+}
+function speakEng(i){
+  try{if(!('speechSynthesis' in window))return;
+    const m=S.english.messages[i];if(!m||!m.content)return;
+    speechSynthesis.cancel();
+    const clean=m.content.replace(/\\*\\*/g,'').replace(/\\*/g,'').replace(/\`/g,'').replace(/\\u270F\\uFE0F/g,'').replace(/\\u2192/g,'becomes').slice(0,800);
+    const u=new SpeechSynthesisUtterance(clean);
+    const v=pickBestVoice();if(v){u.voice=v;u.lang=v.lang}u.rate=.95;u.pitch=1.02;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+async function sendEng(seedText){
+  const E=S.english;if(E.sending)return;
+  const text=(typeof seedText==='string'?seedText:E.draft).trim();
+  if(!text)return;
+  if(_engRec&&E.listening){try{_engRec.stop()}catch(e){}}
+  try{speechSynthesis.cancel()}catch(e){}
+  E.messages.push({role:'user',content:text});
+  E.messages.push({role:'assistant',content:'',streaming:true});
+  E.draft='';E.sending=true;render();
+  setTimeout(()=>{const c=document.getElementById('eng-chat');if(c)c.scrollTop=c.scrollHeight},20);
+  const payload={mode:E.mode,messages:E.messages.filter(m=>!m.streaming).map(m=>({role:m.role,content:m.content}))};
+  try{
+    const h={'Content-Type':'application/json'};if(token)h['x-token']=token;
+    const r=await fetch('/api/english/chat',{method:'POST',headers:h,body:JSON.stringify(payload)});
+    if(!r.ok||!r.body){const j=await r.json().catch(()=>({}));throw new Error(j.error||'HTTP '+r.status)}
+    const reader=r.body.getReader();const dec=new TextDecoder();let buf='';let acc='';
+    const last=E.messages[E.messages.length-1];
+    while(true){
+      const {value,done}=await reader.read();if(done)break;
+      buf+=dec.decode(value,{stream:true});
+      const lines=buf.split('\\n\\n');buf=lines.pop()||'';
+      for(const line of lines){
+        if(!line.startsWith('data: '))continue;
+        let evt;try{evt=JSON.parse(line.slice(6))}catch(e){continue}
+        if(evt.type==='text'){acc+=evt.delta;last.content=acc;const el=document.getElementById('eng-streaming');if(el){el.innerHTML=formatEngMsg(acc)+'<span class="eng-cursor"></span>';const c=document.getElementById('eng-chat');if(c)c.scrollTop=c.scrollHeight}}
+        else if(evt.type==='error'){last.content='\\u26A0\\uFE0F '+(evt.message||'Coach unavailable');last.streaming=false}
+      }
+    }
+    last.streaming=false;E.sending=false;render();
+    if(E.speakReplies&&last.content&&!last.content.startsWith('\\u26A0'))speakEng(E.messages.length-1);
+  }catch(err){
+    const last=E.messages[E.messages.length-1];
+    if(last&&last.streaming){last.content='\\u26A0\\uFE0F '+err.message;last.streaming=false}
+    E.sending=false;toast('\\u26A0\\uFE0F '+err.message,'err');render();
+  }
+}
+
 function filterBooks(v){S.bookSearch=v;const grid=document.getElementById('books-grid');if(!grid){render();return}const q=(v||'').toLowerCase().trim();const fb=!q?S.books:S.books.filter(b=>{const t=(Array.isArray(b.title)?b.title[0]:b.title||'').toLowerCase();const a=(Array.isArray(b.creator)?b.creator[0]:b.creator||'').toLowerCase();return t.includes(q)||a.includes(q)});grid.innerHTML=renderBookCards(fb)}
 function renderBookCards(fb){if(!fb.length)return '<div class="empty"><div style="font-size:36px">\\u{1F4DA}</div><div style="font-size:14px;margin-top:8px">No books found</div></div>';let h='<div class="book-list">';fb.forEach(b=>{const id=b.identifier;const cover='https://archive.org/services/img/'+id;const author=Array.isArray(b.creator)?b.creator[0]:(b.creator||'Unknown');const title=Array.isArray(b.title)?b.title[0]:b.title;h+='<div class="book-card"><div class="book-cover"><img src="'+cover+'" loading="lazy" onerror="this.style.display=\\'none\\'"/></div><div class="book-info"><div class="book-title">'+esc(title)+'</div><div class="book-author">'+esc(author)+'</div><div class="book-meta"><span>\\u{1F3A7} '+(b.downloads?(+b.downloads).toLocaleString():'\\u2014')+' plays</span><span>\\u{1F4D6} LibriVox</span></div></div><button class="book-play" onclick="playBook(\\''+id+'\\')">\\u25B6</button></div>'});h+='</div>';return h}
 function openWAOnboard(){S.showWAOnboard=true;render()}
@@ -2101,7 +2312,7 @@ h+='<div class="moral">'+MORAL_DOODLE+'<div class="moral-emoji">\\u{1F4A1}</div>
   const dayOfYear=Math.floor((now-yStart)/86400000);
   const yearPct=Math.round(dayOfYear/365*100);
   const dateStr=now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-  const tabsHtml=[{k:'tasks',l:'Tasks'},{k:'board',l:'Board'},{k:'cal',l:'Calendar'},{k:'news',l:'News'},{k:'history',l:'History'},{k:'geography',l:'Geography'},{k:'books',l:'Books'},{k:'meditation',l:'Meditate'}].map(x=>'<button class="tab tab-'+x.k+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(ID[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
+  const tabsHtml=[{k:'tasks',l:'Tasks'},{k:'board',l:'Board'},{k:'english',l:'English'},{k:'cal',l:'Calendar'},{k:'news',l:'News'},{k:'history',l:'History'},{k:'geography',l:'Geography'},{k:'books',l:'Books'},{k:'meditation',l:'Meditate'}].map(x=>'<button class="tab tab-'+x.k+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(ID[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
   const STICK='<svg viewBox="0 0 18 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="3.5" r="2.6" fill="currentColor"/><line x1="9" y1="6" x2="9" y2="14"/><g class="arm-l"><line x1="9" y1="9" x2="4" y2="11"/></g><g class="arm-r"><line x1="9" y1="9" x2="14" y2="7"/></g><g class="leg-l"><line x1="9" y1="14" x2="5" y2="22"/></g><g class="leg-r"><line x1="9" y1="14" x2="13" y2="22"/></g></svg>';
   const climbScene='<div class="climb-scene" aria-hidden="true">'
     +'<div class="climb-caption">RISE \\u2022 STEP \\u2022 BY \\u2022 STEP</div>'
@@ -2500,6 +2711,59 @@ else if(S.tab==='geography'){
     });
     h+='</div>';
   }
+}
+else if(S.tab==='english'){
+  const E=S.english;
+  const MODES=[
+    {k:'conversation',l:'Conversation',e:'\\u{1F4AC}',d:'Real talk, gentle corrections'},
+    {k:'email',l:'Business Email',e:'\\u{1F4E7}',d:'Polished drafts and rewrites'},
+    {k:'presentation',l:'Presentation',e:'\\u{1F3A4}',d:'Sharpen openings and delivery'},
+    {k:'grammar',l:'Grammar',e:'\\u{1F4DD}',d:'Precise edits with rules'},
+    {k:'vocabulary',l:'Vocabulary',e:'\\u{1F4DA}',d:'Stronger words for work'}
+  ];
+  const STARTERS={
+    conversation:['Tell me about your week at work','I want to practice small talk for a meeting','Ask me about my recent project'],
+    email:['Help me write a follow-up to a client who went silent','Rewrite this draft to sound more confident','Decline a meeting politely but clearly'],
+    presentation:['I have a 2-minute intro to give tomorrow — help me sharpen it','Give me a strong hook for a project update','Coach me on sounding less hesitant'],
+    grammar:['Check this paragraph for errors','Is "I have went" correct?','Fix: "Me and my team is working on it"'],
+    vocabulary:['Give me 5 better words for "good"','Words for sounding decisive in meetings','Polish my email vocabulary']
+  };
+  const cur=MODES.find(m=>m.k===E.mode)||MODES[0];
+  h+='<div class="eng-wrap">';
+  h+='<div class="eng-hero"><div class="eng-hero-grain"></div>';
+  h+='<div class="eng-hero-tag">AI English Coach \\u2022 Powered by Claude</div>';
+  h+='<h1 class="eng-hero-h">Speak like the room\\u2019s most confident professional.</h1>';
+  h+='<p class="eng-hero-p">A private coach for working professionals \\u2014 conversation practice, email polish, presentation prep, grammar, and vocabulary, all on demand.</p>';
+  h+='</div>';
+  h+='<div class="eng-modes">';
+  MODES.forEach(m=>{h+='<button class="eng-mode'+(E.mode===m.k?' on':'')+'" onclick="setEngMode(\\''+m.k+'\\')"><span class="eng-mode-e">'+m.e+'</span><span class="eng-mode-l">'+m.l+'</span><span class="eng-mode-d">'+m.d+'</span></button>'});
+  h+='</div>';
+  h+='<div class="eng-chat" id="eng-chat">';
+  if(!E.messages.length){
+    h+='<div class="eng-empty"><div class="eng-empty-ic">'+cur.e+'</div><div class="eng-empty-h">'+esc(cur.l)+' mode</div><div class="eng-empty-p">'+esc(cur.d)+'. Try one of these to start \\u2014 or just write what\\u2019s on your mind.</div>';
+    h+='<div class="eng-starters">';
+    (STARTERS[E.mode]||[]).forEach(s=>{h+='<button class="eng-starter" onclick="sendEng('+JSON.stringify(s).replace(/"/g,'&quot;')+')">\\u2192 '+esc(s)+'</button>'});
+    h+='</div></div>';
+  }else{
+    E.messages.forEach((m,i)=>{
+      const isUser=m.role==='user';
+      h+='<div class="eng-msg '+(isUser?'eng-msg-u':'eng-msg-a')+'">';
+      if(!isUser)h+='<div class="eng-avatar">\\u2728</div>';
+      h+='<div class="eng-bubble"'+(m.streaming?' id="eng-streaming"':'')+'>'+formatEngMsg(m.content||'')+(m.streaming?'<span class="eng-cursor"></span>':'')+'</div>';
+      if(!isUser&&!m.streaming&&m.content)h+='<button class="eng-speak" onclick="speakEng('+i+')" title="Read aloud">\\u{1F50A}</button>';
+      h+='</div>';
+    });
+  }
+  h+='</div>';
+  h+='<div class="eng-bar">';
+  h+='<button class="eng-mic'+(E.listening?' rec':'')+'" onclick="engMic()" title="Speak"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button>';
+  h+='<input id="eng-input" class="eng-input" type="text" placeholder="'+(E.listening?'Listening\\u2026':'Write or speak in English\\u2026')+'" value="'+esc(E.draft)+'" oninput="S.english.draft=this.value" onkeydown="if(event.key===\\'Enter\\'&&!event.shiftKey){event.preventDefault();sendEng()}" '+(E.sending?'disabled':'')+'>';
+  h+='<button class="eng-send" onclick="sendEng()" '+(E.sending||!E.draft.trim()?'disabled':'')+' title="Send">'+(E.sending?'<span class="eng-spin"></span>':'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2" fill="currentColor"/></svg>')+'</button>';
+  h+='</div>';
+  h+='<div class="eng-foot"><label class="eng-toggle"><input type="checkbox" '+(E.speakReplies?'checked':'')+' onchange="S.english.speakReplies=this.checked"> <span>Read replies aloud</span></label>';
+  if(E.messages.length)h+='<button class="eng-clear" onclick="clearEng()">Clear chat</button>';
+  h+='</div>';
+  h+='</div>';
 }
 
 
