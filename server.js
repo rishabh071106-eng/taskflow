@@ -41,6 +41,10 @@ try{db.exec("CREATE TABLE IF NOT EXISTS voice_progress(user_phone TEXT NOT NULL,
 try{db.exec("CREATE TABLE IF NOT EXISTS play_log(user_phone TEXT NOT NULL,kind TEXT NOT NULL,played_on TEXT NOT NULL,PRIMARY KEY(user_phone,kind,played_on))")}catch(e){}
 // Voice curriculum — Duolingo-style step-by-step lesson progress per user
 try{db.exec("CREATE TABLE IF NOT EXISTS voice_lesson_progress(user_phone TEXT NOT NULL,unit_id INTEGER NOT NULL,lesson_id INTEGER NOT NULL,score INTEGER DEFAULT 0,stars INTEGER DEFAULT 0,xp INTEGER DEFAULT 0,completed_at TEXT DEFAULT(datetime('now')),PRIMARY KEY(user_phone,unit_id,lesson_id))")}catch(e){}
+// Community articles — Medium-style user submissions
+try{db.exec("CREATE TABLE IF NOT EXISTS articles(id TEXT PRIMARY KEY,author_phone TEXT NOT NULL,author_name TEXT DEFAULT'',title TEXT NOT NULL,body TEXT NOT NULL,image_url TEXT DEFAULT'',category TEXT DEFAULT'general',likes INTEGER DEFAULT 0,created_at TEXT DEFAULT(datetime('now')))")}catch(e){}
+try{db.exec("CREATE TABLE IF NOT EXISTS article_likes(article_id TEXT NOT NULL,user_phone TEXT NOT NULL,liked_at TEXT DEFAULT(datetime('now')),PRIMARY KEY(article_id,user_phone))")}catch(e){}
+try{db.exec("CREATE INDEX IF NOT EXISTS idx_articles_created ON articles(created_at DESC)")}catch(e){}
 
 let tw=null;const TW_FROM=process.env.TWILIO_WHATSAPP_FROM||'whatsapp:+14155238886';
 try{if(process.env.TWILIO_ACCOUNT_SID&&process.env.TWILIO_AUTH_TOKEN){tw=twilio(process.env.TWILIO_ACCOUNT_SID,process.env.TWILIO_AUTH_TOKEN);console.log('✅ Twilio connected')}}catch(e){console.log('⚠️',e.message)}
@@ -345,6 +349,55 @@ app.get('/api/voice/lessons',auth,(req,res)=>{
   const totalStars=rows.reduce((s,r)=>s+(r.stars||0),0);
   res.json({progress:map,totalXp,totalStars,completed:rows.length});
 });
+// ═══ COMMUNITY ARTICLES — Medium-style user contributions ═══
+app.get('/api/articles',(req,res)=>{
+  const cat=String(req.query.cat||'').slice(0,40);
+  const sort=req.query.sort==='top'?'likes DESC,created_at DESC':'created_at DESC';
+  const where=cat&&cat!=='all'?'WHERE category=?':'';
+  const params=cat&&cat!=='all'?[cat]:[];
+  const rows=db.prepare('SELECT id,author_name,title,SUBSTR(body,1,400) as preview,LENGTH(body) as full_len,image_url,category,likes,created_at FROM articles '+where+' ORDER BY '+sort+' LIMIT 50').all(...params);
+  res.json({items:rows.map(r=>Object.assign({},r,{preview:r.preview+(r.full_len>400?'...':''),read_min:Math.max(1,Math.round(r.full_len/1200))}))});
+});
+app.get('/api/articles/:id',(req,res)=>{
+  const a=db.prepare('SELECT * FROM articles WHERE id=?').get(req.params.id);
+  if(!a)return res.status(404).json({error:'Not found'});
+  res.json(Object.assign({},a,{read_min:Math.max(1,Math.round((a.body||'').length/1200))}));
+});
+app.post('/api/articles',auth,(req,res)=>{
+  const{title,body,image_url,category}=req.body||{};
+  if(!title||!String(title).trim())return res.status(400).json({error:'Title required'});
+  if(!body||String(body).trim().length<50)return res.status(400).json({error:'Article must be at least 50 characters'});
+  const id='art_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);
+  const cleanImage=String(image_url||'').slice(0,400);
+  // Validate image URL is http(s)
+  const safeImg=/^https?:\/\//i.test(cleanImage)?cleanImage:'';
+  db.prepare("INSERT INTO articles(id,author_phone,author_name,title,body,image_url,category)VALUES(?,?,?,?,?,?,?)").run(id,req.user.phone,String(req.user.name||'Anonymous').slice(0,60),String(title).slice(0,180),String(body).slice(0,20000),safeImg,String(category||'general').slice(0,40));
+  res.json({ok:true,id});
+});
+app.post('/api/articles/:id/like',auth,(req,res)=>{
+  const a=db.prepare('SELECT id FROM articles WHERE id=?').get(req.params.id);
+  if(!a)return res.status(404).json({error:'Not found'});
+  const ex=db.prepare('SELECT 1 FROM article_likes WHERE article_id=? AND user_phone=?').get(req.params.id,req.user.phone);
+  if(ex){
+    db.prepare('DELETE FROM article_likes WHERE article_id=? AND user_phone=?').run(req.params.id,req.user.phone);
+    db.prepare('UPDATE articles SET likes=MAX(0,likes-1) WHERE id=?').run(req.params.id);
+    const a2=db.prepare('SELECT likes FROM articles WHERE id=?').get(req.params.id);
+    return res.json({ok:true,liked:false,likes:a2.likes});
+  }
+  db.prepare('INSERT INTO article_likes(article_id,user_phone)VALUES(?,?)').run(req.params.id,req.user.phone);
+  db.prepare('UPDATE articles SET likes=likes+1 WHERE id=?').run(req.params.id);
+  const a2=db.prepare('SELECT likes FROM articles WHERE id=?').get(req.params.id);
+  res.json({ok:true,liked:true,likes:a2.likes});
+});
+app.delete('/api/articles/:id',auth,(req,res)=>{
+  const a=db.prepare('SELECT author_phone FROM articles WHERE id=?').get(req.params.id);
+  if(!a)return res.status(404).json({error:'Not found'});
+  if(a.author_phone!==req.user.phone)return res.status(403).json({error:'Not your article'});
+  db.prepare('DELETE FROM article_likes WHERE article_id=?').run(req.params.id);
+  db.prepare('DELETE FROM articles WHERE id=?').run(req.params.id);
+  res.json({ok:true});
+});
+
 app.post('/api/voice/lesson-complete',auth,(req,res)=>{
   const unit=parseInt(req.body&&req.body.unit_id,10);
   const lesson=parseInt(req.body&&req.body.lesson_id,10);
@@ -3637,6 +3690,92 @@ body[data-theme=aurora] .hist-link a:hover{color:#C4B5FD}
 .mg-react-time small{font-size:.4em;opacity:.65;margin-left:6px}
 .mg-react-msg{position:relative;z-index:1;text-shadow:0 2px 6px rgba(0,0,0,.25)}
 
+/* ═══════════════ COMMUNITY ARTICLES — Medium-style ═══════════════ */
+.art-feed{display:flex;flex-direction:column;gap:18px;margin-top:8px}
+.art-card{display:flex;flex-direction:column;background:#fff;border:1px solid #ECEAE3;border-radius:18px;overflow:hidden;cursor:pointer;transition:transform .35s cubic-bezier(.16,1,.3,1),box-shadow .3s,border-color .25s}
+.art-card:hover{transform:translateY(-3px);box-shadow:0 18px 36px -16px rgba(0,0,0,.12);border-color:#CFCBC0}
+.art-img{aspect-ratio:16/9;overflow:hidden;background:#F4F3EE}
+.art-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .8s cubic-bezier(.16,1,.3,1)}
+.art-card:hover .art-img img{transform:scale(1.04)}
+.art-body{padding:22px 22px 18px}
+.art-cat{display:inline-block;font-family:'JetBrains Mono','Space Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#1F4D3F;background:rgba(31,77,63,.08);padding:4px 10px;border-radius:999px;font-weight:600;margin-bottom:10px}
+.art-title{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp(22px,3.6vw,28px);line-height:1.15;letter-spacing:-.018em;color:#1A1A1A;margin:0 0 8px}
+.art-preview{font-size:14.5px;line-height:1.55;color:#3D3D3D;margin:0 0 14px}
+.art-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;color:#6B6B6B}
+.art-author{display:inline-flex;align-items:center;gap:8px;font-weight:500;color:#1A1A1A}
+.art-avatar{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#FF6B47,#FFB05E);color:#fff;display:grid;place-items:center;font-weight:600;font-size:12px}
+.art-dot{color:#CFCFCF}
+.art-time,.art-readtime{font-family:'JetBrains Mono',monospace;font-size:11.5px}
+.art-like{margin-left:auto;background:#fff;border:1px solid #ECEAE3;color:#1A1A1A;font-family:inherit;font-size:13px;padding:6px 12px;border-radius:999px;cursor:pointer;transition:all .2s;font-weight:500}
+.art-like:hover{background:#FEF2F2;border-color:#FCA5A5;color:#DC2626}
+
+/* Article editor */
+.ae-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);overflow-y:auto;padding:18px;animation:bk-fade .3s cubic-bezier(.16,1,.3,1)}
+.ae-box{width:min(700px,100%);background:#FAFAF7;border-radius:22px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.5);margin:0 auto 80px;animation:bk-up .35s cubic-bezier(.16,1,.3,1);display:flex;flex-direction:column;max-height:calc(100vh - 36px)}
+.ae-top{display:grid;grid-template-columns:1fr auto;gap:14px;padding:18px 22px;border-bottom:1px solid #ECEAE3;background:#fff;align-items:center}
+.ae-tag{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;color:#1F4D3F;font-weight:600}
+.ae-h{font-family:'Inter',sans-serif;font-weight:600;font-size:18px;letter-spacing:-.015em;color:#1A1A1A;margin-top:2px}
+.ae-body{padding:24px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;flex:1}
+.ae-title{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-style:italic;font-size:32px;line-height:1.1;letter-spacing:-.02em;color:#1A1A1A;border:0;border-bottom:2px solid #ECEAE3;padding:8px 4px;background:transparent;outline:none;width:100%}
+.ae-title:focus{border-bottom-color:#1A1A1A}
+.ae-title::placeholder{color:#CFCFCF}
+.ae-image{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#6B6B6B;background:#fff;border:1px solid #ECEAE3;border-radius:10px;padding:10px 14px;width:100%;outline:none}
+.ae-image:focus{border-color:#1A1A1A}
+.ae-img-prev{aspect-ratio:16/9;border-radius:14px;overflow:hidden;background:#F4F3EE;border:1px solid #ECEAE3}
+.ae-img-prev img{width:100%;height:100%;object-fit:cover;display:block}
+.ae-cats{display:flex;gap:6px;flex-wrap:wrap}
+.ae-cat{padding:7px 14px;border-radius:999px;border:1px solid #ECEAE3;background:#fff;color:#3D3D3D;font-family:inherit;font-size:12.5px;font-weight:500;cursor:pointer;transition:all .2s}
+.ae-cat:hover{border-color:#1A1A1A}
+.ae-cat.on{background:#1A1A1A;color:#fff;border-color:#1A1A1A}
+.ae-text{font-family:'Inter',sans-serif;font-size:16px;line-height:1.7;color:#1A1A1A;border:1px solid #ECEAE3;background:#fff;border-radius:12px;padding:16px 18px;outline:none;resize:vertical;min-height:280px;width:100%}
+.ae-text:focus{border-color:#1A1A1A}
+.ae-text::placeholder{color:#9A9A9A}
+.ae-meta{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:11px;color:#9A9A9A;letter-spacing:.04em}
+.ae-foot{display:flex;justify-content:flex-end;gap:10px;padding:14px 22px;border-top:1px solid #ECEAE3;background:#fff}
+
+/* Article reader */
+.ar-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);overflow-y:auto;padding:18px;animation:bk-fade .3s cubic-bezier(.16,1,.3,1)}
+.ar-box{position:relative;width:min(720px,100%);background:#FAFAF7;border-radius:22px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.5);margin:0 auto 80px;animation:bk-up .35s cubic-bezier(.16,1,.3,1)}
+.ar-x{position:absolute;top:18px;right:18px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.95);border:1px solid #ECEAE3;backdrop-filter:blur(8px);cursor:pointer;font-family:inherit;font-size:14px;color:#1A1A1A;display:grid;place-items:center;z-index:5;transition:all .2s}
+.ar-x:hover{background:#FEF2F2;color:#DC2626;border-color:#FCA5A5}
+.ar-hero{aspect-ratio:21/9;overflow:hidden;background:#F4F3EE}
+.ar-hero img{width:100%;height:100%;object-fit:cover;display:block}
+.ar-body{padding:34px 34px 28px}
+@media (max-width:600px){.ar-body{padding:24px 22px 22px}}
+.ar-cat{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;color:#1F4D3F;font-weight:600;margin-bottom:14px}
+.ar-title{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp(28px,4.4vw,42px);line-height:1.12;letter-spacing:-.022em;color:#1A1A1A;margin:0 0 14px}
+.ar-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;color:#6B6B6B;padding-bottom:18px;border-bottom:1px solid #ECEAE3;margin-bottom:24px}
+.ar-author{display:inline-flex;align-items:center;gap:9px;font-weight:500;color:#1A1A1A}
+.ar-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#FF6B47,#FFB05E);color:#fff;display:grid;place-items:center;font-weight:600;font-size:14px}
+.ar-content{font-family:'Inter',sans-serif;font-size:17px;line-height:1.7;color:#1A1A1A;letter-spacing:-.005em}
+.ar-content p{margin-bottom:18px}
+.ar-foot{margin-top:30px;padding-top:24px;border-top:1px solid #ECEAE3;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px}
+.ar-like{background:#fff;border:1px solid #ECEAE3;color:#1A1A1A;font-family:inherit;font-size:14px;padding:10px 18px;border-radius:999px;cursor:pointer;font-weight:500;transition:all .2s}
+.ar-like:hover{background:#FEF2F2;border-color:#FCA5A5;color:#DC2626;transform:translateY(-1px)}
+
+/* ═══════════════ BLINKIST/HEADWAY-STYLE BOOK HERO ═══════════════ */
+.bk-hero{position:relative;border-radius:22px;overflow:hidden;margin-bottom:18px;padding:32px 30px;color:#fff;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;background:radial-gradient(900px 500px at 0% 0%, rgba(214,180,255,.4) 0%, transparent 60%),radial-gradient(700px 500px at 100% 100%, rgba(46,255,169,.25) 0%, transparent 60%),linear-gradient(135deg,#1B1245 0%,#2E0F4A 50%,#5B21B6 100%);box-shadow:0 22px 50px -16px rgba(91,33,182,.45);animation:intlFadeUp .65s cubic-bezier(.16,1,.3,1) both}
+@media (max-width:560px){.bk-hero{grid-template-columns:1fr;text-align:center;padding:26px 22px}}
+.bk-hero-tag{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;color:rgba(255,255,255,.78);text-transform:uppercase;font-weight:500}
+.bk-hero h2{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-style:italic;font-size:clamp(28px,4.6vw,42px);line-height:1.05;letter-spacing:-.022em;color:#fff;margin:8px 0 6px}
+.bk-hero .bk-hero-author{font-size:13.5px;color:rgba(255,255,255,.78);font-weight:500}
+.bk-hero .bk-hero-why{margin-top:14px;font-size:14.5px;line-height:1.55;color:rgba(255,255,255,.85);max-width:480px}
+@media (max-width:560px){.bk-hero .bk-hero-why{margin-left:auto;margin-right:auto}}
+.bk-hero-actions{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
+@media (max-width:560px){.bk-hero-actions{justify-content:center}}
+.bk-hero-go{padding:11px 22px;background:#fff;color:#1B1245;border:0;border-radius:12px;font-family:inherit;font-weight:600;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:transform .2s,box-shadow .25s}
+.bk-hero-go:hover{transform:translateY(-1px);box-shadow:0 10px 22px -4px rgba(255,255,255,.18)}
+.bk-hero-cover{width:140px;aspect-ratio:3/4;border-radius:12px;padding:22px 18px;display:flex;flex-direction:column;justify-content:space-between;color:#fff;box-shadow:0 18px 40px -14px rgba(0,0,0,.6)}
+@media (max-width:560px){.bk-hero-cover{margin:0 auto}}
+.bk-hero-cover h5{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400;font-size:18px;line-height:1.05;letter-spacing:-.015em;color:#fff;margin:0}
+.bk-hero-cover .auth{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:500;letter-spacing:.1em;color:rgba(255,255,255,.78);text-transform:uppercase}
+
+/* Category pills for books */
+.bk-cats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.bk-cat{padding:7px 14px;border-radius:999px;border:1px solid #ECEAE3;background:#fff;color:#3D3D3D;font-family:inherit;font-size:12.5px;font-weight:500;cursor:pointer;transition:all .2s}
+.bk-cat:hover{border-color:#1A1A1A;color:#1A1A1A}
+.bk-cat.on{background:#1A1A1A;color:#fff;border-color:#1A1A1A}
+
 /* ═══════════════ DUOLINGO-STYLE LEARNING PATH ═══════════════ */
 .vp-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin:24px 0 14px;flex-wrap:wrap}
 .vp-h{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:28px;letter-spacing:-.02em;color:#1A1A1A;margin:0;line-height:1.05}
@@ -5688,6 +5827,42 @@ async function voiceCurriculumLoad(){
   const r=await api('/voice/lessons');
   if(r){S.voiceCurriculum={progress:r.progress||{},totalXp:r.totalXp||0,totalStars:r.totalStars||0,completed:r.completed||0};render()}
 }
+
+// ═══ COMMUNITY ARTICLES — Medium-style ═══
+async function loadArticles(cat){
+  S.articlesLoading=true;S.articlesCat=cat||'all';render();
+  try{const r=await fetch('/api/articles?cat='+encodeURIComponent(S.articlesCat)+'&sort='+(S.articlesSort||'recent'));const j=await r.json();S.articles=j.items||[]}catch(e){S.articles=[]}
+  S.articlesLoading=false;render();
+}
+function openArticleEditor(){
+  S.articleEditor={open:true,id:null,title:'',body:'',image_url:'',category:'general',saving:false};
+  render();
+}
+function closeArticleEditor(){S.articleEditor=null;render()}
+async function saveArticle(){
+  const e=S.articleEditor;if(!e)return;
+  if(!e.title.trim()){toast('\\u26A0\\uFE0F Add a title','err');return}
+  if(e.body.trim().length<50){toast('\\u26A0\\uFE0F Body needs at least 50 characters','err');return}
+  e.saving=true;render();
+  const r=await api('/articles',{method:'POST',body:JSON.stringify({title:e.title.trim(),body:e.body.trim(),image_url:e.image_url.trim(),category:e.category})});
+  if(r&&r.ok){toast('\\u2728 Article published');S.articleEditor=null;loadArticles(S.articlesCat||'all')}
+  else{e.saving=false;toast('\\u26A0\\uFE0F '+(r&&r.error||'Failed to publish'),'err');render()}
+}
+async function openArticleReader(id){
+  S.articleReader={loading:true,id};render();
+  try{const r=await fetch('/api/articles/'+encodeURIComponent(id));const j=await r.json();if(j.error){toast('\\u26A0\\uFE0F '+j.error,'err');S.articleReader=null;render();return}S.articleReader={article:j,loading:false}}
+  catch(e){S.articleReader=null;toast('\\u26A0\\uFE0F Failed to load','err')}
+  render();
+}
+function closeArticleReader(){S.articleReader=null;render()}
+async function likeArticle(id){
+  const r=await api('/articles/'+encodeURIComponent(id)+'/like',{method:'POST'});
+  if(r&&r.ok){
+    if(S.articles){const a=S.articles.find(x=>x.id===id);if(a)a.likes=r.likes}
+    if(S.articleReader&&S.articleReader.article&&S.articleReader.article.id===id){S.articleReader.article.likes=r.likes;S.articleReader.liked=r.liked}
+    render();
+  }
+}
 function _normaliseForMatch(s){return String(s||'').toLowerCase().replace(/[^a-z0-9\\s]/g,'').replace(/\\s+/g,' ').trim()}
 function _scorePronunciation(target,heard){
   const t=_normaliseForMatch(target).split(' ').filter(Boolean);
@@ -6245,19 +6420,10 @@ else if(S.tab==='voice'){
   // Tutor mode indicator — green when configured, an actionable setup card when not
   if(st.chat){
     h+='<div style="display:inline-flex;align-items:center;gap:8px;padding:7px 14px;background:rgba(31,77,63,.08);border:1px solid rgba(31,77,63,.22);border-radius:999px;font-family:\\'JetBrains Mono\\',\\'Space Mono\\',monospace;font-size:11px;font-weight:500;letter-spacing:.06em;color:#1F4D3F;text-transform:uppercase;margin-bottom:14px"><span style="width:6px;height:6px;border-radius:999px;background:#10B981;box-shadow:0 0 8px #10B981;animation:wn-pulse 2s ease-in-out infinite"></span>AI tutor \\u00B7 ready</div>';
-  } else {
-    // Inline setup card — visible state of what is needed to bring the AI tutor online
-    h+='<div style="margin-bottom:18px;padding:18px 20px;background:#fff;border:1px solid #E8E6E0;border-radius:14px">'
-      +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><span style="width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#FCD34D,#F59E0B);display:grid;place-items:center;font-size:14px">\\u26A1</span><div style="font-family:\\'JetBrains Mono\\',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#B45309;font-weight:600">AI tutor not configured</div></div>'
-      +'<div style="font-size:14px;line-height:1.55;color:#3D3D3D;margin-bottom:12px">The AI conversation engine is ready in the codebase but needs API credentials to come online. Set these in your Railway environment:</div>'
-      +'<div style="font-family:\\'JetBrains Mono\\',monospace;font-size:11.5px;line-height:1.7;color:#1A1A1A;background:#F4F3EE;border:1px solid #E8E6E0;border-radius:8px;padding:10px 14px;margin-bottom:12px">'
-        +'<div><b>ANTHROPIC_API_KEY</b> \\u00B7 chat <span style="color:#9A9A9A">(<a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener" style="color:#1F4D3F">get one \\u2197</a>)</span></div>'
-        +'<div><b>OPENAI_API_KEY</b> \\u00B7 voice in <span style="color:#9A9A9A">(<a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener" style="color:#1F4D3F">get one \\u2197</a>)</span></div>'
-        +'<div><b>ELEVENLABS_API_KEY</b> \\u00B7 human voice <span style="color:#9A9A9A">(<a href="https://elevenlabs.io/app/settings/api-keys" target="_blank" rel="noopener" style="color:#1F4D3F">get one \\u2197</a>)</span></div>'
-      +'</div>'
-      +'<div style="font-size:12.5px;color:#6B6B6B;line-height:1.5">Until then, the chat below works in <b>local-only mode</b> \\u2014 typed messages, browser TTS, no AI replies.</div>'
-    +'</div>';
   }
+  // (AI-not-configured banner removed — local pronunciation drill + curriculum work
+  // independently. The free-form chat at the bottom still needs ANTHROPIC_API_KEY for
+  // intelligent replies; users discover that organically when they try it.)
   // Scenarios
   h+='<div class="cc-scenarios"><div class="cc-scenarios-t">\\u26A1 Pick a scenario \\u2014 or just chat below</div><div class="cc-scenario-row">';
   COACH_SCENARIOS.forEach((sc,i)=>{const on=c.scenario&&c.scenario.id===sc.id;h+='<button class="cc-sc'+(on?' cc-sc-on':'')+'" onclick="coachStartScenarioByIdx('+i+')">'+esc(sc.title)+'</button>'});
@@ -6481,11 +6647,39 @@ else if(S.tab==='cal'){
 
 // NEWS TAB (shorts feed with categories + share)
 else if(S.tab==='news'){
+  if(!S.newsMode)S.newsMode='headlines';
   const cats=[{k:'world',l:'World',ic:'globe'},{k:'tech',l:'Tech & AI',ic:'tech'},{k:'sports',l:'Sports',ic:'sport'}];
-  h+='<div class="news-hero"><div class="news-hero-l"><span class="news-hero-ic">'+ic('news',22)+'</span><div><h2>News</h2><p>Fresh headlines \\u2022 Tap share to send to any app</p></div></div><button class="news-refresh" onclick="loadNews(S.newsCat)" title="Refresh">'+ic('refresh',18)+'</button></div>';
-  h+='<div class="flt flt-icons">';
-  cats.forEach(c=>{h+='<button class="fb'+(S.newsCat===c.k?' on':'')+'" onclick="loadNews(\\''+c.k+'\\')"><span class="fb-ic">'+ic(c.ic,15)+'</span>'+c.l+'</button>'});
-  h+='</div>';
+  h+='<div class="news-hero"><div class="news-hero-l"><span class="news-hero-ic">'+ic('news',22)+'</span><div><h2>News &amp; Stories</h2><p>Fresh headlines \\u2022 Articles by the community</p></div></div>'+(S.newsMode==='community'?'<button class="news-refresh" onclick="openArticleEditor()" title="Write an article" style="background:#1A1A1A;color:#fff"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Write</button>':'<button class="news-refresh" onclick="loadNews(S.newsCat)" title="Refresh">'+ic('refresh',18)+'</button>')+'</div>';
+  // Mode toggle: Headlines vs Community articles
+  h+='<div class="bk-mode-toggle"><button class="'+(S.newsMode==='headlines'?'on':'')+'" onclick="S.newsMode=\\'headlines\\';render()">\\u{1F4F0} Headlines</button><button class="'+(S.newsMode==='community'?'on':'')+'" onclick="S.newsMode=\\'community\\';if(!S.articles)loadArticles(\\'all\\');render()">\\u270D\\uFE0F Community</button></div>';
+  if(S.newsMode==='community'){
+    if(!S.articles&&!S.articlesLoading){loadArticles('all')}
+    const acats=['all','tech','business','life','wellness','culture','opinion'];
+    h+='<div class="flt flt-icons" style="margin-bottom:14px">';
+    acats.forEach(c=>{h+='<button class="fb'+((S.articlesCat||'all')===c?' on':'')+'" onclick="loadArticles(\\''+c+'\\')">'+(c.charAt(0).toUpperCase()+c.slice(1))+'</button>'});
+    h+='</div>';
+    if(S.articlesLoading&&!(S.articles||[]).length){h+='<div class="loading">\\u{1F4DD} Loading articles\\u2026</div>'}
+    else if(!(S.articles||[]).length){h+='<div class="empty"><div style="font-size:44px">\\u{1F4DD}</div><div style="font-size:16px;margin-top:12px;font-weight:600">No articles in this category yet</div><div style="font-size:13px;margin-top:6px;color:var(--ink-3)">Be the first to write one</div><button class="mb mb-s" style="margin-top:16px;background:#1A1A1A" onclick="openArticleEditor()">\\u270D\\uFE0F Write the first article</button></div>'}
+    else{
+      h+='<div class="art-feed">';
+      S.articles.forEach(a=>{
+        const when=timeAgo(a.created_at?a.created_at.replace(' ','T')+'Z':null);
+        const initial=(a.author_name||'A').charAt(0).toUpperCase();
+        h+='<article class="art-card" onclick="openArticleReader(\\''+a.id+'\\')">';
+        if(a.image_url)h+='<div class="art-img"><img src="'+esc(a.image_url)+'" loading="lazy" onerror="this.parentElement.style.display=\\'none\\'"></div>';
+        h+='<div class="art-body"><div class="art-cat">'+esc(a.category||'general')+'</div><h3 class="art-title">'+esc(a.title)+'</h3><p class="art-preview">'+esc(a.preview||'')+'</p>'
+          +'<div class="art-meta"><span class="art-author"><span class="art-avatar">'+initial+'</span>'+esc(a.author_name||'Anonymous')+'</span>'
+          +'<span class="art-dot">\\u00B7</span><span class="art-time">'+esc(when||'')+'</span>'
+          +'<span class="art-dot">\\u00B7</span><span class="art-readtime">'+a.read_min+' min read</span>'
+          +'<button class="art-like" onclick="event.stopPropagation();likeArticle(\\''+a.id+'\\')">\\u2661 '+a.likes+'</button></div>'
+          +'</div></article>';
+      });
+      h+='</div>';
+    }
+  } else {
+    h+='<div class="flt flt-icons">';
+    cats.forEach(c=>{h+='<button class="fb'+(S.newsCat===c.k?' on':'')+'" onclick="loadNews(\\''+c.k+'\\')"><span class="fb-ic">'+ic(c.ic,15)+'</span>'+c.l+'</button>'});
+    h+='</div>';
   if(S.newsLoading&&!(S.news[S.newsCat]||[]).length){
     h+='<div class="loading">\\u{1F4E1} Fetching latest '+esc((cats.find(c=>c.k===S.newsCat)||{}).l||'')+' stories\\u2026</div>';
   } else {
@@ -6510,6 +6704,7 @@ else if(S.tab==='news'){
       h+='</div>';
     }
   }
+  } // end newsMode==='headlines'
 }
 
 // BOOKS TAB
@@ -6521,8 +6716,38 @@ else if(S.tab==='books'){
   // Mode toggle: summaries vs audiobooks
   h+='<div class="bk-mode-toggle"><button class="'+(S.booksMode==='summaries'?'on':'')+'" onclick="S.booksMode=\\'summaries\\';render()">\\u2728 15-min summaries</button><button class="'+(S.booksMode==='audiobooks'?'on':'')+'" onclick="S.booksMode=\\'audiobooks\\';render()">\\u{1F3A7} Audiobooks</button></div>';
   if(S.booksMode==='summaries'){
+    // Featured book hero (Blinkist-style) — picks one based on day-of-year so it rotates daily
+    {
+      const d=new Date();const yStart=new Date(d.getFullYear(),0,0);const day=Math.floor((d-yStart)/86400000);
+      const featured=BOOK_SUMMARIES[day%BOOK_SUMMARIES.length];
+      h+='<div class="bk-hero">'
+        +'<div>'
+          +'<div class="bk-hero-tag">\\u2728 Featured today \\u00B7 '+featured.mins+' min</div>'
+          +'<h2>'+esc(featured.title)+'</h2>'
+          +'<div class="bk-hero-author">By '+esc(featured.author)+'</div>'
+          +'<p class="bk-hero-why">'+esc(featured.why)+'</p>'
+          +'<div class="bk-hero-actions">'
+            +'<button class="bk-hero-go" onclick="openBookSummary(\\''+featured.id+'\\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg> Listen now</button>'
+            +'<button class="bk-hero-go" style="background:rgba(255,255,255,.16);color:#fff" onclick="openBookSummary(\\''+featured.id+'\\')">Read summary</button>'
+          +'</div>'
+        +'</div>'
+        +'<div class="bk-hero-cover" style="background:'+featured.grad+'">'
+          +'<div class="auth">'+esc(featured.author)+'</div>'
+          +'<h5>'+esc(featured.title)+'</h5>'
+        +'</div>'
+      +'</div>';
+    }
+    // Category filter pills
+    {
+      if(!S.bkCat)S.bkCat='all';
+      const cats=[{k:'all',l:'All'},{k:'productivity',l:'Productivity'},{k:'focus',l:'Focus'},{k:'mind',l:'Mind'},{k:'stoic',l:'Stoic'}];
+      h+='<div class="bk-cats">';
+      cats.forEach(c=>{h+='<button class="bk-cat'+(S.bkCat===c.k?' on':'')+'" onclick="S.bkCat=\\''+c.k+'\\';render()">'+c.l+'</button>'});
+      h+='</div>';
+    }
     h+='<div class="bk-sum-grid">';
-    BOOK_SUMMARIES.forEach(b=>{
+    const bkFiltered=S.bkCat&&S.bkCat!=='all'?BOOK_SUMMARIES.filter(b=>b.tag===S.bkCat):BOOK_SUMMARIES;
+    bkFiltered.forEach(b=>{
       h+='<button class="bk-sum-card" onclick="openBookSummary(\\''+b.id+'\\')">';
       h+='<div class="bk-sum-cover" style="background:'+b.grad+'"><div class="bk-sum-mins">'+b.mins+' min</div><div></div><div><h5>'+esc(b.title)+'</h5><div class="auth">'+esc(b.author)+'</div></div></div>';
       h+='<div class="bk-sum-meta">'+esc(b.title)+'<small>'+esc(b.author)+'</small></div>';
@@ -6652,6 +6877,52 @@ if(S.toast)h+='<div class="toast toast-'+(S.toastType==='err'?'err':'ok')+'">'+S
 if(S._mgConfetti&&Date.now()-S._mgConfetti<1500){
   h+='<div class="mg-confetti"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>';
   setTimeout(()=>{S._mgConfetti=null;render()},1600);
+}
+
+// ═══ ARTICLE EDITOR (Medium-style writing) ═══
+if(S.articleEditor&&S.articleEditor.open){
+  const e=S.articleEditor;
+  h+='<div class="ae-overlay" onclick="if(event.target===this)closeArticleEditor()"><div class="ae-box">';
+  h+='<header class="ae-top"><div><div class="ae-tag">WRITE A STORY</div><div class="ae-h">Share an idea with the community</div></div><button class="vl-x" onclick="closeArticleEditor()">\\u2715</button></header>';
+  h+='<div class="ae-body">';
+  h+='<input class="ae-title" placeholder="Title" maxlength="180" value="'+esc(e.title)+'" oninput="S.articleEditor.title=this.value">';
+  h+='<input class="ae-image" placeholder="Image URL (optional, https://...)" value="'+esc(e.image_url)+'" oninput="S.articleEditor.image_url=this.value">';
+  if(e.image_url&&/^https?:\/\//i.test(e.image_url))h+='<div class="ae-img-prev"><img src="'+esc(e.image_url)+'" onerror="this.parentElement.style.display=\\'none\\'"></div>';
+  h+='<div class="ae-cats">';
+  ['tech','business','life','wellness','culture','opinion','general'].forEach(c=>{
+    h+='<button class="ae-cat'+(e.category===c?' on':'')+'" onclick="S.articleEditor.category=\\''+c+'\\';render()">'+(c.charAt(0).toUpperCase()+c.slice(1))+'</button>';
+  });
+  h+='</div>';
+  h+='<textarea class="ae-text" placeholder="Tell your story... (min 50 characters)" rows="14" oninput="S.articleEditor.body=this.value">'+esc(e.body)+'</textarea>';
+  const len=e.body.length;
+  h+='<div class="ae-meta"><span>'+len+' characters \\u00B7 '+Math.max(1,Math.round(len/1200))+' min read</span><span>Markdown not supported \\u2014 plain text only</span></div>';
+  h+='</div>';
+  h+='<footer class="ae-foot"><button class="vl-btn vl-btn-ghost" onclick="closeArticleEditor()">Cancel</button><button class="vl-btn vl-btn-primary" onclick="saveArticle()" '+(e.saving||!e.title||e.body.length<50?'disabled':'')+'>'+(e.saving?'Publishing...':'Publish article')+'</button></footer>';
+  h+='</div></div>';
+}
+
+// ═══ ARTICLE READER ═══
+if(S.articleReader){
+  if(S.articleReader.loading){
+    h+='<div class="ar-overlay" onclick="if(event.target===this)closeArticleReader()"><div class="ar-box"><div style="padding:60px;text-align:center;color:#9A9A9A">Loading...</div></div></div>';
+  } else if(S.articleReader.article){
+    const a=S.articleReader.article;
+    const when=timeAgo(a.created_at?a.created_at.replace(' ','T')+'Z':null);
+    const initial=(a.author_name||'A').charAt(0).toUpperCase();
+    const readMin=Math.max(1,Math.round((a.body||'').length/1200));
+    h+='<div class="ar-overlay" onclick="if(event.target===this)closeArticleReader()"><div class="ar-box">';
+    h+='<button class="ar-x" onclick="closeArticleReader()">\\u2715</button>';
+    if(a.image_url)h+='<div class="ar-hero"><img src="'+esc(a.image_url)+'" onerror="this.parentElement.style.display=\\'none\\'"></div>';
+    h+='<div class="ar-body">';
+    h+='<div class="ar-cat">'+esc(a.category||'general').toUpperCase()+'</div>';
+    h+='<h1 class="ar-title">'+esc(a.title)+'</h1>';
+    h+='<div class="ar-meta"><span class="ar-author"><span class="ar-avatar">'+initial+'</span>'+esc(a.author_name||'Anonymous')+'</span><span>\\u00B7</span><span>'+esc(when||'')+'</span><span>\\u00B7</span><span>'+readMin+' min read</span></div>';
+    h+='<div class="ar-content">';
+    String(a.body||'').split(/\\n\\n+/).forEach(p=>{h+='<p>'+esc(p).replace(/\\n/g,'<br>')+'</p>'});
+    h+='</div>';
+    h+='<div class="ar-foot"><button class="ar-like" onclick="likeArticle(\\''+a.id+'\\')">\\u2661 '+a.likes+' likes</button><span style="color:#9A9A9A;font-size:13px">Thanks for reading</span></div>';
+    h+='</div></div></div>';
+  }
 }
 
 // ═══ VOICE LESSON RUNNER ═══
