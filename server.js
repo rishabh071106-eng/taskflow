@@ -4744,7 +4744,7 @@ const KNOWLEDGE_TOPICS=[
 ];
 function getKnowledgeTopic(k){return KNOWLEDGE_TOPICS.find(t=>t.k===k)||KNOWLEDGE_TOPICS[0]}
 function getKnowledgeSec(topicK,secK){const t=getKnowledgeTopic(topicK);return t.sections.find(s=>s.k===secK)||t.sections[0]}
-function switchTab(t){if(t==='steps'||t==='dash'||t==='history'||t==='geography'||t==='knowledge'||t==='ipl'||t==='games')t=t==='ipl'?'news':t==='games'?'mindgym':'tasks';S.tab=t;if(t==='news'){if(!S.newsCat)S.newsCat='world';if(!S.news[S.newsCat])loadNews(S.newsCat)}if(t==='books'&&!S.books.length)loadBooks('all');if(t==='meditation'&&!S.meditations)loadMeditations();if(t==='cal'){if(!S.google.loaded)loadGoogleStatus();else if(S.google.accounts.length&&!S.gcalEvents.length&&!S.gcalLoading)loadGcalEvents()}if(t==='mindgym'&&!S.mg.loaded)loadMindGym();if(t==='voice'){if(!S.coach.status)coachInit()}render();try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}}
+function switchTab(t){if(t==='steps'||t==='dash'||t==='history'||t==='geography'||t==='knowledge'||t==='ipl'||t==='games')t=t==='ipl'?'news':t==='games'?'mindgym':'tasks';S.tab=t;if(t==='news'){if(!S.newsCat)S.newsCat='world';if(!S.news[S.newsCat])loadNews(S.newsCat)}if(t==='books'&&!S.books.length)loadBooks('all');if(t==='meditation'&&!S.meditations)loadMeditations();if(t==='cal'){if(!S.google.loaded)loadGoogleStatus();else if(S.google.accounts.length&&!S.gcalEvents.length&&!S.gcalLoading)loadGcalEvents()}if(t==='mindgym'&&!S.mg.loaded)loadMindGym();if(t==='voice'){if(!S.coach.status)coachInit()}S._suppressScrollRestore=true;render();S._suppressScrollRestore=false;try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}}
 async function loadKnowledge(topicK,secK){S.knowledge.topic=topicK;S.knowledge.sec=secK;S.knowledge.loading=true;render();const cacheKey=topicK+':'+secK;try{if(topicK==='history'&&secK==='today'){const r=await fetch('/api/history/today');const j=await r.json();S.knowledge.events=j.events||[]}else{const tObj=KNOWLEDGE_TOPICS.find(t=>t.k===topicK);const sObj=tObj&&tObj.sections.find(s=>s.k===secK);if(!sObj||!sObj.titles){S.knowledge.loaded[cacheKey]=true;S.knowledge.loading=false;render();return}const r=await fetch('/api/wiki/summaries?titles='+encodeURIComponent(sObj.titles.join(',')));const j=await r.json();S.knowledge.articles[cacheKey]=j.summaries||[]}}catch(e){}S.knowledge.loaded[cacheKey]=true;S.knowledge.loading=false;render()}
 function switchKnowledgeTopic(k){S.knowledge.topic=k;const tObj=KNOWLEDGE_TOPICS.find(t=>t.k===k);const sk=(tObj&&tObj.sections[0]&&tObj.sections[0].k)||'today';loadKnowledge(k,sk)}
 async function loadNews(cat){S.newsCat=cat;S.newsLoading=true;render();try{const r=await fetch('/api/news?cat='+encodeURIComponent(cat),{cache:'no-store'});const j=await r.json();S.news[cat]=j.items||[]}catch(e){S.news[cat]=[]}S.newsLoading=false;render()}
@@ -6161,9 +6161,20 @@ function render(){
 // While the canvas-based Memory Tap is running, suspend full re-renders so the canvas state
 // (game loop, animations) is preserved.
 if(S._mtActive&&S.mgPlay&&S.mgPlay.canvasGame==='mt'&&document.getElementById('mtCanvas'))return;
+// Preserve scroll position across re-renders — fixes the "page jumps to top every 10s" bug
+// when background polls (load, loadMgData, loadGoogleStatus, etc.) trigger a render while the
+// user is reading a long page. switchTab() still explicitly scrolls to top AFTER render(), so
+// that intentional behaviour wins; only passive re-renders preserve scroll.
+const _sy=window.scrollY||window.pageYOffset||0;
+const _sx=window.scrollX||window.pageXOffset||0;
 // Preserve focus + cursor across re-renders so typing isn't interrupted
 const _fs=(function(){try{const a=document.activeElement;if(!a||(a.tagName!=='INPUT'&&a.tagName!=='TEXTAREA'))return null;return{id:a.id,name:a.name,type:a.type,placeholder:a.placeholder,start:a.selectionStart,end:a.selectionEnd}}catch(e){return null}})();
-const _restore=function(){if(!_fs)return;try{let el=null;if(_fs.id)el=document.getElementById(_fs.id);if(!el){const inputs=document.querySelectorAll('input,textarea');for(const i of inputs){if((_fs.placeholder&&i.placeholder===_fs.placeholder)||(_fs.name&&i.name===_fs.name)){el=i;break}}}if(el){try{el.focus({preventScroll:true})}catch(e){el.focus()}if(typeof _fs.start==='number'&&el.setSelectionRange){try{el.setSelectionRange(_fs.start,_fs.end)}catch(e){}}}}catch(e){}};
+const _restore=function(){
+  // Skip restoration if caller explicitly wants top (switchTab, modal close, etc.)
+  if(!S._suppressScrollRestore&&(_sy||_sx)){try{window.scrollTo(_sx,_sy)}catch(e){}}
+  if(!_fs)return;
+  try{let el=null;if(_fs.id)el=document.getElementById(_fs.id);if(!el){const inputs=document.querySelectorAll('input,textarea');for(const i of inputs){if((_fs.placeholder&&i.placeholder===_fs.placeholder)||(_fs.name&&i.name===_fs.name)){el=i;break}}}if(el){try{el.focus({preventScroll:true})}catch(e){el.focus()}if(typeof _fs.start==='number'&&el.setSelectionRange){try{el.setSelectionRange(_fs.start,_fs.end)}catch(e){}}}}catch(e){}
+};
 setTimeout(_restore,0);
 if(!S.user){let h='<div class="login">';
 if(S.loginStep==='phone'){
