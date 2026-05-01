@@ -249,11 +249,34 @@ app.post('/api/coach/transcribe',auth,express.raw({type:'audio/*',limit:'10mb'})
   }catch(e){res.status(500).json({error:String(e.message||e)})}
 });
 
+// Disk-based audio cache. The same chunk + voice pair only ever calls ElevenLabs once.
+// On Railway the cache lives on the deploy filesystem (resets on each push). Mount a
+// persistent volume or swap the dir for a GCS bucket prefix to keep audio across deploys.
+const _crypto=require('crypto');
+const _fs=require('fs');
+const _path=require('path');
+const TTS_CACHE_DIR=process.env.TTS_CACHE_DIR||_path.join(process.cwd(),'tts-cache');
+try{_fs.mkdirSync(TTS_CACHE_DIR,{recursive:true})}catch(e){}
+function _ttsCacheKey(text,voice,model){return _crypto.createHash('sha256').update(voice+':'+model+':'+text).digest('hex')}
+function _ttsCachePath(key){return _path.join(TTS_CACHE_DIR,key+'.mp3')}
+let _ttsCacheStats={hits:0,misses:0};
 app.post('/api/coach/speak',auth,async(req,res)=>{
   if(!ELEVENLABS_KEY)return res.status(503).json({error:'TTS not configured',fallback:'browser-tts'});
   const text=String((req.body&&req.body.text)||'').slice(0,2000);
   if(!text)return res.status(400).json({error:'text required'});
   const voice=String((req.body&&req.body.voice)||ELEVENLABS_VOICE).replace(/[^a-zA-Z0-9]/g,'');
+  const model='eleven_turbo_v2_5';
+  const cacheKey=_ttsCacheKey(text,voice,model);
+  const cachePath=_ttsCachePath(cacheKey);
+  // Cache hit — stream the saved file
+  try{
+    if(_fs.existsSync(cachePath)){
+      _ttsCacheStats.hits++;
+      const buf=_fs.readFileSync(cachePath);
+      return res.set('Content-Type','audio/mpeg').set('Cache-Control','public, max-age=86400').set('X-Tts-Cache','hit').send(buf);
+    }
+  }catch(e){}
+  _ttsCacheStats.misses++;
   try{
     const r=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+voice,{
       method:'POST',
@@ -262,12 +285,20 @@ app.post('/api/coach/speak',auth,async(req,res)=>{
       // For book narration we want fast first-byte over the marginal quality bump.
       // stability 0.7 keeps the narrator measured. style 0.05 = barely any stylization (calm).
       // similarity_boost 0.85 stays loyal to George's natural British timbre.
-      body:JSON.stringify({text,model_id:'eleven_turbo_v2_5',voice_settings:{stability:0.7,similarity_boost:0.85,style:0.05,use_speaker_boost:true}})
+      body:JSON.stringify({text,model_id:model,voice_settings:{stability:0.7,similarity_boost:0.85,style:0.05,use_speaker_boost:true}})
     });
     if(!r.ok){const t=await r.text();return res.status(502).json({error:t.slice(0,200)})}
     const audio=Buffer.from(await r.arrayBuffer());
-    res.set('Content-Type','audio/mpeg').set('Cache-Control','no-store').send(audio);
+    // Persist for next listener
+    try{_fs.writeFileSync(cachePath,audio)}catch(e){console.warn('[tts] cache write failed',e.message)}
+    res.set('Content-Type','audio/mpeg').set('Cache-Control','public, max-age=86400').set('X-Tts-Cache','miss').send(audio);
   }catch(e){res.status(500).json({error:String(e.message||e)})}
+});
+// Lightweight cache stats endpoint — useful for confirming cost savings
+app.get('/api/coach/cache-stats',(req,res)=>{
+  let count=0,bytes=0;
+  try{const files=_fs.readdirSync(TTS_CACHE_DIR);count=files.length;files.forEach(f=>{try{bytes+=_fs.statSync(_path.join(TTS_CACHE_DIR,f)).size}catch(e){}})}catch(e){}
+  res.json({...{},..._ttsCacheStats,cachedFiles:count,cachedBytes:bytes,cacheDir:TTS_CACHE_DIR});
 });
 
 // AI status — client-only check, no key exposure
@@ -1678,6 +1709,73 @@ body[data-theme=aurora] .vc-mdl-nav{background:rgba(255,255,255,.02);border-colo
 .mg-mem-tile:active{transform:scale(.95)}
 .mg-mem-lit{background:linear-gradient(135deg,#A855F7,#EC4899)!important;border-color:#A855F7!important;box-shadow:0 0 24px rgba(168,85,247,.55);animation:mgFlash .3s ease}
 @keyframes mgFlash{0%{transform:scale(.95)}50%{transform:scale(1.04)}100%{transform:scale(1)}}
+/* ─── Game detail / journey roadway ─── */
+.mg-detail{max-width:600px;width:min(600px,100%);padding:0;overflow:hidden;display:flex;flex-direction:column;background:#0F0B1F;color:#F5F5FA;border:0;max-height:96vh;border-radius:24px;animation:hdUp .35s cubic-bezier(.16,1,.3,1)}
+body:not([data-theme=aurora]) .mg-detail{background:#FAFAF7;color:#1A1A1A}
+.mgd-hd{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid rgba(255,255,255,.06);background:linear-gradient(135deg,var(--accent,#FF6B47) 0%,var(--accent2,#FFB547) 100%);color:#fff;flex-shrink:0}
+.mgd-back{width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,.18);border:0;color:#fff;cursor:pointer;display:grid;place-items:center;transition:background .2s,transform .2s;flex-shrink:0}
+.mgd-back:hover{background:rgba(0,0,0,.3);transform:translateX(-2px)}
+.mgd-back:active{transform:scale(.92)}
+.mgd-title{display:flex;align-items:center;gap:12px;flex:1;min-width:0;justify-content:center}
+.mgd-emoji{font-size:28px;line-height:1;filter:drop-shadow(0 2px 6px rgba(0,0,0,.25))}
+.mgd-name{font:600 17px/1.1 'Inter',sans-serif;letter-spacing:-.015em;color:#fff}
+.mgd-sub{font-family:'JetBrains Mono','Space Mono',monospace;font-size:10.5px;letter-spacing:.1em;color:rgba(255,255,255,.78);font-weight:600;margin-top:3px;text-transform:uppercase}
+.mgd-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:22px 24px 14px}
+.mgd-d{font-size:14.5px;line-height:1.55;color:rgba(255,255,255,.78);margin:0 0 18px;letter-spacing:-.005em}
+body:not([data-theme=aurora]) .mgd-d{color:#3D3D3D}
+.mgd-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:24px}
+.mgd-stat{padding:12px 10px;border-radius:14px;text-align:center;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}
+body:not([data-theme=aurora]) .mgd-stat{background:#fff;border-color:#E8E6E0}
+.mgd-stat b{display:block;font:600 22px/1 'Inter',sans-serif;letter-spacing:-.02em;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.mgd-stat small{display:block;font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.1em;color:rgba(255,255,255,.5);margin-top:5px;text-transform:uppercase;font-weight:500}
+body:not([data-theme=aurora]) .mgd-stat small{color:#6B6B6B}
+.mgd-road{position:relative;padding:14px 0 22px;min-height:560px}
+.mgd-path{position:absolute;left:50%;transform:translateX(-50%);top:0;width:100px;height:100%;pointer-events:none}
+.mgd-milestones{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:38px;position:relative;z-index:2}
+.mgd-mile{position:relative;display:flex;align-items:center;gap:14px;min-height:54px}
+.mgd-mile-left{flex-direction:row;justify-content:flex-start;padding-right:50%}
+.mgd-mile-right{flex-direction:row-reverse;justify-content:flex-start;padding-left:50%}
+.mgd-mile-left .mgd-mile-info{text-align:right}
+.mgd-mile-right .mgd-mile-info{text-align:left}
+.mgd-node{flex-shrink:0;width:54px;height:54px;border-radius:50%;border:3px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:rgba(255,255,255,.5);font:700 17px/1 'Inter',sans-serif;cursor:pointer;display:grid;place-items:center;transition:all .35s cubic-bezier(.34,1.56,.64,1);position:relative;z-index:3}
+body:not([data-theme=aurora]) .mgd-node{background:#fff;border-color:#E8E6E0;color:#9A9A9A;box-shadow:0 4px 12px rgba(0,0,0,.06)}
+.mgd-mile-left .mgd-node{margin-left:50%;transform:translateX(-50%)}
+.mgd-mile-right .mgd-node{margin-right:50%;transform:translateX(50%)}
+.mgd-done .mgd-node{background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:transparent;color:#fff;box-shadow:0 6px 18px -4px var(--accent)}
+.mgd-current .mgd-node{background:#fff;border-color:var(--accent);color:var(--accent);box-shadow:0 0 0 6px rgba(255,107,71,.18),0 8px 22px -4px var(--accent);animation:mgdNodePulse 1.6s ease-in-out infinite}
+@keyframes mgdNodePulse{0%,100%{box-shadow:0 0 0 6px rgba(244,114,182,.18),0 8px 22px -4px var(--accent)}50%{box-shadow:0 0 0 12px rgba(244,114,182,.05),0 8px 22px -4px var(--accent)}}
+.mgd-locked .mgd-node{cursor:not-allowed;opacity:.5}
+.mgd-node:not(:disabled):hover{transform:scale(1.08)}
+.mgd-mile-left .mgd-node:not(:disabled):hover{transform:translateX(-50%) scale(1.08)}
+.mgd-mile-right .mgd-node:not(:disabled):hover{transform:translateX(50%) scale(1.08)}
+.mgd-mile-info{flex:1;min-width:0;padding:0 8px}
+.mgd-mile-t{font:600 14.5px/1.1 'Inter',sans-serif;color:#F5F5FA;letter-spacing:-.005em}
+body:not([data-theme=aurora]) .mgd-mile-t{color:#1A1A1A}
+.mgd-locked .mgd-mile-t{color:rgba(255,255,255,.4)}
+body:not([data-theme=aurora]) .mgd-locked .mgd-mile-t{color:#9A9A9A}
+.mgd-mile-d{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.06em;color:rgba(255,255,255,.5);margin-top:4px;text-transform:uppercase;font-weight:600}
+body:not([data-theme=aurora]) .mgd-mile-d{color:#6B6B6B}
+.mgd-current .mgd-mile-d{color:var(--accent)}
+/* Vehicle on the current node */
+.mgd-vehicle{position:absolute;font-size:32px;line-height:1;z-index:4;animation:mgdVehicleHover 2.2s ease-in-out infinite;filter:drop-shadow(0 4px 8px rgba(0,0,0,.4))}
+.mgd-mile-left .mgd-vehicle{left:50%;transform:translate(-50%,-46px)}
+.mgd-mile-right .mgd-vehicle{right:50%;transform:translate(50%,-46px)}
+@keyframes mgdVehicleHover{0%,100%{transform:translate(-50%,-46px)}50%{transform:translate(-50%,-50px)}}
+.mgd-mile-right .mgd-vehicle{animation-name:mgdVehicleHoverR}
+@keyframes mgdVehicleHoverR{0%,100%{transform:translate(50%,-46px)}50%{transform:translate(50%,-50px)}}
+.mgd-cta-wrap{padding:14px 20px calc(18px + env(safe-area-inset-bottom,0px));border-top:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.2);flex-shrink:0}
+body:not([data-theme=aurora]) .mgd-cta-wrap{background:#fff;border-top-color:#E8E6E0}
+.mgd-cta{width:100%;padding:15px 22px;border-radius:14px;border:0;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font:600 15px/1 inherit;letter-spacing:-.005em;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 10px 26px -6px var(--accent);transition:transform .2s,box-shadow .25s}
+.mgd-cta:hover{transform:translateY(-1px)}
+.mgd-cta:active{transform:scale(.97)}
+@media (max-width:560px){.mg-detail{max-height:100vh;border-radius:0;align-self:stretch;width:100%}.mgd-hd{padding:14px 16px;padding-top:calc(14px + env(safe-area-inset-top,0px))}.mgd-body{padding:18px 18px 12px}.mgd-emoji{font-size:24px}.mgd-name{font-size:16px}.mgd-stat b{font-size:18px}.mgd-road{min-height:540px}.mgd-node{width:46px;height:46px;font-size:15px}.mgd-vehicle{font-size:28px}}
+/* Mind Gym overall progress strip */
+.mg-overall{display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);margin-bottom:18px;font-size:13px;color:#fff}
+body:not([data-theme=aurora]) .mg-overall{background:#fff;border-color:#E8E6E0;color:#1A1A1A}
+.mg-overall b{font:600 18px/1 'Inter',sans-serif;background:linear-gradient(135deg,#FF6B47,#FFB547);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-right:4px;letter-spacing:-.02em}
+.mg-overall-bar{flex:1;height:6px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden;min-width:80px}
+body:not([data-theme=aurora]) .mg-overall-bar{background:#F4F3EE}
+.mg-overall-bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#FF6B47,#FFB547);transition:width .6s ease}
 /* ─── Elevate-style game header — used by math, word, schulte ─── */
 .mg-elevate-hd{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 4px 14px}
 .mg-elevate-prog{flex:1;font-family:'JetBrains Mono','Space Mono',monospace;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:#6B6B6B;font-weight:600}
@@ -2824,6 +2922,55 @@ body:not([data-theme=aurora]) .cx-pv-lbl{color:#9A9A9A}
 body:not([data-theme=aurora]) .cx-pv-pill{background:#FFF1ED;color:#B7472A;border-color:#FFD0BD}
 body:not([data-theme=aurora]) .cx-pv-title{background:#F4F3EE;color:#1A1A1A;border-color:#E8E6E0}
 @media (max-width:560px){.cx-chip{padding:6px 10px;font-size:11.5px}.cx-input{font-size:15px}}
+/* ─── Daily Highlight ("one thing today") ─── */
+.hl-card{display:flex;align-items:stretch;width:100%;border-radius:18px;padding:16px 18px;margin:0 0 14px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#F5F5FA;font-family:inherit;cursor:pointer;text-align:left;transition:transform .25s ease,background .25s ease,border-color .25s ease,box-shadow .3s ease;position:relative;overflow:hidden;animation:hlIn .45s cubic-bezier(.16,1,.3,1)}
+@keyframes hlIn{from{opacity:0;transform:translateY(-6px)}}
+body:not([data-theme=aurora]) .hl-card{background:#fff;border-color:#E8E6E0;color:#1A1A1A}
+.hl-card.hl-empty{background:linear-gradient(135deg,rgba(255,107,71,.15),rgba(255,181,71,.08));border-color:rgba(255,107,71,.35);align-items:center;gap:14px}
+body:not([data-theme=aurora]) .hl-card.hl-empty{background:linear-gradient(135deg,#FFF1ED,#FFFBF4);border-color:rgba(255,107,71,.35);color:#1A1A1A}
+.hl-card.hl-empty:hover{transform:translateY(-2px);background:linear-gradient(135deg,rgba(255,107,71,.22),rgba(255,181,71,.12));box-shadow:0 12px 28px -10px rgba(255,107,71,.45)}
+.hl-card.hl-set{background:linear-gradient(135deg,rgba(255,107,71,.18) 0%,rgba(167,139,250,.12) 100%);border-color:rgba(255,107,71,.4);box-shadow:0 8px 24px -10px rgba(255,107,71,.3)}
+body:not([data-theme=aurora]) .hl-card.hl-set{background:linear-gradient(135deg,#FFF1ED,#F5EFFF);border-color:rgba(255,107,71,.45);color:#1A1A1A}
+.hl-card.hl-done{background:linear-gradient(135deg,rgba(52,211,153,.18),rgba(34,211,238,.1));border-color:rgba(52,211,153,.4);box-shadow:0 8px 24px -10px rgba(52,211,153,.3)}
+body:not([data-theme=aurora]) .hl-card.hl-done{background:linear-gradient(135deg,#EAFBF1,#ECFDFB);border-color:rgba(52,211,153,.45)}
+.hl-card.hl-set:hover,.hl-card.hl-done:hover{transform:translateY(-2px)}
+.hl-row{display:flex;align-items:center;gap:14px;width:100%}
+.hl-row-edit{align-items:center}
+.hl-ic{flex-shrink:0;color:#FFB547}
+.hl-card.hl-set .hl-ic{display:none}
+.hl-empty-body{flex:1;min-width:0}
+.hl-empty-t{font:600 15px/1.2 'Inter',sans-serif;color:#1A1A1A;letter-spacing:-.01em;margin-bottom:3px}
+body[data-theme=aurora] .hl-empty-t{color:#fff}
+.hl-empty-d{font-size:12.5px;color:rgba(0,0,0,.55);letter-spacing:-.005em;line-height:1.4}
+body[data-theme=aurora] .hl-empty-d{color:rgba(255,255,255,.6)}
+.hl-input{flex:1;min-width:0;background:transparent;border:0;outline:0;padding:8px 0;color:#fff;font:500 16px/1.4 'Instrument Serif','Inter',serif;font-style:italic;letter-spacing:-.005em}
+body:not([data-theme=aurora]) .hl-input{color:#1A1A1A}
+.hl-input::placeholder{color:rgba(255,255,255,.4);font-style:italic}
+body:not([data-theme=aurora]) .hl-input::placeholder{color:rgba(26,26,26,.4)}
+.hl-cancel{flex-shrink:0;width:32px;height:32px;border-radius:50%;border:0;background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);cursor:pointer;font-size:13px}
+body:not([data-theme=aurora]) .hl-cancel{background:#F4F3EE;color:#6B6B6B}
+.hl-cancel:hover{background:rgba(220,38,38,.4);color:#fff}
+.hl-save{flex-shrink:0;padding:9px 16px;border-radius:10px;border:0;background:rgba(255,255,255,.08);color:rgba(255,255,255,.4);font:600 13px/1 inherit;cursor:pointer;letter-spacing:-.005em;transition:all .2s}
+body:not([data-theme=aurora]) .hl-save{background:#F4F3EE;color:#9A9A9A}
+.hl-save.on{background:linear-gradient(135deg,#FF6B47,#FFB547);color:#fff;box-shadow:0 6px 16px -4px rgba(255,107,71,.45)}
+.hl-save:active{transform:scale(.96)}
+.hl-check{flex-shrink:0;width:36px;height:36px;border-radius:50%;border:2px solid rgba(255,107,71,.5);background:transparent;cursor:pointer;display:grid;place-items:center;transition:all .25s cubic-bezier(.34,1.56,.64,1)}
+body:not([data-theme=aurora]) .hl-check{border-color:#FF6B47}
+.hl-check:hover{transform:scale(1.06);border-color:#FF6B47}
+.hl-check.on{background:linear-gradient(135deg,#34D399,#22D3EE);border-color:transparent;box-shadow:0 6px 16px -4px rgba(52,211,153,.5)}
+.hl-body{flex:1;min-width:0}
+.hl-eyebrow{font-family:'JetBrains Mono','Space Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,107,71,.9);font-weight:600;margin-bottom:5px}
+body:not([data-theme=aurora]) .hl-eyebrow{color:#B7472A}
+.hl-card.hl-done .hl-eyebrow{color:rgba(52,211,153,.95)}
+body:not([data-theme=aurora]) .hl-card.hl-done .hl-eyebrow{color:#0F8463}
+.hl-text{font-family:'Instrument Serif','Playfair Display',Georgia,serif;font-style:italic;font-weight:400;font-size:clamp(20px,3.6vw,26px);line-height:1.15;letter-spacing:-.018em;color:#fff;word-wrap:break-word}
+body:not([data-theme=aurora]) .hl-text{color:#1A1A1A}
+.hl-card.hl-done .hl-text{text-decoration:line-through;text-decoration-thickness:1.5px;text-decoration-color:rgba(52,211,153,.6);opacity:.85}
+.hl-edit{flex-shrink:0;width:32px;height:32px;border-radius:50%;border:0;background:rgba(255,255,255,.06);color:rgba(255,255,255,.6);cursor:pointer;display:grid;place-items:center;align-self:flex-start;transition:all .2s}
+body:not([data-theme=aurora]) .hl-edit{background:rgba(0,0,0,.05);color:#6B6B6B}
+.hl-edit:hover{background:rgba(255,255,255,.12);color:#fff;transform:scale(1.06)}
+body:not([data-theme=aurora]) .hl-edit:hover{background:rgba(0,0,0,.1);color:#1A1A1A}
+@media (max-width:560px){.hl-text{font-size:20px}.hl-card{padding:14px 16px}}
 /* ─── Single add-task chip ─── */
 .add-chip{display:inline-flex;align-items:center;gap:10px;padding:11px 16px 11px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#F5F5FA;font-family:inherit;font-weight:500;font-size:14px;cursor:pointer;letter-spacing:-.005em;transition:transform .2s ease,background .2s ease,border-color .2s ease,box-shadow .25s ease;margin:0 0 18px}
 .add-chip:hover{background:rgba(255,107,71,.12);border-color:rgba(255,107,71,.45);box-shadow:0 8px 22px -10px rgba(255,107,71,.5)}
@@ -5610,6 +5757,34 @@ async function voiceFinish(){
 }
 async function _mgSave(game,xpAdd,best){const r=await api('/games/progress',{method:'POST',body:JSON.stringify({game,xpAdd:xpAdd|0,best:best!=null?best|0:null})});if(r&&r.ok){S.mg.progress[game]={level:r.level,xp:r.xp,best:r.best,plays:r.plays};if(r.leveledUp)toast('\\u{1F31F} Level up! '+game+' \\u2192 L'+r.level);render()}}
 function mgClose(){_mtCleanup();if(S._msTimer){clearInterval(S._msTimer);S._msTimer=null}if(S._mwTimer){clearInterval(S._mwTimer);S._mwTimer=null}if(S._schTimer){clearInterval(S._schTimer);S._schTimer=null}if(S._memRespTimer){clearInterval(S._memRespTimer);S._memRespTimer=null}try{document.removeEventListener('keydown',_mwOnKey)}catch(e){}S.mgPlay=null;render()}
+// ─── Daily Highlight (Make-Time-style "one thing today") ─────────
+function _hlLoad(){try{const raw=localStorage.getItem('daily_hl');if(!raw)return null;const d=JSON.parse(raw);const today=new Date().toISOString().slice(0,10);if(d&&d.date===today)return d;return null}catch(e){return null}}
+function _hlSave(d){try{localStorage.setItem('daily_hl',JSON.stringify(d))}catch(e){}}
+function hlOpen(){S.hlEditing=true;S.hlInput=(S.dailyHl&&S.dailyHl.text)||'';render()}
+function hlClose(){S.hlEditing=false;render()}
+function hlSubmit(){
+  const v=(S.hlInput||'').trim();if(!v)return;
+  const today=new Date().toISOString().slice(0,10);
+  S.dailyHl={text:v,date:today,done:false,setAt:Date.now()};_hlSave(S.dailyHl);
+  S.hlEditing=false;S.hlInput='';render();toast('\\u2728 Highlight set');
+}
+function hlToggleDone(){if(!S.dailyHl)return;S.dailyHl.done=!S.dailyHl.done;_hlSave(S.dailyHl);if(S.dailyHl.done){S._mgConfetti=Date.now();toast('\\u{1F389} Highlight complete!')}render()}
+function hlClear(){S.dailyHl=null;try{localStorage.removeItem('daily_hl')}catch(e){}render()}
+// Game-detail view: click a game card → see its 10-level journey before playing
+function mgDetailOpen(key){S.mgDetail=key;render();try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){}}
+function mgDetailClose(){S.mgDetail=null;render()}
+function mgPlayLevel(key,lvl){
+  const cur=(S.mg.progress[key]||{level:1}).level||1;
+  if(lvl>cur){toast('\\u{1F512} Reach Level '+lvl+' first','err');return}
+  // Override the current level so the game starts at the chosen difficulty
+  S.mg.progress[key]={...(S.mg.progress[key]||{level:1,xp:0,best:0}),level:lvl};
+  // Stay on the detail screen so the user lands back on it after the game ends
+  if(key==='math')mgMathStart();
+  else if(key==='memory')mgMemoryStart();
+  else if(key==='reaction')mgReactionStart();
+  else if(key==='word')mgWordStart();
+  else if(key==='schulte')mgSchulteStart();
+}
 
 // ── Word Sprint (anagram unscrambler, 90-sec timer, length-squared scoring) ──
 const MG_PUZZLES=[
@@ -7211,6 +7386,38 @@ if(S.tab==='tasks'){
       +'<button class="wa-promo-x" onclick="localStorage.setItem(\\'tf_wa_banner_x\\',\\'1\\');render()" aria-label="Dismiss">\\u2715</button>'
     +'</div>';
   }
+  // ─── Daily Highlight (the "one thing today") ───
+  {
+    if(!S.dailyHl){const loaded=_hlLoad();if(loaded)S.dailyHl=loaded}
+    const hl=S.dailyHl;
+    if(S.hlEditing){
+      h+='<div class="hl-card hl-editing">'
+        +'<div class="hl-row hl-row-edit">'
+          +'<svg class="hl-ic" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.39 7.36H22l-6.18 4.5L18.18 22 12 17.27 5.82 22l2.36-8.14L2 9.36h7.61z"/></svg>'
+          +'<input class="hl-input" id="hlInput" autofocus value="'+esc(S.hlInput||'')+'" placeholder="If today were a win, the one thing I\\u2019d finish is\\u2026" oninput="S.hlInput=this.value" onkeydown="if(event.key===\\'Enter\\')hlSubmit();if(event.key===\\'Escape\\')hlClose()"/>'
+          +'<button class="hl-cancel" onclick="hlClose()" aria-label="Cancel">\\u2715</button>'
+          +'<button class="hl-save'+((S.hlInput||'').trim()?' on':'')+'" onclick="hlSubmit()">Set \\u2192</button>'
+        +'</div>'
+      +'</div>';
+    } else if(hl){
+      h+='<div class="hl-card hl-set'+(hl.done?' hl-done':'')+'" onclick="hlToggleDone()" role="button">'
+        +'<div class="hl-row">'
+          +'<button class="hl-check'+(hl.done?' on':'')+'" aria-label="'+(hl.done?'Mark not done':'Mark done')+'">'+(hl.done?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>':'')+'</button>'
+          +'<div class="hl-body">'
+            +'<div class="hl-eyebrow">'+(hl.done?'\\u2728 You did the thing':'\\u{1F31F} Today\\u2019s highlight')+'</div>'
+            +'<div class="hl-text">'+esc(hl.text)+'</div>'
+          +'</div>'
+          +'<button class="hl-edit" onclick="event.stopPropagation();hlOpen()" title="Edit"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>'
+        +'</div>'
+      +'</div>';
+    } else {
+      h+='<button class="hl-card hl-empty" onclick="hlOpen()">'
+        +'<svg class="hl-ic" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.39 7.36H22l-6.18 4.5L18.18 22 12 17.27 5.82 22l2.36-8.14L2 9.36h7.61z"/></svg>'
+        +'<div class="hl-empty-body"><div class="hl-empty-t">Set today\\u2019s highlight</div><div class="hl-empty-d">The one thing that would make today feel like a win.</div></div>'
+        +'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>'
+      +'</button>';
+    }
+  }
   // ─── Single add-task chip (opens detailed modal) ───
   h+='<button class="add-chip" onclick="opA()" aria-label="New task">'
     +'<span class="add-chip-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>'
@@ -7255,14 +7462,14 @@ else if(S.tab==='mindgym'){
   +'</section>';
   // ─── Game tiles in chip style ───
   const _games=[
-    {k:'math',e:'\\u{1F522}',n:'Math Sprint',d:'Mental arithmetic against the clock',fn:'mgMathStart()',accent:'#22D3EE',pData:mg.progress.math,pct:mgPercent('math'),bestL:'Best streak'},
-    {k:'memory',e:'\\u{1F9E9}',n:'Memory Tap',d:'Working-memory, Simon-style',fn:'mgMemoryStart()',accent:'#A78BFA',pData:mg.progress.memory,pct:mgPercent('memory'),bestL:'Best round'},
-    {k:'reaction',e:'\\u26A1',n:'Reaction',d:'Reflex training, millisecond by millisecond',fn:'mgReactionStart()',accent:'#FFB547',pData:mg.progress.reaction,pct:mgPercent('reaction'),bestL:'Best ms',bestSuffix:'ms'},
-    {k:'word',e:'\\u{1F520}',n:'Word Sprint',d:'Anagrams. 90 seconds. Find every word.',fn:'mgWordStart()',accent:'#34D399',pData:(mg.progress.word||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((mg.progress.word||{}).xp||0)/(5*100))*100)),bestL:'Best',bestSuffix:' words'},
-    {k:'schulte',e:'\\u{1F3AF}',n:'Schulte Grid',d:'Tap 1\\u219225 in order. Trains visual focus.',fn:'mgSchulteStart()',accent:'#F472B6',pData:(mg.progress.schulte||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((mg.progress.schulte||{}).xp||0)/(5*100))*100)),bestL:'Best time',bestSuffix:' s'}
+    {k:'math',e:'\\u{1F522}',n:'Math Sprint',d:'Mental arithmetic against the clock',accent:'#22D3EE',accent2:'#3B82F6',pData:mg.progress.math,pct:mgPercent('math'),bestL:'Best streak',road:'highway'},
+    {k:'memory',e:'\\u{1F9E9}',n:'Memory Tap',d:'Working-memory, Simon-style',accent:'#A78BFA',accent2:'#EC4899',pData:mg.progress.memory,pct:mgPercent('memory'),bestL:'Best round',road:'mountain'},
+    {k:'reaction',e:'\\u26A1',n:'Reaction',d:'Reflex training, millisecond by millisecond',accent:'#FFB547',accent2:'#FB923C',pData:mg.progress.reaction,pct:mgPercent('reaction'),bestL:'Best ms',bestSuffix:'ms',road:'racetrack'},
+    {k:'word',e:'\\u{1F520}',n:'Word Sprint',d:'Anagrams. 90 seconds. Find every word.',accent:'#34D399',accent2:'#10B981',pData:(mg.progress.word||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((mg.progress.word||{}).xp||0)/(5*100))*100)),bestL:'Best',bestSuffix:' words',road:'forest'},
+    {k:'schulte',e:'\\u{1F3AF}',n:'Schulte Grid',d:'Tap 1\\u219225 in order. Trains visual focus.',accent:'#F472B6',accent2:'#A78BFA',pData:(mg.progress.schulte||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((mg.progress.schulte||{}).xp||0)/(5*100))*100)),bestL:'Best time',bestSuffix:' s',road:'space'}
   ];
   h+='<div class="game-chips">';
-  _games.forEach(g=>{const p=g.pData;const bestStr=p.best?(g.k==='schulte'?(p.best/10).toFixed(1)+(g.bestSuffix||''):(p.best+(g.bestSuffix||''))):'\\u2014';h+='<button class="game-chip" onclick="'+g.fn+'" style="--accent:'+g.accent+'">'
+  _games.forEach(g=>{const p=g.pData;const bestStr=p.best?(g.k==='schulte'?(p.best/10).toFixed(1)+(g.bestSuffix||''):(p.best+(g.bestSuffix||''))):'\\u2014';h+='<button class="game-chip" onclick="mgDetailOpen(\\''+g.k+'\\')" style="--accent:'+g.accent+'">'
     +'<div class="game-chip-hd"><span class="game-chip-emoji">'+g.e+'</span><span class="game-chip-lvl">L'+p.level+'</span></div>'
     +'<div class="game-chip-name">'+g.n+'</div>'
     +'<div class="game-chip-d">'+g.d+'</div>'
@@ -7270,25 +7477,12 @@ else if(S.tab==='mindgym'){
     +'<div class="game-chip-foot"><span>'+g.pct+'%</span><span>'+g.bestL+': <b>'+bestStr+'</b></span></div>'
   +'</button>'});
   h+='</div>';
-  // ─── Level Progression: 10 levels per game = 50 total ───
-  {
-    const totalUnlocked=_games.reduce((s,g)=>s+(g.pData.level||1),0);
-    const totalLocked=50-totalUnlocked;
-    h+='<section class="lvl-path"><div class="lvl-path-hd"><div><h3 class="lvl-path-t">Your training path</h3><div class="lvl-path-s">10 levels per game \\u00B7 50 total \\u00B7 <b>'+totalUnlocked+'</b> reached \\u00B7 '+totalLocked+' to go</div></div><div class="lvl-path-overall"><b>'+Math.round(totalUnlocked/50*100)+'%</b><small>complete</small></div></div>';
-    _games.forEach(g=>{
-      const cur=g.pData.level||1;
-      h+='<div class="lvl-row" style="--accent:'+g.accent+'">'
-        +'<div class="lvl-row-hd"><span class="lvl-row-emoji">'+g.e+'</span><span class="lvl-row-name">'+g.n+'</span><span class="lvl-row-lvl">L'+cur+' / 10</span></div>'
-        +'<div class="lvl-row-rail">';
-      for(let i=1;i<=10;i++){
-        const cls=i<cur?'lvl-step lvl-done':i===cur?'lvl-step lvl-current':'lvl-step lvl-locked';
-        h+='<button class="'+cls+'" onclick="'+(i<=cur?g.fn:'toast(\\'\\u{1F512} Reach Level '+i+' first\\',\\'err\\')')+'" title="Level '+i+'">'+(i<cur?'\\u2713':i)+'</button>';
-        if(i<10)h+='<span class="lvl-link"></span>';
-      }
-      h+='</div></div>';
-    });
-    h+='</section>';
-  }
+  const totalUnlocked=_games.reduce((s,g)=>s+(g.pData.level||1),0);
+  h+='<div class="mg-overall">'
+    +'<div><b>'+totalUnlocked+'</b> / 50 levels reached</div>'
+    +'<div class="mg-overall-bar"><i style="width:'+Math.round(totalUnlocked/50*100)+'%"></i></div>'
+    +'<div>'+Math.round(totalUnlocked/50*100)+'%</div>'
+  +'</div>';
   // Achievements row — 4 badges, some unlocked based on real progress
   {
     const totalLvl=mg.progress.math.level+mg.progress.memory.level+mg.progress.reaction.level;
@@ -7911,6 +8105,55 @@ if(S.showHelp){
 // State persisted to localStorage so iOS Safari suspending the tab while user fetches the OTP
 // from WhatsApp doesn't drop them back to step 1. Overlay tap does NOT close (explicit X only).
 // ─── MIND GYM gameplay modal ───
+// ─── Game detail (journey roadmap) ───
+if(S.mgDetail&&!S.mgPlay){
+  const _gameMeta={
+    math:{e:'\\u{1F522}',n:'Math Sprint',d:'Mental arithmetic, against the clock. Each level adds a harder operation or a tighter window.',accent:'#22D3EE',accent2:'#3B82F6',road:'highway',vehicle:'\\u{1F697}',start:'mgMathStart()'},
+    memory:{e:'\\u{1F9E9}',n:'Memory Tap',d:'Watch a pattern, repeat it. Each level adds one more tile to the sequence.',accent:'#A78BFA',accent2:'#EC4899',road:'mountain',vehicle:'\\u{1F9D7}',start:'mgMemoryStart()'},
+    reaction:{e:'\\u26A1',n:'Reaction',d:'Tap the moment the screen turns green. Pure reflex, milliseconds matter.',accent:'#FFB547',accent2:'#FB923C',road:'racetrack',vehicle:'\\u{1F3CE}',start:'mgReactionStart()'},
+    word:{e:'\\u{1F520}',n:'Word Sprint',d:'Seven scrambled letters, ninety seconds. Higher levels demand longer words.',accent:'#34D399',accent2:'#10B981',road:'forest',vehicle:'\\u{1F6B5}',start:'mgWordStart()'},
+    schulte:{e:'\\u{1F3AF}',n:'Schulte Grid',d:'Tap 1 to 25 in order. Higher levels grow the grid up to 7\\u00D77 (49 cells).',accent:'#F472B6',accent2:'#A78BFA',road:'space',vehicle:'\\u{1F680}',start:'mgSchulteStart()'}
+  };
+  const meta=_gameMeta[S.mgDetail];
+  const prog=S.mg.progress[S.mgDetail]||{level:1,xp:0,best:0};
+  const cur=prog.level||1;
+  if(meta){
+    h+='<div class="ov ov-locked"><div class="mdl mg-detail" onclick="event.stopPropagation()" style="--accent:'+meta.accent+';--accent2:'+meta.accent2+'">';
+    h+='<header class="mgd-hd">'
+      +'<button class="mgd-back" onclick="mgDetailClose()" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>'
+      +'<div class="mgd-title"><span class="mgd-emoji">'+meta.e+'</span><div><div class="mgd-name">'+meta.n+'</div><div class="mgd-sub">Level '+cur+' of 10</div></div></div>'
+      +'<div style="width:36px"></div>'
+    +'</header>';
+    h+='<div class="mgd-body">';
+    h+='<p class="mgd-d">'+meta.d+'</p>';
+    h+='<div class="mgd-stats">'
+      +'<div class="mgd-stat"><b>L'+cur+'</b><small>Level</small></div>'
+      +'<div class="mgd-stat"><b>'+(prog.xp||0)+'</b><small>XP</small></div>'
+      +'<div class="mgd-stat"><b>'+(prog.best||'\\u2014')+'</b><small>Best</small></div>'
+    +'</div>';
+    // Roadway / journey — 10 milestones the user travels through
+    h+='<div class="mgd-road mgd-road-'+meta.road+'">';
+    h+='<svg class="mgd-path" viewBox="0 0 100 600" preserveAspectRatio="none">'
+      +'<defs><linearGradient id="mgdGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+meta.accent+'" stop-opacity=".5"/><stop offset="1" stop-color="'+meta.accent2+'" stop-opacity=".2"/></linearGradient></defs>'
+      +'<path d="M 50 30 Q 20 90, 50 150 Q 80 210, 50 270 Q 20 330, 50 390 Q 80 450, 50 510 Q 20 570, 50 590" fill="none" stroke="'+meta.accent+'" stroke-width="3" stroke-dasharray="6 6" stroke-linecap="round" opacity=".25"/>'
+      +'<path d="M 50 30 Q 20 90, 50 150 Q 80 210, 50 270 Q 20 330, 50 390 Q 80 450, 50 510 Q 20 570, 50 590" fill="none" stroke="url(#mgdGrad)" stroke-width="6" stroke-linecap="round" pathLength="100" stroke-dasharray="100 100" stroke-dashoffset="'+(100-Math.min(100,(cur-1)/9*100))+'"/>'
+    +'</svg>';
+    h+='<ol class="mgd-milestones">';
+    for(let i=1;i<=10;i++){
+      const cls=i<cur?'mgd-mile mgd-done':i===cur?'mgd-mile mgd-current':'mgd-mile mgd-locked';
+      const sideClass=i%2===0?' mgd-mile-right':' mgd-mile-left';
+      const showVehicle=i===cur;
+      h+='<li class="'+cls+sideClass+'">'
+        +(showVehicle?'<div class="mgd-vehicle">'+meta.vehicle+'</div>':'')
+        +'<button class="mgd-node" onclick="mgPlayLevel(\\''+S.mgDetail+'\\','+i+')" '+(i>cur?'aria-disabled="true"':'')+'>'+(i<cur?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>':i)+'</button>'
+        +'<div class="mgd-mile-info"><div class="mgd-mile-t">Level '+i+'</div><div class="mgd-mile-d">'+(i<cur?'\\u2713 Cleared':i===cur?'\\u25B6 Tap to play':'\\u{1F512} Locked')+'</div></div>'
+      +'</li>';
+    }
+    h+='</ol></div>';
+    h+='<div class="mgd-cta-wrap"><button class="mgd-cta" onclick="'+meta.start+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg> Play Level '+cur+'</button></div>';
+    h+='</div></div></div>';
+  }
+}
 if(S.mgPlay){
   const p=S.mgPlay;
   h+='<div class="ov ov-locked"><div class="mdl mg-mdl">';
