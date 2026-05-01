@@ -6187,13 +6187,13 @@ function _renderHlPoster(text,done){
       // Star icon top-left
       +'<g transform="translate(22,22)" fill="#fff" opacity=".95"><path d="M10 0l2.39 7.36H20l-6.18 4.5L16.18 20 10 15.27 3.82 20l2.36-8.14L0 7.36h7.61z"/></g>'
       // Date right
-      +'<g transform="translate(298,28)" fill="#fff" text-anchor="end" font-family="\'JetBrains Mono\',\'Space Mono\',monospace" font-size="10" letter-spacing="2" opacity=".88" font-weight="600"><text>'+wk+'</text><text y="13">'+mo+' '+day+'</text></g>'
+      +'<g transform="translate(298,28)" fill="#fff" text-anchor="end" font-family="JetBrains Mono, Space Mono, monospace" font-size="10" letter-spacing="2" opacity=".88" font-weight="600"><text>'+wk+'</text><text y="13">'+mo+' '+day+'</text></g>'
       // Highlight text
-      +'<g fill="#fff" font-family="\'Instrument Serif\',\'Playfair Display\',Georgia,serif" font-style="italic" text-anchor="middle"'+(isPlaceholder?' opacity=".55"':'')+'>'
+      +'<g fill="#fff" font-family="Instrument Serif, Playfair Display, Georgia, serif" font-style="italic" text-anchor="middle"'+(isPlaceholder?' opacity=".55"':'')+'>'
       +linesToShow.map((ln,i)=>'<text x="160" y="'+(startY+i*lh)+'" font-size="'+fs+'" font-weight="400">'+(done?'<tspan style="text-decoration:line-through" text-decoration="line-through">'+ln+'</tspan>':ln)+'</text>').join('')
       +'</g>'
       // Brand strip bottom
-      +'<g transform="translate(160,180)" fill="#fff" text-anchor="middle" font-family="\'JetBrains Mono\',\'Space Mono\',monospace" font-size="9" letter-spacing="3" opacity=".75" font-weight="600"><text>'+(done?'\\u2713 COMPLETED \\u00B7 BRODOIT':'BRODOIT \\u00B7 ONE THING TODAY')+'</text></g>'
+      +'<g transform="translate(160,180)" fill="#fff" text-anchor="middle" font-family="JetBrains Mono, Space Mono, monospace" font-size="9" letter-spacing="3" opacity=".75" font-weight="600"><text>'+(done?'\\u2713 COMPLETED \\u00B7 BRODOIT':'BRODOIT \\u00B7 ONE THING TODAY')+'</text></g>'
     +'</svg>';
 }
 // Game-detail view: click a game card → see its 10-level journey before playing
