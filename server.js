@@ -4237,20 +4237,30 @@ body:has(.player.on) .bk-mini{bottom:170px !important}
 .bk-sum-card:hover .bk-sum-play{opacity:1;transform:translateY(0) scale(1)}
 .bk-sum-play:hover{background:#FF6B47;color:#fff}
 @media (hover:none){.bk-sum-play{opacity:1;transform:none}}
+.bk-sum-card.is-live .bk-sum-play{opacity:1;transform:none;background:#FF6B47;color:#fff;box-shadow:0 0 0 0 rgba(255,107,71,.55);animation:livePulse 1.6s ease-out infinite}
+.bk-sum-card.is-live .bk-sum-cover{box-shadow:0 0 0 2px #FF6B47, 0 22px 50px -10px rgba(255,107,71,.35)}
+@keyframes livePulse{0%{box-shadow:0 0 0 0 rgba(255,107,71,.55)}80%,100%{box-shadow:0 0 0 14px rgba(255,107,71,0)}}
 .bk-sum-cover h5{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400;font-size:20px;line-height:1.05;letter-spacing:-.015em;color:#fff;margin:0}
 .bk-sum-cover .auth{font-family:'JetBrains Mono','Space Mono',monospace;font-size:10px;font-weight:500;letter-spacing:.1em;color:rgba(255,255,255,.78);text-transform:uppercase;margin-top:6px}
 .bk-sum-mins{position:absolute;top:12px;right:12px;padding:4px 10px;border-radius:999px;background:rgba(0,0,0,.45);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:500;letter-spacing:.08em;color:#fff;text-transform:uppercase;border:1px solid rgba(255,255,255,.15)}
 .bk-sum-meta{font-size:13px;font-weight:500;letter-spacing:-.005em;color:#1A1A1A;line-height:1.25}
 .bk-sum-meta small{display:block;color:#6B6B6B;font-weight:400;font-size:11.5px;margin-top:3px}
 /* Reader modal */
-.bk-reader{position:fixed;inset:0;z-index:200;background:rgba(4,4,8,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);overflow-y:auto;padding:20px;animation:bk-fade .3s cubic-bezier(.16,1,.3,1)}
+.bk-reader{position:fixed;inset:0;z-index:200;background:rgba(4,4,8,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);overflow-y:auto;padding:0;animation:bk-fade .3s cubic-bezier(.16,1,.3,1)}
 @keyframes bk-fade{from{opacity:0}}
-.bk-reader-box{width:min(820px,100%);background:#FAFAF7;border-radius:18px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.5);margin:0 auto 80px;animation:bk-up .4s cubic-bezier(.16,1,.3,1)}
+.bk-reader-box{width:min(1080px,100%);background:#FAFAF7;border-radius:0;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.5);margin:0 auto 0;min-height:100vh;animation:bk-up .4s cubic-bezier(.16,1,.3,1)}
+@media (min-width:980px){.bk-reader{padding:32px}.bk-reader-box{border-radius:22px;margin:0 auto 80px;min-height:auto}}
 @keyframes bk-up{from{opacity:0;transform:translateY(24px)}}
-.bk-reader-top{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #E8E6E0;background:#fff;position:sticky;top:0;z-index:5}
+.bk-reader-top{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid #E8E6E0;background:#fff;position:sticky;top:0;z-index:5}
 .bk-reader-top .label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#6B6B6B}
 .bk-x{width:32px;height:32px;border-radius:999px;border:1px solid #E8E6E0;background:#fff;cursor:pointer;display:grid;place-items:center;color:#1A1A1A;font-family:inherit;font-size:14px;transition:background .2s,border-color .2s}
 .bk-x:hover{background:#F4F3EE;border-color:#CFCFCF}
+.bk-back{width:38px;height:38px;border-radius:50%;border:0;background:transparent;cursor:pointer;display:grid;place-items:center;color:#1A1A1A;transition:background .2s,transform .2s}
+.bk-back:hover{background:rgba(0,0,0,.05)}
+.bk-back:active{transform:scale(.92)}
+.bk-stop{width:38px;height:38px;border-radius:50%;border:0;background:rgba(220,38,38,.1);cursor:pointer;display:grid;place-items:center;color:#DC2626;transition:background .2s,transform .2s}
+.bk-stop:hover{background:rgba(220,38,38,.18)}
+.bk-stop:active{transform:scale(.92)}
 .bk-reader-hero{display:grid;grid-template-columns:180px 1fr;gap:30px;padding:28px;align-items:start}
 @media (max-width:600px){.bk-reader-hero{grid-template-columns:1fr;gap:18px;padding:22px}.bk-reader-hero > .cover{max-width:200px;margin:0 auto}}
 .bk-reader-hero > .cover{aspect-ratio:3/4;border-radius:14px;padding:22px 18px;display:flex;flex-direction:column;justify-content:space-between;color:#fff;box-shadow:0 16px 40px -12px rgba(0,0,0,.5);position:relative;overflow:hidden}
@@ -5734,7 +5744,37 @@ const BOOK_COVERS={
   rich:'https://covers.openlibrary.org/b/isbn/1612680194-L.jpg'
 };
 function bookCover(id){return BOOK_COVERS[id]||null}
-function openBookSummary(id,autoplay){const b=BOOK_SUMMARIES.find(x=>x.id===id);if(!b)return;S.bookReader={open:true,book:b,playing:false,rate:1};render();if(autoplay!==false){requestAnimationFrame(function(){requestAnimationFrame(function(){setTimeout(function(){if(S.bookReader&&S.bookReader.book&&S.bookReader.book.id===id&&!S.bookReader.playing)bookReaderToggleTTS()},450)})})}}
+function openBookSummary(id,autoplay){const b=BOOK_SUMMARIES.find(x=>x.id===id);if(!b)return;S.bookReader={open:true,book:b,playing:false,rate:1};render();if(autoplay===true){requestAnimationFrame(function(){requestAnimationFrame(function(){setTimeout(function(){if(S.bookReader&&S.bookReader.book&&S.bookReader.book.id===id&&!S.bookReader.playing)bookReaderToggleTTS()},450)})})}}
+// Spotify-style: tap a brief card → audio plays in the bottom mini-player
+// without ever opening the big reader. Tap the mini-player to expand later.
+function playBookBrief(id){
+  const b=BOOK_SUMMARIES.find(x=>x.id===id);if(!b)return;
+  // If this brief is already playing in the mini, just toggle pause/resume
+  if(S.bkMini&&S.bkMini.book&&S.bkMini.book.id===id){bkMiniToggle();return}
+  // If a different brief is playing, stop it first
+  if(S.bkMini)bkMiniClose();
+  if(S.bookReader&&S.bookReader.playing)_premiumStop();
+  // Hidden reader state (open:false) — bookReaderToggleTTS uses S.bookReader
+  // for progress callbacks but the reader UI never paints.
+  S.bookReader={open:false,book:b,playing:false,rate:1};
+  // Show the mini-player immediately so the user sees feedback while audio loads.
+  S.bkMini={book:b,paused:false,rate:1,progress:{idx:0,total:0,line:'Loading\\u2026'}};
+  render();
+  requestAnimationFrame(function(){requestAnimationFrame(function(){
+    setTimeout(function(){
+      if(!S.bookReader||!S.bookReader.book||S.bookReader.book.id!==id)return;
+      bookReaderToggleTTS();
+      // Sync mini-player metadata once playback fields are populated
+      if(S.bookReader.playing&&S.bkMini){
+        S.bkMini.startedAt=S.bookReader.startedAt;
+        S.bkMini.rate=S.bookReader.rate;
+        S.bkMini.progress=S.bookReader.progress;
+        S.bkMini.usingEleven=S.bookReader.usingEleven;
+        render();
+      }
+    },300);
+  })});
+}
 function closeBookReader(){
   // If audio is currently playing, keep it going as a persistent mini-player at the bottom
   if(S.bookReader&&S.bookReader.playing&&S.bookReader.book){
@@ -6223,7 +6263,10 @@ const _restore=function(){
   if(!_fs)return;
   try{let el=null;if(_fs.id)el=document.getElementById(_fs.id);if(!el){const inputs=document.querySelectorAll('input,textarea');for(const i of inputs){if((_fs.placeholder&&i.placeholder===_fs.placeholder)||(_fs.name&&i.name===_fs.name)){el=i;break}}}if(el){try{el.focus({preventScroll:true})}catch(e){el.focus()}if(typeof _fs.start==='number'&&el.setSelectionRange){try{el.setSelectionRange(_fs.start,_fs.end)}catch(e){}}}}catch(e){}
 };
-setTimeout(_restore,0);
+// Restore synchronously where we can; rAF handles async paints. Avoids the
+// "scroll briefly snaps to 0 then restores" jump from the prior setTimeout(0).
+try{_restore()}catch(e){}
+if(typeof requestAnimationFrame==='function')requestAnimationFrame(_restore);
 if(!S.user){let h='<div class="login">';
 if(S.loginStep==='phone'){
 h+='<div class="hero-photo"><img src="https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?auto=format&fit=crop&w=1200&q=80" alt="Calm productive workspace" loading="eager"/><div class="hero-photo-overlay"></div></div>';
@@ -6813,24 +6856,6 @@ else if(S.tab==='books'){
   // Mode toggle: summaries vs audiobooks
   h+='<div class="bk-mode-toggle"><button class="'+(S.booksMode==='summaries'?'on':'')+'" onclick="S.booksMode=\\'summaries\\';render()">\\u2728 15-min summaries</button><button class="'+(S.booksMode==='audiobooks'?'on':'')+'" onclick="S.booksMode=\\'audiobooks\\';render()">\\u{1F3A7} Audiobooks</button></div>';
   if(S.booksMode==='summaries'){
-    // Featured book hero (Blinkist-style) — picks one based on day-of-year so it rotates daily
-    {
-      const d=new Date();const yStart=new Date(d.getFullYear(),0,0);const day=Math.floor((d-yStart)/86400000);
-      const featured=BOOK_SUMMARIES[day%BOOK_SUMMARIES.length];
-      h+='<div class="bk-hero">'
-        +'<div>'
-          +'<div class="bk-hero-tag">\\u2728 Featured today \\u00B7 '+featured.mins+' min</div>'
-          +'<h2>'+esc(featured.title)+'</h2>'
-          +'<div class="bk-hero-author">By '+esc(featured.author)+'</div>'
-          +'<p class="bk-hero-why">'+esc(featured.why)+'</p>'
-          +'<div class="bk-hero-actions">'
-            +'<button class="bk-hero-go" onclick="openBookSummary(\\''+featured.id+'\\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg> Listen now</button>'
-            +'<button class="bk-hero-go" style="background:rgba(255,255,255,.16);color:#fff" onclick="openBookSummary(\\''+featured.id+'\\')">Read summary</button>'
-          +'</div>'
-        +'</div>'
-        +(function(){const fc=bookCover(featured.id);return '<div class="bk-hero-cover'+(fc?' has-img':'')+'" style="background:'+featured.grad+'">'+(fc?'<img src="'+fc+'" alt="" onerror="this.parentElement.classList.remove(\\'has-img\\');this.remove()"/>':'<div class="auth">'+esc(featured.author)+'</div><h5>'+esc(featured.title)+'</h5>')+'</div>'})()
-      +'</div>';
-    }
     // Category filter pills
     {
       if(!S.bkCat)S.bkCat='all';
@@ -6843,8 +6868,9 @@ else if(S.tab==='books'){
     const bkFiltered=S.bkCat&&S.bkCat!=='all'?BOOK_SUMMARIES.filter(b=>b.tag===S.bkCat):BOOK_SUMMARIES;
     bkFiltered.forEach(b=>{
       const coverImg=bookCover(b.id);
-      h+='<button class="bk-sum-card" onclick="openBookSummary(\\''+b.id+'\\')">';
-      h+='<div class="bk-sum-cover'+(coverImg?' has-img':'')+'" style="background:'+b.grad+'">'+(coverImg?'<img src="'+coverImg+'" alt="" loading="lazy" onerror="this.parentElement.classList.remove(\\'has-img\\');this.remove()"/>':'')+'<div class="bk-sum-mins">'+b.mins+' min</div>'+(coverImg?'':'<div></div><div><h5>'+esc(b.title)+'</h5><div class="auth">'+esc(b.author)+'</div></div>')+'<span class="bk-sum-play" aria-label="Play"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg></span></div>';
+      const isLive=S.bkMini&&S.bkMini.book&&S.bkMini.book.id===b.id&&!S.bkMini.paused;
+      h+='<button class="bk-sum-card'+(isLive?' is-live':'')+'" onclick="playBookBrief(\\''+b.id+'\\')" oncontextmenu="event.preventDefault();openBookSummary(\\''+b.id+'\\');return false">';
+      h+='<div class="bk-sum-cover'+(coverImg?' has-img':'')+'" style="background:'+b.grad+'">'+(coverImg?'<img src="'+coverImg+'" alt="" loading="lazy" onerror="this.parentElement.classList.remove(\\'has-img\\');this.remove()"/>':'')+'<div class="bk-sum-mins">'+b.mins+' min</div>'+(coverImg?'':'<div></div><div><h5>'+esc(b.title)+'</h5><div class="auth">'+esc(b.author)+'</div></div>')+'<span class="bk-sum-play" aria-label="'+(isLive?'Pause':'Play')+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">'+(isLive?'<rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/>':'<polygon points="6 4 20 12 6 20 6 4"/>')+'</svg></span></div>';
       h+='<div class="bk-sum-meta">'+esc(b.title)+'<small>'+esc(b.author)+'</small></div>';
       h+='</button>';
     });
@@ -7071,7 +7097,7 @@ if(S.voiceLesson&&S.voiceLesson.lesson){
 if(S.bookReader&&S.bookReader.open&&S.bookReader.book){
   const b=S.bookReader.book;const r=S.bookReader;
   h+='<div class="bk-reader" onclick="if(event.target===this)closeBookReader()"><div class="bk-reader-box">';
-  h+='<header class="bk-reader-top"><span class="label">'+b.mins+'-MIN SUMMARY \\u00B7 '+esc(b.tag)+'</span><div style="display:flex;gap:8px">'+(r.playing?'<button class="bk-x" onclick="closeBookReader()" title="Minimize \\u2014 audio keeps playing in mini-player" style="background:#1F4D3F;color:#fff;border-color:#1F4D3F">\\u2014 Minimize</button>':'')+'<button class="bk-x" onclick="_premiumStop();S.bookReader={open:false};render()" title="Close and stop audio">\\u2715</button></div></header>';
+  h+='<header class="bk-reader-top"><button class="bk-back" onclick="closeBookReader()" aria-label="Back" title="'+(r.playing?'Back \\u2014 audio keeps playing':'Back')+'"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button><span class="label">'+b.mins+'-min brief \\u00B7 '+esc(b.tag)+'</span>'+(r.playing?'<button class="bk-stop" onclick="_premiumStop();bkMiniClose&&bkMiniClose();S.bookReader={open:false};render()" title="Stop audio" aria-label="Stop"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="5" width="14" height="14" rx="2"/></svg></button>':'<span style="width:38px"></span>')+'</header>';
   const heroCover=bookCover(b.id);
   h+='<div class="bk-reader-hero"><div class="cover'+(heroCover?' has-img':'')+'" style="background:'+b.grad+'">'+(heroCover?'<img src="'+heroCover+'" alt="" onerror="this.parentElement.classList.remove(\\'has-img\\');this.remove()"/>':'<div class="auth">'+esc(b.author)+'</div><h2>'+esc(b.title)+'</h2>')+'</div>';
   h+='<div class="info"><h1>'+esc(b.title)+'</h1><div class="by">By <b>'+esc(b.author)+'</b></div><p class="why">'+esc(b.why)+'</p>';
