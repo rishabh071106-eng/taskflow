@@ -3056,6 +3056,31 @@ body:not([data-theme=aurora]) .cx-pv-lbl{color:#9A9A9A}
 body:not([data-theme=aurora]) .cx-pv-pill{background:#FFF1ED;color:#B7472A;border-color:#FFD0BD}
 body:not([data-theme=aurora]) .cx-pv-title{background:#F4F3EE;color:#1A1A1A;border-color:#E8E6E0}
 @media (max-width:560px){.cx-chip{padding:6px 10px;font-size:11.5px}.cx-input{font-size:15px}}
+/* ─── Today's Progress section + highlight poster card ─── */
+.prog-sec{margin:0 0 18px;padding:14px 14px 16px;border-radius:20px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}
+body:not([data-theme=aurora]) .prog-sec{background:#fff;border-color:#E8E6E0;box-shadow:0 1px 3px rgba(15,23,42,.04)}
+.prog-sec-hd{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:12px;padding:0 4px}
+.prog-sec-eyebrow{font-family:'JetBrains Mono','Space Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.65);font-weight:700}
+body:not([data-theme=aurora]) .prog-sec-eyebrow{color:#3D3D3D}
+.prog-sec-date{font-family:'JetBrains Mono','Space Mono',monospace;font-size:10.5px;letter-spacing:.06em;color:rgba(255,255,255,.45);font-weight:500}
+body:not([data-theme=aurora]) .prog-sec-date{color:#9A9A9A}
+/* Highlight as full-bleed poster card */
+.hl-card-v2{display:flex;flex-direction:column;width:100%;border:0;background:transparent;cursor:pointer;text-align:left;padding:0;font-family:inherit;animation:hlIn .45s cubic-bezier(.16,1,.3,1)}
+.hl-poster-shell{width:100%;border-radius:18px;overflow:hidden;box-shadow:0 14px 36px -12px rgba(0,0,0,.35);transition:transform .25s ease,box-shadow .3s ease}
+.hl-card-v2:hover .hl-poster-shell{transform:translateY(-2px);box-shadow:0 20px 44px -10px rgba(0,0,0,.45)}
+.hl-card-v2.is-done .hl-poster-shell{box-shadow:0 14px 36px -12px rgba(52,211,153,.35)}
+.hl-actions{display:flex;align-items:center;gap:8px;margin-top:10px;padding:0 4px}
+.hl-check-v2,.hl-edit-v2{display:inline-flex;align-items:center;gap:6px;font:600 12.5px/1 inherit;letter-spacing:-.005em;padding:9px 14px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.78);cursor:pointer;transition:all .2s}
+body:not([data-theme=aurora]) .hl-check-v2,body:not([data-theme=aurora]) .hl-edit-v2{background:#F4F3EE;border-color:#E8E6E0;color:#3D3D3D}
+.hl-check-v2:hover,.hl-edit-v2:hover{background:rgba(255,255,255,.1);color:#fff}
+body:not([data-theme=aurora]) .hl-check-v2:hover,body:not([data-theme=aurora]) .hl-edit-v2:hover{background:#FAFAF7;color:#1A1A1A}
+.hl-check-v2.on{background:linear-gradient(135deg,#34D399,#22D3EE);color:#fff;border-color:transparent;box-shadow:0 6px 16px -4px rgba(52,211,153,.5)}
+.hl-edit-v2{margin-left:auto}
+/* Live poster preview wrapper used during editing */
+.hl-poster-wrap{margin-top:12px}
+.hl-poster-lbl{font-family:'JetBrains Mono','Space Mono',monospace;font-size:10px;letter-spacing:.1em;color:rgba(255,255,255,.45);text-transform:uppercase;margin:0 4px 8px;font-weight:600}
+body:not([data-theme=aurora]) .hl-poster-lbl{color:#6B6B6B}
+.hl-poster{border-radius:18px;overflow:hidden;box-shadow:0 14px 36px -12px rgba(0,0,0,.35);max-width:480px;margin:0 auto}
 /* ─── Daily Highlight ("one thing today") ─── */
 .hl-card{display:flex;align-items:stretch;width:100%;border-radius:18px;padding:16px 18px;margin:0 0 14px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#F5F5FA;font-family:inherit;cursor:pointer;text-align:left;transition:transform .25s ease,background .25s ease,border-color .25s ease,box-shadow .3s ease;position:relative;overflow:hidden;animation:hlIn .45s cubic-bezier(.16,1,.3,1)}
 @keyframes hlIn{from{opacity:0;transform:translateY(-6px)}}
@@ -5968,6 +5993,53 @@ function bkSearchInput(v){
   }catch(e){}
 }
 function bkSearchClear(){S.bkSearch='';const i=document.getElementById('bkSearch');if(i){i.value='';i.focus()}bkSearchInput('')}
+// Highlight live preview — updates the SVG poster without re-rendering the input
+function hlInputUpdate(v){
+  S.hlInput=v;
+  try{const el=document.getElementById('hlPoster');if(el)el.innerHTML=_renderHlPoster(v.trim()||'Your highlight goes here');const save=document.querySelector('.hl-save');if(save)save.classList.toggle('on',!!v.trim())}catch(e){}
+}
+// Visual poster — a stylized SVG card showing the highlight with date + brand
+function _renderHlPoster(text,done){
+  const d=new Date();
+  const day=d.getDate();
+  const mo=d.toLocaleDateString('en-US',{month:'long'}).toUpperCase();
+  const wk=d.toLocaleDateString('en-US',{weekday:'long'}).toUpperCase();
+  // Wrap text into lines so it fits the SVG nicely
+  const safe=String(text||'').replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
+  const words=safe.split(/\\s+/);
+  const lines=[];let line='';const maxChars=22;
+  for(const w of words){
+    if((line+' '+w).trim().length>maxChars){if(line)lines.push(line);line=w}
+    else line=(line?line+' ':'')+w;
+  }
+  if(line)lines.push(line);
+  const linesToShow=lines.slice(0,4);
+  const lh=lines.length<=2?56:lines.length===3?44:36;
+  const fs=lines.length<=2?44:lines.length===3?36:30;
+  const startY=130-((linesToShow.length-1)*lh)/2;
+  const isPlaceholder=!String(text||'').trim()||text==='Your highlight goes here';
+  const grad=done?'hlPosterDone':'hlPosterAccent';
+  return ''
+    +'<svg viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;border-radius:18px;overflow:hidden">'
+      +'<defs>'
+        +'<linearGradient id="hlPosterAccent" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF6B47"/><stop offset="1" stop-color="#FFB547"/></linearGradient>'
+        +'<linearGradient id="hlPosterDone"   x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#34D399"/><stop offset="1" stop-color="#22D3EE"/></linearGradient>'
+        +'<radialGradient id="hlPosterShine" cx=".25" cy=".15" r=".75"><stop offset="0" stop-color="#fff" stop-opacity=".25"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>'
+      +'</defs>'
+      +'<rect width="320" height="200" rx="18" fill="url(#'+grad+')"/>'
+      +'<rect width="320" height="200" rx="18" fill="url(#hlPosterShine)"/>'
+      // Star icon top-left
+      +'<g transform="translate(22,22)" fill="#fff" opacity=".95"><path d="M10 0l2.39 7.36H20l-6.18 4.5L16.18 20 10 15.27 3.82 20l2.36-8.14L0 7.36h7.61z"/></g>'
+      // Date right
+      +'<g transform="translate(298,28)" fill="#fff" text-anchor="end" font-family="\'JetBrains Mono\',\'Space Mono\',monospace" font-size="10" letter-spacing="2" opacity=".88" font-weight="600"><text>'+wk+'</text><text y="13">'+mo+' '+day+'</text></g>'
+      // Highlight text
+      +'<g fill="#fff" font-family="\'Instrument Serif\',\'Playfair Display\',Georgia,serif" font-style="italic" text-anchor="middle"'+(isPlaceholder?' opacity=".55"':'')+'>'
+      +linesToShow.map((ln,i)=>'<text x="160" y="'+(startY+i*lh)+'" font-size="'+fs+'" font-weight="400">'+(done?'<tspan style="text-decoration:line-through" text-decoration="line-through">'+ln+'</tspan>':ln)+'</text>').join('')
+      +'</g>'
+      // Brand strip bottom
+      +'<g transform="translate(160,180)" fill="#fff" text-anchor="middle" font-family="\'JetBrains Mono\',\'Space Mono\',monospace" font-size="9" letter-spacing="3" opacity=".75" font-weight="600"><text>'+(done?'\\u2713 COMPLETED \\u00B7 BRODOIT':'BRODOIT \\u00B7 ONE THING TODAY')+'</text></g>'
+    +'</svg>';
+}
 // Game-detail view: click a game card → see its 10-level journey before playing
 function mgDetailOpen(key){S.mgDetail=key;render();try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){}}
 function mgDetailClose(){S.mgDetail=null;render()}
@@ -7620,29 +7692,34 @@ if(S.tab==='tasks'){
       +'<button class="wa-promo-x" onclick="localStorage.setItem(\\'tf_wa_banner_x\\',\\'1\\');render()" aria-label="Dismiss">\\u2715</button>'
     +'</div>';
   }
-  // ─── Daily Highlight (the "one thing today") ───
+  // ─── Today's Progress section: surfaces the highlight as the starting window ───
   {
     // First render: hydrate from cache + fetch server copy in background
     if(!S.dailyHl&&!S._hlFetched){S._hlFetched=true;const cached=_hlLocalCache();if(cached)S.dailyHl=cached;hlLoad()}
     const hl=S.dailyHl;
+    const _todayDate=new Date().toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
+    h+='<section class="prog-sec">'
+      +'<header class="prog-sec-hd"><span class="prog-sec-eyebrow">\\u{1F31F} Today\\u2019s Progress</span><span class="prog-sec-date">'+_todayDate+'</span></header>';
     if(S.hlEditing){
+      // Editing mode — input + a LIVE poster preview underneath
+      const liveText=(S.hlInput||'').trim();
       h+='<div class="hl-card hl-editing">'
         +'<div class="hl-row hl-row-edit">'
           +'<svg class="hl-ic" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.39 7.36H22l-6.18 4.5L18.18 22 12 17.27 5.82 22l2.36-8.14L2 9.36h7.61z"/></svg>'
-          +'<input class="hl-input" id="hlInput" autofocus value="'+esc(S.hlInput||'')+'" placeholder="If today were a win, the one thing I\\u2019d finish is\\u2026" oninput="S.hlInput=this.value" onkeydown="if(event.key===\\'Enter\\')hlSubmit();if(event.key===\\'Escape\\')hlClose()"/>'
+          +'<input class="hl-input" id="hlInput" autofocus value="'+esc(S.hlInput||'')+'" placeholder="If today were a win, the one thing I\\u2019d finish is\\u2026" oninput="hlInputUpdate(this.value)" onkeydown="if(event.key===\\'Enter\\')hlSubmit();if(event.key===\\'Escape\\')hlClose()"/>'
           +'<button class="hl-cancel" onclick="hlClose()" aria-label="Cancel">\\u2715</button>'
-          +'<button class="hl-save'+((S.hlInput||'').trim()?' on':'')+'" onclick="hlSubmit()">Set \\u2192</button>'
+          +'<button class="hl-save'+(liveText?' on':'')+'" onclick="hlSubmit()">Set \\u2192</button>'
         +'</div>'
       +'</div>';
+      // Live poster preview
+      h+='<div class="hl-poster-wrap"><div class="hl-poster-lbl">Preview \\u00B7 how it will look on your calendar</div><div id="hlPoster" class="hl-poster">'+_renderHlPoster(liveText||'Your highlight goes here')+'</div></div>';
     } else if(hl){
-      h+='<div class="hl-card hl-set'+(hl.done?' hl-done':'')+'" onclick="hlToggleDone()" role="button">'
-        +'<div class="hl-row">'
-          +'<button class="hl-check'+(hl.done?' on':'')+'" aria-label="'+(hl.done?'Mark not done':'Mark done')+'">'+(hl.done?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>':'')+'</button>'
-          +'<div class="hl-body">'
-            +'<div class="hl-eyebrow">'+(hl.done?'\\u2728 You did the thing':'\\u{1F31F} Today\\u2019s highlight')+'</div>'
-            +'<div class="hl-text">'+esc(hl.text)+'</div>'
-          +'</div>'
-          +'<button class="hl-edit" onclick="event.stopPropagation();hlOpen()" title="Edit"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>'
+      // Set — show the poster as the actual card (hero-style)
+      h+='<div class="hl-card-v2'+(hl.done?' is-done':'')+'" onclick="hlToggleDone()" role="button">'
+        +'<div class="hl-poster-shell">'+_renderHlPoster(hl.text,hl.done)+'</div>'
+        +'<div class="hl-actions">'
+          +'<button class="hl-check-v2'+(hl.done?' on':'')+'" aria-label="'+(hl.done?'Mark not done':'Mark done')+'">'+(hl.done?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg> Done':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/></svg> Mark done')+'</button>'
+          +'<button class="hl-edit-v2" onclick="event.stopPropagation();hlOpen()" title="Edit"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit</button>'
         +'</div>'
       +'</div>';
     } else {
@@ -7652,6 +7729,7 @@ if(S.tab==='tasks'){
         +'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>'
       +'</button>';
     }
+    h+='</section>';
   }
   // ─── Single add-task chip (opens detailed modal) ───
   h+='<button class="add-chip" onclick="opA()" aria-label="New task">'
