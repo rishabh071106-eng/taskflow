@@ -1086,7 +1086,15 @@ input,textarea,select{font-family:inherit;border:1.5px solid #E8E9EF;border-radi
 input:focus,textarea:focus{outline:none;border-color:#0F172A}textarea{resize:vertical;min-height:56px}select{-webkit-appearance:none;appearance:none}
 .app{max-width:520px;margin:0 auto;padding:18px 18px 120px;position:relative;z-index:1}
 .main-col{display:block}
-.hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;padding:0 2px}.logo{font-family:'Space Mono',monospace;font-size:26px;font-weight:700;letter-spacing:-.8px;line-height:1}.logo .k{color:#3DAE5C;display:inline-block;transition:transform .4s cubic-bezier(.4,1.5,.5,1)}.logo:hover .k{transform:scale(1.15) rotate(-6deg)}
+.hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;padding:0 2px}
+/* ─── Brand mark ─── */
+.logo{font-family:'Instrument Serif','Playfair Display',Georgia,serif;font-size:36px;font-weight:400;letter-spacing:-.025em;line-height:1;display:inline-flex;align-items:baseline;gap:1px;color:var(--ink);user-select:none;cursor:default}
+.logo .b1{font-style:italic}
+.logo .b2{font-style:italic;font-weight:600;color:#FF6B47;display:inline-block;transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
+.logo .b3{font-style:italic}
+.logo .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#FF6B47;margin-left:3px;align-self:flex-end;margin-bottom:5px;box-shadow:0 0 0 0 rgba(255,107,71,.5);animation:brandDot 2.4s ease-in-out infinite}
+.logo:hover .b2{transform:translateY(-3px) rotate(-4deg)}
+@keyframes brandDot{0%,100%{box-shadow:0 0 0 0 rgba(255,107,71,.5)}50%{box-shadow:0 0 0 6px rgba(255,107,71,0)}}
 .hdr-tagline{display:none;font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-size:13px;color:#94A3B8;margin-top:2px;letter-spacing:.04em}
 /* Phone scenic masthead — desktop hidden by default */
 .phone-banner{display:none}
@@ -2547,6 +2555,38 @@ body[data-theme=aurora] .hdr-profile svg{color:#A78BFA}
 .hdr-help:hover{background:linear-gradient(135deg,rgba(99,102,241,.2),rgba(232,145,44,.16));transform:translateY(-1px)}
 body[data-theme=aurora] .hdr-help{background:linear-gradient(135deg,rgba(167,139,250,.18),rgba(232,145,44,.12));border-color:rgba(167,139,250,.35);color:#A78BFA}
 /* HELP modal — full step-by-step guide */
+/* ─── New visual help modal ─── */
+.help-mdl-v2{max-width:680px;width:min(680px,100%);padding:0;overflow:hidden;display:flex;flex-direction:column;max-height:92vh;background:linear-gradient(180deg,#0F0B1F 0%,#171425 100%);border:1px solid rgba(255,255,255,.08);position:relative}
+.hv-x{position:absolute;top:18px;right:18px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:#fff;cursor:pointer;display:grid;place-items:center;z-index:10;transition:background .2s,transform .2s}
+.hv-x:hover{background:rgba(255,255,255,.14);transform:scale(1.06)}
+.hv-hero{padding:36px 30px 28px;background:radial-gradient(700px 400px at 50% 0%,rgba(255,107,71,.22),transparent 60%),radial-gradient(500px 300px at 100% 100%,rgba(167,139,250,.18),transparent 60%);text-align:center;border-bottom:1px solid rgba(255,255,255,.06)}
+.hv-hero-eyebrow{font-family:'JetBrains Mono','Space Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:500}
+.hv-brand{font-family:'Instrument Serif','Playfair Display',Georgia,serif;font-size:54px;letter-spacing:-.025em;line-height:1;display:inline-flex;align-items:baseline;gap:1px;margin:8px 0 12px;color:#fff}
+.hv-brand .b1{font-style:italic}
+.hv-brand .b2{font-style:italic;font-weight:600;color:#FF6B47}
+.hv-brand .b3{font-style:italic}
+.hv-brand .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#FF6B47;margin-left:4px;align-self:flex-end;margin-bottom:8px;animation:brandDot 2.4s ease-in-out infinite}
+.hv-hero-sub{font-size:15px;line-height:1.5;color:rgba(255,255,255,.72);max-width:420px;margin:0 auto;letter-spacing:-.005em}
+.hv-body{flex:1;overflow-y:auto;padding:20px 24px 8px;display:flex;flex-direction:column;gap:14px}
+.hv-step{position:relative;padding:22px 22px 22px 78px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:18px;transition:border-color .25s,transform .25s,background .25s}
+.hv-step:hover{border-color:rgba(255,255,255,.14);background:rgba(255,255,255,.06);transform:translateX(2px)}
+.hv-step-num{position:absolute;top:22px;right:24px;font-family:'JetBrains Mono','Space Mono',monospace;font-size:11px;letter-spacing:.12em;color:rgba(255,255,255,.32);font-weight:500}
+.hv-step-ic{position:absolute;top:22px;left:22px;width:42px;height:42px;border-radius:14px;display:grid;place-items:center;font-size:20px;color:#fff;box-shadow:0 8px 22px -4px rgba(255,107,71,.3)}
+.hv-step-t{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:22px;line-height:1.15;letter-spacing:-.015em;color:#fff;margin:0 0 8px}
+.hv-step-d{font-size:14.5px;line-height:1.55;color:rgba(255,255,255,.78);margin:0;letter-spacing:-.005em}
+.hv-step-d code{font-family:'JetBrains Mono','Space Mono',monospace;font-size:12.5px;background:rgba(255,107,71,.12);color:#FFE3D8;padding:2px 7px;border-radius:5px;border:1px solid rgba(255,107,71,.25);letter-spacing:0}
+.hv-step-d kbd{font-family:'JetBrains Mono',monospace;font-size:11.5px;padding:2px 7px;border-radius:5px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:#fff}
+.hv-step-d b{color:#fff;font-weight:600}
+.hv-step-tip{margin-top:10px;padding:10px 12px;background:rgba(255,107,71,.08);border-left:3px solid #FF6B47;border-radius:4px;font-size:13px;line-height:1.45;color:rgba(255,255,255,.78)}
+.hv-step-tip b{color:#fff;font-weight:600}
+.hv-foot{padding:18px 24px;border-top:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.2);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.hv-foot-l{font-size:12px;color:rgba(255,255,255,.45)}
+.hv-foot-l a{color:rgba(255,255,255,.7);text-decoration:none}
+.hv-foot-l a:hover{color:#fff}
+.hv-foot-cta{padding:11px 22px;border-radius:12px;border:0;background:linear-gradient(135deg,#FF6B47,#FFB547);color:#fff;font:600 14px/1 inherit;cursor:pointer;letter-spacing:-.005em;box-shadow:0 8px 22px -4px rgba(255,107,71,.45);transition:transform .2s}
+.hv-foot-cta:hover{transform:translateY(-1px)}
+@media (max-width:560px){.help-mdl-v2{max-height:96vh;border-radius:18px 18px 0 0;align-self:flex-end}.hv-hero{padding:30px 22px 22px}.hv-brand{font-size:46px}.hv-body{padding:16px 18px 6px}.hv-step{padding:20px 20px 20px 70px}.hv-step-ic{width:38px;height:38px;left:18px;font-size:18px;border-radius:12px}.hv-step-t{font-size:19px}.hv-foot{padding:14px 18px}}
+/* keep old class for backward-compat in case anything still references it */
 .help-mdl{max-width:560px;padding:0;overflow:hidden;display:flex;flex-direction:column;max-height:90vh}
 .help-hd{display:flex;align-items:center;gap:12px;padding:18px 20px 14px;background:linear-gradient(135deg,#0F172A,#312E81);color:#fff;position:relative;flex-shrink:0}
 .help-hd > div{flex:1;min-width:0}
@@ -2654,6 +2694,34 @@ body:not([data-theme=aurora]) .cx-pv-lbl{color:#9A9A9A}
 body:not([data-theme=aurora]) .cx-pv-pill{background:#FFF1ED;color:#B7472A;border-color:#FFD0BD}
 body:not([data-theme=aurora]) .cx-pv-title{background:#F4F3EE;color:#1A1A1A;border-color:#E8E6E0}
 @media (max-width:560px){.cx-chip{padding:6px 10px;font-size:11.5px}.cx-input{font-size:15px}}
+/* ─── Home hero greeting (Tasks tab) ─── */
+.home-hero{position:relative;border-radius:24px;padding:30px 28px 24px;margin:0 0 18px;overflow:hidden;color:#fff;isolation:isolate;background:linear-gradient(135deg,#1A0E2E 0%,#2A1845 50%,#3D1F5F 100%);box-shadow:0 22px 50px -16px rgba(91,33,182,.45)}
+.home-hero .hh-bg{position:absolute;inset:0;background:radial-gradient(900px 500px at 0% 0%,rgba(255,107,71,.35) 0%,transparent 55%),radial-gradient(700px 500px at 100% 100%,rgba(167,139,250,.3) 0%,transparent 55%);z-index:-1;animation:hhBgDrift 18s ease-in-out infinite alternate}
+@keyframes hhBgDrift{0%{transform:scale(1) translate(0,0)}100%{transform:scale(1.08) translate(-20px,15px)}}
+.hh-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.hh-eyebrow{font-family:'JetBrains Mono','Space Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.6);font-weight:500}
+.hh-greet{font-family:'Instrument Serif','Playfair Display',Georgia,serif;font-weight:400;font-size:clamp(34px,6vw,52px);line-height:1.02;letter-spacing:-.025em;color:#fff;margin:6px 0 14px}
+.hh-greet em{font-style:italic;background:linear-gradient(135deg,#FF6B47,#FFB547);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+.hh-line{font-size:15px;line-height:1.5;color:rgba(255,255,255,.85);margin:0 0 22px;max-width:520px}
+.hh-line b{color:#fff;font-weight:600}
+.hh-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.hh-stat{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px 12px;backdrop-filter:blur(10px);transition:transform .25s ease,background .25s ease}
+.hh-stat:hover{transform:translateY(-2px);background:rgba(255,255,255,.1)}
+.hh-stat b{display:block;font:600 24px/1 'Inter',sans-serif;letter-spacing:-.02em;color:#fff}
+.hh-stat small{display:block;font-family:'JetBrains Mono','Space Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.55);margin-top:6px;font-weight:500}
+@media (max-width:560px){.home-hero{padding:24px 20px 18px;border-radius:20px}.hh-stats{grid-template-columns:repeat(2,1fr);gap:10px}.hh-stat b{font-size:22px}}
+/* ─── Quote strip in footer ─── */
+.quote-strip{display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:14px;margin-bottom:12px;font-size:13px;line-height:1.4;color:rgba(255,255,255,.78)}
+.quote-strip-em{font-size:18px;flex-shrink:0}
+.quote-strip-txt{font-style:italic;flex:1;min-width:0;letter-spacing:-.005em}
+.quote-strip-by{font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(255,255,255,.5);letter-spacing:.04em;flex-shrink:0;white-space:nowrap}
+.quote-strip-ref{width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.1);background:transparent;color:rgba(255,255,255,.6);cursor:pointer;display:grid;place-items:center;font-size:13px;transition:all .2s;flex-shrink:0}
+.quote-strip-ref:hover{background:rgba(255,255,255,.06);color:#fff;transform:rotate(180deg)}
+@media (max-width:560px){.quote-strip-by{display:none}.quote-strip{padding:10px 14px;font-size:12px}}
+body:not([data-theme=aurora]) .quote-strip{background:#FFF;border-color:#E8E6E0;color:#3D3D3D}
+body:not([data-theme=aurora]) .quote-strip-by{color:#9A9A9A}
+body:not([data-theme=aurora]) .quote-strip-ref{border-color:#E8E6E0;color:#9A9A9A}
+body:not([data-theme=aurora]) .quote-strip-ref:hover{background:#F4F3EE;color:#1A1A1A}
 body[data-theme=aurora] .add-bar .plus{background:rgba(255,255,255,.2);color:#fff;box-shadow:0 3px 12px rgba(255,255,255,.1)}
 body[data-theme=aurora] .fab{background:linear-gradient(135deg,#8B5CF6,#EC4899);box-shadow:0 10px 30px rgba(139,92,246,.5),0 0 0 8px rgba(139,92,246,.12);animation:fabPulseAurora 3s ease-in-out infinite}
 @keyframes fabPulseAurora{0%,100%{box-shadow:0 10px 30px rgba(139,92,246,.5),0 0 0 8px rgba(139,92,246,.12)}50%{box-shadow:0 14px 36px rgba(236,72,153,.6),0 0 0 16px rgba(236,72,153,.08)}}
@@ -2878,7 +2946,11 @@ body[data-theme=aurora] .tc-added{color:#6B6B85;background:rgba(255,255,255,.04)
 .hero-photo img{width:100%;height:100%;object-fit:cover;display:block;animation:photoFade .9s ease}
 .hero-photo-overlay{position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(0,0,0,.18) 100%);pointer-events:none}
 @keyframes photoFade{from{opacity:0;transform:scale(1.04)}to{opacity:1;transform:scale(1)}}
-.login-logo{font-family:'Instrument Serif',Georgia,serif;font-size:56px;font-weight:400;margin-bottom:8px;letter-spacing:-1.8px;color:var(--ink);line-height:1}
+.login-logo{font-family:'Instrument Serif',Georgia,serif;font-size:56px;font-weight:400;margin-bottom:8px;letter-spacing:-.025em;color:var(--ink);line-height:1;display:inline-flex;align-items:baseline;gap:1px}
+.login-logo .b1{font-style:italic}
+.login-logo .b2{font-style:italic;font-weight:600;color:#FF6B47}
+.login-logo .b3{font-style:italic}
+.login-logo .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#FF6B47;margin-left:4px;align-self:flex-end;margin-bottom:8px;animation:brandDot 2.4s ease-in-out infinite}
 .login-tagline{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-size:20px;color:var(--ink-3);margin-bottom:24px;letter-spacing:.01em}
 .login-sub{font-size:16px;color:var(--ink-3);margin-bottom:32px;line-height:1.6;font-weight:450;max-width:420px;margin-left:auto;margin-right:auto}
 @media (min-width:1024px){.login-logo{font-size:72px;letter-spacing:-2.2px}.login-tagline{font-size:22px;margin-bottom:32px}.login-sub{font-size:17px;margin-bottom:36px}}
@@ -6365,7 +6437,7 @@ if(typeof requestAnimationFrame==='function')requestAnimationFrame(_restore);
 if(!S.user){let h='<div class="login">';
 if(S.loginStep==='phone'){
 h+='<div class="hero-photo"><img src="https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?auto=format&fit=crop&w=1200&q=80" alt="Calm productive workspace" loading="eager"/><div class="hero-photo-overlay"></div></div>';
-h+='<div class="login-logo">Brodoit</div>';
+h+='<div class="login-logo"><span class="b1">Bro</span><span class="b2">do</span><span class="b3">it</span><span class="dot"></span></div>';
 h+='<div class="login-tagline">Tasks. Books. Wisdom.</div>';
 h+='<a class="whatsnew-pill" href="/pricing" style="display:inline-flex;align-items:center;gap:8px;padding:7px 14px;margin:0 0 18px;background:rgba(31,77,63,.08);border:1px solid rgba(31,77,63,.2);border-radius:999px;font-size:12px;font-weight:500;letter-spacing:.04em;color:#1F4D3F;text-decoration:none;font-family:\\'JetBrains Mono\\',monospace;text-transform:uppercase"><span style="width:6px;height:6px;border-radius:999px;background:#1F4D3F;box-shadow:0 0 8px #1F4D3F;animation:wn-pulse 2s ease-in-out infinite"></span>NEW · Pricing &amp; Pro tier <span style="opacity:.7">→</span></a>';
 h+='<div class="login-sub">A calm, focused space for the work that matters.</div>';
@@ -6393,7 +6465,7 @@ if(S.loginMethod==='email'){
   h+='<div class="login-hint">After step 1, your code arrives instantly on WhatsApp.</div>';
 }
 }else if(S.loginStep==='otp'){
-h+='<div class="login-logo" style="margin-top:48px">Bro<span class="k">Do</span>it</div>';
+h+='<div class="login-logo" style="margin-top:48px"><span class="b1">Bro</span><span class="b2">do</span><span class="b3">it</span><span class="dot"></span></div>';
 h+='<div class="login-sub">Code sent via '+(S.loginMethod==='email'?'\\u2709\\uFE0F email':'\\u{1F4F1} WhatsApp')+' to<br><strong>'+esc(S.loginSentTo||(S.loginMethod==='email'?S.loginEmail:S.loginPhone))+'</strong></div>';
 h+='<div class="step-dots"><div class="step-dot on"></div><div class="step-dot on"></div><div class="step-dot"></div></div>';
 h+='<div class="otp-inputs">';
@@ -6505,20 +6577,39 @@ if(S.remember&&S.remember.person){
 // Tasks tab is the "main page" — moral, news, person-of-day, world-clocks render only here.
 const isMain=(S.tab==='tasks'||!S.tab);
 const HELP_BTN='<button class="hdr-help" onclick="openHelp()" aria-label="Help" title="How to use Brodoit">?</button>';
-let h=(isMain?PHONE_BANNER:'')+'<div class="hdr"><div class="hdr-l"><div class="logo">Bro<span class="k">Do</span>it</div><div class="hdr-tagline">tasks &middot; books &middot; wisdom &middot; calm</div><div class="hdr-sub">'+JUMPER+HDR_TIME+'</div></div>'+(isMain&&remember?'<div class="hdr-remember">'+remember+'</div>':'')+'<div class="hdr-actions">'+HELP_BTN+PROFILE_BTN+'<button class="theme-tg" onclick="toggleTheme()" title="Switch theme">'+(S.theme==='aurora'?ic('sun',18):ic('moon',18))+'</button></div></div>';
+const LOGO_MARK='<div class="logo" aria-label="Brodoit"><span class="b1">Bro</span><span class="b2">do</span><span class="b3">it</span><span class="dot"></span></div>';
+let h='<div class="hdr"><div class="hdr-l">'+LOGO_MARK+'</div><div class="hdr-actions">'+HELP_BTN+PROFILE_BTN+'<button class="theme-tg" onclick="toggleTheme()" title="Switch theme">'+(S.theme==='aurora'?ic('sun',18):ic('moon',18))+'</button></div></div>';
 
 const m=MORALS[S.moralIdx];
 let moralBlock='';
 let bottomBlock='';
 if(isMain){
-  const mWrap='<div class="moral">'+MORAL_DOODLE+'<div class="moral-emoji">\\u{1F4A1}</div><div class="moral-body"><div class="moral-lbl">Moral of the Day</div><div class="moral-txt">"'+esc(m.t)+'"</div><div class="moral-by">\\u2014 '+esc(m.a)+'</div></div><button class="moral-ref" onclick="rotateMoral()" title="New quote">\\u21BB</button></div>';
-  // 3 highlight headlines for the TOP of the tasks page — auto-rotating with fade animation
+  // Modern hero greeting — replaces the cluttered moral/news/clocks block
+  const _h=new Date().getHours();
+  const _greet=_h<5?'Good night':_h<12?'Good morning':_h<17?'Good afternoon':_h<21?'Good evening':'Good night';
+  const _firstName=((S.user&&S.user.name)||'').split(' ')[0]||'';
+  const _today=new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  const _todayISO=new Date().toISOString().slice(0,10);
+  const _dueToday=ts.filter(t=>t.status!=='done'&&(t.due_date||'').slice(0,10)===_todayISO).length;
+  const _overdue=ts.filter(t=>isOD(t.due_date,t.status)).length;
+  const _doneToday=ts.filter(t=>t.status==='done'&&(t.updated_at||'').slice(0,10)===_todayISO).length;
+  // Streak (consecutive days with at least 1 done task)
+  let _streak=0;for(let i=0;i<60;i++){const d=new Date(Date.now()-i*864e5).toISOString().slice(0,10);const ok=ts.some(x=>x.status==='done'&&(x.updated_at||'').slice(0,10)===d);if(ok)_streak++;else if(i>0)break}
+  let hero='<section class="home-hero">'
+    +'<div class="hh-bg"></div>'
+    +'<div class="hh-row"><div class="hh-eyebrow">'+esc(_today)+'</div></div>'
+    +'<h1 class="hh-greet">'+esc(_greet)+(_firstName?', <em>'+esc(_firstName)+'</em>':'')+'.</h1>'
+    +'<p class="hh-line">'+(_dueToday>0?'<b>'+_dueToday+'</b> '+(_dueToday===1?'task':'tasks')+' due today':_overdue>0?'<b>'+_overdue+'</b> overdue. Pick one and start.':'<span style="color:rgba(255,255,255,.7)">No tasks due today.</span> Add one below \\u2192')+'</p>'
+    +'<div class="hh-stats">'
+      +'<div class="hh-stat"><b>'+s.total+'</b><small>Total</small></div>'
+      +'<div class="hh-stat"><b style="color:#22D3EE">'+s.act+'</b><small>Active</small></div>'
+      +'<div class="hh-stat"><b style="color:#86EFAC">'+_doneToday+'</b><small>Done today</small></div>'
+      +'<div class="hh-stat"><b style="color:#FFB547">\\u{1F525} '+_streak+'</b><small>Day streak</small></div>'
+    +'</div>'
+  +'</section>';
+  moralBlock=hero;
+  // Bottom strip — keep moral + news ticker + clocks but tucked away as a subtle footer.
   const items=S.ticker.items||[];const baseIdx=S.ticker.idx||0;
-  const top3=[0,1,2].map(o=>items[(baseIdx+o)%(items.length||1)]||{title:'Loading\\u2026',link:'#',source:''});
-  let topNews='<div class="top-news" id="topNewsStack">';
-  top3.forEach((ti,i)=>{topNews+='<a class="top-news-row" style="animation-delay:'+(i*0.5)+'s" href="'+esc(ti.link||'#')+'" target="_blank" rel="noopener" title="'+esc(ti.title||'')+'"><span class="top-news-pulse"></span><span class="top-news-src">'+esc((ti.source||'').toUpperCase())+'</span><span class="top-news-link">'+esc(ti.title||'')+'</span></a>'});
-  topNews+='</div>';
-  // Bottom: full 5-headline ticker + world clocks (person-of-day already in header on main page).
   const visible=[0,1,2,3,4].map(o=>items[(baseIdx+o)%(items.length||1)]||{title:'Loading\\u2026',link:'#',source:''});
   let ticker='<div class="news-ticker-stack" id="newsTickerStack">';
   visible.forEach((ti,i)=>{ticker+='<a class="news-ticker-row" style="animation-delay:'+(i*0.07)+'s" href="'+esc(ti.link||'#')+'" target="_blank" rel="noopener" title="'+esc(ti.title||'')+'"><span class="news-ticker-pulse"></span><span class="news-ticker-src">'+esc((ti.source||'').toUpperCase())+'</span><span class="news-ticker-link">'+esc(ti.title||'')+'</span></a>'});
@@ -6526,8 +6617,8 @@ if(isMain){
   const fmtTZ2=(tz)=>{try{return new Date().toLocaleTimeString('en-US',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false})}catch(e){return '--:--'}};
   const isDayAt=(tz)=>{try{const h=Number(new Date().toLocaleString('en-US',{timeZone:tz,hour:'2-digit',hour12:false}).split(',')[1]||new Date().toLocaleString('en-US',{timeZone:tz,hour:'2-digit',hour12:false}));return h>=6&&h<18}catch(e){return true}};
   const wc='<div class="world-clocks" id="worldClocks">'+WORLD_CITY_LIST.map((c,i)=>{const day=isDayAt(c.tz);const icon=day?'<svg class="wc-icon wc-sun" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4" fill="#F59E0B"/><g stroke="#F59E0B" stroke-width="1.6" stroke-linecap="round"><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.9" y1="4.9" x2="7" y2="7"/><line x1="17" y1="17" x2="19.1" y2="19.1"/><line x1="4.9" y1="19.1" x2="7" y2="17"/><line x1="17" y1="7" x2="19.1" y2="4.9"/></g></svg>':'<svg class="wc-icon wc-moon" viewBox="0 0 24 24" fill="none"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="#A78BFA"/><circle class="wc-star" cx="6" cy="6" r="0.8" fill="#A78BFA"/><circle class="wc-star" cx="20" cy="20" r="0.7" fill="#A78BFA"/></svg>';const ct=(S.cityTemps||{})[c.key.toLowerCase()];const tempStr=ct&&ct.temp!=null?ct.temp+'\\u00B0':'';return '<span class="wc-item '+(day?'wc-day':'wc-night')+'" style="animation-delay:'+(i*0.05)+'s"><span class="wc-icon-wrap">'+icon+'</span><b>'+esc(c.label)+'</b><span class="wc-time" data-tz="'+c.tz+'">'+fmtTZ2(c.tz)+'</span>'+(tempStr?'<span class="wc-temp">'+tempStr+'</span>':'')+'</span>'}).join('')+'</div>';
-  moralBlock='<div class="moral-wrap">'+mWrap+topNews+'</div>';
-  bottomBlock='<div class="bottom-strip">'+ticker+wc+'</div>';
+  const mLine='<div class="quote-strip"><span class="quote-strip-em">\\u{1F4A1}</span><span class="quote-strip-txt">"'+esc(m.t)+'"</span><span class="quote-strip-by">\\u2014 '+esc(m.a)+'</span><button class="quote-strip-ref" onclick="rotateMoral()" aria-label="New quote">\\u21BB</button></div>';
+  bottomBlock='<div class="bottom-strip">'+mLine+ticker+wc+'</div>';
 }
 
 // Tabs
@@ -6673,8 +6764,7 @@ if(S.tab==='tasks'){
       +(parsed.title&&(parsed.priority||parsed.dueDate)?'<div class="cx-preview"><span class="cx-pv-lbl">Detected:</span>'+(parsed.title?'<span class="cx-pv-pill cx-pv-title">\\u270F\\uFE0F '+esc(parsed.title)+'</span>':'')+(parsed.dueLabel?'<span class="cx-pv-pill">\\u{1F4C5} '+esc(parsed.dueLabel)+'</span>':'')+(parsed.priority?'<span class="cx-pv-pill">'+(parsed.priority==='high'?'\\u{1F525} High':parsed.priority==='medium'?'\\u26A1 Medium':'\\u{1F343} Low')+'</span>':'')+'</div>':'')
     +'</div>';
   }
-  // WhatsApp reminders prompt removed for closed-test phase
-  h+='<div class="stats">'+[{l:'Total',v:s.total,c:'#0F172A'},{l:'To Do',v:s.pend,c:'#94A3B8'},{l:'Active',v:s.act,c:'#3B82F6'},{l:'Done',v:s.dn,c:'#3DAE5C'}].map(x=>'<div class="st"><b style="color:'+x.c+'">'+x.v+'</b><small>'+x.l+'</small></div>').join('')+'</div>';
+  // (Stats moved into the hero greeting above)
   if(s.od>0)h+='<div class="al" style="background:#FEF1F0;border:1px solid #F5C6C2;color:#E8453C;cursor:pointer" onclick="S.view=\\'overdue\\';render()">\\u26A0\\uFE0F '+s.od+' overdue</div>';
   h+='<div class="srch"><input placeholder="Search tasks..." value="'+esc(S.search)+'" oninput="S.search=this.value;render()"></div>';
   h+='<div class="flt">'+[{k:'all',l:'All'},{k:'pending',l:'To Do'},{k:'in-progress',l:'Doing'},{k:'done',l:'Done'},{k:'today',l:'Today'}].map(x=>'<button class="fb'+(S.view===x.k?' on':'')+'" onclick="S.view=\\''+x.k+'\\';render()">'+x.l+'</button>').join('')+'</div>';
@@ -7319,73 +7409,54 @@ if(S.showProfile){
 // ─── HELP modal — full step-by-step guide ───
 if(S.showHelp){
   const sandboxCode=window.__TWILIO_SANDBOX_CODE||'along-wool';
-  h+='<div class="ov" onclick="closeHelp()"><div class="mdl help-mdl" onclick="event.stopPropagation()">';
-  h+='<div class="help-hd"><div><h2 class="help-t">How to use Brodoit</h2><div class="help-s">Everything you need, step by step</div></div><button class="help-x" onclick="closeHelp()" aria-label="Close">\\u2715</button></div>';
-  h+='<div class="help-body">';
-
-  // Section 1 — Adding tasks
-  h+='<section class="help-sec"><div class="help-sec-hd"><span class="help-sec-num">1</span><h3 class="help-sec-t">Add a task</h3></div>'
-    +'<ol class="help-list">'
-      +'<li>Open the <b>Tasks</b> tab (the first tab in the bar at the top).</li>'
-      +'<li>Tap the big <b>+ Add a new task</b> bar near the top of the page.</li>'
-      +'<li>Type the task title. Optionally add notes, priority, a due date and a reminder time.</li>'
-      +'<li>Use the <b>\\u{1F3A4} Speak to add</b> button to dictate the task instead of typing. Phrases like <i>"Buy groceries tomorrow urgent"</i> auto-set the date and priority.</li>'
-      +'<li>Tap <b>Add Task</b> to save. The task appears at the top of the list.</li>'
-    +'</ol></section>';
-
-  // Section 2 — Manage on Board
-  h+='<section class="help-sec"><div class="help-sec-hd"><span class="help-sec-num">2</span><h3 class="help-sec-t">Move tasks on the Board</h3></div>'
-    +'<ol class="help-list">'
-      +'<li>Tap the <b>Board</b> tab in the top bar.</li>'
-      +'<li>You\\'ll see three columns: <b>To Do \\u2022 Doing \\u2022 Done</b>.</li>'
-      +'<li><b>On desktop</b>: drag a task card from one column to another to change its status.</li>'
-      +'<li><b>On mobile</b>: tap the small status badge on any task and it cycles To Do \\u2192 Doing \\u2192 Done.</li>'
-      +'<li>Tap the round circle on the left of a task to mark it complete instantly. Tap again to undo.</li>'
-    +'</ol></section>';
-
-  // Section 3 — WhatsApp setup (with Twilio disclosure)
-  h+='<section class="help-sec"><div class="help-sec-hd"><span class="help-sec-num">3</span><h3 class="help-sec-t">Connect WhatsApp</h3></div>'
-    +'<div class="help-callout"><b>How this works:</b> Brodoit doesn\\'t talk to WhatsApp directly. We use <b>Twilio</b>, a third-party messaging gateway. Your messages flow <b>your WhatsApp \\u2192 Twilio \\u2192 Brodoit\\u2019s server</b> and back. You opt in once per phone, then it just works.</div>'
-    +'<ol class="help-list">'
-      +'<li>Tap your <b>profile</b> button (top-right of the header).</li>'
-      +'<li>Scroll down in the Profile and tap <b>\\u{1F517} Set up WhatsApp \\u2192</b>.</li>'
-      +'<li><b>One-time setup</b>: open WhatsApp and send the message <b>join '+esc(sandboxCode)+'</b> to <b>+1 415 523 8886</b>. The pre-filled <b>Open WhatsApp</b> button does this for you.</li>'
-      +'<li>Wait for a confirmation reply from Twilio (usually within a few seconds).</li>'
-      +'<li>Back in Brodoit, pick your country code and type your WhatsApp number, then tap <b>Send code via WhatsApp</b>.</li>'
-      +'<li>Open WhatsApp, find the 6-digit code, copy it, paste it into Brodoit, and tap <b>Verify &amp; connect</b>.</li>'
-      +'<li>Done. Now you can:'
-        +'<ul class="help-sublist">'
-          +'<li>WhatsApp any message to <b>+1 415 523 8886</b> and it becomes a task.</li>'
-          +'<li>Send a single task to your WhatsApp by tapping the <b>\\u{1F4F2}</b> icon next to it.</li>'
-          +'<li>Send all your open tasks at once with <b>Send all tasks to WhatsApp</b>.</li>'
-          +'<li>Receive automatic reminders on WhatsApp at the scheduled time.</li>'
-        +'</ul>'
-      +'</li>'
-      +'<li>WhatsApp commands (reply to any Brodoit message): <b>list</b>, <b>done <i>title</i></b>, <b>doing <i>title</i></b>, <b>delete <i>title</i></b>, <b>help</b>.</li>'
-    +'</ol></section>';
-
-  // Section 4 — Other features
-  h+='<section class="help-sec"><div class="help-sec-hd"><span class="help-sec-num">4</span><h3 class="help-sec-t">More inside the app</h3></div>'
-    +'<ul class="help-list">'
-      +'<li><b>Calendar</b> tab: connect your Google account to see and add events without leaving Brodoit.</li>'
-      +'<li><b>Books</b> tab: free public-domain audiobooks from the Internet Archive. Tap any book to play; a 2-minute listen counts toward your daily streak.</li>'
-      +'<li><b>Meditate</b> tab: short guided meditations \\u2014 Vipassana breath-awareness and metta sessions, 10 or 20 minutes each.</li>'
-      +'<li><b>News</b> tab: latest headlines across Tech, Sports and World, refreshed every 15 minutes.</li>'
-      +'<li><b>Daily moral of the day</b>: a fresh quote on your Tasks landing every visit. Tap the \\u21BB button to rotate.</li>'
-      +'<li><b>Voice dictation</b> works inside the New Task modal \\u2014 it parses dates and priorities automatically.</li>'
-    +'</ul></section>';
-
-  // Section 5 — Privacy & data
-  h+='<section class="help-sec"><div class="help-sec-hd"><span class="help-sec-num">5</span><h3 class="help-sec-t">Privacy &amp; your data</h3></div>'
-    +'<ul class="help-list">'
-      +'<li>Login is <b>email-only OTP</b> \\u2014 no password to remember, no data shared with third parties.</li>'
-      +'<li>Your tasks are stored on Brodoit\\u2019s server and tied only to your email.</li>'
-      +'<li>WhatsApp messages pass through Twilio (the gateway). Brodoit never reads your WhatsApp chats outside our own number.</li>'
-      +'<li>Read the full <a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a> and <a href="/terms" target="_blank" rel="noopener">Terms</a>.</li>'
-    +'</ul></section>';
-
+  h+='<div class="ov" onclick="closeHelp()"><div class="mdl help-mdl-v2" onclick="event.stopPropagation()">';
+  h+='<button class="hv-x" onclick="closeHelp()" aria-label="Close"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>';
+  h+='<div class="hv-hero">'
+    +'<div class="hv-hero-eyebrow">Welcome to</div>'
+    +'<div class="hv-brand"><span class="b1">Bro</span><span class="b2">do</span><span class="b3">it</span><span class="dot"></span></div>'
+    +'<div class="hv-hero-sub">A calmer way to get things done. Here\\u2019s how it works.</div>'
+  +'</div>';
+  h+='<div class="hv-body">';
+  // Card 1 — Add a task
+  h+='<article class="hv-step"><div class="hv-step-num">01</div>'
+    +'<div class="hv-step-ic" style="background:linear-gradient(135deg,#FF6B47,#FFB547)">\\u270F\\uFE0F</div>'
+    +'<h3 class="hv-step-t">Add a task in one line</h3>'
+    +'<p class="hv-step-d">Type at the top of the Tasks tab. Try <code>Reply to Sam tomorrow !urgent</code> \\u2014 the composer reads natural language and sets the date and priority for you. Press <kbd>Enter</kbd> to save.</p>'
+    +'<div class="hv-step-tip">Tip: chips below the input let you set Today / Tomorrow / High one tap.</div>'
+  +'</article>';
+  // Card 2 — Plan and complete
+  h+='<article class="hv-step"><div class="hv-step-num">02</div>'
+    +'<div class="hv-step-ic" style="background:linear-gradient(135deg,#22D3EE,#3B82F6)">\\u2713</div>'
+    +'<h3 class="hv-step-t">Plan, do, complete</h3>'
+    +'<p class="hv-step-d">Tap a task\\u2019s circle to mark it done. Need columns? Switch to <b>Board</b> for a To Do / Doing / Done view \\u2014 drag on desktop, tap the status badge on mobile.</p>'
+  +'</article>';
+  // Card 3 — Listen to briefs
+  h+='<article class="hv-step"><div class="hv-step-num">03</div>'
+    +'<div class="hv-step-ic" style="background:linear-gradient(135deg,#A78BFA,#EC4899)">\\u{1F3A7}</div>'
+    +'<h3 class="hv-step-t">Briefs in your earbuds</h3>'
+    +'<p class="hv-step-d">Open the <b>Briefs</b> tab. Tap any cover \\u2014 the audio summary plays in the bottom mini-player. Keep working; tap the mini-player to expand and read along.</p>'
+  +'</article>';
+  // Card 4 — Train the mind
+  h+='<article class="hv-step"><div class="hv-step-num">04</div>'
+    +'<div class="hv-step-ic" style="background:linear-gradient(135deg,#86EFAC,#22D3EE)">\\u{1F9E0}</div>'
+    +'<h3 class="hv-step-t">Five-minute mind workout</h3>'
+    +'<p class="hv-step-d">The <b>Mind Gym</b> tab has four micro-games: math, memory, reflex, word. One round each = a 5-minute morning warm-up. Beat your best.</p>'
+  +'</article>';
+  // Card 5 — Calm + Calendar
+  h+='<article class="hv-step"><div class="hv-step-num">05</div>'
+    +'<div class="hv-step-ic" style="background:linear-gradient(135deg,#FCD34D,#FF6B47)">\\u{1F9D8}</div>'
+    +'<h3 class="hv-step-t">Meditate &amp; sync</h3>'
+    +'<p class="hv-step-d"><b>Meditate</b>: 10 / 20-minute guided sessions. <b>Calendar</b>: connect Google to view and add events without leaving Brodoit.</p>'
+  +'</article>';
+  // Card 6 — WhatsApp
+  h+='<article class="hv-step"><div class="hv-step-num">06</div>'
+    +'<div class="hv-step-ic" style="background:linear-gradient(135deg,#25D366,#128C7E)">\\u{1F4AC}</div>'
+    +'<h3 class="hv-step-t">WhatsApp \\u2014 add tasks by chat</h3>'
+    +'<p class="hv-step-d">Tap <b>Profile \\u2192 Set up WhatsApp</b>. One-time setup: send <code>join '+esc(sandboxCode)+'</code> to <b>+1 415 523 8886</b>. After that, every message you send becomes a task and reminders arrive on WhatsApp.</p>'
+    +'<div class="hv-step-tip">Reply to a Brodoit message with <b>list</b>, <b>done <i>title</i></b>, <b>doing <i>title</i></b>, or <b>delete <i>title</i></b>.</div>'
+  +'</article>';
   h+='</div>';
-  h+='<div class="help-foot"><button class="mb mb-s" onclick="closeHelp()">Got it</button></div>';
+  h+='<div class="hv-foot"><div class="hv-foot-l">Built with care \\u00B7 <a href="/privacy" target="_blank" rel="noopener">Privacy</a> \\u00B7 <a href="/terms" target="_blank" rel="noopener">Terms</a></div><button class="hv-foot-cta" onclick="closeHelp()">Let\\u2019s do it \\u2192</button></div>';
   h+='</div></div>';
 }
 
