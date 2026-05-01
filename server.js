@@ -4744,7 +4744,7 @@ const KNOWLEDGE_TOPICS=[
 ];
 function getKnowledgeTopic(k){return KNOWLEDGE_TOPICS.find(t=>t.k===k)||KNOWLEDGE_TOPICS[0]}
 function getKnowledgeSec(topicK,secK){const t=getKnowledgeTopic(topicK);return t.sections.find(s=>s.k===secK)||t.sections[0]}
-function switchTab(t){if(t==='steps'||t==='dash'||t==='history'||t==='geography'||t==='knowledge'||t==='ipl'||t==='games')t=t==='ipl'?'news':t==='games'?'mindgym':'tasks';S.tab=t;if(t==='news'){if(!S.newsCat)S.newsCat='world';if(!S.news[S.newsCat])loadNews(S.newsCat)}if(t==='books'&&!S.books.length)loadBooks('all');if(t==='meditation'&&!S.meditations)loadMeditations();if(t==='cal'){if(!S.google.loaded)loadGoogleStatus();else if(S.google.accounts.length&&!S.gcalEvents.length&&!S.gcalLoading)loadGcalEvents()}if(t==='mindgym'&&!S.mg.loaded)loadMindGym();if(t==='voice'){if(!S.coach.status)coachInit()}S._suppressScrollRestore=true;render();S._suppressScrollRestore=false;try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}}
+function switchTab(t){if(t==='steps'||t==='dash'||t==='history'||t==='geography'||t==='knowledge'||t==='ipl'||t==='games'||t==='news'||t==='voice')t=t==='games'?'mindgym':'tasks';S.tab=t;if(t==='books'&&!S.books.length)loadBooks('all');if(t==='meditation'&&!S.meditations)loadMeditations();if(t==='cal'){if(!S.google.loaded)loadGoogleStatus();else if(S.google.accounts.length&&!S.gcalEvents.length&&!S.gcalLoading)loadGcalEvents()}if(t==='mindgym'&&!S.mg.loaded)loadMindGym();S._suppressScrollRestore=true;render();S._suppressScrollRestore=false;try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}}
 async function loadKnowledge(topicK,secK){S.knowledge.topic=topicK;S.knowledge.sec=secK;S.knowledge.loading=true;render();const cacheKey=topicK+':'+secK;try{if(topicK==='history'&&secK==='today'){const r=await fetch('/api/history/today');const j=await r.json();S.knowledge.events=j.events||[]}else{const tObj=KNOWLEDGE_TOPICS.find(t=>t.k===topicK);const sObj=tObj&&tObj.sections.find(s=>s.k===secK);if(!sObj||!sObj.titles){S.knowledge.loaded[cacheKey]=true;S.knowledge.loading=false;render();return}const r=await fetch('/api/wiki/summaries?titles='+encodeURIComponent(sObj.titles.join(',')));const j=await r.json();S.knowledge.articles[cacheKey]=j.summaries||[]}}catch(e){}S.knowledge.loaded[cacheKey]=true;S.knowledge.loading=false;render()}
 function switchKnowledgeTopic(k){S.knowledge.topic=k;const tObj=KNOWLEDGE_TOPICS.find(t=>t.k===k);const sk=(tObj&&tObj.sections[0]&&tObj.sections[0].k)||'today';loadKnowledge(k,sk)}
 async function loadNews(cat){S.newsCat=cat;S.newsLoading=true;render();try{const r=await fetch('/api/news?cat='+encodeURIComponent(cat),{cache:'no-store'});const j=await r.json();S.news[cat]=j.items||[]}catch(e){S.news[cat]=[]}S.newsLoading=false;render()}
@@ -6351,7 +6351,7 @@ if(isMain){
   const dayOfYear=Math.floor((now-yStart)/86400000);
   const yearPct=Math.round(dayOfYear/365*100);
   const dateStr=now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-  const tabsHtml=[{k:'tasks',l:'Tasks'},{k:'board',l:'Board'},{k:'cal',l:'Calendar'},{k:'books',l:'Books'},{k:'meditation',l:'Meditate'},{k:'mindgym',l:'Mind Gym'},{k:'voice',l:'Voice'},{k:'news',l:'News'}].map(x=>'<button class="tab tab-'+x.k+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(ID[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
+  const tabsHtml=[{k:'tasks',l:'Tasks'},{k:'board',l:'Board'},{k:'cal',l:'Calendar'},{k:'books',l:'Briefs'},{k:'meditation',l:'Meditate'},{k:'mindgym',l:'Mind Gym'}].map(x=>'<button class="tab tab-'+x.k+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(ID[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
   // "Bro, do it!" mascot — a character with a speech bubble that animates
   const climbScene='<div class="bro-mascot" aria-hidden="true">'
     +'<svg class="bro-svg" viewBox="0 0 340 130" xmlns="http://www.w3.org/2000/svg">'
@@ -6572,165 +6572,6 @@ else if(S.tab==='mindgym'){
   +'</div>';
 }
 
-// VOICE TAB — AI Coach (Phase 2 — live Claude conversation + Whisper STT + ElevenLabs TTS)
-else if(S.tab==='voice'){
-  const c=S.coach||{};const st=c.status||{};
-  // Daily lesson card (rotates by weekday) — renders at the very top
-  {
-    const lesson=_voiceLessonOfDay();
-    const today=new Date();
-    const weekDay=today.toLocaleDateString('en-US',{weekday:'long'});
-    h+='<div class="vc-lesson">'
-      +'<div class="vc-lesson-eyebrow">'+lesson.e+' Today\\u2019s lesson <span class="day-num">'+esc(weekDay)+'</span></div>'
-      +'<h2>'+lesson.title+'</h2>'
-      +'<div class="desc">'+lesson.desc+'</div>'
-      +'<div class="vc-lesson-row">'
-        +'<button class="vc-go" onclick="voiceStartLesson()">Start lesson \\u2192</button>'
-        +'<span class="vc-meta">~ 4 min \\u00B7 AI tutor will guide you</span>'
-      +'</div>'
-    +'</div>';
-  }
-  // Vocabulary trio for today — 3 hand-picked advanced words
-  {
-    const vocab=_voiceVocabOfDay();
-    h+='<div class="vc-vocab-row">'
-      +'<div class="vc-vocab-h"><h3>\\u{1F4DA} Three words for today</h3><span class="meta">Tap any word to hear it</span></div>'
-      +'<div class="vc-vocab-grid">';
-    vocab.forEach(v=>{
-      h+='<button class="vc-vocab-card" onclick="voiceSpeakWord(\\''+esc(v.w)+'\\')">'
-        +'<div class="word">'+esc(v.w)+' \\u{1F50A}</div>'
-        +'<div class="pos">'+esc(v.pos)+'</div>'
-        +'<div class="def">'+esc(v.def)+'</div>'
-        +'<div class="ex">"'+esc(v.ex)+'"</div>'
-      +'</button>';
-    });
-    h+='</div></div>';
-  }
-  // ═══ Learning path — Duolingo-style level-by-level progression ═══
-  {
-    if(!S.voiceCurriculum){S.voiceCurriculum={progress:{},totalXp:0,totalStars:0,completed:0};setTimeout(voiceCurriculumLoad,200)}
-    const cur=S.voiceCurriculum||{progress:{},totalXp:0,totalStars:0};
-    const totalLessons=VOICE_CURRICULUM.reduce((s,u)=>s+u.lessons.length,0);
-    h+='<div class="vp-head">'
-      +'<div><h3 class="vp-h">Your learning path</h3><div class="vp-sub">'+VOICE_CURRICULUM.length+' units \\u00B7 '+totalLessons+' lessons \\u00B7 unlock as you go</div></div>'
-      +'<div class="vp-stats">'
-        +'<div class="vp-stat"><b>'+(cur.totalStars||0)+'</b><small>\\u2605 stars</small></div>'
-        +'<div class="vp-stat"><b>'+(cur.totalXp||0)+'</b><small>XP</small></div>'
-        +'<div class="vp-stat"><b>'+(cur.completed||0)+'<span style="font-weight:400;color:#9A9A9A">/'+totalLessons+'</span></b><small>lessons</small></div>'
-      +'</div>'
-    +'</div>';
-    h+='<div class="vp-path">';
-    VOICE_CURRICULUM.forEach((unit,uIdx)=>{
-      const unitProgress=unit.lessons.filter(l=>cur.progress[unit.id+':'+l.id]).length;
-      const unitDone=unitProgress===unit.lessons.length;
-      h+='<div class="vp-unit'+(unitDone?' vp-unit-done':'')+'" style="--vp-c:'+unit.color+'">'
-        +'<div class="vp-unit-hd">'
-          +'<div class="vp-unit-ic">'+unit.e+'</div>'
-          +'<div class="vp-unit-meta"><div class="vp-unit-tag">UNIT '+unit.id+'</div><div class="vp-unit-name">'+esc(unit.name)+'</div><div class="vp-unit-desc">'+esc(unit.desc)+'</div></div>'
-          +'<div class="vp-unit-prog">'+unitProgress+'<span>/'+unit.lessons.length+'</span></div>'
-        +'</div>'
-        +'<div class="vp-lessons">';
-      unit.lessons.forEach((lesson,lIdx)=>{
-        const key=unit.id+':'+lesson.id;
-        const done=!!cur.progress[key];
-        const stars=done?(cur.progress[key].stars||0):0;
-        const unlocked=_voiceIsLessonUnlocked(unit.id,lesson.id,cur.progress);
-        const cls=done?'vp-lesson-done':unlocked?'vp-lesson-open':'vp-lesson-locked';
-        h+='<button class="vp-lesson '+cls+'" onclick="voiceLessonOpen('+unit.id+','+lesson.id+')">'
-          +'<div class="vp-l-num">'+(done?'\\u2713':unlocked?lesson.id:'\\u{1F512}')+'</div>'
-          +'<div class="vp-l-meta"><div class="vp-l-name">'+esc(lesson.name)+'</div>'+(done?'<div class="vp-l-stars">'+[1,2,3].map(n=>'<span'+(n<=stars?' class="on"':'')+'>\\u2605</span>').join('')+'</div>':'<div class="vp-l-stars vp-l-stars-empty">5 phrases \\u00B7 ~3 min</div>')+'</div>'
-        +'</button>';
-      });
-      h+='</div></div>';
-    });
-    h+='</div>';
-  }
-  // Skill grid — Duolingo-style 5 categories with brand colors
-  {
-    const lc=S.coach&&S.coach.scenario?S.coach.scenario.id:null;
-    const skills=[
-      {k:'pronounce',e:'\\u{1F399}\\uFE0F',n:'Pronounce',lvl:'L'+((S.mg.progress.word&&S.mg.progress.word.level)||1)},
-      {k:'vocab',e:'\\u{1F4DA}',n:'Vocabulary',lvl:'21 words'},
-      {k:'grammar',e:'\\u{1F9E9}',n:'Grammar',lvl:'Daily'},
-      {k:'conv',e:'\\u{1F4AC}',n:'Conversation',lvl:(S.coach&&S.coach.history?S.coach.history.length:0)+' turns'},
-      {k:'write',e:'\\u270D\\uFE0F',n:'Writing',lvl:'Beta'}
-    ];
-    h+='<div class="vc-skills">';
-    skills.forEach(s=>{
-      const click=s.k==='pronounce'?'document.getElementById(\\'vcPron\\')&&document.getElementById(\\'vcPron\\').scrollIntoView({behavior:\\'smooth\\',block:\\'center\\'})':s.k==='vocab'?'document.querySelector(\\'.vc-vocab-row\\')&&document.querySelector(\\'.vc-vocab-row\\').scrollIntoView({behavior:\\'smooth\\',block:\\'center\\'})':s.k==='conv'?'document.querySelector(\\'.cc-thread\\')&&document.querySelector(\\'.cc-thread\\').scrollIntoView({behavior:\\'smooth\\',block:\\'center\\'})':s.k==='grammar'?'coachSend(\\'Teach me one grammar rule that English learners get wrong most often, with three examples.\\')':'coachSend(\\'Help me write a polished email asking for a quick meeting next Tuesday.\\')';
-      h+='<button class="vc-skill" data-k="'+s.k+'" onclick="'+click+'"><div class="vs-ic">'+s.e+'</div><div class="vs-name">'+s.n+'</div><div class="vs-lvl">'+s.lvl+'</div></button>';
-    });
-    h+='</div>';
-  }
-  // Pronunciation drill — daily phrase + record + score
-  {
-    const phrase=_voicePronOfDay();
-    const pr=S.pron||{};
-    h+='<div class="vc-pron" id="vcPron">'
-      +'<div><div class="vc-pron-h">\\u{1F399}\\uFE0F Today\\u2019s pronunciation drill</div>'
-      +'<div class="vc-pron-phrase">"'+esc(phrase)+'"</div>'
-      +'<div class="vc-pron-meta">Tap <b>Listen</b> to hear it, then <b>Speak</b> to record. We score how close your version is.</div>'
-      +(pr.result?'<div class="vc-pron-result '+(pr.result.pct>=80?'good':pr.result.pct>=50?'ok':'miss')+'"><b>'+pr.result.pct+'%</b> match \\u00B7 '+pr.result.matched+' of '+pr.result.total+' words. '+(pr.heard?'You said: <i>"'+esc(pr.heard)+'"</i>':'')+(pr.result.missed&&pr.result.missed.length?' \\u00B7 missed: '+pr.result.missed.slice(0,4).map(esc).join(', '):'')+'</div>':'')
-      +'</div>'
-      +'<div class="vc-pron-actions">'
-        +'<button class="vc-pron-btn vc-pron-listen" onclick="voicePronListen()">\\u{1F50A} Listen</button>'
-        +'<button class="vc-pron-btn vc-pron-rec'+(pr.recording?' recording':'')+'" onclick="voicePronRecord()">\\u{1F3A4} '+(pr.recording?'Listening\\u2026':'Speak')+'</button>'
-      +'</div>'
-    +'</div>';
-  }
-  // Hero
-  h+='<section class="cc-hero">'
-    +'<div class="cc-hero-orb"></div>'
-    +'<div class="cc-hero-l"><div class="cc-hero-eyebrow">\\u{1F399}\\uFE0F BRODOIT \\u00B7 AI COACH</div>'
-      +'<h1 class="cc-hero-t">Talk. Refine. Sound sharper.</h1>'
-      +'<div class="cc-hero-s">A live Business English coach. Type or hit the mic \\u2014 your phone listens, the coach replies in a real human voice with vocabulary tips, polished rewrites, and follow-ups.</div>'
-    +'</div>'
-  +'</section>';
-  // Tutor mode indicator — green when configured, an actionable setup card when not
-  if(st.chat){
-    h+='<div style="display:inline-flex;align-items:center;gap:8px;padding:7px 14px;background:rgba(31,77,63,.08);border:1px solid rgba(31,77,63,.22);border-radius:999px;font-family:\\'JetBrains Mono\\',\\'Space Mono\\',monospace;font-size:11px;font-weight:500;letter-spacing:.06em;color:#1F4D3F;text-transform:uppercase;margin-bottom:14px"><span style="width:6px;height:6px;border-radius:999px;background:#10B981;box-shadow:0 0 8px #10B981;animation:wn-pulse 2s ease-in-out infinite"></span>AI tutor \\u00B7 ready</div>';
-  }
-  // (AI-not-configured banner removed — local pronunciation drill + curriculum work
-  // independently. The free-form chat at the bottom still needs ANTHROPIC_API_KEY for
-  // intelligent replies; users discover that organically when they try it.)
-  // Scenarios
-  h+='<div class="cc-scenarios"><div class="cc-scenarios-t">\\u26A1 Pick a scenario \\u2014 or just chat below</div><div class="cc-scenario-row">';
-  COACH_SCENARIOS.forEach((sc,i)=>{const on=c.scenario&&c.scenario.id===sc.id;h+='<button class="cc-sc'+(on?' cc-sc-on':'')+'" onclick="coachStartScenarioByIdx('+i+')">'+esc(sc.title)+'</button>'});
-  h+='</div></div>';
-  if(c.scenario)h+='<div class="cc-active-scenario">\\u{1F3AD} Roleplay: <b>'+esc(c.scenario.title)+'</b> <button class="cc-end" onclick="coachReset()">End \\u2715</button></div>';
-  // Chat thread
-  h+='<div class="cc-thread" id="ccThread">';
-  (c.history||[]).forEach((m,i)=>{
-    const role=m.role==='assistant'?'coach':'me';
-    h+='<div class="cc-msg cc-'+role+'">'
-      +(role==='coach'?'<div class="cc-avatar">\\u{1F399}\\uFE0F</div>':'')
-      +'<div class="cc-bubble">'+esc(m.content).replace(/\\*\\*([^*]+)\\*\\*/g,'<b>$1</b>').replace(/\\n/g,'<br>')+(role==='coach'&&i===c.history.length-1?'<button class="cc-replay" onclick="coachReplayLast()" title="Replay">\\u{1F50A}</button>':'')+'</div>'
-    +'</div>';
-  });
-  if(c.sending)h+='<div class="cc-msg cc-coach"><div class="cc-avatar">\\u{1F399}\\uFE0F</div><div class="cc-bubble cc-typing"><span></span><span></span><span></span></div></div>';
-  h+='</div>';
-  // Composer (with live waveform when recording)
-  if(c.recording){
-    h+='<div class="cc-composer cc-composer-rec">'
-      +'<canvas id="ccWave" class="cc-wave"></canvas>'
-      +'<button class="cc-mic cc-rec" onclick="coachStartRec()" aria-label="Stop">\\u23F9</button>'
-    +'</div>';
-  } else {
-    h+='<div class="cc-composer">'
-      +'<textarea id="coachInput" placeholder="Type your message\\u2026 or tap the mic" rows="1" oninput="S.coach.input=this.value;this.style.height=\\'auto\\';this.style.height=Math.min(120,this.scrollHeight)+\\'px\\'" onkeydown="if(event.key===\\'Enter\\'&&!event.shiftKey){event.preventDefault();coachSend()}">'+esc(c.input||'')+'</textarea>'
-      +'<button class="cc-mic" onclick="coachStartRec()" aria-label="Record" title="Tap to record">\\u{1F3A4}</button>'
-      +'<button class="cc-send" onclick="coachSend()" '+(c.sending||(!c.input||!c.input.trim())?'disabled':'')+' aria-label="Send">\\u2192</button>'
-    +'</div>';
-  }
-  // Quick actions
-  h+='<div class="cc-quick">'
-    +'<button class="cc-quick-btn" onclick="coachSend(\\'Teach me 3 advanced business words I can use today.\\')">3 advanced words</button>'
-    +'<button class="cc-quick-btn" onclick="coachSend(\\'Quiz me on idioms used in meetings.\\')">Idioms quiz</button>'
-    +'<button class="cc-quick-btn" onclick="coachSend(\\'How do I sound more confident in presentations?\\')">Confidence tips</button>'
-    +(c.history.length>1?'<button class="cc-quick-btn cc-quick-reset" onclick="coachReset()">\\u21BB Restart</button>':'')
-  +'</div>';
-  if(c.playing)h+='<div class="cc-playing">\\u{1F50A} Coach is speaking\\u2026 <button onclick="coachStopSpeak()">stop</button></div>';
-}
 
 // BOARD TAB (Kanban: To Do / Doing / Done with drag-and-drop)
 else if(S.tab==='board'){
@@ -6914,73 +6755,12 @@ else if(S.tab==='cal'){
 }
 
 
-// NEWS TAB (shorts feed with categories + share)
-else if(S.tab==='news'){
-  if(!S.newsMode)S.newsMode='headlines';
-  const cats=[{k:'world',l:'World',ic:'globe'},{k:'tech',l:'Tech & AI',ic:'tech'},{k:'sports',l:'Sports',ic:'sport'}];
-  h+='<div class="news-hero"><div class="news-hero-l"><span class="news-hero-ic">'+ic('news',22)+'</span><div><h2>News &amp; Stories</h2><p>Fresh headlines \\u2022 Articles by the community</p></div></div>'+(S.newsMode==='community'?'<button class="news-refresh" onclick="openArticleEditor()" title="Write an article" style="background:#1A1A1A;color:#fff"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Write</button>':'<button class="news-refresh" onclick="loadNews(S.newsCat)" title="Refresh">'+ic('refresh',18)+'</button>')+'</div>';
-  // Mode toggle: Headlines vs Community articles
-  h+='<div class="bk-mode-toggle"><button class="'+(S.newsMode==='headlines'?'on':'')+'" onclick="S.newsMode=\\'headlines\\';render()">\\u{1F4F0} Headlines</button><button class="'+(S.newsMode==='community'?'on':'')+'" onclick="S.newsMode=\\'community\\';if(!S.articles)loadArticles(\\'all\\');render()">\\u270D\\uFE0F Community</button></div>';
-  if(S.newsMode==='community'){
-    if(!S.articles&&!S.articlesLoading){loadArticles('all')}
-    const acats=['all','tech','business','life','wellness','culture','opinion'];
-    h+='<div class="flt flt-icons" style="margin-bottom:14px">';
-    acats.forEach(c=>{h+='<button class="fb'+((S.articlesCat||'all')===c?' on':'')+'" onclick="loadArticles(\\''+c+'\\')">'+(c.charAt(0).toUpperCase()+c.slice(1))+'</button>'});
-    h+='</div>';
-    if(S.articlesLoading&&!(S.articles||[]).length){h+='<div class="loading">\\u{1F4DD} Loading articles\\u2026</div>'}
-    else if(!(S.articles||[]).length){h+='<div class="empty"><div style="font-size:44px">\\u{1F4DD}</div><div style="font-size:16px;margin-top:12px;font-weight:600">No articles in this category yet</div><div style="font-size:13px;margin-top:6px;color:var(--ink-3)">Be the first to write one</div><button class="mb mb-s" style="margin-top:16px;background:#1A1A1A" onclick="openArticleEditor()">\\u270D\\uFE0F Write the first article</button></div>'}
-    else{
-      h+='<div class="art-feed">';
-      S.articles.forEach(a=>{
-        const when=timeAgo(a.created_at?a.created_at.replace(' ','T')+'Z':null);
-        const initial=(a.author_name||'A').charAt(0).toUpperCase();
-        h+='<article class="art-card" onclick="openArticleReader(\\''+a.id+'\\')">';
-        if(a.image_url)h+='<div class="art-img"><img src="'+esc(a.image_url)+'" loading="lazy" onerror="this.parentElement.style.display=\\'none\\'"></div>';
-        h+='<div class="art-body"><div class="art-cat">'+esc(a.category||'general')+'</div><h3 class="art-title">'+esc(a.title)+'</h3><p class="art-preview">'+esc(a.preview||'')+'</p>'
-          +'<div class="art-meta"><span class="art-author"><span class="art-avatar">'+initial+'</span>'+esc(a.author_name||'Anonymous')+'</span>'
-          +'<span class="art-dot">\\u00B7</span><span class="art-time">'+esc(when||'')+'</span>'
-          +'<span class="art-dot">\\u00B7</span><span class="art-readtime">'+a.read_min+' min read</span>'
-          +'<button class="art-like" onclick="event.stopPropagation();likeArticle(\\''+a.id+'\\')">\\u2661 '+a.likes+'</button></div>'
-          +'</div></article>';
-      });
-      h+='</div>';
-    }
-  } else {
-    h+='<div class="flt flt-icons">';
-    cats.forEach(c=>{h+='<button class="fb'+(S.newsCat===c.k?' on':'')+'" onclick="loadNews(\\''+c.k+'\\')"><span class="fb-ic">'+ic(c.ic,15)+'</span>'+c.l+'</button>'});
-    h+='</div>';
-  if(S.newsLoading&&!(S.news[S.newsCat]||[]).length){
-    h+='<div class="loading">\\u{1F4E1} Fetching latest '+esc((cats.find(c=>c.k===S.newsCat)||{}).l||'')+' stories\\u2026</div>';
-  } else {
-    const items=S.news[S.newsCat]||[];
-    if(!items.length){h+='<div class="empty"><div style="font-size:44px">\\u{1F914}</div><div style="font-size:15px;margin-top:10px;font-weight:600">No headlines right now</div><div style="font-size:12px;margin-top:4px">Try a different category or refresh</div></div>'}
-    else{
-      h+='<div class="inshort-feed">';
-      items.forEach((it,i)=>{
-        const img=it.img||'';
-        const when=timeAgo(it.date);
-        const srcName=(it.source||'').charAt(0).toUpperCase()+(it.source||'').slice(1);
-        h+='<article class="inshort">';
-        if(img)h+='<div class="inshort-img"><img src="'+esc(img)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.classList.add(\\'inshort-img-placeholder\\');this.remove()"><div class="inshort-src">'+esc(srcName)+'</div></div>';
-        else h+='<div class="inshort-img inshort-img-placeholder"><div class="inshort-src">'+esc(srcName)+'</div><div style="font-size:64px;opacity:.25">\\u{1F4F0}</div></div>';
-        h+='<div class="inshort-body">';
-        h+='<h3 class="inshort-title">'+esc(it.title||'')+'</h3>';
-        if(it.desc)h+='<p class="inshort-desc">'+esc(it.desc)+'</p>';
-        h+='<div class="inshort-foot"><span class="inshort-time">'+(when?'\\u{1F552} '+esc(when):'')+'</span>';
-        h+='<button class="inshort-share" onclick="shareNews('+i+')" aria-label="Share"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Share</button></div>';
-        h+='</div></article>';
-      });
-      h+='</div>';
-    }
-  }
-  } // end newsMode==='headlines'
-}
 
 // BOOKS TAB
 else if(S.tab==='books'){
   const bs=S.bookStreak||{streak:0,total:0,today:false};
   if(!S.booksMode)S.booksMode='summaries';
-  h+='<div class="section-hd"><span class="section-ic">'+ic('books',22)+'</span><div><h3>Books</h3><p>15-minute summaries to read \\u2022 audiobooks to listen \\u2022 keep your streak alive</p></div></div>';
+  h+='<div class="section-hd"><span class="section-ic" style="background:linear-gradient(135deg,#8B5CF6,#EC4899);color:#fff">\\u{1F4DA}</span><div><h3>Book Briefs \\u2014 listen, learn, level up</h3><p>15-minute summaries to read \\u2022 audiobooks to listen \\u2022 keep your streak alive</p></div></div>';
   h+='<div class="streak-card"><div class="streak-ico">'+ic('flame',24)+'</div><div class="streak-body"><div class="streak-n">'+bs.streak+'<span>day'+(bs.streak===1?'':'s')+'</span></div><div class="streak-lbl">Reading streak'+(bs.today?' \\u2022 done today \\u2705':'')+'</div></div><div class="streak-tot"><b>'+bs.total+'</b><small>total days</small></div></div>';
   // Mode toggle: summaries vs audiobooks
   h+='<div class="bk-mode-toggle"><button class="'+(S.booksMode==='summaries'?'on':'')+'" onclick="S.booksMode=\\'summaries\\';render()">\\u2728 15-min summaries</button><button class="'+(S.booksMode==='audiobooks'?'on':'')+'" onclick="S.booksMode=\\'audiobooks\\';render()">\\u{1F3A7} Audiobooks</button></div>';
