@@ -1831,46 +1831,68 @@ body:not([data-theme=aurora]) .mgd-stat{background:#fff;border-color:#E8E6E0}
 .mgd-stat b{display:block;font:600 22px/1 'Inter',sans-serif;letter-spacing:-.02em;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .mgd-stat small{display:block;font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.1em;color:rgba(255,255,255,.5);margin-top:5px;text-transform:uppercase;font-weight:500}
 body:not([data-theme=aurora]) .mgd-stat small{color:#6B6B6B}
-.mgd-road{position:relative;padding:14px 0 22px;min-height:560px}
-.mgd-path{position:absolute;left:50%;transform:translateX(-50%);top:0;width:100px;height:100%;pointer-events:none}
-.mgd-milestones{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:38px;position:relative;z-index:2}
-.mgd-mile{position:relative;display:flex;align-items:center;gap:14px;min-height:54px}
-.mgd-mile-left{flex-direction:row;justify-content:flex-start;padding-right:50%}
-.mgd-mile-right{flex-direction:row-reverse;justify-content:flex-start;padding-left:50%}
-.mgd-mile-left .mgd-mile-info{text-align:right}
-.mgd-mile-right .mgd-mile-info{text-align:left}
-.mgd-node{flex-shrink:0;width:54px;height:54px;border-radius:50%;border:3px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:rgba(255,255,255,.5);font:700 17px/1 'Inter',sans-serif;cursor:pointer;display:grid;place-items:center;transition:all .35s cubic-bezier(.34,1.56,.64,1);position:relative;z-index:3}
-body:not([data-theme=aurora]) .mgd-node{background:#fff;border-color:#E8E6E0;color:#9A9A9A;box-shadow:0 4px 12px rgba(0,0,0,.06)}
-.mgd-mile-left .mgd-node{margin-left:50%;transform:translateX(-50%)}
-.mgd-mile-right .mgd-node{margin-right:50%;transform:translateX(50%)}
-.mgd-done .mgd-node{background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:transparent;color:#fff;box-shadow:0 6px 18px -4px var(--accent)}
-.mgd-current .mgd-node{background:#fff;border-color:var(--accent);color:var(--accent);box-shadow:0 0 0 6px rgba(255,107,71,.18),0 8px 22px -4px var(--accent);animation:mgdNodePulse 1.6s ease-in-out infinite}
-@keyframes mgdNodePulse{0%,100%{box-shadow:0 0 0 6px rgba(244,114,182,.18),0 8px 22px -4px var(--accent)}50%{box-shadow:0 0 0 12px rgba(244,114,182,.05),0 8px 22px -4px var(--accent)}}
-.mgd-locked .mgd-node{cursor:not-allowed;opacity:.5}
-.mgd-node:not(:disabled):hover{transform:scale(1.08)}
-.mgd-mile-left .mgd-node:not(:disabled):hover{transform:translateX(-50%) scale(1.08)}
-.mgd-mile-right .mgd-node:not(:disabled):hover{transform:translateX(50%) scale(1.08)}
-.mgd-mile-info{flex:1;min-width:0;padding:0 8px}
-.mgd-mile-t{font:600 14.5px/1.1 'Inter',sans-serif;color:#F5F5FA;letter-spacing:-.005em}
+/* ─── Next-gen roadmap (Duolingo-style tiered path) ─── */
+.mgd-road2{position:relative;padding:6px 0 24px;display:flex;flex-direction:column;gap:8px}
+.mgd-tier{position:relative;padding:14px 0 4px;border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,.02),transparent);transition:background .3s ease}
+.mgd-tier-active{background:linear-gradient(180deg,rgba(255,107,71,.06),transparent 60%)}
+.mgd-tier-hd{display:flex;align-items:center;gap:12px;padding:0 6px 10px;margin-bottom:6px;border-bottom:1px dashed rgba(255,255,255,.08)}
+body:not([data-theme=aurora]) .mgd-tier-hd{border-bottom-color:#E8E6E0}
+.mgd-tier-badge{flex-shrink:0;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:#fff;font:700 13px/1 'Inter',sans-serif;letter-spacing:-.02em;box-shadow:0 4px 12px -4px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.4),inset 0 -2px 0 rgba(0,0,0,.18)}
+.mgd-tier-name{font-family:'Instrument Serif',Georgia,serif;font-size:22px;font-weight:400;letter-spacing:-.018em;color:#fff;flex:1}
+body:not([data-theme=aurora]) .mgd-tier-name{color:#1A1A1A}
+.mgd-tier-rng{font-family:'JetBrains Mono','Space Mono',monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.45);font-weight:600;padding:4px 9px;border-radius:6px;background:rgba(255,255,255,.06)}
+body:not([data-theme=aurora]) .mgd-tier-rng{color:#6B6B6B;background:#F4F3EE}
+.mgd-stages{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:0;position:relative}
+.mgd-mile{position:relative;display:grid;grid-template-columns:1fr 80px 1fr;align-items:center;min-height:90px}
+.mgd-link{position:absolute;top:0;height:100%;width:80px;left:50%;transform:translateX(-50%);pointer-events:none;z-index:1}
+.mgd-mile-left{}
+.mgd-mile-right{}
+.mgd-mile-left .mgd-mile-info{grid-column:3;text-align:left;padding-left:10px}
+.mgd-mile-right .mgd-mile-info{grid-column:1;text-align:right;padding-right:10px}
+.mgd-mile-left .mgd-node{grid-column:2;justify-self:center}
+.mgd-mile-right .mgd-node{grid-column:2;justify-self:center}
+/* Premium 3-D node design: outer ring + inner gradient + check/number */
+.mgd-node{position:relative;width:64px;height:64px;border-radius:50%;border:0;background:transparent;cursor:pointer;padding:0;display:grid;place-items:center;transition:transform .35s cubic-bezier(.34,1.56,.64,1);z-index:3}
+.mgd-node-inner{display:grid;place-items:center;width:100%;height:100%;border-radius:50%;background:rgba(255,255,255,.04);border:2px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);font:700 18px/1 'Inter',sans-serif;letter-spacing:-.02em;transition:transform .25s ease,background .3s ease,box-shadow .3s ease;position:relative;overflow:hidden}
+body:not([data-theme=aurora]) .mgd-node-inner{background:#fff;border-color:#E8E6E0;color:#B5B5BA;box-shadow:0 2px 4px rgba(15,23,42,.04),0 8px 16px rgba(15,23,42,.04)}
+/* DONE — gold-medal-like gradient + check */
+.mgd-node-done .mgd-node-inner{background:linear-gradient(160deg,var(--accent) 0%,var(--accent2) 100%);border-color:transparent;color:#fff;box-shadow:0 8px 22px -6px var(--accent),inset 0 2px 0 rgba(255,255,255,.35),inset 0 -3px 0 rgba(0,0,0,.18)}
+.mgd-node-done .mgd-node-inner::before{content:'';position:absolute;top:8%;left:18%;width:64%;height:36%;border-radius:50%;background:radial-gradient(ellipse at center,rgba(255,255,255,.55) 0%,transparent 65%);pointer-events:none}
+/* CURRENT — bright halo + animated rotating ring */
+.mgd-node-current .mgd-node-inner{background:#fff;border-color:var(--accent);color:var(--accent);box-shadow:0 0 0 4px var(--accent),0 12px 28px -8px var(--accent),inset 0 1px 0 rgba(255,255,255,.5)}
+body[data-theme=aurora] .mgd-node-current .mgd-node-inner{background:#FAFAF7;color:#1A1A1A}
+.mgd-node-num{font-size:20px}
+.mgd-halo{position:absolute;inset:-12px;border-radius:50%;border:2px dashed var(--accent);opacity:.6;animation:mgdHaloSpin 8s linear infinite;pointer-events:none}
+@keyframes mgdHaloSpin{to{transform:rotate(360deg)}}
+.mgd-pulse-ring{position:absolute;left:50%;top:50%;width:64px;height:64px;border-radius:50%;background:var(--accent);opacity:.18;transform:translate(-50%,-50%);animation:mgdPulseExpand 2s ease-out infinite;pointer-events:none;grid-column:2;grid-row:1;z-index:2}
+@keyframes mgdPulseExpand{0%{transform:translate(-50%,-50%) scale(1);opacity:.4}80%,100%{transform:translate(-50%,-50%) scale(2.2);opacity:0}}
+/* LOCKED — frosted, soft */
+.mgd-node-locked{cursor:not-allowed}
+.mgd-node-locked .mgd-node-inner{background:rgba(255,255,255,.03);border-style:dashed;border-color:rgba(255,255,255,.12);color:rgba(255,255,255,.3);box-shadow:none}
+body:not([data-theme=aurora]) .mgd-node-locked .mgd-node-inner{background:#F8F7F2;border-color:#E8E6E0;color:#CFCFCF}
+.mgd-node:not(.mgd-node-locked):hover{transform:scale(1.08)}
+.mgd-node:not(.mgd-node-locked):active{transform:scale(.94)}
+/* Side info panel */
+.mgd-mile-info{padding:0 4px}
+.mgd-mile-tag{display:inline-block;font-family:'JetBrains Mono','Space Mono',monospace;font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.4);background:rgba(255,255,255,.04);padding:3px 7px;border-radius:5px;margin-bottom:6px;border:1px solid rgba(255,255,255,.06)}
+body:not([data-theme=aurora]) .mgd-mile-tag{color:#9A9A9A;background:#F4F3EE;border-color:#E8E6E0}
+.mgd-current .mgd-mile-tag{color:var(--accent);background:rgba(255,107,71,.12);border-color:rgba(255,107,71,.25)}
+.mgd-mile-t{font-family:'Instrument Serif','Playfair Display',Georgia,serif;font-weight:400;font-size:20px;line-height:1.1;letter-spacing:-.018em;color:#fff;font-style:italic}
 body:not([data-theme=aurora]) .mgd-mile-t{color:#1A1A1A}
-.mgd-locked .mgd-mile-t{color:rgba(255,255,255,.4)}
-body:not([data-theme=aurora]) .mgd-locked .mgd-mile-t{color:#9A9A9A}
-.mgd-mile-d{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.06em;color:rgba(255,255,255,.5);margin-top:4px;text-transform:uppercase;font-weight:600}
+.mgd-locked .mgd-mile-t{color:rgba(255,255,255,.32)}
+body:not([data-theme=aurora]) .mgd-locked .mgd-mile-t{color:#B5B5BA}
+.mgd-mile-d{font-family:'JetBrains Mono','Space Mono',monospace;font-size:10px;letter-spacing:.08em;color:rgba(255,255,255,.5);margin-top:5px;text-transform:uppercase;font-weight:600}
 body:not([data-theme=aurora]) .mgd-mile-d{color:#6B6B6B}
 .mgd-current .mgd-mile-d{color:var(--accent)}
-/* Vehicle on the current node */
-.mgd-vehicle{position:absolute;font-size:32px;line-height:1;z-index:4;animation:mgdVehicleHover 2.2s ease-in-out infinite;filter:drop-shadow(0 4px 8px rgba(0,0,0,.4))}
-.mgd-mile-left .mgd-vehicle{left:50%;transform:translate(-50%,-46px)}
-.mgd-mile-right .mgd-vehicle{right:50%;transform:translate(50%,-46px)}
-@keyframes mgdVehicleHover{0%,100%{transform:translate(-50%,-46px)}50%{transform:translate(-50%,-50px)}}
-.mgd-mile-right .mgd-vehicle{animation-name:mgdVehicleHoverR}
-@keyframes mgdVehicleHoverR{0%,100%{transform:translate(50%,-46px)}50%{transform:translate(50%,-50px)}}
+/* Subtle done indicator on tier when fully cleared */
+.mgd-tier-done .mgd-tier-name{opacity:.7}
+.mgd-tier-active::after{content:'';position:absolute;top:14px;bottom:6px;left:0;width:3px;border-radius:0 3px 3px 0;background:linear-gradient(180deg,var(--accent),var(--accent2));opacity:.6}
 .mgd-cta-wrap{padding:14px 20px calc(18px + env(safe-area-inset-bottom,0px));border-top:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.2);flex-shrink:0}
 body:not([data-theme=aurora]) .mgd-cta-wrap{background:#fff;border-top-color:#E8E6E0}
 .mgd-cta{width:100%;padding:15px 22px;border-radius:14px;border:0;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font:600 15px/1 inherit;letter-spacing:-.005em;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 10px 26px -6px var(--accent);transition:transform .2s,box-shadow .25s}
 .mgd-cta:hover{transform:translateY(-1px)}
 .mgd-cta:active{transform:scale(.97)}
-@media (max-width:560px){.mg-detail{max-height:100vh;border-radius:0;align-self:stretch;width:100%}.mgd-hd{padding:14px 16px;padding-top:calc(14px + env(safe-area-inset-top,0px))}.mgd-body{padding:18px 18px 12px}.mgd-emoji{font-size:24px}.mgd-name{font-size:16px}.mgd-stat b{font-size:18px}.mgd-road{min-height:540px}.mgd-node{width:46px;height:46px;font-size:15px}.mgd-vehicle{font-size:28px}}
+@media (max-width:560px){.mg-detail{max-height:100vh;border-radius:0;align-self:stretch;width:100%}.mgd-hd{padding:14px 16px;padding-top:calc(14px + env(safe-area-inset-top,0px))}.mgd-body{padding:18px 18px 12px}.mgd-emoji{font-size:24px}.mgd-name{font-size:16px}.mgd-stat b{font-size:18px}.mgd-mile{grid-template-columns:1fr 64px 1fr;min-height:80px}.mgd-link{width:64px}.mgd-node{width:54px;height:54px}.mgd-pulse-ring{width:54px;height:54px}.mgd-node-num{font-size:17px}.mgd-tier-name{font-size:18px}.mgd-mile-t{font-size:17px}.mgd-tier-badge{width:30px;height:30px;font-size:12px}}
 /* Mind Gym overall progress strip */
 .mg-overall{display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);margin-bottom:18px;font-size:13px;color:#fff}
 body:not([data-theme=aurora]) .mg-overall{background:#fff;border-color:#E8E6E0;color:#1A1A1A}
@@ -8334,25 +8356,49 @@ if(S.mgDetail&&!S.mgPlay){
       +'<div class="mgd-stat"><b>'+(prog.xp||0)+'</b><small>XP</small></div>'
       +'<div class="mgd-stat"><b>'+(prog.best||'\\u2014')+'</b><small>Best</small></div>'
     +'</div>';
-    // Roadway / journey — 10 milestones the user travels through
-    h+='<div class="mgd-road mgd-road-'+meta.road+'">';
-    h+='<svg class="mgd-path" viewBox="0 0 100 600" preserveAspectRatio="none">'
-      +'<defs><linearGradient id="mgdGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+meta.accent+'" stop-opacity=".5"/><stop offset="1" stop-color="'+meta.accent2+'" stop-opacity=".2"/></linearGradient></defs>'
-      +'<path d="M 50 30 Q 20 90, 50 150 Q 80 210, 50 270 Q 20 330, 50 390 Q 80 450, 50 510 Q 20 570, 50 590" fill="none" stroke="'+meta.accent+'" stroke-width="3" stroke-dasharray="6 6" stroke-linecap="round" opacity=".25"/>'
-      +'<path d="M 50 30 Q 20 90, 50 150 Q 80 210, 50 270 Q 20 330, 50 390 Q 80 450, 50 510 Q 20 570, 50 590" fill="none" stroke="url(#mgdGrad)" stroke-width="6" stroke-linecap="round" pathLength="100" stroke-dasharray="100 100" stroke-dashoffset="'+(100-Math.min(100,(cur-1)/9*100))+'"/>'
-    +'</svg>';
-    h+='<ol class="mgd-milestones">';
-    for(let i=1;i<=10;i++){
-      const cls=i<cur?'mgd-mile mgd-done':i===cur?'mgd-mile mgd-current':'mgd-mile mgd-locked';
-      const sideClass=i%2===0?' mgd-mile-right':' mgd-mile-left';
-      const showVehicle=i===cur;
-      h+='<li class="'+cls+sideClass+'">'
-        +(showVehicle?'<div class="mgd-vehicle">'+meta.vehicle+'</div>':'')
-        +'<button class="mgd-node" onclick="mgPlayLevel(\\''+S.mgDetail+'\\','+i+')" '+(i>cur?'aria-disabled="true"':'')+'>'+(i<cur?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>':i)+'</button>'
-        +'<div class="mgd-mile-info"><div class="mgd-mile-t">Level '+i+'</div><div class="mgd-mile-d">'+(i<cur?'\\u2713 Cleared':i===cur?'\\u25B6 Tap to play':'\\u{1F512} Locked')+'</div></div>'
-      +'</li>';
-    }
-    h+='</ol></div>';
+    // ─── Next-gen roadmap: 3 tiers (Bronze/Silver/Gold), polished depth nodes ───
+    const _stages=['Warm-up','Foundations','Steady','Stretch','Strider','Sprint','Pace','Power','Edge','Master'];
+    const _tiers=[
+      {name:'Bronze',from:1,to:3,grad:'linear-gradient(135deg,#CD7F32,#B26A20)',ring:'#D08A4A'},
+      {name:'Silver',from:4,to:7,grad:'linear-gradient(135deg,#D9D9DA,#A0A1A6)',ring:'#BFC0C7'},
+      {name:'Gold',  from:8,to:10,grad:'linear-gradient(135deg,#FFD86B,#E0A500)',ring:'#FFCC4D'}
+    ];
+    h+='<div class="mgd-road2">';
+    _tiers.forEach((t,ti)=>{
+      const tierUnlocked=cur>t.from;
+      const tierActive=cur>=t.from&&cur<=t.to;
+      const tierDone=cur>t.to;
+      h+='<div class="mgd-tier'+(tierActive?' mgd-tier-active':'')+(tierDone?' mgd-tier-done':'')+'">'
+        +'<div class="mgd-tier-hd"><span class="mgd-tier-badge" style="background:'+t.grad+'">'+(tierDone?'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>':t.name[0])+'</span><div class="mgd-tier-name">'+t.name+'</div><div class="mgd-tier-rng">L'+t.from+'\\u2013'+t.to+'</div></div>';
+      h+='<ol class="mgd-stages">';
+      for(let i=t.from;i<=t.to;i++){
+        const idx=i-t.from;
+        const total=t.to-t.from+1;
+        const state=i<cur?'done':i===cur?'current':'locked';
+        const sideClass=idx%2===0?' mgd-mile-left':' mgd-mile-right';
+        const showVehicle=i===cur;
+        h+='<li class="mgd-mile mgd-'+state+sideClass+'">'
+          +'<svg class="mgd-link" viewBox="0 0 200 80" preserveAspectRatio="none" aria-hidden="true">'
+            +'<path d="'+(idx%2===0?'M 30 0 Q 30 40 100 40 Q 170 40 170 80':'M 170 0 Q 170 40 100 40 Q 30 40 30 80')+'" fill="none" stroke="'+(state==='locked'?'rgba(255,255,255,.08)':'url(#mgdLinkG'+ti+')')+'" stroke-width="4" stroke-linecap="round" stroke-dasharray="'+(state==='locked'?'4 6':'0 0')+'"/>'
+            +(idx===0?'<defs><linearGradient id="mgdLinkG'+ti+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+meta.accent+'" stop-opacity=".7"/><stop offset="1" stop-color="'+meta.accent2+'" stop-opacity=".4"/></linearGradient></defs>':'')
+          +'</svg>'
+          +(showVehicle?'<div class="mgd-pulse-ring"></div>':'')
+          +'<button class="mgd-node mgd-node-'+state+'" onclick="mgPlayLevel(\\''+S.mgDetail+'\\','+i+')" '+(state==='locked'?'aria-disabled="true"':'')+'>'
+            +'<span class="mgd-node-inner">'
+              +(state==='done'?'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>':state==='locked'?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 1 1 8 0v4"/></svg>':'<span class="mgd-node-num">'+i+'</span>')
+            +'</span>'
+            +(state==='current'?'<span class="mgd-halo"></span>':'')
+          +'</button>'
+          +'<div class="mgd-mile-info">'
+            +'<div class="mgd-mile-tag">Level '+i+'</div>'
+            +'<div class="mgd-mile-t">'+_stages[i-1]+'</div>'
+            +'<div class="mgd-mile-d">'+(state==='done'?'\\u2713 Cleared':state==='current'?'\\u25B6 Tap to play':'\\u{1F512} Locked')+'</div>'
+          +'</div>'
+        +'</li>';
+      }
+      h+='</ol></div>';
+    });
+    h+='</div>';
     h+='<div class="mgd-cta-wrap"><button class="mgd-cta" onclick="'+meta.start+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg> Play Level '+cur+'</button></div>';
     h+='</div></div></div>';
   }
