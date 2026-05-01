@@ -1678,6 +1678,24 @@ body[data-theme=aurora] .vc-mdl-nav{background:rgba(255,255,255,.02);border-colo
 .mg-mem-tile:active{transform:scale(.95)}
 .mg-mem-lit{background:linear-gradient(135deg,#A855F7,#EC4899)!important;border-color:#A855F7!important;box-shadow:0 0 24px rgba(168,85,247,.55);animation:mgFlash .3s ease}
 @keyframes mgFlash{0%{transform:scale(.95)}50%{transform:scale(1.04)}100%{transform:scale(1)}}
+/* ─── Elevate-style game header — used by math, word, schulte ─── */
+.mg-elevate-hd{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 4px 14px}
+.mg-elevate-prog{flex:1;font-family:'JetBrains Mono','Space Mono',monospace;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:#6B6B6B;font-weight:600}
+body[data-theme=aurora] .mg-elevate-prog{color:rgba(255,255,255,.55)}
+.mg-elevate-prog b{color:#1A1A1A;font-weight:700}
+body[data-theme=aurora] .mg-elevate-prog b{color:#fff}
+.mg-elevate-dots{display:flex;gap:4px;flex:1;align-items:center}
+.mg-dot{width:18px;height:5px;border-radius:999px;background:rgba(0,0,0,.1);transition:background .3s ease,transform .25s cubic-bezier(.34,1.56,.64,1)}
+body[data-theme=aurora] .mg-dot{background:rgba(255,255,255,.12)}
+.mg-dot-done{background:#22D3EE}
+.mg-dot-cur{background:linear-gradient(90deg,#FF6B47,#FFB547);transform:scaleY(1.6);box-shadow:0 0 0 2px rgba(255,107,71,.25)}
+.mg-timer-pill{flex-shrink:0;font-family:'Inter','SF Pro Text',sans-serif;font-weight:700;font-size:18px;letter-spacing:-.015em;padding:8px 18px;border-radius:999px;background:#1A1A1A;color:#fff;font-variant-numeric:tabular-nums;min-width:64px;text-align:center;transition:background .3s ease,transform .25s cubic-bezier(.34,1.56,.64,1),box-shadow .3s}
+body[data-theme=aurora] .mg-timer-pill{background:rgba(255,255,255,.1);color:#fff}
+.mg-timer-pill.mg-timer-warn{background:linear-gradient(135deg,#DC2626,#FB7185);color:#fff;animation:mgTimerPulse .8s ease-in-out infinite;box-shadow:0 0 0 4px rgba(220,38,38,.15)}
+@keyframes mgTimerPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.mg-timer-track{height:6px;border-radius:999px;background:rgba(0,0,0,.06);overflow:hidden;margin:0 4px 16px}
+body[data-theme=aurora] .mg-timer-track{background:rgba(255,255,255,.08)}
+.mg-timer-fill{height:100%;border-radius:999px;transition:width .12s linear,background .35s ease}
 .mg-react-stage{height:280px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-weight:900;font-size:22px;text-align:center;padding:18px;transition:background .2s ease}
 .mg-react-wait{background:linear-gradient(135deg,#DC2626,#991B1B)}
 .mg-react-go{background:linear-gradient(135deg,#16A34A,#15803D);animation:mgReactPulse .6s ease infinite alternate}
@@ -5591,7 +5609,7 @@ async function voiceFinish(){
   voiceClose();
 }
 async function _mgSave(game,xpAdd,best){const r=await api('/games/progress',{method:'POST',body:JSON.stringify({game,xpAdd:xpAdd|0,best:best!=null?best|0:null})});if(r&&r.ok){S.mg.progress[game]={level:r.level,xp:r.xp,best:r.best,plays:r.plays};if(r.leveledUp)toast('\\u{1F31F} Level up! '+game+' \\u2192 L'+r.level);render()}}
-function mgClose(){_mtCleanup();if(S._msTimer){clearInterval(S._msTimer);S._msTimer=null}if(S._mwTimer){clearInterval(S._mwTimer);S._mwTimer=null}try{document.removeEventListener('keydown',_mwOnKey)}catch(e){}S.mgPlay=null;render()}
+function mgClose(){_mtCleanup();if(S._msTimer){clearInterval(S._msTimer);S._msTimer=null}if(S._mwTimer){clearInterval(S._mwTimer);S._mwTimer=null}if(S._schTimer){clearInterval(S._schTimer);S._schTimer=null}if(S._memRespTimer){clearInterval(S._memRespTimer);S._memRespTimer=null}try{document.removeEventListener('keydown',_mwOnKey)}catch(e){}S.mgPlay=null;render()}
 
 // ── Word Sprint (anagram unscrambler, 90-sec timer, length-squared scoring) ──
 const MG_PUZZLES=[
@@ -5690,9 +5708,10 @@ function _msTick(){
   if(p.feedback)return;  // pause timer during feedback
   const elapsed=(Date.now()-p.timeStart)/1000;
   const left=Math.max(0,p.timeMax-elapsed);
-  // Force-render timer bar by triggering a partial DOM update for the bar element
+  // Smooth, live DOM updates without re-rendering
   const bar=document.getElementById('msBar');
   if(bar){bar.style.width=((left/p.timeMax)*100)+'%';bar.style.background=left<2?'linear-gradient(90deg,#DC2626,#F87171)':left<4?'linear-gradient(90deg,#F59E0B,#FCD34D)':'linear-gradient(90deg,#22D3EE,#34D399)'}
+  const pill=document.getElementById('msPill');if(pill){pill.textContent=Math.ceil(left)+'s';pill.classList.toggle('mg-timer-warn',left<2)}
   if(left<=0&&!p.feedback){
     // Timeout = wrong
     p.feedback={ok:false,msg:'Time! Answer was '+p.problem.ans,timeout:true};
@@ -5978,24 +5997,48 @@ function mgSchulteStart(){
   const size=Math.min(7,4+Math.ceil(lvl/3));
   const total=size*size;
   const nums=Array.from({length:total},(_,i)=>i+1).sort(()=>Math.random()-0.5);
-  S.mgPlay={game:'schulte',level:lvl,_baseLevel:lvl,size:size,total:total,nums:nums,target:1,wrongs:0,startedAt:Date.now(),time:null,best:S.mg.progress.schulte.best||0,done:false,flash:null};
+  // Total time scales: 5x5=60s, 6x6=80s, 7x7=100s
+  const timeMax=size===5?60:size===6?80:100;
+  S.mgPlay={game:'schulte',level:lvl,_baseLevel:lvl,size:size,total:total,nums:nums,target:1,wrongs:0,startedAt:Date.now(),time:null,best:S.mg.progress.schulte.best||0,done:false,flash:null,timeMax:timeMax};
   _mgSound('tap');render();
+  // Smooth live timer — updates the bar/pill DOM directly, then auto-ends on timeout
+  if(S._schTimer)clearInterval(S._schTimer);
+  S._schTimer=setInterval(_schTick,100);
+}
+function _schTick(){
+  const p=S.mgPlay;if(!p||p.game!=='schulte'||p.done){if(S._schTimer){clearInterval(S._schTimer);S._schTimer=null}return}
+  const elapsed=(Date.now()-p.startedAt)/1000;
+  const left=Math.max(0,p.timeMax-elapsed);
+  const pill=document.getElementById('schTimer');if(pill){const sec=Math.ceil(left);pill.textContent=sec+'s';pill.classList.toggle('mg-timer-warn',left<10)}
+  const bar=document.getElementById('schBar');if(bar){bar.style.width=((left/p.timeMax)*100)+'%';bar.style.background=left<10?'linear-gradient(90deg,#DC2626,#F87171)':left<20?'linear-gradient(90deg,#F59E0B,#FCD34D)':'linear-gradient(90deg,#F472B6,#A78BFA)'}
+  if(left<=0){_schEnd(true)}
+}
+function _schEnd(timedOut){
+  const p=S.mgPlay;if(!p||p.game!=='schulte'||p.done)return;
+  p.done=true;
+  if(S._schTimer){clearInterval(S._schTimer);S._schTimer=null}
+  const elapsed=Date.now()-p.startedAt;
+  if(timedOut){
+    // Out of time — count partial progress
+    p.time=p.timeMax*1000;p.finalMs=p.timeMax*1000+p.wrongs*1500;p.timedOut=true;
+    p.partial=p.target-1; // how many cells they got
+    _mgSound('wrong');
+    const baseXp=Math.max(2,Math.floor(p.partial/p.total*20));
+    _mgSave('schulte',baseXp,null);
+  } else {
+    p.time=elapsed;const final=elapsed+p.wrongs*1500;p.finalMs=final;
+    _mgSound('levelup');_mgMarkDone('schulte');
+    const isBest=!p.best||final<p.best;if(isBest)S._mgConfetti=Date.now();
+    const baseXp=Math.max(8,Math.floor(40-final/1000));const xp=Math.min(40,baseXp+(p.size-5)*4);
+    _mgSave('schulte',xp,Math.round(final/100));
+  }
+  render();
 }
 function mgSchulteTap(n){
   const p=S.mgPlay;if(!p||p.game!=='schulte'||p.done)return;
   if(n!==p.target){p.wrongs++;p.flash={n:n,bad:true};_mgSound('wrong');render();setTimeout(()=>{const c=S.mgPlay;if(c&&c.game==='schulte'){c.flash=null;render()}},250);return}
   p.flash={n:n,bad:false};_mgSound('tick');
-  if(n===p.total){
-    const ms=Date.now()-p.startedAt;p.time=ms;p.done=true;
-    const penalty=p.wrongs*1500;const final=ms+penalty;
-    p.finalMs=final;
-    _mgSound('levelup');_mgMarkDone('schulte');
-    const isBest=!p.best||final<p.best;if(isBest)S._mgConfetti=Date.now();
-    render();
-    // XP scales with speed and grid size
-    const baseXp=Math.max(8,Math.floor(40-final/1000));const xp=Math.min(40,baseXp+(p.size-5)*4);
-    _mgSave('schulte',xp,Math.round(final/100));
-  } else {p.target++;render()}
+  if(n===p.total){_schEnd(false)} else {p.target++;render()}
   setTimeout(()=>{const c=S.mgPlay;if(c&&c.game==='schulte'){c.flash=null;render()}},220);
 }
 function mgReactionTap(){const p=S.mgPlay;if(!p||p.game!=='reaction')return;if(p.phase==='wait'){clearTimeout(p._timer);p.phase='early';_mgSound('wrong');render();return}if(p.phase==='go'){const ms=Date.now()-p.startedAt;p.time=ms;p.phase='done';p.done=true;_mgSound(ms<350?'levelup':'correct');_mgMarkDone('reaction');if(ms<500)S._mgConfetti=Date.now();render();
@@ -7887,14 +7930,22 @@ if(S.mgPlay){
       const q=p.problem;
       const elapsed=(Date.now()-p.timeStart)/1000;
       const timePct=Math.max(0,Math.min(100,((p.timeMax-elapsed)/p.timeMax)*100));
+      const sec=Math.ceil(Math.max(0,p.timeMax-elapsed));
       h+='<div class="ms-body">'
+        // Elevate-style header: progress dots + live timer pill
+        +'<div class="mg-elevate-hd">'
+          +'<div class="mg-elevate-dots">'
+          +Array.from({length:10},(_,i)=>'<span class="mg-dot'+(i<p.score?' mg-dot-done':i===p.score?' mg-dot-cur':'')+'"></span>').join('')
+          +'</div>'
+          +'<div class="mg-timer-pill'+(elapsed>p.timeMax-2?' mg-timer-warn':'')+'" id="msPill">'+sec+'s</div>'
+        +'</div>'
         // Stats bar
         +'<div class="ms-stats"><div class="ms-stat"><b>'+p.score+'</b><small>/10</small></div>'
           +'<div class="ms-stat ms-stat-streak'+(p.streak>=3?' ms-streak-hot':'')+'"><b>'+p.streak+'</b><small>streak</small></div>'
           +(p.combo>1?'<div class="ms-combo">x'+p.combo+'</div>':'')
         +'</div>'
-        // Time pressure bar
-        +'<div class="ms-time-track"><div class="ms-time-fill" id="msBar" style="width:'+timePct+'%"></div></div>'
+        // Live time bar
+        +'<div class="mg-timer-track"><div class="mg-timer-fill" id="msBar" style="width:'+timePct+'%;background:'+(elapsed>p.timeMax-2?'linear-gradient(90deg,#DC2626,#F87171)':elapsed>p.timeMax-4?'linear-gradient(90deg,#F59E0B,#FCD34D)':'linear-gradient(90deg,#22D3EE,#34D399)')+'"></div></div>'
         // Problem (slide-in animated via key)
         +'<div class="ms-problem-wrap"><div class="ms-problem" key="'+p.problemIdx+'"><span class="ms-num">'+q.a+'</span><span class="ms-op">'+q.op+'</span><span class="ms-num">'+q.b+'</span><span class="ms-eq">=</span><span class="ms-q">?</span></div></div>'
         // Choices
@@ -7946,9 +7997,14 @@ if(S.mgPlay){
       const elapsed=(Date.now()-p.timeStart)/1000;
       const timePct=Math.max(0,Math.min(100,((p.timeMax-elapsed)/p.timeMax)*100));
       const cur=p.used.map(i=>p.letters[i]).join('');
+      const sec=Math.ceil(Math.max(0,p.timeMax-elapsed));
       h+='<div class="mw-body">'
-        +'<div class="mw-stats"><span><b>'+p.foundSet.size+'</b>words</span><span><b>'+p.score+'</b>points</span><span><b id="mwTime">'+Math.ceil(Math.max(0,p.timeMax-elapsed))+'</b>sec</span></div>'
-        +'<div class="ms-time-track"><div class="ms-time-fill" id="mwBar" style="width:'+timePct+'%"></div></div>'
+        // Elevate-style header
+        +'<div class="mg-elevate-hd">'
+          +'<div class="mg-elevate-prog"><span><b>'+p.foundSet.size+'</b> found \\u00B7 <b>'+p.score+'</b> pts</span></div>'
+          +'<div class="mg-timer-pill'+(elapsed>p.timeMax-10?' mg-timer-warn':'')+'" id="mwPill"><span id="mwTime">'+sec+'</span>s</div>'
+        +'</div>'
+        +'<div class="mg-timer-track"><div class="mg-timer-fill" id="mwBar" style="width:'+timePct+'%;background:'+(elapsed>p.timeMax-10?'linear-gradient(90deg,#DC2626,#F87171)':elapsed>p.timeMax-25?'linear-gradient(90deg,#F59E0B,#FCD34D)':'linear-gradient(90deg,#22D3EE,#34D399)')+'"></div></div>'
         +'<div class="mw-letters">';
       p.letters.forEach((c,i)=>{
         const used=p.used.indexOf(i)>=0;
@@ -7972,17 +8028,26 @@ if(S.mgPlay){
     h+='<div class="mg-body sch-body">';
     if(p.done){
       const sec=(p.finalMs/1000).toFixed(1);
-      const stars=p.finalMs<25000?3:p.finalMs<45000?2:p.finalMs<70000?1:0;
+      const stars=p.timedOut?(p.partial>=p.total*.7?2:p.partial>=p.total*.4?1:0):(p.finalMs<25000?3:p.finalMs<45000?2:p.finalMs<70000?1:0);
       const starsHTML=[1,2,3].map(n=>'<span class="mt-star'+(n<=stars?' mt-star-on':'')+'">\\u2605</span>').join('');
       h+='<div class="mt-end">'
         +'<div class="mt-end-stars">'+starsHTML+'</div>'
-        +'<div class="mt-end-score">'+sec+'<small>s</small></div>'
+        +(p.timedOut?'<div class="mt-end-t" style="color:#F87171">\\u23F1 Time\\u2019s up</div><div class="mt-end-score"><b>'+(p.partial||0)+'</b>/'+p.total+'<small>cells</small></div>':'<div class="mt-end-score">'+sec+'<small>s</small></div>')
         +'<div class="mt-end-meta">'+p.size+'\\u00D7'+p.size+' grid \\u2022 '+p.wrongs+' miss'+(p.wrongs===1?'':'es')+'</div>'
         +'<div class="was-acts" style="justify-content:center"><button class="mb mb-c" onclick="mgClose()">Done</button><button class="mb mb-s" onclick="mgSchulteStart()">\\u21BB Again</button></div>'
       +'</div>';
     } else {
-      const elapsed=Math.floor((Date.now()-p.startedAt)/1000);
-      h+='<div class="sch-status"><span class="sch-target">Find <b>'+p.target+'</b></span><span class="sch-prog">'+(p.target-1)+'/'+p.total+'</span></div>';
+      const elapsed=(Date.now()-p.startedAt)/1000;
+      const left=Math.max(0,p.timeMax-elapsed);
+      const sec=Math.ceil(left);
+      const pct=(left/p.timeMax)*100;
+      // Elevate-style live timer header
+      h+='<div class="mg-elevate-hd">'
+        +'<div class="mg-elevate-prog"><span>'+(p.target-1)+' of '+p.total+'</span></div>'
+        +'<div class="mg-timer-pill'+(left<10?' mg-timer-warn':'')+'" id="schTimer">'+sec+'s</div>'
+      +'</div>';
+      h+='<div class="mg-timer-track"><div class="mg-timer-fill" id="schBar" style="width:'+pct+'%;background:'+(left<10?'linear-gradient(90deg,#DC2626,#F87171)':left<20?'linear-gradient(90deg,#F59E0B,#FCD34D)':'linear-gradient(90deg,#F472B6,#A78BFA)')+'"></div></div>';
+      h+='<div class="sch-status"><span class="sch-target">Find <b>'+p.target+'</b></span><span class="sch-prog">'+(p.wrongs?'\\u26A0 '+p.wrongs+' miss':'\\u2728 perfect')+'</span></div>';
       h+='<div class="sch-grid" style="grid-template-columns:repeat('+p.size+',1fr)">';
       p.nums.forEach(n=>{
         const isFlash=p.flash&&p.flash.n===n;
@@ -7991,7 +8056,6 @@ if(S.mgPlay){
         h+='<button class="'+cls+'" onclick="mgSchulteTap('+n+')"'+(isDone?' disabled':'')+'>'+n+'</button>';
       });
       h+='</div>';
-      h+='<div class="sch-foot"><span>\\u23F1 '+elapsed+'s</span><span>'+(p.wrongs?'\\u26A0 '+p.wrongs+' miss':'\\u2728 perfect')+'</span></div>';
     }
     h+='</div>';
   }
