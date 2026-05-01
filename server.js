@@ -1831,62 +1831,72 @@ body:not([data-theme=aurora]) .mgd-stat{background:#fff;border-color:#E8E6E0}
 .mgd-stat b{display:block;font:600 22px/1 'Inter',sans-serif;letter-spacing:-.02em;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .mgd-stat small{display:block;font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.1em;color:rgba(255,255,255,.5);margin-top:5px;text-transform:uppercase;font-weight:500}
 body:not([data-theme=aurora]) .mgd-stat small{color:#6B6B6B}
-/* ─── Next-gen roadmap (Duolingo-style tiered path) ─── */
-.mgd-road2{position:relative;padding:6px 0 24px;display:flex;flex-direction:column;gap:8px}
-.mgd-tier{position:relative;padding:14px 0 4px;border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,.02),transparent);transition:background .3s ease}
-.mgd-tier-active{background:linear-gradient(180deg,rgba(255,107,71,.06),transparent 60%)}
-.mgd-tier-hd{display:flex;align-items:center;gap:12px;padding:0 6px 10px;margin-bottom:6px;border-bottom:1px dashed rgba(255,255,255,.08)}
-body:not([data-theme=aurora]) .mgd-tier-hd{border-bottom-color:#E8E6E0}
-.mgd-tier-badge{flex-shrink:0;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:#fff;font:700 13px/1 'Inter',sans-serif;letter-spacing:-.02em;box-shadow:0 4px 12px -4px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.4),inset 0 -2px 0 rgba(0,0,0,.18)}
-.mgd-tier-name{font-family:'Instrument Serif',Georgia,serif;font-size:22px;font-weight:400;letter-spacing:-.018em;color:#fff;flex:1}
-body:not([data-theme=aurora]) .mgd-tier-name{color:#1A1A1A}
-.mgd-tier-rng{font-family:'JetBrains Mono','Space Mono',monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.45);font-weight:600;padding:4px 9px;border-radius:6px;background:rgba(255,255,255,.06)}
-body:not([data-theme=aurora]) .mgd-tier-rng{color:#6B6B6B;background:#F4F3EE}
-.mgd-stages{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:0;position:relative}
-.mgd-mile{position:relative;display:grid;grid-template-columns:1fr 80px 1fr;align-items:center;min-height:90px}
-.mgd-link{position:absolute;top:0;height:100%;width:80px;left:50%;transform:translateX(-50%);pointer-events:none;z-index:1}
-.mgd-mile-left{}
-.mgd-mile-right{}
-.mgd-mile-left .mgd-mile-info{grid-column:3;text-align:left;padding-left:10px}
-.mgd-mile-right .mgd-mile-info{grid-column:1;text-align:right;padding-right:10px}
-.mgd-mile-left .mgd-node{grid-column:2;justify-self:center}
-.mgd-mile-right .mgd-node{grid-column:2;justify-self:center}
-/* Premium 3-D node design: outer ring + inner gradient + check/number */
-.mgd-node{position:relative;width:64px;height:64px;border-radius:50%;border:0;background:transparent;cursor:pointer;padding:0;display:grid;place-items:center;transition:transform .35s cubic-bezier(.34,1.56,.64,1);z-index:3}
-.mgd-node-inner{display:grid;place-items:center;width:100%;height:100%;border-radius:50%;background:rgba(255,255,255,.04);border:2px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);font:700 18px/1 'Inter',sans-serif;letter-spacing:-.02em;transition:transform .25s ease,background .3s ease,box-shadow .3s ease;position:relative;overflow:hidden}
-body:not([data-theme=aurora]) .mgd-node-inner{background:#fff;border-color:#E8E6E0;color:#B5B5BA;box-shadow:0 2px 4px rgba(15,23,42,.04),0 8px 16px rgba(15,23,42,.04)}
-/* DONE — gold-medal-like gradient + check */
-.mgd-node-done .mgd-node-inner{background:linear-gradient(160deg,var(--accent) 0%,var(--accent2) 100%);border-color:transparent;color:#fff;box-shadow:0 8px 22px -6px var(--accent),inset 0 2px 0 rgba(255,255,255,.35),inset 0 -3px 0 rgba(0,0,0,.18)}
-.mgd-node-done .mgd-node-inner::before{content:'';position:absolute;top:8%;left:18%;width:64%;height:36%;border-radius:50%;background:radial-gradient(ellipse at center,rgba(255,255,255,.55) 0%,transparent 65%);pointer-events:none}
-/* CURRENT — bright halo + animated rotating ring */
-.mgd-node-current .mgd-node-inner{background:#fff;border-color:var(--accent);color:var(--accent);box-shadow:0 0 0 4px var(--accent),0 12px 28px -8px var(--accent),inset 0 1px 0 rgba(255,255,255,.5)}
-body[data-theme=aurora] .mgd-node-current .mgd-node-inner{background:#FAFAF7;color:#1A1A1A}
-.mgd-node-num{font-size:20px}
-.mgd-halo{position:absolute;inset:-12px;border-radius:50%;border:2px dashed var(--accent);opacity:.6;animation:mgdHaloSpin 8s linear infinite;pointer-events:none}
-@keyframes mgdHaloSpin{to{transform:rotate(360deg)}}
-.mgd-pulse-ring{position:absolute;left:50%;top:50%;width:64px;height:64px;border-radius:50%;background:var(--accent);opacity:.18;transform:translate(-50%,-50%);animation:mgdPulseExpand 2s ease-out infinite;pointer-events:none;grid-column:2;grid-row:1;z-index:2}
-@keyframes mgdPulseExpand{0%{transform:translate(-50%,-50%) scale(1);opacity:.4}80%,100%{transform:translate(-50%,-50%) scale(2.2);opacity:0}}
-/* LOCKED — frosted, soft */
-.mgd-node-locked{cursor:not-allowed}
-.mgd-node-locked .mgd-node-inner{background:rgba(255,255,255,.03);border-style:dashed;border-color:rgba(255,255,255,.12);color:rgba(255,255,255,.3);box-shadow:none}
-body:not([data-theme=aurora]) .mgd-node-locked .mgd-node-inner{background:#F8F7F2;border-color:#E8E6E0;color:#CFCFCF}
-.mgd-node:not(.mgd-node-locked):hover{transform:scale(1.08)}
-.mgd-node:not(.mgd-node-locked):active{transform:scale(.94)}
-/* Side info panel */
-.mgd-mile-info{padding:0 4px}
-.mgd-mile-tag{display:inline-block;font-family:'JetBrains Mono','Space Mono',monospace;font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.4);background:rgba(255,255,255,.04);padding:3px 7px;border-radius:5px;margin-bottom:6px;border:1px solid rgba(255,255,255,.06)}
-body:not([data-theme=aurora]) .mgd-mile-tag{color:#9A9A9A;background:#F4F3EE;border-color:#E8E6E0}
-.mgd-current .mgd-mile-tag{color:var(--accent);background:rgba(255,107,71,.12);border-color:rgba(255,107,71,.25)}
-.mgd-mile-t{font-family:'Instrument Serif','Playfair Display',Georgia,serif;font-weight:400;font-size:20px;line-height:1.1;letter-spacing:-.018em;color:#fff;font-style:italic}
-body:not([data-theme=aurora]) .mgd-mile-t{color:#1A1A1A}
-.mgd-locked .mgd-mile-t{color:rgba(255,255,255,.32)}
-body:not([data-theme=aurora]) .mgd-locked .mgd-mile-t{color:#B5B5BA}
-.mgd-mile-d{font-family:'JetBrains Mono','Space Mono',monospace;font-size:10px;letter-spacing:.08em;color:rgba(255,255,255,.5);margin-top:5px;text-transform:uppercase;font-weight:600}
-body:not([data-theme=aurora]) .mgd-mile-d{color:#6B6B6B}
-.mgd-current .mgd-mile-d{color:var(--accent)}
-/* Subtle done indicator on tier when fully cleared */
-.mgd-tier-done .mgd-tier-name{opacity:.7}
-.mgd-tier-active::after{content:'';position:absolute;top:14px;bottom:6px;left:0;width:3px;border-radius:0 3px 3px 0;background:linear-gradient(180deg,var(--accent),var(--accent2));opacity:.6}
+/* ─── Simple horizontal track with a runner stuck at the current level ─── */
+.mgr-track-wrap{margin:6px 0 22px}
+.mgr-pct{display:flex;align-items:center;justify-content:space-between;gap:14px;font-family:'JetBrains Mono','Space Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:600;margin-bottom:14px}
+body:not([data-theme=aurora]) .mgr-pct{color:#6B6B6B}
+.mgr-pct b{color:#fff;font-size:14px;letter-spacing:-.02em}
+body:not([data-theme=aurora]) .mgr-pct b{color:#1A1A1A}
+.mgr-pct-bar{flex:1;height:4px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden}
+body:not([data-theme=aurora]) .mgr-pct-bar{background:#F0EDE7}
+.mgr-pct-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:999px;transition:width .6s ease}
+.mgr-track{position:relative;height:84px;padding:0 28px}
+.mgr-rail{position:absolute;left:28px;right:28px;top:50%;height:6px;border-radius:999px;background:rgba(255,255,255,.06);transform:translateY(-50%);overflow:hidden}
+body:not([data-theme=aurora]) .mgr-rail{background:#F0EDE7}
+.mgr-rail i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .6s ease}
+.mgr-stops{position:absolute;left:28px;right:28px;top:50%;height:0}
+.mgr-stop{position:absolute;top:0;transform:translate(-50%,-50%);width:32px;height:32px;border-radius:50%;border:0;cursor:pointer;display:grid;place-items:center;transition:transform .25s cubic-bezier(.34,1.56,.64,1),background .25s ease;font:700 13px/1 'Inter',sans-serif;letter-spacing:-.02em;padding:0;z-index:2}
+.mgr-stop-done{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 4px 10px -2px var(--accent)}
+.mgr-stop-current{background:#fff;color:var(--accent);box-shadow:0 0 0 3px var(--accent),0 8px 18px -4px var(--accent)}
+body[data-theme=aurora] .mgr-stop-current{background:#FAFAF7}
+.mgr-stop-locked{background:rgba(255,255,255,.06);color:rgba(255,255,255,.4);cursor:not-allowed}
+body:not([data-theme=aurora]) .mgr-stop-locked{background:#F0EDE7;color:#9A9A9A}
+.mgr-stop:not(.mgr-stop-locked):hover{transform:translate(-50%,-50%) scale(1.15)}
+.mgr-stop:not(.mgr-stop-locked):active{transform:translate(-50%,-50%) scale(.92)}
+/* The runner — anchored to current node. Legs pump, body bobs, but no x movement. */
+.mgr-runner{position:absolute;bottom:calc(50% + 6px);transform:translateX(-50%);width:40px;height:56px;color:var(--accent);pointer-events:none;z-index:3}
+.mgr-runner-svg{width:100%;height:100%;animation:mgrRunnerBob .42s ease-in-out infinite alternate;filter:drop-shadow(0 4px 6px rgba(0,0,0,.25))}
+@keyframes mgrRunnerBob{from{transform:translateY(0)}to{transform:translateY(-3px)}}
+.mgr-runner-svg .mgr-arm-front{transform-origin:19px 18px;animation:mgrArmFront .42s ease-in-out infinite alternate}
+.mgr-runner-svg .mgr-arm-back{transform-origin:19px 18px;animation:mgrArmBack .42s ease-in-out infinite alternate}
+.mgr-runner-svg .mgr-leg-front{transform-origin:19px 28px;animation:mgrLegFront .42s ease-in-out infinite alternate}
+.mgr-runner-svg .mgr-leg-back{transform-origin:19px 28px;animation:mgrLegBack .42s ease-in-out infinite alternate}
+@keyframes mgrArmFront{from{transform:rotate(-25deg)}to{transform:rotate(35deg)}}
+@keyframes mgrArmBack{from{transform:rotate(35deg)}to{transform:rotate(-25deg)}}
+@keyframes mgrLegFront{from{transform:rotate(40deg)}to{transform:rotate(-30deg)}}
+@keyframes mgrLegBack{from{transform:rotate(-30deg)}to{transform:rotate(40deg)}}
+/* Dust puffs behind the runner — sells the "running but stuck" feel */
+.mgr-runner-dust{position:absolute;left:-22px;bottom:0;display:flex;gap:3px;pointer-events:none}
+.mgr-runner-dust i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.4);animation:mgrDust .9s ease-out infinite}
+body:not([data-theme=aurora]) .mgr-runner-dust i{background:rgba(0,0,0,.12)}
+.mgr-runner-dust i:nth-child(1){animation-delay:0s;width:4px;height:4px}
+.mgr-runner-dust i:nth-child(2){animation-delay:.18s;width:6px;height:6px}
+.mgr-runner-dust i:nth-child(3){animation-delay:.36s;width:5px;height:5px}
+@keyframes mgrDust{0%{opacity:.7;transform:translate(0,0) scale(.6)}80%,100%{opacity:0;transform:translate(-14px,2px) scale(1.4)}}
+.mgr-stuck-msg{margin-top:18px;text-align:center;font-size:13px;color:rgba(255,255,255,.65);font-family:'JetBrains Mono','Space Mono',monospace;letter-spacing:.04em;font-weight:500}
+body:not([data-theme=aurora]) .mgr-stuck-msg{color:#3D3D3D}
+.mgr-stuck-msg b{color:var(--accent);letter-spacing:-.02em;font-family:'Inter',sans-serif;font-size:14px}
+/* Stage list under the track — simple, scannable */
+.mgr-stages{list-style:none;padding:0;margin:18px 0 0;display:flex;flex-direction:column;gap:6px}
+.mgr-row{display:grid;grid-template-columns:36px 1fr auto;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);cursor:pointer;transition:background .2s ease,border-color .2s ease,transform .2s ease}
+body:not([data-theme=aurora]) .mgr-row{background:#fff;border-color:#E8E6E0}
+.mgr-row:hover:not(.mgr-row-locked){background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12);transform:translateX(2px)}
+body:not([data-theme=aurora]) .mgr-row:hover:not(.mgr-row-locked){background:#FAFAF7;border-color:#CFCFCF}
+.mgr-row-locked{cursor:not-allowed;opacity:.55}
+.mgr-row-current{background:rgba(255,107,71,.08);border-color:rgba(255,107,71,.3)}
+body:not([data-theme=aurora]) .mgr-row-current{background:#FFF1ED;border-color:rgba(255,107,71,.35)}
+.mgr-row-n{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.06);color:rgba(255,255,255,.6);font:600 13px/1 'Inter',sans-serif;letter-spacing:-.02em}
+body:not([data-theme=aurora]) .mgr-row-n{background:#F4F3EE;color:#6B6B6B}
+.mgr-row-done .mgr-row-n{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 3px 8px -2px var(--accent)}
+.mgr-row-current .mgr-row-n{background:#fff;color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+body[data-theme=aurora] .mgr-row-current .mgr-row-n{background:#FAFAF7}
+.mgr-row-t{font:600 14.5px/1.2 'Inter',sans-serif;color:#fff;letter-spacing:-.005em}
+body:not([data-theme=aurora]) .mgr-row-t{color:#1A1A1A}
+.mgr-row-locked .mgr-row-t{color:rgba(255,255,255,.45)}
+body:not([data-theme=aurora]) .mgr-row-locked .mgr-row-t{color:#9A9A9A}
+.mgr-row-s{font-family:'JetBrains Mono','Space Mono',monospace;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:600}
+body:not([data-theme=aurora]) .mgr-row-s{color:#6B6B6B}
+.mgr-row-current .mgr-row-s{color:var(--accent)}
 .mgd-cta-wrap{padding:14px 20px calc(18px + env(safe-area-inset-bottom,0px));border-top:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.2);flex-shrink:0}
 body:not([data-theme=aurora]) .mgd-cta-wrap{background:#fff;border-top-color:#E8E6E0}
 .mgd-cta{width:100%;padding:15px 22px;border-radius:14px;border:0;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font:600 15px/1 inherit;letter-spacing:-.005em;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 10px 26px -6px var(--accent);transition:transform .2s,box-shadow .25s}
@@ -8356,49 +8366,46 @@ if(S.mgDetail&&!S.mgPlay){
       +'<div class="mgd-stat"><b>'+(prog.xp||0)+'</b><small>XP</small></div>'
       +'<div class="mgd-stat"><b>'+(prog.best||'\\u2014')+'</b><small>Best</small></div>'
     +'</div>';
-    // ─── Next-gen roadmap: 3 tiers (Bronze/Silver/Gold), polished depth nodes ───
-    const _stages=['Warm-up','Foundations','Steady','Stretch','Strider','Sprint','Pace','Power','Edge','Master'];
-    const _tiers=[
-      {name:'Bronze',from:1,to:3,grad:'linear-gradient(135deg,#CD7F32,#B26A20)',ring:'#D08A4A'},
-      {name:'Silver',from:4,to:7,grad:'linear-gradient(135deg,#D9D9DA,#A0A1A6)',ring:'#BFC0C7'},
-      {name:'Gold',  from:8,to:10,grad:'linear-gradient(135deg,#FFD86B,#E0A500)',ring:'#FFCC4D'}
-    ];
-    h+='<div class="mgd-road2">';
-    _tiers.forEach((t,ti)=>{
-      const tierUnlocked=cur>t.from;
-      const tierActive=cur>=t.from&&cur<=t.to;
-      const tierDone=cur>t.to;
-      h+='<div class="mgd-tier'+(tierActive?' mgd-tier-active':'')+(tierDone?' mgd-tier-done':'')+'">'
-        +'<div class="mgd-tier-hd"><span class="mgd-tier-badge" style="background:'+t.grad+'">'+(tierDone?'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>':t.name[0])+'</span><div class="mgd-tier-name">'+t.name+'</div><div class="mgd-tier-rng">L'+t.from+'\\u2013'+t.to+'</div></div>';
-      h+='<ol class="mgd-stages">';
-      for(let i=t.from;i<=t.to;i++){
-        const idx=i-t.from;
-        const total=t.to-t.from+1;
-        const state=i<cur?'done':i===cur?'current':'locked';
-        const sideClass=idx%2===0?' mgd-mile-left':' mgd-mile-right';
-        const showVehicle=i===cur;
-        h+='<li class="mgd-mile mgd-'+state+sideClass+'">'
-          +'<svg class="mgd-link" viewBox="0 0 200 80" preserveAspectRatio="none" aria-hidden="true">'
-            +'<path d="'+(idx%2===0?'M 30 0 Q 30 40 100 40 Q 170 40 170 80':'M 170 0 Q 170 40 100 40 Q 30 40 30 80')+'" fill="none" stroke="'+(state==='locked'?'rgba(255,255,255,.08)':'url(#mgdLinkG'+ti+')')+'" stroke-width="4" stroke-linecap="round" stroke-dasharray="'+(state==='locked'?'4 6':'0 0')+'"/>'
-            +(idx===0?'<defs><linearGradient id="mgdLinkG'+ti+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+meta.accent+'" stop-opacity=".7"/><stop offset="1" stop-color="'+meta.accent2+'" stop-opacity=".4"/></linearGradient></defs>':'')
-          +'</svg>'
-          +(showVehicle?'<div class="mgd-pulse-ring"></div>':'')
-          +'<button class="mgd-node mgd-node-'+state+'" onclick="mgPlayLevel(\\''+S.mgDetail+'\\','+i+')" '+(state==='locked'?'aria-disabled="true"':'')+'>'
-            +'<span class="mgd-node-inner">'
-              +(state==='done'?'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>':state==='locked'?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 1 1 8 0v4"/></svg>':'<span class="mgd-node-num">'+i+'</span>')
-            +'</span>'
-            +(state==='current'?'<span class="mgd-halo"></span>':'')
-          +'</button>'
-          +'<div class="mgd-mile-info">'
-            +'<div class="mgd-mile-tag">Level '+i+'</div>'
-            +'<div class="mgd-mile-t">'+_stages[i-1]+'</div>'
-            +'<div class="mgd-mile-d">'+(state==='done'?'\\u2713 Cleared':state==='current'?'\\u25B6 Tap to play':'\\u{1F512} Locked')+'</div>'
-          +'</div>'
-        +'</li>';
-      }
-      h+='</ol></div>';
-    });
+    // ─── Simple horizontal track with a runner stuck at the current level ───
+    h+='<div class="mgr-track-wrap">';
+    h+='<div class="mgr-pct"><span><b>'+(cur-1)+'</b> / 10 cleared</span><span class="mgr-pct-bar"><i style="width:'+((cur-1)/9*100)+'%"></i></span></div>';
+    h+='<div class="mgr-track">';
+    h+='<div class="mgr-rail"><i style="width:'+((cur-1)/9*100)+'%"></i></div>';
+    h+='<div class="mgr-stops">';
+    for(let i=1;i<=10;i++){
+      const state=i<cur?'done':i===cur?'current':'locked';
+      h+='<button class="mgr-stop mgr-stop-'+state+'" onclick="mgPlayLevel(\\''+S.mgDetail+'\\','+i+')" '+(state==='locked'?'aria-disabled="true"':'')+' style="left:'+((i-1)/9*100)+'%">';
+      h+=(state==='done'?'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>':'<span>'+i+'</span>');
+      h+='</button>';
+    }
     h+='</div>';
+    // Runner — anchored to the current level. Legs pump, body bobs, but the runner doesn't actually advance.
+    h+='<div class="mgr-runner" style="left:'+((cur-1)/9*100)+'%" aria-hidden="true">'
+      +'<div class="mgr-runner-dust"><i></i><i></i><i></i></div>'
+      +'<svg class="mgr-runner-svg" viewBox="0 0 40 56" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">'
+        +'<circle class="mgr-head" cx="22" cy="9" r="5" fill="currentColor" stroke="none"/>'
+        +'<path class="mgr-body" d="M 22 14 L 19 28"/>'
+        +'<path class="mgr-arm-front" d="M 19 18 L 28 16"/>'
+        +'<path class="mgr-arm-back" d="M 19 18 L 12 24"/>'
+        +'<path class="mgr-leg-front" d="M 19 28 L 26 38 L 30 44"/>'
+        +'<path class="mgr-leg-back" d="M 19 28 L 12 38 L 14 44"/>'
+      +'</svg>'
+    +'</div>';
+    h+='</div>'; // /mgr-track
+    h+='<div class="mgr-stuck-msg">\\u{1F3C3} Running at <b>Level '+cur+'</b> \\u00B7 keep going to break through.</div>';
+    h+='</div>'; // /mgr-track-wrap
+    // Compact stage list below
+    const _stages=['Warm-up','Foundations','Steady','Stretch','Strider','Sprint','Pace','Power','Edge','Master'];
+    h+='<ol class="mgr-stages">';
+    for(let i=1;i<=10;i++){
+      const state=i<cur?'done':i===cur?'current':'locked';
+      h+='<li class="mgr-row mgr-row-'+state+'" onclick="mgPlayLevel(\\''+S.mgDetail+'\\','+i+')">'
+        +'<span class="mgr-row-n">'+i+'</span>'
+        +'<span class="mgr-row-t">'+_stages[i-1]+'</span>'
+        +'<span class="mgr-row-s">'+(state==='done'?'\\u2713 Cleared':state==='current'?'\\u25B6 Tap to play':'\\u{1F512} Locked')+'</span>'
+      +'</li>';
+    }
+    h+='</ol>';
     h+='<div class="mgd-cta-wrap"><button class="mgd-cta" onclick="'+meta.start+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg> Play Level '+cur+'</button></div>';
     h+='</div></div></div>';
   }
