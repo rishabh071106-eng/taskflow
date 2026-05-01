@@ -2613,6 +2613,47 @@ body[data-theme=aurora] .tab:hover:not(.on){background:rgba(255,255,255,.04);col
 body[data-theme=aurora] .tab.on{background:linear-gradient(135deg,#8B5CF6,#EC4899);color:#fff;box-shadow:0 6px 20px rgba(139,92,246,.45),0 0 0 1px rgba(255,255,255,.08)}
 /* Buttons */
 body[data-theme=aurora] .add-bar{background:linear-gradient(135deg,#8B5CF6 0%,#EC4899 100%);box-shadow:0 8px 28px rgba(139,92,246,.4)}
+/* ─── Inline composer (next-level add task) ─── */
+.cx{margin:0 0 18px;background:rgba(26,26,44,.65);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:14px 14px 12px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);transition:border-color .2s,box-shadow .25s}
+.cx.has-text{border-color:rgba(255,107,71,.45);box-shadow:0 8px 28px -10px rgba(255,107,71,.25)}
+.cx-row{display:flex;align-items:center;gap:10px}
+.cx-ic{color:rgba(255,255,255,.45);flex-shrink:0;margin-left:6px}
+.cx-input{flex:1;min-width:0;background:transparent;border:0;outline:0;font:500 16px/1.4 inherit;color:#F5F5FA;letter-spacing:-.01em;padding:10px 0}
+.cx-input::placeholder{color:rgba(255,255,255,.38);font-weight:400}
+.cx-go{flex-shrink:0;width:42px;height:42px;border-radius:14px;border:0;background:rgba(255,255,255,.06);color:rgba(255,255,255,.4);cursor:pointer;display:grid;place-items:center;transition:background .2s,color .2s,transform .25s cubic-bezier(.34,1.56,.64,1),box-shadow .25s}
+.cx-go.on{background:linear-gradient(135deg,#FF6B47 0%,#FFB547 100%);color:#fff;box-shadow:0 8px 22px -4px rgba(255,107,71,.5)}
+.cx-go.on:hover{transform:scale(1.06)}
+.cx-go:active{transform:scale(.92)}
+.cx-chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.06)}
+.cx-chip{font-family:inherit;font-size:12.5px;font-weight:500;color:rgba(255,255,255,.7);background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);padding:7px 12px;border-radius:999px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:all .18s ease;letter-spacing:-.005em;line-height:1}
+.cx-chip:hover{background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.14)}
+.cx-chip.on{background:rgba(255,107,71,.18);color:#FFE3D8;border-color:rgba(255,107,71,.5);box-shadow:0 4px 14px -4px rgba(255,107,71,.4)}
+.cx-chip-pri-h.on{background:rgba(220,38,38,.18);color:#FCA5A5;border-color:rgba(220,38,38,.5)}
+.cx-chip-pri-m.on{background:rgba(245,158,11,.18);color:#FCD34D;border-color:rgba(245,158,11,.5)}
+.cx-chip-pri-l.on{background:rgba(34,197,94,.18);color:#86EFAC;border-color:rgba(34,197,94,.5)}
+.cx-chip span{font-size:13px;line-height:1;display:inline-block}
+.cx-chip-more{margin-left:auto}
+.cx-divider{width:1px;height:18px;background:rgba(255,255,255,.08);margin:0 4px}
+.cx-preview{margin-top:10px;padding-top:10px;border-top:1px dashed rgba(255,255,255,.08);display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12px;color:rgba(255,255,255,.5);animation:cxFade .25s ease}
+.cx-pv-lbl{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.4)}
+.cx-pv-pill{padding:5px 10px;border-radius:999px;background:rgba(255,107,71,.12);color:#FFE3D8;border:1px solid rgba(255,107,71,.3);font-size:12px;font-weight:500}
+.cx-pv-title{background:rgba(255,255,255,.06);color:#F5F5FA;border-color:rgba(255,255,255,.12)}
+@keyframes cxFade{from{opacity:0;transform:translateY(-4px)}}
+/* Light theme variant */
+body:not([data-theme=aurora]) .cx{background:#fff;border-color:#E8E6E0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+body:not([data-theme=aurora]) .cx.has-text{border-color:#FF6B47;box-shadow:0 8px 28px -10px rgba(255,107,71,.25)}
+body:not([data-theme=aurora]) .cx-input{color:#1A1A1A}
+body:not([data-theme=aurora]) .cx-input::placeholder{color:rgba(26,26,26,.45)}
+body:not([data-theme=aurora]) .cx-ic{color:rgba(26,26,26,.4)}
+body:not([data-theme=aurora]) .cx-go{background:#F4F3EE;color:#9A9A9A}
+body:not([data-theme=aurora]) .cx-go.on{background:linear-gradient(135deg,#FF6B47,#FFB547);color:#fff}
+body:not([data-theme=aurora]) .cx-chip{background:#F4F3EE;border-color:#E8E6E0;color:#3D3D3D}
+body:not([data-theme=aurora]) .cx-chips{border-top-color:#F0EDE7}
+body:not([data-theme=aurora]) .cx-divider{background:#E8E6E0}
+body:not([data-theme=aurora]) .cx-pv-lbl{color:#9A9A9A}
+body:not([data-theme=aurora]) .cx-pv-pill{background:#FFF1ED;color:#B7472A;border-color:#FFD0BD}
+body:not([data-theme=aurora]) .cx-pv-title{background:#F4F3EE;color:#1A1A1A;border-color:#E8E6E0}
+@media (max-width:560px){.cx-chip{padding:6px 10px;font-size:11.5px}.cx-input{font-size:15px}}
 body[data-theme=aurora] .add-bar .plus{background:rgba(255,255,255,.2);color:#fff;box-shadow:0 3px 12px rgba(255,255,255,.1)}
 body[data-theme=aurora] .fab{background:linear-gradient(135deg,#8B5CF6,#EC4899);box-shadow:0 10px 30px rgba(139,92,246,.5),0 0 0 8px rgba(139,92,246,.12);animation:fabPulseAurora 3s ease-in-out infinite}
 @keyframes fabPulseAurora{0%,100%{box-shadow:0 10px 30px rgba(139,92,246,.5),0 0 0 8px rgba(139,92,246,.12)}50%{box-shadow:0 14px 36px rgba(236,72,153,.6),0 0 0 16px rgba(236,72,153,.08)}}
@@ -4451,7 +4492,7 @@ body:has(.player.on) .bk-mini{bottom:170px !important}
 <script>/*__SERVER_INJECT__*/</script>
 <script>
 const MORALS=[{t:"The secret of getting ahead is getting started.",a:"Mark Twain"},{t:"It does not matter how slowly you go as long as you do not stop.",a:"Confucius"},{t:"Small daily improvements are the key to staggering long-term results.",a:"Robin Sharma"},{t:"Discipline is choosing between what you want now and what you want most.",a:"Abraham Lincoln"},{t:"Don't count the days. Make the days count.",a:"Muhammad Ali"},{t:"The best way to predict the future is to create it.",a:"Peter Drucker"},{t:"Focus on being productive instead of busy.",a:"Tim Ferriss"},{t:"You don't have to be great to start, but you have to start to be great.",a:"Zig Ziglar"},{t:"The journey of a thousand miles begins with a single step.",a:"Lao Tzu"},{t:"Either you run the day or the day runs you.",a:"Jim Rohn"},{t:"A year from now you may wish you had started today.",a:"Karen Lamb"},{t:"Success is the sum of small efforts repeated day in and day out.",a:"Robert Collier"},{t:"Done is better than perfect.",a:"Sheryl Sandberg"},{t:"The way to get started is to quit talking and begin doing.",a:"Walt Disney"},{t:"You cannot escape the responsibility of tomorrow by evading it today.",a:"Abraham Lincoln"},{t:"Motivation gets you going, but discipline keeps you growing.",a:"John C. Maxwell"},{t:"Do something today that your future self will thank you for.",a:"Sean Patrick Flanery"},{t:"The harder I work, the luckier I get.",a:"Samuel Goldwyn"},{t:"Don't watch the clock; do what it does. Keep going.",a:"Sam Levenson"},{t:"Great things never come from comfort zones.",a:"Neil Strauss"},{t:"Sometimes later becomes never. Do it now.",a:"Anonymous"},{t:"Wake up with determination. Go to bed with satisfaction.",a:"Anonymous"},{t:"A goal without a plan is just a wish.",a:"Antoine de Saint-Exupéry"},{t:"Little by little, day by day, what is meant for you will find its way.",a:"Anonymous"},{t:"Success doesn't just find you — you have to go out and get it.",a:"Anonymous"},{t:"Push yourself, because no one else is going to do it for you.",a:"Anonymous"},{t:"Dream big. Start small. Act now.",a:"Robin Sharma"},{t:"Hard work beats talent when talent doesn't work hard.",a:"Tim Notke"},{t:"The only impossible journey is the one you never begin.",a:"Tony Robbins"},{t:"Opportunities don't happen. You create them.",a:"Chris Grosser"}];
-let S={tasks:[],view:'all',search:'',tab:'tasks',showAdd:false,editing:null,listening:false,toast:null,toastType:'ok',waOk:false,sending:{},user:null,
+let S={tasks:[],view:'all',search:'',tab:'tasks',showAdd:false,editing:null,listening:false,toast:null,toastType:'ok',waOk:false,sending:{},user:null,compose:{value:'',priority:null,dueDate:null,saving:false},
 books:[],booksLoading:false,booksCat:'all',bookSearch:'',playing:null,moralIdx:Math.floor(Math.random()*MORALS.length),
 knowledge:{loading:false,loaded:{},articles:{},events:[],topic:'history',sec:'today'},
 game:{active:false,board:Array(9).fill(null),turn:'X',status:'idle',winLine:null,wins:Number(localStorage.getItem('tf_ttt_wins')||0),losses:Number(localStorage.getItem('tf_ttt_losses')||0),draws:Number(localStorage.getItem('tf_ttt_draws')||0)},
@@ -4729,6 +4770,60 @@ function dismissRestoreOffer(){S.restoreOffer=null;render()}
 function downloadBackup(){window.open('/api/me/export','_blank')}
 async function chk(){const h=await api('/health');if(h)S.waOk=h.twilio;render()}
 async function addT(){if(!S.form.title.trim())return;const r=await api('/tasks',{method:'POST',body:JSON.stringify({title:S.form.title,notes:S.form.notes,priority:S.form.priority,status:'pending',due_date:S.form.dueDate,reminder_time:S.form.reminderTime,board:S.form.board})});if(r?.id){S.tasks.unshift(r);clM();toast('\\u2705 Task added!')}}
+// ─── Inline composer ────────────────────────────────────────────
+// Smart-parses natural language: "Buy milk tomorrow !urgent" →
+// title="Buy milk", dueDate=tomorrow, priority=high
+function _isoToday(){return new Date().toISOString().slice(0,10)}
+function _isoOffset(days){const d=new Date();d.setDate(d.getDate()+days);return d.toISOString().slice(0,10)}
+function _isoNextWeekday(target){const d=new Date();const cur=d.getDay();let diff=(target-cur+7)%7;if(diff===0)diff=7;d.setDate(d.getDate()+diff);return d.toISOString().slice(0,10)}
+function parseCompose(raw){
+  let t=raw||'';let priority=null;let dueDate=null;let dueLabel='';
+  // Priority signals (eaten from title)
+  const pri=[
+    [/(?:^|\s)!{3,}(?=\s|$)/, 'high'],
+    [/(?:^|\s)!{2}(?=\s|$)/, 'medium'],
+    [/(?:^|\s)!urgent\b/i, 'high'],
+    [/(?:^|\s)!important\b/i, 'high'],
+    [/(?:^|\s)!high\b/i, 'high'],
+    [/(?:^|\s)!med(ium)?\b/i, 'medium'],
+    [/(?:^|\s)!low\b/i, 'low'],
+    [/(?:^|\s)\burgent\b/i, 'high'],
+    [/(?:^|\s)\basap\b/i, 'high']
+  ];
+  for(const [re,p] of pri){if(re.test(t)){priority=p;t=t.replace(re,' ');break}}
+  // Date signals
+  const dateRules=[
+    [/\btoday\b/i, ()=>_isoToday(), 'today'],
+    [/\btomorrow\b/i, ()=>_isoOffset(1), 'tomorrow'],
+    [/\bnext week\b/i, ()=>_isoOffset(7), 'next week'],
+    [/\bin (\d{1,2}) days?\b/i, m=>_isoOffset(parseInt(m[1],10)), m=>'in '+m[1]+'d'],
+    [/\bmonday\b/i, ()=>_isoNextWeekday(1), 'Monday'],
+    [/\btuesday\b/i, ()=>_isoNextWeekday(2), 'Tuesday'],
+    [/\bwednesday\b/i, ()=>_isoNextWeekday(3), 'Wednesday'],
+    [/\bthursday\b/i, ()=>_isoNextWeekday(4), 'Thursday'],
+    [/\bfriday\b/i, ()=>_isoNextWeekday(5), 'Friday'],
+    [/\bsaturday\b/i, ()=>_isoNextWeekday(6), 'Saturday'],
+    [/\bsunday\b/i, ()=>_isoNextWeekday(0), 'Sunday']
+  ];
+  for(const [re,fn,lbl] of dateRules){const m=t.match(re);if(m){dueDate=fn(m);dueLabel=typeof lbl==='function'?lbl(m):lbl;t=t.replace(re,' ');break}}
+  return {title:t.replace(/\s+/g,' ').trim(),priority,dueDate,dueLabel}
+}
+function composeUpdate(v){S.compose.value=v;render()}
+function composeSetDate(d){S.compose.dueDate=S.compose.dueDate===d?null:d;render()}
+function composeSetPriority(p){S.compose.priority=S.compose.priority===p?null:p;render()}
+async function composeSubmit(){
+  if(S.compose.saving)return;
+  const raw=(S.compose.value||'').trim();if(!raw)return;
+  const parsed=parseCompose(raw);
+  if(!parsed.title)return;
+  const priority=parsed.priority||S.compose.priority||'medium';
+  const dueDate=parsed.dueDate||S.compose.dueDate||'';
+  S.compose.saving=true;render();
+  const r=await api('/tasks',{method:'POST',body:JSON.stringify({title:parsed.title,notes:'',priority:priority,status:'pending',due_date:dueDate,reminder_time:'',board:'home'})});
+  S.compose.saving=false;
+  if(r&&r.id){S.tasks.unshift(r);S.compose={value:'',priority:null,dueDate:null,saving:false};toast('\\u2705 Task added');render()}
+  else{toast('\\u26A0\\uFE0F Could not save','err');render()}
+}
 async function savE(){if(!S.form.title.trim()||!S.editing)return;const r=await api('/tasks/'+S.editing,{method:'PUT',body:JSON.stringify({title:S.form.title,notes:S.form.notes,priority:S.form.priority,status:S.form.status,due_date:S.form.dueDate,reminder_time:S.form.reminderTime,board:S.form.board})});if(r){const i=S.tasks.findIndex(t=>t.id===S.editing);if(i>-1)S.tasks[i]=r;clM();toast('\\u2705 Updated!')}}
 async function del(id){await api('/tasks/'+id,{method:'DELETE'});S.tasks=S.tasks.filter(t=>t.id!==id);render()}
 async function tog(id){const t=S.tasks.find(x=>x.id===id);if(!t)return;const r=await api('/tasks/'+id,{method:'PUT',body:JSON.stringify({status:t.status==='done'?'pending':'done'})});if(r){const i=S.tasks.findIndex(x=>x.id===id);if(i>-1)S.tasks[i]=r;render()}}
@@ -6551,9 +6646,33 @@ if(S.tab==='tasks'){
       +'<button class="wa-promo-x" onclick="localStorage.setItem(\\'tf_wa_banner_x\\',\\'1\\');render()" aria-label="Dismiss">\\u2715</button>'
     +'</div>';
   }
-  // Boards UI removed per user request — single unified task list, no Home/Office/Combined picker.
-  // TASKS LEAD — primary action sits at the top
-  h+='<button class="add-bar" onclick="opA()"><span class="plus">+</span><span class="txt"><b>Add a new task</b><small>Type, use voice, or send via WhatsApp</small></span></button>';
+  // ─── Inline next-level composer ───
+  {
+    const c=S.compose||{value:'',priority:null,dueDate:null};
+    const parsed=parseCompose(c.value||'');
+    const effPri=parsed.priority||c.priority;
+    const effDate=parsed.dueDate||c.dueDate;
+    const effDateLbl=parsed.dueLabel||(c.dueDate?(c.dueDate===_isoToday()?'today':c.dueDate===_isoOffset(1)?'tomorrow':c.dueDate):'');
+    h+='<div class="cx'+(c.value?' has-text':'')+'">'
+      +'<div class="cx-row">'
+        +'<svg class="cx-ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>'
+        +'<input class="cx-input" id="cxInput" value="'+esc(c.value)+'" placeholder="What needs doing? Try: \\u201cReply to Sam tomorrow !urgent\\u201d" oninput="composeUpdate(this.value)" onkeydown="if(event.key===\\'Enter\\')composeSubmit()" autocomplete="off"/>'
+        +'<button class="cx-go'+(parsed.title&&!c.saving?' on':'')+'" onclick="composeSubmit()" title="Add (Enter)" aria-label="Add">'+(c.saving?'<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="3"><animate attributeName="opacity" dur="1s" values="1;.3;1" repeatCount="indefinite"/></circle></svg>':'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>')+'</button>'
+      +'</div>'
+      +'<div class="cx-chips">'
+        +'<button class="cx-chip'+(effDate===_isoToday()?' on':'')+'" onclick="composeSetDate(\\''+_isoToday()+'\\')"><span>\\u{1F4C5}</span> Today</button>'
+        +'<button class="cx-chip'+(effDate===_isoOffset(1)?' on':'')+'" onclick="composeSetDate(\\''+_isoOffset(1)+'\\')"><span>\\u27A1\\uFE0F</span> Tomorrow</button>'
+        +'<button class="cx-chip'+(effDate===_isoOffset(7)?' on':'')+'" onclick="composeSetDate(\\''+_isoOffset(7)+'\\')"><span>\\u{1F5D3}\\uFE0F</span> Next week</button>'
+        +'<span class="cx-divider"></span>'
+        +'<button class="cx-chip cx-chip-pri-h'+(effPri==='high'?' on':'')+'" onclick="composeSetPriority(\\'high\\')"><span>\\u{1F525}</span> High</button>'
+        +'<button class="cx-chip cx-chip-pri-m'+(effPri==='medium'?' on':'')+'" onclick="composeSetPriority(\\'medium\\')"><span>\\u26A1</span> Medium</button>'
+        +'<button class="cx-chip cx-chip-pri-l'+(effPri==='low'?' on':'')+'" onclick="composeSetPriority(\\'low\\')"><span>\\u{1F343}</span> Low</button>'
+        +'<span class="cx-divider"></span>'
+        +'<button class="cx-chip cx-chip-more" onclick="opA()" title="Open detailed editor"><span>\\u2699\\uFE0F</span> More</button>'
+      +'</div>'
+      +(parsed.title&&(parsed.priority||parsed.dueDate)?'<div class="cx-preview"><span class="cx-pv-lbl">Detected:</span>'+(parsed.title?'<span class="cx-pv-pill cx-pv-title">\\u270F\\uFE0F '+esc(parsed.title)+'</span>':'')+(parsed.dueLabel?'<span class="cx-pv-pill">\\u{1F4C5} '+esc(parsed.dueLabel)+'</span>':'')+(parsed.priority?'<span class="cx-pv-pill">'+(parsed.priority==='high'?'\\u{1F525} High':parsed.priority==='medium'?'\\u26A1 Medium':'\\u{1F343} Low')+'</span>':'')+'</div>':'')
+    +'</div>';
+  }
   // WhatsApp reminders prompt removed for closed-test phase
   h+='<div class="stats">'+[{l:'Total',v:s.total,c:'#0F172A'},{l:'To Do',v:s.pend,c:'#94A3B8'},{l:'Active',v:s.act,c:'#3B82F6'},{l:'Done',v:s.dn,c:'#3DAE5C'}].map(x=>'<div class="st"><b style="color:'+x.c+'">'+x.v+'</b><small>'+x.l+'</small></div>').join('')+'</div>';
   if(s.od>0)h+='<div class="al" style="background:#FEF1F0;border:1px solid #F5C6C2;color:#E8453C;cursor:pointer" onclick="S.view=\\'overdue\\';render()">\\u26A0\\uFE0F '+s.od+' overdue</div>';
