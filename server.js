@@ -39,6 +39,8 @@ try{db.exec("CREATE TABLE IF NOT EXISTS user_progress(user_phone TEXT NOT NULL,g
 try{db.exec("CREATE TABLE IF NOT EXISTS voice_progress(user_phone TEXT NOT NULL,day INTEGER NOT NULL,score INTEGER DEFAULT 0,points INTEGER DEFAULT 0,completed_at TEXT DEFAULT(datetime('now')),PRIMARY KEY(user_phone,day))")}catch(e){}
 // Daily-play log so we can compute streaks for both Mind Gym and Voice Trainer
 try{db.exec("CREATE TABLE IF NOT EXISTS play_log(user_phone TEXT NOT NULL,kind TEXT NOT NULL,played_on TEXT NOT NULL,PRIMARY KEY(user_phone,kind,played_on))")}catch(e){}
+// Daily Highlight — Make-Time-style "one thing today" with calendar + email
+try{db.exec("CREATE TABLE IF NOT EXISTS daily_highlights(user_phone TEXT NOT NULL,date TEXT NOT NULL,text TEXT NOT NULL,done INTEGER DEFAULT 0,gcal_event_id TEXT,gcal_email TEXT,reminded_morning INTEGER DEFAULT 0,reminded_midday INTEGER DEFAULT 0,reminded_evening INTEGER DEFAULT 0,created_at TEXT DEFAULT(datetime('now')),updated_at TEXT DEFAULT(datetime('now')),PRIMARY KEY(user_phone,date))")}catch(e){}
 // Voice curriculum — Duolingo-style step-by-step lesson progress per user
 try{db.exec("CREATE TABLE IF NOT EXISTS voice_lesson_progress(user_phone TEXT NOT NULL,unit_id INTEGER NOT NULL,lesson_id INTEGER NOT NULL,score INTEGER DEFAULT 0,stars INTEGER DEFAULT 0,xp INTEGER DEFAULT 0,completed_at TEXT DEFAULT(datetime('now')),PRIMARY KEY(user_phone,unit_id,lesson_id))")}catch(e){}
 // Community articles — Medium-style user submissions
@@ -691,6 +693,106 @@ app.delete('/api/calendar/events/:id',auth,async(req,res)=>{
     res.status(400).json({error:j.error?.message||'delete failed'});
   }catch(e){res.status(500).json({error:e.message})}
 });
+// ─── Daily Highlight API ─────────────────────────────────────────────
+function _todayISO(){return new Date().toISOString().slice(0,10)}
+async function _gcalCreateAllDay(userPhone,date,text){
+  const def=db.prepare("SELECT email FROM google_tokens WHERE user_phone=? ORDER BY is_default DESC LIMIT 1").get(userPhone);
+  if(!def)return null;
+  const ga=await gAccessToken(userPhone,def.email);if(!ga)return null;
+  const next=new Date(date+'T00:00:00Z');next.setUTCDate(next.getUTCDate()+1);
+  const body={summary:'\u{1F31F} Today’s Highlight: '+text,description:'Your daily highlight from Brodoit. Tap and complete this one thing today.',start:{date},end:{date:next.toISOString().slice(0,10)},colorId:'5'};
+  try{
+    const r=await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events',{method:'POST',headers:{Authorization:'Bearer '+ga.token,'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const j=await r.json();if(j.error)return null;
+    return {id:j.id,email:def.email,link:j.htmlLink};
+  }catch(e){return null}
+}
+async function _gcalDeleteEvent(userPhone,email,eventId){
+  if(!eventId||!email)return;
+  const ga=await gAccessToken(userPhone,email);if(!ga)return;
+  try{await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events/'+encodeURIComponent(eventId),{method:'DELETE',headers:{Authorization:'Bearer '+ga.token}})}catch(e){}
+}
+app.get('/api/highlight',auth,(req,res)=>{
+  const row=db.prepare('SELECT * FROM daily_highlights WHERE user_phone=? AND date=?').get(req.user.phone,_todayISO());
+  res.json({highlight:row||null});
+});
+app.post('/api/highlight',auth,async(req,res)=>{
+  const text=String((req.body&&req.body.text)||'').trim().slice(0,200);
+  if(!text)return res.status(400).json({error:'text required'});
+  const today=_todayISO();
+  const existing=db.prepare('SELECT * FROM daily_highlights WHERE user_phone=? AND date=?').get(req.user.phone,today);
+  if(existing){
+    // Edit existing — update text, push update to GCal if event still attached
+    db.prepare("UPDATE daily_highlights SET text=?,updated_at=datetime('now') WHERE user_phone=? AND date=?").run(text,req.user.phone,today);
+    if(existing.gcal_event_id&&existing.gcal_email){
+      try{
+        const ga=await gAccessToken(req.user.phone,existing.gcal_email);
+        if(ga){await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events/'+encodeURIComponent(existing.gcal_event_id),{method:'PATCH',headers:{Authorization:'Bearer '+ga.token,'Content-Type':'application/json'},body:JSON.stringify({summary:'\u{1F31F} Today’s Highlight: '+text})})}
+      }catch(e){}
+    }
+    return res.json({ok:true,highlight:{...existing,text}});
+  }
+  // New highlight — create + push to GCal if connected
+  const gcal=await _gcalCreateAllDay(req.user.phone,today,text);
+  db.prepare('INSERT INTO daily_highlights(user_phone,date,text,gcal_event_id,gcal_email)VALUES(?,?,?,?,?)').run(req.user.phone,today,text,gcal?.id||null,gcal?.email||null);
+  const row=db.prepare('SELECT * FROM daily_highlights WHERE user_phone=? AND date=?').get(req.user.phone,today);
+  // Send the morning email immediately as a confirmation that it was saved + scheduled
+  try{
+    const u=db.prepare('SELECT email,name FROM users WHERE phone=?').get(req.user.phone);
+    if(u&&u.email&&isEmail(u.email)){
+      const firstName=(u.name||'').split(' ')[0]||'there';
+      const html=_hlEmailHTML(firstName,text,gcal?.link);
+      await sendEmail(u.email,'\u{1F31F} '+text+' — today’s highlight',html);
+      db.prepare('UPDATE daily_highlights SET reminded_morning=1 WHERE user_phone=? AND date=?').run(req.user.phone,today);
+    }
+  }catch(e){}
+  res.json({ok:true,highlight:row,gcal:gcal||null});
+});
+app.post('/api/highlight/done',auth,(req,res)=>{
+  const done=req.body&&req.body.done?1:0;
+  db.prepare("UPDATE daily_highlights SET done=?,updated_at=datetime('now') WHERE user_phone=? AND date=?").run(done,req.user.phone,_todayISO());
+  res.json({ok:true});
+});
+app.delete('/api/highlight',auth,async(req,res)=>{
+  const today=_todayISO();
+  const existing=db.prepare('SELECT * FROM daily_highlights WHERE user_phone=? AND date=?').get(req.user.phone,today);
+  if(existing&&existing.gcal_event_id&&existing.gcal_email){await _gcalDeleteEvent(req.user.phone,existing.gcal_email,existing.gcal_event_id)}
+  db.prepare('DELETE FROM daily_highlights WHERE user_phone=? AND date=?').run(req.user.phone,today);
+  res.json({ok:true});
+});
+// Email template for highlight reminders
+function _hlEmailHTML(name,text,gcalLink){
+  return '<!doctype html><html><body style="font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif;background:#FAFAF7;margin:0;padding:32px 16px"><table role="presentation" style="max-width:520px;margin:0 auto;background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 8px 24px rgba(15,23,42,.08)"><tr><td style="background:linear-gradient(135deg,#FF6B47 0%,#FFB547 100%);padding:28px 28px 24px;color:#fff"><div style="font-family:JetBrains Mono,monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;opacity:.85;font-weight:600">Today’s Highlight</div><div style="font-family:Instrument Serif,Georgia,serif;font-style:italic;font-size:30px;line-height:1.15;margin-top:10px;color:#fff;letter-spacing:-.018em">'+esc(text)+'</div></td></tr><tr><td style="padding:24px 28px 28px;color:#3D3D3D;font-size:15px;line-height:1.6"><p style="margin:0 0 14px">Hi '+esc(name)+', this is the one thing you said would make today feel like a win.</p><p style="margin:0 0 18px">Block 60–90 minutes for it. Phone in another room. Door closed if you have one. Then ship it before lunch.</p><div style="margin:18px 0"><a href="https://brodoit.com" style="display:inline-block;padding:12px 22px;background:#1A1A1A;color:#fff;text-decoration:none;border-radius:12px;font-weight:600;font-size:14px;letter-spacing:-.005em">Open Brodoit →</a>'+(gcalLink?'&nbsp;<a href="'+esc(gcalLink)+'" style="display:inline-block;padding:12px 22px;background:#fff;color:#1A1A1A;text-decoration:none;border:1px solid #E8E6E0;border-radius:12px;font-weight:600;font-size:14px;letter-spacing:-.005em">View on Calendar</a>':'')+'</div><p style="margin:18px 0 0;font-size:13px;color:#6B6B6B">You can change tomorrow’s highlight anytime in the Tasks tab.</p></td></tr></table><div style="text-align:center;color:#9A9A9A;font-size:12px;margin-top:20px;font-family:JetBrains Mono,monospace;letter-spacing:.08em">BRODOIT • ONE THING TODAY</div></body></html>';
+}
+function _hlNudgeHTML(name,text,slot){
+  const hook=slot==='midday'?'Halfway through the day. Did you start it yet?':'Last call before tonight. Don’t leave it for tomorrow-you to clean up.';
+  return '<!doctype html><html><body style="font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif;background:#FAFAF7;margin:0;padding:32px 16px"><table role="presentation" style="max-width:520px;margin:0 auto;background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 8px 24px rgba(15,23,42,.08)"><tr><td style="padding:28px 28px 18px"><div style="font-family:JetBrains Mono,monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#B7472A;font-weight:600">'+(slot==='midday'?'⏱ Midday Check-in':'\u{1F319} Evening Nudge')+'</div><div style="font-family:Instrument Serif,Georgia,serif;font-style:italic;font-size:24px;line-height:1.2;margin-top:10px;color:#1A1A1A;letter-spacing:-.018em">'+esc(text)+'</div></td></tr><tr><td style="padding:8px 28px 26px;color:#3D3D3D;font-size:14.5px;line-height:1.6"><p style="margin:0 0 14px">Hi '+esc(name)+'. '+hook+'</p><div style="margin:14px 0"><a href="https://brodoit.com" style="display:inline-block;padding:11px 20px;background:linear-gradient(135deg,#FF6B47,#FFB547);color:#fff;text-decoration:none;border-radius:12px;font-weight:600;font-size:14px">Mark it done →</a></div></td></tr></table></body></html>';
+}
+// Reminder loop — runs every 10 minutes, sends slot-specific emails to users
+// who set a highlight today and haven't completed it.
+async function _hlReminderTick(){
+  try{
+    const now=new Date();
+    const hour=now.getHours();
+    const today=_todayISO();
+    let slot=null;
+    if(hour>=12&&hour<=13)slot='midday';
+    else if(hour>=18&&hour<=19)slot='evening';
+    if(!slot)return;
+    const col='reminded_'+slot;
+    const rows=db.prepare("SELECT h.*,u.email,u.name FROM daily_highlights h JOIN users u ON u.phone=h.user_phone WHERE h.date=? AND h.done=0 AND h."+col+"=0").all(today);
+    for(const r of rows){
+      if(!r.email||!isEmail(r.email))continue;
+      const firstName=(r.name||'').split(' ')[0]||'there';
+      const html=_hlNudgeHTML(firstName,r.text,slot);
+      const subject=slot==='midday'?'⏱ Midday — your highlight':'\u{1F319} Tonight — don’t forget your highlight';
+      await sendEmail(r.email,subject,html);
+      db.prepare('UPDATE daily_highlights SET '+col+'=1 WHERE user_phone=? AND date=?').run(r.user_phone,today);
+    }
+  }catch(e){console.warn('[hl-reminders]',e.message)}
+}
+setInterval(_hlReminderTick,10*60*1000);
+setTimeout(_hlReminderTick,30*1000); // first check 30s after boot
 
 // WhatsApp send endpoints disabled for closed-test phase (Twilio Sandbox requires
 // each recipient to text 'join <code>' first, which would break the tester experience).
@@ -5757,19 +5859,48 @@ async function voiceFinish(){
 }
 async function _mgSave(game,xpAdd,best){const r=await api('/games/progress',{method:'POST',body:JSON.stringify({game,xpAdd:xpAdd|0,best:best!=null?best|0:null})});if(r&&r.ok){S.mg.progress[game]={level:r.level,xp:r.xp,best:r.best,plays:r.plays};if(r.leveledUp)toast('\\u{1F31F} Level up! '+game+' \\u2192 L'+r.level);render()}}
 function mgClose(){_mtCleanup();if(S._msTimer){clearInterval(S._msTimer);S._msTimer=null}if(S._mwTimer){clearInterval(S._mwTimer);S._mwTimer=null}if(S._schTimer){clearInterval(S._schTimer);S._schTimer=null}if(S._memRespTimer){clearInterval(S._memRespTimer);S._memRespTimer=null}try{document.removeEventListener('keydown',_mwOnKey)}catch(e){}S.mgPlay=null;render()}
-// ─── Daily Highlight (Make-Time-style "one thing today") ─────────
-function _hlLoad(){try{const raw=localStorage.getItem('daily_hl');if(!raw)return null;const d=JSON.parse(raw);const today=new Date().toISOString().slice(0,10);if(d&&d.date===today)return d;return null}catch(e){return null}}
-function _hlSave(d){try{localStorage.setItem('daily_hl',JSON.stringify(d))}catch(e){}}
+// ─── Daily Highlight (server-backed; syncs to Google Calendar + email) ─
+function _hlLocalCache(){try{const raw=localStorage.getItem('daily_hl');if(!raw)return null;const d=JSON.parse(raw);const today=new Date().toISOString().slice(0,10);if(d&&d.date===today)return d;return null}catch(e){return null}}
+function _hlSaveLocal(d){try{if(d)localStorage.setItem('daily_hl',JSON.stringify(d));else localStorage.removeItem('daily_hl')}catch(e){}}
+async function hlLoad(){
+  // Hydrate from local first for instant render, then fetch authoritative copy from server
+  const cached=_hlLocalCache();if(cached)S.dailyHl=cached;
+  if(!S.user){return}
+  try{
+    const r=await api('/highlight');
+    if(r&&r.highlight){const today=new Date().toISOString().slice(0,10);S.dailyHl={text:r.highlight.text,date:r.highlight.date||today,done:!!r.highlight.done,gcal:r.highlight.gcal_event_id?{id:r.highlight.gcal_event_id,email:r.highlight.gcal_email}:null};_hlSaveLocal(S.dailyHl);render()}
+    else if(S.dailyHl){S.dailyHl=null;_hlSaveLocal(null);render()}
+  }catch(e){}
+}
 function hlOpen(){S.hlEditing=true;S.hlInput=(S.dailyHl&&S.dailyHl.text)||'';render()}
 function hlClose(){S.hlEditing=false;render()}
-function hlSubmit(){
+async function hlSubmit(){
   const v=(S.hlInput||'').trim();if(!v)return;
   const today=new Date().toISOString().slice(0,10);
-  S.dailyHl={text:v,date:today,done:false,setAt:Date.now()};_hlSave(S.dailyHl);
-  S.hlEditing=false;S.hlInput='';render();toast('\\u2728 Highlight set');
+  // Optimistic UI — show it immediately
+  S.dailyHl={text:v,date:today,done:false,saving:true};_hlSaveLocal(S.dailyHl);
+  S.hlEditing=false;S.hlInput='';render();
+  try{
+    const r=await api('/highlight',{method:'POST',body:JSON.stringify({text:v})});
+    if(r&&r.ok){
+      S.dailyHl={text:v,date:today,done:false,gcal:r.gcal||null};_hlSaveLocal(S.dailyHl);
+      const msg=r.gcal?'\\u2728 Saved \\u2022 added to your Google Calendar':'\\u2728 Highlight set';
+      toast(msg);
+    }else{toast('\\u26A0\\uFE0F Could not save highlight','err')}
+  }catch(e){toast('\\u26A0\\uFE0F Save failed','err')}
+  render();
 }
-function hlToggleDone(){if(!S.dailyHl)return;S.dailyHl.done=!S.dailyHl.done;_hlSave(S.dailyHl);if(S.dailyHl.done){S._mgConfetti=Date.now();toast('\\u{1F389} Highlight complete!')}render()}
-function hlClear(){S.dailyHl=null;try{localStorage.removeItem('daily_hl')}catch(e){}render()}
+async function hlToggleDone(){
+  if(!S.dailyHl)return;
+  S.dailyHl.done=!S.dailyHl.done;_hlSaveLocal(S.dailyHl);
+  if(S.dailyHl.done){S._mgConfetti=Date.now();toast('\\u{1F389} Highlight complete!')}
+  render();
+  try{await api('/highlight/done',{method:'POST',body:JSON.stringify({done:S.dailyHl.done})})}catch(e){}
+}
+async function hlClear(){
+  S.dailyHl=null;_hlSaveLocal(null);render();
+  try{await api('/highlight',{method:'DELETE'})}catch(e){}
+}
 // Game-detail view: click a game card → see its 10-level journey before playing
 function mgDetailOpen(key){S.mgDetail=key;render();try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){}}
 function mgDetailClose(){S.mgDetail=null;render()}
@@ -7388,7 +7519,8 @@ if(S.tab==='tasks'){
   }
   // ─── Daily Highlight (the "one thing today") ───
   {
-    if(!S.dailyHl){const loaded=_hlLoad();if(loaded)S.dailyHl=loaded}
+    // First render: hydrate from cache + fetch server copy in background
+    if(!S.dailyHl&&!S._hlFetched){S._hlFetched=true;const cached=_hlLocalCache();if(cached)S.dailyHl=cached;hlLoad()}
     const hl=S.dailyHl;
     if(S.hlEditing){
       h+='<div class="hl-card hl-editing">'
