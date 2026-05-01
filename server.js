@@ -2694,6 +2694,42 @@ body:not([data-theme=aurora]) .cx-pv-lbl{color:#9A9A9A}
 body:not([data-theme=aurora]) .cx-pv-pill{background:#FFF1ED;color:#B7472A;border-color:#FFD0BD}
 body:not([data-theme=aurora]) .cx-pv-title{background:#F4F3EE;color:#1A1A1A;border-color:#E8E6E0}
 @media (max-width:560px){.cx-chip{padding:6px 10px;font-size:11.5px}.cx-input{font-size:15px}}
+/* ─── Single add-task chip ─── */
+.add-chip{display:inline-flex;align-items:center;gap:10px;padding:11px 16px 11px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#F5F5FA;font-family:inherit;font-weight:500;font-size:14px;cursor:pointer;letter-spacing:-.005em;transition:transform .2s ease,background .2s ease,border-color .2s ease,box-shadow .25s ease;margin:0 0 18px}
+.add-chip:hover{background:rgba(255,107,71,.12);border-color:rgba(255,107,71,.45);box-shadow:0 8px 22px -10px rgba(255,107,71,.5)}
+.add-chip:active{transform:scale(.97)}
+.add-chip-ic{display:grid;place-items:center;width:30px;height:30px;border-radius:10px;background:linear-gradient(135deg,#FF6B47,#FFB547);color:#fff;flex-shrink:0;box-shadow:0 4px 12px -2px rgba(255,107,71,.45)}
+.add-chip-t{flex:1}
+.add-chip-k{font-family:'JetBrains Mono','Space Mono',monospace;font-size:10.5px;letter-spacing:.06em;color:rgba(255,255,255,.4);padding:3px 7px;border-radius:6px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.06)}
+@media (max-width:560px){.add-chip-k{display:none}}
+body:not([data-theme=aurora]) .add-chip{background:#fff;border-color:#E8E6E0;color:#1A1A1A}
+body:not([data-theme=aurora]) .add-chip:hover{background:#FFF5F0;border-color:#FF6B47}
+body:not([data-theme=aurora]) .add-chip-k{color:#9A9A9A;background:#F4F3EE;border-color:#E8E6E0}
+/* ─── Mind Gym game chips (matches home-hero stat language) ─── */
+.game-chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin:0 0 18px}
+.game-chip{position:relative;text-align:left;padding:18px 18px 16px;border-radius:18px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#F5F5FA;font-family:inherit;cursor:pointer;transition:transform .25s ease,background .2s ease,border-color .2s ease,box-shadow .3s ease;overflow:hidden;isolation:isolate}
+.game-chip::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent,#FF6B47);transform:scaleX(.4);transform-origin:left;transition:transform .3s ease}
+.game-chip:hover{transform:translateY(-3px);background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.16);box-shadow:0 14px 36px -12px rgba(0,0,0,.5)}
+.game-chip:hover::before{transform:scaleX(1)}
+.game-chip:active{transform:scale(.98)}
+.game-chip-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.game-chip-emoji{font-size:26px;line-height:1}
+.game-chip-lvl{font-family:'JetBrains Mono','Space Mono',monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.55);background:rgba(255,255,255,.06);padding:4px 8px;border-radius:6px;font-weight:600}
+.game-chip-name{font:600 16px/1.15 'Inter',sans-serif;letter-spacing:-.01em;color:#fff;margin-bottom:4px}
+.game-chip-d{font-size:12.5px;line-height:1.4;color:rgba(255,255,255,.6);margin-bottom:14px;letter-spacing:-.005em}
+.game-chip-bar{height:4px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden;margin-bottom:10px}
+.game-chip-bar i{display:block;height:100%;border-radius:999px;transition:width .6s ease}
+.game-chip-foot{display:flex;align-items:center;justify-content:space-between;font-family:'JetBrains Mono','Space Mono',monospace;font-size:10.5px;letter-spacing:.04em;color:rgba(255,255,255,.5);text-transform:uppercase}
+.game-chip-foot b{color:#fff;font-weight:600}
+body:not([data-theme=aurora]) .game-chip{background:#fff;border-color:#E8E6E0;color:#1A1A1A}
+body:not([data-theme=aurora]) .game-chip:hover{background:#FAFAF7;border-color:#CFCFCF}
+body:not([data-theme=aurora]) .game-chip-name{color:#1A1A1A}
+body:not([data-theme=aurora]) .game-chip-d{color:#6B6B6B}
+body:not([data-theme=aurora]) .game-chip-lvl{background:#F4F3EE;color:#6B6B6B}
+body:not([data-theme=aurora]) .game-chip-bar{background:#F4F3EE}
+body:not([data-theme=aurora]) .game-chip-foot{color:#9A9A9A}
+body:not([data-theme=aurora]) .game-chip-foot b{color:#1A1A1A}
+@media (max-width:560px){.game-chips{grid-template-columns:1fr 1fr;gap:10px}.game-chip{padding:16px 14px 14px}.game-chip-name{font-size:14.5px}.game-chip-d{font-size:11.5px;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden}}
 /* ─── Home hero greeting (Tasks tab) ─── */
 .home-hero{position:relative;border-radius:24px;padding:30px 28px 24px;margin:0 0 18px;overflow:hidden;color:#fff;isolation:isolate;background:linear-gradient(135deg,#1A0E2E 0%,#2A1845 50%,#3D1F5F 100%);box-shadow:0 22px 50px -16px rgba(91,33,182,.45)}
 .home-hero .hh-bg{position:absolute;inset:0;background:radial-gradient(900px 500px at 0% 0%,rgba(255,107,71,.35) 0%,transparent 55%),radial-gradient(700px 500px at 100% 100%,rgba(167,139,250,.3) 0%,transparent 55%);z-index:-1;animation:hhBgDrift 18s ease-in-out infinite alternate}
@@ -2704,7 +2740,11 @@ body:not([data-theme=aurora]) .cx-pv-title{background:#F4F3EE;color:#1A1A1A;bord
 .hh-greet em{font-style:italic;background:linear-gradient(135deg,#FF6B47,#FFB547);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
 .hh-line{font-size:15px;line-height:1.5;color:rgba(255,255,255,.85);margin:0 0 22px;max-width:520px}
 .hh-line b{color:#fff;font-weight:600}
-.hh-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.hh-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media (min-width:760px){.hh-stats{grid-template-columns:repeat(6,1fr)}}
+.hh-stat{font-family:inherit;text-align:left;cursor:default;border:1px solid rgba(255,255,255,.08);color:#fff}
+button.hh-stat{cursor:pointer}
+button.hh-stat:active{transform:scale(.96)}
 .hh-stat{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px 12px;backdrop-filter:blur(10px);transition:transform .25s ease,background .25s ease}
 .hh-stat:hover{transform:translateY(-2px);background:rgba(255,255,255,.1)}
 .hh-stat b{display:block;font:600 24px/1 'Inter',sans-serif;letter-spacing:-.02em;color:#fff}
@@ -5090,7 +5130,10 @@ function openGcalAdd(){const def=S.google.accounts.find(a=>a.is_default)||S.goog
 function closeGcalAdd(){S.showGcalAdd=false;render()}
 async function saveGcalEvent(){const f=S.gcalForm;if(!f.title.trim()){toast('\\u26A0\\uFE0F Title required','err');return}const r=await api('/calendar/events',{method:'POST',body:JSON.stringify({title:f.title.trim(),date:f.date,time:f.time||null,duration:f.duration||30,notes:f.notes,email:f.email})});if(r&&r.ok){toast('\\u2705 Event added to '+(f.email||'Google Calendar'));S.showGcalAdd=false;loadGcalEvents()}else if(r&&r.error){toast('\\u26A0\\uFE0F '+r.error,'err')}}
 function playMedSlot(mins){const doc=(S.meditations||{})[mins];if(!doc){toast('\\u23F3 Loading audio...','err');return}const t=Array.isArray(doc.title)?doc.title[0]:doc.title;playMeditation(doc.identifier,t,mins)}
-async function playMeditation(id,title,mins,preferFile){S.meditating={active:true,title:title||(mins+'-min meditation'),mins:mins||10,startedAt:Date.now()};S.playing={id,title:title||(mins+'-minute meditation'),author:'Guided meditation \\u2022 Internet Archive',loading:true};render();try{const r=await fetch('https://archive.org/metadata/'+encodeURIComponent(id));if(!r.ok)throw new Error('metadata '+r.status);const j=await r.json();if(!j.files||!j.files.length){toast('\\u26A0\\uFE0F No audio \\u2014 opening archive.org','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render();return}let mp3=null;if(preferFile){mp3=j.files.find(f=>f.name===preferFile||(f.name||'').endsWith('/'+preferFile))}if(!mp3){const mp3s=j.files.filter(f=>/\\.mp3$/i.test(f.name)&&!/sample|preview|announce|intro\\.mp3|sting/i.test(f.name)).sort((a,b)=>(parseFloat(b.length||'0')||0)-(parseFloat(a.length||'0')||0));mp3=mp3s[0]}if(!mp3)mp3=j.files.find(f=>/\\.(mp3|m4a|ogg)$/i.test(f.name));if(mp3){const server=j.server||'archive.org';const dir=j.dir||('/'+id);const directUrl='https://'+server+dir+'/'+mp3.name.split('/').map(encodeURIComponent).join('/');const dlUrl='https://archive.org/download/'+encodeURIComponent(id)+'/'+mp3.name.split('/').map(encodeURIComponent).join('/');S.playing={id,title:title||mins+'-min meditation',author:'\\u{1F9D8} Guided meditation \\u2022 Archive.org',url:directUrl,altUrl:dlUrl,external:'https://archive.org/details/'+id};render();setTimeout(()=>{const a=document.getElementById('audioEl');if(!a)return;a.setAttribute('playsinline','');a.preload='auto';a.addEventListener('error',function onErr(){a.removeEventListener('error',onErr);if(a.src!==dlUrl){a.src=dlUrl;a.load()}},{once:true});a.load();const p=a.play();if(p&&p.catch)p.catch(()=>toast('\\u25B6\\uFE0F Tap play on the bar','err'))},250)}else{toast('\\u26A0\\uFE0F No mp3 \\u2014 opening archive.org','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render()}}catch(e){toast('\\u26A0\\uFE0F '+e.message,'err');S.playing=null;render()}}
+async function playMeditation(id,title,mins,preferFile){S.meditating={active:true,title:title||(mins+'-min meditation'),mins:mins||10,startedAt:Date.now()};S.playing={id,title:title||(mins+'-minute meditation'),author:'Guided meditation \\u2022 Internet Archive',loading:true};
+// Track meditation count (incremented once per session; the same session re-played within 60s isn't double-counted).
+try{const last=parseInt(localStorage.getItem('med_last_count_ts')||'0',10);if(Date.now()-last>60000){const cur=parseInt(localStorage.getItem('med_count')||'0',10)||0;localStorage.setItem('med_count',String(cur+1));localStorage.setItem('med_last_count_ts',String(Date.now()));const today=new Date().toISOString().slice(0,10);const days=(localStorage.getItem('med_days')||'').split(',').filter(Boolean);if(days[days.length-1]!==today){days.push(today);localStorage.setItem('med_days',days.slice(-365).join(','))}}}catch(e){}
+render();try{const r=await fetch('https://archive.org/metadata/'+encodeURIComponent(id));if(!r.ok)throw new Error('metadata '+r.status);const j=await r.json();if(!j.files||!j.files.length){toast('\\u26A0\\uFE0F No audio \\u2014 opening archive.org','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render();return}let mp3=null;if(preferFile){mp3=j.files.find(f=>f.name===preferFile||(f.name||'').endsWith('/'+preferFile))}if(!mp3){const mp3s=j.files.filter(f=>/\\.mp3$/i.test(f.name)&&!/sample|preview|announce|intro\\.mp3|sting/i.test(f.name)).sort((a,b)=>(parseFloat(b.length||'0')||0)-(parseFloat(a.length||'0')||0));mp3=mp3s[0]}if(!mp3)mp3=j.files.find(f=>/\\.(mp3|m4a|ogg)$/i.test(f.name));if(mp3){const server=j.server||'archive.org';const dir=j.dir||('/'+id);const directUrl='https://'+server+dir+'/'+mp3.name.split('/').map(encodeURIComponent).join('/');const dlUrl='https://archive.org/download/'+encodeURIComponent(id)+'/'+mp3.name.split('/').map(encodeURIComponent).join('/');S.playing={id,title:title||mins+'-min meditation',author:'\\u{1F9D8} Guided meditation \\u2022 Archive.org',url:directUrl,altUrl:dlUrl,external:'https://archive.org/details/'+id};render();setTimeout(()=>{const a=document.getElementById('audioEl');if(!a)return;a.setAttribute('playsinline','');a.preload='auto';a.addEventListener('error',function onErr(){a.removeEventListener('error',onErr);if(a.src!==dlUrl){a.src=dlUrl;a.load()}},{once:true});a.load();const p=a.play();if(p&&p.catch)p.catch(()=>toast('\\u25B6\\uFE0F Tap play on the bar','err'))},250)}else{toast('\\u26A0\\uFE0F No mp3 \\u2014 opening archive.org','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render()}}catch(e){toast('\\u26A0\\uFE0F '+e.message,'err');S.playing=null;render()}}
 async function openProfile(){S.showProfile=true;render();const me=await api('/me');if(me&&!me.error)S.profile=me;render()}
 function openHelp(){S.showHelp=true;render();setTimeout(()=>{const m=document.querySelector('.help-mdl');if(m)m.scrollTop=0},50)}
 function closeHelp(){S.showHelp=false;render()}
@@ -6595,16 +6638,20 @@ if(isMain){
   const _doneToday=ts.filter(t=>t.status==='done'&&(t.updated_at||'').slice(0,10)===_todayISO).length;
   // Streak (consecutive days with at least 1 done task)
   let _streak=0;for(let i=0;i<60;i++){const d=new Date(Date.now()-i*864e5).toISOString().slice(0,10);const ok=ts.some(x=>x.status==='done'&&(x.updated_at||'').slice(0,10)===d);if(ok)_streak++;else if(i>0)break}
+  const _bkStreak=(S.bookStreak&&S.bookStreak.streak)||0;
+  const _medCount=parseInt(localStorage.getItem('med_count')||'0',10)||0;
   let hero='<section class="home-hero">'
     +'<div class="hh-bg"></div>'
     +'<div class="hh-row"><div class="hh-eyebrow">'+esc(_today)+'</div></div>'
     +'<h1 class="hh-greet">'+esc(_greet)+(_firstName?', <em>'+esc(_firstName)+'</em>':'')+'.</h1>'
     +'<p class="hh-line">'+(_dueToday>0?'<b>'+_dueToday+'</b> '+(_dueToday===1?'task':'tasks')+' due today':_overdue>0?'<b>'+_overdue+'</b> overdue. Pick one and start.':'<span style="color:rgba(255,255,255,.7)">No tasks due today.</span> Add one below \\u2192')+'</p>'
     +'<div class="hh-stats">'
-      +'<div class="hh-stat"><b>'+s.total+'</b><small>Total</small></div>'
-      +'<div class="hh-stat"><b style="color:#22D3EE">'+s.act+'</b><small>Active</small></div>'
+      +'<button class="hh-stat hh-stat-act" onclick="switchTab(\\'tasks\\');S.view=\\'in-progress\\';render()"><b style="color:#22D3EE">'+s.act+'</b><small>Active tasks</small></button>'
       +'<div class="hh-stat"><b style="color:#86EFAC">'+_doneToday+'</b><small>Done today</small></div>'
-      +'<div class="hh-stat"><b style="color:#FFB547">\\u{1F525} '+_streak+'</b><small>Day streak</small></div>'
+      +'<div class="hh-stat"><b style="color:#FFB547">\\u{1F525} '+_streak+'</b><small>Task streak</small></div>'
+      +'<button class="hh-stat" onclick="switchTab(\\'books\\')"><b style="color:#A78BFA">\\u{1F3A7} '+_bkStreak+'</b><small>Brief streak</small></button>'
+      +'<button class="hh-stat" onclick="switchTab(\\'meditation\\')"><b style="color:#34D399">\\u{1F9D8} '+_medCount+'</b><small>Meditations</small></button>'
+      +'<button class="hh-stat" onclick="switchTab(\\'mindgym\\')"><b style="color:#F472B6">\\u{1F9E0} '+(((S.mg&&S.mg.progress&&S.mg.progress.math&&S.mg.progress.math.level)||0)+((S.mg&&S.mg.progress&&S.mg.progress.memory&&S.mg.progress.memory.level)||0)+((S.mg&&S.mg.progress&&S.mg.progress.reaction&&S.mg.progress.reaction.level)||0))+'</b><small>Mind level</small></button>'
     +'</div>'
   +'</section>';
   moralBlock=hero;
@@ -6737,33 +6784,12 @@ if(S.tab==='tasks'){
       +'<button class="wa-promo-x" onclick="localStorage.setItem(\\'tf_wa_banner_x\\',\\'1\\');render()" aria-label="Dismiss">\\u2715</button>'
     +'</div>';
   }
-  // ─── Inline next-level composer ───
-  {
-    const c=S.compose||{value:'',priority:null,dueDate:null};
-    const parsed=parseCompose(c.value||'');
-    const effPri=parsed.priority||c.priority;
-    const effDate=parsed.dueDate||c.dueDate;
-    const effDateLbl=parsed.dueLabel||(c.dueDate?(c.dueDate===_isoToday()?'today':c.dueDate===_isoOffset(1)?'tomorrow':c.dueDate):'');
-    h+='<div class="cx'+(c.value?' has-text':'')+'">'
-      +'<div class="cx-row">'
-        +'<svg class="cx-ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>'
-        +'<input class="cx-input" id="cxInput" value="'+esc(c.value)+'" placeholder="What needs doing? Try: \\u201cReply to Sam tomorrow !urgent\\u201d" oninput="composeUpdate(this.value)" onkeydown="if(event.key===\\'Enter\\')composeSubmit()" autocomplete="off"/>'
-        +'<button class="cx-go'+(parsed.title&&!c.saving?' on':'')+'" onclick="composeSubmit()" title="Add (Enter)" aria-label="Add">'+(c.saving?'<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="3"><animate attributeName="opacity" dur="1s" values="1;.3;1" repeatCount="indefinite"/></circle></svg>':'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>')+'</button>'
-      +'</div>'
-      +'<div class="cx-chips">'
-        +'<button class="cx-chip'+(effDate===_isoToday()?' on':'')+'" onclick="composeSetDate(\\''+_isoToday()+'\\')"><span>\\u{1F4C5}</span> Today</button>'
-        +'<button class="cx-chip'+(effDate===_isoOffset(1)?' on':'')+'" onclick="composeSetDate(\\''+_isoOffset(1)+'\\')"><span>\\u27A1\\uFE0F</span> Tomorrow</button>'
-        +'<button class="cx-chip'+(effDate===_isoOffset(7)?' on':'')+'" onclick="composeSetDate(\\''+_isoOffset(7)+'\\')"><span>\\u{1F5D3}\\uFE0F</span> Next week</button>'
-        +'<span class="cx-divider"></span>'
-        +'<button class="cx-chip cx-chip-pri-h'+(effPri==='high'?' on':'')+'" onclick="composeSetPriority(\\'high\\')"><span>\\u{1F525}</span> High</button>'
-        +'<button class="cx-chip cx-chip-pri-m'+(effPri==='medium'?' on':'')+'" onclick="composeSetPriority(\\'medium\\')"><span>\\u26A1</span> Medium</button>'
-        +'<button class="cx-chip cx-chip-pri-l'+(effPri==='low'?' on':'')+'" onclick="composeSetPriority(\\'low\\')"><span>\\u{1F343}</span> Low</button>'
-        +'<span class="cx-divider"></span>'
-        +'<button class="cx-chip cx-chip-more" onclick="opA()" title="Open detailed editor"><span>\\u2699\\uFE0F</span> More</button>'
-      +'</div>'
-      +(parsed.title&&(parsed.priority||parsed.dueDate)?'<div class="cx-preview"><span class="cx-pv-lbl">Detected:</span>'+(parsed.title?'<span class="cx-pv-pill cx-pv-title">\\u270F\\uFE0F '+esc(parsed.title)+'</span>':'')+(parsed.dueLabel?'<span class="cx-pv-pill">\\u{1F4C5} '+esc(parsed.dueLabel)+'</span>':'')+(parsed.priority?'<span class="cx-pv-pill">'+(parsed.priority==='high'?'\\u{1F525} High':parsed.priority==='medium'?'\\u26A1 Medium':'\\u{1F343} Low')+'</span>':'')+'</div>':'')
-    +'</div>';
-  }
+  // ─── Single add-task chip (opens detailed modal) ───
+  h+='<button class="add-chip" onclick="opA()" aria-label="New task">'
+    +'<span class="add-chip-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>'
+    +'<span class="add-chip-t">New task</span>'
+    +'<span class="add-chip-k">\\u2318 N</span>'
+  +'</button>';
   // (Stats moved into the hero greeting above)
   if(s.od>0)h+='<div class="al" style="background:#FEF1F0;border:1px solid #F5C6C2;color:#E8453C;cursor:pointer" onclick="S.view=\\'overdue\\';render()">\\u26A0\\uFE0F '+s.od+' overdue</div>';
   h+='<div class="srch"><input placeholder="Search tasks..." value="'+esc(S.search)+'" oninput="S.search=this.value;render()"></div>';
@@ -6787,63 +6813,34 @@ else if(S.tab==='mindgym'){
   const totalLevel=mg.progress.math.level+mg.progress.memory.level+mg.progress.reaction.level+((mg.progress.word&&mg.progress.word.level)||1);
   const totalXp=(mg.progress.math.xp||0)+(mg.progress.memory.xp||0)+(mg.progress.reaction.xp||0)+((mg.progress.word&&mg.progress.word.xp)||0);
   const streak=mg.streak||{current:0,longest:0,total:0};
-  // Daily workout — 3-game plan, ticked as user completes each today
-  const dGames=[{k:'math',n:'Math',e:'\\u{1F522}',fn:'mgMathStart()'},{k:'memory',n:'Memory',e:'\\u{1F9E9}',fn:'mgMemoryStart()'},{k:'reaction',n:'Reaction',e:'\\u26A1',fn:'mgReactionStart()'},{k:'word',n:'Word',e:'\\u{1F520}',fn:'mgWordStart()'}];
-  const doneCount=dGames.filter(g=>_mgIsDoneToday(g.k)).length;const totalGames=dGames.length;
-  const nextGame=dGames.find(g=>!_mgIsDoneToday(g.k));
-  h+='<div class="mg-daily">'
-    +'<div class="mg-daily-l"><div class="mg-daily-eyebrow">TODAY \\u2022 5-MINUTE WORKOUT</div>'
-    +'<div class="mg-daily-t">'+(doneCount===totalGames?'\\u{1F389} Workout complete!':'Plan: '+dGames.map(g=>(_mgIsDoneToday(g.k)?'<s>':'')+g.e+' '+g.n+(_mgIsDoneToday(g.k)?'</s>':'')).join(' \\u2192 '))+'</div>'
-    +'<div class="mg-daily-pills">';
-  dGames.forEach(g=>{const done=_mgIsDoneToday(g.k);h+='<span class="mg-daily-pill'+(done?' mg-daily-done':'')+'">'+(done?'\\u2713 ':'')+g.e+' '+g.n+'</span>'});
-  h+='</div></div>'
-    +(nextGame?'<button class="mg-daily-btn" onclick="'+nextGame.fn+'">'+(doneCount===0?'Start \\u2192':'Continue \\u2192')+'</button>':'<div class="mg-daily-done-tag">\\u{1F525} +1 streak day</div>')
-    +'</div>';
-  // Hero header — stats overview
-  h+='<section class="mg-hero">'
-    +'<div class="mg-hero-grad"></div>'
-    +'<div class="mg-hero-inner">'
-      +'<div class="mg-hero-l"><div class="mg-hero-eyebrow">\\u{1F9E0} BRODOIT \\u00B7 MIND GYM</div>'
-        +'<h1 class="mg-hero-t">Train your mind, daily.</h1>'
-        +'<div class="mg-hero-s">Your brain learns the same way muscles do \\u2014 one rep at a time. Three games, server-tracked progress, every device.</div>'
-      +'</div>'
-      +'<div class="mg-hero-stats">'
-        +'<div class="mg-stat"><b>'+overall+'%</b><small>Overall</small></div>'
-        +'<div class="mg-stat"><b>L'+totalLevel+'</b><small>Total levels</small></div>'
-        +'<div class="mg-stat mg-stat-streak"><b>\\u{1F525} '+streak.current+'</b><small>Day streak</small></div>'
-        +'<div class="mg-stat"><b>'+totalXp+'</b><small>XP earned</small></div>'
-      +'</div>'
+  // ─── Mind Gym hero (chip-style stat tiles) ───
+  h+='<section class="home-hero" style="background:linear-gradient(135deg,#1B0E2E 0%,#2A1245 50%,#5B21B6 100%)">'
+    +'<div class="hh-bg"></div>'
+    +'<div class="hh-row"><div class="hh-eyebrow">\\u{1F9E0} Mind Gym</div></div>'
+    +'<h1 class="hh-greet">Train your mind, <em>daily</em>.</h1>'
+    +'<p class="hh-line">Four micro-games. Sub-90 seconds each. Pick one and start.</p>'
+    +'<div class="hh-stats">'
+      +'<div class="hh-stat"><b style="color:#86EFAC">'+overall+'%</b><small>Overall</small></div>'
+      +'<div class="hh-stat"><b style="color:#A78BFA">L'+totalLevel+'</b><small>Total levels</small></div>'
+      +'<div class="hh-stat"><b style="color:#FFB547">\\u{1F525} '+streak.current+'</b><small>Day streak</small></div>'
+      +'<div class="hh-stat"><b style="color:#22D3EE">'+totalXp+'</b><small>XP earned</small></div>'
     +'</div>'
   +'</section>';
-  h+='<div class="mg-grid mg-grid-tab">';
-  // Math Sprint
-  {const p=mg.progress.math;const pct=mgPercent('math');h+='<button class="mg-card mg-math" onclick="mgMathStart()">'
-    +'<div class="mg-card-hd"><span class="mg-card-emoji">\\u{1F522}</span><span class="mg-card-name">Math Sprint</span><span class="mg-card-lvl">L'+p.level+'</span></div>'
-    +'<div class="mg-card-d">Mental arithmetic against the clock</div>'
-    +'<div class="mg-bar"><div class="mg-bar-fill" style="width:'+pct+'%"></div></div>'
-    +'<div class="mg-card-foot"><span>'+pct+'%</span><span>Best streak: <b>'+(p.best||0)+'</b></span></div>'
-  +'</button>'}
-  // Memory Tap
-  {const p=mg.progress.memory;const pct=mgPercent('memory');h+='<button class="mg-card mg-memory" onclick="mgMemoryStart()">'
-    +'<div class="mg-card-hd"><span class="mg-card-emoji">\\u{1F9E9}</span><span class="mg-card-name">Memory Tap</span><span class="mg-card-lvl">L'+p.level+'</span></div>'
-    +'<div class="mg-card-d">Working-memory workout, Elevate-style</div>'
-    +'<div class="mg-bar"><div class="mg-bar-fill" style="width:'+pct+'%"></div></div>'
-    +'<div class="mg-card-foot"><span>'+pct+'%</span><span>Best round: <b>'+(p.best||0)+'</b></span></div>'
-  +'</button>'}
-  // Reaction
-  {const p=mg.progress.reaction;const pct=mgPercent('reaction');const bestStr=p.best?p.best+'ms':'\\u2014';h+='<button class="mg-card mg-reaction" onclick="mgReactionStart()">'
-    +'<div class="mg-card-hd"><span class="mg-card-emoji">\\u26A1</span><span class="mg-card-name">Reaction</span><span class="mg-card-lvl">L'+p.level+'</span></div>'
-    +'<div class="mg-card-d">Train pure reflexes, ms by ms</div>'
-    +'<div class="mg-bar"><div class="mg-bar-fill" style="width:'+pct+'%"></div></div>'
-    +'<div class="mg-card-foot"><span>'+pct+'%</span><span>Best: <b>'+bestStr+'</b></span></div>'
-  +'</button>'}
-  // Word Sprint — anagram unscrambler (real game)
-  {const p=mg.progress.word||{level:1,xp:0,best:0};const pct=Math.min(100,Math.round(((p.xp||0)/(5*100))*100));const bestStr=p.best?p.best+' words':'\\u2014';h+='<button class="mg-card mg-word" onclick="mgWordStart()" style="background:linear-gradient(135deg,#0a1414,#0a1d2a)">'
-    +'<div class="mg-card-hd"><span class="mg-card-emoji">\\u{1F520}</span><span class="mg-card-name">Word Sprint</span><span class="mg-card-lvl">L'+p.level+'</span></div>'
-    +'<div class="mg-card-d">Seven scrambled letters. Find every word in 90s.</div>'
-    +'<div class="mg-bar"><div class="mg-bar-fill" style="width:'+pct+'%;background:linear-gradient(90deg,#22D3EE,#10B981)"></div></div>'
-    +'<div class="mg-card-foot"><span>'+pct+'%</span><span>Best: <b>'+bestStr+'</b></span></div>'
-  +'</button>'}
+  // ─── Game tiles in chip style ───
+  const _games=[
+    {k:'math',e:'\\u{1F522}',n:'Math Sprint',d:'Mental arithmetic against the clock',fn:'mgMathStart()',accent:'#22D3EE',pData:mg.progress.math,pct:mgPercent('math'),bestL:'Best streak'},
+    {k:'memory',e:'\\u{1F9E9}',n:'Memory Tap',d:'Working-memory, Simon-style',fn:'mgMemoryStart()',accent:'#A78BFA',pData:mg.progress.memory,pct:mgPercent('memory'),bestL:'Best round'},
+    {k:'reaction',e:'\\u26A1',n:'Reaction',d:'Reflex training, millisecond by millisecond',fn:'mgReactionStart()',accent:'#FFB547',pData:mg.progress.reaction,pct:mgPercent('reaction'),bestL:'Best ms',bestSuffix:'ms'},
+    {k:'word',e:'\\u{1F520}',n:'Word Sprint',d:'Anagrams. 90 seconds. Find every word.',fn:'mgWordStart()',accent:'#34D399',pData:(mg.progress.word||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((mg.progress.word||{}).xp||0)/(5*100))*100)),bestL:'Best',bestSuffix:' words'}
+  ];
+  h+='<div class="game-chips">';
+  _games.forEach(g=>{const p=g.pData;const bestStr=p.best?(p.best+(g.bestSuffix||'')):'\\u2014';h+='<button class="game-chip" onclick="'+g.fn+'" style="--accent:'+g.accent+'">'
+    +'<div class="game-chip-hd"><span class="game-chip-emoji">'+g.e+'</span><span class="game-chip-lvl">L'+p.level+'</span></div>'
+    +'<div class="game-chip-name">'+g.n+'</div>'
+    +'<div class="game-chip-d">'+g.d+'</div>'
+    +'<div class="game-chip-bar"><i style="width:'+g.pct+'%;background:'+g.accent+'"></i></div>'
+    +'<div class="game-chip-foot"><span>'+g.pct+'%</span><span>'+g.bestL+': <b>'+bestStr+'</b></span></div>'
+  +'</button>'});
   h+='</div>';
   // Achievements row — 4 badges, some unlocked based on real progress
   {
@@ -7381,7 +7378,21 @@ if(S.showProfile){
   h+='<div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#3DAE5C,#7C3AED);color:#fff;display:flex;align-items:center;justify-content:center;font-family:\\'Space Mono\\',monospace;font-size:32px;font-weight:700;margin:0 auto 12px">'+esc(initials)+'</div>';
   h+='<h2 style="margin-bottom:4px">'+esc(S.user.name||'Brodoit User')+'</h2>';
   h+='<div style="font-size:12px;color:#94A3B8;font-family:\\'Space Mono\\',monospace;margin-bottom:18px">'+esc(masked)+'</div>';
-  h+='<div class="dash-grid" style="text-align:left"><div class="dash-card"><div class="lbl">Total tasks</div><div class="v">'+ts.length+'</div></div><div class="dash-card"><div class="lbl">Completed</div><div class="v" style="color:#3DAE5C">'+s.dn+'</div></div><div class="dash-card"><div class="lbl">Streak</div><div class="v">'+streak+'<small style="font-size:12px;color:#94A3B8;margin-left:4px">days</small></div></div><div class="dash-card"><div class="lbl">Member since</div><div class="v" style="font-size:14px">'+esc(mem)+'</div></div></div>';
+  // Profile chip stats — same UI language as the home hero
+  {
+    const _bks=(S.bookStreak&&S.bookStreak.streak)||0;
+    const _bkTot=(S.bookStreak&&S.bookStreak.total)||0;
+    const _med=parseInt(localStorage.getItem('med_count')||'0',10)||0;
+    const _medDays=(localStorage.getItem('med_days')||'').split(',').filter(Boolean).length;
+    h+='<div class="hh-stats" style="margin-bottom:14px">'
+      +'<div class="hh-stat" style="background:rgba(15,23,42,.05);border-color:rgba(15,23,42,.08);color:#1A1A1A"><b style="color:#0F172A">'+ts.length+'</b><small style="color:#6B6B6B">Total tasks</small></div>'
+      +'<div class="hh-stat" style="background:rgba(61,174,92,.08);border-color:rgba(61,174,92,.2);color:#1A1A1A"><b style="color:#3DAE5C">'+s.dn+'</b><small style="color:#6B6B6B">Completed</small></div>'
+      +'<div class="hh-stat" style="background:rgba(255,181,71,.08);border-color:rgba(255,181,71,.25);color:#1A1A1A"><b style="color:#E8912C">\\u{1F525} '+streak+'</b><small style="color:#6B6B6B">Task streak</small></div>'
+      +'<div class="hh-stat" style="background:rgba(167,139,250,.08);border-color:rgba(167,139,250,.25);color:#1A1A1A"><b style="color:#8B5CF6">\\u{1F3A7} '+_bks+'</b><small style="color:#6B6B6B">Brief streak \\u00B7 '+_bkTot+'d total</small></div>'
+      +'<div class="hh-stat" style="background:rgba(52,211,153,.08);border-color:rgba(52,211,153,.25);color:#1A1A1A"><b style="color:#10B981">\\u{1F9D8} '+_med+'</b><small style="color:#6B6B6B">Meditations \\u00B7 '+_medDays+'d</small></div>'
+      +'<div class="hh-stat" style="background:rgba(15,23,42,.04);border-color:rgba(15,23,42,.06);color:#1A1A1A"><b style="font-size:14px;color:#0F172A">'+esc(mem)+'</b><small style="color:#6B6B6B">Member since</small></div>'
+    +'</div>';
+  }
   h+='<label class="lbl" style="text-align:left">Display name</label><div class="row"><input id="pfName" value="'+esc(S.user.name||'')+'" placeholder="Your name"><button class="mb mb-s" style="flex:0 0 auto;padding:11px 18px" onclick="saveName()">Save</button></div>';
 
   // ─── WhatsApp section ───
