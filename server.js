@@ -2051,73 +2051,86 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
    horizontally scrollable so all 9 tabs are reachable without truncation,
    springy active state, smooth motion. Tab names always visible, never abbreviated. */
 @media (max-width:1023px){
-  body{padding-left:0 !important;padding-bottom:128px !important}
+  body{padding-left:0 !important;padding-bottom:104px !important}
   .tabs.page-t{
     position:fixed !important;
     bottom:0 !important;left:0 !important;right:0 !important;top:auto !important;
     width:100% !important;
     flex-direction:row !important;
-    overflow-x:auto !important;overflow-y:hidden !important;
-    background:rgba(255,255,255,.92) !important;
-    backdrop-filter:saturate(180%) blur(20px) !important;
-    -webkit-backdrop-filter:saturate(180%) blur(20px) !important;
-    border-top:1px solid #ECEAE3 !important;
+    justify-content:space-around !important;
+    overflow-x:visible !important;overflow-y:visible !important;
+    background:rgba(13,11,20,.78) !important;
+    backdrop-filter:saturate(180%) blur(28px) !important;
+    -webkit-backdrop-filter:saturate(180%) blur(28px) !important;
+    border-top:1px solid rgba(255,255,255,.06) !important;
     border-bottom:0 !important;border-left:0 !important;border-right:0 !important;
     border-radius:0 !important;
-    padding:14px 16px calc(14px + env(safe-area-inset-bottom,0px)) !important;
-    gap:10px !important;
+    padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px)) !important;
+    gap:0 !important;
     z-index:60 !important;
-    box-shadow:0 -8px 30px rgba(0,0,0,.06) !important;
+    box-shadow:0 -10px 36px rgba(0,0,0,.4) !important;
     margin:0 !important;
-    scroll-snap-type:x proximity !important;
-    -webkit-overflow-scrolling:touch !important;
   }
   .tabs.page-t::-webkit-scrollbar{display:none}
   .tabs.page-t .tab{
-    flex:0 0 auto !important;
-    min-width:104px !important;
-    padding:14px 18px !important;
+    flex:1 1 0 !important;
+    min-width:0 !important;
+    padding:10px 8px !important;
     flex-direction:column !important;
     align-items:center !important;
     justify-content:center !important;
     text-align:center !important;
-    min-height:90px !important;
-    border-radius:18px !important;
-    gap:8px !important;
-    scroll-snap-align:start !important;
-    transition:transform .35s cubic-bezier(.34,1.56,.64,1), background .25s, box-shadow .3s !important;
-    background:rgba(0,0,0,.025) !important;
-    color:#1A1A1A !important;
+    min-height:64px !important;
+    border-radius:14px !important;
+    gap:4px !important;
+    transition:color .25s ease, transform .35s cubic-bezier(.34,1.56,.64,1) !important;
+    background:transparent !important;
+    color:rgba(255,255,255,.5) !important;
+    box-shadow:none !important;
+    position:relative;
+    overflow:visible;
+  }
+  .tabs.page-t .tab::before{
+    content:''; position:absolute; inset:6px 10px;
+    border-radius:14px;
+    background:linear-gradient(135deg,#FF6B47 0%,#FFB547 100%);
+    opacity:0; transform:scale(.6);
+    transition:opacity .35s ease, transform .45s cubic-bezier(.34,1.56,.64,1);
+    z-index:-1;
+    box-shadow:0 8px 22px rgba(255,107,71,.45);
   }
   .tabs.page-t .tab .ti{
-    font-size:32px !important;
-    width:42px !important;height:42px !important;
+    font-size:22px !important;
+    width:26px !important;height:26px !important;
     display:flex !important;align-items:center !important;justify-content:center !important;
-    transition:transform .4s cubic-bezier(.34,1.56,.64,1) !important;
+    transition:transform .45s cubic-bezier(.34,1.56,.64,1) !important;
+    color:inherit;
   }
-  .tabs.page-t .tab .ti svg{width:30px !important;height:30px !important}
+  .tabs.page-t .tab .ti svg{width:22px !important;height:22px !important}
   .tabs.page-t .tab .tl{
-    font-size:13.5px !important;
+    font-size:10.5px !important;
     font-weight:600 !important;
-    letter-spacing:-.005em !important;
+    letter-spacing:.01em !important;
     white-space:nowrap !important;
-    color:#1A1A1A !important;
+    color:inherit !important;
+    transition:opacity .25s ease, color .25s ease;
+    opacity:.85;
   }
+  .tabs.page-t .tab:active{transform:scale(.92) !important}
   .tabs.page-t .tab.on{
-    background:linear-gradient(135deg,#6366F1 0%,#8B5CF6 100%) !important;
     color:#fff !important;
-    box-shadow:0 10px 28px rgba(99,102,241,.5),0 4px 10px rgba(99,102,241,.3) !important;
-    transform:translateY(-4px) !important;
+    transform:translateY(-2px) !important;
   }
+  .tabs.page-t .tab.on::before{opacity:1; transform:scale(1)}
   .tabs.page-t .tab.on .ti{
-    transform:scale(1.12) rotate(-5deg) !important;
-    filter:drop-shadow(0 2px 6px rgba(255,255,255,.4));
+    transform:scale(1.15) translateY(-2px) !important;
+    filter:none;
   }
-  .tabs.page-t .tab.on .tl{color:#fff !important;font-weight:700 !important}
+  .tabs.page-t .tab.on .tl{color:#fff !important;font-weight:700 !important;opacity:1}
   /* Float other UI above the new bottom bar */
-  .bk-mini{bottom:140px !important;right:14px !important}
-  .player{bottom:140px !important;left:12px !important;right:96px !important}
-  .fab{bottom:138px !important;right:18px !important}
+  .bk-mini{bottom:116px !important;right:14px !important}
+  .player{bottom:116px !important;left:12px !important;right:96px !important}
+  .fab{bottom:114px !important;right:18px !important}
   /* Other surfaces stay readable — not bloated */
   .flt button.fb,.fb{padding:11px 16px !important;font-size:14.5px !important;min-height:44px !important;border-radius:12px !important}
   .add-bar .plus{font-size:30px !important;width:46px !important;height:46px !important}
@@ -3890,7 +3903,9 @@ body:has(.player.on) .bk-mini{bottom:170px !important}
 @media (max-width:560px){.bk-hero-actions{justify-content:center}}
 .bk-hero-go{padding:11px 22px;background:#fff;color:#1B1245;border:0;border-radius:12px;font-family:inherit;font-weight:600;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:transform .2s,box-shadow .25s}
 .bk-hero-go:hover{transform:translateY(-1px);box-shadow:0 10px 22px -4px rgba(255,255,255,.18)}
-.bk-hero-cover{width:140px;aspect-ratio:3/4;border-radius:12px;padding:22px 18px;display:flex;flex-direction:column;justify-content:space-between;color:#fff;box-shadow:0 18px 40px -14px rgba(0,0,0,.6)}
+.bk-hero-cover{width:140px;aspect-ratio:3/4;border-radius:12px;padding:22px 18px;display:flex;flex-direction:column;justify-content:space-between;color:#fff;box-shadow:0 18px 40px -14px rgba(0,0,0,.6);position:relative;overflow:hidden}
+.bk-hero-cover.has-img{padding:0}
+.bk-hero-cover.has-img>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 @media (max-width:560px){.bk-hero-cover{margin:0 auto}}
 .bk-hero-cover h5{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400;font-size:18px;line-height:1.05;letter-spacing:-.015em;color:#fff;margin:0}
 .bk-hero-cover .auth{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:500;letter-spacing:.1em;color:rgba(255,255,255,.78);text-transform:uppercase}
@@ -4211,6 +4226,10 @@ body:has(.player.on) .bk-mini{bottom:170px !important}
 .bk-sum-card{cursor:pointer;border:0;background:none;padding:0;font-family:inherit;text-align:left;display:flex;flex-direction:column;gap:10px;transition:transform .35s cubic-bezier(.16,1,.3,1);position:relative}
 .bk-sum-card:hover{transform:translateY(-6px)}
 .bk-sum-cover{position:relative;aspect-ratio:3/4;border-radius:14px;padding:18px 16px;display:flex;flex-direction:column;justify-content:space-between;color:#fff;border:1px solid rgba(255,255,255,.08);box-shadow:0 14px 36px -12px rgba(0,0,0,.55);overflow:hidden;isolation:isolate;transition:box-shadow .3s ease}
+.bk-sum-cover>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+.bk-sum-cover.has-img{padding:0}
+.bk-sum-cover.has-img::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(0,0,0,.6));z-index:1;pointer-events:none}
+.bk-sum-cover.has-img .bk-sum-mins{z-index:2}
 .bk-sum-card:hover .bk-sum-cover{box-shadow:0 22px 50px -10px rgba(0,0,0,.6)}
 .bk-sum-cover::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.14) 50%,transparent 65%);transform:translateX(-100%);transition:transform .8s cubic-bezier(.16,1,.3,1);pointer-events:none;z-index:1}
 .bk-sum-card:hover .bk-sum-cover::after{transform:translateX(100%)}
@@ -4234,7 +4253,9 @@ body:has(.player.on) .bk-mini{bottom:170px !important}
 .bk-x:hover{background:#F4F3EE;border-color:#CFCFCF}
 .bk-reader-hero{display:grid;grid-template-columns:180px 1fr;gap:30px;padding:28px;align-items:start}
 @media (max-width:600px){.bk-reader-hero{grid-template-columns:1fr;gap:18px;padding:22px}.bk-reader-hero > .cover{max-width:200px;margin:0 auto}}
-.bk-reader-hero > .cover{aspect-ratio:3/4;border-radius:14px;padding:22px 18px;display:flex;flex-direction:column;justify-content:space-between;color:#fff;box-shadow:0 16px 40px -12px rgba(0,0,0,.5)}
+.bk-reader-hero > .cover{aspect-ratio:3/4;border-radius:14px;padding:22px 18px;display:flex;flex-direction:column;justify-content:space-between;color:#fff;box-shadow:0 16px 40px -12px rgba(0,0,0,.5);position:relative;overflow:hidden}
+.bk-reader-hero > .cover.has-img{padding:0}
+.bk-reader-hero > .cover.has-img>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .bk-reader-hero > .cover h2{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400;font-size:26px;line-height:1;letter-spacing:-.015em;color:#fff;margin:0}
 .bk-reader-hero > .cover .auth{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:500;letter-spacing:.1em;color:rgba(255,255,255,.78);text-transform:uppercase}
 .bk-reader-hero .info h1{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:34px;line-height:1.02;letter-spacing:-.025em;color:#1A1A1A;margin:0}
@@ -4444,7 +4465,7 @@ waConnected:false,showWAOnboard:false,activeMeditation:null,
 google:{configured:false,accounts:[],loaded:false},gcalEvents:[],gcalLoading:false,showGcalAdd:false,gcalForm:{title:'',date:'',time:'',duration:30,notes:'',email:''},
 calMonth:new Date(),calSelectedDate:new Date().toISOString().slice(0,10),
 steps:[],stepGoal:parseInt(localStorage.getItem('step_goal')||'10000',10),stepLive:{active:false,count:0},
-theme:localStorage.getItem('theme')||'classic',
+theme:localStorage.getItem('theme')||'aurora',
 news:{},newsCat:'world',newsLoading:false,
 bookStreak:{streak:0,total:0,today:false,days:[]},_bkSec:0,
 
@@ -4769,7 +4790,7 @@ async function stopPed(){if(_ped){window.removeEventListener('devicemotion',_ped
 /* When the tab is backgrounded, flush whatever we counted so we don't lose it, and re-acquire wake lock on return. */
 document.addEventListener('visibilitychange',async()=>{if(document.visibilityState==='hidden'){if(S.stepLive&&S.stepLive.active)await flushPedCount()}else if(document.visibilityState==='visible'){if(S.stepLive&&S.stepLive.active&&!_wakeLock)await acquireWake()}});
 function toggleTheme(){S.theme=S.theme==='aurora'?'classic':'aurora';localStorage.setItem('theme',S.theme);document.body.setAttribute('data-theme',S.theme);toast(S.theme==='aurora'?'\\u{1F30C} Aurora theme on':'\\u2728 Classic theme on');render()}
-function applyTheme(){document.body.setAttribute('data-theme',S.theme||'classic')}
+function applyTheme(){document.body.setAttribute('data-theme',S.theme||'aurora')}
 let _drag=null;
 function dragS(e,id){_drag=id;if(e.dataTransfer){e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',id)}setTimeout(()=>{const el=document.querySelector('[data-tid="'+id+'"]');if(el)el.classList.add('drag')},0)}
 function dragE(){if(_drag){const el=document.querySelector('[data-tid="'+_drag+'"]');if(el)el.classList.remove('drag')}_drag=null;document.querySelectorAll('.col.over').forEach(c=>c.classList.remove('over'))}
@@ -5692,7 +5713,28 @@ const BOOK_SUMMARIES=[
    insights:[['Passion is downstream of mastery','You don\\'t love things because they feel right. They feel right because you are good at them.'],['Career capital','Build rare and valuable skills. They become the currency you trade for autonomy and meaning.'],['Be so good they cannot ignore you','The Steve Martin advice. Skill speaks louder than self-promotion.'],['Mission needs traction','You can\\'t pick a mission from a blank page. Mission emerges from skill, not before it.'],['The craftsman mindset','Focus on what you produce, not how it makes you feel. Feeling follows production.']],
    summary:'Cal Newport\\'s long argument against the "follow your passion" gospel. Passion, he argues, is not how you find work you love. It is what happens after you become good at something. The reason most twenty-somethings hate their jobs is not that they picked the wrong career — it is that they are at the bottom of the skill ladder in every career, where the work is least autonomous and least meaningful. The fix is to stop asking "what should I do with my life" and start asking "what skills can I get rare-and-valuable at right now". Newport calls this career capital. The more rare and valuable your skills, the more leverage you have to negotiate for autonomy, mission, and money. The mantra he borrows from Steve Martin: be so good they cannot ignore you. Mission needs traction — you cannot pick a meaningful mission from a blank page. Mission emerges from accumulated expertise. Adopt the craftsman mindset: focus on what you produce, not how it makes you feel. Feeling follows production, not the other way around.'}
 ];
-function openBookSummary(id,autoplay){const b=BOOK_SUMMARIES.find(x=>x.id===id);if(!b)return;S.bookReader={open:true,book:b,playing:false,rate:1};render();if(autoplay!==false){setTimeout(function(){if(S.bookReader&&S.bookReader.book&&S.bookReader.book.id===id&&!S.bookReader.playing)bookReaderToggleTTS()},200)}}
+// Real book cover images via Open Library (free, public-domain CDN). ISBN-10 keyed.
+const BOOK_COVERS={
+  atomic:'https://covers.openlibrary.org/b/isbn/0735211299-L.jpg',
+  deep:'https://covers.openlibrary.org/b/isbn/1455586692-L.jpg',
+  medi:'https://covers.openlibrary.org/b/isbn/0140449337-L.jpg',
+  dopa:'https://covers.openlibrary.org/b/isbn/1524746746-L.jpg',
+  sap:'https://covers.openlibrary.org/b/isbn/0062316095-L.jpg',
+  fast:'https://covers.openlibrary.org/b/isbn/0374533555-L.jpg',
+  frankl:'https://covers.openlibrary.org/b/isbn/080701429X-L.jpg',
+  now:'https://covers.openlibrary.org/b/isbn/1577314808-L.jpg',
+  subtle:'https://covers.openlibrary.org/b/isbn/0062457713-L.jpg',
+  flow:'https://covers.openlibrary.org/b/isbn/0061339202-L.jpg',
+  grit:'https://covers.openlibrary.org/b/isbn/1501111108-L.jpg',
+  mindset:'https://covers.openlibrary.org/b/isbn/0345472322-L.jpg',
+  '4hour':'https://covers.openlibrary.org/b/isbn/0307465357-L.jpg',
+  showup:'https://covers.openlibrary.org/b/isbn/0761178970-L.jpg',
+  sevenh:'https://covers.openlibrary.org/b/isbn/0743269519-L.jpg',
+  whymatters:'https://covers.openlibrary.org/b/isbn/1591846447-L.jpg',
+  rich:'https://covers.openlibrary.org/b/isbn/1612680194-L.jpg'
+};
+function bookCover(id){return BOOK_COVERS[id]||null}
+function openBookSummary(id,autoplay){const b=BOOK_SUMMARIES.find(x=>x.id===id);if(!b)return;S.bookReader={open:true,book:b,playing:false,rate:1};render();if(autoplay!==false){requestAnimationFrame(function(){requestAnimationFrame(function(){setTimeout(function(){if(S.bookReader&&S.bookReader.book&&S.bookReader.book.id===id&&!S.bookReader.playing)bookReaderToggleTTS()},450)})})}}
 function closeBookReader(){
   // If audio is currently playing, keep it going as a persistent mini-player at the bottom
   if(S.bookReader&&S.bookReader.playing&&S.bookReader.book){
@@ -6786,10 +6828,7 @@ else if(S.tab==='books'){
             +'<button class="bk-hero-go" style="background:rgba(255,255,255,.16);color:#fff" onclick="openBookSummary(\\''+featured.id+'\\')">Read summary</button>'
           +'</div>'
         +'</div>'
-        +'<div class="bk-hero-cover" style="background:'+featured.grad+'">'
-          +'<div class="auth">'+esc(featured.author)+'</div>'
-          +'<h5>'+esc(featured.title)+'</h5>'
-        +'</div>'
+        +(function(){const fc=bookCover(featured.id);return '<div class="bk-hero-cover'+(fc?' has-img':'')+'" style="background:'+featured.grad+'">'+(fc?'<img src="'+fc+'" alt="" onerror="this.parentElement.classList.remove(\\'has-img\\');this.remove()"/>':'<div class="auth">'+esc(featured.author)+'</div><h5>'+esc(featured.title)+'</h5>')+'</div>'})()
       +'</div>';
     }
     // Category filter pills
@@ -6803,8 +6842,9 @@ else if(S.tab==='books'){
     h+='<div class="bk-sum-grid">';
     const bkFiltered=S.bkCat&&S.bkCat!=='all'?BOOK_SUMMARIES.filter(b=>b.tag===S.bkCat):BOOK_SUMMARIES;
     bkFiltered.forEach(b=>{
+      const coverImg=bookCover(b.id);
       h+='<button class="bk-sum-card" onclick="openBookSummary(\\''+b.id+'\\')">';
-      h+='<div class="bk-sum-cover" style="background:'+b.grad+'"><div class="bk-sum-mins">'+b.mins+' min</div><div></div><div><h5>'+esc(b.title)+'</h5><div class="auth">'+esc(b.author)+'</div></div><span class="bk-sum-play" aria-label="Play"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg></span></div>';
+      h+='<div class="bk-sum-cover'+(coverImg?' has-img':'')+'" style="background:'+b.grad+'">'+(coverImg?'<img src="'+coverImg+'" alt="" loading="lazy" onerror="this.parentElement.classList.remove(\\'has-img\\');this.remove()"/>':'')+'<div class="bk-sum-mins">'+b.mins+' min</div>'+(coverImg?'':'<div></div><div><h5>'+esc(b.title)+'</h5><div class="auth">'+esc(b.author)+'</div></div>')+'<span class="bk-sum-play" aria-label="Play"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg></span></div>';
       h+='<div class="bk-sum-meta">'+esc(b.title)+'<small>'+esc(b.author)+'</small></div>';
       h+='</button>';
     });
@@ -7032,7 +7072,8 @@ if(S.bookReader&&S.bookReader.open&&S.bookReader.book){
   const b=S.bookReader.book;const r=S.bookReader;
   h+='<div class="bk-reader" onclick="if(event.target===this)closeBookReader()"><div class="bk-reader-box">';
   h+='<header class="bk-reader-top"><span class="label">'+b.mins+'-MIN SUMMARY \\u00B7 '+esc(b.tag)+'</span><div style="display:flex;gap:8px">'+(r.playing?'<button class="bk-x" onclick="closeBookReader()" title="Minimize \\u2014 audio keeps playing in mini-player" style="background:#1F4D3F;color:#fff;border-color:#1F4D3F">\\u2014 Minimize</button>':'')+'<button class="bk-x" onclick="_premiumStop();S.bookReader={open:false};render()" title="Close and stop audio">\\u2715</button></div></header>';
-  h+='<div class="bk-reader-hero"><div class="cover" style="background:'+b.grad+'"><div class="auth">'+esc(b.author)+'</div><h2>'+esc(b.title)+'</h2></div>';
+  const heroCover=bookCover(b.id);
+  h+='<div class="bk-reader-hero"><div class="cover'+(heroCover?' has-img':'')+'" style="background:'+b.grad+'">'+(heroCover?'<img src="'+heroCover+'" alt="" onerror="this.parentElement.classList.remove(\\'has-img\\');this.remove()"/>':'<div class="auth">'+esc(b.author)+'</div><h2>'+esc(b.title)+'</h2>')+'</div>';
   h+='<div class="info"><h1>'+esc(b.title)+'</h1><div class="by">By <b>'+esc(b.author)+'</b></div><p class="why">'+esc(b.why)+'</p>';
   h+='<div class="stats"><div><span class="num">'+b.insights.length+'</span><span class="lbl">Chapters</span></div><div><span class="num">'+b.mins+'m</span><span class="lbl">Read time</span></div><div><span class="num">'+(b.summary.length<2000?'\\u26A1':'\\u{1F4DA}')+'</span><span class="lbl">'+(b.summary.length<2000?'Quick':'Deep')+'</span></div></div>';
   h+='<div class="actions"><button class="bk-btn bk-btn-primary" onclick="bookReaderToggleTTS()">'+(r.playing?'\\u23F8 Pause':'\\u25B6\\uFE0F Listen')+'</button><button class="bk-btn bk-btn-ghost" onclick="document.getElementById(\\'bk-summary-anchor\\').scrollIntoView({behavior:\\'smooth\\'})">Read summary</button></div></div></div>';
