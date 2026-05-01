@@ -41,6 +41,9 @@ try{db.exec("CREATE TABLE IF NOT EXISTS voice_progress(user_phone TEXT NOT NULL,
 try{db.exec("CREATE TABLE IF NOT EXISTS play_log(user_phone TEXT NOT NULL,kind TEXT NOT NULL,played_on TEXT NOT NULL,PRIMARY KEY(user_phone,kind,played_on))")}catch(e){}
 // Daily Highlight — Make-Time-style "one thing today" with calendar + email
 try{db.exec("CREATE TABLE IF NOT EXISTS daily_highlights(user_phone TEXT NOT NULL,date TEXT NOT NULL,text TEXT NOT NULL,done INTEGER DEFAULT 0,gcal_event_id TEXT,gcal_email TEXT,reminded_morning INTEGER DEFAULT 0,reminded_midday INTEGER DEFAULT 0,reminded_evening INTEGER DEFAULT 0,created_at TEXT DEFAULT(datetime('now')),updated_at TEXT DEFAULT(datetime('now')),PRIMARY KEY(user_phone,date))")}catch(e){}
+// Schedule Blocks — interactive day-blocking with calendar sync + reminders
+try{db.exec("CREATE TABLE IF NOT EXISTS schedule_blocks(id TEXT PRIMARY KEY,user_phone TEXT NOT NULL,date TEXT NOT NULL,start_time TEXT NOT NULL,end_time TEXT NOT NULL,label TEXT NOT NULL,color TEXT DEFAULT'',gcal_event_id TEXT,gcal_email TEXT,reminded INTEGER DEFAULT 0,created_at TEXT DEFAULT(datetime('now')))")}catch(e){}
+try{db.exec("CREATE INDEX IF NOT EXISTS idx_schedule_user_date ON schedule_blocks(user_phone,date)")}catch(e){}
 // Voice curriculum — Duolingo-style step-by-step lesson progress per user
 try{db.exec("CREATE TABLE IF NOT EXISTS voice_lesson_progress(user_phone TEXT NOT NULL,unit_id INTEGER NOT NULL,lesson_id INTEGER NOT NULL,score INTEGER DEFAULT 0,stars INTEGER DEFAULT 0,xp INTEGER DEFAULT 0,completed_at TEXT DEFAULT(datetime('now')),PRIMARY KEY(user_phone,unit_id,lesson_id))")}catch(e){}
 // Community articles — Medium-style user submissions
@@ -793,6 +796,74 @@ async function _hlReminderTick(){
 }
 setInterval(_hlReminderTick,10*60*1000);
 setTimeout(_hlReminderTick,30*1000); // first check 30s after boot
+
+// ─── Schedule Blocks API ──────────────────────────────────────────────
+async function _gcalCreateTimed(userPhone,date,startTime,endTime,label,color){
+  const def=db.prepare("SELECT email FROM google_tokens WHERE user_phone=? ORDER BY is_default DESC LIMIT 1").get(userPhone);
+  if(!def)return null;
+  const ga=await gAccessToken(userPhone,def.email);if(!ga)return null;
+  const tz=process.env.SERVER_TZ||'UTC';
+  const startISO=date+'T'+startTime+':00';
+  const endISO=date+'T'+endTime+':00';
+  const body={summary:'\u{1F512} '+label,description:'Time block from Brodoit. Phone away. Door closed.',start:{dateTime:startISO,timeZone:tz},end:{dateTime:endISO,timeZone:tz},colorId:color||'9'};
+  try{
+    const r=await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events',{method:'POST',headers:{Authorization:'Bearer '+ga.token,'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const j=await r.json();if(j.error)return null;
+    return {id:j.id,email:def.email,link:j.htmlLink};
+  }catch(e){return null}
+}
+app.get('/api/schedule',auth,(req,res)=>{
+  const date=String(req.query.date||_todayISO());
+  const rows=db.prepare('SELECT * FROM schedule_blocks WHERE user_phone=? AND date=? ORDER BY start_time ASC').all(req.user.phone,date);
+  res.json({date,blocks:rows});
+});
+app.post('/api/schedule',auth,async(req,res)=>{
+  const{date,start_time,end_time,label,color}=req.body||{};
+  const d=String(date||_todayISO());
+  const st=String(start_time||'').match(/^(\d{2}):(\d{2})$/)?start_time:null;
+  const et=String(end_time||'').match(/^(\d{2}):(\d{2})$/)?end_time:null;
+  const lab=String(label||'').trim().slice(0,100);
+  if(!st||!et||!lab)return res.status(400).json({error:'date, start_time HH:MM, end_time HH:MM, label required'});
+  if(et<=st)return res.status(400).json({error:'end_time must be after start_time'});
+  const id=_crypto.randomBytes(8).toString('hex');
+  const gcal=await _gcalCreateTimed(req.user.phone,d,st,et,lab,color||'');
+  db.prepare('INSERT INTO schedule_blocks(id,user_phone,date,start_time,end_time,label,color,gcal_event_id,gcal_email)VALUES(?,?,?,?,?,?,?,?,?)').run(id,req.user.phone,d,st,et,lab,color||'',gcal?.id||null,gcal?.email||null);
+  const row=db.prepare('SELECT * FROM schedule_blocks WHERE id=?').get(id);
+  res.json({ok:true,block:row,gcal:gcal||null});
+});
+app.delete('/api/schedule/:id',auth,async(req,res)=>{
+  const row=db.prepare('SELECT * FROM schedule_blocks WHERE id=? AND user_phone=?').get(req.params.id,req.user.phone);
+  if(!row)return res.status(404).json({error:'not found'});
+  if(row.gcal_event_id&&row.gcal_email){await _gcalDeleteEvent(req.user.phone,row.gcal_email,row.gcal_event_id)}
+  db.prepare('DELETE FROM schedule_blocks WHERE id=?').run(req.params.id);
+  res.json({ok:true});
+});
+// Reminder for blocks — fires once per block ~10 minutes before start
+function _blockEmailHTML(name,label,startTime,endTime,gcalLink){
+  return '<!doctype html><html><body style="font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif;background:#FAFAF7;margin:0;padding:32px 16px"><table role="presentation" style="max-width:520px;margin:0 auto;background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 8px 24px rgba(15,23,42,.08)"><tr><td style="background:linear-gradient(135deg,#1E1B4B 0%,#5B21B6 100%);padding:28px 28px 22px;color:#fff"><div style="font-family:JetBrains Mono,monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;opacity:.78;font-weight:600">⏱ Time block in 10 min</div><div style="font-family:Instrument Serif,Georgia,serif;font-style:italic;font-size:30px;line-height:1.15;margin-top:10px;color:#fff;letter-spacing:-.018em">'+esc(label)+'</div><div style="margin-top:8px;font-family:Inter,sans-serif;font-size:14px;color:rgba(255,255,255,.85)">'+esc(startTime)+' → '+esc(endTime)+'</div></td></tr><tr><td style="padding:24px 28px 28px;color:#3D3D3D;font-size:15px;line-height:1.6"><p style="margin:0 0 14px">Hi '+esc(name)+', heads up — your scheduled block starts in about ten minutes.</p><p style="margin:0 0 18px">Phone away. Door closed if you have one. Make this time count.</p><div style="margin:18px 0"><a href="https://brodoit.com" style="display:inline-block;padding:12px 22px;background:#1A1A1A;color:#fff;text-decoration:none;border-radius:12px;font-weight:600;font-size:14px;letter-spacing:-.005em">Open Brodoit →</a>'+(gcalLink?'&nbsp;<a href="'+esc(gcalLink)+'" style="display:inline-block;padding:12px 22px;background:#fff;color:#1A1A1A;text-decoration:none;border:1px solid #E8E6E0;border-radius:12px;font-weight:600;font-size:14px;letter-spacing:-.005em">View on Calendar</a>':'')+'</div></td></tr></table><div style="text-align:center;color:#9A9A9A;font-size:12px;margin-top:20px;font-family:JetBrains Mono,monospace;letter-spacing:.08em">BRODOIT • TIME BLOCKING</div></body></html>';
+}
+async function _blockReminderTick(){
+  try{
+    const now=new Date();
+    const today=_todayISO();
+    // Find blocks starting in the next 10-20 minutes that haven't been reminded
+    const rows=db.prepare("SELECT b.*,u.email,u.name FROM schedule_blocks b JOIN users u ON u.phone=b.user_phone WHERE b.date=? AND b.reminded=0").all(today);
+    for(const r of rows){
+      const [hh,mm]=r.start_time.split(':').map(Number);
+      const start=new Date();start.setHours(hh,mm,0,0);
+      const diffMin=(start.getTime()-now.getTime())/60000;
+      if(diffMin>0&&diffMin<=12){
+        if(!r.email||!isEmail(r.email)){db.prepare('UPDATE schedule_blocks SET reminded=1 WHERE id=?').run(r.id);continue}
+        const firstName=(r.name||'').split(' ')[0]||'there';
+        const html=_blockEmailHTML(firstName,r.label,r.start_time,r.end_time,null);
+        await sendEmail(r.email,'⏱ '+r.label+' — starts in 10 min',html);
+        db.prepare('UPDATE schedule_blocks SET reminded=1 WHERE id=?').run(r.id);
+      }
+    }
+  }catch(e){console.warn('[block-reminders]',e.message)}
+}
+setInterval(_blockReminderTick,2*60*1000);
+setTimeout(_blockReminderTick,15*1000);
 
 // WhatsApp send endpoints disabled for closed-test phase (Twilio Sandbox requires
 // each recipient to text 'join <code>' first, which would break the tester experience).
@@ -3130,6 +3201,67 @@ body:not([data-theme=aurora]) .hl-edit{background:rgba(0,0,0,.05);color:#6B6B6B}
 .hl-edit:hover{background:rgba(255,255,255,.12);color:#fff;transform:scale(1.06)}
 body:not([data-theme=aurora]) .hl-edit:hover{background:rgba(0,0,0,.1);color:#1A1A1A}
 @media (max-width:560px){.hl-text{font-size:20px}.hl-card{padding:14px 16px}}
+/* ─── Action chips row (Tasks tab) ─── */
+.action-chips{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 18px}
+.action-chips .add-chip{margin:0;flex:1 1 200px;min-width:0}
+.add-chip-bdg{margin-left:auto;font-family:'JetBrains Mono','Space Mono',monospace;font-size:10.5px;letter-spacing:.04em;font-weight:700;background:rgba(255,107,71,.18);color:#FFE3D8;padding:3px 8px;border-radius:6px}
+body:not([data-theme=aurora]) .add-chip-bdg{background:#FFF1ED;color:#B7472A}
+.plan-chip:hover{background:rgba(167,139,250,.12);border-color:rgba(167,139,250,.45);box-shadow:0 8px 22px -10px rgba(167,139,250,.5)}
+body:not([data-theme=aurora]) .plan-chip:hover{background:#F4F1FF;border-color:#A78BFA}
+@media (max-width:560px){.action-chips{gap:8px}.action-chips .add-chip{flex:1 1 100%}}
+/* ─── Schedule panel (Plan your day) ─── */
+.sch-mdl{max-width:620px;width:min(620px,100%);padding:0;overflow:hidden;display:flex;flex-direction:column;background:#0F0B1F;color:#F5F5FA;border:0;max-height:96vh;border-radius:24px;animation:hdUp .35s cubic-bezier(.16,1,.3,1)}
+body:not([data-theme=aurora]) .sch-mdl{background:#FAFAF7;color:#1A1A1A}
+.sch-hd{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px;background:linear-gradient(135deg,#1E1B4B 0%,#5B21B6 100%);color:#fff;flex-shrink:0}
+.sch-title{flex:1;text-align:center;min-width:0}
+.sch-name{font:600 16px/1.1 'Inter',sans-serif;letter-spacing:-.015em}
+.sch-sub{font-family:'JetBrains Mono','Space Mono',monospace;font-size:10.5px;letter-spacing:.08em;color:rgba(255,255,255,.78);font-weight:600;margin-top:3px;text-transform:uppercase}
+.sch-body{flex:1;overflow-y:auto;padding:18px 22px 18px;-webkit-overflow-scrolling:touch}
+.sch-grid{display:grid;grid-template-columns:50px 1fr;gap:0;height:340px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:14px;overflow:hidden;margin-bottom:18px;position:relative}
+body:not([data-theme=aurora]) .sch-grid{background:#fff;border-color:#E8E6E0}
+.sch-rail{display:flex;flex-direction:column;border-right:1px solid rgba(255,255,255,.06)}
+body:not([data-theme=aurora]) .sch-rail{border-right-color:#E8E6E0}
+.sch-tick{flex:1;font-family:'JetBrains Mono','Space Mono',monospace;font-size:10px;color:rgba(255,255,255,.4);font-weight:600;display:flex;align-items:flex-start;justify-content:center;padding-top:2px;border-top:1px dashed rgba(255,255,255,.05)}
+body:not([data-theme=aurora]) .sch-tick{color:#9A9A9A;border-top-color:#F0EDE7}
+.sch-tick:first-child{border-top:0}
+.sch-canvas{position:relative;height:100%}
+.sch-empty{position:absolute;inset:0;display:grid;place-items:center;color:rgba(255,255,255,.4);font-size:13px;font-style:italic}
+body:not([data-theme=aurora]) .sch-empty{color:#9A9A9A}
+.sch-blk{position:absolute;left:6px;right:6px;border-radius:8px;background:linear-gradient(135deg,rgba(91,33,182,.85),rgba(167,139,250,.85));color:#fff;padding:8px 12px 8px 14px;font-size:13px;line-height:1.3;border-left:3px solid #FFB547;display:flex;flex-direction:column;justify-content:center;box-shadow:0 6px 14px -4px rgba(91,33,182,.35);overflow:hidden;min-height:30px}
+.sch-blk-t{font-weight:600;letter-spacing:-.005em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sch-blk-time{font-family:'JetBrains Mono','Space Mono',monospace;font-size:10px;letter-spacing:.04em;color:rgba(255,255,255,.85);margin-top:2px;font-weight:500}
+.sch-blk-x{position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;border:0;background:rgba(0,0,0,.35);color:#fff;cursor:pointer;font-size:10px;display:grid;place-items:center;opacity:0;transition:opacity .2s}
+.sch-blk:hover .sch-blk-x{opacity:1}
+.sch-presets-lbl{font-family:'JetBrains Mono','Space Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:700;margin-bottom:8px}
+body:not([data-theme=aurora]) .sch-presets-lbl{color:#6B6B6B}
+.sch-presets{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:18px}
+@media (min-width:520px){.sch-presets{grid-template-columns:repeat(3,1fr)}}
+.sch-preset{padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);color:#fff;font:600 13px/1.2 inherit;cursor:pointer;text-align:left;transition:all .2s;letter-spacing:-.005em}
+body:not([data-theme=aurora]) .sch-preset{background:#fff;border-color:#E8E6E0;color:#1A1A1A}
+.sch-preset:hover{background:rgba(255,255,255,.08);border-color:rgba(167,139,250,.4);transform:translateY(-1px)}
+.sch-preset small{display:block;font-family:'JetBrains Mono','Space Mono',monospace;font-size:9.5px;color:rgba(255,255,255,.5);font-weight:500;margin-top:3px;letter-spacing:.04em;text-transform:none}
+body:not([data-theme=aurora]) .sch-preset small{color:#6B6B6B}
+.sch-form{padding:14px;border:1px solid rgba(255,255,255,.08);border-radius:14px;background:rgba(255,255,255,.02);margin-bottom:14px}
+body:not([data-theme=aurora]) .sch-form{background:#fff;border-color:#E8E6E0}
+.sch-form-times{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.sch-fl{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.sch-fl small{font-family:'JetBrains Mono','Space Mono',monospace;font-size:9.5px;letter-spacing:.1em;color:rgba(255,255,255,.5);font-weight:600;text-transform:uppercase}
+body:not([data-theme=aurora]) .sch-fl small{color:#6B6B6B}
+.sch-fl input{font-family:inherit;font-size:14.5px;font-weight:500;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:#fff;outline:0}
+body:not([data-theme=aurora]) .sch-fl input{background:#FAFAF7;border-color:#E8E6E0;color:#1A1A1A}
+.sch-fl input:focus{border-color:rgba(167,139,250,.5)}
+.sch-arrow{margin-top:18px;color:rgba(255,255,255,.4);font-size:14px}
+.sch-label{width:100%;padding:12px 14px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:#fff;font:500 14.5px/1.4 inherit;letter-spacing:-.005em;outline:0;margin-bottom:10px;-webkit-appearance:none}
+body:not([data-theme=aurora]) .sch-label{background:#FAFAF7;border-color:#E8E6E0;color:#1A1A1A}
+.sch-label::placeholder{color:rgba(255,255,255,.4)}
+body:not([data-theme=aurora]) .sch-label::placeholder{color:rgba(26,26,26,.4)}
+.sch-label:focus{border-color:rgba(167,139,250,.5)}
+.sch-save{width:100%;padding:14px;border-radius:12px;border:0;background:linear-gradient(135deg,#5B21B6,#A78BFA);color:#fff;font:600 14.5px/1 inherit;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;letter-spacing:-.005em;box-shadow:0 8px 20px -6px rgba(91,33,182,.5);transition:transform .2s}
+.sch-save:hover{transform:translateY(-1px)}
+.sch-save:active{transform:scale(.97)}
+.sch-foot-note{font-size:12.5px;color:rgba(255,255,255,.5);line-height:1.5;text-align:center;padding:0 8px}
+body:not([data-theme=aurora]) .sch-foot-note{color:#6B6B6B}
+@media (max-width:560px){.sch-mdl{max-height:100vh;border-radius:0;align-self:stretch;width:100%}.sch-grid{height:280px}}
 /* ─── Single add-task chip ─── */
 .add-chip{display:inline-flex;align-items:center;gap:10px;padding:11px 16px 11px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#F5F5FA;font-family:inherit;font-weight:500;font-size:14px;cursor:pointer;letter-spacing:-.005em;transition:transform .2s ease,background .2s ease,border-color .2s ease,box-shadow .25s ease;margin:0 0 18px}
 .add-chip:hover{background:rgba(255,107,71,.12);border-color:rgba(255,107,71,.45);box-shadow:0 8px 22px -10px rgba(255,107,71,.5)}
@@ -3141,31 +3273,27 @@ body:not([data-theme=aurora]) .hl-edit:hover{background:rgba(0,0,0,.1);color:#1A
 body:not([data-theme=aurora]) .add-chip{background:#fff;border-color:#E8E6E0;color:#1A1A1A}
 body:not([data-theme=aurora]) .add-chip:hover{background:#FFF5F0;border-color:#FF6B47}
 body:not([data-theme=aurora]) .add-chip-k{color:#9A9A9A;background:#F4F3EE;border-color:#E8E6E0}
-/* ─── Mind Gym game chips (matches home-hero stat language) ─── */
-.game-chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin:0 0 18px}
-.game-chip{position:relative;text-align:left;padding:18px 18px 16px;border-radius:18px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#F5F5FA;font-family:inherit;cursor:pointer;transition:transform .25s ease,background .2s ease,border-color .2s ease,box-shadow .3s ease;overflow:hidden;isolation:isolate}
-.game-chip::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent,#FF6B47);transform:scaleX(.4);transform-origin:left;transition:transform .3s ease}
-.game-chip:hover{transform:translateY(-3px);background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.16);box-shadow:0 14px 36px -12px rgba(0,0,0,.5)}
-.game-chip:hover::before{transform:scaleX(1)}
-.game-chip:active{transform:scale(.98)}
+/* ─── Mind Gym game chips — matches the dark home-hero stat aesthetic ─── */
+.game-chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin:0 0 16px}
+.game-chip{position:relative;text-align:left;padding:14px 16px;border-radius:14px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#fff;font-family:inherit;cursor:pointer;transition:transform .25s ease,background .2s ease,border-color .2s ease;overflow:hidden;backdrop-filter:blur(10px)}
+.game-chip:hover{transform:translateY(-2px);background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.16)}
+.game-chip:active{transform:scale(.97)}
 .game-chip-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.game-chip-emoji{font-size:26px;line-height:1}
-.game-chip-lvl{font-family:'JetBrains Mono','Space Mono',monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.55);background:rgba(255,255,255,.06);padding:4px 8px;border-radius:6px;font-weight:600}
-.game-chip-name{font:600 16px/1.15 'Inter',sans-serif;letter-spacing:-.01em;color:#fff;margin-bottom:4px}
-.game-chip-d{font-size:12.5px;line-height:1.4;color:rgba(255,255,255,.6);margin-bottom:14px;letter-spacing:-.005em}
-.game-chip-bar{height:4px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden;margin-bottom:10px}
+.game-chip-emoji{font-size:24px;line-height:1;filter:drop-shadow(0 2px 6px rgba(0,0,0,.25))}
+.game-chip-lvl{font-family:'JetBrains Mono','Space Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--accent,#FF6B47);font-weight:700;letter-spacing:-.02em}
+.game-chip-name{font:600 15px/1.15 'Inter',sans-serif;letter-spacing:-.01em;color:#fff;margin-bottom:4px}
+.game-chip-d{display:none}
+.game-chip-bar{height:3px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden;margin:8px 0 6px}
 .game-chip-bar i{display:block;height:100%;border-radius:999px;transition:width .6s ease}
-.game-chip-foot{display:flex;align-items:center;justify-content:space-between;font-family:'JetBrains Mono','Space Mono',monospace;font-size:10.5px;letter-spacing:.04em;color:rgba(255,255,255,.5);text-transform:uppercase}
-.game-chip-foot b{color:#fff;font-weight:600}
+.game-chip-foot{display:flex;align-items:center;justify-content:space-between;font-family:'JetBrains Mono','Space Mono',monospace;font-size:10px;letter-spacing:.04em;color:rgba(255,255,255,.55);text-transform:uppercase;font-weight:600}
+.game-chip-foot b{color:#fff;font-weight:700}
 body:not([data-theme=aurora]) .game-chip{background:#fff;border-color:#E8E6E0;color:#1A1A1A}
 body:not([data-theme=aurora]) .game-chip:hover{background:#FAFAF7;border-color:#CFCFCF}
 body:not([data-theme=aurora]) .game-chip-name{color:#1A1A1A}
-body:not([data-theme=aurora]) .game-chip-d{color:#6B6B6B}
-body:not([data-theme=aurora]) .game-chip-lvl{background:#F4F3EE;color:#6B6B6B}
-body:not([data-theme=aurora]) .game-chip-bar{background:#F4F3EE}
-body:not([data-theme=aurora]) .game-chip-foot{color:#9A9A9A}
+body:not([data-theme=aurora]) .game-chip-bar{background:#F0EDE7}
+body:not([data-theme=aurora]) .game-chip-foot{color:#6B6B6B}
 body:not([data-theme=aurora]) .game-chip-foot b{color:#1A1A1A}
-@media (max-width:560px){.game-chips{grid-template-columns:1fr 1fr;gap:10px}.game-chip{padding:16px 14px 14px}.game-chip-name{font-size:14.5px}.game-chip-d{font-size:11.5px;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden}}
+@media (max-width:560px){.game-chips{grid-template-columns:1fr 1fr;gap:8px}.game-chip{padding:12px 12px}.game-chip-name{font-size:14px}.game-chip-emoji{font-size:22px}}
 /* ─── Level progression path ─── */
 .lvl-path{margin:18px 0;padding:20px 20px 14px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)}
 body:not([data-theme=aurora]) .lvl-path{background:#fff;border-color:#E8E6E0}
@@ -5993,6 +6121,34 @@ function bkSearchInput(v){
   }catch(e){}
 }
 function bkSearchClear(){S.bkSearch='';const i=document.getElementById('bkSearch');if(i){i.value='';i.focus()}bkSearchInput('')}
+// ─── Schedule Blocks (interactive day-blocking) ──────────────
+function schOpen(){S.schPanel=true;S.schForm={start:'09:00',end:'10:00',label:''};schLoad();render()}
+function schClose(){S.schPanel=false;render()}
+async function schLoad(){
+  if(!S.user)return;
+  try{const r=await api('/schedule');if(r&&Array.isArray(r.blocks)){S.schBlocks=r.blocks;render()}}catch(e){}
+}
+function schPreset(start,end,label){S.schForm={start,end,label};render();setTimeout(()=>{const i=document.getElementById('schLabel');if(i)i.focus()},80)}
+function schFormSet(k,v){if(!S.schForm)S.schForm={start:'09:00',end:'10:00',label:''};S.schForm[k]=v}
+async function schSave(){
+  const f=S.schForm||{};
+  if(!f.start||!f.end||!(f.label||'').trim()){toast('\\u26A0\\uFE0F Pick time and a label','err');return}
+  if(f.end<=f.start){toast('\\u26A0\\uFE0F End must be after start','err');return}
+  const r=await api('/schedule',{method:'POST',body:JSON.stringify({date:new Date().toISOString().slice(0,10),start_time:f.start,end_time:f.end,label:f.label.trim()})});
+  if(r&&r.ok){
+    S.schBlocks=(S.schBlocks||[]).concat([r.block]).sort((a,b)=>a.start_time.localeCompare(b.start_time));
+    S.schForm={start:f.end,end:_addHour(f.end),label:''};
+    toast(r.gcal?'\\u{1F512} Block saved \\u2022 added to Calendar':'\\u{1F512} Block saved');
+    render();
+  }else{toast('\\u26A0\\uFE0F Could not save','err')}
+}
+function _addHour(t){const [h,m]=t.split(':').map(Number);const nh=Math.min(23,h+1);return String(nh).padStart(2,'0')+':'+String(m).padStart(2,'0')}
+async function schDelete(id){
+  if(!confirm('Remove this block?'))return;
+  await api('/schedule/'+id,{method:'DELETE'});
+  S.schBlocks=(S.schBlocks||[]).filter(b=>b.id!==id);
+  render();
+}
 // Highlight live preview — updates the SVG poster without re-rendering the input
 function hlInputUpdate(v){
   S.hlInput=v;
@@ -7731,12 +7887,18 @@ if(S.tab==='tasks'){
     }
     h+='</section>';
   }
-  // ─── Single add-task chip (opens detailed modal) ───
-  h+='<button class="add-chip" onclick="opA()" aria-label="New task">'
-    +'<span class="add-chip-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>'
-    +'<span class="add-chip-t">New task</span>'
-    +'<span class="add-chip-k">\\u2318 N</span>'
-  +'</button>';
+  // ─── Action chips: New task + Plan your day ───
+  h+='<div class="action-chips">'
+    +'<button class="add-chip" onclick="opA()" aria-label="New task">'
+      +'<span class="add-chip-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>'
+      +'<span class="add-chip-t">New task</span>'
+    +'</button>'
+    +'<button class="add-chip plan-chip" onclick="schOpen()" aria-label="Plan your day">'
+      +'<span class="add-chip-ic" style="background:linear-gradient(135deg,#5B21B6,#A78BFA)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></svg></span>'
+      +'<span class="add-chip-t">Plan your day</span>'
+      +(S.schBlocks&&S.schBlocks.length?'<span class="add-chip-bdg">'+S.schBlocks.length+'</span>':'')
+    +'</button>'
+  +'</div>';
   // (Stats moved into the hero greeting above)
   if(s.od>0)h+='<div class="al" style="background:#FEF1F0;border:1px solid #F5C6C2;color:#E8453C;cursor:pointer" onclick="S.view=\\'overdue\\';render()">\\u26A0\\uFE0F '+s.od+' overdue</div>';
   h+='<div class="srch"><input placeholder="Search tasks..." value="'+esc(S.search)+'" oninput="S.search=this.value;render()"></div>';
@@ -8702,6 +8864,55 @@ if(S.showWASetup){
   h+='</div></div>';
 }
 
+if(S.schPanel){
+  const f=S.schForm||{start:'09:00',end:'10:00',label:''};
+  const blocks=S.schBlocks||[];
+  const presets=[{s:'06:00',e:'07:00',l:'\\u{1F305} Morning'},{s:'09:00',e:'12:00',l:'\\u{1F525} Deep work'},{s:'12:00',e:'13:00',l:'\\u{1F37D} Lunch'},{s:'15:00',e:'16:00',l:'\\u{1F4DA} Reading'},{s:'18:00',e:'19:00',l:'\\u{1F4AA} Workout'},{s:'21:00',e:'22:00',l:'\\u{1F319} Wind-down'}];
+  // Daypicker hour rail (6 AM - 11 PM)
+  const dayStart=6,dayEnd=23,dayHours=dayEnd-dayStart;
+  let railHTML='';
+  for(let h=dayStart;h<=dayEnd;h++){railHTML+='<div class="sch-tick"><span>'+(h%12===0?12:h%12)+(h<12?'a':'p')+'</span></div>'}
+  let blocksHTML='';
+  blocks.forEach(b=>{
+    const [sh,sm]=b.start_time.split(':').map(Number);
+    const [eh,em]=b.end_time.split(':').map(Number);
+    const startMin=(sh-dayStart)*60+sm;
+    const endMin=(eh-dayStart)*60+em;
+    const totalMin=dayHours*60;
+    if(endMin<=0||startMin>=totalMin)return;
+    const top=(Math.max(0,startMin)/totalMin)*100;
+    const ht=(Math.min(totalMin,endMin)-Math.max(0,startMin))/totalMin*100;
+    blocksHTML+='<div class="sch-blk" style="top:'+top+'%;height:'+ht+'%"><div class="sch-blk-t">'+esc(b.label)+'</div><div class="sch-blk-time">'+esc(b.start_time)+' \\u2192 '+esc(b.end_time)+'</div><button class="sch-blk-x" onclick="schDelete(\\''+b.id+'\\')" aria-label="Remove">\\u2715</button></div>';
+  });
+  h+='<div class="ov" onclick="schClose()"><div class="mdl sch-mdl" onclick="event.stopPropagation()">';
+  h+='<header class="sch-hd">'
+    +'<button class="bk-back" onclick="schClose()" aria-label="Back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>'
+    +'<div class="sch-title"><div class="sch-name">Plan your day</div><div class="sch-sub">'+blocks.length+' block'+(blocks.length===1?'':'s')+' \\u00B7 syncs to Google Calendar</div></div>'
+    +'<div style="width:36px"></div>'
+  +'</header>';
+  h+='<div class="sch-body">';
+  // Timeline
+  h+='<div class="sch-grid">'
+    +'<div class="sch-rail">'+railHTML+'</div>'
+    +'<div class="sch-canvas">'+blocksHTML+(blocks.length===0?'<div class="sch-empty">No blocks yet \\u00B7 add one below</div>':'')+'</div>'
+  +'</div>';
+  // Quick presets
+  h+='<div class="sch-presets-lbl">Quick presets</div><div class="sch-presets">';
+  presets.forEach(p=>{h+='<button class="sch-preset" onclick="schPreset(\\''+p.s+'\\',\\''+p.e+'\\',\\''+p.l.replace(/'/g,"\\\\'")+'\\')">'+esc(p.l)+'<small>'+p.s+' \\u2192 '+p.e+'</small></button>'});
+  h+='</div>';
+  // Add block form
+  h+='<div class="sch-form">'
+    +'<div class="sch-form-row sch-form-times">'
+      +'<label class="sch-fl"><small>Start</small><input type="time" value="'+esc(f.start)+'" onchange="schFormSet(\\'start\\',this.value)"></label>'
+      +'<span class="sch-arrow">\\u2192</span>'
+      +'<label class="sch-fl"><small>End</small><input type="time" value="'+esc(f.end)+'" onchange="schFormSet(\\'end\\',this.value)"></label>'
+    +'</div>'
+    +'<input class="sch-label" id="schLabel" type="text" placeholder="What is this time block for?" value="'+esc(f.label||'')+'" oninput="schFormSet(\\'label\\',this.value)" onkeydown="if(event.key===\\'Enter\\')schSave()">'
+    +'<button class="sch-save" onclick="schSave()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Block this time</button>'
+  +'</div>';
+  h+='<div class="sch-foot-note">\\u{1F4E7} You\\u2019ll get an email reminder ~10 min before each block. Connected Google Calendar accounts also receive native notifications.</div>';
+  h+='</div></div></div>';
+}
 if(S.showAdd){const isE=!!S.editing;
 h+='<div class="ov" onclick="clM()"><div class="mdl" onclick="event.stopPropagation()"><h2>'+(isE?'Edit Task':'\\u2728 New Task')+'</h2>';
 h+='<div style="text-align:center;margin-bottom:10px"><button class="voice-lg'+(S.listening?' rec':'')+'" onclick="'+(S.listening?'rec&&rec.stop();S.listening=false;render()':'stV()')+'"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>'+(S.listening?'<span class="vw"><span></span><span></span><span></span><span></span></span>Listening...':'\\u{1F3A4} Speak to add')+'</button><div style="font-size:11px;color:#94A3B8;margin-top:6px">Try: "Buy groceries tomorrow urgent"</div></div>';
