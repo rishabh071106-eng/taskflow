@@ -2588,6 +2588,99 @@ body[data-theme=aurora] .hdr-help{background:linear-gradient(135deg,rgba(167,139
 @media (max-width:560px){.help-mdl-v2{max-height:96vh;border-radius:18px 18px 0 0;align-self:flex-end}.hv-hero{padding:30px 22px 22px}.hv-brand{font-size:46px}.hv-body{padding:16px 18px 6px}.hv-step{padding:20px 20px 20px 70px}.hv-step-ic{width:38px;height:38px;left:18px;font-size:18px;border-radius:12px}.hv-step-t{font-size:19px}.hv-foot{padding:14px 18px}}
 /* keep old class for backward-compat in case anything still references it */
 .help-mdl{max-width:560px;padding:0;overflow:hidden;display:flex;flex-direction:column;max-height:90vh}
+/* ─── Interactive help wizard (v3) ─── */
+.hd-mdl{max-width:560px;width:min(560px,100%);padding:0;overflow:hidden;display:flex;flex-direction:column;background:#FAFAF7;color:#1A1A1A;border:0;position:relative;border-radius:24px;max-height:92vh;animation:hdUp .35s cubic-bezier(.16,1,.3,1)}
+@keyframes hdUp{from{opacity:0;transform:translateY(20px) scale(.98)}}
+body[data-theme=aurora] .hd-mdl{background:#1A1428;color:#F5F5FA}
+.hd-mdl .hv-x{position:absolute;top:14px;right:14px;width:34px;height:34px;background:rgba(0,0,0,.06);border:0;color:#1A1A1A;z-index:5}
+.hd-mdl .hv-x:hover{background:rgba(0,0,0,.12)}
+body[data-theme=aurora] .hd-mdl .hv-x{background:rgba(255,255,255,.08);color:#fff}
+body[data-theme=aurora] .hd-mdl .hv-x:hover{background:rgba(255,255,255,.16)}
+.hd-dots{display:flex;gap:8px;justify-content:center;padding:18px 20px 8px;flex-shrink:0}
+.hd-dot{width:32px;height:5px;border-radius:999px;border:0;background:rgba(0,0,0,.1);cursor:pointer;padding:0;transition:background .25s ease,transform .2s ease}
+.hd-dot.done{background:rgba(255,107,71,.5)}
+.hd-dot.on{background:linear-gradient(90deg,#FF6B47,#FFB547);transform:scaleY(1.2)}
+.hd-dot:hover{transform:scaleY(1.4)}
+body[data-theme=aurora] .hd-dot{background:rgba(255,255,255,.1)}
+body[data-theme=aurora] .hd-dot.done{background:rgba(255,107,71,.6)}
+.hd-step-wrap{flex:1;overflow-y:auto;padding:8px 28px 24px;-webkit-overflow-scrolling:touch}
+.hd-step{display:flex;flex-direction:column;align-items:center;text-align:center;animation:hdSlide .4s cubic-bezier(.16,1,.3,1)}
+@keyframes hdSlide{from{opacity:0;transform:translateX(20px)}}
+.hd-step-ic{width:88px;height:88px;border-radius:24px;display:grid;place-items:center;font-size:42px;color:#fff;margin:18px 0 18px;box-shadow:0 18px 42px -10px rgba(255,107,71,.4);transition:transform .3s ease}
+.hd-step-ic:hover{transform:scale(1.04) rotate(-3deg)}
+.hd-step-num{font-family:'JetBrains Mono','Space Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(0,0,0,.45);font-weight:600;margin-bottom:8px}
+body[data-theme=aurora] .hd-step-num{color:rgba(255,255,255,.55)}
+.hd-step-t{font-family:'Instrument Serif','Playfair Display',Georgia,serif;font-weight:400;font-size:32px;line-height:1.1;letter-spacing:-.02em;color:#1A1A1A;margin:0 0 12px;max-width:480px}
+body[data-theme=aurora] .hd-step-t{color:#fff}
+.hd-step-d{font-size:16px;line-height:1.6;color:#3D3D3D;margin:0 auto 18px;max-width:440px;letter-spacing:-.005em}
+body[data-theme=aurora] .hd-step-d{color:#D4D2DC}
+.hd-step-d b{color:#1A1A1A;font-weight:600}
+body[data-theme=aurora] .hd-step-d b{color:#fff}
+.hd-step-d code{font-family:'JetBrains Mono','Space Mono',monospace;font-size:13px;background:rgba(255,107,71,.12);color:#B7472A;padding:3px 8px;border-radius:6px;border:1px solid rgba(255,107,71,.25);font-weight:500}
+body[data-theme=aurora] .hd-step-d code{color:#FFE3D8;background:rgba(255,107,71,.18)}
+.hd-demo{margin:8px auto 14px;width:100%;max-width:380px;padding:18px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.06);border-radius:16px;display:flex;flex-direction:column;gap:8px}
+body[data-theme=aurora] .hd-demo{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08)}
+.hd-tip{display:flex;gap:10px;align-items:flex-start;padding:12px 16px;background:rgba(255,181,71,.1);border-left:3px solid #FFB547;border-radius:8px;font-size:13.5px;line-height:1.5;color:#3D3D3D;text-align:left;max-width:420px;margin:0 auto;letter-spacing:-.005em}
+body[data-theme=aurora] .hd-tip{background:rgba(255,181,71,.12);color:#E8E5DA}
+.hd-tip span:first-child{font-size:18px;flex-shrink:0;line-height:1}
+.hd-tip b{color:#1A1A1A;font-weight:600}
+body[data-theme=aurora] .hd-tip b{color:#fff}
+.hd-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px calc(16px + env(safe-area-inset-bottom,0px));border-top:1px solid rgba(0,0,0,.06);background:#fff;flex-shrink:0}
+body[data-theme=aurora] .hd-foot{background:#0F0B1F;border-top-color:rgba(255,255,255,.06)}
+.hd-foot-prev,.hd-foot-cta{display:inline-flex;align-items:center;gap:6px;padding:13px 20px;border-radius:14px;font:600 14.5px/1 inherit;letter-spacing:-.005em;cursor:pointer;border:0;transition:transform .2s,opacity .2s,box-shadow .25s}
+.hd-foot-prev{background:transparent;color:#3D3D3D}
+.hd-foot-prev:hover{background:rgba(0,0,0,.05);color:#1A1A1A}
+.hd-foot-prev.is-disabled{opacity:.35;cursor:not-allowed;pointer-events:none}
+body[data-theme=aurora] .hd-foot-prev{color:#9C99A8}
+body[data-theme=aurora] .hd-foot-prev:hover{background:rgba(255,255,255,.06);color:#fff}
+.hd-foot-cta{background:linear-gradient(135deg,#FF6B47,#FFB547);color:#fff;box-shadow:0 8px 22px -4px rgba(255,107,71,.45)}
+.hd-foot-cta:hover{transform:translateY(-1px)}
+.hd-foot-cta:active{transform:scale(.97)}
+/* ─── Demo blocks shown inside each help step ─── */
+.hd-task{display:flex;align-items:center;gap:12px;padding:14px;background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:12px;text-align:left;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+body[data-theme=aurora] .hd-task{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.1)}
+.hd-task-circle{width:24px;height:24px;border-radius:50%;border:2px solid #CFCFCF;flex-shrink:0}
+body[data-theme=aurora] .hd-task-circle{border-color:rgba(255,255,255,.25)}
+.hd-task-body{flex:1;min-width:0}
+.hd-task-t{font-weight:600;font-size:14.5px;color:#1A1A1A;margin-bottom:6px}
+body[data-theme=aurora] .hd-task-t{color:#fff}
+.hd-task-m{display:flex;gap:6px;flex-wrap:wrap}
+.hd-task-pill{font-size:11px;font-weight:600;padding:3px 8px;border-radius:6px;letter-spacing:-.005em}
+.hd-board{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.hd-col{background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.06);border-radius:10px;padding:10px;text-align:left;transition:all .2s}
+body[data-theme=aurora] .hd-col{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.06)}
+.hd-col-on{background:rgba(255,107,71,.1);border-color:rgba(255,107,71,.3)}
+.hd-col-h{font-family:'JetBrains Mono','Space Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#6B6B6B;font-weight:600;margin-bottom:8px}
+body[data-theme=aurora] .hd-col-h{color:rgba(255,255,255,.55)}
+.hd-task-mini{font-size:12px;font-weight:500;color:#1A1A1A;padding:6px 8px;background:#fff;border-radius:6px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+body[data-theme=aurora] .hd-task-mini{background:rgba(255,255,255,.08);color:#F5F5FA}
+.hd-task-mini.hd-done{text-decoration:line-through;color:#94A3B8}
+.hd-mini{display:flex;align-items:center;gap:12px;padding:12px 14px;background:linear-gradient(135deg,#1E1B4B,#0F172A);color:#fff;border-radius:14px;text-align:left}
+.hd-mini-cov{width:38px;height:48px;border-radius:6px;background:linear-gradient(135deg,#0a0a14,#6f5cff);flex-shrink:0;box-shadow:0 4px 10px rgba(0,0,0,.3)}
+.hd-mini-info{flex:1;min-width:0}
+.hd-mini-info b{display:block;font-size:13px;font-weight:600;letter-spacing:-.005em}
+.hd-mini-info small{font-family:'JetBrains Mono','Space Mono',monospace;font-size:9.5px;color:rgba(255,255,255,.55);letter-spacing:.08em;margin-top:2px;display:block}
+.hd-mini-btn{width:34px;height:34px;border-radius:50%;background:#fff;color:#1A1A1A;display:grid;place-items:center;flex-shrink:0;font-size:13px}
+.hd-games{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.hd-game{background:rgba(0,0,0,.04);border:1px solid var(--c,#FF6B47);border-radius:12px;padding:14px 6px;font-size:24px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;transition:transform .25s ease}
+.hd-game:hover{transform:translateY(-3px)}
+.hd-game small{font-size:10.5px;color:var(--c,#FF6B47);font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+body[data-theme=aurora] .hd-game{background:rgba(255,255,255,.04)}
+.hd-cal{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.hd-cal-day{background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.06);border-radius:10px;padding:12px 6px;text-align:center;display:flex;flex-direction:column;gap:4px}
+body[data-theme=aurora] .hd-cal-day{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.06)}
+.hd-cal-day b{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.1em;color:#94A3B8;font-weight:600}
+.hd-cal-day span{font-size:18px;font-weight:600;color:#1A1A1A}
+body[data-theme=aurora] .hd-cal-day span{color:#F5F5FA}
+.hd-cal-day-on{background:linear-gradient(135deg,#FCD34D,#FF6B47);border-color:#FF6B47;box-shadow:0 6px 16px -4px rgba(255,107,71,.4)}
+.hd-cal-day-on b,.hd-cal-day-on span{color:#fff}
+.hd-wa{display:flex;flex-direction:column;gap:6px}
+.hd-wa-bub{padding:8px 12px;border-radius:14px;font-size:13px;line-height:1.4;max-width:80%;text-align:left}
+.hd-wa-in{align-self:flex-end;background:#DCF8C6;color:#1A1A1A;border-bottom-right-radius:4px}
+body[data-theme=aurora] .hd-wa-in{background:#0E7C66;color:#fff}
+.hd-wa-out{align-self:flex-start;background:#fff;color:#1A1A1A;border-bottom-left-radius:4px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+body[data-theme=aurora] .hd-wa-out{background:rgba(255,255,255,.08);color:#fff}
+@media (max-width:560px){.hd-mdl{max-height:96vh;border-radius:24px 24px 0 0;align-self:flex-end;width:100%}.hd-step-t{font-size:26px}.hd-step-d{font-size:15px}.hd-step-ic{width:74px;height:74px;font-size:36px;border-radius:20px}.hd-step-wrap{padding:6px 22px 18px}.hd-foot{padding:14px 18px calc(14px + env(safe-area-inset-bottom,0px))}}
 .help-hd{display:flex;align-items:center;gap:12px;padding:18px 20px 14px;background:linear-gradient(135deg,#0F172A,#312E81);color:#fff;position:relative;flex-shrink:0}
 .help-hd > div{flex:1;min-width:0}
 .help-t{margin:0;font-size:20px;font-weight:800;color:#fff;letter-spacing:-.01em}
@@ -5135,8 +5228,11 @@ async function playMeditation(id,title,mins,preferFile){S.meditating={active:tru
 try{const last=parseInt(localStorage.getItem('med_last_count_ts')||'0',10);if(Date.now()-last>60000){const cur=parseInt(localStorage.getItem('med_count')||'0',10)||0;localStorage.setItem('med_count',String(cur+1));localStorage.setItem('med_last_count_ts',String(Date.now()));const today=new Date().toISOString().slice(0,10);const days=(localStorage.getItem('med_days')||'').split(',').filter(Boolean);if(days[days.length-1]!==today){days.push(today);localStorage.setItem('med_days',days.slice(-365).join(','))}}}catch(e){}
 render();try{const r=await fetch('https://archive.org/metadata/'+encodeURIComponent(id));if(!r.ok)throw new Error('metadata '+r.status);const j=await r.json();if(!j.files||!j.files.length){toast('\\u26A0\\uFE0F No audio \\u2014 opening archive.org','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render();return}let mp3=null;if(preferFile){mp3=j.files.find(f=>f.name===preferFile||(f.name||'').endsWith('/'+preferFile))}if(!mp3){const mp3s=j.files.filter(f=>/\\.mp3$/i.test(f.name)&&!/sample|preview|announce|intro\\.mp3|sting/i.test(f.name)).sort((a,b)=>(parseFloat(b.length||'0')||0)-(parseFloat(a.length||'0')||0));mp3=mp3s[0]}if(!mp3)mp3=j.files.find(f=>/\\.(mp3|m4a|ogg)$/i.test(f.name));if(mp3){const server=j.server||'archive.org';const dir=j.dir||('/'+id);const directUrl='https://'+server+dir+'/'+mp3.name.split('/').map(encodeURIComponent).join('/');const dlUrl='https://archive.org/download/'+encodeURIComponent(id)+'/'+mp3.name.split('/').map(encodeURIComponent).join('/');S.playing={id,title:title||mins+'-min meditation',author:'\\u{1F9D8} Guided meditation \\u2022 Archive.org',url:directUrl,altUrl:dlUrl,external:'https://archive.org/details/'+id};render();setTimeout(()=>{const a=document.getElementById('audioEl');if(!a)return;a.setAttribute('playsinline','');a.preload='auto';a.addEventListener('error',function onErr(){a.removeEventListener('error',onErr);if(a.src!==dlUrl){a.src=dlUrl;a.load()}},{once:true});a.load();const p=a.play();if(p&&p.catch)p.catch(()=>toast('\\u25B6\\uFE0F Tap play on the bar','err'))},250)}else{toast('\\u26A0\\uFE0F No mp3 \\u2014 opening archive.org','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render()}}catch(e){toast('\\u26A0\\uFE0F '+e.message,'err');S.playing=null;render()}}
 async function openProfile(){S.showProfile=true;render();const me=await api('/me');if(me&&!me.error)S.profile=me;render()}
-function openHelp(){S.showHelp=true;render();setTimeout(()=>{const m=document.querySelector('.help-mdl');if(m)m.scrollTop=0},50)}
+function openHelp(){S.showHelp=true;S.helpStep=0;render()}
 function closeHelp(){S.showHelp=false;render()}
+function helpNext(){S.helpStep=Math.min((S.helpStep||0)+1,5);render()}
+function helpPrev(){S.helpStep=Math.max((S.helpStep||0)-1,0);render()}
+function helpGo(i){S.helpStep=i;render()}
 function closeProfile(){S.showProfile=false;render()}
 async function saveName(){const n=(document.getElementById('pfName')||{}).value;if(!n||!n.trim())return;const r=await api('/me',{method:'PUT',body:JSON.stringify({name:n.trim()})});if(r&&r.name){S.user.name=r.name;localStorage.setItem('tf_name',r.name);S.profile=Object.assign(S.profile||{},{name:r.name});toast('\\u2705 Name updated');render()}}
 async function refreshSession(){
@@ -7420,54 +7516,36 @@ if(S.showProfile){
 // ─── HELP modal — full step-by-step guide ───
 if(S.showHelp){
   const sandboxCode=window.__TWILIO_SANDBOX_CODE||'along-wool';
-  h+='<div class="ov" onclick="closeHelp()"><div class="mdl help-mdl-v2" onclick="event.stopPropagation()">';
+  const HSTEPS=[
+    {ic:'\\u270F\\uFE0F',grad:'linear-gradient(135deg,#FF6B47,#FFB547)',t:'Add a task in seconds',d:'Tap the <b>+ New task</b> chip at the top of the Tasks tab. Give it a title, optionally a due date and priority, then save.',tip:'You can also send any message to the WhatsApp bot \\u2014 it becomes a task automatically.',demoHTML:'<div class="hd-task"><div class="hd-task-circle"></div><div class="hd-task-body"><div class="hd-task-t">Reply to Sam</div><div class="hd-task-m"><span class="hd-task-pill" style="background:rgba(255,107,71,.18);color:#FFB89E">\\u{1F4C5} Tomorrow</span><span class="hd-task-pill" style="background:rgba(220,38,38,.18);color:#FCA5A5">\\u{1F525} High</span></div></div></div>'},
+    {ic:'\\u2713',grad:'linear-gradient(135deg,#22D3EE,#3B82F6)',t:'Plan, do, complete',d:'Tap the round circle on the left of any task to mark it done. Need columns? Switch to the <b>Board</b> tab for a To-Do / Doing / Done view.',tip:'Drag cards between columns on desktop. On mobile, tap the status badge to cycle.',demoHTML:'<div class="hd-board"><div class="hd-col"><div class="hd-col-h">To Do</div><div class="hd-task-mini">Pay rent</div></div><div class="hd-col hd-col-on"><div class="hd-col-h">Doing</div><div class="hd-task-mini">Reply to Sam</div></div><div class="hd-col"><div class="hd-col-h">Done</div><div class="hd-task-mini hd-done">Buy milk</div></div></div>'},
+    {ic:'\\u{1F3A7}',grad:'linear-gradient(135deg,#A78BFA,#EC4899)',t:'Briefs in your earbuds',d:'Open the <b>Briefs</b> tab and tap any book cover. The audio summary plays in the bottom mini-player while you keep working. Tap the mini-player to expand and read along.',tip:'Listen for 2 minutes a day to keep your brief streak alive.',demoHTML:'<div class="hd-mini"><div class="hd-mini-cov"></div><div class="hd-mini-info"><b>Atomic Habits</b><small>NOW PLAYING \\u00B7 STUDIO</small></div><div class="hd-mini-btn">\\u23F8</div></div>'},
+    {ic:'\\u{1F9E0}',grad:'linear-gradient(135deg,#86EFAC,#22D3EE)',t:'5-minute mind workout',d:'The <b>Mind Gym</b> tab has four micro-games: math, memory, reflex, and word. One round of each is your daily warm-up.',tip:'Each game is sub-90 seconds. Beat your best for an XP boost.',demoHTML:'<div class="hd-games"><div class="hd-game" style="--c:#22D3EE">\\u{1F522}<small>Math</small></div><div class="hd-game" style="--c:#A78BFA">\\u{1F9E9}<small>Memory</small></div><div class="hd-game" style="--c:#FFB547">\\u26A1<small>Reflex</small></div><div class="hd-game" style="--c:#34D399">\\u{1F520}<small>Word</small></div></div>'},
+    {ic:'\\u{1F9D8}',grad:'linear-gradient(135deg,#FCD34D,#FF6B47)',t:'Calm &amp; calendar',d:'<b>Meditate</b>: pick a 10 or 20-minute guided session and breathe. <b>Calendar</b>: connect Google to view and add events without leaving Brodoit.',tip:'Each meditation session counts toward your sessions stat in the Profile.',demoHTML:'<div class="hd-cal"><div class="hd-cal-day"><b>MON</b><span>9</span></div><div class="hd-cal-day hd-cal-day-on"><b>TUE</b><span>10</span></div><div class="hd-cal-day"><b>WED</b><span>11</span></div><div class="hd-cal-day"><b>THU</b><span>12</span></div></div>'},
+    {ic:'\\u{1F4AC}',grad:'linear-gradient(135deg,#25D366,#128C7E)',t:'WhatsApp shortcuts',d:'Tap <b>Profile \\u2192 Set up WhatsApp</b>. One-time setup: send <code>join '+esc(sandboxCode)+'</code> to <b>+1 415 523 8886</b>. Then every message you send becomes a task. Reminders arrive on WhatsApp too.',tip:'Reply to a Brodoit message with <b>list</b>, <b>done</b>, <b>doing</b>, or <b>delete</b> + the task name.',demoHTML:'<div class="hd-wa"><div class="hd-wa-bub hd-wa-in">Reply to Sam tomorrow !urgent</div><div class="hd-wa-bub hd-wa-out">\\u2705 Got it \\u2014 Reply to Sam, due tomorrow, high priority.</div></div>'}
+  ];
+  const stepIdx=Math.max(0,Math.min(S.helpStep||0,HSTEPS.length-1));
+  const step=HSTEPS[stepIdx];const isLast=stepIdx===HSTEPS.length-1;
+  h+='<div class="ov" onclick="closeHelp()"><div class="mdl hd-mdl" onclick="event.stopPropagation()">';
   h+='<button class="hv-x" onclick="closeHelp()" aria-label="Close"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>';
-  h+='<div class="hv-hero">'
-    +'<div class="hv-hero-eyebrow">Welcome to</div>'
-    +'<div class="hv-brand"><span class="b1">Bro</span><span class="b2">do</span><span class="b3">it</span><span class="dot"></span></div>'
-    +'<div class="hv-hero-sub">A calmer way to get things done. Here\\u2019s how it works.</div>'
-  +'</div>';
-  h+='<div class="hv-body">';
-  // Card 1 — Add a task
-  h+='<article class="hv-step"><div class="hv-step-num">01</div>'
-    +'<div class="hv-step-ic" style="background:linear-gradient(135deg,#FF6B47,#FFB547)">\\u270F\\uFE0F</div>'
-    +'<h3 class="hv-step-t">Add a task in one line</h3>'
-    +'<p class="hv-step-d">Type at the top of the Tasks tab. Try <code>Reply to Sam tomorrow !urgent</code> \\u2014 the composer reads natural language and sets the date and priority for you. Press <kbd>Enter</kbd> to save.</p>'
-    +'<div class="hv-step-tip">Tip: chips below the input let you set Today / Tomorrow / High one tap.</div>'
-  +'</article>';
-  // Card 2 — Plan and complete
-  h+='<article class="hv-step"><div class="hv-step-num">02</div>'
-    +'<div class="hv-step-ic" style="background:linear-gradient(135deg,#22D3EE,#3B82F6)">\\u2713</div>'
-    +'<h3 class="hv-step-t">Plan, do, complete</h3>'
-    +'<p class="hv-step-d">Tap a task\\u2019s circle to mark it done. Need columns? Switch to <b>Board</b> for a To Do / Doing / Done view \\u2014 drag on desktop, tap the status badge on mobile.</p>'
-  +'</article>';
-  // Card 3 — Listen to briefs
-  h+='<article class="hv-step"><div class="hv-step-num">03</div>'
-    +'<div class="hv-step-ic" style="background:linear-gradient(135deg,#A78BFA,#EC4899)">\\u{1F3A7}</div>'
-    +'<h3 class="hv-step-t">Briefs in your earbuds</h3>'
-    +'<p class="hv-step-d">Open the <b>Briefs</b> tab. Tap any cover \\u2014 the audio summary plays in the bottom mini-player. Keep working; tap the mini-player to expand and read along.</p>'
-  +'</article>';
-  // Card 4 — Train the mind
-  h+='<article class="hv-step"><div class="hv-step-num">04</div>'
-    +'<div class="hv-step-ic" style="background:linear-gradient(135deg,#86EFAC,#22D3EE)">\\u{1F9E0}</div>'
-    +'<h3 class="hv-step-t">Five-minute mind workout</h3>'
-    +'<p class="hv-step-d">The <b>Mind Gym</b> tab has four micro-games: math, memory, reflex, word. One round each = a 5-minute morning warm-up. Beat your best.</p>'
-  +'</article>';
-  // Card 5 — Calm + Calendar
-  h+='<article class="hv-step"><div class="hv-step-num">05</div>'
-    +'<div class="hv-step-ic" style="background:linear-gradient(135deg,#FCD34D,#FF6B47)">\\u{1F9D8}</div>'
-    +'<h3 class="hv-step-t">Meditate &amp; sync</h3>'
-    +'<p class="hv-step-d"><b>Meditate</b>: 10 / 20-minute guided sessions. <b>Calendar</b>: connect Google to view and add events without leaving Brodoit.</p>'
-  +'</article>';
-  // Card 6 — WhatsApp
-  h+='<article class="hv-step"><div class="hv-step-num">06</div>'
-    +'<div class="hv-step-ic" style="background:linear-gradient(135deg,#25D366,#128C7E)">\\u{1F4AC}</div>'
-    +'<h3 class="hv-step-t">WhatsApp \\u2014 add tasks by chat</h3>'
-    +'<p class="hv-step-d">Tap <b>Profile \\u2192 Set up WhatsApp</b>. One-time setup: send <code>join '+esc(sandboxCode)+'</code> to <b>+1 415 523 8886</b>. After that, every message you send becomes a task and reminders arrive on WhatsApp.</p>'
-    +'<div class="hv-step-tip">Reply to a Brodoit message with <b>list</b>, <b>done <i>title</i></b>, <b>doing <i>title</i></b>, or <b>delete <i>title</i></b>.</div>'
-  +'</article>';
+  // Progress dots at top
+  h+='<div class="hd-dots">';
+  HSTEPS.forEach((_,i)=>{h+='<button class="hd-dot'+(i===stepIdx?' on':'')+(i<stepIdx?' done':'')+'" onclick="helpGo('+i+')" aria-label="Step '+(i+1)+'"></button>'});
   h+='</div>';
-  h+='<div class="hv-foot"><div class="hv-foot-l">Built with care \\u00B7 <a href="/privacy" target="_blank" rel="noopener">Privacy</a> \\u00B7 <a href="/terms" target="_blank" rel="noopener">Terms</a></div><button class="hv-foot-cta" onclick="closeHelp()">Let\\u2019s do it \\u2192</button></div>';
+  // Step body
+  h+='<div class="hd-step-wrap"><div class="hd-step" key="'+stepIdx+'">'
+    +'<div class="hd-step-ic" style="background:'+step.grad+'">'+step.ic+'</div>'
+    +'<div class="hd-step-num">Step '+(stepIdx+1)+' of '+HSTEPS.length+'</div>'
+    +'<h2 class="hd-step-t">'+step.t+'</h2>'
+    +'<p class="hd-step-d">'+step.d+'</p>'
+    +'<div class="hd-demo">'+step.demoHTML+'</div>'
+    +(step.tip?'<div class="hd-tip"><span>\\u{1F4A1}</span><span>'+step.tip+'</span></div>':'')
+  +'</div></div>';
+  // Footer with prev/next
+  h+='<div class="hd-foot">'
+    +'<button class="hd-foot-prev'+(stepIdx===0?' is-disabled':'')+'" onclick="helpPrev()"'+(stepIdx===0?' disabled':'')+'><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Back</button>'
+    +(isLast?'<button class="hd-foot-cta" onclick="closeHelp()">Let\\u2019s do it \\u2192</button>':'<button class="hd-foot-cta" onclick="helpNext()">Next <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>')
+  +'</div>';
   h+='</div></div>';
 }
 
