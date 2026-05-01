@@ -4207,12 +4207,17 @@ body:has(.player.on) .bk-mini{bottom:170px !important}
 .bk-mode-toggle{display:inline-flex;gap:4px;padding:4px;background:#F4F3EE;border:1px solid #E8E6E0;border-radius:999px;margin-bottom:18px}
 .bk-mode-toggle button{padding:8px 16px;border-radius:999px;font-weight:500;font-size:13.5px;color:#6B6B6B;background:transparent;border:0;cursor:pointer;transition:all .2s;font-family:inherit}
 .bk-mode-toggle button.on{background:#1A1A1A;color:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12)}
-.bk-sum-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px;margin-bottom:24px}
-.bk-sum-card{cursor:pointer;border:0;background:none;padding:0;font-family:inherit;text-align:left;display:flex;flex-direction:column;gap:10px;transition:transform .35s cubic-bezier(.16,1,.3,1)}
-.bk-sum-card:hover{transform:translateY(-4px)}
-.bk-sum-cover{position:relative;aspect-ratio:3/4;border-radius:14px;padding:18px 16px;display:flex;flex-direction:column;justify-content:space-between;color:#fff;border:1px solid rgba(255,255,255,.08);box-shadow:0 14px 36px -12px rgba(0,0,0,.55);overflow:hidden;isolation:isolate}
-.bk-sum-cover::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.14) 50%,transparent 65%);transform:translateX(-100%);transition:transform .8s cubic-bezier(.16,1,.3,1);pointer-events:none}
+.bk-sum-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:18px;margin-bottom:24px}
+.bk-sum-card{cursor:pointer;border:0;background:none;padding:0;font-family:inherit;text-align:left;display:flex;flex-direction:column;gap:10px;transition:transform .35s cubic-bezier(.16,1,.3,1);position:relative}
+.bk-sum-card:hover{transform:translateY(-6px)}
+.bk-sum-cover{position:relative;aspect-ratio:3/4;border-radius:14px;padding:18px 16px;display:flex;flex-direction:column;justify-content:space-between;color:#fff;border:1px solid rgba(255,255,255,.08);box-shadow:0 14px 36px -12px rgba(0,0,0,.55);overflow:hidden;isolation:isolate;transition:box-shadow .3s ease}
+.bk-sum-card:hover .bk-sum-cover{box-shadow:0 22px 50px -10px rgba(0,0,0,.6)}
+.bk-sum-cover::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.14) 50%,transparent 65%);transform:translateX(-100%);transition:transform .8s cubic-bezier(.16,1,.3,1);pointer-events:none;z-index:1}
 .bk-sum-card:hover .bk-sum-cover::after{transform:translateX(100%)}
+.bk-sum-play{position:absolute;bottom:14px;right:14px;width:42px;height:42px;border-radius:50%;background:#fff;color:#1A1A1A;display:flex;align-items:center;justify-content:center;border:0;cursor:pointer;box-shadow:0 8px 22px -4px rgba(0,0,0,.4);opacity:0;transform:translateY(8px) scale(.85);transition:opacity .25s ease,transform .25s cubic-bezier(.34,1.56,.64,1),background .2s ease;z-index:3}
+.bk-sum-card:hover .bk-sum-play{opacity:1;transform:translateY(0) scale(1)}
+.bk-sum-play:hover{background:#FF6B47;color:#fff}
+@media (hover:none){.bk-sum-play{opacity:1;transform:none}}
 .bk-sum-cover h5{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400;font-size:20px;line-height:1.05;letter-spacing:-.015em;color:#fff;margin:0}
 .bk-sum-cover .auth{font-family:'JetBrains Mono','Space Mono',monospace;font-size:10px;font-weight:500;letter-spacing:.1em;color:rgba(255,255,255,.78);text-transform:uppercase;margin-top:6px}
 .bk-sum-mins{position:absolute;top:12px;right:12px;padding:4px 10px;border-radius:999px;background:rgba(0,0,0,.45);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:500;letter-spacing:.08em;color:#fff;text-transform:uppercase;border:1px solid rgba(255,255,255,.15)}
@@ -4249,11 +4254,12 @@ body:has(.player.on) .bk-mini{bottom:170px !important}
 .bk-section{padding:0 28px 28px}
 @media (max-width:600px){.bk-section{padding:0 22px 24px}}
 .bk-section h3{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:#1F4D3F;margin:24px 0 14px}
-.bk-insight{display:grid;grid-template-columns:auto 1fr;gap:18px;padding:18px 20px;background:#fff;border:1px solid #E8E6E0;border-radius:12px;margin-bottom:8px;transition:border-color .2s}
-.bk-insight:hover{border-color:#CFCFCF}
-.bk-insight .n{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400;font-size:24px;color:#1F4D3F;width:32px;line-height:1;padding-top:2px}
-.bk-insight h4{font-size:15px;font-weight:600;letter-spacing:-.005em;color:#1A1A1A;margin:0 0 4px}
-.bk-insight p{font-size:13.5px;color:#3D3D3D;line-height:1.5;margin:0}
+.bk-section-sub{font-size:14px;color:#6B6B6B;line-height:1.55;margin:-4px 0 18px;max-width:600px}
+.bk-chapter{padding:22px 24px;background:#fff;border:1px solid #E8E6E0;border-radius:14px;margin-bottom:12px;transition:border-color .2s,transform .2s,box-shadow .25s ease}
+.bk-chapter:hover{border-color:#CFCFCF;transform:translateY(-1px);box-shadow:0 6px 18px -8px rgba(0,0,0,.08)}
+.bk-chapter-tag{display:inline-block;font-family:'JetBrains Mono','Space Mono',monospace;font-size:10.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#1F4D3F;background:rgba(31,77,63,.08);padding:5px 10px;border-radius:999px;margin-bottom:12px}
+.bk-chapter h4{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:22px;line-height:1.2;letter-spacing:-.015em;color:#1A1A1A;margin:0 0 8px}
+.bk-chapter p{font-size:15px;color:#3D3D3D;line-height:1.6;margin:0;letter-spacing:-.005em}
 .bk-summary{font-size:15.5px;color:#1A1A1A;line-height:1.75;letter-spacing:-.005em;font-family:'Inter',sans-serif}
 .bk-summary p{margin-top:14px}.bk-summary p:first-child{margin-top:0;font-style:italic;color:#3D3D3D}
 .bk-tts{position:sticky;bottom:0;display:flex;align-items:center;gap:14px;padding:14px 20px;background:rgba(255,255,255,.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid #E8E6E0}
@@ -5686,7 +5692,7 @@ const BOOK_SUMMARIES=[
    insights:[['Passion is downstream of mastery','You don\\'t love things because they feel right. They feel right because you are good at them.'],['Career capital','Build rare and valuable skills. They become the currency you trade for autonomy and meaning.'],['Be so good they cannot ignore you','The Steve Martin advice. Skill speaks louder than self-promotion.'],['Mission needs traction','You can\\'t pick a mission from a blank page. Mission emerges from skill, not before it.'],['The craftsman mindset','Focus on what you produce, not how it makes you feel. Feeling follows production.']],
    summary:'Cal Newport\\'s long argument against the "follow your passion" gospel. Passion, he argues, is not how you find work you love. It is what happens after you become good at something. The reason most twenty-somethings hate their jobs is not that they picked the wrong career — it is that they are at the bottom of the skill ladder in every career, where the work is least autonomous and least meaningful. The fix is to stop asking "what should I do with my life" and start asking "what skills can I get rare-and-valuable at right now". Newport calls this career capital. The more rare and valuable your skills, the more leverage you have to negotiate for autonomy, mission, and money. The mantra he borrows from Steve Martin: be so good they cannot ignore you. Mission needs traction — you cannot pick a meaningful mission from a blank page. Mission emerges from accumulated expertise. Adopt the craftsman mindset: focus on what you produce, not how it makes you feel. Feeling follows production, not the other way around.'}
 ];
-function openBookSummary(id){const b=BOOK_SUMMARIES.find(x=>x.id===id);if(!b)return;S.bookReader={open:true,book:b,playing:false,rate:1};render()}
+function openBookSummary(id,autoplay){const b=BOOK_SUMMARIES.find(x=>x.id===id);if(!b)return;S.bookReader={open:true,book:b,playing:false,rate:1};render();if(autoplay!==false){setTimeout(function(){if(S.bookReader&&S.bookReader.book&&S.bookReader.book.id===id&&!S.bookReader.playing)bookReaderToggleTTS()},200)}}
 function closeBookReader(){
   // If audio is currently playing, keep it going as a persistent mini-player at the bottom
   if(S.bookReader&&S.bookReader.playing&&S.bookReader.book){
@@ -6798,7 +6804,7 @@ else if(S.tab==='books'){
     const bkFiltered=S.bkCat&&S.bkCat!=='all'?BOOK_SUMMARIES.filter(b=>b.tag===S.bkCat):BOOK_SUMMARIES;
     bkFiltered.forEach(b=>{
       h+='<button class="bk-sum-card" onclick="openBookSummary(\\''+b.id+'\\')">';
-      h+='<div class="bk-sum-cover" style="background:'+b.grad+'"><div class="bk-sum-mins">'+b.mins+' min</div><div></div><div><h5>'+esc(b.title)+'</h5><div class="auth">'+esc(b.author)+'</div></div></div>';
+      h+='<div class="bk-sum-cover" style="background:'+b.grad+'"><div class="bk-sum-mins">'+b.mins+' min</div><div></div><div><h5>'+esc(b.title)+'</h5><div class="auth">'+esc(b.author)+'</div></div><span class="bk-sum-play" aria-label="Play"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg></span></div>';
       h+='<div class="bk-sum-meta">'+esc(b.title)+'<small>'+esc(b.author)+'</small></div>';
       h+='</button>';
     });
@@ -7028,12 +7034,12 @@ if(S.bookReader&&S.bookReader.open&&S.bookReader.book){
   h+='<header class="bk-reader-top"><span class="label">'+b.mins+'-MIN SUMMARY \\u00B7 '+esc(b.tag)+'</span><div style="display:flex;gap:8px">'+(r.playing?'<button class="bk-x" onclick="closeBookReader()" title="Minimize \\u2014 audio keeps playing in mini-player" style="background:#1F4D3F;color:#fff;border-color:#1F4D3F">\\u2014 Minimize</button>':'')+'<button class="bk-x" onclick="_premiumStop();S.bookReader={open:false};render()" title="Close and stop audio">\\u2715</button></div></header>';
   h+='<div class="bk-reader-hero"><div class="cover" style="background:'+b.grad+'"><div class="auth">'+esc(b.author)+'</div><h2>'+esc(b.title)+'</h2></div>';
   h+='<div class="info"><h1>'+esc(b.title)+'</h1><div class="by">By <b>'+esc(b.author)+'</b></div><p class="why">'+esc(b.why)+'</p>';
-  h+='<div class="stats"><div><span class="num">'+b.insights.length+'</span><span class="lbl">Key insights</span></div><div><span class="num">'+b.mins+'m</span><span class="lbl">Read time</span></div><div><span class="num">'+(b.summary.length<2000?'\\u26A1':'\\u{1F4DA}')+'</span><span class="lbl">'+(b.summary.length<2000?'Quick':'Deep')+'</span></div></div>';
+  h+='<div class="stats"><div><span class="num">'+b.insights.length+'</span><span class="lbl">Chapters</span></div><div><span class="num">'+b.mins+'m</span><span class="lbl">Read time</span></div><div><span class="num">'+(b.summary.length<2000?'\\u26A1':'\\u{1F4DA}')+'</span><span class="lbl">'+(b.summary.length<2000?'Quick':'Deep')+'</span></div></div>';
   h+='<div class="actions"><button class="bk-btn bk-btn-primary" onclick="bookReaderToggleTTS()">'+(r.playing?'\\u23F8 Pause':'\\u25B6\\uFE0F Listen')+'</button><button class="bk-btn bk-btn-ghost" onclick="document.getElementById(\\'bk-summary-anchor\\').scrollIntoView({behavior:\\'smooth\\'})">Read summary</button></div></div></div>';
-  h+='<div class="bk-section"><h3>Key insights</h3>';
-  b.insights.forEach((it,i)=>{h+='<div class="bk-insight"><div class="n">'+String(i+1).padStart(2,'0')+'</div><div><h4>'+esc(it[0])+'</h4><p>'+esc(it[1])+'</p></div></div>'});
+  h+='<div class="bk-section"><h3>What you\\'ll learn</h3><p class="bk-section-sub">'+b.insights.length+' core ideas from <i>'+esc(b.title)+'</i> \\u2014 each one a single concept worth carrying with you.</p>';
+  b.insights.forEach((it,i)=>{h+='<div class="bk-chapter"><div class="bk-chapter-tag">Chapter '+(i+1)+'</div><h4>'+esc(it[0])+'</h4><p>'+esc(it[1])+'</p></div>'});
   h+='</div>';
-  h+='<div class="bk-section" id="bk-summary-anchor"><h3>The 15-minute summary</h3><div class="bk-summary"><p>'+esc(b.summary).split('. ').reduce((acc,s,i,a)=>{if(i===0)acc.push(s);else if(i%4===0)acc.push('</p><p>'+s);else acc.push('. '+s);return acc},[]).join('')+(b.summary.endsWith('.')?'':'.')+'</p></div></div>';
+  h+='<div class="bk-section" id="bk-summary-anchor"><h3>The full brief</h3><p class="bk-section-sub">A '+b.mins+'-minute read \\u2014 or hit <b>Listen</b> above to have it narrated.</p><div class="bk-summary"><p>'+esc(b.summary).split('. ').reduce((acc,s,i,a)=>{if(i===0)acc.push(s);else if(i%4===0)acc.push('</p><p>'+s);else acc.push('. '+s);return acc},[]).join('')+(b.summary.endsWith('.')?'':'.')+'</p></div></div>';
   // Upgrade prompt — only when ElevenLabs is NOT configured and user clicks Listen
   if(!(S.coach&&S.coach.status&&S.coach.status.tts)){
     h+='<div class="bk-section" style="padding-bottom:14px"><div style="padding:18px 22px;background:linear-gradient(135deg,#FFF8F2,#FFFFFF);border:1px solid #FFD0B5;border-radius:14px;display:flex;gap:14px;align-items:flex-start"><span style="font-size:24px">\\u{1F3AC}</span><div style="flex:1;font-size:13.5px;line-height:1.55;color:#3D3D3D"><b style="color:#1A1A1A;font-weight:600">Want a real human-quality narrator?</b><br/>The current voice is your browser\\u2019s built-in TTS \\u2014 functional, but robotic. Add an <a href="https://elevenlabs.io/app/settings/api-keys" target="_blank" rel="noopener" style="color:#1F4D3F;font-weight:600">ElevenLabs API key</a> to <code style="font-family:\\'JetBrains Mono\\',monospace;font-size:11px;background:rgba(0,0,0,.05);padding:2px 6px;border-radius:4px">ELEVENLABS_API_KEY</code> in your Railway env, redeploy, and the reader switches to studio-quality Adam (deep, warm, deliberate). Free tier covers ~10 books/month.</div></div></div>';
