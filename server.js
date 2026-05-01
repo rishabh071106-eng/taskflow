@@ -1683,6 +1683,25 @@ body[data-theme=aurora] .vc-mdl-nav{background:rgba(255,255,255,.02);border-colo
 .mg-react-go{background:linear-gradient(135deg,#16A34A,#15803D);animation:mgReactPulse .6s ease infinite alternate}
 .mg-react-early{background:linear-gradient(135deg,#7C2D12,#451A03);font-size:16px}
 .mg-react-done{background:linear-gradient(135deg,#312E81,#5B21B6);cursor:default}
+/* Schulte Grid */
+.sch-body{display:flex;flex-direction:column;gap:14px;padding:6px 0}
+.sch-status{display:flex;align-items:center;justify-content:space-between;padding:0 4px}
+.sch-target{font-size:15px;color:rgba(0,0,0,.65)}
+.sch-target b{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:32px;color:#FF6B47;margin-left:4px;line-height:1;letter-spacing:-.02em}
+body[data-theme=aurora] .sch-target{color:rgba(255,255,255,.7)}
+.sch-prog{font-family:'JetBrains Mono','Space Mono',monospace;font-size:11.5px;letter-spacing:.08em;color:#9A9A9A;text-transform:uppercase;font-weight:600}
+.sch-grid{display:grid;gap:6px;width:100%}
+.sch-cell{font-family:'Inter',sans-serif;font-weight:600;font-size:clamp(16px,4vw,22px);aspect-ratio:1;border:1px solid rgba(0,0,0,.08);background:#fff;color:#1A1A1A;border-radius:10px;cursor:pointer;display:grid;place-items:center;transition:transform .12s ease,background .15s ease,border-color .15s ease,color .15s ease}
+body[data-theme=aurora] .sch-cell{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.1);color:#F5F5FA}
+.sch-cell:not(:disabled):active{transform:scale(.92)}
+.sch-cell.sch-good{background:linear-gradient(135deg,#34D399,#22D3EE);color:#fff;border-color:transparent}
+.sch-cell.sch-bad{background:linear-gradient(135deg,#FB7185,#DC2626);color:#fff;border-color:transparent;animation:schShake .25s ease}
+.sch-cell.sch-done{opacity:.18;cursor:default;text-decoration:line-through}
+@keyframes schShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+.sch-foot{display:flex;align-items:center;justify-content:space-between;font-family:'JetBrains Mono','Space Mono',monospace;font-size:12px;letter-spacing:.06em;color:#6B6B6B}
+body[data-theme=aurora] .sch-foot{color:rgba(255,255,255,.55)}
+.mt-end-meta{font-family:'JetBrains Mono','Space Mono',monospace;font-size:11.5px;letter-spacing:.08em;color:rgba(0,0,0,.5);margin-top:6px;text-transform:uppercase}
+body[data-theme=aurora] .mt-end-meta{color:rgba(255,255,255,.5)}
 @keyframes mgReactPulse{from{box-shadow:0 0 0 rgba(34,197,94,0)}to{box-shadow:0 0 36px rgba(34,197,94,.7)}}
 .mg-react-time{font-family:'Space Mono',monospace;font-size:64px;font-weight:900;letter-spacing:-.02em;color:#FCD34D}
 .mg-react-time small{font-size:18px;font-weight:700;color:rgba(252,211,77,.7);margin-left:4px}
@@ -2823,6 +2842,45 @@ body:not([data-theme=aurora]) .game-chip-bar{background:#F4F3EE}
 body:not([data-theme=aurora]) .game-chip-foot{color:#9A9A9A}
 body:not([data-theme=aurora]) .game-chip-foot b{color:#1A1A1A}
 @media (max-width:560px){.game-chips{grid-template-columns:1fr 1fr;gap:10px}.game-chip{padding:16px 14px 14px}.game-chip-name{font-size:14.5px}.game-chip-d{font-size:11.5px;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden}}
+/* ─── Level progression path ─── */
+.lvl-path{margin:18px 0;padding:20px 20px 14px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)}
+body:not([data-theme=aurora]) .lvl-path{background:#fff;border-color:#E8E6E0}
+.lvl-path-hd{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.06)}
+body:not([data-theme=aurora]) .lvl-path-hd{border-bottom-color:#F0EDE7}
+.lvl-path-t{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:24px;letter-spacing:-.015em;color:#fff;margin:0 0 4px}
+body:not([data-theme=aurora]) .lvl-path-t{color:#1A1A1A}
+.lvl-path-s{font-size:12.5px;color:rgba(255,255,255,.55)}
+body:not([data-theme=aurora]) .lvl-path-s{color:#6B6B6B}
+.lvl-path-s b{color:#fff;font-weight:600}
+body:not([data-theme=aurora]) .lvl-path-s b{color:#1A1A1A}
+.lvl-path-overall{text-align:right;flex-shrink:0}
+.lvl-path-overall b{display:block;font:600 26px/1 'Inter',sans-serif;letter-spacing:-.02em;background:linear-gradient(135deg,#FF6B47,#FFB547);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.lvl-path-overall small{display:block;font-family:'JetBrains Mono','Space Mono',monospace;font-size:9.5px;letter-spacing:.1em;color:rgba(255,255,255,.45);margin-top:4px;text-transform:uppercase}
+body:not([data-theme=aurora]) .lvl-path-overall small{color:#6B6B6B}
+.lvl-row{padding:14px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+body:not([data-theme=aurora]) .lvl-row{border-bottom-color:#F4F3EE}
+.lvl-row:last-of-type{border-bottom:0;padding-bottom:0}
+.lvl-row-hd{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:13.5px}
+.lvl-row-emoji{font-size:18px;line-height:1}
+.lvl-row-name{font-weight:600;color:#fff;letter-spacing:-.005em;flex:1}
+body:not([data-theme=aurora]) .lvl-row-name{color:#1A1A1A}
+.lvl-row-lvl{font-family:'JetBrains Mono','Space Mono',monospace;font-size:10.5px;letter-spacing:.08em;color:rgba(255,255,255,.5);text-transform:uppercase;font-weight:600;padding:3px 9px;border-radius:6px;background:rgba(255,255,255,.06)}
+body:not([data-theme=aurora]) .lvl-row-lvl{background:#F4F3EE;color:#6B6B6B}
+.lvl-row-rail{display:flex;align-items:center;gap:0;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding:4px 2px;-webkit-overflow-scrolling:touch}
+.lvl-row-rail::-webkit-scrollbar{display:none}
+.lvl-step{flex-shrink:0;width:30px;height:30px;border-radius:50%;border:2px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:rgba(255,255,255,.4);font:600 12px/1 'JetBrains Mono','Space Mono',monospace;cursor:pointer;display:grid;place-items:center;transition:all .25s cubic-bezier(.34,1.56,.64,1)}
+body:not([data-theme=aurora]) .lvl-step{background:#F4F3EE;border-color:#E8E6E0;color:#9A9A9A}
+.lvl-step:hover{transform:scale(1.12)}
+.lvl-step.lvl-done{background:var(--accent,#FF6B47);border-color:var(--accent,#FF6B47);color:#fff;box-shadow:0 4px 12px -4px var(--accent,#FF6B47)}
+.lvl-step.lvl-current{background:#fff;border-color:var(--accent,#FF6B47);color:var(--accent,#FF6B47);box-shadow:0 0 0 4px rgba(255,107,71,.25);animation:lvlPulse 2s ease-in-out infinite}
+body[data-theme=aurora] .lvl-step.lvl-current{background:#171425}
+.lvl-step.lvl-locked{cursor:not-allowed;opacity:.5}
+.lvl-step.lvl-locked:hover{transform:none}
+@keyframes lvlPulse{0%,100%{box-shadow:0 0 0 4px rgba(255,107,71,.25)}50%{box-shadow:0 0 0 8px rgba(255,107,71,.05)}}
+.lvl-link{flex:1;height:2px;background:rgba(255,255,255,.06);min-width:6px;max-width:24px;align-self:center}
+body:not([data-theme=aurora]) .lvl-link{background:#E8E6E0}
+.lvl-step.lvl-done + .lvl-link{background:var(--accent,#FF6B47);opacity:.6}
+@media (max-width:560px){.lvl-step{width:26px;height:26px;font-size:10.5px}.lvl-link{min-width:4px;max-width:14px}.lvl-path-t{font-size:20px}.lvl-path-overall b{font-size:22px}}
 /* ─── Home hero greeting (Tasks tab) ─── */
 .home-hero{position:relative;border-radius:24px;padding:30px 28px 24px;margin:0 0 18px;overflow:hidden;color:#fff;isolation:isolate;background:linear-gradient(135deg,#1A0E2E 0%,#2A1845 50%,#3D1F5F 100%);box-shadow:0 22px 50px -16px rgba(91,33,182,.45)}
 .home-hero .hh-bg{position:absolute;inset:0;background:radial-gradient(900px 500px at 0% 0%,rgba(255,107,71,.35) 0%,transparent 55%),radial-gradient(700px 500px at 100% 100%,rgba(167,139,250,.3) 0%,transparent 55%);z-index:-1;animation:hhBgDrift 18s ease-in-out infinite alternate}
@@ -4158,6 +4216,21 @@ body:has(.player.on) .bk-mini{bottom:170px !important}
 
 /* Category pills for books */
 .bk-cats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.bk-search{position:relative;margin-bottom:14px;display:flex;align-items:center;gap:10px;padding:0 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;transition:border-color .2s ease,box-shadow .25s ease}
+.bk-search:focus-within{border-color:rgba(255,107,71,.5);box-shadow:0 6px 20px -8px rgba(255,107,71,.35)}
+.bk-search-ic{flex-shrink:0;color:rgba(255,255,255,.4)}
+.bk-search input{flex:1;background:transparent;border:0;outline:0;padding:13px 0;color:#F5F5FA;font:500 14.5px/1.4 inherit;letter-spacing:-.005em;min-width:0}
+.bk-search input::placeholder{color:rgba(255,255,255,.42);font-weight:400}
+.bk-search-x{flex-shrink:0;width:24px;height:24px;border-radius:50%;border:0;background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);cursor:pointer;display:grid;place-items:center;font-size:11px;transition:background .2s,color .2s}
+.bk-search-x:hover{background:rgba(220,38,38,.4);color:#fff}
+.bk-search-meta{font-family:'JetBrains Mono','Space Mono',monospace;font-size:11px;letter-spacing:.06em;color:rgba(255,255,255,.5);margin-bottom:14px;text-transform:uppercase}
+body:not([data-theme=aurora]) .bk-search{background:#fff;border-color:#E8E6E0}
+body:not([data-theme=aurora]) .bk-search:focus-within{border-color:#FF6B47}
+body:not([data-theme=aurora]) .bk-search input{color:#1A1A1A}
+body:not([data-theme=aurora]) .bk-search input::placeholder{color:rgba(26,26,26,.4)}
+body:not([data-theme=aurora]) .bk-search-ic{color:rgba(26,26,26,.45)}
+body:not([data-theme=aurora]) .bk-search-x{background:#F4F3EE;color:#6B6B6B}
+body:not([data-theme=aurora]) .bk-search-meta{color:#6B6B6B}
 .bk-cat{padding:7px 14px;border-radius:999px;border:1px solid #ECEAE3;background:#fff;color:#3D3D3D;font-family:inherit;font-size:12.5px;font-weight:500;cursor:pointer;transition:all .2s}
 .bk-cat:hover{border-color:#1A1A1A;color:#1A1A1A}
 .bk-cat.on{background:#1A1A1A;color:#fff;border-color:#1A1A1A}
@@ -4706,7 +4779,7 @@ rps:{playerWins:Number(localStorage.getItem('tf_rps_w')||0),botWins:Number(local
 guess:{target:null,attempts:0,history:[],message:'',ended:false},
 dice:{values:[],history:[],rolling:false},
 // Mind Gym — server-tracked progress + ephemeral per-play state
-mg:{progress:{math:{level:1,xp:0,best:0},memory:{level:1,xp:0,best:0},reaction:{level:1,xp:0,best:0},word:{level:1,xp:0,best:0}},streak:{current:0,longest:0,total:0},loaded:false},
+mg:{progress:{math:{level:1,xp:0,best:0},memory:{level:1,xp:0,best:0},reaction:{level:1,xp:0,best:0},word:{level:1,xp:0,best:0},schulte:{level:1,xp:0,best:0}},streak:{current:0,longest:0,total:0},loaded:false},
 mgPlay:null,  // {game:'math|memory|reaction', ...gameSpecificState}
 // Voice Trainer
 voice:{loaded:false,curriculum:{days:[]},progress:{completed:0,totalPoints:0,pct:0,level:1,maxLevel:4,rows:[]}},
@@ -5043,7 +5116,7 @@ async function sAll(){
   else toast('\\u26A0\\uFE0F '+((r&&r.error)||'Send failed'),'err');
   render();
 }
-function opA(){S.form={title:'',notes:'',priority:'medium',dueDate:'',reminderTime:'',status:'pending',board:S.board==='combined'?'home':S.board};S.editing=null;S.showAdd=true;render();setTimeout(()=>{const e=document.getElementById('ft');if(e)e.focus()},100)}
+function opA(){S.form={title:'',notes:'',priority:'medium',dueDate:'',reminderTime:'',status:'pending',board:S.board==='combined'?'home':S.board};S.editing=null;S.showAdd=true;render();/* No auto-focus: keyboard appears only when the user taps the input */}
 function opE(id){const t=S.tasks.find(x=>x.id===id);if(!t)return;S.form={title:t.title,notes:t.notes||'',priority:t.priority,dueDate:t.due_date||'',reminderTime:t.reminder_time||'',status:t.status,board:t.board||'home'};S.editing=id;S.showAdd=true;render()}
 function setBoard(b){S.board=b;localStorage.setItem('tf_board',b);render()}
 function clM(){S.showAdd=false;S.editing=null;if(rec)try{rec.stop()}catch(e){}S.listening=false;render()}
@@ -5247,7 +5320,7 @@ async function refreshSession(){
 function calPrev(){const d=new Date(S.calMonth);d.setMonth(d.getMonth()-1);S.calMonth=d;render()}
 function calNext(){const d=new Date(S.calMonth);d.setMonth(d.getMonth()+1);S.calMonth=d;render()}
 function calSelect(d){S.calSelectedDate=d;render()}
-function calAddForDate(){S.form={title:'',notes:'',priority:'medium',dueDate:S.calSelectedDate||'',reminderTime:'',status:'pending',board:S.board==='combined'?'home':S.board};S.editing=null;S.showAdd=true;render();setTimeout(()=>{const e=document.getElementById('ft');if(e)e.focus()},100)}
+function calAddForDate(){S.form={title:'',notes:'',priority:'medium',dueDate:S.calSelectedDate||'',reminderTime:'',status:'pending',board:S.board==='combined'?'home':S.board};S.editing=null;S.showAdd=true;render();/* No auto-focus: keyboard appears only when the user taps the input */}
 function rotateMoral(){const a=document.getElementById('audioEl');if(a&&!a.paused)return;S.moralIdx=(S.moralIdx+1)%MORALS.length;render()}
 setInterval(()=>{if(S.user)rotateMoral()},45000);
 // Tic Tac Toe vs a simple bot (you play X, bot plays O)
@@ -5896,6 +5969,35 @@ function _mtCleanup(){S._mtActive=false;if(S._mtRAF){cancelAnimationFrame(S._mtR
 
 // ── Reaction ──
 function mgReactionStart(){S.mgPlay={game:'reaction',level:S.mg.progress.reaction.level,phase:'wait',time:null,best:S.mg.progress.reaction.best||0,done:false};_mgSound('tap');render();const t=800+Math.floor(Math.random()*2200);S.mgPlay._timer=setTimeout(()=>{const p=S.mgPlay;if(!p||p.game!=='reaction')return;p.phase='go';p.startedAt=Date.now();_mgSound('go');render()},t)}
+// ─── Schulte Grid — train peripheral vision and visual focus ───
+// Show 25 numbers shuffled in a 5x5 grid. Tap them in order 1→25 as fast as possible.
+// Higher levels: more cells (up to 7x7), color decoys, shorter stare-at-center constraint.
+function mgSchulteStart(){
+  if(!S.mg.progress.schulte)S.mg.progress.schulte={level:1,xp:0,best:0};
+  const lvl=S.mg.progress.schulte.level||1;
+  const size=Math.min(7,4+Math.ceil(lvl/3));
+  const total=size*size;
+  const nums=Array.from({length:total},(_,i)=>i+1).sort(()=>Math.random()-0.5);
+  S.mgPlay={game:'schulte',level:lvl,_baseLevel:lvl,size:size,total:total,nums:nums,target:1,wrongs:0,startedAt:Date.now(),time:null,best:S.mg.progress.schulte.best||0,done:false,flash:null};
+  _mgSound('tap');render();
+}
+function mgSchulteTap(n){
+  const p=S.mgPlay;if(!p||p.game!=='schulte'||p.done)return;
+  if(n!==p.target){p.wrongs++;p.flash={n:n,bad:true};_mgSound('wrong');render();setTimeout(()=>{const c=S.mgPlay;if(c&&c.game==='schulte'){c.flash=null;render()}},250);return}
+  p.flash={n:n,bad:false};_mgSound('tick');
+  if(n===p.total){
+    const ms=Date.now()-p.startedAt;p.time=ms;p.done=true;
+    const penalty=p.wrongs*1500;const final=ms+penalty;
+    p.finalMs=final;
+    _mgSound('levelup');_mgMarkDone('schulte');
+    const isBest=!p.best||final<p.best;if(isBest)S._mgConfetti=Date.now();
+    render();
+    // XP scales with speed and grid size
+    const baseXp=Math.max(8,Math.floor(40-final/1000));const xp=Math.min(40,baseXp+(p.size-5)*4);
+    _mgSave('schulte',xp,Math.round(final/100));
+  } else {p.target++;render()}
+  setTimeout(()=>{const c=S.mgPlay;if(c&&c.game==='schulte'){c.flash=null;render()}},220);
+}
 function mgReactionTap(){const p=S.mgPlay;if(!p||p.game!=='reaction')return;if(p.phase==='wait'){clearTimeout(p._timer);p.phase='early';_mgSound('wrong');render();return}if(p.phase==='go'){const ms=Date.now()-p.startedAt;p.time=ms;p.phase='done';p.done=true;_mgSound(ms<350?'levelup':'correct');_mgMarkDone('reaction');if(ms<500)S._mgConfetti=Date.now();render();
     const xp=ms<250?20:ms<350?15:ms<500?10:ms<700?6:3;_mgSave('reaction',xp,ms)}}
 // Rock / Paper / Scissors vs random bot
@@ -7113,10 +7215,11 @@ else if(S.tab==='mindgym'){
     {k:'math',e:'\\u{1F522}',n:'Math Sprint',d:'Mental arithmetic against the clock',fn:'mgMathStart()',accent:'#22D3EE',pData:mg.progress.math,pct:mgPercent('math'),bestL:'Best streak'},
     {k:'memory',e:'\\u{1F9E9}',n:'Memory Tap',d:'Working-memory, Simon-style',fn:'mgMemoryStart()',accent:'#A78BFA',pData:mg.progress.memory,pct:mgPercent('memory'),bestL:'Best round'},
     {k:'reaction',e:'\\u26A1',n:'Reaction',d:'Reflex training, millisecond by millisecond',fn:'mgReactionStart()',accent:'#FFB547',pData:mg.progress.reaction,pct:mgPercent('reaction'),bestL:'Best ms',bestSuffix:'ms'},
-    {k:'word',e:'\\u{1F520}',n:'Word Sprint',d:'Anagrams. 90 seconds. Find every word.',fn:'mgWordStart()',accent:'#34D399',pData:(mg.progress.word||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((mg.progress.word||{}).xp||0)/(5*100))*100)),bestL:'Best',bestSuffix:' words'}
+    {k:'word',e:'\\u{1F520}',n:'Word Sprint',d:'Anagrams. 90 seconds. Find every word.',fn:'mgWordStart()',accent:'#34D399',pData:(mg.progress.word||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((mg.progress.word||{}).xp||0)/(5*100))*100)),bestL:'Best',bestSuffix:' words'},
+    {k:'schulte',e:'\\u{1F3AF}',n:'Schulte Grid',d:'Tap 1\\u219225 in order. Trains visual focus.',fn:'mgSchulteStart()',accent:'#F472B6',pData:(mg.progress.schulte||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((mg.progress.schulte||{}).xp||0)/(5*100))*100)),bestL:'Best time',bestSuffix:' s'}
   ];
   h+='<div class="game-chips">';
-  _games.forEach(g=>{const p=g.pData;const bestStr=p.best?(p.best+(g.bestSuffix||'')):'\\u2014';h+='<button class="game-chip" onclick="'+g.fn+'" style="--accent:'+g.accent+'">'
+  _games.forEach(g=>{const p=g.pData;const bestStr=p.best?(g.k==='schulte'?(p.best/10).toFixed(1)+(g.bestSuffix||''):(p.best+(g.bestSuffix||''))):'\\u2014';h+='<button class="game-chip" onclick="'+g.fn+'" style="--accent:'+g.accent+'">'
     +'<div class="game-chip-hd"><span class="game-chip-emoji">'+g.e+'</span><span class="game-chip-lvl">L'+p.level+'</span></div>'
     +'<div class="game-chip-name">'+g.n+'</div>'
     +'<div class="game-chip-d">'+g.d+'</div>'
@@ -7124,6 +7227,25 @@ else if(S.tab==='mindgym'){
     +'<div class="game-chip-foot"><span>'+g.pct+'%</span><span>'+g.bestL+': <b>'+bestStr+'</b></span></div>'
   +'</button>'});
   h+='</div>';
+  // ─── Level Progression: 10 levels per game = 50 total ───
+  {
+    const totalUnlocked=_games.reduce((s,g)=>s+(g.pData.level||1),0);
+    const totalLocked=50-totalUnlocked;
+    h+='<section class="lvl-path"><div class="lvl-path-hd"><div><h3 class="lvl-path-t">Your training path</h3><div class="lvl-path-s">10 levels per game \\u00B7 50 total \\u00B7 <b>'+totalUnlocked+'</b> reached \\u00B7 '+totalLocked+' to go</div></div><div class="lvl-path-overall"><b>'+Math.round(totalUnlocked/50*100)+'%</b><small>complete</small></div></div>';
+    _games.forEach(g=>{
+      const cur=g.pData.level||1;
+      h+='<div class="lvl-row" style="--accent:'+g.accent+'">'
+        +'<div class="lvl-row-hd"><span class="lvl-row-emoji">'+g.e+'</span><span class="lvl-row-name">'+g.n+'</span><span class="lvl-row-lvl">L'+cur+' / 10</span></div>'
+        +'<div class="lvl-row-rail">';
+      for(let i=1;i<=10;i++){
+        const cls=i<cur?'lvl-step lvl-done':i===cur?'lvl-step lvl-current':'lvl-step lvl-locked';
+        h+='<button class="'+cls+'" onclick="'+(i<=cur?g.fn:'toast(\\'\\u{1F512} Reach Level '+i+' first\\',\\'err\\')')+'" title="Level '+i+'">'+(i<cur?'\\u2713':i)+'</button>';
+        if(i<10)h+='<span class="lvl-link"></span>';
+      }
+      h+='</div></div>';
+    });
+    h+='</section>';
+  }
   // Achievements row — 4 badges, some unlocked based on real progress
   {
     const totalLvl=mg.progress.math.level+mg.progress.memory.level+mg.progress.reaction.level;
@@ -7344,6 +7466,9 @@ else if(S.tab==='books'){
   // Mode toggle: summaries vs audiobooks
   h+='<div class="bk-mode-toggle"><button class="'+(S.booksMode==='summaries'?'on':'')+'" onclick="S.booksMode=\\'summaries\\';render()">\\u2728 15-min summaries</button><button class="'+(S.booksMode==='audiobooks'?'on':'')+'" onclick="S.booksMode=\\'audiobooks\\';render()">\\u{1F3A7} Audiobooks</button></div>';
   if(S.booksMode==='summaries'){
+    // Search bar (briefs)
+    if(typeof S.bkSearch!=='string')S.bkSearch='';
+    h+='<div class="bk-search"><svg class="bk-search-ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="bkSearch" placeholder="Search '+BOOK_SUMMARIES.length+' briefs by title or author\\u2026" value="'+esc(S.bkSearch)+'" oninput="S.bkSearch=this.value;render()"/>'+(S.bkSearch?'<button class="bk-search-x" onclick="S.bkSearch=\\'\\';render()" aria-label="Clear">\\u2715</button>':'')+'</div>';
     // Category filter pills
     {
       if(!S.bkCat)S.bkCat='all';
@@ -7352,8 +7477,12 @@ else if(S.tab==='books'){
       cats.forEach(c=>{h+='<button class="bk-cat'+(S.bkCat===c.k?' on':'')+'" onclick="S.bkCat=\\''+c.k+'\\';render()">'+c.l+'</button>'});
       h+='</div>';
     }
+    const _bkQ=(S.bkSearch||'').trim().toLowerCase();
+    let bkFiltered=S.bkCat&&S.bkCat!=='all'?BOOK_SUMMARIES.filter(b=>b.tag===S.bkCat):BOOK_SUMMARIES;
+    if(_bkQ)bkFiltered=bkFiltered.filter(b=>b.title.toLowerCase().includes(_bkQ)||b.author.toLowerCase().includes(_bkQ)||(b.tag||'').toLowerCase().includes(_bkQ));
+    if(_bkQ)h+='<div class="bk-search-meta">'+bkFiltered.length+' result'+(bkFiltered.length===1?'':'s')+' for \\u201C'+esc(_bkQ)+'\\u201D</div>';
+    if(!bkFiltered.length){h+='<div class="empty" style="padding:40px 20px;text-align:center"><div style="font-size:42px;margin-bottom:8px">\\u{1F50D}</div><div style="font-size:15px;font-weight:600">No briefs match "'+esc(_bkQ||S.bkCat)+'"</div><div style="font-size:13px;color:#6B6B6B;margin-top:6px">Try a different search or category.</div></div>';}
     h+='<div class="bk-sum-grid">';
-    const bkFiltered=S.bkCat&&S.bkCat!=='all'?BOOK_SUMMARIES.filter(b=>b.tag===S.bkCat):BOOK_SUMMARIES;
     bkFiltered.forEach(b=>{
       const coverImg=bookCover(b.id);
       const isLive=S.bkMini&&S.bkMini.book&&S.bkMini.book.id===b.id&&!S.bkMini.paused;
@@ -7742,7 +7871,7 @@ if(S.showHelp){
 if(S.mgPlay){
   const p=S.mgPlay;
   h+='<div class="ov ov-locked"><div class="mdl mg-mdl">';
-  h+='<div class="mg-hd"><div><h2 class="mg-t">'+(p.game==='math'?'\\u{1F522} Math Sprint':p.game==='memory'?'\\u{1F9E9} Memory Tap':p.game==='word'?'\\u{1F520} Word Sprint':'\\u26A1 Reaction')+' \\u2022 L'+p.level+'</h2><div class="mg-s">'+(p.game==='math'?'Solve 10 to win XP':p.game==='memory'?'Repeat the pattern \\u2014 it grows each round':p.game==='word'?'90 seconds. Find every word you can.':'Tap when the screen turns green')+'</div></div><button class="was-x" onclick="mgClose()">\\u2715</button></div>';
+  h+='<div class="mg-hd"><div><h2 class="mg-t">'+(p.game==='math'?'\\u{1F522} Math Sprint':p.game==='memory'?'\\u{1F9E9} Memory Tap':p.game==='word'?'\\u{1F520} Word Sprint':p.game==='schulte'?'\\u{1F3AF} Schulte Grid':'\\u26A1 Reaction')+' \\u2022 L'+p.level+'</h2><div class="mg-s">'+(p.game==='math'?'Solve 10 to win XP':p.game==='memory'?'Repeat the pattern \\u2014 it grows each round':p.game==='word'?'90 seconds. Find every word you can.':p.game==='schulte'?'Tap 1 \\u2192 '+(p.total||25)+' as fast as possible':'Tap when the screen turns green')+'</div></div><button class="was-x" onclick="mgClose()">\\u2715</button></div>';
 
   if(p.game==='math'){
     if(p.done){
@@ -7838,6 +7967,32 @@ if(S.mgPlay){
     else if(p.phase==='go')h+='<div class="mg-react-stage mg-react-go" onclick="mgReactionTap()"><div class="mg-react-msg">TAP NOW!</div></div>';
     else if(p.phase==='early')h+='<div class="mg-react-stage mg-react-early"><div class="mg-react-msg">Too early!</div><div class="was-acts"><button class="mb mb-c" onclick="mgClose()">Done</button><button class="mb mb-s" onclick="mgReactionStart()">\\u21BB Try again</button></div></div>';
     else if(p.phase==='done')h+='<div class="mg-react-stage mg-react-done"><div class="mg-react-time">'+p.time+'<small>ms</small></div><div class="mg-react-msg">'+(p.time<250?'Lightning! \\u26A1':p.time<350?'Excellent':p.time<500?'Good':p.time<700?'OK':'Try to focus')+'</div><div class="was-acts"><button class="mb mb-c" onclick="mgClose()">Done</button><button class="mb mb-s" onclick="mgReactionStart()">\\u21BB Play again</button></div></div>';
+    h+='</div>';
+  } else if(p.game==='schulte'){
+    h+='<div class="mg-body sch-body">';
+    if(p.done){
+      const sec=(p.finalMs/1000).toFixed(1);
+      const stars=p.finalMs<25000?3:p.finalMs<45000?2:p.finalMs<70000?1:0;
+      const starsHTML=[1,2,3].map(n=>'<span class="mt-star'+(n<=stars?' mt-star-on':'')+'">\\u2605</span>').join('');
+      h+='<div class="mt-end">'
+        +'<div class="mt-end-stars">'+starsHTML+'</div>'
+        +'<div class="mt-end-score">'+sec+'<small>s</small></div>'
+        +'<div class="mt-end-meta">'+p.size+'\\u00D7'+p.size+' grid \\u2022 '+p.wrongs+' miss'+(p.wrongs===1?'':'es')+'</div>'
+        +'<div class="was-acts" style="justify-content:center"><button class="mb mb-c" onclick="mgClose()">Done</button><button class="mb mb-s" onclick="mgSchulteStart()">\\u21BB Again</button></div>'
+      +'</div>';
+    } else {
+      const elapsed=Math.floor((Date.now()-p.startedAt)/1000);
+      h+='<div class="sch-status"><span class="sch-target">Find <b>'+p.target+'</b></span><span class="sch-prog">'+(p.target-1)+'/'+p.total+'</span></div>';
+      h+='<div class="sch-grid" style="grid-template-columns:repeat('+p.size+',1fr)">';
+      p.nums.forEach(n=>{
+        const isFlash=p.flash&&p.flash.n===n;
+        const isDone=n<p.target;
+        const cls='sch-cell'+(isDone?' sch-done':'')+(isFlash?(p.flash.bad?' sch-bad':' sch-good'):'');
+        h+='<button class="'+cls+'" onclick="mgSchulteTap('+n+')"'+(isDone?' disabled':'')+'>'+n+'</button>';
+      });
+      h+='</div>';
+      h+='<div class="sch-foot"><span>\\u23F1 '+elapsed+'s</span><span>'+(p.wrongs?'\\u26A0 '+p.wrongs+' miss':'\\u2728 perfect')+'</span></div>';
+    }
     h+='</div>';
   }
   h+='</div></div>';
