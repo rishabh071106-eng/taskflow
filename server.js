@@ -4483,8 +4483,8 @@ body:has(.player.on) .bk-mini{bottom:170px !important}
 
 /* Category pills for books */
 .bk-cats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
-.bk-search{position:relative;margin-bottom:14px;display:flex;align-items:center;gap:10px;padding:0 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;transition:border-color .2s ease,box-shadow .25s ease}
-.bk-search:focus-within{border-color:rgba(255,107,71,.5);box-shadow:0 6px 20px -8px rgba(255,107,71,.35)}
+.bk-search{position:relative;margin-bottom:14px;display:flex;align-items:center;gap:10px;padding:0 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:14px;transition:border-color .2s ease,background .2s ease}
+.bk-search:focus-within{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.14)}
 .bk-search-ic{flex-shrink:0;color:rgba(255,255,255,.4)}
 .bk-search input{flex:1;background:transparent;border:0;outline:0;padding:13px 0;color:#F5F5FA;font:500 14.5px/1.4 inherit;letter-spacing:-.005em;min-width:0}
 .bk-search input::placeholder{color:rgba(255,255,255,.42);font-weight:400}
@@ -4492,7 +4492,7 @@ body:has(.player.on) .bk-mini{bottom:170px !important}
 .bk-search-x:hover{background:rgba(220,38,38,.4);color:#fff}
 .bk-search-meta{font-family:'JetBrains Mono','Space Mono',monospace;font-size:11px;letter-spacing:.06em;color:rgba(255,255,255,.5);margin-bottom:14px;text-transform:uppercase}
 body:not([data-theme=aurora]) .bk-search{background:#fff;border-color:#E8E6E0}
-body:not([data-theme=aurora]) .bk-search:focus-within{border-color:#FF6B47}
+body:not([data-theme=aurora]) .bk-search:focus-within{background:#fff;border-color:#CFCFCF}
 body:not([data-theme=aurora]) .bk-search input{color:#1A1A1A}
 body:not([data-theme=aurora]) .bk-search input::placeholder{color:rgba(26,26,26,.4)}
 body:not([data-theme=aurora]) .bk-search-ic{color:rgba(26,26,26,.45)}
@@ -5901,6 +5901,41 @@ async function hlClear(){
   S.dailyHl=null;_hlSaveLocal(null);render();
   try{await api('/highlight',{method:'DELETE'})}catch(e){}
 }
+// ─── Briefs search — debounced render so the keyboard never loses focus ─
+function bkSearchInput(v){
+  S.bkSearch=v;
+  // Surgical update of the visible cards if the grid is mounted (no full render).
+  // Eliminates the focus-loss / keyboard-flicker that comes from rebuilding the input on every keystroke.
+  try{
+    const _bkQ=(v||'').trim().toLowerCase();
+    let f=S.bkCat&&S.bkCat!=='all'?BOOK_SUMMARIES.filter(b=>b.tag===S.bkCat):BOOK_SUMMARIES;
+    if(_bkQ)f=f.filter(b=>b.title.toLowerCase().includes(_bkQ)||b.author.toLowerCase().includes(_bkQ)||(b.tag||'').toLowerCase().includes(_bkQ));
+    const grid=document.querySelector('.bk-sum-grid');
+    if(grid){
+      let html='';
+      f.forEach(b=>{
+        const cover=bookCover(b.id);
+        const isLive=S.bkMini&&S.bkMini.book&&S.bkMini.book.id===b.id&&!S.bkMini.paused;
+        html+='<button class="bk-sum-card'+(isLive?' is-live':'')+'" onclick="playBookBrief(\\''+b.id+'\\')" oncontextmenu="event.preventDefault();openBookSummary(\\''+b.id+'\\');return false">'
+          +'<div class="bk-sum-cover'+(cover?' has-img':'')+'" style="background:'+b.grad+'">'+(cover?'<img src="'+cover+'" alt="" loading="lazy" onerror="this.parentElement.classList.remove(\\'has-img\\');this.remove()"/>':'')+'<div class="bk-sum-mins">'+b.mins+' min</div>'+(cover?'':'<div></div><div><h5>'+esc(b.title)+'</h5><div class="auth">'+esc(b.author)+'</div></div>')+'<span class="bk-sum-play"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">'+(isLive?'<rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/>':'<polygon points="6 4 20 12 6 20 6 4"/>')+'</svg></span></div>'
+          +'<div class="bk-sum-meta">'+esc(b.title)+'<small>'+esc(b.author)+'</small></div>'
+        +'</button>';
+      });
+      grid.innerHTML=html||'';
+      // Toggle empty/meta state by editing siblings without touching the input
+      const meta=document.querySelector('.bk-search-meta');
+      if(_bkQ){
+        if(meta){meta.textContent=f.length+' result'+(f.length===1?'':'s')+' for "'+v+'"';meta.style.display=''}
+      } else if(meta){meta.style.display='none'}
+      // Toggle the clear button too
+      const wrap=document.querySelector('.bk-search');
+      const clearBtn=wrap&&wrap.querySelector('.bk-search-x');
+      if(v&&!clearBtn&&wrap){const b=document.createElement('button');b.className='bk-search-x';b.setAttribute('aria-label','Clear');b.innerHTML='\\u2715';b.onmousedown=function(e){e.preventDefault()};b.onclick=bkSearchClear;wrap.appendChild(b)}
+      else if(!v&&clearBtn){clearBtn.remove()}
+    }
+  }catch(e){}
+}
+function bkSearchClear(){S.bkSearch='';const i=document.getElementById('bkSearch');if(i){i.value='';i.focus()}bkSearchInput('')}
 // Game-detail view: click a game card → see its 10-level journey before playing
 function mgDetailOpen(key){S.mgDetail=key;render();try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){}}
 function mgDetailClose(){S.mgDetail=null;render()}
@@ -6893,19 +6928,55 @@ function _browserTtsSpeak(text,opts,onAllDone,onProgress){
 // Structured narration — assembles a full ~12-15 min audio experience from the book's parts:
 // title, why-pitch, each numbered insight, then the long summary. Slow male narrator pace.
 function _bookFullNarration(book){
+  // Chapter-style narration: walk through each idea fully, finish, move on.
+  // No "Insight 1 / Insight 2" labels — flowing chapters with breathing room.
+  // Sentences from book.summary that mention each insight's topic are pulled in
+  // as elaboration so each chapter feels developed rather than tag-line short.
   const parts=[];
+  // Opening
   parts.push(book.title+', by '+book.author+'.');
   parts.push(book.why);
-  parts.push('Five key insights to take with you.');
+  parts.push('Take a breath. We will walk through this brief one chapter at a time, finish each idea, then move on. Settle in.');
+  // Pre-segment summary by sentences for elaboration mining
+  const summSentences=(book.summary||'').replace(/\\u2026/g,'...').split(/(?<=[.!?])\\s+/).filter(s=>s.trim().length>20);
+  const used=new Set();
+  function findElab(title,body){
+    const titleWords=title.toLowerCase().match(/\\b[a-z]{4,}\\b/g)||[];
+    const bodyWords=body.toLowerCase().match(/\\b[a-z]{4,}\\b/g)||[];
+    const score=(s)=>{
+      const sl=s.toLowerCase();let n=0;
+      titleWords.forEach(w=>{if(sl.includes(w))n+=3});
+      bodyWords.forEach(w=>{if(sl.includes(w))n+=1});
+      return n;
+    };
+    const ranked=summSentences
+      .map((s,i)=>({s,i,score:score(s)}))
+      .filter(x=>x.score>0&&!used.has(x.i))
+      .sort((a,b)=>b.score-a.score)
+      .slice(0,2);
+    ranked.forEach(x=>used.add(x.i));
+    return ranked.map(x=>x.s);
+  }
+  // Chapters
   book.insights.forEach((it,i)=>{
-    parts.push('Insight '+(i+1)+'. '+it[0]+'.');
-    parts.push(it[1]);
+    const isLast=i===book.insights.length-1;
+    const intro=i===0?'The first idea.':i===1?'Now the second.':i===2?'Onto the third.':i===3?'The fourth.':i===4?'And the final core idea.':'Next.';
+    parts.push(intro);
+    parts.push(it[0]+'.');  // chapter title
+    parts.push(it[1]);       // base body
+    const elab=findElab(it[0],it[1]);
+    if(elab.length){parts.push(elab.join(' '))}
+    parts.push(isLast?'Sit with that. It is the most important idea in this brief.':'Take a beat with that one before we move on.');
   });
-  parts.push('Now, the full fifteen-minute summary.');
-  parts.push(book.summary);
-  parts.push('Beautiful. That is another summary completed. One more step on your daily streak.');
-  // Strip HTML entities the data uses (e.g. \\u2014 em-dash) and normalise quotes so TTS reads cleanly
-  return parts.join('  ').replace(/\\\\u2019/g,"'").replace(/\\\\u2014/g,', ').replace(/\\u2026/g,'...');
+  // Stitch any unused summary sentences as a closing reflection — keeps content feeling complete
+  const leftover=summSentences.filter((_,i)=>!used.has(i));
+  if(leftover.length){
+    parts.push('A closing thought.');
+    parts.push(leftover.slice(0,3).join(' '));
+  }
+  parts.push('That is the brief. One small idea acted on today is worth more than five remembered. Choose one, and go do it.');
+  // Normalise typography for cleaner TTS pacing
+  return parts.join('  ').replace(/\\\\u2019/g,"'").replace(/\\\\u2014/g,', ').replace(/\\u2026/g,'...').replace(/\\s+/g,' ').trim();
 }
 function bookReaderToggleTTS(){
   const r=S.bookReader;if(!r||!r.book)return;
@@ -7837,7 +7908,7 @@ else if(S.tab==='books'){
   if(S.booksMode==='summaries'){
     // Search bar (briefs)
     if(typeof S.bkSearch!=='string')S.bkSearch='';
-    h+='<div class="bk-search"><svg class="bk-search-ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="bkSearch" placeholder="Search '+BOOK_SUMMARIES.length+' briefs by title or author\\u2026" value="'+esc(S.bkSearch)+'" oninput="S.bkSearch=this.value;render()"/>'+(S.bkSearch?'<button class="bk-search-x" onclick="S.bkSearch=\\'\\';render()" aria-label="Clear">\\u2715</button>':'')+'</div>';
+    h+='<div class="bk-search"><svg class="bk-search-ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="bkSearch" placeholder="Search '+BOOK_SUMMARIES.length+' briefs by title or author\\u2026" value="'+esc(S.bkSearch)+'" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" oninput="bkSearchInput(this.value)"/>'+(S.bkSearch?'<button class="bk-search-x" onmousedown="event.preventDefault()" onclick="bkSearchClear()" aria-label="Clear">\\u2715</button>':'')+'</div>';
     // Category filter pills
     {
       if(!S.bkCat)S.bkCat='all';
