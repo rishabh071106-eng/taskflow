@@ -3215,7 +3215,25 @@ body:not([data-theme=aurora]) .cx-pv-lbl{color:#9A9A9A}
 body:not([data-theme=aurora]) .cx-pv-pill{background:#FFF1ED;color:#B7472A;border-color:#FFD0BD}
 body:not([data-theme=aurora]) .cx-pv-title{background:#F4F3EE;color:#1A1A1A;border-color:#E8E6E0}
 @media (max-width:560px){.cx-chip{padding:6px 10px;font-size:11.5px}.cx-input{font-size:15px}}
-/* ─── Today's Progress section + highlight poster card ─── */
+/* ─── Today's Highlight — fullscreen modal ─── */
+.hl-mdl{max-width:none;width:100%;padding:0;overflow:hidden;display:flex;flex-direction:column;background:radial-gradient(900px 500px at 50% 0%,#3D1F5F 0%,#1A0E2E 70%);color:#F5F5FA;border:0;height:100vh;max-height:100vh;border-radius:0;align-self:stretch;animation:schSlideUp .3s cubic-bezier(.16,1,.3,1)}
+.hl-mdl-hd{display:flex;align-items:center;gap:14px;padding:18px 20px;padding-top:calc(18px + env(safe-area-inset-top,0px));background:linear-gradient(135deg,#FF6B47 0%,#FFB547 100%);color:#fff;flex-shrink:0;position:relative;overflow:hidden}
+.hl-mdl-hd::after{content:'';position:absolute;inset:0;background:radial-gradient(700px 200px at 90% 0%,rgba(255,255,255,.18),transparent 60%);pointer-events:none}
+.hl-mdl-title{flex:1;min-width:0;text-align:left;position:relative;z-index:1}
+.hl-mdl-name{font-family:'Instrument Serif','Playfair Display',Georgia,serif;font-weight:400;font-style:italic;font-size:24px;letter-spacing:-.02em;line-height:1.05}
+.hl-mdl-sub{font-family:'JetBrains Mono','Space Mono',monospace;font-size:10.5px;letter-spacing:.08em;color:rgba(255,255,255,.85);font-weight:600;margin-top:5px;text-transform:uppercase}
+.hl-mdl-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:24px 20px;max-width:560px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.hl-edit-row{display:flex;gap:10px;align-items:stretch}
+.hl-input-v2{flex:1;min-width:0;padding:14px 16px;border-radius:12px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);color:#F5F5FA;font:500 16px/1.4 inherit;letter-spacing:-.005em;outline:0}
+.hl-input-v2::placeholder{color:rgba(255,255,255,.4);font-style:italic}
+.hl-input-v2:focus{border-color:rgba(255,107,71,.5);background:rgba(255,255,255,.1)}
+.hl-save-v2{flex-shrink:0;padding:0 22px;border-radius:12px;border:0;background:rgba(255,255,255,.1);color:rgba(255,255,255,.5);font:600 14px/1 inherit;cursor:pointer;letter-spacing:-.005em;transition:all .25s ease}
+.hl-save-v2.on{background:linear-gradient(135deg,#FF6B47,#FFB547);color:#fff;box-shadow:0 8px 22px -6px rgba(255,107,71,.5)}
+.hl-actions-v2{display:flex;gap:8px}
+.hl-actions-v2 .hl-check-v2,.hl-actions-v2 .hl-edit-v2{flex:1;justify-content:center;padding:13px 18px}
+.hl-mdl-footnote{font-size:12.5px;color:rgba(255,255,255,.55);line-height:1.5;text-align:center;padding:8px 0}
+@media (max-width:560px){.hl-mdl-name{font-size:20px}.hl-edit-row{flex-direction:column}.hl-save-v2{padding:14px}}
+/* ─── Today's Progress section + highlight poster card (legacy, kept for compat) ─── */
 .prog-sec{margin:0 0 18px;padding:14px 14px 16px;border-radius:20px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}
 body:not([data-theme=aurora]) .prog-sec{background:#fff;border-color:#E8E6E0;box-shadow:0 1px 3px rgba(15,23,42,.04)}
 .prog-sec-hd{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:12px;padding:0 4px}
@@ -3289,6 +3307,13 @@ body:not([data-theme=aurora]) .hl-edit{background:rgba(0,0,0,.05);color:#6B6B6B}
 .hl-edit:hover{background:rgba(255,255,255,.12);color:#fff;transform:scale(1.06)}
 body:not([data-theme=aurora]) .hl-edit:hover{background:rgba(0,0,0,.1);color:#1A1A1A}
 @media (max-width:560px){.hl-text{font-size:20px}.hl-card{padding:14px 16px}}
+/* ─── Action stat-tile (inside the Actions chip — mirrors Progress stat tile) ─── */
+.qa-stat-tile{display:flex !important;flex-direction:column !important;align-items:flex-start !important;gap:0 !important;padding:18px 14px 14px !important;cursor:pointer;text-align:left !important;font-family:inherit;position:relative}
+.qa-stat-tile small{color:rgba(255,255,255,.78) !important;margin-top:auto;letter-spacing:.06em;font-size:11px;font-family:'JetBrains Mono','Space Mono',monospace;font-weight:600;text-transform:uppercase}
+.qa-stat-emoji{display:grid;place-items:center;width:38px;height:38px;border-radius:11px;color:#fff;margin-bottom:14px;box-shadow:0 6px 14px -4px rgba(0,0,0,.3)}
+.qa-stat-bdg{position:absolute;top:14px;right:14px;font-family:'JetBrains Mono','Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.04em;background:rgba(255,107,71,.2);color:#FFE3D8;padding:3px 8px;border-radius:6px;line-height:1}
+body:not([data-theme=aurora]) .qa-stat-bdg{background:#FFF1ED;color:#B7472A}
+.hh-progress-chip.qa-chip-v2 .hh-pc-ic{background:linear-gradient(135deg,#FF6B47,#FFB547)}
 /* ─── Quick actions parent chip (matches Progress chip pattern) ─── */
 .qa-chip{display:flex;align-items:center;gap:10px;padding:11px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;color:#F5F5FA;cursor:pointer;font-family:inherit;font-size:13px;letter-spacing:-.005em;width:100%;text-align:left;transition:background .25s ease,border-color .25s ease,transform .2s ease;margin-bottom:10px}
 body:not([data-theme=aurora]) .qa-chip{background:#fff;border-color:#E8E6E0;color:#1A1A1A}
@@ -3365,6 +3390,8 @@ body:not([data-theme=aurora]) .plan-chip:hover{background:#F4F1FF;border-color:#
 /* Chip-style collapsible section blocks (matches the Progress chip pattern) */
 .mtg-block{border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);overflow:hidden;transition:background .25s ease,border-color .25s ease}
 .mtg-block.is-open{background:rgba(255,255,255,.06);border-color:rgba(34,211,238,.25)}
+.mtg-block-hd-static{display:flex;align-items:center;gap:11px;padding:13px 14px 10px;background:transparent;color:#fff;font-family:inherit;width:100%}
+.mtg-block-count{margin-left:auto;font-family:'JetBrains Mono','Space Mono',monospace;font-size:10.5px;font-weight:700;letter-spacing:.04em;background:rgba(34,211,238,.18);color:#86EFAC;padding:3px 8px;border-radius:6px}
 .mtg-block-hd{display:flex;align-items:center;gap:11px;padding:13px 14px;background:transparent;border:0;color:#fff;cursor:pointer;font-family:inherit;width:100%;text-align:left;transition:background .2s ease}
 .mtg-block-hd:hover{background:rgba(255,255,255,.04)}
 .mtg-block-hd:active{transform:scale(.99)}
@@ -3454,6 +3481,8 @@ body:not([data-theme=aurora]) .sch-label::placeholder{color:rgba(26,26,26,.4)}
 body:not([data-theme=aurora]) .sch-foot-note{color:#6B6B6B}
 @media (max-width:560px){.sch-mdl{max-height:100vh;border-radius:0;align-self:stretch;width:100%}.sch-grid{height:280px}}
 /* ─── Outlook-style drag-to-select timeline ─── */
+.sch-close-big{flex-shrink:0;width:38px;height:38px;border-radius:50%;border:0;background:rgba(255,255,255,.14);color:#fff;cursor:pointer;display:grid;place-items:center;transition:background .2s,transform .2s}
+.sch-close-big:hover{background:rgba(255,255,255,.24);transform:scale(1.05)}
 .schX-help{padding:12px 14px;border-radius:12px;background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.25);color:rgba(255,255,255,.85);font-size:13px;letter-spacing:-.005em;margin-bottom:14px;line-height:1.4}
 body:not([data-theme=aurora]) .schX-help{background:#F5EFFF;border-color:rgba(167,139,250,.4);color:#3D3D3D}
 .schX-wrap{display:grid;grid-template-columns:60px 1fr;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:14px;overflow:hidden;margin-bottom:14px;position:relative}
@@ -3467,8 +3496,11 @@ body:not([data-theme=aurora]) .schX-tick{border-top-color:#F0EDE7;color:#9A9A9A}
 .schX-tick-l small{font-size:8px;letter-spacing:.06em;opacity:.6}
 .schX-canvas{position:relative;height:816px;cursor:default;user-select:none;-webkit-user-select:none}
 .schX-slot{position:absolute;left:0;right:0;background:transparent;border:0;cursor:pointer;padding:0;font:inherit;color:inherit;transition:background .15s ease;z-index:1}
+.schX-slot::after{content:'+';position:absolute;left:14px;top:50%;transform:translateY(-50%);width:18px;height:18px;border-radius:50%;background:rgba(255,107,71,.18);color:#FF6B47;font:700 14px/1 'Inter',sans-serif;display:grid;place-items:center;opacity:0;transition:opacity .15s ease}
 .schX-slot:hover{background:rgba(255,107,71,.08)}
+.schX-slot:hover::after{opacity:1}
 .schX-slot:active{background:rgba(255,107,71,.18)}
+@media (hover:none){.schX-slot::after{opacity:.45}}
 .schX-now-btn{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:11px;background:rgba(34,211,238,.12);border:1px solid rgba(34,211,238,.35);color:#22D3EE;font:600 13px/1 inherit;cursor:pointer;letter-spacing:-.005em;transition:background .2s ease,transform .2s ease;margin-bottom:14px}
 .schX-now-btn:hover{background:rgba(34,211,238,.18);transform:translateY(-1px)}
 body:not([data-theme=aurora]) .schX-now-btn{background:#ECFAFE;border-color:rgba(34,211,238,.5);color:#0891B2}
@@ -5723,7 +5755,7 @@ function logout(){
 async function load(){const a=document.getElementById('audioEl');if(a&&!a.paused)return;
   // Skip background poll entirely while any modal/overlay is open. Re-renders during
   // an open modal wipe drag state, audio recordings, in-progress text, and cause flicker.
-  if(S.showWASetup||S.showAdd||S.showProfile||S.showHelp||S.schPanel||S.mtgPanel||S.mgDetail||S.mgPlay||S.bookReader&&S.bookReader.open||S.hlEditing||S.articleEditor&&S.articleEditor.open)return;
+  if(S.showWASetup||S.showAdd||S.showProfile||S.showHelp||S.schPanel||S.mtgPanel||S.hlPanel||S.mgDetail||S.mgPlay||S.bookReader&&S.bookReader.open||S.hlEditing||S.articleEditor&&S.articleEditor.open)return;
   const t=await api('/tasks');if(!t)return;
   // Local backup: every successful tasks fetch, snapshot to localStorage. If the server ever loses
   // the data (e.g. Railway redeploy without a persistent volume), the user can restore from this.
@@ -6314,6 +6346,8 @@ async function hlLoad(){
 }
 function hlOpen(){S.hlEditing=true;S.hlInput=(S.dailyHl&&S.dailyHl.text)||'';render()}
 function hlClose(){S.hlEditing=false;render()}
+function hlPanelOpen(){S.hlPanel=true;hlLoad();render()}
+function hlPanelClose(){S.hlPanel=false;S.hlEditing=false;render()}
 async function hlSubmit(){
   const v=(S.hlInput||'').trim();if(!v)return;
   const today=new Date().toISOString().slice(0,10);
@@ -7056,7 +7090,7 @@ async function loadTicker(){try{const r=await fetch('/api/news?cat=world',{cache
 let _tickerTimer=null;
 function _startTicker(){if(_tickerTimer)clearInterval(_tickerTimer);if(!S.ticker.items.length)return;_tickerTimer=setInterval(()=>{if(!S.ticker.items.length)return;S.ticker.idx=(S.ticker.idx+3)%S.ticker.items.length;
   // Skip render while any modal is open — same flicker prevention as load()
-  if(S.showWASetup||S.showAdd||S.showProfile||S.showHelp||S.schPanel||S.mtgPanel||S.mgDetail||S.mgPlay||(S.bookReader&&S.bookReader.open)||S.hlEditing||(S.articleEditor&&S.articleEditor.open))return;
+  if(S.showWASetup||S.showAdd||S.showProfile||S.showHelp||S.schPanel||S.mtgPanel||S.hlPanel||S.mgDetail||S.mgPlay||(S.bookReader&&S.bookReader.open)||S.hlEditing||(S.articleEditor&&S.articleEditor.open))return;
   const stack=document.getElementById('newsTickerStack');if(stack)render()},9000)}
 function setCity(){const c=prompt('Set your city',S.weather.city||'Bangalore');if(!c)return;const t=c.trim();if(!t)return;localStorage.setItem('tf_city',t);S.weather.city=t;S.weather.loaded=false;loadWeather()}
 // Live-tick the sidebar, header clocks AND world clocks without re-rendering the whole tree
@@ -8226,73 +8260,41 @@ if(S.tab==='tasks'){
       +'<button class="wa-promo-x" onclick="localStorage.setItem(\\'tf_wa_banner_x\\',\\'1\\');render()" aria-label="Dismiss">\\u2715</button>'
     +'</div>';
   }
-  // ─── Today's Progress section: surfaces the highlight as the starting window ───
-  {
-    // First render: hydrate from cache + fetch server copy in background
-    if(!S.dailyHl&&!S._hlFetched){S._hlFetched=true;const cached=_hlLocalCache();if(cached)S.dailyHl=cached;hlLoad()}
-    const hl=S.dailyHl;
-    const _todayDate=new Date().toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
-    h+='<section class="prog-sec">'
-      +'<header class="prog-sec-hd"><span class="prog-sec-eyebrow">\\u{1F31F} Today\\u2019s Progress</span><span class="prog-sec-date">'+_todayDate+'</span></header>';
-    if(S.hlEditing){
-      // Editing mode — input + a LIVE poster preview underneath
-      const liveText=(S.hlInput||'').trim();
-      h+='<div class="hl-card hl-editing">'
-        +'<div class="hl-row hl-row-edit">'
-          +'<svg class="hl-ic" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.39 7.36H22l-6.18 4.5L18.18 22 12 17.27 5.82 22l2.36-8.14L2 9.36h7.61z"/></svg>'
-          +'<input class="hl-input" id="hlInput" autofocus value="'+esc(S.hlInput||'')+'" placeholder="If today were a win, the one thing I\\u2019d finish is\\u2026" oninput="hlInputUpdate(this.value)" onkeydown="if(event.key===\\'Enter\\')hlSubmit();if(event.key===\\'Escape\\')hlClose()"/>'
-          +'<button class="hl-cancel" onclick="hlClose()" aria-label="Cancel">\\u2715</button>'
-          +'<button class="hl-save'+(liveText?' on':'')+'" onclick="hlSubmit()">Set \\u2192</button>'
-        +'</div>'
-      +'</div>';
-      // Live poster preview
-      h+='<div class="hl-poster-wrap"><div class="hl-poster-lbl">Preview \\u00B7 how it will look on your calendar</div><div id="hlPoster" class="hl-poster">'+_renderHlPoster(liveText||'Your highlight goes here')+'</div></div>';
-    } else if(hl){
-      // Set — show the poster as the actual card (hero-style)
-      h+='<div class="hl-card-v2'+(hl.done?' is-done':'')+'" onclick="hlToggleDone()" role="button">'
-        +'<div class="hl-poster-shell">'+_renderHlPoster(hl.text,hl.done)+'</div>'
-        +'<div class="hl-actions">'
-          +'<button class="hl-check-v2'+(hl.done?' on':'')+'" aria-label="'+(hl.done?'Mark not done':'Mark done')+'">'+(hl.done?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg> Done':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/></svg> Mark done')+'</button>'
-          +'<button class="hl-edit-v2" onclick="event.stopPropagation();hlOpen()" title="Edit"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit</button>'
-        +'</div>'
-      +'</div>';
-    } else {
-      h+='<button class="hl-card hl-empty" onclick="hlOpen()">'
-        +'<svg class="hl-ic" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.39 7.36H22l-6.18 4.5L18.18 22 12 17.27 5.82 22l2.36-8.14L2 9.36h7.61z"/></svg>'
-        +'<div class="hl-empty-body"><div class="hl-empty-t">Set today\\u2019s highlight</div><div class="hl-empty-d">The one thing that would make today feel like a win.</div></div>'
-        +'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>'
-      +'</button>';
-    }
-    h+='</section>';
-  }
-  // ─── Quick actions parent chip (matches Progress chip pattern) ───
+  // Hydrate highlight in the background — chip badge needs the count
+  if(!S.dailyHl&&!S._hlFetched){S._hlFetched=true;const _c=_hlLocalCache();if(_c)S.dailyHl=_c;hlLoad()}
+  // ─── Actions chip — mirrors the Progress chip exactly. 4 tiles inside. ───
   {
     const _qaOpen=!!S.qaOpen;
     const _schN=(S.schBlocks||[]).length;
     const _mtgN=(S.mtgList||[]).length;
-    const summary=[];
-    summary.push('Add task');
-    if(_schN)summary.push(_schN+' block'+(_schN===1?'':'s'));
-    if(_mtgN)summary.push(_mtgN+' meeting'+(_mtgN===1?'':'s'));
-    h+='<button class="qa-chip'+(_qaOpen?' is-open':'')+'" onclick="S.qaOpen=!S.qaOpen;render()" aria-expanded="'+_qaOpen+'">'
-      +'<span class="qa-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>'
-      +'<span class="qa-t">Quick actions</span>'
-      +'<span class="qa-mini">'+summary.join(' \\u00B7 ')+'</span>'
-      +'<span class="qa-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>'
+    const _hl=S.dailyHl;
+    const summary=_qaOpen?'Tap any to open':((_schN?_schN+' blocks':'')||'')+(_hl?(_schN?' \\u00B7 ':'')+'\\u{1F31F}':'')||(_mtgN?_mtgN+' meetings':'')||'New task, plan, notes';
+    h+='<button class="hh-progress-chip qa-chip-v2'+(_qaOpen?' is-open':'')+'" onclick="S.qaOpen=!S.qaOpen;render()" aria-expanded="'+_qaOpen+'" style="margin-bottom:'+(_qaOpen?'12px':'18px')+'">'
+      +'<span class="hh-pc-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>'
+      +'<span class="hh-pc-t">Actions</span>'
+      +'<span class="hh-pc-mini">'+summary+'</span>'
+      +'<span class="hh-pc-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>'
     +'</button>';
     if(_qaOpen){
-      h+='<div class="qa-grid">'
-        +'<button class="qa-tile" onclick="S.qaOpen=false;opA()">'
-          +'<span class="qa-tile-ic" style="background:linear-gradient(135deg,#FF6B47,#FFB547)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>'
-          +'<div class="qa-tile-body"><div class="qa-tile-t">New task</div><div class="qa-tile-d">Single task with priority &amp; due date</div></div>'
+      h+='<div class="hh-stats" style="margin-bottom:18px">'
+        +'<button class="hh-stat qa-stat-tile" onclick="S.qaOpen=false;opA()">'
+          +'<span class="qa-stat-emoji" style="background:linear-gradient(135deg,#FF6B47,#FFB547)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>'
+          +'<small style="color:rgba(255,255,255,.78)">New Task</small>'
         +'</button>'
-        +'<button class="qa-tile" onclick="S.qaOpen=false;schOpen()">'
-          +'<span class="qa-tile-ic" style="background:linear-gradient(135deg,#5B21B6,#A78BFA)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></svg></span>'
-          +'<div class="qa-tile-body"><div class="qa-tile-t">Plan your day'+(_schN?'<span class="qa-tile-bdg">'+_schN+'</span>':'')+'</div><div class="qa-tile-d">Block time \\u00B7 syncs to Calendar</div></div>'
+        +'<button class="hh-stat qa-stat-tile" onclick="S.qaOpen=false;schOpen()">'
+          +'<span class="qa-stat-emoji" style="background:linear-gradient(135deg,#5B21B6,#A78BFA)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></svg></span>'
+          +(_schN?'<span class="qa-stat-bdg">'+_schN+'</span>':'')
+          +'<small style="color:rgba(255,255,255,.78)">Plan Day</small>'
         +'</button>'
-        +'<button class="qa-tile" onclick="S.qaOpen=false;mtgOpen()">'
-          +'<span class="qa-tile-ic" style="background:linear-gradient(135deg,#0EA5E9,#22D3EE)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>'
-          +'<div class="qa-tile-body"><div class="qa-tile-t">Meeting notes'+(_mtgN?'<span class="qa-tile-bdg">'+_mtgN+'</span>':'')+'</div><div class="qa-tile-d">Agenda, notes, voice memos</div></div>'
+        +'<button class="hh-stat qa-stat-tile" onclick="S.qaOpen=false;mtgOpen()">'
+          +'<span class="qa-stat-emoji" style="background:linear-gradient(135deg,#0EA5E9,#22D3EE)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>'
+          +(_mtgN?'<span class="qa-stat-bdg">'+_mtgN+'</span>':'')
+          +'<small style="color:rgba(255,255,255,.78)">Meeting</small>'
+        +'</button>'
+        +'<button class="hh-stat qa-stat-tile" onclick="S.qaOpen=false;hlPanelOpen()">'
+          +'<span class="qa-stat-emoji" style="background:linear-gradient(135deg,#FFB547,#FF6B47)"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.39 7.36H22l-6.18 4.5L18.18 22 12 17.27 5.82 22l2.36-8.14L2 9.36h7.61z"/></svg></span>'
+          +(_hl?(_hl.done?'<span class="qa-stat-bdg" style="background:rgba(52,211,153,.18);color:#86EFAC">\\u2713</span>':'<span class="qa-stat-bdg">\\u2728</span>'):'')
+          +'<small style="color:rgba(255,255,255,.78)">Highlight</small>'
         +'</button>'
       +'</div>';
     }
@@ -9284,13 +9286,37 @@ if(S.showWASetup){
   h+='</div></div>';
 }
 
+if(S.hlPanel){
+  const hl=S.dailyHl;
+  const editing=!!S.hlEditing||!hl;
+  const liveText=editing?(S.hlInput!=null?S.hlInput:(hl?hl.text:''))||'':((hl&&hl.text)||'');
+  h+='<div class="ov" onclick="hlPanelClose()"><div class="mdl hl-mdl" onclick="event.stopPropagation()">';
+  h+='<header class="hl-mdl-hd">'
+    +'<button class="bk-back" onclick="hlPanelClose()" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>'
+    +'<div class="hl-mdl-title"><div class="hl-mdl-name">Today\\u2019s Highlight</div><div class="hl-mdl-sub">'+(hl?(hl.done?'\\u2728 Done':'One thing that would make today a win'):'One thing that would make today a win')+'</div></div>'
+    +(hl?'<button class="mtg-del-btn" onclick="hlClear();hlPanelClose()" aria-label="Clear"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>':'<div style="width:36px"></div>')
+  +'</header>';
+  h+='<div class="hl-mdl-body">';
+  h+='<div class="hl-poster" id="hlPoster">'+_renderHlPoster(liveText||'Your highlight goes here',hl?hl.done:false)+'</div>';
+  if(editing){
+    h+='<div class="hl-edit-row">'
+      +'<input class="hl-input-v2" id="hlInput" autofocus value="'+esc((S.hlInput!=null?S.hlInput:(hl?hl.text:''))||'')+'" placeholder="If today were a win, the one thing I\\u2019d finish is\\u2026" oninput="hlInputUpdate(this.value)" onkeydown="if(event.key===\\'Enter\\')hlSubmit()"/>'
+      +'<button class="hl-save-v2'+((S.hlInput!=null?S.hlInput:(hl?hl.text:''))&&((S.hlInput!=null?S.hlInput:hl.text)||'').trim()?' on':'')+'" onclick="hlSubmit()">Save \\u2192</button>'
+    +'</div>';
+  } else if(hl){
+    h+='<div class="hl-actions-v2">'
+      +'<button class="hl-check-v2'+(hl.done?' on':'')+'" onclick="hlToggleDone()">'+(hl.done?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg> Done':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/></svg> Mark done')+'</button>'
+      +'<button class="hl-edit-v2" onclick="hlOpen()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit</button>'
+    +'</div>';
+  }
+  h+='<div class="hl-mdl-footnote">\\u{1F4C5} Adds an all-day event to your Google Calendar. \\u{1F4E7} You\\u2019ll get email reminders at midday and evening if it\\u2019s still open.</div>';
+  h+='</div></div></div>';
+}
 if(S.mtgPanel){
   h+='<div class="ov" onclick="mtgClose()"><div class="mdl mtg-mdl" onclick="event.stopPropagation()">';
   if(S.mtgView==='detail'&&S.mtgCur){
     const m=S.mtgCur;
     const isRec=!!(S._mtgRec&&S._mtgRec.state==='recording');
-    if(typeof S._mtgOpenSec!=='string')S._mtgOpenSec='notes';
-    const openSec=S._mtgOpenSec;
     h+='<header class="mtg-hd">'
       +'<button class="bk-back" onclick="mtgBack()" aria-label="Back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>'
       +'<div class="mtg-title-strip"><div class="mtg-name">Meeting</div><div class="mtg-sub">'+esc(_fmtMtgTime(m.created_at)||'today')+'</div></div>'
@@ -9300,48 +9326,33 @@ if(S.mtgPanel){
     if(m.loading){h+='<div class="mtg-loading">Loading\\u2026</div>'}
     else{
       h+='<input class="mtg-title-input" id="mtgTitleInput" placeholder="Untitled meeting" value="'+esc(m.title||'')+'" oninput="mtgFieldChange(\\'title\\',this.value)"/>';
-      // ─── Section chips: tap to expand, like the Progress chip pattern ───
       const voices=m.voices||[];
-      const sections=[
-        {k:'agenda',ic:'\\u{1F4CB}',name:'Agenda',preview:(m.agenda||'').slice(0,60)||'Add an agenda',color:'#FFB547'},
-        {k:'notes', ic:'\\u270D\\uFE0F',name:'Notes', preview:(m.notes||'').slice(0,60)||'Type your notes',color:'#A78BFA'},
-        {k:'voice', ic:'\\u{1F3A4}',name:'Voice notes',preview:(isRec?'Recording\\u2026':voices.length?voices.length+' recording'+(voices.length===1?'':'s'):'Tap to record'),color:'#22D3EE'}
-      ];
-      sections.forEach(s=>{
-        const isOpen=openSec===s.k;
-        h+='<div class="mtg-block'+(isOpen?' is-open':'')+'">';
-        // Chip header
-        h+='<button class="mtg-block-hd" onclick="mtgToggleSection(\\''+s.k+'\\')">'
-          +'<span class="mtg-block-ic" style="background:'+s.color+'">'+s.ic+'</span>'
-          +'<span class="mtg-block-name">'+s.name+'</span>'
-          +'<span class="mtg-block-mini">'+esc(s.preview)+'</span>'
-          +'<span class="mtg-block-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>'
-        +'</button>';
-        if(isOpen){
-          h+='<div class="mtg-block-body">';
-          if(s.k==='agenda'){
-            h+='<textarea class="mtg-textarea" id="mtgAgendaInput" placeholder="What is this meeting for? Add bullet points, attendees, the goal." oninput="mtgFieldChange(\\'agenda\\',this.value)">'+esc(m.agenda||'')+'</textarea>';
-          } else if(s.k==='notes'){
-            h+='<textarea class="mtg-textarea mtg-textarea-tall" id="mtgNotesInput" placeholder="Type the notes from the meeting\\u2026 decisions, action items, who said what." oninput="mtgFieldChange(\\'notes\\',this.value)">'+esc(m.notes||'')+'</textarea>';
-          } else if(s.k==='voice'){
-            if(isRec){
-              h+='<div class="mtg-rec-active"><span class="mtg-rec-pulse"></span><span class="mtg-rec-label">Recording\\u2026</span><span class="mtg-rec-time" id="mtgRecTime">0:00</span><button class="mtg-rec-stop" onclick="mtgRecStop()"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg> Stop</button></div>';
-            } else {
-              h+='<button class="mtg-rec-btn" onclick="mtgRecStart()"><span class="mtg-rec-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg></span>Record a voice note</button>';
-            }
-            if(voices.length){
-              h+='<div class="mtg-voices">';
-              voices.forEach((v,i)=>{
-                const dur=v.duration_sec?(Math.floor(v.duration_sec/60)+':'+String(v.duration_sec%60).padStart(2,'0')):'\\u2014';
-                h+='<div class="mtg-voice"><span class="mtg-voice-n">#'+(i+1)+'</span><audio controls preload="none" src="/api/meetings/'+m.id+'/voice/'+v.id+'?token='+encodeURIComponent(token)+'"></audio><span class="mtg-voice-time">'+dur+'</span><button class="mtg-voice-x" onclick="mtgVoiceDelete(\\''+v.id+'\\')" aria-label="Delete">\\u2715</button></div>';
-              });
-              h+='</div>';
-            }
-          }
-          h+='</div>';
-        }
+      // All three sections always rendered — no collapse, no remount on tap, no flicker
+      h+='<div class="mtg-block is-open">'
+        +'<div class="mtg-block-hd-static"><span class="mtg-block-ic" style="background:#FFB547">\\u{1F4CB}</span><span class="mtg-block-name">Agenda</span></div>'
+        +'<div class="mtg-block-body"><textarea class="mtg-textarea" id="mtgAgendaInput" placeholder="What is this meeting for? Bullet points, attendees, the goal." oninput="mtgFieldChange(\\'agenda\\',this.value)">'+esc(m.agenda||'')+'</textarea></div>'
+      +'</div>';
+      h+='<div class="mtg-block is-open">'
+        +'<div class="mtg-block-hd-static"><span class="mtg-block-ic" style="background:#A78BFA">\\u270D\\uFE0F</span><span class="mtg-block-name">Notes</span></div>'
+        +'<div class="mtg-block-body"><textarea class="mtg-textarea mtg-textarea-tall" id="mtgNotesInput" placeholder="Type the notes from the meeting\\u2026 decisions, action items, who said what." oninput="mtgFieldChange(\\'notes\\',this.value)">'+esc(m.notes||'')+'</textarea></div>'
+      +'</div>';
+      h+='<div class="mtg-block is-open">'
+        +'<div class="mtg-block-hd-static"><span class="mtg-block-ic" style="background:#22D3EE">\\u{1F3A4}</span><span class="mtg-block-name">Voice notes</span>'+(voices.length?'<span class="mtg-block-count">'+voices.length+'</span>':'')+'</div>'
+        +'<div class="mtg-block-body">';
+      if(isRec){
+        h+='<div class="mtg-rec-active"><span class="mtg-rec-pulse"></span><span class="mtg-rec-label">Recording\\u2026</span><span class="mtg-rec-time" id="mtgRecTime">0:00</span><button class="mtg-rec-stop" onclick="mtgRecStop()"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg> Stop</button></div>';
+      } else {
+        h+='<button class="mtg-rec-btn" onclick="mtgRecStart()"><span class="mtg-rec-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg></span>Record a voice note</button>';
+      }
+      if(voices.length){
+        h+='<div class="mtg-voices">';
+        voices.forEach((v,i)=>{
+          const dur=v.duration_sec?(Math.floor(v.duration_sec/60)+':'+String(v.duration_sec%60).padStart(2,'0')):'\\u2014';
+          h+='<div class="mtg-voice"><span class="mtg-voice-n">#'+(i+1)+'</span><audio controls preload="none" src="/api/meetings/'+m.id+'/voice/'+v.id+'?token='+encodeURIComponent(token)+'"></audio><span class="mtg-voice-time">'+dur+'</span><button class="mtg-voice-x" onclick="mtgVoiceDelete(\\''+v.id+'\\')" aria-label="Delete">\\u2715</button></div>';
+        });
         h+='</div>';
-      });
+      }
+      h+='</div></div>';
     }
     h+='</div>';
   } else {
@@ -9429,9 +9440,9 @@ if(S.schPanel){
   }
   h+='<div class="ov" onclick="schClose()"><div class="mdl sch-mdl" onclick="event.stopPropagation()">';
   h+='<header class="sch-hd">'
-    +'<button class="bk-back" onclick="schClose()" aria-label="Back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>'
+    +'<button class="bk-back sch-close-big" onclick="schClose()" aria-label="Close"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>'
     +'<div class="sch-title"><div class="sch-name">Plan your day</div><div class="sch-sub">'+blocks.length+' block'+(blocks.length===1?'':'s')+' \\u00B7 tap any time \\u00B7 syncs to Calendar</div></div>'
-    +'<div style="width:36px"></div>'
+    +'<button class="sch-close-big" onclick="schClose()" aria-label="Done" style="background:rgba(255,255,255,.18);font-size:13px;letter-spacing:-.005em;padding:0 16px;width:auto;height:38px;font-weight:600">Done</button>'
   +'</header>';
   h+='<div class="sch-body">';
   // Helper banner
