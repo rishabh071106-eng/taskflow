@@ -3760,6 +3760,13 @@ body:not([data-theme=aurora]) .lvl-link{background:#E8E6E0}
 .hh-pc-arrow{flex-shrink:0;color:rgba(255,255,255,.55);transition:transform .25s ease}
 .hh-progress-chip.is-open .hh-pc-arrow{transform:rotate(180deg)}
 .hh-progress-chip+.hh-stats{margin-top:12px;animation:hhStatsIn .3s ease}
+/* Light-theme variant — used on the Mind Gym tab body where the page background is light */
+body:not([data-theme=aurora]) .mg-prog-chip{background:#fff;border-color:#E8E6E0;color:#1A1A1A}
+body:not([data-theme=aurora]) .mg-prog-chip:hover{background:#FAFAF7;border-color:#CFCFCF}
+body:not([data-theme=aurora]) .mg-prog-chip .hh-pc-t{color:#1A1A1A}
+body:not([data-theme=aurora]) .mg-prog-chip .hh-pc-mini{color:#666}
+body:not([data-theme=aurora]) .mg-prog-chip .hh-pc-arrow{color:#999}
+.mg-prog-chip{margin-bottom:14px}
 @keyframes hhStatsIn{from{opacity:0;transform:translateY(-4px)}}
 @media (max-width:560px){.hh-pc-mini{display:none}}
 .hh-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
@@ -3992,7 +3999,11 @@ body[data-theme=aurora] .tc-added{color:#6B6B85;background:rgba(255,255,255,.04)
 .fab{position:fixed;bottom:26px;right:26px;width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#3DAE5C,#2D8A4E);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(61,174,92,.4),0 0 0 6px rgba(61,174,92,.1);z-index:50;font-size:32px;font-weight:400;transition:all .2s cubic-bezier(.2,.8,.2,1)}
 .fab:hover{transform:scale(1.1) rotate(90deg);box-shadow:0 12px 32px rgba(61,174,92,.5)}
 .fab:active{transform:scale(.95)}
-.ov{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center;z-index:100}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center;z-index:200}
+/* While any modal is open, hide the bottom tab bar so the modal truly covers the screen
+   (no "half page" overlap with the fixed bottom nav). */
+body.modal-open .tabs.page-t{display:none !important}
+body.modal-open{padding-bottom:0 !important}
 .mdl{background:#FFFFFF;border-radius:18px 18px 0 0;padding:20px 18px 32px;width:100%;max-width:480px;max-height:85vh;overflow-y:auto}
 .mdl h2{font-family:'Space Mono',monospace;font-size:18px;margin-bottom:14px}
 .lbl{font-size:11px;font-weight:700;color:#94A3B8;margin:12px 0 4px;display:block;text-transform:uppercase;letter-spacing:.5px}
@@ -6553,11 +6564,20 @@ function bkSearchInput(v){
 }
 function bkSearchClear(){S.bkSearch='';const i=document.getElementById('bkSearch');if(i){i.value='';i.focus()}bkSearchInput('')}
 // ─── Schedule Blocks (interactive day-blocking) ──────────────
-function schOpen(){S.schPanel=true;S.schForm={start:'09:00',end:'10:00',label:''};schLoad();render()}
+function schOpen(){S.schPanel=true;S.schForm={start:'09:00',end:'10:00',label:''};render();schLoad()}
 function schClose(){S.schPanel=false;render()}
 async function schLoad(){
   if(!S.user)return;
-  try{const r=await api('/schedule');if(r&&Array.isArray(r.blocks)){S.schBlocks=r.blocks;render()}}catch(e){}
+  try{
+    const r=await api('/schedule');
+    if(r&&Array.isArray(r.blocks)){
+      // Skip render if list is identical — avoids re-render flicker on open.
+      const old=S.schBlocks||[];
+      const same=old.length===r.blocks.length&&old.every((b,i)=>r.blocks[i]&&r.blocks[i].id===b.id&&r.blocks[i].label===b.label&&r.blocks[i].start_time===b.start_time&&r.blocks[i].end_time===b.end_time);
+      S.schBlocks=r.blocks;
+      if(!same)render();
+    }
+  }catch(e){}
 }
 function schPreset(start,end,label){S.schForm={start,end,label};render();setTimeout(()=>{const i=document.getElementById('schLabel');if(i)i.focus()},80)}
 function schFormSet(k,v){if(!S.schForm)S.schForm={start:'09:00',end:'10:00',label:''};S.schForm[k]=v}
@@ -6611,19 +6631,50 @@ async function schSelSave(){
   }else{toast('\\u26A0\\uFE0F Could not save','err')}
 }
 // ─── Meeting Notes ────────────────────────────────────────────────
-function mtgOpen(){S.mtgPanel=true;S.mtgView='one';S.mtgCur=null;mtgLoad(true);render()}
+function mtgOpen(){
+  S.mtgPanel=true;S.mtgView='one';
+  // Optimistic open — pick the most recent meeting from the cached list immediately
+  // so the editor cards render in the same paint as the modal slide-up. Avoids the
+  // empty-then-populated flicker.
+  if(S.mtgList&&S.mtgList.length){
+    const m=S.mtgList[0];
+    S.mtgCur={...m,voices:m.voices||[],loading:false};
+  } else {
+    S.mtgCur=null;
+  }
+  render();
+  mtgLoad(true);
+}
 function mtgClose(){if(S._mtgRec&&S._mtgRec.state==='recording'){try{S._mtgRec.stop()}catch(e){}}S._mtgRec=null;S.mtgPanel=false;S.mtgCur=null;render()}
 async function mtgLoad(autoSelect){
   if(!S.user)return;
   try{
     const r=await api('/meetings');
     if(r&&Array.isArray(r.meetings)){
+      const old=S.mtgList||[];
+      const sameList=old.length===r.meetings.length&&old.every((m,i)=>r.meetings[i]&&r.meetings[i].id===m.id&&r.meetings[i].updated_at===m.updated_at);
       S.mtgList=r.meetings;
-      // ─── Auto-select most recent on open so editor options are immediately visible ───
+      // If we still have no current meeting, pick most recent (or create one).
       if(autoSelect&&!S.mtgCur){
         if(r.meetings.length){mtgOpenDetail(r.meetings[0].id)}
         else{mtgNew()}
-      } else { render() }
+        return;
+      }
+      // Refresh voice list of the active meeting silently.
+      if(S.mtgCur&&S.mtgCur.id){mtgQuietRefreshVoices(S.mtgCur.id)}
+      if(!sameList&&!S.mtgCur)render();
+    }
+  }catch(e){}
+}
+async function mtgQuietRefreshVoices(id){
+  try{
+    const r=await api('/meetings/'+id);
+    if(r&&r.meeting&&S.mtgCur&&S.mtgCur.id===id){
+      const newVoices=r.voices||[];
+      const oldVoices=S.mtgCur.voices||[];
+      const same=newVoices.length===oldVoices.length&&newVoices.every((v,i)=>oldVoices[i]&&oldVoices[i].id===v.id);
+      S.mtgCur.voices=newVoices;
+      if(!same)render();
     }
   }catch(e){}
 }
@@ -8076,7 +8127,15 @@ function startBookListenTimer(){if(_bkTimer)return;S._bkSec=0;_bkTimer=setInterv
 function stopBookListenTimer(){if(_bkTimer){clearInterval(_bkTimer);_bkTimer=null}}
 async function loadBookStreak(){if(!S.user)return;const r=await api('/book-streak');if(r)S.bookStreak={streak:r.streak||0,total:r.total||0,today:!!r.today,days:r.days||[]}}
 
+// Coalesce multiple render() calls in the same frame into one. Previously, opening
+// a modal could trigger 2-3 render passes in <500ms (open + data fetch + auto-select),
+// each rebuilding the entire app DOM and producing visible flicker / cursor resets.
+let _renderRAF=0;
 function render(){
+  if(_renderRAF)return;
+  _renderRAF=requestAnimationFrame(()=>{_renderRAF=0;_render()});
+}
+function _render(){
 // While the canvas-based Memory Tap is running, suspend full re-renders so the canvas state
 // (game loop, animations) is preserved.
 if(S._mtActive&&S.mgPlay&&S.mgPlay.canvasGame==='mt'&&document.getElementById('mtCanvas'))return;
@@ -8305,7 +8364,7 @@ if(isMain){
   const dayOfYear=Math.floor((now-yStart)/86400000);
   const yearPct=Math.round(dayOfYear/365*100);
   const dateStr=now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-  const tabsHtml=[{k:'tasks',l:'Tasks'},{k:'board',l:'Board'},{k:'cal',l:'Calendar'},{k:'books',l:'Briefs'},{k:'meditation',l:'Meditate'},{k:'mindgym',l:'Mind Gym'}].map(x=>'<button class="tab tab-'+x.k+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(ID[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
+  const tabsHtml=[{k:'tasks',l:'Tasks'},{k:'board',l:'Board'},{k:'cal',l:'Cal'},{k:'books',l:'Briefs'},{k:'meditation',l:'Calm'},{k:'mindgym',l:'Games'}].map(x=>'<button class="tab tab-'+x.k+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(ID[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
   // "Bro, do it!" mascot — a character with a speech bubble that animates
   const climbScene='<div class="bro-mascot" aria-hidden="true">'
     +'<svg class="bro-svg" viewBox="0 0 340 130" xmlns="http://www.w3.org/2000/svg">'
@@ -8472,19 +8531,28 @@ else if(S.tab==='mindgym'){
   const totalLevel=mg.progress.math.level+mg.progress.memory.level+mg.progress.reaction.level+((mg.progress.word&&mg.progress.word.level)||1);
   const totalXp=(mg.progress.math.xp||0)+(mg.progress.memory.xp||0)+(mg.progress.reaction.xp||0)+((mg.progress.word&&mg.progress.word.xp)||0);
   const streak=mg.streak||{current:0,longest:0,total:0};
-  // ─── Mind Gym hero (chip-style stat tiles) ───
-  h+='<section class="home-hero" style="background:linear-gradient(135deg,#1B0E2E 0%,#2A1245 50%,#5B21B6 100%)">'
-    +'<div class="hh-bg"></div>'
-    +'<div class="hh-row"><div class="hh-eyebrow">\\u{1F9E0} Mind Gym</div></div>'
-    +'<h1 class="hh-greet">Train your mind, <em>daily</em>.</h1>'
-    +'<p class="hh-line">Four micro-games. Sub-90 seconds each. Pick one and start.</p>'
-    +'<div class="hh-stats">'
-      +'<div class="hh-stat"><b style="color:#86EFAC">'+overall+'%</b><small>Overall</small></div>'
-      +'<div class="hh-stat"><b style="color:#A78BFA">L'+totalLevel+'</b><small>Total levels</small></div>'
-      +'<div class="hh-stat"><b style="color:#FFB547">\\u{1F525} '+streak.current+'</b><small>Day streak</small></div>'
-      +'<div class="hh-stat"><b style="color:#22D3EE">'+totalXp+'</b><small>XP earned</small></div>'
-    +'</div>'
-  +'</section>';
+  // ─── Collapsible Progress chip (saves vertical space — tap to expand stats) ───
+  const _mgPOpen=!!S.mgProgressOpen;
+  h+='<button class="hh-progress-chip mg-prog-chip'+(_mgPOpen?' is-open':'')+'" onclick="S.mgProgressOpen=!S.mgProgressOpen;render()" aria-expanded="'+_mgPOpen+'">'
+    +'<span class="hh-pc-ic" style="background:linear-gradient(135deg,#A78BFA,#5B21B6)">\\u{1F9E0}</span>'
+    +'<span class="hh-pc-t">Mind Gym progress</span>'
+    +'<span class="hh-pc-mini">'+overall+'% \\u00B7 L'+totalLevel+' \\u00B7 \\u{1F525}'+streak.current+' \\u00B7 '+totalXp+' XP</span>'
+    +'<svg class="hh-pc-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>'
+  +'</button>';
+  if(_mgPOpen){
+    h+='<section class="home-hero" style="background:linear-gradient(135deg,#1B0E2E 0%,#2A1245 50%,#5B21B6 100%);margin-bottom:14px">'
+      +'<div class="hh-bg"></div>'
+      +'<div class="hh-row"><div class="hh-eyebrow">\\u{1F9E0} Mind Gym</div></div>'
+      +'<h1 class="hh-greet">Train your mind, <em>daily</em>.</h1>'
+      +'<p class="hh-line">Five micro-games. Sub-90 seconds each. Pick one and start.</p>'
+      +'<div class="hh-stats">'
+        +'<div class="hh-stat"><b style="color:#86EFAC">'+overall+'%</b><small>Overall</small></div>'
+        +'<div class="hh-stat"><b style="color:#A78BFA">L'+totalLevel+'</b><small>Total levels</small></div>'
+        +'<div class="hh-stat"><b style="color:#FFB547">\\u{1F525} '+streak.current+'</b><small>Day streak</small></div>'
+        +'<div class="hh-stat"><b style="color:#22D3EE">'+totalXp+'</b><small>XP earned</small></div>'
+      +'</div>'
+    +'</section>';
+  }
   // ─── Game tiles in chip style ───
   const _games=[
     {k:'math',e:'\\u{1F522}',n:'Math Sprint',d:'Mental arithmetic against the clock',accent:'#22D3EE',accent2:'#3B82F6',pData:mg.progress.math,pct:mgPercent('math'),bestL:'Best streak',road:'highway'},
