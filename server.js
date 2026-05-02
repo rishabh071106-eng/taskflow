@@ -1969,8 +1969,7 @@ body[data-theme=aurora] .vc-mdl-nav{background:rgba(255,255,255,.02);border-colo
 .mg-mem-lit{background:linear-gradient(135deg,#A855F7,#EC4899)!important;border-color:#A855F7!important;box-shadow:0 0 24px rgba(168,85,247,.55);animation:mgFlash .3s ease}
 @keyframes mgFlash{0%{transform:scale(.95)}50%{transform:scale(1.04)}100%{transform:scale(1)}}
 /* ─── Game detail / journey roadway ─── */
-.mg-detail{max-width:none;width:100%;padding:0;overflow:hidden;display:flex;flex-direction:column;background:radial-gradient(900px 500px at 50% 0%,var(--accent2,#5B21B6) 0%,#0A0815 70%);color:#F5F5FA;border:0;height:100vh;max-height:100vh;border-radius:0;align-self:stretch;animation:schSlideUp .3s cubic-bezier(.16,1,.3,1)}
-body:not([data-theme=aurora]) .mg-detail{background:radial-gradient(900px 500px at 50% 0%,var(--accent2,#5B21B6) 0%,#FAFAF7 70%);color:#1A1A1A}
+.mg-detail{max-width:none;width:100%;padding:0;overflow:hidden;display:flex;flex-direction:column;background:radial-gradient(900px 500px at 50% 0%,var(--accent2,#5B21B6) 0%,#0A0815 70%) !important;color:#F5F5FA !important;border:0;height:100vh;max-height:100vh;border-radius:0;align-self:stretch;animation:schSlideUp .3s cubic-bezier(.16,1,.3,1)}
 .mgd-hd{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid rgba(255,255,255,.06);background:linear-gradient(135deg,var(--accent,#FF6B47) 0%,var(--accent2,#FFB547) 100%);color:#fff;flex-shrink:0}
 .mgd-back{width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,.18);border:0;color:#fff;cursor:pointer;display:grid;place-items:center;transition:background .2s,transform .2s;flex-shrink:0}
 .mgd-back:hover{background:rgba(0,0,0,.3);transform:translateX(-2px)}
@@ -3221,7 +3220,7 @@ body:not([data-theme=aurora]) .cx-pv-pill{background:#FFF1ED;color:#B7472A;borde
 body:not([data-theme=aurora]) .cx-pv-title{background:#F4F3EE;color:#1A1A1A;border-color:#E8E6E0}
 @media (max-width:560px){.cx-chip{padding:6px 10px;font-size:11.5px}.cx-input{font-size:15px}}
 /* ─── Today's Highlight — fullscreen modal v3 (purple-hero chip pattern) ─── */
-.hl-mdl{max-width:none;width:100%;padding:0;overflow:hidden;display:flex;flex-direction:column;background:radial-gradient(900px 500px at 50% 0%,#3D1F5F 0%,#1A0E2E 70%);color:#F5F5FA;border:0;height:100vh;max-height:100vh;border-radius:0;align-self:stretch;animation:schSlideUp .3s cubic-bezier(.16,1,.3,1)}
+.hl-mdl{max-width:none;width:100%;padding:0;overflow:hidden;display:flex;flex-direction:column;background:radial-gradient(900px 500px at 50% 0%,#3D1F5F 0%,#1A0E2E 70%) !important;color:#F5F5FA !important;border:0;height:100vh;max-height:100vh;border-radius:0;align-self:stretch;animation:schSlideUp .3s cubic-bezier(.16,1,.3,1)}
 .hl-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:6px 0 24px;max-width:680px;width:100%;margin:0 auto}
 .hl-hero{margin:6px 18px 14px !important;background:linear-gradient(135deg,#1A0E2E 0%,#2A1245 50%,#3D1F5F 100%) !important}
 .hl-hero .hh-greet{font-size:clamp(28px,5.2vw,40px) !important;margin:6px 0 12px !important}
@@ -3383,7 +3382,7 @@ body:not([data-theme=aurora]) .plan-chip:hover{background:#F4F1FF;border-color:#
 .mtg-rec-btn-v2 .mtg-rec-ic{width:30px;height:30px;border-radius:50%;background:#DC2626;color:#fff;display:grid;place-items:center;flex-shrink:0}
 @media (max-width:560px){.mtg-card,.mtg-hero{margin:0 14px 12px}.mtg-title-input-v2{font-size:24px}}
 /* ─── Meeting Notes panel (legacy) ─── */
-.mtg-mdl{max-width:none;width:100%;padding:0;overflow:hidden;display:flex;flex-direction:column;background:radial-gradient(900px 500px at 50% 0%,#0E2A3D 0%,#06121A 70%);color:#F5F5FA;border:0;height:100vh;max-height:100vh;border-radius:0;align-self:stretch;animation:schSlideUp .3s cubic-bezier(.16,1,.3,1)}
+.mtg-mdl{max-width:none;width:100%;padding:0;overflow:hidden;display:flex;flex-direction:column;background:radial-gradient(900px 500px at 50% 0%,#0E2A3D 0%,#06121A 70%) !important;color:#F5F5FA !important;border:0;height:100vh;max-height:100vh;border-radius:0;align-self:stretch;animation:schSlideUp .3s cubic-bezier(.16,1,.3,1)}
 .mtg-hd{display:flex;align-items:center;gap:14px;padding:18px 20px;padding-top:calc(18px + env(safe-area-inset-top,0px));background:linear-gradient(135deg,rgba(14,165,233,.4),rgba(34,211,238,.25));color:#fff;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.08);position:relative;overflow:hidden}
 .mtg-hd::after{content:'';position:absolute;inset:0;background:radial-gradient(700px 200px at 90% 0%,rgba(255,255,255,.18),transparent 60%);pointer-events:none}
 .mtg-title-strip{flex:1;min-width:0;position:relative;z-index:1}
@@ -3459,9 +3458,9 @@ body:not([data-theme=aurora]) .plan-chip:hover{background:#F4F1FF;border-color:#
 .mtg-chip:hover{background:rgba(34,211,238,.12);border-color:rgba(34,211,238,.45);box-shadow:0 8px 22px -10px rgba(34,211,238,.5)}
 body:not([data-theme=aurora]) .mtg-chip:hover{background:#ECFAFE;border-color:#0EA5E9}
 /* Plan your day — full-screen, calmer, more spacious */
-.sch-mdl{max-width:none;width:100%;padding:0;overflow:hidden;display:flex;flex-direction:column;background:#0A0815;color:#F5F5FA;border:0;height:100vh;max-height:100vh;border-radius:0;align-self:stretch;animation:schSlideUp .3s cubic-bezier(.16,1,.3,1)}
+.sch-mdl{max-width:none;width:100%;padding:0;overflow:hidden;display:flex;flex-direction:column;background:#0A0815 !important;color:#F5F5FA !important;border:0;height:100vh;max-height:100vh;border-radius:0;align-self:stretch;animation:schSlideUp .3s cubic-bezier(.16,1,.3,1)}
 @keyframes schSlideUp{from{opacity:0;transform:translateY(12px)}}
-body:not([data-theme=aurora]) .sch-mdl{background:#FAFAF7;color:#1A1A1A}
+/* Fullscreen modals always render dark — their inner content uses white text. */
 .sch-hd{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:18px 20px;padding-top:calc(18px + env(safe-area-inset-top,0px));background:linear-gradient(135deg,#1E1B4B 0%,#5B21B6 50%,#A78BFA 100%);color:#fff;flex-shrink:0;position:relative;overflow:hidden}
 .sch-hd::after{content:'';position:absolute;inset:0;background:radial-gradient(700px 200px at 90% 0%,rgba(255,255,255,.18),transparent 60%);pointer-events:none}
 .sch-title{flex:1;text-align:left;min-width:0;position:relative;z-index:1}
@@ -5227,6 +5226,10 @@ body:not([data-theme=aurora]) .bk-search-meta{color:#6B6B6B}
 .mg-ach.purple .medal{background:linear-gradient(135deg,#C4B5FD,#7C3AED);box-shadow:0 0 16px rgba(196,181,253,.4)}
 .mg-ach .name{font-size:11px;font-weight:600;color:#fff;letter-spacing:-.005em}
 .mg-ach .desc{font-size:10.5px;color:rgba(255,255,255,.7);line-height:1.3;font-family:'JetBrains Mono',monospace;letter-spacing:.02em}
+body:not([data-theme=aurora]) .mg-ach{background:linear-gradient(180deg,#fff,#FAFAF7);border-color:#E8E6E0}
+body:not([data-theme=aurora]) .mg-ach .name{color:#0F172A}
+body:not([data-theme=aurora]) .mg-ach .desc{color:#64748B}
+body:not([data-theme=aurora]) .mg-ach.locked .medal{background:#F0EFEA;color:#9CA3AF}
 
 /* ═══════════════ MIND GYM · Elevate-style card overhaul ═══════════════ */
 .mg-grid-tab{grid-template-columns:repeat(2,1fr) !important;gap:14px !important}
