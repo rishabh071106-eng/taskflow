@@ -6582,11 +6582,21 @@ async function schSelSave(){
   }else{toast('\\u26A0\\uFE0F Could not save','err')}
 }
 // ─── Meeting Notes ────────────────────────────────────────────────
-function mtgOpen(){S.mtgPanel=true;S.mtgView='one';S.mtgCur=null;mtgLoad();render()}
+function mtgOpen(){S.mtgPanel=true;S.mtgView='one';S.mtgCur=null;mtgLoad(true);render()}
 function mtgClose(){if(S._mtgRec&&S._mtgRec.state==='recording'){try{S._mtgRec.stop()}catch(e){}}S._mtgRec=null;S.mtgPanel=false;S.mtgCur=null;render()}
-async function mtgLoad(){
+async function mtgLoad(autoSelect){
   if(!S.user)return;
-  try{const r=await api('/meetings');if(r&&Array.isArray(r.meetings)){S.mtgList=r.meetings;render()}}catch(e){}
+  try{
+    const r=await api('/meetings');
+    if(r&&Array.isArray(r.meetings)){
+      S.mtgList=r.meetings;
+      // ─── Auto-select most recent on open so editor options are immediately visible ───
+      if(autoSelect&&!S.mtgCur){
+        if(r.meetings.length){mtgOpenDetail(r.meetings[0].id)}
+        else{mtgNew()}
+      } else { render() }
+    }
+  }catch(e){}
 }
 async function mtgNew(){
   const r=await api('/meetings',{method:'POST',body:JSON.stringify({title:'New meeting',agenda:'',notes:''})});
