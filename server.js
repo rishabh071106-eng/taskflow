@@ -8561,20 +8561,19 @@ else if(S.tab==='mindgym'){
     {k:'word',e:'\\u{1F520}',n:'Word Sprint',d:'Anagrams. 90 seconds. Find every word.',accent:'#34D399',accent2:'#10B981',pData:(mg.progress.word||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((mg.progress.word||{}).xp||0)/(5*100))*100)),bestL:'Best',bestSuffix:' words',road:'forest'},
     {k:'schulte',e:'\\u{1F3AF}',n:'Schulte Grid',d:'Tap 1\\u219225 in order. Trains visual focus.',accent:'#F472B6',accent2:'#A78BFA',pData:(mg.progress.schulte||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((mg.progress.schulte||{}).xp||0)/(5*100))*100)),bestL:'Best time',bestSuffix:' s',road:'space'}
   ];
-  // ─── Single chip card with all 5 games in uniform format. Tap any tile → fullscreen ───
-  h+='<section class="mtg-card mg-games-chip">'
-    +'<div class="mtg-card-hd"><span class="mtg-card-ic" style="background:linear-gradient(135deg,#A78BFA,#5B21B6)">\\u{1F3AE}</span><div class="mtg-card-title"><div class="mtg-card-name">Mind Games<span class="mtg-card-bdg">'+_games.length+'</span></div><div class="mtg-card-sub">Tap any to open in fullscreen</div></div></div>'
-    +'<div class="mg-uniform-grid">';
+  // ─── Mind Games chip — same purple-hero Actions pattern as the home tab ───
+  h+='<section class="home-hero qa-hero">'
+    +'<div class="hh-bg"></div>'
+    +'<div class="hh-row"><div class="hh-eyebrow">\\u{1F3AE} Mind Games</div></div>'
+    +'<h1 class="hh-greet" style="font-size:clamp(28px,5vw,42px);margin:6px 0 14px">Pick a <em>game</em>.</h1>'
+    +'<p class="hh-line" style="margin-bottom:18px">Tap any of the five to open it in fullscreen. Each one tracks levels and your best score.</p>'
+    +'<div class="hh-stats">';
   _games.forEach(g=>{
     const p=g.pData;
-    const bestStr=p.best?(g.k==='schulte'?(p.best/10).toFixed(1)+(g.bestSuffix||''):(p.best+(g.bestSuffix||''))):'\\u2014';
-    h+='<button class="mg-uniform-tile" onclick="mgDetailOpen(\\''+g.k+'\\')" style="--accent:'+g.accent+';--accent2:'+g.accent2+'">'
-      +'<span class="mg-uniform-emoji" style="background:linear-gradient(135deg,'+g.accent+','+g.accent2+')">'+g.e+'</span>'
-      +'<div class="mg-uniform-info">'
-        +'<div class="mg-uniform-name">'+g.n+'</div>'
-        +'<div class="mg-uniform-meta">L'+(p.level||1)+' \\u00B7 '+g.pct+'% \\u00B7 best '+bestStr+'</div>'
-      +'</div>'
-      +'<svg class="mg-uniform-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>'
+    h+='<button class="hh-stat qa-stat-tile" onclick="mgDetailOpen(\\''+g.k+'\\')">'
+      +'<span class="qa-stat-emoji" style="background:linear-gradient(135deg,'+g.accent+','+g.accent2+')">'+g.e+'</span>'
+      +'<span class="qa-stat-bdg">L'+(p.level||1)+'</span>'
+      +'<small>'+g.n+'</small>'
     +'</button>';
   });
   h+='</div></section>';
