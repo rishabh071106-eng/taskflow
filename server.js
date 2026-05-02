@@ -3412,6 +3412,46 @@ body:not([data-theme=aurora]) .sch-label::placeholder{color:rgba(26,26,26,.4)}
 .sch-foot-note{font-size:12.5px;color:rgba(255,255,255,.5);line-height:1.5;text-align:center;padding:0 8px}
 body:not([data-theme=aurora]) .sch-foot-note{color:#6B6B6B}
 @media (max-width:560px){.sch-mdl{max-height:100vh;border-radius:0;align-self:stretch;width:100%}.sch-grid{height:280px}}
+/* ─── Outlook-style drag-to-select timeline ─── */
+.schX-help{padding:12px 14px;border-radius:12px;background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.25);color:rgba(255,255,255,.85);font-size:13px;letter-spacing:-.005em;margin-bottom:14px;line-height:1.4}
+body:not([data-theme=aurora]) .schX-help{background:#F5EFFF;border-color:rgba(167,139,250,.4);color:#3D3D3D}
+.schX-wrap{display:grid;grid-template-columns:60px 1fr;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:14px;overflow:hidden;margin-bottom:14px;position:relative}
+body:not([data-theme=aurora]) .schX-wrap{background:#fff;border-color:#E8E6E0}
+.schX-rail{display:flex;flex-direction:column;border-right:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.15)}
+body:not([data-theme=aurora]) .schX-rail{border-right-color:#E8E6E0;background:#FAFAF7}
+.schX-tick{height:48px;padding:6px 8px 0;border-top:1px solid rgba(255,255,255,.04);font-family:'JetBrains Mono','Space Mono',monospace;font-size:10px;color:rgba(255,255,255,.45);font-weight:600;text-align:right}
+body:not([data-theme=aurora]) .schX-tick{border-top-color:#F0EDE7;color:#9A9A9A}
+.schX-tick:first-child{border-top:0}
+.schX-tick-l{display:inline-flex;align-items:baseline;gap:3px;line-height:1}
+.schX-tick-l small{font-size:8px;letter-spacing:.06em;opacity:.6}
+.schX-canvas{position:relative;height:816px;cursor:crosshair;touch-action:none;user-select:none;-webkit-user-select:none}
+.schX-grid-line{position:absolute;left:0;right:0;height:1px;background:rgba(255,255,255,.04);pointer-events:none}
+body:not([data-theme=aurora]) .schX-grid-line{background:#F4F3EE}
+.schX-grid-hour{background:rgba(255,255,255,.07)}
+body:not([data-theme=aurora]) .schX-grid-hour{background:#E8E6E0}
+.schX-blk{position:absolute;left:6px;right:6px;border-radius:10px;background:linear-gradient(135deg,rgba(91,33,182,.85),rgba(167,139,250,.7));color:#fff;display:flex;gap:0;overflow:hidden;box-shadow:0 6px 18px -4px rgba(91,33,182,.5);cursor:pointer;border:1px solid rgba(255,255,255,.1);min-height:24px}
+.schX-blk-bar{flex:0 0 4px;background:#FFB547}
+.schX-blk-body{flex:1;min-width:0;padding:5px 10px;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+.schX-blk-t{font:600 13px/1.2 'Inter',sans-serif;letter-spacing:-.005em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.schX-blk-time{font-family:'JetBrains Mono','Space Mono',monospace;font-size:9.5px;color:rgba(255,255,255,.85);letter-spacing:.04em;margin-top:2px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.schX-blk-x{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;border:0;background:rgba(0,0,0,.35);color:#fff;cursor:pointer;font-size:10px;display:grid;place-items:center;opacity:0;transition:opacity .2s}
+.schX-blk:hover .schX-blk-x{opacity:1}
+/* Drag selection ghost */
+.schX-sel{position:absolute;left:6px;right:6px;border-radius:10px;background:linear-gradient(135deg,rgba(255,107,71,.4),rgba(255,181,71,.25));border:2px dashed #FF6B47;color:#fff;padding:8px 12px;display:flex;flex-direction:column;gap:6px;justify-content:center;pointer-events:auto;z-index:5;box-shadow:0 8px 24px -6px rgba(255,107,71,.4);min-height:48px;animation:schSelIn .12s ease}
+@keyframes schSelIn{from{opacity:0}}
+.schX-sel-head{font-family:'JetBrains Mono','Space Mono',monospace;font-size:11px;letter-spacing:.04em;color:#fff;font-weight:700}
+.schX-sel-hint{font-size:11.5px;color:rgba(255,255,255,.78);font-style:italic}
+.schX-sel-input{width:100%;background:rgba(255,255,255,.95);border:0;outline:0;border-radius:8px;padding:8px 10px;color:#1A1A1A;font:600 13.5px/1.2 'Inter',sans-serif;letter-spacing:-.005em}
+.schX-sel-input::placeholder{color:#9A9A9A;font-weight:400;font-style:italic}
+.schX-sel-acts{display:flex;gap:6px;align-items:center;justify-content:flex-end}
+.schX-cancel,.schX-save{padding:6px 12px;border-radius:8px;border:0;font:600 11.5px/1 inherit;cursor:pointer;letter-spacing:-.005em}
+.schX-cancel{background:rgba(255,255,255,.18);color:#fff}
+.schX-save{background:#fff;color:#FF6B47}
+.schX-save:hover{transform:scale(1.04)}
+/* Now line */
+.schX-now{position:absolute;left:0;right:0;height:2px;background:#22D3EE;pointer-events:none;z-index:4;box-shadow:0 0 8px rgba(34,211,238,.6)}
+.schX-now-dot{position:absolute;left:-5px;top:-4px;width:10px;height:10px;border-radius:50%;background:#22D3EE;box-shadow:0 0 0 3px rgba(34,211,238,.25)}
+@media (max-width:560px){.schX-canvas{height:680px}.schX-wrap{grid-template-columns:50px 1fr}.schX-tick{padding:5px 6px 0}}
 /* ─── Single add-task chip ─── */
 .add-chip{display:inline-flex;align-items:center;gap:10px;padding:11px 16px 11px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#F5F5FA;font-family:inherit;font-weight:500;font-size:14px;cursor:pointer;letter-spacing:-.005em;transition:transform .2s ease,background .2s ease,border-color .2s ease,box-shadow .25s ease;margin:0 0 18px}
 .add-chip:hover{background:rgba(255,107,71,.12);border-color:rgba(255,107,71,.45);box-shadow:0 8px 22px -10px rgba(255,107,71,.5)}
@@ -6311,6 +6351,69 @@ async function schDelete(id){
   S.schBlocks=(S.schBlocks||[]).filter(b=>b.id!==id);
   render();
 }
+// ─── Drag-to-select on the Outlook-style timeline ────────────
+function _schSlot(){return 30}
+function _schPxToMin(y,canvas){const totalMin=parseInt(canvas.dataset.totalmin,10);const totalPx=parseInt(canvas.dataset.totalpx,10);return Math.max(0,Math.min(totalMin,(y/totalPx)*totalMin))}
+function _schSnap(min){const s=_schSlot();return Math.round(min/s)*s}
+function schPointerDown(e){
+  // Skip if clicking an existing block or pending selection
+  if(e.target.closest('.schX-blk')||e.target.closest('.schX-sel'))return;
+  const canvas=e.currentTarget;
+  if(!canvas.setPointerCapture)return;
+  try{canvas.setPointerCapture(e.pointerId)}catch(err){}
+  const rect=canvas.getBoundingClientRect();
+  const startMin=_schSnap(_schPxToMin(e.clientY-rect.top,canvas));
+  S.schSel={startMin,endMin:startMin+_schSlot(),dragging:true,editing:false,label:''};
+  S._schStartMin=startMin;
+  render();
+}
+function schPointerMove(e){
+  const sel=S.schSel;if(!sel||!sel.dragging)return;
+  const canvas=e.currentTarget;
+  const rect=canvas.getBoundingClientRect();
+  let endMin=_schSnap(_schPxToMin(e.clientY-rect.top,canvas));
+  // Always make sure endMin >= startMin + 30
+  if(endMin<S._schStartMin+_schSlot())endMin=S._schStartMin+_schSlot();
+  // Surgical DOM update of just the selection element to avoid flicker
+  const el=document.querySelector('.schX-sel');
+  if(el){
+    const totalMin=parseInt(canvas.dataset.totalmin,10);const totalPx=parseInt(canvas.dataset.totalpx,10);
+    const a=Math.min(S._schStartMin,endMin);const b=Math.max(S._schStartMin,endMin);
+    el.style.top=((a/totalMin)*totalPx)+'px';
+    el.style.height=Math.max(_schSlot(),((b-a)/totalMin)*totalPx)+'px';
+    const head=el.querySelector('.schX-sel-head');
+    if(head){
+      const _label=(m)=>{const dayStart=6,h=dayStart+Math.floor(m/60),mm=m%60,h12=h%12===0?12:h%12,ap=h<12?'AM':'PM';return h12+(mm?':'+String(mm).padStart(2,'0'):'')+' '+ap};
+      head.textContent=_label(a)+' \\u2192 '+_label(b);
+    }
+  }
+  S.schSel.endMin=endMin;
+}
+function schPointerUp(e){
+  const sel=S.schSel;if(!sel)return;
+  if(sel.dragging){
+    sel.dragging=false;
+    sel.editing=true;
+    render();
+    setTimeout(()=>{const i=document.getElementById('schSelInput');if(i)i.focus()},80);
+  }
+}
+function schSelLabel(v){if(S.schSel)S.schSel.label=v}
+function schSelCancel(){S.schSel=null;render()}
+async function schSelSave(){
+  const sel=S.schSel;if(!sel)return;
+  const label=(sel.label||'').trim();
+  if(!label){toast('\\u26A0\\uFE0F Add a label','err');return}
+  const a=Math.min(sel.startMin,sel.endMin),b=Math.max(sel.startMin,sel.endMin);
+  const _t=m=>{const h=6+Math.floor(m/60);const mm=m%60;return String(h).padStart(2,'0')+':'+String(mm).padStart(2,'0')};
+  const r=await api('/schedule',{method:'POST',body:JSON.stringify({date:new Date().toISOString().slice(0,10),start_time:_t(a),end_time:_t(b),label})});
+  if(r&&r.ok){
+    S.schBlocks=(S.schBlocks||[]).concat([r.block]).sort((a,b)=>a.start_time.localeCompare(b.start_time));
+    S.schSel=null;
+    toast(r.gcal?'\\u{1F512} Block saved \\u2022 added to Calendar':'\\u{1F512} Block saved');
+    render();
+  }else{toast('\\u26A0\\uFE0F Could not save','err')}
+}
 // ─── Meeting Notes ────────────────────────────────────────────────
 function mtgOpen(){S.mtgPanel=true;S.mtgView='list';mtgLoad();render()}
 function mtgClose(){if(S._mtgRec&&S._mtgRec.state==='recording'){try{S._mtgRec.stop()}catch(e){}}S._mtgRec=null;S.mtgPanel=false;S.mtgCur=null;render()}
@@ -9186,51 +9289,63 @@ if(S.mtgPanel){
   h+='</div></div>';
 }
 if(S.schPanel){
-  const f=S.schForm||{start:'09:00',end:'10:00',label:''};
   const blocks=S.schBlocks||[];
-  const presets=[{s:'06:00',e:'07:00',l:'\\u{1F305} Morning'},{s:'09:00',e:'12:00',l:'\\u{1F525} Deep work'},{s:'12:00',e:'13:00',l:'\\u{1F37D} Lunch'},{s:'15:00',e:'16:00',l:'\\u{1F4DA} Reading'},{s:'18:00',e:'19:00',l:'\\u{1F4AA} Workout'},{s:'21:00',e:'22:00',l:'\\u{1F319} Wind-down'}];
-  // Daypicker hour rail (6 AM - 11 PM)
-  const dayStart=6,dayEnd=23,dayHours=dayEnd-dayStart;
+  // Day window 6 AM - 11 PM, 30-min slots
+  const dayStart=6,dayEnd=23,dayHours=dayEnd-dayStart,totalMin=dayHours*60,slotPx=24,totalPx=dayHours*2*slotPx;
+  function _minToTime(m){const h=dayStart+Math.floor(m/60);const mm=m%60;return String(h).padStart(2,'0')+':'+String(mm).padStart(2,'0')}
+  function _minToLabel(m){const h=dayStart+Math.floor(m/60);const mm=m%60;const h12=h%12===0?12:h%12;const ap=h<12?'AM':'PM';return h12+(mm?':'+String(mm).padStart(2,'0'):'')+' '+ap}
+  // Hour rail with half-hour ticks
   let railHTML='';
-  for(let h=dayStart;h<=dayEnd;h++){railHTML+='<div class="sch-tick"><span>'+(h%12===0?12:h%12)+(h<12?'a':'p')+'</span></div>'}
+  for(let hh=dayStart;hh<dayEnd;hh++){
+    const h12=hh%12===0?12:hh%12;const ap=hh<12?'AM':'PM';
+    railHTML+='<div class="schX-tick"><span class="schX-tick-l">'+h12+'<small>'+ap+'</small></span></div>';
+  }
+  // Render saved blocks
   let blocksHTML='';
   blocks.forEach(b=>{
     const [sh,sm]=b.start_time.split(':').map(Number);
     const [eh,em]=b.end_time.split(':').map(Number);
-    const startMin=(sh-dayStart)*60+sm;
-    const endMin=(eh-dayStart)*60+em;
-    const totalMin=dayHours*60;
-    if(endMin<=0||startMin>=totalMin)return;
-    const top=(Math.max(0,startMin)/totalMin)*100;
-    const ht=(Math.min(totalMin,endMin)-Math.max(0,startMin))/totalMin*100;
-    blocksHTML+='<div class="sch-blk" style="top:'+top+'%;height:'+ht+'%"><div class="sch-blk-t">'+esc(b.label)+'</div><div class="sch-blk-time">'+esc(b.start_time)+' \\u2192 '+esc(b.end_time)+'</div><button class="sch-blk-x" onclick="schDelete(\\''+b.id+'\\')" aria-label="Remove">\\u2715</button></div>';
+    const sMin=(sh-dayStart)*60+sm;const eMin=(eh-dayStart)*60+em;
+    if(eMin<=0||sMin>=totalMin)return;
+    const top=(Math.max(0,sMin)/totalMin)*totalPx;
+    const ht=(Math.min(totalMin,eMin)-Math.max(0,sMin))/totalMin*totalPx;
+    blocksHTML+='<div class="schX-blk" style="top:'+top+'px;height:'+ht+'px"><div class="schX-blk-bar"></div><div class="schX-blk-body"><div class="schX-blk-t">'+esc(b.label)+'</div><div class="schX-blk-time">'+_minToLabel(sMin)+' \\u2192 '+_minToLabel(eMin)+'</div></div><button class="schX-blk-x" onclick="event.stopPropagation();schDelete(\\''+b.id+'\\')" aria-label="Remove">\\u2715</button></div>';
   });
+  // Pending selection (drag/edit state)
+  const sel=S.schSel||null;
+  let selHTML='';
+  if(sel&&sel.startMin!=null&&sel.endMin!=null){
+    const a=Math.min(sel.startMin,sel.endMin),b2=Math.max(sel.startMin,sel.endMin);
+    const top=(a/totalMin)*totalPx;const ht=Math.max(slotPx,((b2-a)/totalMin)*totalPx);
+    selHTML='<div class="schX-sel" style="top:'+top+'px;height:'+ht+'px">'
+      +'<div class="schX-sel-head">'+_minToLabel(a)+' \\u2192 '+_minToLabel(b2)+'</div>'
+      +(sel.editing?'<input class="schX-sel-input" id="schSelInput" autofocus value="'+esc(sel.label||'')+'" placeholder="What is this block for? \\u23CE to save" oninput="schSelLabel(this.value)" onkeydown="if(event.key===\\'Enter\\')schSelSave();if(event.key===\\'Escape\\')schSelCancel()" onblur="if((S.schSel&&!S.schSel.label))schSelCancel()"/>':'<div class="schX-sel-hint">Release to label this block</div>')
+      +(sel.editing?'<div class="schX-sel-acts"><button class="schX-cancel" onmousedown="event.preventDefault()" onclick="schSelCancel()">\\u2715</button><button class="schX-save" onmousedown="event.preventDefault()" onclick="schSelSave()">Save \\u2192</button></div>':'')
+    +'</div>';
+  }
+  // Now line — current time
+  let nowHTML='';
+  {
+    const now=new Date();const h=now.getHours()+now.getMinutes()/60;
+    if(h>=dayStart&&h<=dayEnd){const top=((h-dayStart)*60/totalMin)*totalPx;nowHTML='<div class="schX-now" style="top:'+top+'px"><span class="schX-now-dot"></span></div>'}
+  }
   h+='<div class="ov" onclick="schClose()"><div class="mdl sch-mdl" onclick="event.stopPropagation()">';
   h+='<header class="sch-hd">'
     +'<button class="bk-back" onclick="schClose()" aria-label="Back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>'
-    +'<div class="sch-title"><div class="sch-name">Plan your day</div><div class="sch-sub">'+blocks.length+' block'+(blocks.length===1?'':'s')+' \\u00B7 syncs to Google Calendar</div></div>'
+    +'<div class="sch-title"><div class="sch-name">Plan your day</div><div class="sch-sub">'+blocks.length+' block'+(blocks.length===1?'':'s')+' \\u00B7 drag to select \\u00B7 syncs to Calendar</div></div>'
     +'<div style="width:36px"></div>'
   +'</header>';
   h+='<div class="sch-body">';
-  // Timeline
-  h+='<div class="sch-grid">'
-    +'<div class="sch-rail">'+railHTML+'</div>'
-    +'<div class="sch-canvas">'+blocksHTML+(blocks.length===0?'<div class="sch-empty">No blocks yet \\u00B7 add one below</div>':'')+'</div>'
-  +'</div>';
-  // Quick presets
-  h+='<div class="sch-presets-lbl">Quick presets</div><div class="sch-presets">';
-  presets.forEach(p=>{h+='<button class="sch-preset" onclick="schPreset(\\''+p.s+'\\',\\''+p.e+'\\',\\''+p.l.replace(/'/g,"\\\\'")+'\\')">'+esc(p.l)+'<small>'+p.s+' \\u2192 '+p.e+'</small></button>'});
-  h+='</div>';
-  // Add block form
-  h+='<div class="sch-form">'
-    +'<div class="sch-form-row sch-form-times">'
-      +'<label class="sch-fl"><small>Start</small><input type="time" value="'+esc(f.start)+'" onchange="schFormSet(\\'start\\',this.value)"></label>'
-      +'<span class="sch-arrow">\\u2192</span>'
-      +'<label class="sch-fl"><small>End</small><input type="time" value="'+esc(f.end)+'" onchange="schFormSet(\\'end\\',this.value)"></label>'
-    +'</div>'
-    +'<input class="sch-label" id="schLabel" type="text" placeholder="What is this time block for?" value="'+esc(f.label||'')+'" oninput="schFormSet(\\'label\\',this.value)" onkeydown="if(event.key===\\'Enter\\')schSave()">'
-    +'<button class="sch-save" onclick="schSave()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Block this time</button>'
-  +'</div>';
+  // Helper banner
+  h+='<div class="schX-help">\\u{1F446} Drag down on the day to block out time. Type a label and hit \\u23CE.</div>';
+  // Outlook-style timeline
+  h+='<div class="schX-wrap">'
+    +'<div class="schX-rail">'+railHTML+'</div>'
+    +'<div class="schX-canvas" id="schCanvas" data-totalmin="'+totalMin+'" data-totalpx="'+totalPx+'" onpointerdown="schPointerDown(event)" onpointermove="schPointerMove(event)" onpointerup="schPointerUp(event)" onpointercancel="schPointerUp(event)">';
+  // Half-hour grid lines
+  for(let i=0;i<dayHours*2;i++){h+='<div class="schX-grid-line'+(i%2===0?' schX-grid-hour':'')+'" style="top:'+(i*slotPx)+'px"></div>'}
+  h+=blocksHTML+selHTML+nowHTML;
+  h+='</div></div>';
   h+='<div class="sch-foot-note">\\u{1F4E7} You\\u2019ll get an email reminder ~10 min before each block. Connected Google Calendar accounts also receive native notifications.</div>';
   h+='</div></div></div>';
 }
