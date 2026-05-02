@@ -3373,6 +3373,11 @@ body:not([data-theme=aurora]) .plan-chip:hover{background:#F4F1FF;border-color:#
 .mtg-card-name{font:600 16px/1.2 'Inter',sans-serif;letter-spacing:-.01em;color:#fff;display:flex;align-items:center;gap:8px}
 .mtg-card-bdg{font-family:'JetBrains Mono','Space Mono',monospace;font-size:10.5px;font-weight:700;letter-spacing:.04em;background:rgba(34,211,238,.18);color:#86EFAC;padding:3px 8px;border-radius:6px;line-height:1}
 .mtg-card-sub{font-size:12.5px;color:rgba(255,255,255,.55);margin-top:3px;letter-spacing:-.005em}
+/* Light theme overrides for the chip card when used on the body (e.g. Mind Gym tab) — modals force their own dark background. */
+body:not([data-theme=aurora]) .tab-mindgym .mtg-card,body:not([data-theme=aurora]) .mg-games-chip{background:#fff;border-color:#E8E6E0}
+body:not([data-theme=aurora]) .mg-games-chip .mtg-card-name{color:#1A1A1A}
+body:not([data-theme=aurora]) .mg-games-chip .mtg-card-sub{color:#666}
+body:not([data-theme=aurora]) .mg-games-chip .mtg-card-bdg{background:rgba(91,33,182,.12);color:#5B21B6}
 .mtg-textarea-v2{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px 16px;color:#F5F5FA;font:inherit;font-size:15px;line-height:1.55;letter-spacing:-.005em;resize:vertical;min-height:90px;outline:0;transition:border-color .25s ease,background .25s ease}
 .mtg-textarea-v2:focus{border-color:rgba(34,211,238,.45);background:rgba(255,255,255,.07)}
 .mtg-textarea-v2.mtg-textarea-tall{min-height:200px}
@@ -3398,6 +3403,8 @@ body:not([data-theme=aurora]) .plan-chip:hover{background:#F4F1FF;border-color:#
 .mtg-item{padding:16px 18px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;cursor:pointer;transition:all .2s ease;backdrop-filter:blur(10px)}
 .mtg-item:hover{background:rgba(255,255,255,.08);border-color:rgba(34,211,238,.4);transform:translateX(2px)}
 .mtg-item-active{background:rgba(34,211,238,.14) !important;border-color:rgba(34,211,238,.55) !important;box-shadow:0 0 0 1px rgba(34,211,238,.45),0 8px 24px -8px rgba(34,211,238,.45)}
+.mtg-item-pending{opacity:.6;animation:mtgPulse 1.2s ease-in-out infinite}
+@keyframes mtgPulse{0%,100%{opacity:.5}50%{opacity:.9}}
 .mtg-card-hd{flex-wrap:wrap}
 .mtg-item-hd{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:6px}
 .mtg-item-t{font:600 15.5px/1.25 'Inter',sans-serif;letter-spacing:-.005em;color:#fff;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -3517,7 +3524,23 @@ body:not([data-theme=aurora]) .sch-foot-note{color:#6B6B6B}
 .sch-close-big:hover{background:rgba(255,255,255,.24);transform:scale(1.05)}
 /* Prominent "← Back" pill — used on every fullscreen modal so the user always
    has a clear way out (no swipe-down required). */
-/* Mind Gym launcher — single big tappable chip on the Mind Gym tab */
+/* Uniform Mind Games tiles — same shape for every game inside the chip card */
+.mg-uniform-grid{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.mg-uniform-tile{display:flex;align-items:center;gap:14px;padding:14px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#fff;font-family:inherit;cursor:pointer;text-align:left;width:100%;transition:transform .2s ease,background .2s ease,border-color .2s ease;-webkit-tap-highlight-color:transparent}
+body:not([data-theme=aurora]) .mg-uniform-tile{background:#fff;border-color:#E8E6E0;color:#1A1A1A;box-shadow:0 1px 0 rgba(0,0,0,.02)}
+.mg-uniform-tile:hover{transform:translateX(2px);background:rgba(255,255,255,.09);border-color:var(--accent,rgba(167,139,250,.5))}
+body:not([data-theme=aurora]) .mg-uniform-tile:hover{background:#FAFAF7;border-color:var(--accent,#A78BFA)}
+.mg-uniform-tile:active{transform:scale(.985)}
+.mg-uniform-emoji{flex-shrink:0;width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font-size:24px;color:#fff;box-shadow:0 8px 18px -4px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.3)}
+.mg-uniform-info{flex:1;min-width:0}
+.mg-uniform-name{font:600 16px/1.2 'Inter',sans-serif;letter-spacing:-.01em}
+.mg-uniform-meta{font:600 11.5px/1.2 'JetBrains Mono','Space Mono',monospace;letter-spacing:.04em;color:rgba(255,255,255,.55);margin-top:4px;text-transform:uppercase}
+body:not([data-theme=aurora]) .mg-uniform-meta{color:#888}
+.mg-uniform-chev{flex-shrink:0;color:rgba(255,255,255,.4);transition:transform .2s,color .2s}
+.mg-uniform-tile:hover .mg-uniform-chev{transform:translateX(3px);color:#fff}
+body:not([data-theme=aurora]) .mg-uniform-chev{color:#999}
+body:not([data-theme=aurora]) .mg-uniform-tile:hover .mg-uniform-chev{color:#1A1A1A}
+/* Mind Gym launcher — single big tappable chip on the Mind Gym tab (kept for legacy, unused) */
 .mg-launcher{display:block;width:100%;text-align:left;padding:22px 22px 18px;margin:6px 0 16px;background:linear-gradient(135deg,rgba(167,139,250,.18),rgba(91,33,182,.15));border:1px solid rgba(167,139,250,.35);border-radius:22px;color:#F5F5FA;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease;position:relative;overflow:hidden}
 body:not([data-theme=aurora]) .mg-launcher{color:#1A1A1A;background:linear-gradient(135deg,#fff,#F5F3FF);border-color:rgba(91,33,182,.2)}
 .mg-launcher:hover{transform:translateY(-2px);border-color:rgba(167,139,250,.6);box-shadow:0 18px 40px -16px rgba(91,33,182,.55)}
@@ -5868,10 +5891,13 @@ function logout(){
   try{history.replaceState(null,'','/')}catch(e){}
   render();
 }
+// One source of truth: any open modal / overlay / in-flight typing state where a
+// background re-render would wipe the user's keystrokes or scroll position.
+function _isModalOpen(){return !!(S.showWASetup||S.showAdd||S.showProfile||S.showHelp||S.schPanel||S.mtgPanel||S.hlPanel||S.mgDetail||S.mgPlay||S.mgGamesPanel||(S.bookReader&&S.bookReader.open)||S.hlEditing||(S.articleEditor&&S.articleEditor.open))}
 async function load(){const a=document.getElementById('audioEl');if(a&&!a.paused)return;
   // Skip background poll entirely while any modal/overlay is open. Re-renders during
   // an open modal wipe drag state, audio recordings, in-progress text, and cause flicker.
-  if(S.showWASetup||S.showAdd||S.showProfile||S.showHelp||S.schPanel||S.mtgPanel||S.hlPanel||S.mgDetail||S.mgPlay||S.mgGamesPanel||S.bookReader&&S.bookReader.open||S.hlEditing||S.articleEditor&&S.articleEditor.open)return;
+  if(_isModalOpen())return;
   const t=await api('/tasks');if(!t)return;
   // Local backup: every successful tasks fetch, snapshot to localStorage. If the server ever loses
   // the data (e.g. Railway redeploy without a persistent volume), the user can restore from this.
@@ -6176,7 +6202,7 @@ function calPrev(){const d=new Date(S.calMonth);d.setMonth(d.getMonth()-1);S.cal
 function calNext(){const d=new Date(S.calMonth);d.setMonth(d.getMonth()+1);S.calMonth=d;render()}
 function calSelect(d){S.calSelectedDate=d;render()}
 function calAddForDate(){S.form={title:'',notes:'',priority:'medium',dueDate:S.calSelectedDate||'',reminderTime:'',status:'pending',board:S.board==='combined'?'home':S.board};S.editing=null;S.showAdd=true;render();/* No auto-focus: keyboard appears only when the user taps the input */}
-function rotateMoral(){const a=document.getElementById('audioEl');if(a&&!a.paused)return;S.moralIdx=(S.moralIdx+1)%MORALS.length;render()}
+function rotateMoral(){const a=document.getElementById('audioEl');if(a&&!a.paused)return;if(_isModalOpen())return;S.moralIdx=(S.moralIdx+1)%MORALS.length;render()}
 setInterval(()=>{if(S.user)rotateMoral()},45000);
 // Tic Tac Toe vs a simple bot (you play X, bot plays O)
 const TTT_LINES=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
@@ -6606,7 +6632,10 @@ async function mtgNew(){
   if(r&&r.ok){S.mtgList=[r.meeting].concat(S.mtgList||[]);mtgOpenDetail(r.meeting.id);try{setTimeout(()=>{const el=document.getElementById('mtgEditor');if(el)el.scrollIntoView({behavior:'smooth',block:'start'})},80)}catch(e){}}
 }
 async function mtgOpenDetail(id){
-  S.mtgCur={id,loading:true};render();
+  // Single render after data loads to avoid the loading-state flicker.
+  // The clicked list item gets an instant visual cue via the .mtg-item-pending class.
+  S.mtgCur={id,loading:true};
+  try{const el=document.querySelector('.mtg-item[data-mid="'+id+'"]');if(el)el.classList.add('mtg-item-pending')}catch(e){}
   try{const r=await api('/meetings/'+id);if(r&&r.meeting){S.mtgCur={...r.meeting,voices:r.voices||[],loading:false};render();try{setTimeout(()=>{const el=document.getElementById('mtgEditor');if(el)el.scrollIntoView({behavior:'smooth',block:'start'})},80)}catch(e){}}}catch(e){}
 }
 function mtgBack(){S.mtgCur=null;mtgLoad();render()}
@@ -7201,7 +7230,7 @@ function rollDice(){
   if(S.dice.rolling)return;S.dice.rolling=true;render();
   setTimeout(()=>{const a=1+Math.floor(Math.random()*6),b=1+Math.floor(Math.random()*6);S.dice.values=[a,b];S.dice.history.unshift(a+b);if(S.dice.history.length>10)S.dice.history.length=10;S.dice.rolling=false;render()},650);
 }
-async function loadWeather(){if(S.weather.loading)return;S.weather.loading=true;S.weather.error=null;render();try{const r=await fetch('/api/weather?city='+encodeURIComponent(S.weather.city||'Bangalore'));const j=await r.json();if(j.error){S.weather.error=j.error}else{S.weather.city=j.city||S.weather.city;S.weather.country=j.country||'';S.weather.temp=j.temp;S.weather.aqi=j.aqi}}catch(e){S.weather.error=String(e)}S.weather.loaded=true;S.weather.loading=false;render()}
+async function loadWeather(){if(S.weather.loading)return;if(_isModalOpen())return;S.weather.loading=true;S.weather.error=null;render();try{const r=await fetch('/api/weather?city='+encodeURIComponent(S.weather.city||'Bangalore'));const j=await r.json();if(j.error){S.weather.error=j.error}else{S.weather.city=j.city||S.weather.city;S.weather.country=j.country||'';S.weather.temp=j.temp;S.weather.aqi=j.aqi}}catch(e){S.weather.error=String(e)}S.weather.loaded=true;S.weather.loading=false;if(_isModalOpen())return;render()}
 const INDIA_CITIES=['Delhi','Mumbai','Chennai','Bengaluru','Pune','Shimla','Indore','Jaipur'];
 const WORLD_CITY_LIST=[
   {key:'New York',label:'New York',tz:'America/New_York'},
@@ -7211,15 +7240,12 @@ const WORLD_CITY_LIST=[
   {key:'Tokyo',label:'Tokyo',tz:'Asia/Tokyo'},
   {key:'Sydney',label:'Sydney',tz:'Australia/Sydney'}
 ];
-async function loadCityTemps(){const all=[...INDIA_CITIES,...WORLD_CITY_LIST.map(c=>c.key)];const results=await Promise.all(all.map(c=>fetch('/api/weather?city='+encodeURIComponent(c)).then(r=>r.json()).catch(()=>({}))));const m={};results.forEach((r,i)=>{if(r&&!r.error)m[all[i].toLowerCase()]={temp:r.temp,city:r.city||all[i]}});S.cityTemps=m;render()}
-async function loadRemember(){try{const r=await fetch('/api/remember/today');const j=await r.json();S.remember={person:j.person||null,loaded:true};render()}catch(e){S.remember={person:null,loaded:true};render()}}
+async function loadCityTemps(){if(_isModalOpen())return;const all=[...INDIA_CITIES,...WORLD_CITY_LIST.map(c=>c.key)];const results=await Promise.all(all.map(c=>fetch('/api/weather?city='+encodeURIComponent(c)).then(r=>r.json()).catch(()=>({}))));const m={};results.forEach((r,i)=>{if(r&&!r.error)m[all[i].toLowerCase()]={temp:r.temp,city:r.city||all[i]}});S.cityTemps=m;if(_isModalOpen())return;render()}
+async function loadRemember(){if(_isModalOpen())return;try{const r=await fetch('/api/remember/today');const j=await r.json();S.remember={person:j.person||null,loaded:true};if(!_isModalOpen())render()}catch(e){S.remember={person:null,loaded:true};if(!_isModalOpen())render()}}
 function editLifeGoal(){const v=prompt('Your goal in life \\u2014 your north star.\\nEdit any time.',S.lifeGoal||'');if(v===null)return;const t=v.trim().slice(0,400);S.lifeGoal=t;localStorage.setItem('tf_life_goal',t);render()}
-async function loadTicker(){try{const r=await fetch('/api/news?cat=world',{cache:'no-store'});const j=await r.json();S.ticker={items:(j.items||[]).slice(0,12),idx:0,loaded:true};render();_startTicker()}catch(e){}}
+async function loadTicker(){if(_isModalOpen())return;try{const r=await fetch('/api/news?cat=world',{cache:'no-store'});const j=await r.json();S.ticker={items:(j.items||[]).slice(0,12),idx:0,loaded:true};if(!_isModalOpen())render();_startTicker()}catch(e){}}
 let _tickerTimer=null;
-function _startTicker(){if(_tickerTimer)clearInterval(_tickerTimer);if(!S.ticker.items.length)return;_tickerTimer=setInterval(()=>{if(!S.ticker.items.length)return;S.ticker.idx=(S.ticker.idx+3)%S.ticker.items.length;
-  // Skip render while any modal is open — same flicker prevention as load()
-  if(S.showWASetup||S.showAdd||S.showProfile||S.showHelp||S.schPanel||S.mtgPanel||S.hlPanel||S.mgDetail||S.mgPlay||S.mgGamesPanel||(S.bookReader&&S.bookReader.open)||S.hlEditing||(S.articleEditor&&S.articleEditor.open))return;
-  const stack=document.getElementById('newsTickerStack');if(stack)render()},9000)}
+function _startTicker(){if(_tickerTimer)clearInterval(_tickerTimer);if(!S.ticker.items.length)return;_tickerTimer=setInterval(()=>{if(!S.ticker.items.length)return;if(_isModalOpen())return;S.ticker.idx=(S.ticker.idx+3)%S.ticker.items.length;const stack=document.getElementById('newsTickerStack');if(stack)render()},9000)}
 function setCity(){const c=prompt('Set your city',S.weather.city||'Bangalore');if(!c)return;const t=c.trim();if(!t)return;localStorage.setItem('tf_city',t);S.weather.city=t;S.weather.loaded=false;loadWeather()}
 // Live-tick the sidebar, header clocks AND world clocks without re-rendering the whole tree
 setInterval(()=>{const n=new Date();const hm=n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false});const sec=String(n.getSeconds()).padStart(2,'0');const t=document.getElementById('sideNowTime');const s=document.getElementById('sideNowSec');if(t&&s){if(t.firstChild&&t.firstChild.nodeValue!==hm)t.firstChild.nodeValue=hm;s.textContent=':'+sec}const ht=document.getElementById('hdrTimeHm');const hs=document.getElementById('hdrTimeSec');if(ht&&hs){if(ht.textContent!==hm)ht.textContent=hm;hs.textContent=':'+sec}const cities=document.querySelectorAll('[data-tz]');cities.forEach(el=>{try{const tz=el.getAttribute('data-tz');const t2=new Date().toLocaleTimeString('en-US',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false});if(el.textContent!==t2)el.textContent=t2}catch(e){}})},1000);
@@ -8467,21 +8493,23 @@ else if(S.tab==='mindgym'){
     {k:'word',e:'\\u{1F520}',n:'Word Sprint',d:'Anagrams. 90 seconds. Find every word.',accent:'#34D399',accent2:'#10B981',pData:(mg.progress.word||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((mg.progress.word||{}).xp||0)/(5*100))*100)),bestL:'Best',bestSuffix:' words',road:'forest'},
     {k:'schulte',e:'\\u{1F3AF}',n:'Schulte Grid',d:'Tap 1\\u219225 in order. Trains visual focus.',accent:'#F472B6',accent2:'#A78BFA',pData:(mg.progress.schulte||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((mg.progress.schulte||{}).xp||0)/(5*100))*100)),bestL:'Best time',bestSuffix:' s',road:'space'}
   ];
-  // ─── BIG launcher chip — tap to open fullscreen all-games modal ───
-  h+='<button class="mg-launcher" onclick="mgGamesOpen()">'
-    +'<div class="mg-launcher-hd">'
-      +'<span class="mg-launcher-ic">\\u{1F3AE}</span>'
-      +'<div class="mg-launcher-text">'
-        +'<div class="mg-launcher-name">Mind Games<span class="mg-launcher-bdg">'+_games.length+'</span></div>'
-        +'<div class="mg-launcher-sub">Tap to open all games in fullscreen</div>'
-      +'</div>'
-      +'<svg class="mg-launcher-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>'
-    +'</div>'
-    +'<div class="mg-launcher-pillrow">';
+  // ─── Single chip card with all 5 games in uniform format. Tap any tile → fullscreen ───
+  h+='<section class="mtg-card mg-games-chip">'
+    +'<div class="mtg-card-hd"><span class="mtg-card-ic" style="background:linear-gradient(135deg,#A78BFA,#5B21B6)">\\u{1F3AE}</span><div class="mtg-card-title"><div class="mtg-card-name">Mind Games<span class="mtg-card-bdg">'+_games.length+'</span></div><div class="mtg-card-sub">Tap any to open in fullscreen</div></div></div>'
+    +'<div class="mg-uniform-grid">';
   _games.forEach(g=>{
-    h+='<span class="mg-launcher-pill" style="--accent:'+g.accent+';--accent2:'+g.accent2+'"><span class="mg-launcher-pill-emoji" style="background:linear-gradient(135deg,'+g.accent+','+g.accent2+')">'+g.e+'</span>'+g.n+' <b>L'+(g.pData.level||1)+'</b></span>';
+    const p=g.pData;
+    const bestStr=p.best?(g.k==='schulte'?(p.best/10).toFixed(1)+(g.bestSuffix||''):(p.best+(g.bestSuffix||''))):'\\u2014';
+    h+='<button class="mg-uniform-tile" onclick="mgDetailOpen(\\''+g.k+'\\')" style="--accent:'+g.accent+';--accent2:'+g.accent2+'">'
+      +'<span class="mg-uniform-emoji" style="background:linear-gradient(135deg,'+g.accent+','+g.accent2+')">'+g.e+'</span>'
+      +'<div class="mg-uniform-info">'
+        +'<div class="mg-uniform-name">'+g.n+'</div>'
+        +'<div class="mg-uniform-meta">L'+(p.level||1)+' \\u00B7 '+g.pct+'% \\u00B7 best '+bestStr+'</div>'
+      +'</div>'
+      +'<svg class="mg-uniform-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>'
+    +'</button>';
   });
-  h+='</div></button>';
+  h+='</div></section>';
   const totalUnlocked=_games.reduce((s,g)=>s+(g.pData.level||1),0);
   h+='<div class="mg-overall">'
     +'<div><b>'+totalUnlocked+'</b> / 50 levels reached</div>'
@@ -9568,7 +9596,7 @@ if(S.mtgPanel){
       const t=m.title||'Untitled meeting';
       const preview=(m.notes||m.agenda||'').slice(0,140);
       const isActive=cur&&cur.id===m.id;
-      h+='<li class="mtg-item'+(isActive?' mtg-item-active':'')+'" onclick="mtgOpenDetail(\\''+m.id+'\\')">'
+      h+='<li class="mtg-item'+(isActive?' mtg-item-active':'')+'" data-mid="'+m.id+'" onclick="mtgOpenDetail(\\''+m.id+'\\')">'
         +'<div class="mtg-item-hd"><div class="mtg-item-t">'+esc(t)+'</div><div class="mtg-item-time">'+esc(_fmtMtgTime(m.updated_at||m.created_at))+'</div></div>'
         +(preview?'<div class="mtg-item-p">'+esc(preview)+'</div>':'')
         +(m.voice_count>0?'<div class="mtg-item-foot"><span class="mtg-item-tag"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg> '+m.voice_count+' voice note'+(m.voice_count===1?'':'s')+'</span></div>':'')
@@ -9718,7 +9746,7 @@ document.getElementById('app').innerHTML=h;
 // Toggle a body class so the page reserves bottom space when the audio player is visible.
 try{document.body.classList.toggle('audio-on',!!(S.playing&&(S.playing.url||S.playing.loading)))}catch(e){}
 // Lock body scroll when any fullscreen modal is open so the background can't scroll behind
-try{const _modalOpen=!!(S.showAdd||S.showProfile||S.showHelp||S.showWASetup||S.schPanel||S.mtgPanel||S.hlPanel||S.mgDetail||S.mgPlay||S.mgGamesPanel||(S.bookReader&&S.bookReader.open)||(S.articleEditor&&S.articleEditor.open));document.body.classList.toggle('modal-open',_modalOpen)}catch(e){}
+try{document.body.classList.toggle('modal-open',_isModalOpen())}catch(e){}
 }
 fetch('/api/config').then(r=>r.json()).then(c=>{window.__TWILIO_SANDBOX_CODE=c.sandboxCode||'';render()}).catch(()=>{});
 applyTheme();
