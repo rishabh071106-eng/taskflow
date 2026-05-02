@@ -3514,6 +3514,14 @@ body:not([data-theme=aurora]) .sch-foot-note{color:#6B6B6B}
 /* ─── Outlook-style drag-to-select timeline ─── */
 .sch-close-big{flex-shrink:0;width:38px;height:38px;border-radius:50%;border:0;background:rgba(255,255,255,.14);color:#fff;cursor:pointer;display:grid;place-items:center;transition:background .2s,transform .2s}
 .sch-close-big:hover{background:rgba(255,255,255,.24);transform:scale(1.05)}
+/* Prominent "← Back" pill — used on every fullscreen modal so the user always
+   has a clear way out (no swipe-down required). */
+.qa-back-pill{flex-shrink:0;display:inline-flex;align-items:center;gap:8px;padding:9px 16px 9px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.1);color:#fff;font:600 13.5px/1 'JetBrains Mono','Space Mono',monospace;letter-spacing:.02em;cursor:pointer;transition:background .2s,transform .2s,border-color .2s;-webkit-tap-highlight-color:transparent}
+.qa-back-pill:hover{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.32)}
+.qa-back-pill:active{transform:scale(.96)}
+.qa-back-pill svg{width:16px;height:16px;flex-shrink:0}
+body:not([data-theme=aurora]) .qa-back-pill{border-color:rgba(0,0,0,.12);background:rgba(255,255,255,.7);color:#1A1A1A}
+body:not([data-theme=aurora]) .qa-back-pill:hover{background:#fff;border-color:rgba(0,0,0,.22)}
 /* Plan your day v2 — simple form on a purple hero card */
 .sch-mdl-v2{background:radial-gradient(900px 500px at 50% 0%,#3D1F5F 0%,#1A0E2E 70%) !important}
 .sch-hd-v2{display:flex;align-items:center;gap:14px;padding:14px 18px;padding-top:calc(14px + env(safe-area-inset-top,0px));background:transparent;color:#fff;flex-shrink:0}
@@ -8417,9 +8425,11 @@ else if(S.tab==='mindgym'){
     {k:'word',e:'\\u{1F520}',n:'Word Sprint',d:'Anagrams. 90 seconds. Find every word.',accent:'#34D399',accent2:'#10B981',pData:(mg.progress.word||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((mg.progress.word||{}).xp||0)/(5*100))*100)),bestL:'Best',bestSuffix:' words',road:'forest'},
     {k:'schulte',e:'\\u{1F3AF}',n:'Schulte Grid',d:'Tap 1\\u219225 in order. Trains visual focus.',accent:'#F472B6',accent2:'#A78BFA',pData:(mg.progress.schulte||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((mg.progress.schulte||{}).xp||0)/(5*100))*100)),bestL:'Best time',bestSuffix:' s',road:'space'}
   ];
-  // Game tiles — same hh-stat-tile pattern as the home hero, but bigger,
-  // with names ALWAYS readable and a soft animated halo around the emoji
-  h+='<div class="hh-stats game-grid-hero">';
+  // Games — wrapped in a chip card matching the Progress / Actions chip pattern.
+  // Tap any tile to open the level roadmap in fullscreen.
+  h+='<section class="mtg-card mg-games-chip">'
+    +'<div class="mtg-card-hd"><span class="mtg-card-ic" style="background:linear-gradient(135deg,#A78BFA,#5B21B6)">\\u{1F3AE}</span><div class="mtg-card-title"><div class="mtg-card-name">Choose a game<span class="mtg-card-bdg">'+_games.length+'</span></div><div class="mtg-card-sub">Tap any to open in fullscreen</div></div></div>'
+    +'<div class="hh-stats game-grid-hero" style="margin-top:14px">';
   _games.forEach(g=>{
     const p=g.pData;
     const bestStr=p.best?(g.k==='schulte'?(p.best/10).toFixed(1)+(g.bestSuffix||''):(p.best+(g.bestSuffix||''))):'\\u2014';
@@ -8431,7 +8441,7 @@ else if(S.tab==='mindgym'){
       +'<small style="color:rgba(255,255,255,.78)">'+bestStr+' \\u00B7 '+g.pct+'%</small>'
     +'</button>';
   });
-  h+='</div>';
+  h+='</div></section>';
   const totalUnlocked=_games.reduce((s,g)=>s+(g.pData.level||1),0);
   h+='<div class="mg-overall">'
     +'<div><b>'+totalUnlocked+'</b> / 50 levels reached</div>'
@@ -9097,7 +9107,7 @@ if(S.mgDetail&&!S.mgPlay){
   if(meta){
     h+='<div class="ov ov-locked"><div class="mdl mg-detail" onclick="event.stopPropagation()" style="--accent:'+meta.accent+';--accent2:'+meta.accent2+'">';
     h+='<header class="mtg-hd-v2">'
-      +'<button class="sch-close-big" onclick="mgDetailClose()" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>'
+      +'<button class="qa-back-pill" onclick="mgDetailClose()" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back</button>'
       +'<div class="hh-eyebrow" style="color:rgba(255,255,255,.78)">'+meta.n+' \\u00B7 Level '+cur+' of 10</div>'
       +'<div style="width:38px"></div>'
     +'</header>';
@@ -9379,7 +9389,7 @@ if(S.hlPanel){
   const hasText=!!(liveText||'').trim();
   h+='<div class="ov" onclick="hlPanelClose()"><div class="mdl hl-mdl" onclick="event.stopPropagation()">';
   h+='<header class="mtg-hd-v2">'
-    +'<button class="sch-close-big" onclick="hlPanelClose()" aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>'
+    +'<button class="qa-back-pill" onclick="hlPanelClose()" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back</button>'
     +'<div class="hh-eyebrow" style="color:rgba(255,255,255,.78)">Today\\u2019s Highlight'+(hl&&hl.done?' \\u2022 Done':'')+'</div>'
     +(hl?'<button class="sch-close-big" onclick="hlClear();hlPanelClose()" aria-label="Clear" style="background:rgba(220,38,38,.25)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>':'<div style="width:38px"></div>')
   +'</header>';
@@ -9411,7 +9421,7 @@ if(S.mtgPanel){
     const m=S.mtgCur;
     const isRec=!!(S._mtgRec&&S._mtgRec.state==='recording');
     h+='<header class="mtg-hd-v2">'
-      +'<button class="sch-close-big" onclick="mtgBack()" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>'
+      +'<button class="qa-back-pill" onclick="mtgBack()" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back</button>'
       +'<div class="hh-eyebrow" style="color:rgba(255,255,255,.78)">Meeting \\u00B7 '+esc(_fmtMtgTime(m.created_at)||'today')+'</div>'
       +'<button class="sch-close-big" onclick="mtgDelete(\\''+m.id+'\\')" aria-label="Delete" style="background:rgba(220,38,38,.25)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>'
     +'</header>';
@@ -9461,18 +9471,29 @@ if(S.mtgPanel){
     }
     h+='</div>';
   } else {
-    // List view
-    h+='<header class="mtg-hd">'
-      +'<button class="bk-back" onclick="mtgClose()" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>'
-      +'<div class="mtg-title-strip"><div class="mtg-name">Meeting notes</div><div class="mtg-sub">'+(S.mtgList?S.mtgList.length+' meeting'+(S.mtgList.length===1?'':'s'):'')+'</div></div>'
-      +'<button class="mtg-new-btn" onclick="mtgNew()" aria-label="New"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>'
+    // List view — purple-hero chip pattern, matching Plan Day
+    const list=S.mtgList||[];
+    h+='<header class="mtg-hd-v2">'
+      +'<button class="qa-back-pill" onclick="mtgClose()" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back</button>'
+      +'<div class="hh-eyebrow" style="color:rgba(255,255,255,.78)">Meeting notes \\u00B7 '+list.length+' meeting'+(list.length===1?'':'s')+'</div>'
+      +'<div style="width:38px"></div>'
     +'</header>';
     h+='<div class="mtg-body">';
-    const list=S.mtgList||[];
+    // Hero card with the prompt + new-meeting CTA
+    h+='<section class="home-hero" style="margin-bottom:14px">'
+      +'<div class="hh-bg"></div>'
+      +'<div class="hh-row"><div class="hh-eyebrow">\\u{1F4DD} Meeting notes</div></div>'
+      +'<h1 class="hh-greet">Capture every <em>meeting</em>.</h1>'
+      +'<p class="hh-line">Agenda, decisions, voice memos \\u2014 all in one place. Each meeting saves automatically.</p>'
+      +'<div style="display:flex;gap:10px;flex-wrap:wrap">'
+        +'<button class="sch-save-v2" onclick="mtgNew()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Start a new meeting</button>'
+      +'</div>'
+    +'</section>';
     if(!list.length){
-      h+='<div class="mtg-empty"><div class="mtg-empty-ic"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="mtg-empty-t">No meeting notes yet</div><div class="mtg-empty-d">Create your first one. Add an agenda, type notes, record voice memos.</div><button class="mtg-empty-btn" onclick="mtgNew()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New meeting</button></div>';
+      h+='<section class="mtg-card"><div class="mtg-card-hd"><span class="mtg-card-ic" style="background:linear-gradient(135deg,#A78BFA,#5B21B6)">\\u{1F4AC}</span><div class="mtg-card-title"><div class="mtg-card-name">No meetings yet</div><div class="mtg-card-sub">Tap \\u201CStart a new meeting\\u201D above to create your first one.</div></div></div></section>';
     } else {
-      h+='<ol class="mtg-list">';
+      h+='<section class="mtg-card"><div class="mtg-card-hd"><span class="mtg-card-ic" style="background:linear-gradient(135deg,#0EA5E9,#22D3EE)">\\u{1F4DA}</span><div class="mtg-card-title"><div class="mtg-card-name">Your meetings<span class="mtg-card-bdg">'+list.length+'</span></div><div class="mtg-card-sub">Tap any to open in fullscreen</div></div></div>';
+      h+='<ol class="mtg-list" style="margin-top:12px">';
       list.forEach(m=>{
         const t=m.title||'Untitled meeting';
         const preview=(m.notes||m.agenda||'').slice(0,140);
@@ -9482,7 +9503,7 @@ if(S.mtgPanel){
           +(m.voice_count>0?'<div class="mtg-item-foot"><span class="mtg-item-tag"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg> '+m.voice_count+' voice note'+(m.voice_count===1?'':'s')+'</span></div>':'')
         +'</li>';
       });
-      h+='</ol>';
+      h+='</ol></section>';
     }
     h+='</div>';
   }
@@ -9496,8 +9517,9 @@ if(S.schPanel){
   function _hhmmToMin(t){const [h,m]=String(t||'').split(':').map(n=>parseInt(n,10)||0);return h*60+m}
   h+='<div class="ov" onclick="schClose()"><div class="mdl sch-mdl sch-mdl-v2" onclick="event.stopPropagation()">';
   h+='<header class="sch-hd-v2">'
-    +'<button class="sch-close-big" onclick="schClose()" aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>'
+    +'<button class="qa-back-pill" onclick="schClose()" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back</button>'
     +'<div class="hh-eyebrow" style="color:rgba(255,255,255,.78)">Plan your day \\u00B7 '+blocks.length+' block'+(blocks.length===1?'':'s')+'</div>'
+    +'<div style="width:38px"></div>'
   +'</header>';
   h+='<div class="sch-hero">'
     +'<div class="hh-bg"></div>'
