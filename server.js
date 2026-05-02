@@ -1969,8 +1969,8 @@ body[data-theme=aurora] .vc-mdl-nav{background:rgba(255,255,255,.02);border-colo
 .mg-mem-lit{background:linear-gradient(135deg,#A855F7,#EC4899)!important;border-color:#A855F7!important;box-shadow:0 0 24px rgba(168,85,247,.55);animation:mgFlash .3s ease}
 @keyframes mgFlash{0%{transform:scale(.95)}50%{transform:scale(1.04)}100%{transform:scale(1)}}
 /* ─── Game detail / journey roadway ─── */
-.mg-detail{max-width:600px;width:min(600px,100%);padding:0;overflow:hidden;display:flex;flex-direction:column;background:#0F0B1F;color:#F5F5FA;border:0;max-height:96vh;border-radius:24px;animation:hdUp .35s cubic-bezier(.16,1,.3,1)}
-body:not([data-theme=aurora]) .mg-detail{background:#FAFAF7;color:#1A1A1A}
+.mg-detail{max-width:none;width:100%;padding:0;overflow:hidden;display:flex;flex-direction:column;background:radial-gradient(900px 500px at 50% 0%,var(--accent2,#5B21B6) 0%,#0A0815 70%);color:#F5F5FA;border:0;height:100vh;max-height:100vh;border-radius:0;align-self:stretch;animation:schSlideUp .3s cubic-bezier(.16,1,.3,1)}
+body:not([data-theme=aurora]) .mg-detail{background:radial-gradient(900px 500px at 50% 0%,var(--accent2,#5B21B6) 0%,#FAFAF7 70%);color:#1A1A1A}
 .mgd-hd{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid rgba(255,255,255,.06);background:linear-gradient(135deg,var(--accent,#FF6B47) 0%,var(--accent2,#FFB547) 100%);color:#fff;flex-shrink:0}
 .mgd-back{width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,.18);border:0;color:#fff;cursor:pointer;display:grid;place-items:center;transition:background .2s,transform .2s;flex-shrink:0}
 .mgd-back:hover{background:rgba(0,0,0,.3);transform:translateX(-2px)}
@@ -1979,7 +1979,12 @@ body:not([data-theme=aurora]) .mg-detail{background:#FAFAF7;color:#1A1A1A}
 .mgd-emoji{font-size:28px;line-height:1;filter:drop-shadow(0 2px 6px rgba(0,0,0,.25))}
 .mgd-name{font:600 17px/1.1 'Inter',sans-serif;letter-spacing:-.015em;color:#fff}
 .mgd-sub{font-family:'JetBrains Mono','Space Mono',monospace;font-size:10.5px;letter-spacing:.1em;color:rgba(255,255,255,.78);font-weight:600;margin-top:3px;text-transform:uppercase}
-.mgd-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:22px 24px 14px}
+.mgd-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:6px 0 14px;max-width:760px;width:100%;margin:0 auto}
+.mg-detail-hero{margin:6px 18px 14px !important;background:linear-gradient(135deg,rgba(0,0,0,.4),rgba(0,0,0,.15)) !important;backdrop-filter:blur(20px)}
+.mg-detail-hero .hh-bg{background:radial-gradient(700px 400px at 0% 0%,var(--accent,#FF6B47) 0%,transparent 55%),radial-gradient(600px 400px at 100% 100%,var(--accent2,#FFB547) 0%,transparent 55%) !important;opacity:.4}
+.mg-detail .mgr-track-wrap{margin:0 18px 14px;padding:18px 18px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:18px}
+.mg-detail .mgr-stages{margin:0 18px}
+@media (max-width:560px){.mg-detail-hero{margin:6px 14px 12px !important}.mg-detail .mgr-track-wrap,.mg-detail .mgr-stages{margin:0 14px}}
 .mgd-d{font-size:14.5px;line-height:1.55;color:rgba(255,255,255,.78);margin:0 0 18px;letter-spacing:-.005em}
 body:not([data-theme=aurora]) .mgd-d{color:#3D3D3D}
 .mgd-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:24px}
@@ -9090,18 +9095,24 @@ if(S.mgDetail&&!S.mgPlay){
   const cur=prog.level||1;
   if(meta){
     h+='<div class="ov ov-locked"><div class="mdl mg-detail" onclick="event.stopPropagation()" style="--accent:'+meta.accent+';--accent2:'+meta.accent2+'">';
-    h+='<header class="mgd-hd">'
-      +'<button class="mgd-back" onclick="mgDetailClose()" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>'
-      +'<div class="mgd-title"><span class="mgd-emoji">'+meta.e+'</span><div><div class="mgd-name">'+meta.n+'</div><div class="mgd-sub">Level '+cur+' of 10</div></div></div>'
-      +'<div style="width:36px"></div>'
+    h+='<header class="mtg-hd-v2">'
+      +'<button class="sch-close-big" onclick="mgDetailClose()" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>'
+      +'<div class="hh-eyebrow" style="color:rgba(255,255,255,.78)">'+meta.n+' \\u00B7 Level '+cur+' of 10</div>'
+      +'<div style="width:38px"></div>'
     +'</header>';
     h+='<div class="mgd-body">';
-    h+='<p class="mgd-d">'+meta.d+'</p>';
-    h+='<div class="mgd-stats">'
-      +'<div class="mgd-stat"><b>L'+cur+'</b><small>Level</small></div>'
-      +'<div class="mgd-stat"><b>'+(prog.xp||0)+'</b><small>XP</small></div>'
-      +'<div class="mgd-stat"><b>'+(prog.best||'\\u2014')+'</b><small>Best</small></div>'
-    +'</div>';
+    // Hero card with the game name and stats — uses .hh-stats grid pattern
+    h+='<section class="home-hero mg-detail-hero">'
+      +'<div class="hh-bg"></div>'
+      +'<div class="hh-row"><div class="hh-eyebrow">'+meta.e+' Mind Gym</div></div>'
+      +'<h1 class="hh-greet" style="font-size:clamp(28px,5.4vw,44px)">'+meta.n+'.</h1>'
+      +'<p class="hh-line">'+meta.d+'</p>'
+      +'<div class="hh-stats" style="grid-template-columns:repeat(3,1fr)">'
+        +'<div class="hh-stat"><b style="color:#fff">L'+cur+'</b><small>Level</small></div>'
+        +'<div class="hh-stat"><b style="color:#86EFAC">'+(prog.xp||0)+'</b><small>XP earned</small></div>'
+        +'<div class="hh-stat"><b style="color:#FFB547">'+(prog.best||'\\u2014')+'</b><small>Best</small></div>'
+      +'</div>'
+    +'</section>';
     // ─── Simple horizontal track with a runner stuck at the current level ───
     h+='<div class="mgr-track-wrap">';
     h+='<div class="mgr-pct"><span><b>'+(cur-1)+'</b> / 10 cleared</span><span class="mgr-pct-bar"><i style="width:'+((cur-1)/9*100)+'%"></i></span></div>';
