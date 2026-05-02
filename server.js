@@ -3576,7 +3576,23 @@ body:not([data-theme=aurora]) .schX-grid-hour{background:#E8E6E0}
 body:not([data-theme=aurora]) .add-chip{background:#fff;border-color:#E8E6E0;color:#1A1A1A}
 body:not([data-theme=aurora]) .add-chip:hover{background:#FFF5F0;border-color:#FF6B47}
 body:not([data-theme=aurora]) .add-chip-k{color:#9A9A9A;background:#F4F3EE;border-color:#E8E6E0}
-/* ─── Mind Gym game chips — matches the dark home-hero stat aesthetic ─── */
+/* ─── Mind Gym game tiles — same hero-tile pattern, name-prominent ─── */
+.game-grid-hero{grid-template-columns:repeat(2,1fr) !important;gap:14px !important}
+@media (min-width:760px){.game-grid-hero{grid-template-columns:repeat(3,1fr) !important}}
+.game-tile-hero{position:relative;display:flex !important;flex-direction:column !important;align-items:flex-start !important;padding:18px 16px 16px !important;gap:0 !important;text-align:left !important;cursor:pointer !important;overflow:hidden !important;min-height:160px;font-family:inherit;border-radius:18px !important;background:rgba(255,255,255,.05) !important;border:1px solid rgba(255,255,255,.1) !important;transition:transform .25s ease,background .25s ease,border-color .25s ease,box-shadow .3s ease}
+.game-tile-hero:hover{transform:translateY(-4px) !important;background:rgba(255,255,255,.09) !important;border-color:rgba(255,255,255,.18) !important;box-shadow:0 18px 36px -10px rgba(0,0,0,.5)}
+.game-tile-hero:active{transform:scale(.98) !important}
+.game-tile-emoji{display:grid;place-items:center;width:54px;height:54px;border-radius:16px;font-size:26px;line-height:1;margin-bottom:14px;color:#fff;box-shadow:0 8px 22px -4px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.3);position:relative;flex-shrink:0;animation:gameTileBob 3.4s ease-in-out infinite alternate}
+@keyframes gameTileBob{0%{transform:translateY(0)}100%{transform:translateY(-3px)}}
+.game-tile-emoji::after{content:'';position:absolute;inset:-6px;border-radius:18px;border:2px solid var(--accent,#FF6B47);opacity:.35;animation:gameTileHalo 2.4s ease-out infinite}
+@keyframes gameTileHalo{0%{transform:scale(.96);opacity:.45}100%{transform:scale(1.18);opacity:0}}
+.game-tile-lvl{position:absolute;top:14px;right:14px;font-family:'JetBrains Mono','Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.04em;background:rgba(255,255,255,.1);color:#fff;padding:4px 9px;border-radius:6px;border:1px solid rgba(255,255,255,.14);line-height:1}
+.game-tile-name{font-family:'Inter',sans-serif !important;font-weight:700 !important;font-size:18px !important;line-height:1.15 !important;letter-spacing:-.015em !important;color:#fff !important;margin-bottom:10px !important}
+.game-tile-bar{height:4px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden;margin-bottom:8px;width:100%}
+.game-tile-bar i{display:block;height:100%;border-radius:999px;transition:width .8s ease}
+.game-tile-hero small{font-family:'JetBrains Mono','Space Mono',monospace !important;font-size:10.5px !important;letter-spacing:.06em !important;text-transform:uppercase !important;font-weight:600 !important;color:rgba(255,255,255,.7) !important;margin-top:auto}
+@media (max-width:560px){.game-tile-emoji{width:46px;height:46px;font-size:22px;margin-bottom:10px}.game-tile-name{font-size:15.5px !important}.game-tile-hero{min-height:140px;padding:14px 14px 12px !important}.game-tile-lvl{top:11px;right:11px;font-size:10px;padding:3px 7px}}
+/* ─── Mind Gym game chips — matches the dark home-hero stat aesthetic (legacy) ─── */
 .game-chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin:0 0 16px}
 .game-chip{position:relative;text-align:left;padding:14px 16px;border-radius:14px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#fff;font-family:inherit;cursor:pointer;transition:transform .25s ease,background .2s ease,border-color .2s ease;overflow:hidden;backdrop-filter:blur(10px)}
 .game-chip:hover{transform:translateY(-2px);background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.16)}
@@ -8368,14 +8384,20 @@ else if(S.tab==='mindgym'){
     {k:'word',e:'\\u{1F520}',n:'Word Sprint',d:'Anagrams. 90 seconds. Find every word.',accent:'#34D399',accent2:'#10B981',pData:(mg.progress.word||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((mg.progress.word||{}).xp||0)/(5*100))*100)),bestL:'Best',bestSuffix:' words',road:'forest'},
     {k:'schulte',e:'\\u{1F3AF}',n:'Schulte Grid',d:'Tap 1\\u219225 in order. Trains visual focus.',accent:'#F472B6',accent2:'#A78BFA',pData:(mg.progress.schulte||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((mg.progress.schulte||{}).xp||0)/(5*100))*100)),bestL:'Best time',bestSuffix:' s',road:'space'}
   ];
-  h+='<div class="game-chips">';
-  _games.forEach(g=>{const p=g.pData;const bestStr=p.best?(g.k==='schulte'?(p.best/10).toFixed(1)+(g.bestSuffix||''):(p.best+(g.bestSuffix||''))):'\\u2014';h+='<button class="game-chip" onclick="mgDetailOpen(\\''+g.k+'\\')" style="--accent:'+g.accent+'">'
-    +'<div class="game-chip-hd"><span class="game-chip-emoji">'+g.e+'</span><span class="game-chip-lvl">L'+p.level+'</span></div>'
-    +'<div class="game-chip-name">'+g.n+'</div>'
-    +'<div class="game-chip-d">'+g.d+'</div>'
-    +'<div class="game-chip-bar"><i style="width:'+g.pct+'%;background:'+g.accent+'"></i></div>'
-    +'<div class="game-chip-foot"><span>'+g.pct+'%</span><span>'+g.bestL+': <b>'+bestStr+'</b></span></div>'
-  +'</button>'});
+  // Game tiles — same hh-stat-tile pattern as the home hero, but bigger,
+  // with names ALWAYS readable and a soft animated halo around the emoji
+  h+='<div class="hh-stats game-grid-hero">';
+  _games.forEach(g=>{
+    const p=g.pData;
+    const bestStr=p.best?(g.k==='schulte'?(p.best/10).toFixed(1)+(g.bestSuffix||''):(p.best+(g.bestSuffix||''))):'\\u2014';
+    h+='<button class="hh-stat game-tile-hero" onclick="mgDetailOpen(\\''+g.k+'\\')" style="--accent:'+g.accent+';--accent2:'+g.accent2+'">'
+      +'<span class="game-tile-emoji" style="background:linear-gradient(135deg,'+g.accent+','+g.accent2+')">'+g.e+'</span>'
+      +'<span class="game-tile-lvl">L'+p.level+'</span>'
+      +'<div class="game-tile-name">'+g.n+'</div>'
+      +'<div class="game-tile-bar"><i style="width:'+g.pct+'%;background:linear-gradient(90deg,'+g.accent+','+g.accent2+')"></i></div>'
+      +'<small style="color:rgba(255,255,255,.78)">'+bestStr+' \\u00B7 '+g.pct+'%</small>'
+    +'</button>';
+  });
   h+='</div>';
   const totalUnlocked=_games.reduce((s,g)=>s+(g.pData.level||1),0);
   h+='<div class="mg-overall">'
