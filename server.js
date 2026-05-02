@@ -3333,8 +3333,22 @@ body:not([data-theme=aurora]) .plan-chip:hover{background:#F4F1FF;border-color:#
 .mtg-sec-lbl{display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono','Space Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:700}
 .mtg-sec-dot{display:inline-block;width:7px;height:7px;border-radius:50%}
 .mtg-textarea{width:100%;background:transparent;border:0;outline:0;color:#F5F5FA;font:inherit;font-size:14.5px;line-height:1.55;letter-spacing:-.005em;resize:vertical;min-height:80px;padding:0}
-.mtg-textarea-tall{min-height:160px}
+.mtg-textarea-tall{min-height:200px}
 .mtg-textarea::placeholder{color:rgba(255,255,255,.35)}
+/* Chip-style collapsible section blocks (matches the Progress chip pattern) */
+.mtg-block{border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);overflow:hidden;transition:background .25s ease,border-color .25s ease}
+.mtg-block.is-open{background:rgba(255,255,255,.06);border-color:rgba(34,211,238,.25)}
+.mtg-block-hd{display:flex;align-items:center;gap:11px;padding:13px 14px;background:transparent;border:0;color:#fff;cursor:pointer;font-family:inherit;width:100%;text-align:left;transition:background .2s ease}
+.mtg-block-hd:hover{background:rgba(255,255,255,.04)}
+.mtg-block-hd:active{transform:scale(.99)}
+.mtg-block-ic{flex-shrink:0;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;color:#1A1A1A;font-size:15px;box-shadow:0 4px 10px -2px rgba(0,0,0,.25)}
+.mtg-block-name{font-weight:600;color:#fff;letter-spacing:-.005em;font-size:14px;flex-shrink:0}
+.mtg-block-mini{flex:1;min-width:0;font-size:12.5px;color:rgba(255,255,255,.55);font-weight:400;letter-spacing:-.005em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-style:italic}
+.mtg-block-arrow{flex-shrink:0;color:rgba(255,255,255,.45);transition:transform .25s ease;width:14px;height:14px;display:grid;place-items:center}
+.mtg-block.is-open .mtg-block-arrow{transform:rotate(180deg)}
+.mtg-block-body{padding:14px 14px 16px;border-top:1px solid rgba(255,255,255,.06);animation:mtgBlockIn .25s ease;display:flex;flex-direction:column;gap:12px}
+@keyframes mtgBlockIn{from{opacity:0;transform:translateY(-4px)}}
+@media (max-width:560px){.mtg-block-mini{display:none}}
 /* Voice recorder */
 .mtg-rec-wrap{display:flex;justify-content:flex-start}
 .mtg-rec-btn{display:inline-flex;align-items:center;gap:10px;padding:11px 18px;border-radius:14px;background:rgba(34,211,238,.12);border:1px solid rgba(34,211,238,.35);color:#22D3EE;font:600 13.5px/1 inherit;cursor:pointer;letter-spacing:-.005em;transition:all .2s}
@@ -5669,8 +5683,9 @@ function logout(){
   render();
 }
 async function load(){const a=document.getElementById('audioEl');if(a&&!a.paused)return;
-  // Skip background re-render churn while the user is typing in a modal — kills focus on mobile.
-  if(S.showWASetup||S.showAdd||S.showProfile){const ae=document.activeElement;if(ae&&(ae.tagName==='INPUT'||ae.tagName==='TEXTAREA'))return}
+  // Skip background poll entirely while any modal/overlay is open. Re-renders during
+  // an open modal wipe drag state, audio recordings, in-progress text, and cause flicker.
+  if(S.showWASetup||S.showAdd||S.showProfile||S.showHelp||S.schPanel||S.mtgPanel||S.mgDetail||S.mgPlay||S.bookReader&&S.bookReader.open||S.hlEditing||S.articleEditor&&S.articleEditor.open)return;
   const t=await api('/tasks');if(!t)return;
   // Local backup: every successful tasks fetch, snapshot to localStorage. If the server ever loses
   // the data (e.g. Railway redeploy without a persistent volume), the user can restore from this.
@@ -6493,6 +6508,7 @@ async function mtgVoiceDelete(vid){
   render();
 }
 function _fmtMtgTime(iso){if(!iso)return '';try{const d=new Date(iso.replace(' ','T')+'Z');const now=new Date();const sameDay=d.toDateString()===now.toDateString();return sameDay?d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):d.toLocaleDateString([],{month:'short',day:'numeric'})}catch(e){return ''}}
+function mtgToggleSection(k){S._mtgOpenSec=(S._mtgOpenSec===k?'':k);render()}
 // Highlight live preview — updates the SVG poster without re-rendering the input
 function hlInputUpdate(v){
   S.hlInput=v;
@@ -7032,7 +7048,10 @@ async function loadRemember(){try{const r=await fetch('/api/remember/today');con
 function editLifeGoal(){const v=prompt('Your goal in life \\u2014 your north star.\\nEdit any time.',S.lifeGoal||'');if(v===null)return;const t=v.trim().slice(0,400);S.lifeGoal=t;localStorage.setItem('tf_life_goal',t);render()}
 async function loadTicker(){try{const r=await fetch('/api/news?cat=world',{cache:'no-store'});const j=await r.json();S.ticker={items:(j.items||[]).slice(0,12),idx:0,loaded:true};render();_startTicker()}catch(e){}}
 let _tickerTimer=null;
-function _startTicker(){if(_tickerTimer)clearInterval(_tickerTimer);if(!S.ticker.items.length)return;_tickerTimer=setInterval(()=>{if(!S.ticker.items.length)return;S.ticker.idx=(S.ticker.idx+3)%S.ticker.items.length;const stack=document.getElementById('newsTickerStack');if(stack)render()},9000)}
+function _startTicker(){if(_tickerTimer)clearInterval(_tickerTimer);if(!S.ticker.items.length)return;_tickerTimer=setInterval(()=>{if(!S.ticker.items.length)return;S.ticker.idx=(S.ticker.idx+3)%S.ticker.items.length;
+  // Skip render while any modal is open — same flicker prevention as load()
+  if(S.showWASetup||S.showAdd||S.showProfile||S.showHelp||S.schPanel||S.mtgPanel||S.mgDetail||S.mgPlay||(S.bookReader&&S.bookReader.open)||S.hlEditing||(S.articleEditor&&S.articleEditor.open))return;
+  const stack=document.getElementById('newsTickerStack');if(stack)render()},9000)}
 function setCity(){const c=prompt('Set your city',S.weather.city||'Bangalore');if(!c)return;const t=c.trim();if(!t)return;localStorage.setItem('tf_city',t);S.weather.city=t;S.weather.loaded=false;loadWeather()}
 // Live-tick the sidebar, header clocks AND world clocks without re-rendering the whole tree
 setInterval(()=>{const n=new Date();const hm=n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false});const sec=String(n.getSeconds()).padStart(2,'0');const t=document.getElementById('sideNowTime');const s=document.getElementById('sideNowSec');if(t&&s){if(t.firstChild&&t.firstChild.nodeValue!==hm)t.firstChild.nodeValue=hm;s.textContent=':'+sec}const ht=document.getElementById('hdrTimeHm');const hs=document.getElementById('hdrTimeSec');if(ht&&hs){if(ht.textContent!==hm)ht.textContent=hm;hs.textContent=':'+sec}const cities=document.querySelectorAll('[data-tz]');cities.forEach(el=>{try{const tz=el.getAttribute('data-tz');const t2=new Date().toLocaleTimeString('en-US',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false});if(el.textContent!==t2)el.textContent=t2}catch(e){}})},1000);
@@ -9227,6 +9246,8 @@ if(S.mtgPanel){
   if(S.mtgView==='detail'&&S.mtgCur){
     const m=S.mtgCur;
     const isRec=!!(S._mtgRec&&S._mtgRec.state==='recording');
+    if(typeof S._mtgOpenSec!=='string')S._mtgOpenSec='notes';
+    const openSec=S._mtgOpenSec;
     h+='<header class="mtg-hd">'
       +'<button class="bk-back" onclick="mtgBack()" aria-label="Back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>'
       +'<div class="mtg-title-strip"><div class="mtg-name">Meeting</div><div class="mtg-sub">'+esc(_fmtMtgTime(m.created_at)||'today')+'</div></div>'
@@ -9235,29 +9256,49 @@ if(S.mtgPanel){
     h+='<div class="mtg-body">';
     if(m.loading){h+='<div class="mtg-loading">Loading\\u2026</div>'}
     else{
-      h+='<input class="mtg-title-input" placeholder="Untitled meeting" value="'+esc(m.title||'')+'" oninput="mtgFieldChange(\\'title\\',this.value)"/>';
-      h+='<div class="mtg-sec"><div class="mtg-sec-lbl"><span class="mtg-sec-dot" style="background:#FFB547"></span>Agenda</div><textarea class="mtg-textarea" placeholder="What is this meeting for? Add bullet points or a goal." oninput="mtgFieldChange(\\'agenda\\',this.value)">'+esc(m.agenda||'')+'</textarea></div>';
-      // Voice notes section
-      h+='<div class="mtg-sec"><div class="mtg-sec-lbl"><span class="mtg-sec-dot" style="background:#22D3EE"></span>Voice notes</div>';
-      h+='<div class="mtg-rec-wrap">';
-      if(isRec){
-        h+='<div class="mtg-rec-active"><span class="mtg-rec-pulse"></span><span class="mtg-rec-label">Recording\\u2026</span><span class="mtg-rec-time" id="mtgRecTime">0:00</span><button class="mtg-rec-stop" onclick="mtgRecStop()"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg> Stop</button></div>';
-      } else {
-        h+='<button class="mtg-rec-btn" onclick="mtgRecStart()"><span class="mtg-rec-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg></span>Record voice note</button>';
-      }
-      h+='</div>';
+      h+='<input class="mtg-title-input" id="mtgTitleInput" placeholder="Untitled meeting" value="'+esc(m.title||'')+'" oninput="mtgFieldChange(\\'title\\',this.value)"/>';
+      // ─── Section chips: tap to expand, like the Progress chip pattern ───
       const voices=m.voices||[];
-      if(voices.length){
-        h+='<div class="mtg-voices">';
-        voices.forEach((v,i)=>{
-          const dur=v.duration_sec?(Math.floor(v.duration_sec/60)+':'+String(v.duration_sec%60).padStart(2,'0')):'\\u2014';
-          h+='<div class="mtg-voice"><span class="mtg-voice-n">#'+(i+1)+'</span><audio controls preload="none" src="/api/meetings/'+m.id+'/voice/'+v.id+'?token='+encodeURIComponent(token)+'"></audio><span class="mtg-voice-time">'+dur+'</span><button class="mtg-voice-x" onclick="mtgVoiceDelete(\\''+v.id+'\\')" aria-label="Delete">\\u2715</button></div>';
-        });
+      const sections=[
+        {k:'agenda',ic:'\\u{1F4CB}',name:'Agenda',preview:(m.agenda||'').slice(0,60)||'Add an agenda',color:'#FFB547'},
+        {k:'notes', ic:'\\u270D\\uFE0F',name:'Notes', preview:(m.notes||'').slice(0,60)||'Type your notes',color:'#A78BFA'},
+        {k:'voice', ic:'\\u{1F3A4}',name:'Voice notes',preview:(isRec?'Recording\\u2026':voices.length?voices.length+' recording'+(voices.length===1?'':'s'):'Tap to record'),color:'#22D3EE'}
+      ];
+      sections.forEach(s=>{
+        const isOpen=openSec===s.k;
+        h+='<div class="mtg-block'+(isOpen?' is-open':'')+'">';
+        // Chip header
+        h+='<button class="mtg-block-hd" onclick="mtgToggleSection(\\''+s.k+'\\')">'
+          +'<span class="mtg-block-ic" style="background:'+s.color+'">'+s.ic+'</span>'
+          +'<span class="mtg-block-name">'+s.name+'</span>'
+          +'<span class="mtg-block-mini">'+esc(s.preview)+'</span>'
+          +'<span class="mtg-block-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>'
+        +'</button>';
+        if(isOpen){
+          h+='<div class="mtg-block-body">';
+          if(s.k==='agenda'){
+            h+='<textarea class="mtg-textarea" id="mtgAgendaInput" placeholder="What is this meeting for? Add bullet points, attendees, the goal." oninput="mtgFieldChange(\\'agenda\\',this.value)">'+esc(m.agenda||'')+'</textarea>';
+          } else if(s.k==='notes'){
+            h+='<textarea class="mtg-textarea mtg-textarea-tall" id="mtgNotesInput" placeholder="Type the notes from the meeting\\u2026 decisions, action items, who said what." oninput="mtgFieldChange(\\'notes\\',this.value)">'+esc(m.notes||'')+'</textarea>';
+          } else if(s.k==='voice'){
+            if(isRec){
+              h+='<div class="mtg-rec-active"><span class="mtg-rec-pulse"></span><span class="mtg-rec-label">Recording\\u2026</span><span class="mtg-rec-time" id="mtgRecTime">0:00</span><button class="mtg-rec-stop" onclick="mtgRecStop()"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg> Stop</button></div>';
+            } else {
+              h+='<button class="mtg-rec-btn" onclick="mtgRecStart()"><span class="mtg-rec-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg></span>Record a voice note</button>';
+            }
+            if(voices.length){
+              h+='<div class="mtg-voices">';
+              voices.forEach((v,i)=>{
+                const dur=v.duration_sec?(Math.floor(v.duration_sec/60)+':'+String(v.duration_sec%60).padStart(2,'0')):'\\u2014';
+                h+='<div class="mtg-voice"><span class="mtg-voice-n">#'+(i+1)+'</span><audio controls preload="none" src="/api/meetings/'+m.id+'/voice/'+v.id+'?token='+encodeURIComponent(token)+'"></audio><span class="mtg-voice-time">'+dur+'</span><button class="mtg-voice-x" onclick="mtgVoiceDelete(\\''+v.id+'\\')" aria-label="Delete">\\u2715</button></div>';
+              });
+              h+='</div>';
+            }
+          }
+          h+='</div>';
+        }
         h+='</div>';
-      }
-      h+='</div>';
-      // Notes section
-      h+='<div class="mtg-sec"><div class="mtg-sec-lbl"><span class="mtg-sec-dot" style="background:#A78BFA"></span>Notes</div><textarea class="mtg-textarea mtg-textarea-tall" placeholder="Type the notes from the meeting\\u2026" oninput="mtgFieldChange(\\'notes\\',this.value)">'+esc(m.notes||'')+'</textarea></div>';
+      });
     }
     h+='</div>';
   } else {
