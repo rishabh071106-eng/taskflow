@@ -3388,8 +3388,8 @@ body:not([data-theme=aurora]) .plan-chip:hover{background:#F4F1FF;border-color:#
 .mtg-textarea-tall{min-height:200px}
 .mtg-textarea::placeholder{color:rgba(255,255,255,.35)}
 /* Chip-style collapsible section blocks (matches the Progress chip pattern) */
-.mtg-block{border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);overflow:hidden;transition:background .25s ease,border-color .25s ease}
-.mtg-block.is-open{background:rgba(255,255,255,.06);border-color:rgba(34,211,238,.25)}
+.mtg-block{border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);overflow:hidden}
+.mtg-block.is-open{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08)}
 .mtg-block-hd-static{display:flex;align-items:center;gap:11px;padding:13px 14px 10px;background:transparent;color:#fff;font-family:inherit;width:100%}
 .mtg-block-count{margin-left:auto;font-family:'JetBrains Mono','Space Mono',monospace;font-size:10.5px;font-weight:700;letter-spacing:.04em;background:rgba(34,211,238,.18);color:#86EFAC;padding:3px 8px;border-radius:6px}
 .mtg-block-hd{display:flex;align-items:center;gap:11px;padding:13px 14px;background:transparent;border:0;color:#fff;cursor:pointer;font-family:inherit;width:100%;text-align:left;transition:background .2s ease}
@@ -3400,8 +3400,7 @@ body:not([data-theme=aurora]) .plan-chip:hover{background:#F4F1FF;border-color:#
 .mtg-block-mini{flex:1;min-width:0;font-size:12.5px;color:rgba(255,255,255,.55);font-weight:400;letter-spacing:-.005em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-style:italic}
 .mtg-block-arrow{flex-shrink:0;color:rgba(255,255,255,.45);transition:transform .25s ease;width:14px;height:14px;display:grid;place-items:center}
 .mtg-block.is-open .mtg-block-arrow{transform:rotate(180deg)}
-.mtg-block-body{padding:14px 14px 16px;border-top:1px solid rgba(255,255,255,.06);animation:mtgBlockIn .25s ease;display:flex;flex-direction:column;gap:12px}
-@keyframes mtgBlockIn{from{opacity:0;transform:translateY(-4px)}}
+.mtg-block-body{padding:14px 14px 16px;border-top:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;gap:12px}
 @media (max-width:560px){.mtg-block-mini{display:none}}
 /* Voice recorder */
 .mtg-rec-wrap{display:flex;justify-content:flex-start}
@@ -3483,6 +3482,36 @@ body:not([data-theme=aurora]) .sch-foot-note{color:#6B6B6B}
 /* ─── Outlook-style drag-to-select timeline ─── */
 .sch-close-big{flex-shrink:0;width:38px;height:38px;border-radius:50%;border:0;background:rgba(255,255,255,.14);color:#fff;cursor:pointer;display:grid;place-items:center;transition:background .2s,transform .2s}
 .sch-close-big:hover{background:rgba(255,255,255,.24);transform:scale(1.05)}
+/* Plan your day v2 — simple form on a purple hero card */
+.sch-mdl-v2{background:radial-gradient(900px 500px at 50% 0%,#3D1F5F 0%,#1A0E2E 70%) !important}
+.sch-hd-v2{display:flex;align-items:center;gap:14px;padding:14px 18px;padding-top:calc(14px + env(safe-area-inset-top,0px));background:transparent;color:#fff;flex-shrink:0}
+.sch-hero{position:relative;border-radius:24px;padding:28px 24px;margin:8px 18px 18px;overflow:hidden;color:#fff;isolation:isolate;background:linear-gradient(135deg,#1A0E2E 0%,#2A1845 50%,#3D1F5F 100%);box-shadow:0 18px 40px -12px rgba(91,33,182,.55)}
+.sch-hero .hh-bg{position:absolute;inset:0;background:radial-gradient(700px 400px at 0% 0%,rgba(255,107,71,.32) 0%,transparent 55%),radial-gradient(600px 400px at 100% 100%,rgba(167,139,250,.28) 0%,transparent 55%);z-index:-1}
+.sch-hero .hh-greet{font-family:'Instrument Serif','Playfair Display',Georgia,serif;font-weight:400;font-size:clamp(30px,5.5vw,46px);line-height:1.02;letter-spacing:-.025em;color:#fff;margin:6px 0 12px}
+.sch-hero .hh-greet em{font-style:italic;background:linear-gradient(135deg,#FF6B47,#FFB547);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+.sch-hero .hh-line{font-size:14.5px;line-height:1.5;color:rgba(255,255,255,.85);margin:0 0 22px;max-width:520px}
+.sch-form-v2{display:flex;flex-direction:column;gap:10px}
+.sch-form-row{display:flex;align-items:flex-end;gap:10px}
+.sch-fl-v2{flex:1;display:flex;flex-direction:column;gap:6px}
+.sch-fl-v2 span{font-family:'JetBrains Mono','Space Mono',monospace;font-size:10.5px;letter-spacing:.1em;color:rgba(255,255,255,.55);font-weight:700;text-transform:uppercase}
+.sch-fl-v2 input{font-family:inherit;font-size:16px;font-weight:600;padding:11px 14px;border-radius:11px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#fff;outline:0;letter-spacing:-.01em}
+.sch-fl-v2 input:focus{background:rgba(255,255,255,.16);border-color:rgba(255,107,71,.6)}
+.sch-arrow-v2{padding-bottom:14px;color:rgba(255,255,255,.55);font-size:14px}
+.sch-label-v2{padding:13px 16px;border-radius:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#fff;font:500 15px/1.4 inherit;letter-spacing:-.005em;outline:0;-webkit-appearance:none}
+.sch-label-v2::placeholder{color:rgba(255,255,255,.5)}
+.sch-label-v2:focus{border-color:rgba(255,107,71,.6);background:rgba(255,255,255,.12)}
+.sch-save-v2{width:100%;padding:14px;border-radius:14px;border:0;background:linear-gradient(135deg,#FF6B47,#FFB547);color:#fff;font:600 15px/1 inherit;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;letter-spacing:-.005em;box-shadow:0 10px 24px -6px rgba(255,107,71,.5);transition:transform .2s}
+.sch-save-v2:hover{transform:translateY(-1px)}
+.sch-save-v2:active{transform:scale(.98)}
+.sch-list{padding:0 18px 24px;max-width:760px;width:100%;margin:0 auto}
+.sch-list-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding:0 4px}
+.sch-list-eyebrow{font-family:'JetBrains Mono','Space Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.65);font-weight:700}
+.sch-list-empty{padding:24px 14px;text-align:center;color:rgba(255,255,255,.55);font-size:14px;font-style:italic;border:1px dashed rgba(255,255,255,.1);border-radius:14px}
+.sch-list-row{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px;padding:14px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;margin-bottom:8px;color:#F5F5FA}
+.sch-list-time{font-family:'JetBrains Mono','Space Mono',monospace;font-size:12px;letter-spacing:.04em;color:rgba(255,255,255,.7);font-weight:600;white-space:nowrap}
+.sch-list-label{font:500 14.5px/1.3 'Inter',sans-serif;letter-spacing:-.005em;color:#fff;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.sch-list-x{flex-shrink:0;width:30px;height:30px;border-radius:50%;border:0;background:rgba(255,255,255,.08);color:rgba(255,255,255,.55);cursor:pointer;font-size:12px;transition:all .2s}
+.sch-list-x:hover{background:rgba(220,38,38,.4);color:#fff}
 .schX-help{padding:12px 14px;border-radius:12px;background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.25);color:rgba(255,255,255,.85);font-size:13px;letter-spacing:-.005em;margin-bottom:14px;line-height:1.4}
 body:not([data-theme=aurora]) .schX-help{background:#F5EFFF;border-color:rgba(167,139,250,.4);color:#3D3D3D}
 .schX-wrap{display:grid;grid-template-columns:60px 1fr;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:14px;overflow:hidden;margin-bottom:14px;position:relative}
@@ -8262,42 +8291,38 @@ if(S.tab==='tasks'){
   }
   // Hydrate highlight in the background — chip badge needs the count
   if(!S.dailyHl&&!S._hlFetched){S._hlFetched=true;const _c=_hlLocalCache();if(_c)S.dailyHl=_c;hlLoad()}
-  // ─── Actions chip — mirrors the Progress chip exactly. 4 tiles inside. ───
+  // ─── Actions card — same big purple hero card style as the "Good morning" greeting ───
   {
-    const _qaOpen=!!S.qaOpen;
     const _schN=(S.schBlocks||[]).length;
     const _mtgN=(S.mtgList||[]).length;
     const _hl=S.dailyHl;
-    const summary=_qaOpen?'Tap any to open':((_schN?_schN+' blocks':'')||'')+(_hl?(_schN?' \\u00B7 ':'')+'\\u{1F31F}':'')||(_mtgN?_mtgN+' meetings':'')||'New task, plan, notes';
-    h+='<button class="hh-progress-chip qa-chip-v2'+(_qaOpen?' is-open':'')+'" onclick="S.qaOpen=!S.qaOpen;render()" aria-expanded="'+_qaOpen+'" style="margin-bottom:'+(_qaOpen?'12px':'18px')+'">'
-      +'<span class="hh-pc-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>'
-      +'<span class="hh-pc-t">Actions</span>'
-      +'<span class="hh-pc-mini">'+summary+'</span>'
-      +'<span class="hh-pc-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>'
-    +'</button>';
-    if(_qaOpen){
-      h+='<div class="hh-stats" style="margin-bottom:18px">'
-        +'<button class="hh-stat qa-stat-tile" onclick="S.qaOpen=false;opA()">'
+    h+='<section class="home-hero qa-hero">'
+      +'<div class="hh-bg"></div>'
+      +'<div class="hh-row"><div class="hh-eyebrow">Actions</div></div>'
+      +'<h1 class="hh-greet" style="font-size:clamp(28px,5vw,42px);margin:6px 0 14px">What\\u2019s next, <em>Rishabh</em>?</h1>'
+      +'<p class="hh-line" style="margin-bottom:18px">Tap any of the four to open it. Everything saves and syncs automatically.</p>'
+      +'<div class="hh-stats">'
+        +'<button class="hh-stat qa-stat-tile" onclick="opA()">'
           +'<span class="qa-stat-emoji" style="background:linear-gradient(135deg,#FF6B47,#FFB547)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>'
-          +'<small style="color:rgba(255,255,255,.78)">New Task</small>'
+          +'<small>New Task</small>'
         +'</button>'
-        +'<button class="hh-stat qa-stat-tile" onclick="S.qaOpen=false;schOpen()">'
+        +'<button class="hh-stat qa-stat-tile" onclick="schOpen()">'
           +'<span class="qa-stat-emoji" style="background:linear-gradient(135deg,#5B21B6,#A78BFA)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></svg></span>'
           +(_schN?'<span class="qa-stat-bdg">'+_schN+'</span>':'')
-          +'<small style="color:rgba(255,255,255,.78)">Plan Day</small>'
+          +'<small>Plan Day</small>'
         +'</button>'
-        +'<button class="hh-stat qa-stat-tile" onclick="S.qaOpen=false;mtgOpen()">'
+        +'<button class="hh-stat qa-stat-tile" onclick="mtgOpen()">'
           +'<span class="qa-stat-emoji" style="background:linear-gradient(135deg,#0EA5E9,#22D3EE)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>'
           +(_mtgN?'<span class="qa-stat-bdg">'+_mtgN+'</span>':'')
-          +'<small style="color:rgba(255,255,255,.78)">Meeting</small>'
+          +'<small>Meeting</small>'
         +'</button>'
-        +'<button class="hh-stat qa-stat-tile" onclick="S.qaOpen=false;hlPanelOpen()">'
-          +'<span class="qa-stat-emoji" style="background:linear-gradient(135deg,#FFB547,#FF6B47)"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.39 7.36H22l-6.18 4.5L18.18 22 12 17.27 5.82 22l2.36-8.14L2 9.36h7.61z"/></svg></span>'
-          +(_hl?(_hl.done?'<span class="qa-stat-bdg" style="background:rgba(52,211,153,.18);color:#86EFAC">\\u2713</span>':'<span class="qa-stat-bdg">\\u2728</span>'):'')
-          +'<small style="color:rgba(255,255,255,.78)">Highlight</small>'
+        +'<button class="hh-stat qa-stat-tile" onclick="hlPanelOpen()">'
+          +'<span class="qa-stat-emoji" style="background:linear-gradient(135deg,#FFB547,#FF6B47)"><svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M12 2l2.39 7.36H22l-6.18 4.5L18.18 22 12 17.27 5.82 22l2.36-8.14L2 9.36h7.61z"/></svg></span>'
+          +(_hl?(_hl.done?'<span class="qa-stat-bdg" style="background:rgba(52,211,153,.22);color:#86EFAC">\\u2713</span>':'<span class="qa-stat-bdg">\\u2728</span>'):'')
+          +'<small>Highlight</small>'
         +'</button>'
-      +'</div>';
-    }
+      +'</div>'
+    +'</section>';
   }
   // (Stats moved into the hero greeting above)
   if(s.od>0)h+='<div class="al" style="background:#FEF1F0;border:1px solid #F5C6C2;color:#E8453C;cursor:pointer" onclick="S.view=\\'overdue\\';render()">\\u26A0\\uFE0F '+s.od+' overdue</div>';
@@ -9385,7 +9410,46 @@ if(S.mtgPanel){
 }
 if(S.schPanel){
   const blocks=S.schBlocks||[];
-  // Day window 6 AM - 11 PM, 30-min slots
+  if(!S.schForm)S.schForm={start:'09:00',end:'10:00',label:''};
+  const f=S.schForm;
+  function _minToLabel(m){const h=Math.floor(m/60);const mm=m%60;const h12=h%12===0?12:h%12;const ap=h<12?'AM':'PM';return h12+(mm?':'+String(mm).padStart(2,'0'):'')+' '+ap}
+  function _hhmmToMin(t){const [h,m]=String(t||'').split(':').map(n=>parseInt(n,10)||0);return h*60+m}
+  h+='<div class="ov" onclick="schClose()"><div class="mdl sch-mdl sch-mdl-v2" onclick="event.stopPropagation()">';
+  h+='<header class="sch-hd-v2">'
+    +'<button class="sch-close-big" onclick="schClose()" aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>'
+    +'<div class="hh-eyebrow" style="color:rgba(255,255,255,.78)">Plan your day \\u00B7 '+blocks.length+' block'+(blocks.length===1?'':'s')+'</div>'
+  +'</header>';
+  h+='<div class="sch-hero">'
+    +'<div class="hh-bg"></div>'
+    +'<h1 class="hh-greet">Block your <em>time</em>.</h1>'
+    +'<p class="hh-line">Pick a start, an end, and what the time is for. Each block syncs to your Google Calendar and emails you a reminder ten minutes before it starts.</p>'
+    // Form
+    +'<div class="sch-form-v2">'
+      +'<div class="sch-form-row">'
+        +'<label class="sch-fl-v2"><span>Start</span><input type="time" value="'+esc(f.start)+'" onchange="schFormSet(\\'start\\',this.value)"></label>'
+        +'<span class="sch-arrow-v2">\\u2192</span>'
+        +'<label class="sch-fl-v2"><span>End</span><input type="time" value="'+esc(f.end)+'" onchange="schFormSet(\\'end\\',this.value)"></label>'
+      +'</div>'
+      +'<input class="sch-label-v2" type="text" placeholder="What is this time block for? (e.g. Deep work, Lunch, Workout)" value="'+esc(f.label||'')+'" oninput="schFormSet(\\'label\\',this.value)" onkeydown="if(event.key===\\'Enter\\')schSave()">'
+      +'<button class="sch-save-v2" onclick="schSave()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Block this time</button>'
+    +'</div>'
+  +'</div>';
+  // List of today's blocks
+  h+='<div class="sch-list">'
+    +'<div class="sch-list-hd"><span class="sch-list-eyebrow">Today\\u2019s blocks</span></div>';
+  if(!blocks.length){
+    h+='<div class="sch-list-empty">No blocks yet. Add one above to start your day.</div>';
+  } else {
+    blocks.forEach(b=>{
+      const sMin=_hhmmToMin(b.start_time),eMin=_hhmmToMin(b.end_time);
+      h+='<div class="sch-list-row"><div class="sch-list-time">'+_minToLabel(sMin)+' \\u2192 '+_minToLabel(eMin)+'</div><div class="sch-list-label">'+esc(b.label)+'</div><button class="sch-list-x" onclick="schDelete(\\''+b.id+'\\')" aria-label="Delete">\\u2715</button></div>';
+    });
+  }
+  h+='</div>';
+  h+='</div></div>';
+}
+if(false){ // Old timeline render — disabled
+  const blocks=S.schBlocks||[];
   const dayStart=6,dayEnd=23,dayHours=dayEnd-dayStart,totalMin=dayHours*60,slotPx=24,totalPx=dayHours*2*slotPx;
   function _minToTime(m){const h=dayStart+Math.floor(m/60);const mm=m%60;return String(h).padStart(2,'0')+':'+String(mm).padStart(2,'0')}
   function _minToLabel(m){const h=dayStart+Math.floor(m/60);const mm=m%60;const h12=h%12===0?12:h%12;const ap=h<12?'AM':'PM';return h12+(mm?':'+String(mm).padStart(2,'0'):'')+' '+ap}
