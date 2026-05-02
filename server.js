@@ -3215,24 +3215,27 @@ body:not([data-theme=aurora]) .cx-pv-lbl{color:#9A9A9A}
 body:not([data-theme=aurora]) .cx-pv-pill{background:#FFF1ED;color:#B7472A;border-color:#FFD0BD}
 body:not([data-theme=aurora]) .cx-pv-title{background:#F4F3EE;color:#1A1A1A;border-color:#E8E6E0}
 @media (max-width:560px){.cx-chip{padding:6px 10px;font-size:11.5px}.cx-input{font-size:15px}}
-/* ─── Today's Highlight — fullscreen modal ─── */
+/* ─── Today's Highlight — fullscreen modal v3 (purple-hero chip pattern) ─── */
 .hl-mdl{max-width:none;width:100%;padding:0;overflow:hidden;display:flex;flex-direction:column;background:radial-gradient(900px 500px at 50% 0%,#3D1F5F 0%,#1A0E2E 70%);color:#F5F5FA;border:0;height:100vh;max-height:100vh;border-radius:0;align-self:stretch;animation:schSlideUp .3s cubic-bezier(.16,1,.3,1)}
-.hl-mdl-hd{display:flex;align-items:center;gap:14px;padding:18px 20px;padding-top:calc(18px + env(safe-area-inset-top,0px));background:linear-gradient(135deg,#FF6B47 0%,#FFB547 100%);color:#fff;flex-shrink:0;position:relative;overflow:hidden}
-.hl-mdl-hd::after{content:'';position:absolute;inset:0;background:radial-gradient(700px 200px at 90% 0%,rgba(255,255,255,.18),transparent 60%);pointer-events:none}
-.hl-mdl-title{flex:1;min-width:0;text-align:left;position:relative;z-index:1}
-.hl-mdl-name{font-family:'Instrument Serif','Playfair Display',Georgia,serif;font-weight:400;font-style:italic;font-size:24px;letter-spacing:-.02em;line-height:1.05}
-.hl-mdl-sub{font-family:'JetBrains Mono','Space Mono',monospace;font-size:10.5px;letter-spacing:.08em;color:rgba(255,255,255,.85);font-weight:600;margin-top:5px;text-transform:uppercase}
-.hl-mdl-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:24px 20px;max-width:560px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:18px}
-.hl-edit-row{display:flex;gap:10px;align-items:stretch}
-.hl-input-v2{flex:1;min-width:0;padding:14px 16px;border-radius:12px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);color:#F5F5FA;font:500 16px/1.4 inherit;letter-spacing:-.005em;outline:0}
-.hl-input-v2::placeholder{color:rgba(255,255,255,.4);font-style:italic}
-.hl-input-v2:focus{border-color:rgba(255,107,71,.5);background:rgba(255,255,255,.1)}
-.hl-save-v2{flex-shrink:0;padding:0 22px;border-radius:12px;border:0;background:rgba(255,255,255,.1);color:rgba(255,255,255,.5);font:600 14px/1 inherit;cursor:pointer;letter-spacing:-.005em;transition:all .25s ease}
-.hl-save-v2.on{background:linear-gradient(135deg,#FF6B47,#FFB547);color:#fff;box-shadow:0 8px 22px -6px rgba(255,107,71,.5)}
-.hl-actions-v2{display:flex;gap:8px}
-.hl-actions-v2 .hl-check-v2,.hl-actions-v2 .hl-edit-v2{flex:1;justify-content:center;padding:13px 18px}
-.hl-mdl-footnote{font-size:12.5px;color:rgba(255,255,255,.55);line-height:1.5;text-align:center;padding:8px 0}
-@media (max-width:560px){.hl-mdl-name{font-size:20px}.hl-edit-row{flex-direction:column}.hl-save-v2{padding:14px}}
+.hl-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:6px 0 24px;max-width:680px;width:100%;margin:0 auto}
+.hl-hero{margin:6px 18px 14px !important;background:linear-gradient(135deg,#1A0E2E 0%,#2A1245 50%,#3D1F5F 100%) !important}
+.hl-hero .hh-greet{font-size:clamp(28px,5.2vw,40px) !important;margin:6px 0 12px !important}
+.hl-hero .hh-greet em{font-style:italic;background:linear-gradient(135deg,#FF6B47,#FFB547);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+.hl-hero .hh-line{margin-bottom:18px}
+.hl-form{display:flex;gap:10px;align-items:stretch;margin-bottom:12px}
+.hl-input-v3{flex:1;min-width:0;padding:14px 16px;border-radius:12px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#fff;font:500 15.5px/1.4 inherit;letter-spacing:-.005em;outline:0}
+.hl-input-v3::placeholder{color:rgba(255,255,255,.5);font-style:italic}
+.hl-input-v3:focus{border-color:rgba(255,107,71,.6);background:rgba(255,255,255,.14)}
+.hl-save-v3{flex-shrink:0;padding:0 22px;border-radius:12px;border:0;background:rgba(255,255,255,.16);color:rgba(255,255,255,.55);font:600 14px/1 inherit;cursor:pointer;letter-spacing:-.005em;transition:all .25s ease}
+.hl-save-v3.on{background:linear-gradient(135deg,#FF6B47,#FFB547);color:#fff;box-shadow:0 10px 24px -6px rgba(255,107,71,.55)}
+.hl-save-v3:hover.on{transform:translateY(-1px)}
+.hl-hero-actions{display:flex;gap:10px}
+.hl-check-v3{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 18px;border-radius:12px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#fff;font:600 13.5px/1 inherit;cursor:pointer;letter-spacing:-.005em;transition:all .2s}
+.hl-check-v3:hover{background:rgba(255,255,255,.16)}
+.hl-check-v3.on{background:linear-gradient(135deg,#34D399,#22D3EE);border-color:transparent;box-shadow:0 8px 22px -6px rgba(52,211,153,.5)}
+.hl-poster-card{margin-top:6px}
+.hl-poster-card .hl-poster{margin-top:6px}
+@media (max-width:560px){.hl-form{flex-direction:column}.hl-save-v3{padding:13px}.hl-hero{margin:6px 14px 12px !important}}
 /* ─── Today's Progress section + highlight poster card (legacy, kept for compat) ─── */
 .prog-sec{margin:0 0 18px;padding:14px 14px 16px;border-radius:20px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}
 body:not([data-theme=aurora]) .prog-sec{background:#fff;border-color:#E8E6E0;box-shadow:0 1px 3px rgba(15,23,42,.04)}
@@ -3350,7 +3353,31 @@ body:not([data-theme=aurora]) .add-chip-bdg{background:#FFF1ED;color:#B7472A}
 body:not([data-theme=aurora]) .plan-chip:hover{background:#F4F1FF;border-color:#A78BFA}
 @media (max-width:560px){.action-chips{gap:8px}.action-chips .add-chip{flex:1 1 100%}}
 /* ─── Schedule panel (Plan your day) ─── */
-/* ─── Meeting Notes panel ─── */
+/* ─── Meeting Notes detail (v2 chip-card layout) ─── */
+.mtg-hd-v2{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 18px;padding-top:calc(14px + env(safe-area-inset-top,0px));background:transparent;color:#fff;flex-shrink:0}
+.mtg-hero{margin:0 18px 14px;background:linear-gradient(135deg,#0F2A3E 0%,#15202E 50%,#0EA5E9 110%) !important;box-shadow:0 18px 40px -12px rgba(14,165,233,.45) !important}
+.mtg-hero .hh-bg{background:radial-gradient(700px 400px at 0% 0%,rgba(34,211,238,.32),transparent 55%),radial-gradient(600px 400px at 100% 100%,rgba(167,139,250,.22),transparent 55%) !important}
+.mtg-title-input-v2{font-family:'Instrument Serif','Playfair Display',Georgia,serif;font-weight:400;font-style:italic;font-size:clamp(28px,5.5vw,40px);line-height:1.05;letter-spacing:-.022em;color:#fff;background:transparent;border:0;outline:0;width:100%;padding:8px 0 16px;margin:0}
+.mtg-title-input-v2::placeholder{color:rgba(255,255,255,.4)}
+.mtg-hero-stats{display:flex;gap:14px;flex-wrap:wrap;padding-top:14px;border-top:1px solid rgba(255,255,255,.1)}
+.mtg-hero-stat{font-family:'JetBrains Mono','Space Mono',monospace;font-size:11px;letter-spacing:.06em;color:rgba(255,255,255,.78);font-weight:600;text-transform:uppercase;display:inline-flex;align-items:center;gap:7px}
+.mtg-hero-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.mtg-card{margin:0 18px 12px;padding:18px 18px 20px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:18px;display:flex;flex-direction:column;gap:14px}
+.mtg-card-hd{display:flex;align-items:flex-start;gap:13px}
+.mtg-card-ic{flex-shrink:0;width:42px;height:42px;border-radius:13px;display:grid;place-items:center;color:#fff;font-size:18px;box-shadow:0 6px 16px -4px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.3)}
+.mtg-card-title{flex:1;min-width:0;padding-top:2px}
+.mtg-card-name{font:600 16px/1.2 'Inter',sans-serif;letter-spacing:-.01em;color:#fff;display:flex;align-items:center;gap:8px}
+.mtg-card-bdg{font-family:'JetBrains Mono','Space Mono',monospace;font-size:10.5px;font-weight:700;letter-spacing:.04em;background:rgba(34,211,238,.18);color:#86EFAC;padding:3px 8px;border-radius:6px;line-height:1}
+.mtg-card-sub{font-size:12.5px;color:rgba(255,255,255,.55);margin-top:3px;letter-spacing:-.005em}
+.mtg-textarea-v2{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px 16px;color:#F5F5FA;font:inherit;font-size:15px;line-height:1.55;letter-spacing:-.005em;resize:vertical;min-height:90px;outline:0;transition:border-color .25s ease,background .25s ease}
+.mtg-textarea-v2:focus{border-color:rgba(34,211,238,.45);background:rgba(255,255,255,.07)}
+.mtg-textarea-v2.mtg-textarea-tall{min-height:200px}
+.mtg-textarea-v2::placeholder{color:rgba(255,255,255,.35)}
+.mtg-rec-btn-v2{display:flex;align-items:center;gap:12px;width:100%;padding:14px 18px;border-radius:14px;background:linear-gradient(135deg,#0EA5E9,#22D3EE);border:0;color:#fff;font:600 14.5px/1 inherit;cursor:pointer;letter-spacing:-.005em;box-shadow:0 10px 26px -6px rgba(14,165,233,.5);transition:transform .2s}
+.mtg-rec-btn-v2:hover{transform:translateY(-1px)}
+.mtg-rec-btn-v2 .mtg-rec-ic{width:30px;height:30px;border-radius:50%;background:#DC2626;color:#fff;display:grid;place-items:center;flex-shrink:0}
+@media (max-width:560px){.mtg-card,.mtg-hero{margin:0 14px 12px}.mtg-title-input-v2{font-size:24px}}
+/* ─── Meeting Notes panel (legacy) ─── */
 .mtg-mdl{max-width:none;width:100%;padding:0;overflow:hidden;display:flex;flex-direction:column;background:radial-gradient(900px 500px at 50% 0%,#0E2A3D 0%,#06121A 70%);color:#F5F5FA;border:0;height:100vh;max-height:100vh;border-radius:0;align-self:stretch;animation:schSlideUp .3s cubic-bezier(.16,1,.3,1)}
 .mtg-hd{display:flex;align-items:center;gap:14px;padding:18px 20px;padding-top:calc(18px + env(safe-area-inset-top,0px));background:linear-gradient(135deg,rgba(14,165,233,.4),rgba(34,211,238,.25));color:#fff;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.08);position:relative;overflow:hidden}
 .mtg-hd::after{content:'';position:absolute;inset:0;background:radial-gradient(700px 200px at 90% 0%,rgba(255,255,255,.18),transparent 60%);pointer-events:none}
@@ -9336,27 +9363,34 @@ if(S.showWASetup){
 if(S.hlPanel){
   const hl=S.dailyHl;
   const editing=!!S.hlEditing||!hl;
-  const liveText=editing?(S.hlInput!=null?S.hlInput:(hl?hl.text:''))||'':((hl&&hl.text)||'');
+  const liveText=editing?((S.hlInput!=null?S.hlInput:(hl?hl.text:''))||''):((hl&&hl.text)||'');
+  const hasText=!!(liveText||'').trim();
   h+='<div class="ov" onclick="hlPanelClose()"><div class="mdl hl-mdl" onclick="event.stopPropagation()">';
-  h+='<header class="hl-mdl-hd">'
-    +'<button class="bk-back" onclick="hlPanelClose()" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>'
-    +'<div class="hl-mdl-title"><div class="hl-mdl-name">Today\\u2019s Highlight</div><div class="hl-mdl-sub">'+(hl?(hl.done?'\\u2728 Done':'One thing that would make today a win'):'One thing that would make today a win')+'</div></div>'
-    +(hl?'<button class="mtg-del-btn" onclick="hlClear();hlPanelClose()" aria-label="Clear"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>':'<div style="width:36px"></div>')
+  h+='<header class="mtg-hd-v2">'
+    +'<button class="sch-close-big" onclick="hlPanelClose()" aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>'
+    +'<div class="hh-eyebrow" style="color:rgba(255,255,255,.78)">Today\\u2019s Highlight'+(hl&&hl.done?' \\u2022 Done':'')+'</div>'
+    +(hl?'<button class="sch-close-big" onclick="hlClear();hlPanelClose()" aria-label="Clear" style="background:rgba(220,38,38,.25)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>':'<div style="width:38px"></div>')
   +'</header>';
-  h+='<div class="hl-mdl-body">';
-  h+='<div class="hl-poster" id="hlPoster">'+_renderHlPoster(liveText||'Your highlight goes here',hl?hl.done:false)+'</div>';
-  if(editing){
-    h+='<div class="hl-edit-row">'
-      +'<input class="hl-input-v2" id="hlInput" autofocus value="'+esc((S.hlInput!=null?S.hlInput:(hl?hl.text:''))||'')+'" placeholder="If today were a win, the one thing I\\u2019d finish is\\u2026" oninput="hlInputUpdate(this.value)" onkeydown="if(event.key===\\'Enter\\')hlSubmit()"/>'
-      +'<button class="hl-save-v2'+((S.hlInput!=null?S.hlInput:(hl?hl.text:''))&&((S.hlInput!=null?S.hlInput:hl.text)||'').trim()?' on':'')+'" onclick="hlSubmit()">Save \\u2192</button>'
-    +'</div>';
-  } else if(hl){
-    h+='<div class="hl-actions-v2">'
-      +'<button class="hl-check-v2'+(hl.done?' on':'')+'" onclick="hlToggleDone()">'+(hl.done?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg> Done':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/></svg> Mark done')+'</button>'
-      +'<button class="hl-edit-v2" onclick="hlOpen()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit</button>'
-    +'</div>';
-  }
-  h+='<div class="hl-mdl-footnote">\\u{1F4C5} Adds an all-day event to your Google Calendar. \\u{1F4E7} You\\u2019ll get email reminders at midday and evening if it\\u2019s still open.</div>';
+  h+='<div class="hl-body">';
+  // ─── Big purple/coral hero card with the prompt question ───
+  h+='<section class="home-hero hl-hero">'
+    +'<div class="hh-bg"></div>'
+    +'<div class="hh-row"><div class="hh-eyebrow">\\u{1F31F} The one thing</div></div>'
+    +'<h1 class="hh-greet">What\\u2019s the <em>one thing</em> you want to do today?</h1>'
+    +'<p class="hh-line">Pick the single task that would make today feel like a win. We\\u2019ll add it to your Google Calendar as an all-day event and email you reminders.</p>'
+    // Inline editor card on the hero
+    +'<div class="hl-form">'
+      +'<input class="hl-input-v3" id="hlInput" autofocus value="'+esc((S.hlInput!=null?S.hlInput:(hl?hl.text:''))||'')+'" placeholder="e.g. Finish the brand-deck draft and send to Sam" oninput="hlInputUpdate(this.value)" onkeydown="if(event.key===\\'Enter\\')hlSubmit()"/>'
+      +'<button class="hl-save-v3'+(hasText?' on':'')+'" onclick="hlSubmit()">'+(hl?'Update':'Save')+' \\u2192</button>'
+    +'</div>'
+    +(hl?'<div class="hl-hero-actions">'
+      +'<button class="hl-check-v3'+(hl.done?' on':'')+'" onclick="hlToggleDone()">'+(hl.done?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg> Done \\u2014 tap to undo':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/></svg> Mark done')+'</button>'
+    +'</div>':'')
+  +'</section>';
+  // Poster preview chip-card
+  h+='<section class="mtg-card hl-poster-card"><div class="mtg-card-hd"><span class="mtg-card-ic" style="background:linear-gradient(135deg,#FF6B47,#FFB547)">\\u{1F4C5}</span><div class="mtg-card-title"><div class="mtg-card-name">How it will look</div><div class="mtg-card-sub">Saved on your calendar &amp; sent via email</div></div></div>'
+    +'<div class="hl-poster" id="hlPoster">'+_renderHlPoster(liveText||'Your highlight goes here',hl?hl.done:false)+'</div>'
+  +'</section>';
   h+='</div></div></div>';
 }
 if(S.mtgPanel){
@@ -9364,32 +9398,44 @@ if(S.mtgPanel){
   if(S.mtgView==='detail'&&S.mtgCur){
     const m=S.mtgCur;
     const isRec=!!(S._mtgRec&&S._mtgRec.state==='recording');
-    h+='<header class="mtg-hd">'
-      +'<button class="bk-back" onclick="mtgBack()" aria-label="Back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>'
-      +'<div class="mtg-title-strip"><div class="mtg-name">Meeting</div><div class="mtg-sub">'+esc(_fmtMtgTime(m.created_at)||'today')+'</div></div>'
-      +'<button class="mtg-del-btn" onclick="mtgDelete(\\''+m.id+'\\')" aria-label="Delete"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>'
+    h+='<header class="mtg-hd-v2">'
+      +'<button class="sch-close-big" onclick="mtgBack()" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>'
+      +'<div class="hh-eyebrow" style="color:rgba(255,255,255,.78)">Meeting \\u00B7 '+esc(_fmtMtgTime(m.created_at)||'today')+'</div>'
+      +'<button class="sch-close-big" onclick="mtgDelete(\\''+m.id+'\\')" aria-label="Delete" style="background:rgba(220,38,38,.25)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>'
     +'</header>';
     h+='<div class="mtg-body">';
     if(m.loading){h+='<div class="mtg-loading">Loading\\u2026</div>'}
     else{
-      h+='<input class="mtg-title-input" id="mtgTitleInput" placeholder="Untitled meeting" value="'+esc(m.title||'')+'" oninput="mtgFieldChange(\\'title\\',this.value)"/>';
       const voices=m.voices||[];
-      // All three sections always rendered — no collapse, no remount on tap, no flicker
-      h+='<div class="mtg-block is-open">'
-        +'<div class="mtg-block-hd-static"><span class="mtg-block-ic" style="background:#FFB547">\\u{1F4CB}</span><span class="mtg-block-name">Agenda</span></div>'
-        +'<div class="mtg-block-body"><textarea class="mtg-textarea" id="mtgAgendaInput" placeholder="What is this meeting for? Bullet points, attendees, the goal." oninput="mtgFieldChange(\\'agenda\\',this.value)">'+esc(m.agenda||'')+'</textarea></div>'
-      +'</div>';
-      h+='<div class="mtg-block is-open">'
-        +'<div class="mtg-block-hd-static"><span class="mtg-block-ic" style="background:#A78BFA">\\u270D\\uFE0F</span><span class="mtg-block-name">Notes</span></div>'
-        +'<div class="mtg-block-body"><textarea class="mtg-textarea mtg-textarea-tall" id="mtgNotesInput" placeholder="Type the notes from the meeting\\u2026 decisions, action items, who said what." oninput="mtgFieldChange(\\'notes\\',this.value)">'+esc(m.notes||'')+'</textarea></div>'
-      +'</div>';
-      h+='<div class="mtg-block is-open">'
-        +'<div class="mtg-block-hd-static"><span class="mtg-block-ic" style="background:#22D3EE">\\u{1F3A4}</span><span class="mtg-block-name">Voice notes</span>'+(voices.length?'<span class="mtg-block-count">'+voices.length+'</span>':'')+'</div>'
-        +'<div class="mtg-block-body">';
+      // ─── Hero card with the meeting title ───
+      h+='<section class="home-hero mtg-hero" style="margin-bottom:14px">'
+        +'<div class="hh-bg"></div>'
+        +'<div class="hh-row"><div class="hh-eyebrow">Meeting Title</div></div>'
+        +'<input class="mtg-title-input-v2" id="mtgTitleInput" placeholder="Untitled meeting" value="'+esc(m.title||'')+'" oninput="mtgFieldChange(\\'title\\',this.value)"/>'
+        +'<div class="mtg-hero-stats">'
+          +'<div class="mtg-hero-stat"><span class="mtg-hero-dot" style="background:#FFB547"></span>'+(((m.agenda||'').length)?'Agenda set':'No agenda')+'</div>'
+          +'<div class="mtg-hero-stat"><span class="mtg-hero-dot" style="background:#A78BFA"></span>'+(((m.notes||'').length)?(m.notes.length+' chars':''):'No notes yet')+'</div>'
+          +'<div class="mtg-hero-stat"><span class="mtg-hero-dot" style="background:#22D3EE"></span>'+(voices.length?(voices.length+' voice note'+(voices.length===1?'':'s')):'No recordings')+'</div>'
+        +'</div>'
+      +'</section>';
+      // ─── Section cards (chip pattern) ───
+      // Agenda
+      h+='<section class="mtg-card">'
+        +'<div class="mtg-card-hd"><span class="mtg-card-ic" style="background:linear-gradient(135deg,#FFB547,#FB923C)">\\u{1F4CB}</span><div class="mtg-card-title"><div class="mtg-card-name">Agenda</div><div class="mtg-card-sub">What this meeting is for</div></div></div>'
+        +'<textarea class="mtg-textarea-v2" id="mtgAgendaInput" placeholder="Bullet points, attendees, the outcome you want\\u2026" oninput="mtgFieldChange(\\'agenda\\',this.value)">'+esc(m.agenda||'')+'</textarea>'
+      +'</section>';
+      // Notes
+      h+='<section class="mtg-card">'
+        +'<div class="mtg-card-hd"><span class="mtg-card-ic" style="background:linear-gradient(135deg,#A78BFA,#EC4899)">\\u270D\\uFE0F</span><div class="mtg-card-title"><div class="mtg-card-name">Notes</div><div class="mtg-card-sub">What was decided, action items, quotes</div></div></div>'
+        +'<textarea class="mtg-textarea-v2 mtg-textarea-tall" id="mtgNotesInput" placeholder="Type as the meeting unfolds. Decisions, action items, who said what.\\u2026" oninput="mtgFieldChange(\\'notes\\',this.value)">'+esc(m.notes||'')+'</textarea>'
+      +'</section>';
+      // Voice notes
+      h+='<section class="mtg-card">'
+        +'<div class="mtg-card-hd"><span class="mtg-card-ic" style="background:linear-gradient(135deg,#0EA5E9,#22D3EE)">\\u{1F3A4}</span><div class="mtg-card-title"><div class="mtg-card-name">Voice memos'+(voices.length?'<span class="mtg-card-bdg">'+voices.length+'</span>':'')+'</div><div class="mtg-card-sub">Record audio when typing is too slow</div></div></div>';
       if(isRec){
         h+='<div class="mtg-rec-active"><span class="mtg-rec-pulse"></span><span class="mtg-rec-label">Recording\\u2026</span><span class="mtg-rec-time" id="mtgRecTime">0:00</span><button class="mtg-rec-stop" onclick="mtgRecStop()"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg> Stop</button></div>';
       } else {
-        h+='<button class="mtg-rec-btn" onclick="mtgRecStart()"><span class="mtg-rec-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg></span>Record a voice note</button>';
+        h+='<button class="mtg-rec-btn-v2" onclick="mtgRecStart()"><span class="mtg-rec-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg></span><span>Record a voice note</span></button>';
       }
       if(voices.length){
         h+='<div class="mtg-voices">';
@@ -9399,7 +9445,7 @@ if(S.mtgPanel){
         });
         h+='</div>';
       }
-      h+='</div></div>';
+      h+='</section>';
     }
     h+='</div>';
   } else {
