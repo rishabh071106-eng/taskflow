@@ -9414,7 +9414,7 @@ if(S.mtgPanel){
         +'<input class="mtg-title-input-v2" id="mtgTitleInput" placeholder="Untitled meeting" value="'+esc(m.title||'')+'" oninput="mtgFieldChange(\\'title\\',this.value)"/>'
         +'<div class="mtg-hero-stats">'
           +'<div class="mtg-hero-stat"><span class="mtg-hero-dot" style="background:#FFB547"></span>'+(((m.agenda||'').length)?'Agenda set':'No agenda')+'</div>'
-          +'<div class="mtg-hero-stat"><span class="mtg-hero-dot" style="background:#A78BFA"></span>'+(((m.notes||'').length)?(m.notes.length+' chars':''):'No notes yet')+'</div>'
+          +'<div class="mtg-hero-stat"><span class="mtg-hero-dot" style="background:#A78BFA"></span>'+(((m.notes||'').length)?(m.notes.length+' chars'):'No notes yet')+'</div>'
           +'<div class="mtg-hero-stat"><span class="mtg-hero-dot" style="background:#22D3EE"></span>'+(voices.length?(voices.length+' voice note'+(voices.length===1?'':'s')):'No recordings')+'</div>'
         +'</div>'
       +'</section>';
