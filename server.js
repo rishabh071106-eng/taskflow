@@ -3398,6 +3398,8 @@ body:not([data-theme=aurora]) .plan-chip:hover{background:#F4F1FF;border-color:#
 .mtg-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
 .mtg-item{padding:16px 18px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;cursor:pointer;transition:all .2s ease;backdrop-filter:blur(10px)}
 .mtg-item:hover{background:rgba(255,255,255,.08);border-color:rgba(34,211,238,.4);transform:translateX(2px)}
+.mtg-item-active{background:rgba(34,211,238,.14) !important;border-color:rgba(34,211,238,.55) !important;box-shadow:0 0 0 1px rgba(34,211,238,.45),0 8px 24px -8px rgba(34,211,238,.45)}
+.mtg-card-hd{flex-wrap:wrap}
 .mtg-item-hd{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:6px}
 .mtg-item-t{font:600 15.5px/1.25 'Inter',sans-serif;letter-spacing:-.005em;color:#fff;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mtg-item-time{font-family:'JetBrains Mono','Space Mono',monospace;font-size:10.5px;letter-spacing:.06em;color:rgba(255,255,255,.45);font-weight:500;flex-shrink:0;text-transform:uppercase}
@@ -3516,6 +3518,30 @@ body:not([data-theme=aurora]) .sch-foot-note{color:#6B6B6B}
 .sch-close-big:hover{background:rgba(255,255,255,.24);transform:scale(1.05)}
 /* Prominent "← Back" pill — used on every fullscreen modal so the user always
    has a clear way out (no swipe-down required). */
+/* Mind Gym launcher — single big tappable chip on the Mind Gym tab */
+.mg-launcher{display:block;width:100%;text-align:left;padding:22px 22px 18px;margin:6px 0 16px;background:linear-gradient(135deg,rgba(167,139,250,.18),rgba(91,33,182,.15));border:1px solid rgba(167,139,250,.35);border-radius:22px;color:#F5F5FA;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease;position:relative;overflow:hidden}
+body:not([data-theme=aurora]) .mg-launcher{color:#1A1A1A;background:linear-gradient(135deg,#fff,#F5F3FF);border-color:rgba(91,33,182,.2)}
+.mg-launcher:hover{transform:translateY(-2px);border-color:rgba(167,139,250,.6);box-shadow:0 18px 40px -16px rgba(91,33,182,.55)}
+.mg-launcher:active{transform:scale(.985)}
+.mg-launcher-hd{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.mg-launcher-ic{flex-shrink:0;width:54px;height:54px;border-radius:16px;display:grid;place-items:center;font-size:26px;background:linear-gradient(135deg,#A78BFA,#5B21B6);box-shadow:0 10px 24px -6px rgba(91,33,182,.6),inset 0 1px 0 rgba(255,255,255,.3)}
+.mg-launcher-text{flex:1;min-width:0}
+.mg-launcher-name{font:600 19px/1.2 'Inter',sans-serif;letter-spacing:-.015em;display:flex;align-items:center;gap:10px}
+body[data-theme=aurora] .mg-launcher-name{color:#fff}
+.mg-launcher-bdg{font-family:'JetBrains Mono','Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.04em;background:rgba(167,139,250,.22);color:#C4B5FD;padding:3px 9px;border-radius:6px;line-height:1}
+body:not([data-theme=aurora]) .mg-launcher-bdg{background:rgba(91,33,182,.12);color:#5B21B6}
+.mg-launcher-sub{font-size:13px;color:rgba(255,255,255,.6);margin-top:3px;letter-spacing:-.005em}
+body:not([data-theme=aurora]) .mg-launcher-sub{color:#666}
+.mg-launcher-chev{flex-shrink:0;color:rgba(255,255,255,.5);transition:transform .2s,color .2s}
+.mg-launcher:hover .mg-launcher-chev{color:#fff;transform:translateX(3px)}
+body:not([data-theme=aurora]) .mg-launcher-chev{color:#999}
+body:not([data-theme=aurora]) .mg-launcher:hover .mg-launcher-chev{color:#1A1A1A}
+.mg-launcher-pillrow{display:flex;flex-wrap:wrap;gap:8px}
+.mg-launcher-pill{display:inline-flex;align-items:center;gap:8px;padding:7px 12px 7px 7px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);font:600 12.5px/1 'Inter',sans-serif;letter-spacing:-.005em;color:rgba(255,255,255,.85)}
+body:not([data-theme=aurora]) .mg-launcher-pill{background:#fff;border-color:#E8E6E0;color:#1A1A1A}
+.mg-launcher-pill b{font-family:'JetBrains Mono','Space Mono',monospace;font-size:10.5px;font-weight:700;letter-spacing:.04em;color:rgba(255,255,255,.55);margin-left:2px}
+body:not([data-theme=aurora]) .mg-launcher-pill b{color:#888}
+.mg-launcher-pill-emoji{flex-shrink:0;width:22px;height:22px;border-radius:7px;display:grid;place-items:center;font-size:12px;color:#fff;box-shadow:0 3px 8px -2px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.3)}
 .qa-back-pill{flex-shrink:0;display:inline-flex;align-items:center;gap:8px;padding:9px 16px 9px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.1);color:#fff;font:600 13.5px/1 'JetBrains Mono','Space Mono',monospace;letter-spacing:.02em;cursor:pointer;transition:background .2s,transform .2s,border-color .2s;-webkit-tap-highlight-color:transparent}
 .qa-back-pill:hover{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.32)}
 .qa-back-pill:active{transform:scale(.96)}
@@ -5842,7 +5868,7 @@ function logout(){
 async function load(){const a=document.getElementById('audioEl');if(a&&!a.paused)return;
   // Skip background poll entirely while any modal/overlay is open. Re-renders during
   // an open modal wipe drag state, audio recordings, in-progress text, and cause flicker.
-  if(S.showWASetup||S.showAdd||S.showProfile||S.showHelp||S.schPanel||S.mtgPanel||S.hlPanel||S.mgDetail||S.mgPlay||S.bookReader&&S.bookReader.open||S.hlEditing||S.articleEditor&&S.articleEditor.open)return;
+  if(S.showWASetup||S.showAdd||S.showProfile||S.showHelp||S.schPanel||S.mtgPanel||S.hlPanel||S.mgDetail||S.mgPlay||S.mgGamesPanel||S.bookReader&&S.bookReader.open||S.hlEditing||S.articleEditor&&S.articleEditor.open)return;
   const t=await api('/tasks');if(!t)return;
   // Local backup: every successful tasks fetch, snapshot to localStorage. If the server ever loses
   // the data (e.g. Railway redeploy without a persistent volume), the user can restore from this.
@@ -6556,7 +6582,7 @@ async function schSelSave(){
   }else{toast('\\u26A0\\uFE0F Could not save','err')}
 }
 // ─── Meeting Notes ────────────────────────────────────────────────
-function mtgOpen(){S.mtgPanel=true;S.mtgView='list';mtgLoad();render()}
+function mtgOpen(){S.mtgPanel=true;S.mtgView='one';S.mtgCur=null;mtgLoad();render()}
 function mtgClose(){if(S._mtgRec&&S._mtgRec.state==='recording'){try{S._mtgRec.stop()}catch(e){}}S._mtgRec=null;S.mtgPanel=false;S.mtgCur=null;render()}
 async function mtgLoad(){
   if(!S.user)return;
@@ -6564,13 +6590,14 @@ async function mtgLoad(){
 }
 async function mtgNew(){
   const r=await api('/meetings',{method:'POST',body:JSON.stringify({title:'New meeting',agenda:'',notes:''})});
-  if(r&&r.ok){S.mtgList=[r.meeting].concat(S.mtgList||[]);mtgOpenDetail(r.meeting.id)}
+  if(r&&r.ok){S.mtgList=[r.meeting].concat(S.mtgList||[]);mtgOpenDetail(r.meeting.id);try{setTimeout(()=>{const el=document.getElementById('mtgEditor');if(el)el.scrollIntoView({behavior:'smooth',block:'start'})},80)}catch(e){}}
 }
 async function mtgOpenDetail(id){
-  S.mtgView='detail';S.mtgCur={id,loading:true};render();
-  try{const r=await api('/meetings/'+id);if(r&&r.meeting){S.mtgCur={...r.meeting,voices:r.voices||[],loading:false};render()}}catch(e){}
+  S.mtgCur={id,loading:true};render();
+  try{const r=await api('/meetings/'+id);if(r&&r.meeting){S.mtgCur={...r.meeting,voices:r.voices||[],loading:false};render();try{setTimeout(()=>{const el=document.getElementById('mtgEditor');if(el)el.scrollIntoView({behavior:'smooth',block:'start'})},80)}catch(e){}}}catch(e){}
 }
-function mtgBack(){S.mtgView='list';S.mtgCur=null;mtgLoad();render()}
+function mtgBack(){S.mtgCur=null;mtgLoad();render()}
+function mtgCloseEditor(){S.mtgCur=null;render()}
 let _mtgSaveTimer=null;
 function mtgFieldChange(field,v){
   if(!S.mtgCur)return;S.mtgCur[field]=v;
@@ -6683,8 +6710,10 @@ function _renderHlPoster(text,done){
     +'</svg>';
 }
 // Game-detail view: click a game card → see its 10-level journey before playing
-function mgDetailOpen(key){S.mgDetail=key;render();try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){}}
+function mgDetailOpen(key){S.mgDetail=key;S.mgGamesPanel=false;render();try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){}}
 function mgDetailClose(){S.mgDetail=null;render()}
+function mgGamesOpen(){S.mgGamesPanel=true;if(!S.mg.loaded)loadMindGym();render()}
+function mgGamesClose(){S.mgGamesPanel=false;render()}
 function mgPlayLevel(key,lvl){
   const cur=(S.mg.progress[key]||{level:1}).level||1;
   if(lvl>cur){toast('\\u{1F512} Reach Level '+lvl+' first','err');return}
@@ -7176,7 +7205,7 @@ async function loadTicker(){try{const r=await fetch('/api/news?cat=world',{cache
 let _tickerTimer=null;
 function _startTicker(){if(_tickerTimer)clearInterval(_tickerTimer);if(!S.ticker.items.length)return;_tickerTimer=setInterval(()=>{if(!S.ticker.items.length)return;S.ticker.idx=(S.ticker.idx+3)%S.ticker.items.length;
   // Skip render while any modal is open — same flicker prevention as load()
-  if(S.showWASetup||S.showAdd||S.showProfile||S.showHelp||S.schPanel||S.mtgPanel||S.hlPanel||S.mgDetail||S.mgPlay||(S.bookReader&&S.bookReader.open)||S.hlEditing||(S.articleEditor&&S.articleEditor.open))return;
+  if(S.showWASetup||S.showAdd||S.showProfile||S.showHelp||S.schPanel||S.mtgPanel||S.hlPanel||S.mgDetail||S.mgPlay||S.mgGamesPanel||(S.bookReader&&S.bookReader.open)||S.hlEditing||(S.articleEditor&&S.articleEditor.open))return;
   const stack=document.getElementById('newsTickerStack');if(stack)render()},9000)}
 function setCity(){const c=prompt('Set your city',S.weather.city||'Bangalore');if(!c)return;const t=c.trim();if(!t)return;localStorage.setItem('tf_city',t);S.weather.city=t;S.weather.loaded=false;loadWeather()}
 // Live-tick the sidebar, header clocks AND world clocks without re-rendering the whole tree
@@ -8425,23 +8454,21 @@ else if(S.tab==='mindgym'){
     {k:'word',e:'\\u{1F520}',n:'Word Sprint',d:'Anagrams. 90 seconds. Find every word.',accent:'#34D399',accent2:'#10B981',pData:(mg.progress.word||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((mg.progress.word||{}).xp||0)/(5*100))*100)),bestL:'Best',bestSuffix:' words',road:'forest'},
     {k:'schulte',e:'\\u{1F3AF}',n:'Schulte Grid',d:'Tap 1\\u219225 in order. Trains visual focus.',accent:'#F472B6',accent2:'#A78BFA',pData:(mg.progress.schulte||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((mg.progress.schulte||{}).xp||0)/(5*100))*100)),bestL:'Best time',bestSuffix:' s',road:'space'}
   ];
-  // Games — wrapped in a chip card matching the Progress / Actions chip pattern.
-  // Tap any tile to open the level roadmap in fullscreen.
-  h+='<section class="mtg-card mg-games-chip">'
-    +'<div class="mtg-card-hd"><span class="mtg-card-ic" style="background:linear-gradient(135deg,#A78BFA,#5B21B6)">\\u{1F3AE}</span><div class="mtg-card-title"><div class="mtg-card-name">Choose a game<span class="mtg-card-bdg">'+_games.length+'</span></div><div class="mtg-card-sub">Tap any to open in fullscreen</div></div></div>'
-    +'<div class="hh-stats game-grid-hero" style="margin-top:14px">';
+  // ─── BIG launcher chip — tap to open fullscreen all-games modal ───
+  h+='<button class="mg-launcher" onclick="mgGamesOpen()">'
+    +'<div class="mg-launcher-hd">'
+      +'<span class="mg-launcher-ic">\\u{1F3AE}</span>'
+      +'<div class="mg-launcher-text">'
+        +'<div class="mg-launcher-name">Mind Games<span class="mg-launcher-bdg">'+_games.length+'</span></div>'
+        +'<div class="mg-launcher-sub">Tap to open all games in fullscreen</div>'
+      +'</div>'
+      +'<svg class="mg-launcher-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>'
+    +'</div>'
+    +'<div class="mg-launcher-pillrow">';
   _games.forEach(g=>{
-    const p=g.pData;
-    const bestStr=p.best?(g.k==='schulte'?(p.best/10).toFixed(1)+(g.bestSuffix||''):(p.best+(g.bestSuffix||''))):'\\u2014';
-    h+='<button class="hh-stat game-tile-hero" onclick="mgDetailOpen(\\''+g.k+'\\')" style="--accent:'+g.accent+';--accent2:'+g.accent2+'">'
-      +'<span class="game-tile-emoji" style="background:linear-gradient(135deg,'+g.accent+','+g.accent2+')">'+g.e+'</span>'
-      +'<span class="game-tile-lvl">L'+p.level+'</span>'
-      +'<div class="game-tile-name">'+g.n+'</div>'
-      +'<div class="game-tile-bar"><i style="width:'+g.pct+'%;background:linear-gradient(90deg,'+g.accent+','+g.accent2+')"></i></div>'
-      +'<small style="color:rgba(255,255,255,.78)">'+bestStr+' \\u00B7 '+g.pct+'%</small>'
-    +'</button>';
+    h+='<span class="mg-launcher-pill" style="--accent:'+g.accent+';--accent2:'+g.accent2+'"><span class="mg-launcher-pill-emoji" style="background:linear-gradient(135deg,'+g.accent+','+g.accent2+')">'+g.e+'</span>'+g.n+' <b>L'+(g.pData.level||1)+'</b></span>';
   });
-  h+='</div></section>';
+  h+='</div></button>';
   const totalUnlocked=_games.reduce((s,g)=>s+(g.pData.level||1),0);
   h+='<div class="mg-overall">'
     +'<div><b>'+totalUnlocked+'</b> / 50 levels reached</div>'
@@ -9093,6 +9120,45 @@ if(S.showHelp){
 // from WhatsApp doesn't drop them back to step 1. Overlay tap does NOT close (explicit X only).
 // ─── MIND GYM gameplay modal ───
 // ─── Game detail (journey roadmap) ───
+if(S.mgGamesPanel&&!S.mgDetail&&!S.mgPlay){
+  // ─── All-games fullscreen modal — opened from the Mind Gym launcher chip ───
+  const _mg=S.mg;
+  const _gms=[
+    {k:'math',e:'\\u{1F522}',n:'Math Sprint',d:'Mental arithmetic against the clock',accent:'#22D3EE',accent2:'#3B82F6',pData:_mg.progress.math,pct:mgPercent('math')},
+    {k:'memory',e:'\\u{1F9E9}',n:'Memory Tap',d:'Working-memory, Simon-style',accent:'#A78BFA',accent2:'#EC4899',pData:_mg.progress.memory,pct:mgPercent('memory')},
+    {k:'reaction',e:'\\u26A1',n:'Reaction',d:'Reflex training, ms by ms',accent:'#FFB547',accent2:'#FB923C',pData:_mg.progress.reaction,pct:mgPercent('reaction'),bestSuffix:'ms'},
+    {k:'word',e:'\\u{1F520}',n:'Word Sprint',d:'Anagrams. 90 seconds.',accent:'#34D399',accent2:'#10B981',pData:(_mg.progress.word||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((_mg.progress.word||{}).xp||0)/(5*100))*100)),bestSuffix:' words'},
+    {k:'schulte',e:'\\u{1F3AF}',n:'Schulte Grid',d:'Tap 1\\u219225 in order',accent:'#F472B6',accent2:'#A78BFA',pData:(_mg.progress.schulte||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((_mg.progress.schulte||{}).xp||0)/(5*100))*100)),bestSuffix:' s'}
+  ];
+  h+='<div class="ov" onclick="mgGamesClose()"><div class="mdl mtg-mdl" onclick="event.stopPropagation()">';
+  h+='<header class="mtg-hd-v2">'
+    +'<button class="qa-back-pill" onclick="mgGamesClose()" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back</button>'
+    +'<div class="hh-eyebrow" style="color:rgba(255,255,255,.78)">Mind Games \\u00B7 '+_gms.length+' games</div>'
+    +'<div style="width:38px"></div>'
+  +'</header>';
+  h+='<div class="mtg-body">';
+  h+='<section class="home-hero" style="margin-bottom:14px">'
+    +'<div class="hh-bg"></div>'
+    +'<div class="hh-row"><div class="hh-eyebrow">\\u{1F9E0} Mind Gym</div></div>'
+    +'<h1 class="hh-greet">Pick a <em>game</em>.</h1>'
+    +'<p class="hh-line">Each game opens fullscreen with its own level roadmap. Sub-90 seconds per round.</p>'
+  +'</section>';
+  h+='<section class="mtg-card"><div class="mtg-card-hd"><span class="mtg-card-ic" style="background:linear-gradient(135deg,#A78BFA,#5B21B6)">\\u{1F3AE}</span><div class="mtg-card-title"><div class="mtg-card-name">Choose a game<span class="mtg-card-bdg">'+_gms.length+'</span></div><div class="mtg-card-sub">Tap any to open the level roadmap</div></div></div>';
+  h+='<div class="hh-stats game-grid-hero" style="margin-top:14px">';
+  _gms.forEach(g=>{
+    const p=g.pData;
+    const bestStr=p.best?(g.k==='schulte'?(p.best/10).toFixed(1)+(g.bestSuffix||''):(p.best+(g.bestSuffix||''))):'\\u2014';
+    h+='<button class="hh-stat game-tile-hero" onclick="mgDetailOpen(\\''+g.k+'\\')" style="--accent:'+g.accent+';--accent2:'+g.accent2+'">'
+      +'<span class="game-tile-emoji" style="background:linear-gradient(135deg,'+g.accent+','+g.accent2+')">'+g.e+'</span>'
+      +'<span class="game-tile-lvl">L'+(p.level||1)+'</span>'
+      +'<div class="game-tile-name">'+g.n+'</div>'
+      +'<div class="game-tile-bar"><i style="width:'+g.pct+'%;background:linear-gradient(90deg,'+g.accent+','+g.accent2+')"></i></div>'
+      +'<small style="color:rgba(255,255,255,.78)">'+bestStr+' \\u00B7 '+g.pct+'%</small>'
+    +'</button>';
+  });
+  h+='</div></section>';
+  h+='</div></div></div>';
+}
 if(S.mgDetail&&!S.mgPlay){
   const _gameMeta={
     math:{e:'\\u{1F522}',n:'Math Sprint',d:'Mental arithmetic, against the clock. Each level adds a harder operation or a tighter window.',accent:'#22D3EE',accent2:'#3B82F6',road:'highway',vehicle:'\\u{1F697}',start:'mgMathStart()'},
@@ -9416,31 +9482,40 @@ if(S.hlPanel){
   h+='</div></div></div>';
 }
 if(S.mtgPanel){
+  // ─── ONE-PAGER: list + active editor on the same scrolling page ───
+  const list=S.mtgList||[];
+  const cur=S.mtgCur;
+  const isRec=!!(S._mtgRec&&S._mtgRec.state==='recording');
   h+='<div class="ov" onclick="mtgClose()"><div class="mdl mtg-mdl" onclick="event.stopPropagation()">';
-  if(S.mtgView==='detail'&&S.mtgCur){
-    const m=S.mtgCur;
-    const isRec=!!(S._mtgRec&&S._mtgRec.state==='recording');
-    h+='<header class="mtg-hd-v2">'
-      +'<button class="qa-back-pill" onclick="mtgBack()" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back</button>'
-      +'<div class="hh-eyebrow" style="color:rgba(255,255,255,.78)">Meeting \\u00B7 '+esc(_fmtMtgTime(m.created_at)||'today')+'</div>'
-      +'<button class="sch-close-big" onclick="mtgDelete(\\''+m.id+'\\')" aria-label="Delete" style="background:rgba(220,38,38,.25)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>'
-    +'</header>';
-    h+='<div class="mtg-body">';
-    if(m.loading){h+='<div class="mtg-loading">Loading\\u2026</div>'}
-    else{
-      const voices=m.voices||[];
-      // ─── Hero card with the meeting title ───
-      h+='<section class="home-hero mtg-hero" style="margin-bottom:14px">'
-        +'<div class="hh-bg"></div>'
-        +'<div class="hh-row"><div class="hh-eyebrow">Meeting Title</div></div>'
+  // Header — back + title + (delete only when a meeting is active)
+  h+='<header class="mtg-hd-v2">'
+    +'<button class="qa-back-pill" onclick="mtgClose()" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back</button>'
+    +'<div class="hh-eyebrow" style="color:rgba(255,255,255,.78)">Meeting notes \\u00B7 '+list.length+' meeting'+(list.length===1?'':'s')+'</div>'
+    +(cur&&cur.id&&!cur.loading?'<button class="sch-close-big" onclick="mtgDelete(\\''+cur.id+'\\')" aria-label="Delete" style="background:rgba(220,38,38,.25)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>':'<div style="width:38px"></div>')
+  +'</header>';
+  h+='<div class="mtg-body">';
+  // Hero card with the prompt + new-meeting CTA
+  h+='<section class="home-hero" style="margin-bottom:14px">'
+    +'<div class="hh-bg"></div>'
+    +'<div class="hh-row"><div class="hh-eyebrow">\\u{1F4DD} Meeting notes</div></div>'
+    +'<h1 class="hh-greet">Capture every <em>meeting</em>.</h1>'
+    +'<p class="hh-line">Agenda, decisions, voice memos \\u2014 all in one place. Each meeting saves automatically.</p>'
+    +'<div style="display:flex;gap:10px;flex-wrap:wrap">'
+      +'<button class="sch-save-v2" onclick="mtgNew()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Start a new meeting</button>'
+    +'</div>'
+  +'</section>';
+  // ─── Active editor (only when a meeting is selected) ───
+  if(cur){
+    h+='<div id="mtgEditor"></div>';
+    if(cur.loading){
+      h+='<section class="mtg-card"><div class="mtg-loading">Loading\\u2026</div></section>';
+    } else {
+      const m=cur;const voices=m.voices||[];
+      // Title chip
+      h+='<section class="mtg-card">'
+        +'<div class="mtg-card-hd"><span class="mtg-card-ic" style="background:linear-gradient(135deg,#FF6B47,#FFB547)">\\u270F\\uFE0F</span><div class="mtg-card-title"><div class="mtg-card-name">Title</div><div class="mtg-card-sub">'+esc(_fmtMtgTime(m.created_at)||'today')+'</div></div><button class="qa-back-pill" style="font-size:11.5px;padding:7px 12px 7px 10px" onclick="mtgCloseEditor()" aria-label="Close editor"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>Close</button></div>'
         +'<input class="mtg-title-input-v2" id="mtgTitleInput" placeholder="Untitled meeting" value="'+esc(m.title||'')+'" oninput="mtgFieldChange(\\'title\\',this.value)"/>'
-        +'<div class="mtg-hero-stats">'
-          +'<div class="mtg-hero-stat"><span class="mtg-hero-dot" style="background:#FFB547"></span>'+(((m.agenda||'').length)?'Agenda set':'No agenda')+'</div>'
-          +'<div class="mtg-hero-stat"><span class="mtg-hero-dot" style="background:#A78BFA"></span>'+(((m.notes||'').length)?(m.notes.length+' chars'):'No notes yet')+'</div>'
-          +'<div class="mtg-hero-stat"><span class="mtg-hero-dot" style="background:#22D3EE"></span>'+(voices.length?(voices.length+' voice note'+(voices.length===1?'':'s')):'No recordings')+'</div>'
-        +'</div>'
       +'</section>';
-      // ─── Section cards (chip pattern) ───
       // Agenda
       h+='<section class="mtg-card">'
         +'<div class="mtg-card-hd"><span class="mtg-card-ic" style="background:linear-gradient(135deg,#FFB547,#FB923C)">\\u{1F4CB}</span><div class="mtg-card-title"><div class="mtg-card-name">Agenda</div><div class="mtg-card-sub">What this meeting is for</div></div></div>'
@@ -9451,7 +9526,7 @@ if(S.mtgPanel){
         +'<div class="mtg-card-hd"><span class="mtg-card-ic" style="background:linear-gradient(135deg,#A78BFA,#EC4899)">\\u270D\\uFE0F</span><div class="mtg-card-title"><div class="mtg-card-name">Notes</div><div class="mtg-card-sub">What was decided, action items, quotes</div></div></div>'
         +'<textarea class="mtg-textarea-v2 mtg-textarea-tall" id="mtgNotesInput" placeholder="Type as the meeting unfolds. Decisions, action items, who said what.\\u2026" oninput="mtgFieldChange(\\'notes\\',this.value)">'+esc(m.notes||'')+'</textarea>'
       +'</section>';
-      // Voice notes
+      // Voice
       h+='<section class="mtg-card">'
         +'<div class="mtg-card-hd"><span class="mtg-card-ic" style="background:linear-gradient(135deg,#0EA5E9,#22D3EE)">\\u{1F3A4}</span><div class="mtg-card-title"><div class="mtg-card-name">Voice memos'+(voices.length?'<span class="mtg-card-bdg">'+voices.length+'</span>':'')+'</div><div class="mtg-card-sub">Record audio when typing is too slow</div></div></div>';
       if(isRec){
@@ -9469,45 +9544,26 @@ if(S.mtgPanel){
       }
       h+='</section>';
     }
-    h+='</div>';
-  } else {
-    // List view — purple-hero chip pattern, matching Plan Day
-    const list=S.mtgList||[];
-    h+='<header class="mtg-hd-v2">'
-      +'<button class="qa-back-pill" onclick="mtgClose()" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back</button>'
-      +'<div class="hh-eyebrow" style="color:rgba(255,255,255,.78)">Meeting notes \\u00B7 '+list.length+' meeting'+(list.length===1?'':'s')+'</div>'
-      +'<div style="width:38px"></div>'
-    +'</header>';
-    h+='<div class="mtg-body">';
-    // Hero card with the prompt + new-meeting CTA
-    h+='<section class="home-hero" style="margin-bottom:14px">'
-      +'<div class="hh-bg"></div>'
-      +'<div class="hh-row"><div class="hh-eyebrow">\\u{1F4DD} Meeting notes</div></div>'
-      +'<h1 class="hh-greet">Capture every <em>meeting</em>.</h1>'
-      +'<p class="hh-line">Agenda, decisions, voice memos \\u2014 all in one place. Each meeting saves automatically.</p>'
-      +'<div style="display:flex;gap:10px;flex-wrap:wrap">'
-        +'<button class="sch-save-v2" onclick="mtgNew()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Start a new meeting</button>'
-      +'</div>'
-    +'</section>';
-    if(!list.length){
-      h+='<section class="mtg-card"><div class="mtg-card-hd"><span class="mtg-card-ic" style="background:linear-gradient(135deg,#A78BFA,#5B21B6)">\\u{1F4AC}</span><div class="mtg-card-title"><div class="mtg-card-name">No meetings yet</div><div class="mtg-card-sub">Tap \\u201CStart a new meeting\\u201D above to create your first one.</div></div></div></section>';
-    } else {
-      h+='<section class="mtg-card"><div class="mtg-card-hd"><span class="mtg-card-ic" style="background:linear-gradient(135deg,#0EA5E9,#22D3EE)">\\u{1F4DA}</span><div class="mtg-card-title"><div class="mtg-card-name">Your meetings<span class="mtg-card-bdg">'+list.length+'</span></div><div class="mtg-card-sub">Tap any to open in fullscreen</div></div></div>';
-      h+='<ol class="mtg-list" style="margin-top:12px">';
-      list.forEach(m=>{
-        const t=m.title||'Untitled meeting';
-        const preview=(m.notes||m.agenda||'').slice(0,140);
-        h+='<li class="mtg-item" onclick="mtgOpenDetail(\\''+m.id+'\\')">'
-          +'<div class="mtg-item-hd"><div class="mtg-item-t">'+esc(t)+'</div><div class="mtg-item-time">'+esc(_fmtMtgTime(m.updated_at||m.created_at))+'</div></div>'
-          +(preview?'<div class="mtg-item-p">'+esc(preview)+'</div>':'')
-          +(m.voice_count>0?'<div class="mtg-item-foot"><span class="mtg-item-tag"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg> '+m.voice_count+' voice note'+(m.voice_count===1?'':'s')+'</span></div>':'')
-        +'</li>';
-      });
-      h+='</ol></section>';
-    }
-    h+='</div>';
   }
-  h+='</div></div>';
+  // ─── Always-visible meeting list ───
+  if(!list.length){
+    h+='<section class="mtg-card"><div class="mtg-card-hd"><span class="mtg-card-ic" style="background:linear-gradient(135deg,#A78BFA,#5B21B6)">\\u{1F4AC}</span><div class="mtg-card-title"><div class="mtg-card-name">No meetings yet</div><div class="mtg-card-sub">Tap \\u201CStart a new meeting\\u201D above to create your first one.</div></div></div></section>';
+  } else {
+    h+='<section class="mtg-card"><div class="mtg-card-hd"><span class="mtg-card-ic" style="background:linear-gradient(135deg,#0EA5E9,#22D3EE)">\\u{1F4DA}</span><div class="mtg-card-title"><div class="mtg-card-name">All meetings<span class="mtg-card-bdg">'+list.length+'</span></div><div class="mtg-card-sub">Tap any to load it into the editor above</div></div></div>';
+    h+='<ol class="mtg-list" style="margin-top:12px">';
+    list.forEach(m=>{
+      const t=m.title||'Untitled meeting';
+      const preview=(m.notes||m.agenda||'').slice(0,140);
+      const isActive=cur&&cur.id===m.id;
+      h+='<li class="mtg-item'+(isActive?' mtg-item-active':'')+'" onclick="mtgOpenDetail(\\''+m.id+'\\')">'
+        +'<div class="mtg-item-hd"><div class="mtg-item-t">'+esc(t)+'</div><div class="mtg-item-time">'+esc(_fmtMtgTime(m.updated_at||m.created_at))+'</div></div>'
+        +(preview?'<div class="mtg-item-p">'+esc(preview)+'</div>':'')
+        +(m.voice_count>0?'<div class="mtg-item-foot"><span class="mtg-item-tag"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg> '+m.voice_count+' voice note'+(m.voice_count===1?'':'s')+'</span></div>':'')
+      +'</li>';
+    });
+    h+='</ol></section>';
+  }
+  h+='</div></div></div>';
 }
 if(S.schPanel){
   const blocks=S.schBlocks||[];
@@ -9649,7 +9705,7 @@ document.getElementById('app').innerHTML=h;
 // Toggle a body class so the page reserves bottom space when the audio player is visible.
 try{document.body.classList.toggle('audio-on',!!(S.playing&&(S.playing.url||S.playing.loading)))}catch(e){}
 // Lock body scroll when any fullscreen modal is open so the background can't scroll behind
-try{const _modalOpen=!!(S.showAdd||S.showProfile||S.showHelp||S.showWASetup||S.schPanel||S.mtgPanel||S.hlPanel||S.mgDetail||S.mgPlay||(S.bookReader&&S.bookReader.open)||(S.articleEditor&&S.articleEditor.open));document.body.classList.toggle('modal-open',_modalOpen)}catch(e){}
+try{const _modalOpen=!!(S.showAdd||S.showProfile||S.showHelp||S.showWASetup||S.schPanel||S.mtgPanel||S.hlPanel||S.mgDetail||S.mgPlay||S.mgGamesPanel||(S.bookReader&&S.bookReader.open)||(S.articleEditor&&S.articleEditor.open));document.body.classList.toggle('modal-open',_modalOpen)}catch(e){}
 }
 fetch('/api/config').then(r=>r.json()).then(c=>{window.__TWILIO_SANDBOX_CODE=c.sandboxCode||'';render()}).catch(()=>{});
 applyTheme();
