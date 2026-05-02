@@ -44,6 +44,11 @@ try{db.exec("CREATE TABLE IF NOT EXISTS daily_highlights(user_phone TEXT NOT NUL
 // Schedule Blocks — interactive day-blocking with calendar sync + reminders
 try{db.exec("CREATE TABLE IF NOT EXISTS schedule_blocks(id TEXT PRIMARY KEY,user_phone TEXT NOT NULL,date TEXT NOT NULL,start_time TEXT NOT NULL,end_time TEXT NOT NULL,label TEXT NOT NULL,color TEXT DEFAULT'',gcal_event_id TEXT,gcal_email TEXT,reminded INTEGER DEFAULT 0,created_at TEXT DEFAULT(datetime('now')))")}catch(e){}
 try{db.exec("CREATE INDEX IF NOT EXISTS idx_schedule_user_date ON schedule_blocks(user_phone,date)")}catch(e){}
+// Meeting Notes — agenda + text + voice memos per meeting
+try{db.exec("CREATE TABLE IF NOT EXISTS meetings(id TEXT PRIMARY KEY,user_phone TEXT NOT NULL,title TEXT DEFAULT'',agenda TEXT DEFAULT'',notes TEXT DEFAULT'',date TEXT DEFAULT(date('now')),created_at TEXT DEFAULT(datetime('now')),updated_at TEXT DEFAULT(datetime('now')))")}catch(e){}
+try{db.exec("CREATE INDEX IF NOT EXISTS idx_meetings_user ON meetings(user_phone,updated_at DESC)")}catch(e){}
+try{db.exec("CREATE TABLE IF NOT EXISTS meeting_voices(id TEXT PRIMARY KEY,meeting_id TEXT NOT NULL,file_path TEXT NOT NULL,duration_sec INTEGER DEFAULT 0,size_bytes INTEGER DEFAULT 0,mime TEXT DEFAULT'audio/webm',created_at TEXT DEFAULT(datetime('now')))")}catch(e){}
+try{db.exec("CREATE INDEX IF NOT EXISTS idx_voices_meeting ON meeting_voices(meeting_id,created_at)")}catch(e){}
 // Voice curriculum — Duolingo-style step-by-step lesson progress per user
 try{db.exec("CREATE TABLE IF NOT EXISTS voice_lesson_progress(user_phone TEXT NOT NULL,unit_id INTEGER NOT NULL,lesson_id INTEGER NOT NULL,score INTEGER DEFAULT 0,stars INTEGER DEFAULT 0,xp INTEGER DEFAULT 0,completed_at TEXT DEFAULT(datetime('now')),PRIMARY KEY(user_phone,unit_id,lesson_id))")}catch(e){}
 // Community articles — Medium-style user submissions
@@ -864,6 +869,86 @@ async function _blockReminderTick(){
 }
 setInterval(_blockReminderTick,2*60*1000);
 setTimeout(_blockReminderTick,15*1000);
+
+// ─── Meeting Notes API ────────────────────────────────────────────────
+const MEET_VOICE_DIR=process.env.MEET_VOICE_DIR||_path.join(process.cwd(),'meeting-voices');
+try{_fs.mkdirSync(MEET_VOICE_DIR,{recursive:true})}catch(e){}
+app.get('/api/meetings',auth,(req,res)=>{
+  const rows=db.prepare('SELECT m.*,(SELECT COUNT(*) FROM meeting_voices v WHERE v.meeting_id=m.id) as voice_count FROM meetings m WHERE m.user_phone=? ORDER BY m.updated_at DESC LIMIT 200').all(req.user.phone);
+  res.json({meetings:rows});
+});
+app.post('/api/meetings',auth,(req,res)=>{
+  const id=_crypto.randomBytes(8).toString('hex');
+  const title=String((req.body&&req.body.title)||'').trim().slice(0,200)||'Untitled meeting';
+  const agenda=String((req.body&&req.body.agenda)||'').slice(0,4000);
+  const notes=String((req.body&&req.body.notes)||'').slice(0,10000);
+  db.prepare('INSERT INTO meetings(id,user_phone,title,agenda,notes)VALUES(?,?,?,?,?)').run(id,req.user.phone,title,agenda,notes);
+  const row=db.prepare('SELECT m.*,0 as voice_count FROM meetings m WHERE m.id=?').get(id);
+  res.json({ok:true,meeting:row});
+});
+app.get('/api/meetings/:id',auth,(req,res)=>{
+  const m=db.prepare('SELECT * FROM meetings WHERE id=? AND user_phone=?').get(req.params.id,req.user.phone);
+  if(!m)return res.status(404).json({error:'not found'});
+  const voices=db.prepare('SELECT id,duration_sec,size_bytes,mime,created_at FROM meeting_voices WHERE meeting_id=? ORDER BY created_at ASC').all(m.id);
+  res.json({meeting:m,voices});
+});
+app.put('/api/meetings/:id',auth,(req,res)=>{
+  const m=db.prepare('SELECT id FROM meetings WHERE id=? AND user_phone=?').get(req.params.id,req.user.phone);
+  if(!m)return res.status(404).json({error:'not found'});
+  const fields=[],vals=[];
+  ['title','agenda','notes'].forEach(k=>{if(req.body&&typeof req.body[k]==='string'){fields.push(k+'=?');vals.push(req.body[k].slice(0,k==='notes'?10000:k==='agenda'?4000:200))}});
+  if(!fields.length)return res.json({ok:true});
+  vals.push(req.params.id);
+  db.prepare('UPDATE meetings SET '+fields.join(',')+",updated_at=datetime('now') WHERE id=?").run(...vals);
+  res.json({ok:true});
+});
+app.delete('/api/meetings/:id',auth,(req,res)=>{
+  const m=db.prepare('SELECT id FROM meetings WHERE id=? AND user_phone=?').get(req.params.id,req.user.phone);
+  if(!m)return res.status(404).json({error:'not found'});
+  // Delete voice files first
+  const voices=db.prepare('SELECT file_path FROM meeting_voices WHERE meeting_id=?').all(m.id);
+  voices.forEach(v=>{try{_fs.unlinkSync(v.file_path)}catch(e){}});
+  db.prepare('DELETE FROM meeting_voices WHERE meeting_id=?').run(m.id);
+  db.prepare('DELETE FROM meetings WHERE id=?').run(m.id);
+  res.json({ok:true});
+});
+// Voice upload — accepts a raw audio binary body (audio/webm or audio/mp4)
+app.post('/api/meetings/:id/voice',auth,express.raw({type:'audio/*',limit:'15mb'}),(req,res)=>{
+  const m=db.prepare('SELECT id FROM meetings WHERE id=? AND user_phone=?').get(req.params.id,req.user.phone);
+  if(!m)return res.status(404).json({error:'not found'});
+  const buf=req.body;
+  if(!Buffer.isBuffer(buf)||buf.length<200)return res.status(400).json({error:'audio body required'});
+  const id=_crypto.randomBytes(10).toString('hex');
+  const mime=String(req.headers['content-type']||'audio/webm').split(';')[0].toLowerCase();
+  const ext=mime==='audio/mp4'?'.m4a':mime==='audio/mpeg'?'.mp3':mime==='audio/ogg'?'.ogg':'.webm';
+  const fp=_path.join(MEET_VOICE_DIR,id+ext);
+  try{_fs.writeFileSync(fp,buf)}catch(e){return res.status(500).json({error:'write failed'})}
+  const dur=parseInt(req.query.duration||'0',10)||0;
+  db.prepare('INSERT INTO meeting_voices(id,meeting_id,file_path,duration_sec,size_bytes,mime)VALUES(?,?,?,?,?,?)').run(id,m.id,fp,dur,buf.length,mime);
+  db.prepare("UPDATE meetings SET updated_at=datetime('now') WHERE id=?").run(m.id);
+  res.json({ok:true,voice:{id,duration_sec:dur,size_bytes:buf.length,mime}});
+});
+// Stream voice — auth via header OR ?token= query param so <audio src=...> works
+app.get('/api/meetings/:id/voice/:vid',(req,res)=>{
+  const t=req.headers['x-token']||req.query.token;
+  if(!t)return res.status(401).end();
+  const u=db.prepare('SELECT * FROM users WHERE token=?').get(t);
+  if(!u)return res.status(401).end();
+  const m=db.prepare('SELECT id FROM meetings WHERE id=? AND user_phone=?').get(req.params.id,u.phone);
+  if(!m)return res.status(404).end();
+  const v=db.prepare('SELECT file_path,mime FROM meeting_voices WHERE id=? AND meeting_id=?').get(req.params.vid,m.id);
+  if(!v)return res.status(404).end();
+  try{const buf=_fs.readFileSync(v.file_path);res.set('Content-Type',v.mime).set('Cache-Control','private, max-age=3600').send(buf)}catch(e){res.status(500).end()}
+});
+app.delete('/api/meetings/:id/voice/:vid',auth,(req,res)=>{
+  const m=db.prepare('SELECT id FROM meetings WHERE id=? AND user_phone=?').get(req.params.id,req.user.phone);
+  if(!m)return res.status(404).json({error:'not found'});
+  const v=db.prepare('SELECT file_path FROM meeting_voices WHERE id=? AND meeting_id=?').get(req.params.vid,m.id);
+  if(!v)return res.status(404).json({error:'not found'});
+  try{_fs.unlinkSync(v.file_path)}catch(e){}
+  db.prepare('DELETE FROM meeting_voices WHERE id=?').run(req.params.vid);
+  res.json({ok:true});
+});
 
 // WhatsApp send endpoints disabled for closed-test phase (Twilio Sandbox requires
 // each recipient to text 'join <code>' first, which would break the tester experience).
@@ -3213,6 +3298,65 @@ body:not([data-theme=aurora]) .add-chip-bdg{background:#FFF1ED;color:#B7472A}
 body:not([data-theme=aurora]) .plan-chip:hover{background:#F4F1FF;border-color:#A78BFA}
 @media (max-width:560px){.action-chips{gap:8px}.action-chips .add-chip{flex:1 1 100%}}
 /* ─── Schedule panel (Plan your day) ─── */
+/* ─── Meeting Notes panel ─── */
+.mtg-mdl{max-width:none;width:100%;padding:0;overflow:hidden;display:flex;flex-direction:column;background:radial-gradient(900px 500px at 50% 0%,#0E2A3D 0%,#06121A 70%);color:#F5F5FA;border:0;height:100vh;max-height:100vh;border-radius:0;align-self:stretch;animation:schSlideUp .3s cubic-bezier(.16,1,.3,1)}
+.mtg-hd{display:flex;align-items:center;gap:14px;padding:18px 20px;padding-top:calc(18px + env(safe-area-inset-top,0px));background:linear-gradient(135deg,rgba(14,165,233,.4),rgba(34,211,238,.25));color:#fff;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.08);position:relative;overflow:hidden}
+.mtg-hd::after{content:'';position:absolute;inset:0;background:radial-gradient(700px 200px at 90% 0%,rgba(255,255,255,.18),transparent 60%);pointer-events:none}
+.mtg-title-strip{flex:1;min-width:0;position:relative;z-index:1}
+.mtg-name{font-family:'Instrument Serif','Playfair Display',Georgia,serif;font-weight:400;font-style:italic;font-size:24px;letter-spacing:-.02em;line-height:1.05}
+.mtg-sub{font-family:'JetBrains Mono','Space Mono',monospace;font-size:10.5px;letter-spacing:.08em;color:rgba(255,255,255,.78);font-weight:600;margin-top:5px;text-transform:uppercase}
+.mtg-new-btn{flex-shrink:0;width:38px;height:38px;border-radius:50%;background:#fff;color:#0EA5E9;border:0;cursor:pointer;display:grid;place-items:center;box-shadow:0 6px 16px -4px rgba(14,165,233,.5);transition:transform .2s}
+.mtg-new-btn:hover{transform:scale(1.08)}
+.mtg-del-btn{flex-shrink:0;width:36px;height:36px;border-radius:50%;background:rgba(220,38,38,.2);color:#FCA5A5;border:1px solid rgba(220,38,38,.35);cursor:pointer;display:grid;place-items:center;transition:background .2s}
+.mtg-del-btn:hover{background:rgba(220,38,38,.4);color:#fff}
+.mtg-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:24px 20px;max-width:760px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.mtg-loading{padding:40px;text-align:center;color:rgba(255,255,255,.5);font-size:14px}
+.mtg-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
+.mtg-item{padding:16px 18px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;cursor:pointer;transition:all .2s ease;backdrop-filter:blur(10px)}
+.mtg-item:hover{background:rgba(255,255,255,.08);border-color:rgba(34,211,238,.4);transform:translateX(2px)}
+.mtg-item-hd{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:6px}
+.mtg-item-t{font:600 15.5px/1.25 'Inter',sans-serif;letter-spacing:-.005em;color:#fff;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mtg-item-time{font-family:'JetBrains Mono','Space Mono',monospace;font-size:10.5px;letter-spacing:.06em;color:rgba(255,255,255,.45);font-weight:500;flex-shrink:0;text-transform:uppercase}
+.mtg-item-p{font-size:13px;line-height:1.45;color:rgba(255,255,255,.65);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;letter-spacing:-.005em}
+.mtg-item-foot{display:flex;gap:6px;margin-top:8px}
+.mtg-item-tag{display:inline-flex;align-items:center;gap:5px;font-family:'JetBrains Mono','Space Mono',monospace;font-size:10px;letter-spacing:.06em;color:#22D3EE;background:rgba(34,211,238,.12);padding:3px 8px;border-radius:6px;font-weight:600;text-transform:uppercase}
+.mtg-empty{padding:60px 20px 40px;text-align:center;color:rgba(255,255,255,.6);display:flex;flex-direction:column;align-items:center;gap:10px}
+.mtg-empty-ic{width:74px;height:74px;border-radius:50%;background:rgba(34,211,238,.12);color:#22D3EE;display:grid;place-items:center;margin-bottom:6px}
+.mtg-empty-t{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-size:24px;font-weight:400;color:#fff;letter-spacing:-.018em}
+.mtg-empty-d{font-size:14px;color:rgba(255,255,255,.65);max-width:340px;line-height:1.5}
+.mtg-empty-btn{margin-top:14px;padding:13px 22px;border-radius:14px;border:0;background:linear-gradient(135deg,#0EA5E9,#22D3EE);color:#fff;font:600 14.5px/1 inherit;cursor:pointer;display:inline-flex;align-items:center;gap:8px;letter-spacing:-.005em;box-shadow:0 8px 22px -6px rgba(14,165,233,.5);transition:transform .2s}
+.mtg-empty-btn:hover{transform:translateY(-1px)}
+/* Detail view */
+.mtg-title-input{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-style:italic;font-size:32px;letter-spacing:-.022em;line-height:1.1;background:transparent;border:0;outline:0;color:#fff;width:100%;padding:8px 0;margin-bottom:4px}
+.mtg-title-input::placeholder{color:rgba(255,255,255,.35)}
+.mtg-sec{padding:16px 18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;display:flex;flex-direction:column;gap:10px}
+.mtg-sec-lbl{display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono','Space Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:700}
+.mtg-sec-dot{display:inline-block;width:7px;height:7px;border-radius:50%}
+.mtg-textarea{width:100%;background:transparent;border:0;outline:0;color:#F5F5FA;font:inherit;font-size:14.5px;line-height:1.55;letter-spacing:-.005em;resize:vertical;min-height:80px;padding:0}
+.mtg-textarea-tall{min-height:160px}
+.mtg-textarea::placeholder{color:rgba(255,255,255,.35)}
+/* Voice recorder */
+.mtg-rec-wrap{display:flex;justify-content:flex-start}
+.mtg-rec-btn{display:inline-flex;align-items:center;gap:10px;padding:11px 18px;border-radius:14px;background:rgba(34,211,238,.12);border:1px solid rgba(34,211,238,.35);color:#22D3EE;font:600 13.5px/1 inherit;cursor:pointer;letter-spacing:-.005em;transition:all .2s}
+.mtg-rec-btn:hover{background:rgba(34,211,238,.2);border-color:rgba(34,211,238,.5)}
+.mtg-rec-ic{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#DC2626;color:#fff}
+.mtg-rec-active{display:flex;align-items:center;gap:12px;padding:14px 18px;border-radius:14px;background:linear-gradient(135deg,rgba(220,38,38,.2),rgba(220,38,38,.08));border:1px solid rgba(220,38,38,.4);color:#FCA5A5}
+.mtg-rec-pulse{flex-shrink:0;width:12px;height:12px;border-radius:50%;background:#DC2626;animation:mtgRecPulse 1s ease-in-out infinite}
+@keyframes mtgRecPulse{0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,.6)}50%{box-shadow:0 0 0 8px rgba(220,38,38,0)}}
+.mtg-rec-label{font:600 13.5px/1 'Inter',sans-serif;color:#fff;letter-spacing:-.005em}
+.mtg-rec-time{font-family:'JetBrains Mono','Space Mono',monospace;font-size:14px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums;margin-left:auto}
+.mtg-rec-stop{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;background:#fff;color:#1A1A1A;border:0;cursor:pointer;font:600 13px/1 inherit;transition:transform .2s}
+.mtg-rec-stop:hover{transform:scale(1.04)}
+.mtg-voices{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.mtg-voice{display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:12px}
+.mtg-voice-n{font-family:'JetBrains Mono','Space Mono',monospace;font-size:11px;font-weight:700;color:rgba(255,255,255,.55);letter-spacing:.04em;flex-shrink:0}
+.mtg-voice audio{flex:1;height:32px;min-width:0}
+.mtg-voice-time{font-family:'JetBrains Mono','Space Mono',monospace;font-size:11px;color:rgba(255,255,255,.55);font-variant-numeric:tabular-nums;flex-shrink:0;font-weight:600}
+.mtg-voice-x{flex-shrink:0;width:26px;height:26px;border-radius:50%;border:0;background:rgba(255,255,255,.06);color:rgba(255,255,255,.5);cursor:pointer;font-size:11px;display:grid;place-items:center;transition:all .2s}
+.mtg-voice-x:hover{background:rgba(220,38,38,.4);color:#fff}
+@media (max-width:560px){.mtg-name{font-size:20px}.mtg-title-input{font-size:26px}}
+.mtg-chip:hover{background:rgba(34,211,238,.12);border-color:rgba(34,211,238,.45);box-shadow:0 8px 22px -10px rgba(34,211,238,.5)}
+body:not([data-theme=aurora]) .mtg-chip:hover{background:#ECFAFE;border-color:#0EA5E9}
 /* Plan your day — full-screen, calmer, more spacious */
 .sch-mdl{max-width:none;width:100%;padding:0;overflow:hidden;display:flex;flex-direction:column;background:#0A0815;color:#F5F5FA;border:0;height:100vh;max-height:100vh;border-radius:0;align-self:stretch;animation:schSlideUp .3s cubic-bezier(.16,1,.3,1)}
 @keyframes schSlideUp{from{opacity:0;transform:translateY(12px)}}
@@ -6167,6 +6311,85 @@ async function schDelete(id){
   S.schBlocks=(S.schBlocks||[]).filter(b=>b.id!==id);
   render();
 }
+// ─── Meeting Notes ────────────────────────────────────────────────
+function mtgOpen(){S.mtgPanel=true;S.mtgView='list';mtgLoad();render()}
+function mtgClose(){if(S._mtgRec&&S._mtgRec.state==='recording'){try{S._mtgRec.stop()}catch(e){}}S._mtgRec=null;S.mtgPanel=false;S.mtgCur=null;render()}
+async function mtgLoad(){
+  if(!S.user)return;
+  try{const r=await api('/meetings');if(r&&Array.isArray(r.meetings)){S.mtgList=r.meetings;render()}}catch(e){}
+}
+async function mtgNew(){
+  const r=await api('/meetings',{method:'POST',body:JSON.stringify({title:'New meeting',agenda:'',notes:''})});
+  if(r&&r.ok){S.mtgList=[r.meeting].concat(S.mtgList||[]);mtgOpenDetail(r.meeting.id)}
+}
+async function mtgOpenDetail(id){
+  S.mtgView='detail';S.mtgCur={id,loading:true};render();
+  try{const r=await api('/meetings/'+id);if(r&&r.meeting){S.mtgCur={...r.meeting,voices:r.voices||[],loading:false};render()}}catch(e){}
+}
+function mtgBack(){S.mtgView='list';S.mtgCur=null;mtgLoad();render()}
+let _mtgSaveTimer=null;
+function mtgFieldChange(field,v){
+  if(!S.mtgCur)return;S.mtgCur[field]=v;
+  if(_mtgSaveTimer)clearTimeout(_mtgSaveTimer);
+  _mtgSaveTimer=setTimeout(async()=>{const c=S.mtgCur;if(!c||!c.id)return;
+    try{await api('/meetings/'+c.id,{method:'PUT',body:JSON.stringify({title:c.title,agenda:c.agenda,notes:c.notes})})}catch(e){}
+    // Update list-view title without re-fetch
+    const li=(S.mtgList||[]).find(m=>m.id===c.id);if(li){li.title=c.title;li.updated_at=new Date().toISOString().slice(0,19).replace('T',' ')}
+  },600);
+}
+async function mtgDelete(id){
+  if(!confirm('Delete this meeting? Voice notes will be removed too.'))return;
+  await api('/meetings/'+id,{method:'DELETE'});
+  S.mtgList=(S.mtgList||[]).filter(m=>m.id!==id);
+  if(S.mtgCur&&S.mtgCur.id===id){mtgBack()}
+  render();
+}
+// ─── Voice recording (MediaRecorder) ─────
+async function mtgRecStart(){
+  if(!S.mtgCur||!S.mtgCur.id){toast('\\u26A0\\uFE0F Open a meeting first','err');return}
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){toast('\\u26A0\\uFE0F Microphone not available','err');return}
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    let mime='audio/webm;codecs=opus';
+    if(typeof MediaRecorder!=='undefined'&&MediaRecorder.isTypeSupported){
+      if(!MediaRecorder.isTypeSupported(mime))mime='audio/webm';
+      if(!MediaRecorder.isTypeSupported(mime))mime='audio/mp4';
+    }
+    const rec=new MediaRecorder(stream,mime?{mimeType:mime}:undefined);
+    const chunks=[];const startedAt=Date.now();
+    rec.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};
+    rec.onstop=async()=>{
+      try{stream.getTracks().forEach(t=>t.stop())}catch(e){}
+      const dur=Math.max(1,Math.round((Date.now()-startedAt)/1000));
+      const blob=new Blob(chunks,{type:rec.mimeType||mime||'audio/webm'});
+      const ct=blob.type||'audio/webm';
+      try{
+        const res=await fetch('/api/meetings/'+S.mtgCur.id+'/voice?duration='+dur,{method:'POST',headers:{'Content-Type':ct,'x-token':token},body:blob});
+        const j=await res.json();
+        if(j&&j.ok&&j.voice){
+          S.mtgCur.voices=(S.mtgCur.voices||[]).concat([{id:j.voice.id,duration_sec:j.voice.duration_sec,size_bytes:j.voice.size_bytes,mime:j.voice.mime,created_at:new Date().toISOString().slice(0,19).replace('T',' ')}]);
+          toast('\\u{1F3A4} Voice note saved');
+        }else{toast('\\u26A0\\uFE0F Upload failed','err')}
+      }catch(e){toast('\\u26A0\\uFE0F '+e.message,'err')}
+      S._mtgRec=null;S._mtgRecStartedAt=0;render();
+    };
+    S._mtgRec=rec;S._mtgRecStartedAt=Date.now();rec.start();render();
+    // Live timer
+    if(S._mtgRecTimer)clearInterval(S._mtgRecTimer);
+    S._mtgRecTimer=setInterval(()=>{const el=document.getElementById('mtgRecTime');if(el){const s=Math.floor((Date.now()-S._mtgRecStartedAt)/1000);el.textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0')}},250);
+  }catch(e){toast('\\u26A0\\uFE0F Mic access denied','err')}
+}
+function mtgRecStop(){
+  if(S._mtgRec&&S._mtgRec.state==='recording'){try{S._mtgRec.stop()}catch(e){}}
+  if(S._mtgRecTimer){clearInterval(S._mtgRecTimer);S._mtgRecTimer=null}
+}
+async function mtgVoiceDelete(vid){
+  if(!confirm('Delete this voice note?'))return;
+  await api('/meetings/'+S.mtgCur.id+'/voice/'+vid,{method:'DELETE'});
+  S.mtgCur.voices=(S.mtgCur.voices||[]).filter(v=>v.id!==vid);
+  render();
+}
+function _fmtMtgTime(iso){if(!iso)return '';try{const d=new Date(iso.replace(' ','T')+'Z');const now=new Date();const sameDay=d.toDateString()===now.toDateString();return sameDay?d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):d.toLocaleDateString([],{month:'short',day:'numeric'})}catch(e){return ''}}
 // Highlight live preview — updates the SVG poster without re-rendering the input
 function hlInputUpdate(v){
   S.hlInput=v;
@@ -7925,6 +8148,11 @@ if(S.tab==='tasks'){
       +'<span class="add-chip-t">Plan your day</span>'
       +(S.schBlocks&&S.schBlocks.length?'<span class="add-chip-bdg">'+S.schBlocks.length+'</span>':'')
     +'</button>'
+    +'<button class="add-chip mtg-chip" onclick="mtgOpen()" aria-label="Meeting notes">'
+      +'<span class="add-chip-ic" style="background:linear-gradient(135deg,#0EA5E9,#22D3EE)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>'
+      +'<span class="add-chip-t">Meeting notes</span>'
+      +(S.mtgList&&S.mtgList.length?'<span class="add-chip-bdg">'+S.mtgList.length+'</span>':'')
+    +'</button>'
   +'</div>';
   // (Stats moved into the hero greeting above)
   if(s.od>0)h+='<div class="al" style="background:#FEF1F0;border:1px solid #F5C6C2;color:#E8453C;cursor:pointer" onclick="S.view=\\'overdue\\';render()">\\u26A0\\uFE0F '+s.od+' overdue</div>';
@@ -8891,6 +9119,72 @@ if(S.showWASetup){
   h+='</div></div>';
 }
 
+if(S.mtgPanel){
+  h+='<div class="ov" onclick="mtgClose()"><div class="mdl mtg-mdl" onclick="event.stopPropagation()">';
+  if(S.mtgView==='detail'&&S.mtgCur){
+    const m=S.mtgCur;
+    const isRec=!!(S._mtgRec&&S._mtgRec.state==='recording');
+    h+='<header class="mtg-hd">'
+      +'<button class="bk-back" onclick="mtgBack()" aria-label="Back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>'
+      +'<div class="mtg-title-strip"><div class="mtg-name">Meeting</div><div class="mtg-sub">'+esc(_fmtMtgTime(m.created_at)||'today')+'</div></div>'
+      +'<button class="mtg-del-btn" onclick="mtgDelete(\\''+m.id+'\\')" aria-label="Delete"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>'
+    +'</header>';
+    h+='<div class="mtg-body">';
+    if(m.loading){h+='<div class="mtg-loading">Loading\\u2026</div>'}
+    else{
+      h+='<input class="mtg-title-input" placeholder="Untitled meeting" value="'+esc(m.title||'')+'" oninput="mtgFieldChange(\\'title\\',this.value)"/>';
+      h+='<div class="mtg-sec"><div class="mtg-sec-lbl"><span class="mtg-sec-dot" style="background:#FFB547"></span>Agenda</div><textarea class="mtg-textarea" placeholder="What is this meeting for? Add bullet points or a goal." oninput="mtgFieldChange(\\'agenda\\',this.value)">'+esc(m.agenda||'')+'</textarea></div>';
+      // Voice notes section
+      h+='<div class="mtg-sec"><div class="mtg-sec-lbl"><span class="mtg-sec-dot" style="background:#22D3EE"></span>Voice notes</div>';
+      h+='<div class="mtg-rec-wrap">';
+      if(isRec){
+        h+='<div class="mtg-rec-active"><span class="mtg-rec-pulse"></span><span class="mtg-rec-label">Recording\\u2026</span><span class="mtg-rec-time" id="mtgRecTime">0:00</span><button class="mtg-rec-stop" onclick="mtgRecStop()"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg> Stop</button></div>';
+      } else {
+        h+='<button class="mtg-rec-btn" onclick="mtgRecStart()"><span class="mtg-rec-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg></span>Record voice note</button>';
+      }
+      h+='</div>';
+      const voices=m.voices||[];
+      if(voices.length){
+        h+='<div class="mtg-voices">';
+        voices.forEach((v,i)=>{
+          const dur=v.duration_sec?(Math.floor(v.duration_sec/60)+':'+String(v.duration_sec%60).padStart(2,'0')):'\\u2014';
+          h+='<div class="mtg-voice"><span class="mtg-voice-n">#'+(i+1)+'</span><audio controls preload="none" src="/api/meetings/'+m.id+'/voice/'+v.id+'?token='+encodeURIComponent(token)+'"></audio><span class="mtg-voice-time">'+dur+'</span><button class="mtg-voice-x" onclick="mtgVoiceDelete(\\''+v.id+'\\')" aria-label="Delete">\\u2715</button></div>';
+        });
+        h+='</div>';
+      }
+      h+='</div>';
+      // Notes section
+      h+='<div class="mtg-sec"><div class="mtg-sec-lbl"><span class="mtg-sec-dot" style="background:#A78BFA"></span>Notes</div><textarea class="mtg-textarea mtg-textarea-tall" placeholder="Type the notes from the meeting\\u2026" oninput="mtgFieldChange(\\'notes\\',this.value)">'+esc(m.notes||'')+'</textarea></div>';
+    }
+    h+='</div>';
+  } else {
+    // List view
+    h+='<header class="mtg-hd">'
+      +'<button class="bk-back" onclick="mtgClose()" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>'
+      +'<div class="mtg-title-strip"><div class="mtg-name">Meeting notes</div><div class="mtg-sub">'+(S.mtgList?S.mtgList.length+' meeting'+(S.mtgList.length===1?'':'s'):'')+'</div></div>'
+      +'<button class="mtg-new-btn" onclick="mtgNew()" aria-label="New"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>'
+    +'</header>';
+    h+='<div class="mtg-body">';
+    const list=S.mtgList||[];
+    if(!list.length){
+      h+='<div class="mtg-empty"><div class="mtg-empty-ic"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="mtg-empty-t">No meeting notes yet</div><div class="mtg-empty-d">Create your first one. Add an agenda, type notes, record voice memos.</div><button class="mtg-empty-btn" onclick="mtgNew()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New meeting</button></div>';
+    } else {
+      h+='<ol class="mtg-list">';
+      list.forEach(m=>{
+        const t=m.title||'Untitled meeting';
+        const preview=(m.notes||m.agenda||'').slice(0,140);
+        h+='<li class="mtg-item" onclick="mtgOpenDetail(\\''+m.id+'\\')">'
+          +'<div class="mtg-item-hd"><div class="mtg-item-t">'+esc(t)+'</div><div class="mtg-item-time">'+esc(_fmtMtgTime(m.updated_at||m.created_at))+'</div></div>'
+          +(preview?'<div class="mtg-item-p">'+esc(preview)+'</div>':'')
+          +(m.voice_count>0?'<div class="mtg-item-foot"><span class="mtg-item-tag"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg> '+m.voice_count+' voice note'+(m.voice_count===1?'':'s')+'</span></div>':'')
+        +'</li>';
+      });
+      h+='</ol>';
+    }
+    h+='</div>';
+  }
+  h+='</div></div>';
+}
 if(S.schPanel){
   const f=S.schForm||{start:'09:00',end:'10:00',label:''};
   const blocks=S.schBlocks||[];
