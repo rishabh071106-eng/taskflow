@@ -4110,6 +4110,8 @@ body[data-theme=aurora] .was-skip{color:#9999B5}
 .player.on{display:flex;align-items:center;gap:10px}
 /* Reserve enough bottom space so the entire task list (including the LAST item + delete buttons)
    sits comfortably above the floating audio player. Generous padding > too tight. */
+body.modal-open{overflow:hidden;position:fixed;inset:0;width:100%}
+body.modal-open .ov{overflow-y:auto;-webkit-overflow-scrolling:touch}
 body.audio-on .app{padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))}
 body.audio-on .fab-global{bottom:calc(96px + env(safe-area-inset-bottom,0px))!important}
 @media (max-width:600px){
@@ -6521,14 +6523,13 @@ function schSlotTap(startMin){
   const endMin=Math.min(17*60,startMin+60);
   S.schSel={startMin,endMin,label:'',editing:true};
   render();
-  setTimeout(()=>{const i=document.getElementById('schSelInput');if(i)i.focus()},80);
+  /* No auto-focus — user must tap the input to summon the keyboard */
 }
 function schSetDuration(mins){
   if(!S.schSel)return;
   const start=S.schSel.startMin;
   S.schSel.endMin=Math.min(17*60,start+mins);
   render();
-  setTimeout(()=>{const i=document.getElementById('schSelInput');if(i)i.focus()},20);
 }
 function schSelLabel(v){if(S.schSel)S.schSel.label=v}
 function schSelCancel(){S.schSel=null;render()}
@@ -9391,7 +9392,7 @@ if(S.hlPanel){
     +'<p class="hh-line">Pick the single task that would make today feel like a win. We\\u2019ll add it to your Google Calendar as an all-day event and email you reminders.</p>'
     // Inline editor card on the hero
     +'<div class="hl-form">'
-      +'<input class="hl-input-v3" id="hlInput" autofocus value="'+esc((S.hlInput!=null?S.hlInput:(hl?hl.text:''))||'')+'" placeholder="e.g. Finish the brand-deck draft and send to Sam" oninput="hlInputUpdate(this.value)" onkeydown="if(event.key===\\'Enter\\')hlSubmit()"/>'
+      +'<input class="hl-input-v3" id="hlInput" value="'+esc((S.hlInput!=null?S.hlInput:(hl?hl.text:''))||'')+'" placeholder="e.g. Finish the brand-deck draft and send to Sam" oninput="hlInputUpdate(this.value)" onkeydown="if(event.key===\\'Enter\\')hlSubmit()"/>'
       +'<button class="hl-save-v3'+(hasText?' on':'')+'" onclick="hlSubmit()">'+(hl?'Update':'Save')+' \\u2192</button>'
     +'</div>'
     +(hl?'<div class="hl-hero-actions">'
@@ -9564,7 +9565,7 @@ if(false){ // Old timeline render — disabled
     const dur=b2-a;
     selHTML='<div class="schX-sel" style="top:'+top+'px;height:'+ht+'px">'
       +'<div class="schX-sel-head">'+_minToLabel(a)+' \\u2192 '+_minToLabel(b2)+' \\u00B7 '+(dur>=60?Math.floor(dur/60)+'h '+(dur%60?(dur%60)+'m':''):dur+'m')+'</div>'
-      +'<input class="schX-sel-input" id="schSelInput" autofocus value="'+esc(sel.label||'')+'" placeholder="What is this block for?" oninput="schSelLabel(this.value)" onkeydown="if(event.key===\\'Enter\\')schSelSave();if(event.key===\\'Escape\\')schSelCancel()"/>'
+      +'<input class="schX-sel-input" id="schSelInput" value="'+esc(sel.label||'')+'" placeholder="What is this block for?" oninput="schSelLabel(this.value)" onkeydown="if(event.key===\\'Enter\\')schSelSave();if(event.key===\\'Escape\\')schSelCancel()"/>'
       +'<div class="schX-dur-row">'
         +'<span class="schX-dur-lbl">Duration</span>'
         +[15,30,60,90,120].map(d=>'<button class="schX-dur'+(dur===d?' on':'')+'" onclick="schSetDuration('+d+')">'+(d>=60?(d/60)+'h':d+'m')+'</button>').join('')
@@ -9625,6 +9626,8 @@ h+=bottomBlock;
 document.getElementById('app').innerHTML=h;
 // Toggle a body class so the page reserves bottom space when the audio player is visible.
 try{document.body.classList.toggle('audio-on',!!(S.playing&&(S.playing.url||S.playing.loading)))}catch(e){}
+// Lock body scroll when any fullscreen modal is open so the background can't scroll behind
+try{const _modalOpen=!!(S.showAdd||S.showProfile||S.showHelp||S.showWASetup||S.schPanel||S.mtgPanel||S.hlPanel||S.mgDetail||S.mgPlay||(S.bookReader&&S.bookReader.open)||(S.articleEditor&&S.articleEditor.open));document.body.classList.toggle('modal-open',_modalOpen)}catch(e){}
 }
 fetch('/api/config').then(r=>r.json()).then(c=>{window.__TWILIO_SANDBOX_CODE=c.sandboxCode||'';render()}).catch(()=>{});
 applyTheme();
