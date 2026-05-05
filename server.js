@@ -8342,7 +8342,7 @@ if(isMain){
   let _streak=0;for(let i=0;i<60;i++){const d=new Date(Date.now()-i*864e5).toISOString().slice(0,10);const ok=ts.some(x=>x.status==='done'&&(x.updated_at||'').slice(0,10)===d);if(ok)_streak++;else if(i>0)break}
   const _bkStreak=(S.bookStreak&&S.bookStreak.streak)||0;
   const _medCount=parseInt(localStorage.getItem('med_count')||'0',10)||0;
-  const _mindLvl=((S.mg&&S.mg.progress&&S.mg.progress.math&&S.mg.progress.math.level)||0)+((S.mg&&S.mg.progress&&S.mg.progress.memory&&S.mg.progress.memory.level)||0)+((S.mg&&S.mg.progress&&S.mg.progress.reaction&&S.mg.progress.reaction.level)||0);
+  const _mindLvl=((S.mg&&S.mg.progress&&S.mg.progress.math&&S.mg.progress.math.level)||0)+((S.mg&&S.mg.progress&&S.mg.progress.word&&S.mg.progress.word.level)||0)+((S.mg&&S.mg.progress&&S.mg.progress.schulte&&S.mg.progress.schulte.level)||0);
   const _statsExpanded=!!S.statsExpanded;
   let hero='<section class="home-hero">'
     +'<div class="hh-bg"></div>'
@@ -8549,9 +8549,15 @@ if(S.tab==='tasks'){
 
 // MIND GYM TAB — dedicated brain-training section, treated as its own product
 else if(S.tab==='mindgym'){
-  const mg=S.mg;const overall=Math.round((mgPercent('math')+mgPercent('memory')+mgPercent('reaction'))/3);
-  const totalLevel=mg.progress.math.level+mg.progress.memory.level+mg.progress.reaction.level+((mg.progress.word&&mg.progress.word.level)||1);
-  const totalXp=(mg.progress.math.xp||0)+(mg.progress.memory.xp||0)+(mg.progress.reaction.xp||0)+((mg.progress.word&&mg.progress.word.xp)||0);
+  const mg=S.mg;
+  // Sum only the 3 keeper games (math, word, schulte). Reaction & Memory were retired —
+  // their progress rows may still exist server-side for old users, but we no longer
+  // include them in aggregate stats so the percentages match what the UI actually shows.
+  const _wordP=mg.progress.word||{level:1,xp:0,best:0};
+  const _schP=mg.progress.schulte||{level:1,xp:0,best:0};
+  const overall=Math.round((mgPercent('math')+Math.min(100,Math.round(((_wordP.xp||0)/500)*100))+Math.min(100,Math.round(((_schP.xp||0)/500)*100)))/3);
+  const totalLevel=(mg.progress.math.level||1)+(_wordP.level||1)+(_schP.level||1);
+  const totalXp=(mg.progress.math.xp||0)+(_wordP.xp||0)+(_schP.xp||0);
   const streak=mg.streak||{current:0,longest:0,total:0};
   // ─── Collapsible Progress chip (saves vertical space — tap to expand stats) ───
   const _mgPOpen=!!S.mgProgressOpen;
@@ -8601,18 +8607,19 @@ else if(S.tab==='mindgym'){
   });
   h+='</div></section>';
   const totalUnlocked=_games.reduce((s,g)=>s+(g.pData.level||1),0);
+  const _maxLvl=_games.length*10;
   h+='<div class="mg-overall">'
-    +'<div><b>'+totalUnlocked+'</b> / 50 levels reached</div>'
-    +'<div class="mg-overall-bar"><i style="width:'+Math.round(totalUnlocked/50*100)+'%"></i></div>'
-    +'<div>'+Math.round(totalUnlocked/50*100)+'%</div>'
+    +'<div><b>'+totalUnlocked+'</b> / '+_maxLvl+' levels reached</div>'
+    +'<div class="mg-overall-bar"><i style="width:'+Math.round(totalUnlocked/_maxLvl*100)+'%"></i></div>'
+    +'<div>'+Math.round(totalUnlocked/_maxLvl*100)+'%</div>'
   +'</div>';
   // Achievements row — 4 badges, some unlocked based on real progress
   {
-    const totalLvl=mg.progress.math.level+mg.progress.memory.level+mg.progress.reaction.level;
+    const totalLvl=(mg.progress.math.level||1)+(_wordP.level||1)+(_schP.level||1);
     const ach=[
       {k:'first',cls:'',name:'First step',desc:'Played your first game',unlocked:totalLvl>3},
       {k:'week',cls:'streak',name:'Week warrior',desc:'7-day streak',unlocked:streak.current>=7},
-      {k:'sharp',cls:'cool',name:'Sharp mind',desc:'L5 in any game',unlocked:Math.max(mg.progress.math.level,mg.progress.memory.level,mg.progress.reaction.level,(mg.progress.word&&mg.progress.word.level)||0)>=5},
+      {k:'sharp',cls:'cool',name:'Sharp mind',desc:'L5 in any game',unlocked:Math.max(mg.progress.math.level||1,_wordP.level||1,_schP.level||1)>=5},
       {k:'flow',cls:'purple',name:'In the flow',desc:'500 XP earned',unlocked:totalXp>=500}
     ];
     h+='<div class="mg-achievements">';
