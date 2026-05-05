@@ -267,7 +267,10 @@ const _fs=require('fs');
 const _path=require('path');
 const TTS_CACHE_DIR=process.env.TTS_CACHE_DIR||_path.join(process.cwd(),'tts-cache');
 try{_fs.mkdirSync(TTS_CACHE_DIR,{recursive:true})}catch(e){}
-function _ttsCacheKey(text,voice,model){return _crypto.createHash('sha256').update(voice+':'+model+':'+text).digest('hex')}
+// Cache key bumped to v2 so the new warmer voice settings (stability 0.5, style 0.20)
+// don't serve the old monotone cached audio. Old chunks stay on disk but go unused
+// until a future cleanup task; cost of duplication is small.
+function _ttsCacheKey(text,voice,model){return _crypto.createHash('sha256').update('v2:'+voice+':'+model+':'+text).digest('hex')}
 function _ttsCachePath(key){return _path.join(TTS_CACHE_DIR,key+'.mp3')}
 let _ttsCacheStats={hits:0,misses:0};
 app.post('/api/coach/speak',auth,async(req,res)=>{
@@ -291,11 +294,12 @@ app.post('/api/coach/speak',auth,async(req,res)=>{
     const r=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+voice,{
       method:'POST',
       headers:{'Content-Type':'application/json','xi-api-key':ELEVENLABS_KEY,'Accept':'audio/mpeg'},
-      // turbo_v2_5 = ~3-5x lower latency than multilingual_v2 with very close audio quality.
-      // For book narration we want fast first-byte over the marginal quality bump.
-      // stability 0.7 keeps the narrator measured. style 0.05 = barely any stylization (calm).
-      // similarity_boost 0.85 stays loyal to George's natural British timbre.
-      body:JSON.stringify({text,model_id:model,voice_settings:{stability:0.7,similarity_boost:0.85,style:0.05,use_speaker_boost:true}})
+      // Warmer, more expressive Headspace-style narration tuning:
+      // - stability 0.5 (was 0.7): allows natural inflection on emphasis words instead of monotone
+      // - style 0.20 (was 0.05): adds gentle emotional warmth without theatricality
+      // - similarity_boost 0.75 (was 0.85): a touch more expressive room
+      // - speaker_boost on for clarity on phone speakers
+      body:JSON.stringify({text,model_id:model,voice_settings:{stability:0.5,similarity_boost:0.75,style:0.20,use_speaker_boost:true}})
     });
     if(!r.ok){const t=await r.text();return res.status(502).json({error:t.slice(0,200)})}
     const audio=Buffer.from(await r.arrayBuffer());
@@ -1319,7 +1323,7 @@ const HTML=`<!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="google-site-verification" content="0dus2qjhVhSPP2gWIDJlVBb7LxvrMDbrhECxY8tiO4U" />
 <title>Brodoit — Tasks, audiobooks &amp; daily wisdom</title>
-<meta name="description" content="Brodoit is your calm productivity companion. Manage tasks with WhatsApp reminders, listen to free public-domain audiobooks, sharpen your mind, and build a daily ritual that sticks.">
+<meta name="description" content="Brodoit is your calm productivity companion. Manage tasks with email reminders, listen to free public-domain audiobooks, sharpen your mind, and build a daily ritual that sticks.">
 <link rel="canonical" href="https://brodoit.com/">
 <meta name="theme-color" content="#1A1816">
 <meta name="format-detection" content="telephone=no">
@@ -1334,7 +1338,7 @@ const HTML=`<!DOCTYPE html><html lang="en"><head>
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Brodoit">
 <meta property="og:title" content="Brodoit — Tasks, audiobooks &amp; daily wisdom">
-<meta property="og:description" content="Your calm productivity companion. Tasks, WhatsApp reminders, free audiobooks, mind-gym drills, and daily wisdom — in one quiet place.">
+<meta property="og:description" content="Your calm productivity companion. Tasks, email reminders, free audiobooks, mind-gym drills, and daily wisdom — in one quiet place.">
 <meta property="og:url" content="https://brodoit.com/">
 <meta property="og:image" content="https://brodoit.com/icon-512.png">
 <meta property="og:image:width" content="512">
@@ -1343,7 +1347,7 @@ const HTML=`<!DOCTYPE html><html lang="en"><head>
 <!-- Twitter -->
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Brodoit — Tasks, audiobooks &amp; daily wisdom">
-<meta name="twitter:description" content="Your calm productivity companion. Tasks, WhatsApp reminders, free audiobooks, mind-gym drills, and daily wisdom — in one quiet place.">
+<meta name="twitter:description" content="Your calm productivity companion. Tasks, email reminders, free audiobooks, mind-gym drills, and daily wisdom — in one quiet place.">
 <meta name="twitter:image" content="https://brodoit.com/icon-512.png">
 <!-- Structured data for Google rich results -->
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://brodoit.com/#org","name":"Brodoit","url":"https://brodoit.com/","logo":"https://brodoit.com/icon-512.png","email":"hello@brodoit.com","sameAs":["https://github.com/rishabh071106-eng/taskflow"]},{"@type":"WebSite","@id":"https://brodoit.com/#site","url":"https://brodoit.com/","name":"Brodoit","description":"Tasks, audiobooks and daily wisdom — your calm productivity companion.","publisher":{"@id":"https://brodoit.com/#org"},"inLanguage":"en"},{"@type":"WebApplication","@id":"https://brodoit.com/#app","name":"Brodoit","url":"https://brodoit.com/","description":"A calm productivity app: manage tasks with WhatsApp reminders, listen to free public-domain audiobooks, sharpen your mind with daily drills, and build a streak that sticks.","applicationCategory":"ProductivityApplication","operatingSystem":"Web, Android, iOS","browserRequirements":"Requires JavaScript. Requires HTML5.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD","availability":"https://schema.org/InStock"},"featureList":["Task management","WhatsApp reminders","Email reminders","Free public-domain audiobooks","Daily wisdom quotes","Mind Gym brain games","Voice training","Step tracking","Google Calendar sync"],"publisher":{"@id":"https://brodoit.com/#org"},"inLanguage":"en"}]}</script>
@@ -3759,6 +3763,28 @@ body:not([data-theme=aurora]) .lvl-link{background:#E8E6E0}
 @media (max-width:560px){.lvl-step{width:26px;height:26px;font-size:10.5px}.lvl-link{min-width:4px;max-width:14px}.lvl-path-t{font-size:20px}.lvl-path-overall b{font-size:22px}}
 /* ─── Home hero greeting (Tasks tab) ─── */
 .home-hero{position:relative;border-radius:24px;padding:30px 28px 24px;margin:0 0 18px;overflow:hidden;color:#fff;isolation:isolate;background:linear-gradient(135deg,#1A0E2E 0%,#2A1845 50%,#3D1F5F 100%);box-shadow:0 22px 50px -16px rgba(91,33,182,.45)}
+/* Light variant — used on the home/Tasks tab so the page reads as a light theme.
+   Modal-mounted heroes (.hl-hero, .mtg-hero, .sch-hero, .mg-detail-hero) keep
+   their dark gradient because they sit inside a dark fullscreen modal. */
+.home-hero.home-hero-light{background:linear-gradient(135deg,#FFF7ED 0%,#FCE7F3 50%,#EDE9FE 100%);color:#1A1A1A;box-shadow:0 18px 40px -16px rgba(167,139,250,.25),0 1px 0 rgba(0,0,0,.04)}
+.home-hero-light .hh-bg{background:radial-gradient(900px 500px at 0% 0%,rgba(255,107,71,.18) 0%,transparent 55%),radial-gradient(700px 500px at 100% 100%,rgba(167,139,250,.22) 0%,transparent 55%);opacity:.7}
+.home-hero-light .hh-greet{color:#1A1A1A}
+.home-hero-light .hh-line{color:#4A4A4A}
+.home-hero-light .hh-line b{color:#1A1A1A}
+.home-hero-light .hh-eyebrow{color:rgba(0,0,0,.5)}
+.home-hero-light .hh-stat{background:rgba(255,255,255,.65);border-color:rgba(0,0,0,.06);color:#1A1A1A;backdrop-filter:blur(8px)}
+.home-hero-light .hh-stat:hover{background:#fff}
+.home-hero-light .hh-stat b{color:#1A1A1A}
+.home-hero-light .hh-stat small{color:rgba(0,0,0,.55)}
+.home-hero-light .hh-progress-chip,.home-hero-light .mg-prog-chip{background:rgba(255,255,255,.7);border-color:rgba(0,0,0,.08);color:#1A1A1A}
+.home-hero-light .hh-progress-chip:hover{background:#fff}
+.home-hero-light .hh-pc-t{color:#1A1A1A}
+.home-hero-light .hh-pc-mini{color:rgba(0,0,0,.55)}
+.home-hero-light .hh-pc-arrow{color:rgba(0,0,0,.45)}
+.home-hero-light .qa-stat-tile{background:rgba(255,255,255,.7);border-color:rgba(0,0,0,.06)}
+.home-hero-light .qa-stat-tile:hover{background:#fff}
+.home-hero-light .qa-stat-tile small{color:rgba(0,0,0,.7) !important}
+.home-hero-light .qa-stat-bdg{background:rgba(0,0,0,.06);color:#1A1A1A}
 .home-hero .hh-bg{position:absolute;inset:0;background:radial-gradient(900px 500px at 0% 0%,rgba(255,107,71,.35) 0%,transparent 55%),radial-gradient(700px 500px at 100% 100%,rgba(167,139,250,.3) 0%,transparent 55%);z-index:-1;animation:hhBgDrift 18s ease-in-out infinite alternate}
 @keyframes hhBgDrift{0%{transform:scale(1) translate(0,0)}100%{transform:scale(1.08) translate(-20px,15px)}}
 .hh-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
@@ -8186,46 +8212,29 @@ h+='<div class="login-logo"><span class="b1">Bro</span><span class="b2">do</span
 h+='<div class="login-tagline">Tasks. Books. Wisdom.</div>';
 h+='<a class="whatsnew-pill" href="/pricing" style="display:inline-flex;align-items:center;gap:8px;padding:7px 14px;margin:0 0 18px;background:rgba(31,77,63,.08);border:1px solid rgba(31,77,63,.2);border-radius:999px;font-size:12px;font-weight:500;letter-spacing:.04em;color:#1F4D3F;text-decoration:none;font-family:\\'JetBrains Mono\\',monospace;text-transform:uppercase"><span style="width:6px;height:6px;border-radius:999px;background:#1F4D3F;box-shadow:0 0 8px #1F4D3F;animation:wn-pulse 2s ease-in-out infinite"></span>NEW · Pricing &amp; Pro tier <span style="opacity:.7">→</span></a>';
 h+='<div class="login-sub">A calm, focused space for the work that matters.</div>';
-// Login tabs removed for closed-test phase — email-only.
+// Login is email-only (WhatsApp integration was removed).
 S.loginMethod='email';
 h+='<input id="loginName" type="text" placeholder="Your name" value="'+esc(S.loginName)+'" oninput="S.loginName=this.value;persistLoginState()" style="font-size:15px;letter-spacing:0">';
-if(S.loginMethod==='email'){
-  h+='<input id="loginEmail" type="email" placeholder="you@example.com" value="'+esc(S.loginEmail)+'" oninput="S.loginEmail=this.value;persistLoginState()" autocomplete="email" style="font-size:15px;letter-spacing:0">';
-  if(S.loginError)h+='<div style="color:#E8453C;font-size:13px;font-weight:600;margin:8px 0">'+S.loginError+'</div>';
-  h+='<button class="login-btn" onclick="sendOTP()"'+(S.loginLoading?' disabled':'')+'>'+(S.loginLoading?'Sending code...':'\\u2709\\uFE0F Send code to email')+'</button>';
-  h+='<div class="login-hint">We\\'ll email a 6-digit code. Check your inbox (and spam folder).</div>';
-  h+='<div class="login-wa-note"><span class="login-wa-emoji">\\u{1F4F2}</span><span>After signing in, you can <b>connect WhatsApp</b> to add tasks and get reminders by chat. Find it in your profile.</span></div>';
-}else{
-  h+='<div class="wa-login-step"><div class="wa-step-num">1</div><div class="wa-step-body"><div class="wa-step-title">Save BroDoit on WhatsApp</div><div class="wa-step-desc">First save BroDoit to your contacts \\u2014 then sending the message feels safe and familiar.</div><button class="wa-save-btn" onclick="saveBroDoitContact()">\\u{1F4C7} Save BroDoit to contacts</button></div></div>';
-  h+='<div class="wa-login-step"><div class="wa-step-num">2</div><div class="wa-step-body"><div class="wa-step-title">Say hi to BroDoit</div><div class="wa-step-desc">Tap below \\u2014 WhatsApp opens with a pre-filled message to BroDoit. Just hit <b>Send</b>.</div><button class="wa-join-btn" onclick="openWAJoin()"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>Open WhatsApp &amp; tap Send</button></div></div>';
-  h+='<div class="wa-login-step"><div class="wa-step-num">3</div><div class="wa-step-body"><div class="wa-step-title">Enter your WhatsApp number</div><div class="wa-step-desc">Pick your country, then type the number without the country code.</div>';
-  h+='<div class="phone-row"><select id="loginCC" class="cc-select" onchange="S.loginCountryCode=this.value;persistLoginState();updatePhonePreview()" aria-label="Country code">';
-  COUNTRY_CODES.forEach(c=>{h+='<option value="'+c.c+'"'+(c.c===S.loginCountryCode?' selected':'')+'>'+c.f+' '+c.n+' ('+c.c+')</option>'});
-  h+='</select>';
-  h+='<input id="loginPhone" type="tel" placeholder="98765 43210" value="'+esc(S.loginPhone)+'" oninput="S.loginPhone=this.value;persistLoginState();updatePhonePreview()" autocomplete="tel-national" inputmode="tel" class="phone-num"></div>';
-  h+='<div id="phPreview" style="font-size:12px;margin-top:6px;font-weight:600;min-height:16px"></div>';
-  h+='</div></div>';
-  if(S.loginError)h+='<div class="login-err"><div class="login-err-msg">'+S.loginError+'</div>'+(S.loginErrorCode?'<div class="login-err-code">Twilio code '+S.loginErrorCode+(S.loginErrorDetail?' \\u2014 '+esc(S.loginErrorDetail.slice(0,140)):'')+'</div>':'')+'<div class="login-err-acts"><button onclick="openWAJoin()">\\u{1F501} Re-send join code</button><button onclick="S.loginMethod=\\'email\\';S.loginError=\\'\\';render()">\\u2709\\uFE0F Use email instead</button></div></div>';
-  h+='<button class="login-btn" style="background:linear-gradient(135deg,#25D366,#128C7E);box-shadow:0 6px 18px rgba(37,211,102,.32);border:none" onclick="sendOTP()"'+(S.loginLoading?' disabled':'')+'>'+(S.loginLoading?'Sending code...':'\\u{1F4F1} Send code via WhatsApp')+'</button>';
-  h+='<div class="login-hint">After step 1, your code arrives instantly on WhatsApp.</div>';
-}
+h+='<input id="loginEmail" type="email" placeholder="you@example.com" value="'+esc(S.loginEmail)+'" oninput="S.loginEmail=this.value;persistLoginState()" autocomplete="email" style="font-size:15px;letter-spacing:0">';
+if(S.loginError)h+='<div style="color:#E8453C;font-size:13px;font-weight:600;margin:8px 0">'+S.loginError+'</div>';
+h+='<button class="login-btn" onclick="sendOTP()"'+(S.loginLoading?' disabled':'')+'>'+(S.loginLoading?'Sending code...':'\\u2709\\uFE0F Send code to email')+'</button>';
+h+='<div class="login-hint">We\\'ll email a 6-digit code. Check your inbox (and spam folder).</div>';
 }else if(S.loginStep==='otp'){
 h+='<div class="login-logo" style="margin-top:48px"><span class="b1">Bro</span><span class="b2">do</span><span class="b3">it</span><span class="dot"></span></div>';
-h+='<div class="login-sub">Code sent via '+(S.loginMethod==='email'?'\\u2709\\uFE0F email':'\\u{1F4F1} WhatsApp')+' to<br><strong>'+esc(S.loginSentTo||(S.loginMethod==='email'?S.loginEmail:S.loginPhone))+'</strong></div>';
+h+='<div class="login-sub">Code sent via \\u2709\\uFE0F email to<br><strong>'+esc(S.loginSentTo||S.loginEmail)+'</strong></div>';
 h+='<div class="step-dots"><div class="step-dot on"></div><div class="step-dot on"></div><div class="step-dot"></div></div>';
 h+='<div class="otp-inputs">';
 for(let i=0;i<6;i++)h+='<input id="otp'+i+'" type="tel" maxlength="1" value="'+S.loginOTP[i]+'" oninput="otpInput('+i+',this.value)" onkeydown="otpKey('+i+',event)">';
 h+='</div>';
 if(S.loginError)h+='<div style="color:#E8453C;font-size:13px;font-weight:600;margin:8px 0">'+S.loginError+'</div>';
 h+='<button class="login-btn" onclick="verifyOTP()"'+(S.loginLoading?' disabled':'')+'>'+(S.loginLoading?'Verifying...':'Verify & Login')+'</button>';
-h+='<button class="login-btn sec" onclick="S.loginStep=\\'phone\\';S.loginError=\\'\\';try{history.replaceState(null,\\'\\',\\'/\\')}catch(e){}render()">\\u2190 '+(S.loginMethod==='email'?'Change email':'Change number')+'</button>';
-h+='<div class="login-hint">Didn\\'t get the code? Check your '+(S.loginMethod==='email'?'spam folder or tap "Change email"':'WhatsApp or tap "Change number"')+' to retry.</div>';
+h+='<button class="login-btn sec" onclick="S.loginStep=\\'phone\\';S.loginError=\\'\\';try{history.replaceState(null,\\'\\',\\'/\\')}catch(e){}render()">\\u2190 Change email</button>';
+h+='<div class="login-hint">Didn\\'t get the code? Check your spam folder or tap "Change email" to retry.</div>';
 }
 h+='<footer class="login-foot"><a href="/pricing">Pricing</a><span>\\u2022</span><a href="/about">About</a><span>\\u2022</span><a href="/changelog">What\\'s new</a><span>\\u2022</span><a href="/privacy" target="_blank" rel="noopener">Privacy</a><span>\\u2022</span><a href="/terms" target="_blank" rel="noopener">Terms</a><span>\\u2022</span><a href="mailto:hello@brodoit.com">Contact</a></footer>';
 h+='</div>';
 if(S.toast)h+='<div class="toast toast-'+(S.toastType==='err'?'err':'ok')+'">'+S.toast+'</div>';
 document.getElementById('app').innerHTML=h;
-if(S.loginMethod==='whatsapp'&&S.loginStep==='phone')updatePhonePreview();
 return;
 }
 
@@ -8344,7 +8353,7 @@ if(isMain){
   const _medCount=parseInt(localStorage.getItem('med_count')||'0',10)||0;
   const _mindLvl=((S.mg&&S.mg.progress&&S.mg.progress.math&&S.mg.progress.math.level)||0)+((S.mg&&S.mg.progress&&S.mg.progress.word&&S.mg.progress.word.level)||0)+((S.mg&&S.mg.progress&&S.mg.progress.schulte&&S.mg.progress.schulte.level)||0);
   const _statsExpanded=!!S.statsExpanded;
-  let hero='<section class="home-hero">'
+  let hero='<section class="home-hero home-hero-light">'
     +'<div class="hh-bg"></div>'
     +'<div class="hh-row"><div class="hh-eyebrow">'+esc(_today)+'</div></div>'
     +'<h1 class="hh-greet">'+esc(_greet)+(_firstName?', <em>'+esc(_firstName)+'</em>':'')+'.</h1>'
@@ -8486,15 +8495,7 @@ if(S.tab==='tasks'){
       +'<button class="restore-x" onclick="dismissRestoreOffer()" aria-label="Dismiss">\\u2715</button>'
     +'</div>';
   }
-  // Connect-WhatsApp banner — shows when WA isn't linked AND user hasn't dismissed it.
-  if(S.profile&&!S.profile.wa_phone&&localStorage.getItem('tf_wa_banner_x')!=='1'){
-    h+='<div class="wa-promo">'
-      +'<span class="wa-promo-emoji">\\u{1F4F2}</span>'
-      +'<div class="wa-promo-body"><div class="wa-promo-t">Connect WhatsApp</div><div class="wa-promo-s">Add tasks by chat &amp; get reminders on WhatsApp</div></div>'
-      +'<button class="wa-promo-go" onclick="waConnectStart()">Connect \\u2192</button>'
-      +'<button class="wa-promo-x" onclick="localStorage.setItem(\\'tf_wa_banner_x\\',\\'1\\');render()" aria-label="Dismiss">\\u2715</button>'
-    +'</div>';
-  }
+  // (WhatsApp integration was removed — banner deleted)
   // Hydrate highlight in the background — chip badge needs the count
   if(!S.dailyHl&&!S._hlFetched){S._hlFetched=true;const _c=_hlLocalCache();if(_c)S.dailyHl=_c;hlLoad()}
   // ─── Actions card — same big purple hero card style as the "Good morning" greeting ───
@@ -8502,7 +8503,7 @@ if(S.tab==='tasks'){
     const _schN=(S.schBlocks||[]).length;
     const _mtgN=(S.mtgList||[]).length;
     const _hl=S.dailyHl;
-    h+='<section class="home-hero qa-hero">'
+    h+='<section class="home-hero home-hero-light qa-hero">'
       +'<div class="hh-bg"></div>'
       +'<div class="hh-row"><div class="hh-eyebrow">Actions</div></div>'
       +'<h1 class="hh-greet" style="font-size:clamp(28px,5vw,42px);margin:6px 0 14px">What\\u2019s next, <em>Rishabh</em>?</h1>'
@@ -8590,8 +8591,8 @@ else if(S.tab==='mindgym'){
     {k:'word',e:'\\u{1F520}',n:'Word Sprint',d:'Seven scrambled letters, ninety seconds. Find every word you can.',accent:'#34D399',accent2:'#10B981',pData:(mg.progress.word||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((mg.progress.word||{}).xp||0)/(5*100))*100)),bestL:'Best',bestSuffix:' words'},
     {k:'schulte',e:'\\u{1F3AF}',n:'Schulte Grid',d:'Tap 1 to 25 in order. Higher levels grow the grid up to 7\\u00D77 (49 cells).',accent:'#F472B6',accent2:'#A78BFA',pData:(mg.progress.schulte||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((mg.progress.schulte||{}).xp||0)/(5*100))*100)),bestL:'Best time',bestSuffix:' s'}
   ];
-  // ─── Mind Games chip — same purple-hero Actions pattern as the home tab ───
-  h+='<section class="home-hero qa-hero">'
+  // ─── Mind Games chip — same hero Actions pattern as the home tab (light) ───
+  h+='<section class="home-hero home-hero-light qa-hero">'
     +'<div class="hh-bg"></div>'
     +'<div class="hh-row"><div class="hh-eyebrow">\\u{1F3AE} Mind Games</div></div>'
     +'<h1 class="hh-greet" style="font-size:clamp(28px,5vw,42px);margin:6px 0 14px">Pick a <em>game</em>.</h1>'
@@ -9195,17 +9196,7 @@ if(S.showProfile){
   }
   h+='<label class="lbl" style="text-align:left">Display name</label><div class="row"><input id="pfName" value="'+esc(S.user.name||'')+'" placeholder="Your name"><button class="mb mb-s" style="flex:0 0 auto;padding:11px 18px" onclick="saveName()">Save</button></div>';
 
-  // ─── WhatsApp section ───
-  const waPhone=p.wa_phone||'';
-  const conn=S.waConn||null;
-  h+='<div class="wa-sec">';
-  h+='<div class="wa-sec-hd"><span class="wa-sec-emoji">\\u{1F4F2}</span><div><div class="wa-sec-t">WhatsApp</div><div class="wa-sec-s">Add tasks and get reminders by chat</div></div></div>';
-  if(waPhone){
-    h+='<div class="wa-linked">\\u2705 Connected to <b>'+esc(waPhone)+'</b><button class="wa-link-x" onclick="waUnlink()">Disconnect</button></div>';
-  } else {
-    h+='<button class="mb mb-s wa-connect-btn" onclick="waConnectStart()">\\u{1F517} Set up WhatsApp \\u2192</button>';
-  }
-  h+='</div>';
+  // (WhatsApp section removed — integration retired)
 
   // Backup / Restore section
   h+='<div class="bkp-sec"><div class="bkp-sec-hd"><span class="bkp-sec-emoji">\\u{1F4BE}</span><div><div class="bkp-sec-t">Backup your tasks</div><div class="bkp-sec-s">Download a JSON file of all your tasks. Auto-saved to this device on every load.</div></div></div>'
@@ -9219,14 +9210,13 @@ if(S.showProfile){
 
 // ─── HELP modal — full step-by-step guide ───
 if(S.showHelp){
-  const sandboxCode=window.__TWILIO_SANDBOX_CODE||'along-wool';
   const HSTEPS=[
-    {ic:'\\u270F\\uFE0F',grad:'linear-gradient(135deg,#FF6B47,#FFB547)',t:'Add a task in seconds',d:'Tap the <b>+ New task</b> chip at the top of the Tasks tab. Give it a title, optionally a due date and priority, then save.',tip:'You can also send any message to the WhatsApp bot \\u2014 it becomes a task automatically.',demoHTML:'<div class="hd-task"><div class="hd-task-circle"></div><div class="hd-task-body"><div class="hd-task-t">Reply to Sam</div><div class="hd-task-m"><span class="hd-task-pill" style="background:rgba(255,107,71,.18);color:#FFB89E">\\u{1F4C5} Tomorrow</span><span class="hd-task-pill" style="background:rgba(220,38,38,.18);color:#FCA5A5">\\u{1F525} High</span></div></div></div>'},
+    {ic:'\\u270F\\uFE0F',grad:'linear-gradient(135deg,#FF6B47,#FFB547)',t:'Add a task in seconds',d:'Tap the <b>+ New task</b> chip at the top of the Tasks tab. Give it a title, optionally a due date and priority, then save.',tip:'Set a due date to get an email reminder before it slips.',demoHTML:'<div class="hd-task"><div class="hd-task-circle"></div><div class="hd-task-body"><div class="hd-task-t">Reply to Sam</div><div class="hd-task-m"><span class="hd-task-pill" style="background:rgba(255,107,71,.18);color:#FFB89E">\\u{1F4C5} Tomorrow</span><span class="hd-task-pill" style="background:rgba(220,38,38,.18);color:#FCA5A5">\\u{1F525} High</span></div></div></div>'},
     {ic:'\\u2713',grad:'linear-gradient(135deg,#22D3EE,#3B82F6)',t:'Plan, do, complete',d:'Tap the round circle on the left of any task to mark it done. Need columns? Switch to the <b>Board</b> tab for a To-Do / Doing / Done view.',tip:'Drag cards between columns on desktop. On mobile, tap the status badge to cycle.',demoHTML:'<div class="hd-board"><div class="hd-col"><div class="hd-col-h">To Do</div><div class="hd-task-mini">Pay rent</div></div><div class="hd-col hd-col-on"><div class="hd-col-h">Doing</div><div class="hd-task-mini">Reply to Sam</div></div><div class="hd-col"><div class="hd-col-h">Done</div><div class="hd-task-mini hd-done">Buy milk</div></div></div>'},
     {ic:'\\u{1F3A7}',grad:'linear-gradient(135deg,#A78BFA,#EC4899)',t:'Briefs in your earbuds',d:'Open the <b>Briefs</b> tab and tap any book cover. The audio summary plays in the bottom mini-player while you keep working. Tap the mini-player to expand and read along.',tip:'Listen for 2 minutes a day to keep your brief streak alive.',demoHTML:'<div class="hd-mini"><div class="hd-mini-cov"></div><div class="hd-mini-info"><b>Atomic Habits</b><small>NOW PLAYING \\u00B7 STUDIO</small></div><div class="hd-mini-btn">\\u23F8</div></div>'},
     {ic:'\\u{1F9E0}',grad:'linear-gradient(135deg,#86EFAC,#22D3EE)',t:'Three brain workouts',d:'The <b>Games</b> tab has three micro-games: <b>Math Sprint</b> (arithmetic against the clock), <b>Word Sprint</b> (anagrams in 90 seconds), and <b>Schulte Grid</b> (tap 1\\u219225 in order). Each scales over 10 levels.',tip:'Each round is sub-90 seconds. Beat your best to climb a level.',demoHTML:'<div class="hd-games"><div class="hd-game" style="--c:#22D3EE">\\u{1F522}<small>Math</small></div><div class="hd-game" style="--c:#34D399">\\u{1F520}<small>Word</small></div><div class="hd-game" style="--c:#F472B6">\\u{1F3AF}<small>Schulte</small></div></div>'},
     {ic:'\\u{1F9D8}',grad:'linear-gradient(135deg,#FCD34D,#FF6B47)',t:'Calm &amp; calendar',d:'<b>Meditate</b>: pick a 10 or 20-minute guided session and breathe. <b>Calendar</b>: connect Google to view and add events without leaving Brodoit.',tip:'Each meditation session counts toward your sessions stat in the Profile.',demoHTML:'<div class="hd-cal"><div class="hd-cal-day"><b>MON</b><span>9</span></div><div class="hd-cal-day hd-cal-day-on"><b>TUE</b><span>10</span></div><div class="hd-cal-day"><b>WED</b><span>11</span></div><div class="hd-cal-day"><b>THU</b><span>12</span></div></div>'},
-    {ic:'\\u{1F4AC}',grad:'linear-gradient(135deg,#25D366,#128C7E)',t:'WhatsApp shortcuts',d:'Tap <b>Profile \\u2192 Set up WhatsApp</b>. One-time setup: send <code>join '+esc(sandboxCode)+'</code> to <b>+1 415 523 8886</b>. Then every message you send becomes a task. Reminders arrive on WhatsApp too.',tip:'Reply to a Brodoit message with <b>list</b>, <b>done</b>, <b>doing</b>, or <b>delete</b> + the task name.',demoHTML:'<div class="hd-wa"><div class="hd-wa-bub hd-wa-in">Reply to Sam tomorrow !urgent</div><div class="hd-wa-bub hd-wa-out">\\u2705 Got it \\u2014 Reply to Sam, due tomorrow, high priority.</div></div>'}
+    {ic:'\\u{1F4E7}',grad:'linear-gradient(135deg,#FCD34D,#FF6B47)',t:'Email reminders that nudge',d:'Set a due date on any task and Brodoit emails you a reminder before the deadline. Daily highlights and scheduled blocks send their own gentle nudges too.',tip:'Connect Google Calendar to surface all those reminders alongside your real schedule.',demoHTML:'<div class="hd-cal"><div class="hd-cal-day"><b>MON</b><span>9</span></div><div class="hd-cal-day hd-cal-day-on"><b>TUE</b><span>10</span></div><div class="hd-cal-day"><b>WED</b><span>11</span></div><div class="hd-cal-day"><b>THU</b><span>12</span></div></div>'}
   ];
   const stepIdx=Math.max(0,Math.min(S.helpStep||0,HSTEPS.length-1));
   const step=HSTEPS[stepIdx];const isLast=stepIdx===HSTEPS.length-1;
@@ -9513,47 +9503,9 @@ if(S.voicePlay){
   h+='</div></div></div>';
 }
 
-if(S.showWASetup){
-  const conn=S.waConn||{step:'phone',cc:'+91'};
-  const joined=localStorage.getItem('tf_wa_joined')==='1';
-  const sandboxCode=window.__TWILIO_SANDBOX_CODE||'along-wool';
-  const ccVal=conn.cc||'+91';
-  const ccOpts=[['+91','\\u{1F1EE}\\u{1F1F3}'],['+1','\\u{1F1FA}\\u{1F1F8}'],['+44','\\u{1F1EC}\\u{1F1E7}'],['+61','\\u{1F1E6}\\u{1F1FA}'],['+971','\\u{1F1E6}\\u{1F1EA}'],['+65','\\u{1F1F8}\\u{1F1EC}']];
-  const ccHTML=ccOpts.map(o=>'<option value="'+o[0]+'"'+(ccVal===o[0]?' selected':'')+'>'+o[1]+' '+o[0]+'</option>').join('');
-  h+='<div class="ov ov-locked"><div class="mdl was-mdl">';
-  h+='<div class="was-hd"><span class="was-emoji">\\u{1F4F2}</span><div><h2 class="was-t">Set up WhatsApp</h2><div class="was-s">'+(conn.step==='verify'?'Step 2 of 2 \\u2022 Enter the code':'Step 1 of 2 \\u2022 Enter your number')+'</div></div><button class="was-x" onclick="waConnectAbort()" aria-label="Close">\\u2715</button></div>';
-  // progress indicator
-  h+='<div class="was-progress"><div class="was-progress-bar" style="width:'+(conn.step==='verify'?'100%':'50%')+'"></div></div>';
-
-  if(conn.step==='verify'){
-    h+='<div class="was-body">'
-      +'<div class="was-card-t">Enter the 6-digit code</div>'
-      +'<div class="was-card-d">We sent it on WhatsApp to <b>'+esc(conn.phone||'')+'</b>. Switch to WhatsApp, copy the code, paste below \\u2014 your progress is saved if you switch apps.</div>'
-      +'<input id="waSetupCode" class="was-code" type="tel" inputmode="numeric" maxlength="6" placeholder="\\u2022\\u2022\\u2022\\u2022\\u2022\\u2022" autocomplete="one-time-code" value="'+esc(conn.codeInput||'')+'" oninput="waConnCodeInput(this.value)">'
-      +(conn.err?'<div class="was-err">'+esc(conn.err)+'</div>':'')
-      +'<div class="was-acts"><button class="mb mb-c" onclick="S.waConn={step:\\'phone\\',cc:\\''+ccVal+'\\',phoneInput:\\''+esc(conn.phoneInput||'')+'\\'};_waPersist();render()">\\u2190 Wrong number?</button><button class="mb mb-s" onclick="waConnectVerify()"'+(conn.verifying?' disabled':'')+'>'+(conn.verifying?'Verifying\\u2026':'Verify &amp; connect')+'</button></div>'
-      +'<button class="was-resend" onclick="waConnectSend()">\\u{1F501} Resend code</button>'
-    +'</div>';
-  } else {
-    h+='<div class="was-body">';
-    if(!joined){
-      h+='<div class="was-helper"><div class="was-helper-t">\\u26A1 How this works \\u2014 first time only</div>'
-        +'<div class="was-helper-d">Brodoit talks to WhatsApp through <b>Twilio</b>, a third-party messaging gateway. Your tasks flow: <b>your WhatsApp \\u2192 Twilio \\u2192 Brodoit</b> and back. Before Twilio will deliver our messages to you, you have to <b>opt in</b> by sending one short message:<br><br>1. Open WhatsApp<br>2. Send <b>join '+esc(sandboxCode)+'</b> to <b>+1 415 523 8886</b><br>3. Wait for the confirmation reply<br><br>That\\'s it \\u2014 you only do this <b>once per phone</b>. Tap the button below and the message is pre-filled for you.</div>'
-        +'<div class="was-helper-acts"><button class="was-jb" onclick="waOpenJoin()">'+WI+' Open WhatsApp \\u2014 send join code</button><button class="was-skip" onclick="localStorage.setItem(\\'tf_wa_joined\\',\\'1\\');render()">Already did this \\u2192</button></div>'
-      +'</div>';
-    }else{
-      h+='<div class="was-mini">\\u2705 Twilio bridge set up on this device <button class="was-mini-reset" onclick="localStorage.removeItem(\\'tf_wa_joined\\');render()">Redo</button></div>';
-    }
-    h+='<div class="was-card-t">Your WhatsApp number</div>'
-      +'<div class="was-card-d">We\\'ll send a 6-digit code to confirm.</div>'
-      +'<div class="was-row"><select id="waSetupCC" class="was-cc" onchange="waConnCcInput(this.value)">'+ccHTML+'</select>'
-      +'<input id="waSetupPh" class="was-ph" type="tel" inputmode="tel" placeholder="98765 43210" autocomplete="tel-national" value="'+esc(conn.phoneInput||'')+'" oninput="waConnPhInput(this.value)"></div>'
-      +(conn.err?'<div class="was-err">'+esc(conn.err)+(conn.needsJoin?' \\u2014 finish the one-time setup above first':'')+'</div>':'')
-      +'<div class="was-acts"><button class="mb mb-c" onclick="waConnectAbort()">Cancel</button><button class="mb mb-s" onclick="waConnectSend()"'+(conn.sending?' disabled':'')+'>'+(conn.sending?'Sending\\u2026':'Send code via WhatsApp')+'</button></div>'
-    +'</div>';
-  }
-  h+='</div></div>';
-}
+// (WhatsApp setup modal removed — integration retired. The state flag S.showWASetup
+// can no longer be set from the UI, but if persisted from a prior session it has
+// no render block and is ignored.)
 
 if(S.hlPanel){
   const hl=S.dailyHl;
@@ -9816,7 +9768,7 @@ try{document.body.classList.toggle('modal-open',_isModalOpen())}catch(e){}
 }
 fetch('/api/config').then(r=>r.json()).then(c=>{window.__TWILIO_SANDBOX_CODE=c.sandboxCode||'';render()}).catch(()=>{});
 applyTheme();
-if(S.user){_waRestore();refreshSession();load();loadBookStreak();loadGoogleStatus();loadWeather();loadTicker();loadCityTemps();loadRemember();loadMindGym();coachInit();chk();setInterval(load,10000);setInterval(loadWeather,15*60*1000);setInterval(loadTicker,15*60*1000);setInterval(loadCityTemps,15*60*1000);setInterval(loadRemember,6*60*60*1000)}else render();
+if(S.user){try{localStorage.removeItem('tf_wa_conn');localStorage.removeItem('tf_wa_joined');localStorage.removeItem('tf_wa_banner_x')}catch(e){}refreshSession();load();loadBookStreak();loadGoogleStatus();loadWeather();loadTicker();loadCityTemps();loadRemember();loadMindGym();coachInit();chk();setInterval(load,10000);setInterval(loadWeather,15*60*1000);setInterval(loadTicker,15*60*1000);setInterval(loadCityTemps,15*60*1000);setInterval(loadRemember,6*60*60*1000)}else render();
 // When the user returns from Gmail/another app, re-restore the in-progress login if the displayed step
 // doesn't match what the URL hash + localStorage say. Covers iOS Safari evicting the tab while she reads
 // the OTP email. The URL hash (#otp) is the most durable signal — survives even a full tab kill + reload.
