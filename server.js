@@ -9769,41 +9769,29 @@ try{document.body.classList.toggle('modal-open',_isModalOpen())}catch(e){}
 fetch('/api/config').then(r=>r.json()).then(c=>{window.__TWILIO_SANDBOX_CODE=c.sandboxCode||'';render()}).catch(()=>{});
 applyTheme();
 if(S.user){try{localStorage.removeItem('tf_wa_conn');localStorage.removeItem('tf_wa_joined');localStorage.removeItem('tf_wa_banner_x')}catch(e){}refreshSession();load();loadBookStreak();loadGoogleStatus();loadWeather();loadTicker();loadCityTemps();loadRemember();loadMindGym();coachInit();chk();setInterval(load,10000);setInterval(loadWeather,15*60*1000);setInterval(loadTicker,15*60*1000);setInterval(loadCityTemps,15*60*1000);setInterval(loadRemember,6*60*60*1000)}else render();
-// When the user returns from Gmail/another app, re-restore the in-progress login if the displayed step
-// doesn't match what the URL hash + localStorage say. Covers iOS Safari evicting the tab while she reads
-// the OTP email. The URL hash (#otp) is the most durable signal — survives even a full tab kill + reload.
+// When the user returns from their email app to read the OTP, re-restore the in-progress login.
+// Only ever transitions FORWARD (phone → otp); never restores otp → phone. The previous polling
+// version could read a stale localStorage write and bounce a typing user back to the email screen,
+// which presented as the page "refreshing" mid-OTP entry. Fired only on bfcache restore +
+// visibility change — the 2-second poll was removed because it was the source of those bounces.
 function _recoverLoginIfNeeded(){
   if(S.user||token)return;
-  const hashSaysOtp=location.hash==='#otp';
+  if(S.loginStep==='otp')return;  // already on OTP — nothing to do, never go backward
+  const hashSaysOtp=/^#otp(:|$)/.test(location.hash);  // match bare #otp AND #otp:identifier
   let saved=null;try{saved=JSON.parse(localStorage.getItem('tf_login_state')||'null')}catch(e){}
   const savedSaysOtp=!!(saved&&saved.step==='otp'&&saved.ts&&Date.now()-saved.ts<60*60*1000);
-  const wantOtp=hashSaysOtp||savedSaysOtp;
-  // Force OTP step if either signal says so AND we know who the user is.
-  if(wantOtp){
-    if(S.loginStep==='otp')return; // already showing it
-    try{restoreLoginState()}catch(e){}
-    // Prefill email/phone from any of the durable sources
-    if(!S.loginEmail&&saved&&saved.email)S.loginEmail=saved.email;
-    if(!S.loginEmail){try{S.loginEmail=localStorage.getItem('tf_email')||S.loginEmail||''}catch(e){}}
-    if(!S.loginPhone&&saved&&saved.phone)S.loginPhone=saved.phone;
-    if(S.loginEmail||S.loginPhone){
-      S.loginStep='otp';
-      // Re-stamp the hash in case the platform dropped it
-      try{if(location.hash!=='#otp')history.replaceState(null,'','#otp')}catch(e){}
-      render();
-    }
-    return;
-  }
-  if(!saved)return;
-  if(S.loginStep===(saved?saved.step:'phone'))return;
+  if(!hashSaysOtp&&!savedSaysOtp)return;
   try{restoreLoginState()}catch(e){}
-  render();
+  if(!S.loginEmail&&saved&&saved.email)S.loginEmail=saved.email;
+  if(!S.loginEmail){try{S.loginEmail=localStorage.getItem('tf_email')||S.loginEmail||''}catch(e){}}
+  if(!S.loginPhone&&saved&&saved.phone)S.loginPhone=saved.phone;
+  if(S.loginEmail||S.loginPhone){
+    S.loginStep='otp';
+    render();
+  }
 }
 window.addEventListener('pageshow',function(e){_recoverLoginIfNeeded()});
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')_recoverLoginIfNeeded()});
-// Polling fallback — covers iOS Safari edge cases where neither pageshow nor visibilitychange fires reliably.
-// Cheap (one localStorage read every 2s) and only acts if state actually drifts.
-setInterval(_recoverLoginIfNeeded,2000);
 if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
 </script></body></html>`;
 
