@@ -2063,6 +2063,23 @@ body:not([data-theme=aurora]) .mgd-cta-wrap{background:#fff;border-top-color:#E8
 .mgd-cta{width:100%;padding:15px 22px;border-radius:14px;border:0;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font:600 15px/1 inherit;letter-spacing:-.005em;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 10px 26px -6px var(--accent);transition:transform .2s,box-shadow .25s}
 .mgd-cta:hover{transform:translateY(-1px)}
 .mgd-cta:active{transform:scale(.97)}
+/* Hero-mounted Play CTA — sits inside the gradient hero for one obvious primary action */
+.mgd-cta-hero{padding:16px 24px;font-size:15.5px;box-shadow:0 14px 32px -10px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.2)}
+/* Simple level dot row — replaces the runner figure + duplicate stages list */
+.mgd-row-card{margin:0 18px 18px;padding:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:18px}
+.mgd-row-hd{display:flex;justify-content:space-between;align-items:baseline;font-family:'JetBrains Mono','Space Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:14px}
+.mgd-row-hd b{color:#fff;font-weight:700;letter-spacing:.04em}
+.mgd-dots{display:grid;grid-template-columns:repeat(10,1fr);gap:8px}
+.mgd-dot{aspect-ratio:1;border-radius:50%;display:grid;place-items:center;font:700 13.5px/1 'Inter',sans-serif;letter-spacing:-.01em;cursor:pointer;border:1.5px solid transparent;transition:transform .2s,background .2s,border-color .2s,color .2s;font-family:inherit;-webkit-tap-highlight-color:transparent}
+.mgd-dot-done{background:linear-gradient(135deg,var(--accent,#86EFAC),var(--accent2,#22D3EE));color:#fff;border-color:transparent;box-shadow:0 4px 10px -2px rgba(0,0,0,.3)}
+.mgd-dot-current{background:rgba(255,255,255,.14);color:#fff;border-color:#fff;animation:mgdPulse 1.6s ease-in-out infinite;box-shadow:0 0 0 4px rgba(255,255,255,.1)}
+.mgd-dot-locked{background:rgba(255,255,255,.04);color:rgba(255,255,255,.3);cursor:not-allowed;border-color:rgba(255,255,255,.06)}
+.mgd-dot:not(:disabled):hover{transform:scale(1.1)}
+.mgd-dot:active{transform:scale(.92)}
+@keyframes mgdPulse{0%,100%{box-shadow:0 0 0 4px rgba(255,255,255,.12)}50%{box-shadow:0 0 0 8px rgba(255,255,255,.2)}}
+.mgd-row-foot{display:flex;gap:18px;justify-content:center;margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.06);font-family:'JetBrains Mono','Space Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.55)}
+.mgd-row-foot b{font-family:'Inter',sans-serif;font-size:18px;letter-spacing:-.02em;font-weight:700;margin-right:4px}
+@media (max-width:560px){.mgd-row-card{margin:0 14px 14px;padding:14px}.mgd-dots{gap:6px}.mgd-dot{font-size:12.5px}}
 @media (max-width:560px){.mg-detail{max-height:100vh;border-radius:0;align-self:stretch;width:100%}.mgd-hd{padding:14px 16px;padding-top:calc(14px + env(safe-area-inset-top,0px))}.mgd-body{padding:18px 18px 12px}.mgd-emoji{font-size:24px}.mgd-name{font-size:16px}.mgd-stat b{font-size:18px}.mgd-mile{grid-template-columns:1fr 64px 1fr;min-height:80px}.mgd-link{width:64px}.mgd-node{width:54px;height:54px}.mgd-pulse-ring{width:54px;height:54px}.mgd-node-num{font-size:17px}.mgd-tier-name{font-size:18px}.mgd-mile-t{font-size:17px}.mgd-tier-badge{width:30px;height:30px;font-size:12px}}
 /* Mind Gym overall progress strip */
 .mg-overall{display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);margin-bottom:18px;font-size:13px;color:#fff}
@@ -6803,7 +6820,12 @@ function _renderHlPoster(text,done){
     +'</svg>';
 }
 // Game-detail view: click a game card → see its 10-level journey before playing
-function mgDetailOpen(key){S.mgDetail=key;S.mgGamesPanel=false;render();try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){}}
+function mgDetailOpen(key){
+  // Reaction and Memory Tap were retired. If a stale tile or cached state asks
+  // for them, fall back to Math so the modal isn't broken.
+  if(key==='reaction'||key==='memory')key='math';
+  S.mgDetail=key;S.mgGamesPanel=false;render();try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){}
+}
 function mgDetailClose(){S.mgDetail=null;render()}
 function mgGamesOpen(){S.mgGamesPanel=true;if(!S.mg.loaded)loadMindGym();render()}
 function mgGamesClose(){S.mgGamesPanel=false;render()}
@@ -8553,20 +8575,21 @@ else if(S.tab==='mindgym'){
       +'</div>'
     +'</section>';
   }
-  // ─── Game tiles in chip style ───
+  // ─── The keeper games. Reaction (single-tap, gets boring after 2 plays) and
+  // Memory Tap (janky Simon clone, canvas issues) were cut. These three each
+  // have replayable depth: math scales arithmetic difficulty, word builds
+  // vocabulary, schulte trains peripheral vision. ───
   const _games=[
-    {k:'math',e:'\\u{1F522}',n:'Math Sprint',d:'Mental arithmetic against the clock',accent:'#22D3EE',accent2:'#3B82F6',pData:mg.progress.math,pct:mgPercent('math'),bestL:'Best streak',road:'highway'},
-    {k:'memory',e:'\\u{1F9E9}',n:'Memory Tap',d:'Working-memory, Simon-style',accent:'#A78BFA',accent2:'#EC4899',pData:mg.progress.memory,pct:mgPercent('memory'),bestL:'Best round',road:'mountain'},
-    {k:'reaction',e:'\\u26A1',n:'Reaction',d:'Reflex training, millisecond by millisecond',accent:'#FFB547',accent2:'#FB923C',pData:mg.progress.reaction,pct:mgPercent('reaction'),bestL:'Best ms',bestSuffix:'ms',road:'racetrack'},
-    {k:'word',e:'\\u{1F520}',n:'Word Sprint',d:'Anagrams. 90 seconds. Find every word.',accent:'#34D399',accent2:'#10B981',pData:(mg.progress.word||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((mg.progress.word||{}).xp||0)/(5*100))*100)),bestL:'Best',bestSuffix:' words',road:'forest'},
-    {k:'schulte',e:'\\u{1F3AF}',n:'Schulte Grid',d:'Tap 1\\u219225 in order. Trains visual focus.',accent:'#F472B6',accent2:'#A78BFA',pData:(mg.progress.schulte||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((mg.progress.schulte||{}).xp||0)/(5*100))*100)),bestL:'Best time',bestSuffix:' s',road:'space'}
+    {k:'math',e:'\\u{1F522}',n:'Math Sprint',d:'Mental arithmetic, against the clock. Each level adds harder operations or a tighter window.',accent:'#22D3EE',accent2:'#3B82F6',pData:mg.progress.math,pct:mgPercent('math'),bestL:'Best streak'},
+    {k:'word',e:'\\u{1F520}',n:'Word Sprint',d:'Seven scrambled letters, ninety seconds. Find every word you can.',accent:'#34D399',accent2:'#10B981',pData:(mg.progress.word||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((mg.progress.word||{}).xp||0)/(5*100))*100)),bestL:'Best',bestSuffix:' words'},
+    {k:'schulte',e:'\\u{1F3AF}',n:'Schulte Grid',d:'Tap 1 to 25 in order. Higher levels grow the grid up to 7\\u00D77 (49 cells).',accent:'#F472B6',accent2:'#A78BFA',pData:(mg.progress.schulte||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((mg.progress.schulte||{}).xp||0)/(5*100))*100)),bestL:'Best time',bestSuffix:' s'}
   ];
   // ─── Mind Games chip — same purple-hero Actions pattern as the home tab ───
   h+='<section class="home-hero qa-hero">'
     +'<div class="hh-bg"></div>'
     +'<div class="hh-row"><div class="hh-eyebrow">\\u{1F3AE} Mind Games</div></div>'
     +'<h1 class="hh-greet" style="font-size:clamp(28px,5vw,42px);margin:6px 0 14px">Pick a <em>game</em>.</h1>'
-    +'<p class="hh-line" style="margin-bottom:18px">Tap any of the five to open it in fullscreen. Each one tracks levels and your best score.</p>'
+    +'<p class="hh-line" style="margin-bottom:18px">Three brain workouts. Tap any to open in fullscreen. Each one tracks levels and your best score.</p>'
     +'<div class="hh-stats">';
   _games.forEach(g=>{
     const p=g.pData;
@@ -9233,8 +9256,6 @@ if(S.mgGamesPanel&&!S.mgDetail&&!S.mgPlay){
   const _mg=S.mg;
   const _gms=[
     {k:'math',e:'\\u{1F522}',n:'Math Sprint',d:'Mental arithmetic against the clock',accent:'#22D3EE',accent2:'#3B82F6',pData:_mg.progress.math,pct:mgPercent('math')},
-    {k:'memory',e:'\\u{1F9E9}',n:'Memory Tap',d:'Working-memory, Simon-style',accent:'#A78BFA',accent2:'#EC4899',pData:_mg.progress.memory,pct:mgPercent('memory')},
-    {k:'reaction',e:'\\u26A1',n:'Reaction',d:'Reflex training, ms by ms',accent:'#FFB547',accent2:'#FB923C',pData:_mg.progress.reaction,pct:mgPercent('reaction'),bestSuffix:'ms'},
     {k:'word',e:'\\u{1F520}',n:'Word Sprint',d:'Anagrams. 90 seconds.',accent:'#34D399',accent2:'#10B981',pData:(_mg.progress.word||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((_mg.progress.word||{}).xp||0)/(5*100))*100)),bestSuffix:' words'},
     {k:'schulte',e:'\\u{1F3AF}',n:'Schulte Grid',d:'Tap 1\\u219225 in order',accent:'#F472B6',accent2:'#A78BFA',pData:(_mg.progress.schulte||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((_mg.progress.schulte||{}).xp||0)/(5*100))*100)),bestSuffix:' s'}
   ];
@@ -9287,58 +9308,29 @@ if(S.mgDetail&&!S.mgPlay){
     +'</header>';
     h+='<div class="mgd-body">';
     // Hero card with the game name and stats — uses .hh-stats grid pattern
+    // ─── Hero — game name + a single big primary CTA. No mid-page stats noise. ───
     h+='<section class="home-hero mg-detail-hero">'
       +'<div class="hh-bg"></div>'
-      +'<div class="hh-row"><div class="hh-eyebrow">'+meta.e+' Mind Gym</div></div>'
-      +'<h1 class="hh-greet" style="font-size:clamp(28px,5.4vw,44px)">'+meta.n+'.</h1>'
-      +'<p class="hh-line">'+meta.d+'</p>'
-      +'<div class="hh-stats" style="grid-template-columns:repeat(3,1fr)">'
-        +'<div class="hh-stat"><b style="color:#fff">L'+cur+'</b><small>Level</small></div>'
-        +'<div class="hh-stat"><b style="color:#86EFAC">'+(prog.xp||0)+'</b><small>XP earned</small></div>'
-        +'<div class="hh-stat"><b style="color:#FFB547">'+(prog.best||'\\u2014')+'</b><small>Best</small></div>'
-      +'</div>'
+      +'<div class="hh-row"><div class="hh-eyebrow">'+meta.e+' '+meta.n+'</div></div>'
+      +'<h1 class="hh-greet" style="font-size:clamp(28px,5.4vw,44px);margin:6px 0 12px">Level <em>'+cur+'</em>.</h1>'
+      +'<p class="hh-line" style="margin-bottom:20px">'+meta.d+'</p>'
+      +'<button class="mgd-cta mgd-cta-hero" onclick="'+meta.start+'"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg> Play Level '+cur+'</button>'
     +'</section>';
-    // ─── Simple horizontal track with a runner stuck at the current level ───
-    h+='<div class="mgr-track-wrap">';
-    h+='<div class="mgr-pct"><span><b>'+(cur-1)+'</b> / 10 cleared</span><span class="mgr-pct-bar"><i style="width:'+((cur-1)/9*100)+'%"></i></span></div>';
-    h+='<div class="mgr-track">';
-    h+='<div class="mgr-rail"><i style="width:'+((cur-1)/9*100)+'%"></i></div>';
-    h+='<div class="mgr-stops">';
+    // ─── Single clean dot row showing all 10 levels. No runner figure, no
+    // duplicate stages list, no "stuck at level" message. The dots ARE the
+    // navigation — done levels can be replayed, current is highlighted. ───
+    h+='<div class="mgd-row-card">'
+      +'<div class="mgd-row-hd"><span>Levels</span><b>'+(cur-1)+' / 10 cleared</b></div>'
+      +'<div class="mgd-dots">';
     for(let i=1;i<=10;i++){
       const state=i<cur?'done':i===cur?'current':'locked';
-      h+='<button class="mgr-stop mgr-stop-'+state+'" onclick="mgPlayLevel(\\''+S.mgDetail+'\\','+i+')" '+(state==='locked'?'aria-disabled="true"':'')+' style="left:'+((i-1)/9*100)+'%">';
-      h+=(state==='done'?'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>':'<span>'+i+'</span>');
+      h+='<button class="mgd-dot mgd-dot-'+state+'" onclick="mgPlayLevel(\\''+S.mgDetail+'\\','+i+')" '+(state==='locked'?'aria-disabled="true" disabled':'')+' aria-label="Level '+i+'">';
+      h+=(state==='done'?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>':state==='locked'?'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>':'<span>'+i+'</span>');
       h+='</button>';
     }
-    h+='</div>';
-    // Runner — anchored to the current level. Legs pump, body bobs, but the runner doesn't actually advance.
-    h+='<div class="mgr-runner" style="left:'+((cur-1)/9*100)+'%" aria-hidden="true">'
-      +'<div class="mgr-runner-dust"><i></i><i></i><i></i></div>'
-      +'<svg class="mgr-runner-svg" viewBox="0 0 40 56" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">'
-        +'<circle class="mgr-head" cx="22" cy="9" r="5" fill="currentColor" stroke="none"/>'
-        +'<path class="mgr-body" d="M 22 14 L 19 28"/>'
-        +'<path class="mgr-arm-front" d="M 19 18 L 28 16"/>'
-        +'<path class="mgr-arm-back" d="M 19 18 L 12 24"/>'
-        +'<path class="mgr-leg-front" d="M 19 28 L 26 38 L 30 44"/>'
-        +'<path class="mgr-leg-back" d="M 19 28 L 12 38 L 14 44"/>'
-      +'</svg>'
+    h+='</div>'
+      +'<div class="mgd-row-foot"><span><b style="color:#86EFAC">'+(prog.xp||0)+'</b> XP</span><span><b style="color:#FFB547">'+(prog.best||'\\u2014')+'</b> Best</span></div>'
     +'</div>';
-    h+='</div>'; // /mgr-track
-    h+='<div class="mgr-stuck-msg">\\u{1F3C3} Running at <b>Level '+cur+'</b> \\u00B7 keep going to break through.</div>';
-    h+='</div>'; // /mgr-track-wrap
-    // Compact stage list below
-    const _stages=['Warm-up','Foundations','Steady','Stretch','Strider','Sprint','Pace','Power','Edge','Master'];
-    h+='<ol class="mgr-stages">';
-    for(let i=1;i<=10;i++){
-      const state=i<cur?'done':i===cur?'current':'locked';
-      h+='<li class="mgr-row mgr-row-'+state+'" onclick="mgPlayLevel(\\''+S.mgDetail+'\\','+i+')">'
-        +'<span class="mgr-row-n">'+i+'</span>'
-        +'<span class="mgr-row-t">'+_stages[i-1]+'</span>'
-        +'<span class="mgr-row-s">'+(state==='done'?'\\u2713 Cleared':state==='current'?'\\u25B6 Tap to play':'\\u{1F512} Locked')+'</span>'
-      +'</li>';
-    }
-    h+='</ol>';
-    h+='<div class="mgd-cta-wrap"><button class="mgd-cta" onclick="'+meta.start+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg> Play Level '+cur+'</button></div>';
     h+='</div></div></div>';
   }
 }
