@@ -1356,41 +1356,37 @@ const HTML=`<!DOCTYPE html><html lang="en"><head>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 /* ─────────────────────────────────────────────────────────────
-   Warm Reading Room palette — adopted from Claude Design handoff
-   "Like a stoic's evening library — calm, candlelit, serif-led."
-   bg #1A1816 · text #E8DCC4 · terracotta #C97A3F · sage #7BA188 · candle gold #D9B26B
-   Typography: Newsreader (display + reading) + IBM Plex Sans (UI) + JetBrains Mono (timestamps)
+   Light productivity palette — Elevate / Headspace inspired.
+   Cream peach background, charcoal ink, warm orange + soft teal accents.
+   Generous padding, rounded cards, friendly geometry.
 ─────────────────────────────────────────────────────────────── */
 :root{
---bg:#1A1816;--bg-2:#221E1A;--bg-elev:#25201B;--bg-sunken:#2C2620;
---surface:#25201B;--surface-2:#2C2620;
---ink:#E8DCC4;--text:#E8DCC4;--text-mute:#A89A82;--text-dim:#6F6557;
---ink-2:#A89A82;--ink-3:#A89A82;--ink-4:#6F6557;--ink-5:#3A332C;
---line:#3A332C;--line-2:#4A4136;--border:#3A332C;--border-2:#4A4136;
---accent:#C97A3F;--accent-soft:rgba(201,122,63,.14);--accent-ink:#1A1816;
---accent-2:#7BA188;--warm:#D9B26B;--paper:#EFE6D2;
+--bg:#FFF8F0;--bg-2:#FEF3E6;--bg-elev:#FFFFFF;--bg-sunken:#FAEFDC;
+--surface:#FFFFFF;--surface-2:#FEFBF7;
+--ink:#1A1A1A;--text:#1A1A1A;--text-mute:#6A6258;--text-dim:#A39989;
+--ink-2:#3A3A3A;--ink-3:#6A6258;--ink-4:#9A9080;--ink-5:#CFC8BB;
+--line:#F0E6D6;--line-2:#E5D9C5;--border:#F0E6D6;--border-2:#E5D9C5;
+--accent:#FF7A45;--accent-soft:rgba(255,122,69,.10);--accent-ink:#FFFFFF;
+--accent-2:#5BBFB4;--warm:#FCB851;--paper:#FFF1DC;
 --serif:'Newsreader','Iowan Old Style',Georgia,serif;
---sans:'IBM Plex Sans','Inter','SF Pro Text',-apple-system,BlinkMacSystemFont,sans-serif;
+--sans:'Inter','IBM Plex Sans','SF Pro Text',-apple-system,BlinkMacSystemFont,sans-serif;
 --mono:'JetBrains Mono',ui-monospace,monospace;
---shadow-1:0 1px 2px rgba(0,0,0,.18),0 1px 3px rgba(0,0,0,.22);
---shadow-2:0 4px 8px rgba(0,0,0,.18),0 8px 24px rgba(0,0,0,.30);
---radius:14px}
-body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;letter-spacing:-.005em;font-weight:400}
-::selection{background:rgba(201,122,63,.30);color:#FFF}
+--shadow-1:0 1px 2px rgba(120,86,42,.04),0 1px 3px rgba(120,86,42,.06);
+--shadow-2:0 8px 24px -8px rgba(120,86,42,.10),0 4px 12px -4px rgba(120,86,42,.06);
+--radius:18px}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;letter-spacing:-.011em;font-weight:450}
+::selection{background:rgba(255,122,69,.20);color:var(--ink)}
 button{cursor:pointer;font-family:inherit;-webkit-font-smoothing:inherit;color:inherit}
 input,textarea,select{font-family:inherit;-webkit-font-smoothing:inherit;color:inherit}
-h1,h2,h3,h4{font-family:var(--serif);font-weight:500;letter-spacing:-.015em;color:var(--text)}
-/* Ambient candlelight background — warm radial gradients on dark */
+h1,h2,h3,h4{font-family:var(--serif);font-weight:500;letter-spacing:-.018em;color:var(--ink)}
+/* Ambient warm-light background — subtle peach + sun glow on cream */
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:
-  radial-gradient(ellipse at 30% 20%,#2A231D 0%,transparent 50%),
-  radial-gradient(ellipse at 70% 80%,#201914 0%,transparent 50%);}
-/* Faint paper-grain noise overlay — very subtle */
-body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 0.95  0 0 0 0 0.85  0 0 0 0.04 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
-  opacity:.4;mix-blend-mode:overlay}
+  radial-gradient(900px 600px at 12% 6%,rgba(255,122,69,.10) 0%,transparent 60%),
+  radial-gradient(700px 500px at 92% 12%,rgba(252,184,81,.08) 0%,transparent 55%),
+  radial-gradient(700px 500px at 50% 100%,rgba(91,191,180,.06) 0%,transparent 60%)}
 button{cursor:pointer;border:none;background:none;font-family:inherit;color:inherit}
-input,textarea,select{font-family:inherit;border:1px solid var(--border);border-radius:12px;padding:13px 14px;font-size:15px;background:var(--surface);width:100%;color:var(--text)}
-input:focus,textarea:focus{outline:none;border-color:var(--accent)}textarea{resize:vertical;min-height:56px}select{-webkit-appearance:none;appearance:none}
+input,textarea,select{font-family:inherit;border:1px solid var(--border);border-radius:14px;padding:13px 14px;font-size:15px;background:var(--surface);width:100%;color:var(--text)}
+input:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}textarea{resize:vertical;min-height:56px}select{-webkit-appearance:none;appearance:none}
 .app{max-width:520px;margin:0 auto;padding:18px 18px 120px;position:relative;z-index:1}
 .main-col{display:block}
 .hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;padding:0 2px}
@@ -2546,17 +2542,19 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
     box-shadow:none !important;
     margin:0 !important;
   }
-  .tabs.page-t::after{content:'';position:absolute;left:0;right:0;top:-40px;bottom:0;background:linear-gradient(to top,var(--bg) 60%,transparent);z-index:-1;pointer-events:none}
+  .tabs.page-t::after{content:'';position:absolute;left:0;right:0;top:-40px;bottom:0;background:linear-gradient(to top,var(--bg) 65%,transparent);z-index:-1;pointer-events:none}
   .tabs.page-t > div.tabs-inner,.tabs.page-t > .tabs-inner{display:none}
   .tabs.page-t{
-    /* Inner pill — hairline border, surface fill, subtle shadow */
-    background:var(--surface) !important;
+    /* Inner pill — white surface, hairline cream border, soft warm shadow */
+    background:rgba(255,255,255,.96) !important;
+    backdrop-filter:saturate(140%) blur(12px) !important;
+    -webkit-backdrop-filter:saturate(140%) blur(12px) !important;
     border:1px solid var(--border) !important;
     border-radius:100px !important;
     padding:8px 6px calc(8px + env(safe-area-inset-bottom,0px)) !important;
     margin:0 14px calc(20px + env(safe-area-inset-bottom,0px)) !important;
     left:0 !important;right:0 !important;
-    box-shadow:0 -2px 14px rgba(0,0,0,.4),0 0 0 1px rgba(0,0,0,.2) !important;
+    box-shadow:0 -2px 14px rgba(120,86,42,.10),0 8px 24px -8px rgba(120,86,42,.12) !important;
   }
   .tabs.page-t::-webkit-scrollbar{display:none}
   .tabs.page-t .tab{
@@ -3787,29 +3785,28 @@ body:not([data-theme=aurora]) .lvl-link{background:#E8E6E0}
 @media (max-width:560px){.lvl-step{width:26px;height:26px;font-size:10.5px}.lvl-link{min-width:4px;max-width:14px}.lvl-path-t{font-size:20px}.lvl-path-overall b{font-size:22px}}
 /* ─── Home hero greeting (Tasks tab) ─── */
 .home-hero{position:relative;border-radius:24px;padding:30px 28px 24px;margin:0 0 18px;overflow:hidden;color:#fff;isolation:isolate;background:linear-gradient(135deg,#1A0E2E 0%,#2A1845 50%,#3D1F5F 100%);box-shadow:0 22px 50px -16px rgba(91,33,182,.45)}
-/* Warm Reading Room hero variant — replaces the previous light gradient with
-   a calm, dark-on-warm-toned card that matches the palette adopted from the
-   Claude Design handoff. */
-.home-hero.home-hero-light{background:var(--surface);color:var(--text);border:1px solid var(--border);box-shadow:none}
+/* Light productivity hero — Elevate/Headspace style.
+   Soft peach gradient card on cream, friendly geometry, generous padding. */
+.home-hero.home-hero-light{background:linear-gradient(135deg,#FFE9D4 0%,#FFD9BD 50%,#FFE3CC 100%);color:var(--ink);border:1px solid rgba(255,122,69,.18);box-shadow:0 12px 36px -16px rgba(255,122,69,.32),0 2px 6px rgba(120,86,42,.04)}
 .home-hero-light .hh-bg{display:none}
-.home-hero-light .hh-greet{color:var(--text);font-family:var(--serif)}
-.home-hero-light .hh-greet em{color:var(--warm);font-style:italic;background:none;-webkit-text-fill-color:var(--warm)}
-.home-hero-light .hh-line{color:var(--text-mute)}
-.home-hero-light .hh-line b{color:var(--text)}
-.home-hero-light .hh-eyebrow{color:var(--text-dim);font-family:var(--mono)}
-.home-hero-light .hh-stat{background:var(--bg-2);border:1px solid var(--border);color:var(--text)}
-.home-hero-light .hh-stat:hover{background:var(--surface-2)}
-.home-hero-light .hh-stat b{color:var(--text)}
-.home-hero-light .hh-stat small{color:var(--text-dim);font-family:var(--mono)}
-.home-hero-light .hh-progress-chip,.home-hero-light .mg-prog-chip{background:var(--bg-2);border-color:var(--border);color:var(--text)}
-.home-hero-light .hh-progress-chip:hover{background:var(--surface-2)}
-.home-hero-light .hh-pc-t{color:var(--text)}
-.home-hero-light .hh-pc-mini{color:var(--text-dim);font-family:var(--mono)}
-.home-hero-light .hh-pc-arrow{color:var(--text-dim)}
-.home-hero-light .qa-stat-tile{background:var(--bg-2);border:1px solid var(--border)}
-.home-hero-light .qa-stat-tile:hover{background:var(--surface-2);border-color:var(--accent)}
-.home-hero-light .qa-stat-tile small{color:var(--text-mute) !important;font-family:var(--mono)}
-.home-hero-light .qa-stat-bdg{background:rgba(217,178,107,.16);color:var(--warm);border:1px solid transparent}
+.home-hero-light .hh-greet{color:var(--ink);font-family:var(--serif)}
+.home-hero-light .hh-greet em{color:#D85A1E;font-style:italic;background:none;-webkit-text-fill-color:#D85A1E}
+.home-hero-light .hh-line{color:#6E5238}
+.home-hero-light .hh-line b{color:var(--ink)}
+.home-hero-light .hh-eyebrow{color:#A86A35;font-family:var(--mono)}
+.home-hero-light .hh-stat{background:rgba(255,255,255,.7);border:1px solid rgba(255,122,69,.16);color:var(--ink);backdrop-filter:blur(4px)}
+.home-hero-light .hh-stat:hover{background:#fff;border-color:rgba(255,122,69,.32)}
+.home-hero-light .hh-stat b{color:var(--ink)}
+.home-hero-light .hh-stat small{color:#7A6452;font-family:var(--mono)}
+.home-hero-light .hh-progress-chip,.home-hero-light .mg-prog-chip{background:rgba(255,255,255,.7);border-color:rgba(255,122,69,.16);color:var(--ink)}
+.home-hero-light .hh-progress-chip:hover{background:#fff}
+.home-hero-light .hh-pc-t{color:var(--ink)}
+.home-hero-light .hh-pc-mini{color:#7A6452;font-family:var(--mono)}
+.home-hero-light .hh-pc-arrow{color:#A86A35}
+.home-hero-light .qa-stat-tile{background:rgba(255,255,255,.78);border:1px solid rgba(255,122,69,.14)}
+.home-hero-light .qa-stat-tile:hover{background:#fff;border-color:var(--accent)}
+.home-hero-light .qa-stat-tile small{color:var(--ink) !important;font-family:var(--sans);font-weight:600}
+.home-hero-light .qa-stat-bdg{background:var(--accent);color:#fff;border:1px solid transparent}
 .home-hero .hh-bg{position:absolute;inset:0;background:radial-gradient(900px 500px at 0% 0%,rgba(255,107,71,.35) 0%,transparent 55%),radial-gradient(700px 500px at 100% 100%,rgba(167,139,250,.3) 0%,transparent 55%);z-index:-1;animation:hhBgDrift 18s ease-in-out infinite alternate}
 @keyframes hhBgDrift{0%{transform:scale(1) translate(0,0)}100%{transform:scale(1.08) translate(-20px,15px)}}
 .hh-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
