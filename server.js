@@ -527,8 +527,13 @@ async function _synthesizeTTS(text, voice, settings) {
 
 // GET /api/audio/:id — token query-param, streams MP3.
 // Used by <audio src> for affirmations + ElevenLabs guided meditations.
+//
+// Cache-hit path: read file from disk and send. Fast.
+// Cache-miss path: stream ElevenLabs response *directly* to the client
+// (and tee a copy to disk for next time). Means audio bytes start
+// arriving at the browser within ~200ms instead of waiting for the full
+// synthesis to complete server-side. Crucial for "instant" feel.
 app.get('/api/audio/:id', async (req, res) => {
-  // Auth via ?token= so <audio> tags work without an Authorization header.
   const token = String(req.query.token || req.headers['x-token'] || '').trim();
   const u = token ? db.prepare('SELECT * FROM users WHERE token=?').get(token) : null;
   if (!u) return res.status(401).json({ error: 'unauthorized' });
@@ -536,15 +541,74 @@ app.get('/api/audio/:id', async (req, res) => {
   const id = String(req.params.id || '').replace(/[^a-zA-Z0-9_-]/g, '');
   const entry = AUDIO_LIBRARY[id];
   if (!entry) return res.status(404).json({ error: 'unknown audio id' });
+
+  const model = 'eleven_turbo_v2_5';
+  const cacheKey = _ttsCacheKey(entry.script, entry.voice, model);
+  const cachePath = _ttsCachePath(cacheKey);
+
+  // Cache hit — stream from disk
   try {
-    const { audio, cache } = await _synthesizeTTS(entry.script, entry.voice, AUDIO_TUNING_CALM);
-    res.set('Content-Type', 'audio/mpeg')
-       .set('Cache-Control', 'public, max-age=86400')
-       .set('X-Tts-Cache', cache)
-       .send(audio);
+    if (_fs.existsSync(cachePath)) {
+      _ttsCacheStats.hits++;
+      const stat = _fs.statSync(cachePath);
+      res.set('Content-Type', 'audio/mpeg');
+      res.set('Cache-Control', 'public, max-age=86400');
+      res.set('X-Tts-Cache', 'hit');
+      res.set('Content-Length', String(stat.size));
+      res.set('Accept-Ranges', 'bytes');
+      return _fs.createReadStream(cachePath).pipe(res);
+    }
+  } catch (e) {}
+
+  // Cache miss — stream from ElevenLabs straight to client + write to cache
+  _ttsCacheStats.misses++;
+  try {
+    const r = await fetch('https://api.elevenlabs.io/v1/text-to-speech/' + entry.voice + '/stream', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'xi-api-key': ELEVENLABS_KEY, 'Accept': 'audio/mpeg' },
+      body: JSON.stringify({
+        text: entry.script, model_id: model,
+        voice_settings: AUDIO_TUNING_CALM,
+      }),
+    });
+    if (!r.ok) {
+      const t = await r.text();
+      console.error('[audio]', id, 'eleven', r.status, t.slice(0, 200));
+      return res.status(502).json({ error: 'tts upstream ' + r.status });
+    }
+    res.set('Content-Type', 'audio/mpeg');
+    res.set('Cache-Control', 'public, max-age=86400');
+    res.set('X-Tts-Cache', 'miss');
+    // Tee: write to disk while piping to response
+    const tmpPath = cachePath + '.partial';
+    const fileSink = _fs.createWriteStream(tmpPath);
+    const reader = r.body.getReader();
+    let totalBytes = 0;
+    const pump = async () => {
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          totalBytes += value.length;
+          // Write to both the response (so user hears it now) and disk (so next listen is instant)
+          if (!res.writableEnded) res.write(value);
+          fileSink.write(value);
+        }
+        res.end();
+        fileSink.end();
+        // On successful complete, atomically promote .partial → final
+        try { _fs.renameSync(tmpPath, cachePath) } catch (e) {}
+      } catch (err) {
+        console.warn('[audio]', id, 'stream error', err.message);
+        try { res.end() } catch (e) {}
+        try { fileSink.destroy() } catch (e) {}
+        try { _fs.unlinkSync(tmpPath) } catch (e) {}
+      }
+    };
+    pump();
   } catch (e) {
     console.error('[audio]', id, e.message);
-    res.status(502).json({ error: e.message });
+    if (!res.headersSent) res.status(502).json({ error: e.message });
   }
 });
 
@@ -1637,25 +1701,25 @@ const HTML=`<!DOCTYPE html><html lang="en"><head>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 /* ─────────────────────────────────────────────────────────────
-   Low-light productivity palette — calm, muted, low-saturation.
-   Warm off-white surfaces, deep ink text, dusty terracotta accent,
-   soft sage secondary. Less neon than Elevate / Headspace but the
-   same friendly geometry: large radii, generous whitespace.
+   Formal productivity palette — Linear / Notion territory.
+   Neutral light grey-cream surfaces (not peach), graphite ink,
+   restrained slate accent. Soft sage as a single warm note.
+   Tighter geometry, modest radii (14px), hairline borders only.
 ─────────────────────────────────────────────────────────────── */
 :root{
---bg:#F5F1EA;--bg-2:#EFEAE0;--bg-elev:#FFFCF6;--bg-sunken:#E8E2D3;
---surface:#FFFCF6;--surface-2:#FAF5EB;
---ink:#1F1B16;--text:#1F1B16;--text-mute:#6A5F4F;--text-dim:#9A8E7C;
---ink-2:#3A3328;--ink-3:#6A5F4F;--ink-4:#9A8E7C;--ink-5:#C8BEAB;
---line:#E5DDC9;--line-2:#D5CBB3;--border:#E5DDC9;--border-2:#D5CBB3;
---accent:#C97A3F;--accent-soft:rgba(201,122,63,.10);--accent-ink:#FFFFFF;
---accent-2:#7BA188;--warm:#C8A464;--paper:#F2EBDD;
+--bg:#F8F7F4;--bg-2:#F2F0EC;--bg-elev:#FFFFFF;--bg-sunken:#EBE8E2;
+--surface:#FFFFFF;--surface-2:#FAF9F6;
+--ink:#1A1A1A;--text:#1A1A1A;--text-mute:#5C5A55;--text-dim:#8A877F;
+--ink-2:#2D2D2D;--ink-3:#5C5A55;--ink-4:#8A877F;--ink-5:#BFBCB4;
+--line:#E8E5DE;--line-2:#D6D2C9;--border:#E8E5DE;--border-2:#D6D2C9;
+--accent:#3D4A52;--accent-soft:rgba(61,74,82,.06);--accent-ink:#FFFFFF;
+--accent-2:#7BA188;--warm:#B8954E;--paper:#F4F1EA;
 --serif:'Newsreader','Iowan Old Style',Georgia,serif;
 --sans:'Inter','IBM Plex Sans','SF Pro Text',-apple-system,BlinkMacSystemFont,sans-serif;
 --mono:'JetBrains Mono',ui-monospace,monospace;
---shadow-1:0 1px 2px rgba(60,45,20,.04),0 1px 3px rgba(60,45,20,.05);
---shadow-2:0 6px 18px -8px rgba(60,45,20,.08),0 2px 6px -2px rgba(60,45,20,.05);
---radius:18px}
+--shadow-1:0 1px 2px rgba(20,20,20,.03),0 1px 2px rgba(20,20,20,.04);
+--shadow-2:0 4px 14px -6px rgba(20,20,20,.07),0 2px 4px -2px rgba(20,20,20,.04);
+--radius:14px}
 body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;letter-spacing:-.011em;font-weight:450}
 ::selection{background:rgba(255,122,69,.20);color:var(--ink)}
 button{cursor:pointer;font-family:inherit;-webkit-font-smoothing:inherit;color:inherit}
@@ -8884,8 +8948,8 @@ if(S.tab==='tasks'){
   if(!f.length)h+='<div class="empty"><div style="font-size:36px;margin-bottom:8px">\\u2728</div><div style="font-size:15px;font-weight:600">No tasks yet</div><div style="font-size:13px;margin-top:4px">Tap + to add your first task</div></div>';
   else f.forEach(t=>{const p=P[t.priority]||P.medium,st=ST[t.status]||ST.pending,d=t.status==='done';
     const addedTxt=t.created_at?timeAgo((t.created_at||'').replace(' ','T')+'Z'):'';
-    h+='<div class="tc'+(d?' dn':'')+'" style="border-left-color:'+p.c+'"><div class="tc-top"><button class="chk'+(d?' on':'')+'" onclick="tog(\\''+t.id+'\\')">'+(d?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>':'')+'</button><div style="flex:1;min-width:0"><div class="tc-t'+(d?' dn':'')+'">'+esc(t.title)+'</div>'+(t.notes?'<div class="tc-n">'+esc(t.notes)+'</div>':'')+'<div class="tc-m"><button class="badge" style="background:'+st.bg+';color:'+st.c+'" onclick="cyc(\\''+t.id+'\\')">'+st.l+'</button>'+(t.due_date?'<span style="font-size:12px;font-weight:500;color:'+(isOD(t.due_date,t.status)?'#E8453C':isTd(t.due_date)?'#E8912C':'#94A3B8')+'">\\u{1F4C5} '+fD(t.due_date)+(isOD(t.due_date,t.status)?' overdue':'')+'</span>':'')+(t.reminder_time&&!d?'<span style="font-size:11px;color:#3B82F6;font-weight:600">\\u{1F514} '+fT(t.reminder_time)+'</span>':'')+(t.source==='whatsapp'?'<span style="font-size:10px;font-weight:700;color:#128C7E;background:#EDFCF2;border:1px solid #B7E8C4;padding:2px 7px;border-radius:6px;letter-spacing:.3px">\\u{1F4F2} WA</span>':'')+(addedTxt?'<span class="tc-added" title="Added '+esc(t.created_at||'')+'">\\u2795 '+esc(addedTxt)+'</span>':'')+'</div></div></div>';
-    h+='<div class="tc-acts"><button class="ib" onclick="opE(\\''+t.id+'\\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>'+(S.profile&&S.profile.wa_phone?'<button class="ib" title="Send to WhatsApp" onclick="sWA(\\''+t.id+'\\')">'+WI+'</button>':'')+'<button class="ib" style="color:#E8453C" onclick="del(\\''+t.id+'\\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button></div></div>'});
+    h+='<div class="tc'+(d?' dn':'')+'" style="border-left-color:'+p.c+'"><div class="tc-top"><button class="chk'+(d?' on':'')+'" onclick="tog(\\''+t.id+'\\')">'+(d?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>':'')+'</button><div style="flex:1;min-width:0"><div class="tc-t'+(d?' dn':'')+'">'+esc(t.title)+'</div>'+(t.notes?'<div class="tc-n">'+esc(t.notes)+'</div>':'')+'<div class="tc-m"><button class="badge" style="background:'+st.bg+';color:'+st.c+'" onclick="cyc(\\''+t.id+'\\')">'+st.l+'</button>'+(t.due_date?'<span style="font-size:12px;font-weight:500;color:'+(isOD(t.due_date,t.status)?'#E8453C':isTd(t.due_date)?'#E8912C':'#94A3B8')+'">\\u{1F4C5} '+fD(t.due_date)+(isOD(t.due_date,t.status)?' overdue':'')+'</span>':'')+(t.reminder_time&&!d?'<span style="font-size:11px;color:#3B82F6;font-weight:600">\\u{1F514} '+fT(t.reminder_time)+'</span>':'')+(addedTxt?'<span class="tc-added" title="Added '+esc(t.created_at||'')+'">\\u2795 '+esc(addedTxt)+'</span>':'')+'</div></div></div>';
+    h+='<div class="tc-acts"><button class="ib" onclick="opE(\\''+t.id+'\\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="ib" style="color:#E8453C" onclick="del(\\''+t.id+'\\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button></div></div>'});
   h+='</div>';
   // Mind Gym moved to its own dedicated tab.
 }
