@@ -308,6 +308,254 @@ app.post('/api/coach/speak',auth,async(req,res)=>{
     res.set('Content-Type','audio/mpeg').set('Cache-Control','public, max-age=86400').set('X-Tts-Cache','miss').send(audio);
   }catch(e){res.status(500).json({error:String(e.message||e)})}
 });
+// ─────────────────────────────────────────────────────────────────────────
+// Affirmation + guided-meditation library, rendered through ElevenLabs.
+// Each entry is a self-contained script + voice + tuning. Audio is generated
+// on first listen, cached on disk by (script-id, voice). The route below
+// streams the resulting MP3 with a token query-param so <audio src="…">
+// works without an Authorization header.
+// ─────────────────────────────────────────────────────────────────────────
+const ELEVEN_VOICE_SARAH     = 'EXAVITQu4vr4xnSDxMAC'; // warm female · classic narration
+const ELEVEN_VOICE_CHARLOTTE = 'XB0fDUnXU5powFXDhCwa'; // soft, intimate female
+const ELEVEN_VOICE_BRIAN     = 'nPczCjzI2devNBz1zQrb'; // deep meditative male
+
+// Voice settings for affirmation/meditation: more stable, slightly less expressive
+// than coach-conversation tuning — feels grounded and unhurried.
+const AUDIO_TUNING_CALM = {
+  stability: 0.62, similarity_boost: 0.82, style: 0.12, use_speaker_boost: true
+};
+
+const AUDIO_LIBRARY = {
+  // ─── 5 affirmations ───────────────────────────────────────────────────
+  'aff-calm-focus': {
+    title: 'Calm Focus',
+    desc: 'Settle the mind for one task at a time',
+    mins: 2, color: '#FF7A45', voice: ELEVEN_VOICE_SARAH, kind: 'affirmation',
+    script: `Take a slow breath in… and a slower breath out.
+
+You are here. Right now. That is enough.
+
+I have one task in front of me, and I will give it my full attention.
+The other things will wait. They always do.
+
+I do not have to feel ready. I only have to begin.
+Beginning is the work.
+
+When my mind drifts, I notice — without judgment — and I return.
+Calmly. Again and again. That is focus. That is the practice.
+
+I am not behind. I am not ahead. I am exactly here, doing exactly this.
+
+Take one more breath… and begin.`,
+  },
+  'aff-confident-morning': {
+    title: 'Confident Morning',
+    desc: 'Start the day grounded and clear',
+    mins: 2, color: '#FCB851', voice: ELEVEN_VOICE_SARAH, kind: 'affirmation',
+    script: `Good morning.
+
+Today is a fresh page. Yesterday's mistakes do not define me, and yesterday's wins do not carry me. I begin again, gently.
+
+I am capable. Not because everything will be easy — but because I have done hard things before, and I will do them again.
+
+Today I will speak clearly. I will listen well. I will say no when I need to, and yes when it matters.
+
+I will not chase every distraction. I will choose what deserves my attention, and I will give it that attention fully.
+
+I am ready. I have everything I need to begin. Take a breath, stand up, and start.`,
+  },
+  'aff-resilience': {
+    title: 'Resilience',
+    desc: 'For the hard moments — pause, breathe, continue',
+    mins: 2, color: '#5BBFB4', voice: ELEVEN_VOICE_BRIAN, kind: 'affirmation',
+    script: `Pause. Just for a moment.
+
+This is hard. I'm not pretending it isn't. But hard does not mean impossible.
+
+I have been through difficult things before. I'm still here. That is evidence — real evidence — that I can do hard things.
+
+The feeling I have right now will pass. Every feeling does. I do not have to fix it. I only have to let it move through me.
+
+I take one breath. And another. My shoulders soften. My jaw unclenches.
+
+I am not weak for struggling. I am human. And I am still standing.
+
+When I am ready, I take the next small step. Not the whole road. Just the next step. That is enough.`,
+  },
+  'aff-gratitude': {
+    title: 'Gratitude',
+    desc: 'Three breaths, three small things',
+    mins: 2, color: '#FF7A45', voice: ELEVEN_VOICE_CHARLOTTE, kind: 'affirmation',
+    script: `Take a slow breath in… and let it go.
+
+Bring to mind one small thing from today that went well. Anything. A warm drink. A kind word. A quiet minute.
+
+Hold it. Notice how it feels in your body. That feeling is real. Let it sit a moment longer.
+
+Now bring to mind one person you are glad to know. Picture their face. Send a quiet thank you in their direction. They don't need to hear it for it to count.
+
+Last — find one thing about your own self that you are grateful for. Not a big thing. A small thing. The fact that you are here, breathing, trying. That counts.
+
+Three breaths. Three small things. That is the practice.`,
+  },
+  'aff-letting-go': {
+    title: 'Letting Go',
+    desc: 'Release what you cannot control',
+    mins: 2, color: '#FCB851', voice: ELEVEN_VOICE_CHARLOTTE, kind: 'affirmation',
+    script: `Settle in. Eyes soft, or closed.
+
+There is something heavy on my mind right now. Maybe a worry. Maybe a thing I cannot fix. Maybe someone else's choice.
+
+I cannot control all of this. Some of it was never mine to control.
+
+I name it, quietly, to myself. And then — slowly — I imagine setting it down. Not throwing it away. Just placing it on the ground beside me.
+
+It can stay there for a moment. I can pick it back up later if I need to. But for the next few breaths — it doesn't have to be in my hands.
+
+My shoulders are softer now. My breath is slower. My mind is a little quieter.
+
+I am not the heaviness. I am the one carrying it. And I can choose, sometimes, to put it down.`,
+  },
+
+  // ─── 3 ElevenLabs-generated guided meditations (3-5 min) ──────────────
+  'med-grounding-3min': {
+    title: 'Three-minute Grounding',
+    desc: 'A short reset for any moment',
+    mins: 3, color: '#5BBFB4', voice: ELEVEN_VOICE_BRIAN, kind: 'guided',
+    script: `Welcome. We will take three minutes.
+
+Find a comfortable seat. Feet on the floor if you can. Hands resting where they want to rest.
+
+Take one deeper breath in… and let it sigh out through your mouth. Good.
+
+Now let the breath find its own rhythm. You are not forcing anything. You are just watching.
+
+Notice the points of contact between your body and what supports you. Your feet on the floor. Your seat in the chair. Your hands at rest. These are the places where you meet the world right now.
+
+Five names for what is around you. Whatever you can see. Whatever you can hear. The hum of a room. A bird. A clock. Just notice — without naming, without judging.
+
+If a thought arrives, say to yourself: "thinking", and gently return to the breath. The thought is not a problem. It is just a thought.
+
+One more slow breath in… and a longer breath out.
+
+When you are ready, let your eyes open. Carry this quiet with you into the next thing.`,
+  },
+  'med-stress-release-5min': {
+    title: 'Stress Release',
+    desc: 'Soften the body, release the day',
+    mins: 5, color: '#FF7A45', voice: ELEVEN_VOICE_BRIAN, kind: 'guided',
+    script: `Settle into the seat. We have five minutes. The to-do list will wait.
+
+Close your eyes if it feels right. If it doesn't, soften your gaze toward something neutral.
+
+Breathe in through the nose for four counts… hold for two… and release through the mouth for six. Once more. Four in… two hold… six out.
+
+Now let the breath go. You don't need to count any more. Just notice it.
+
+Bring your attention to the top of your head. Notice any tightness in the scalp. The forehead. Around the eyes. Let the muscles around the eyes go a little soft.
+
+Move down to the jaw. The jaw holds so much of the day's tension. Let it unclench. Let the tongue rest at the bottom of the mouth.
+
+Down through the shoulders. So often we carry the weight of the day right here. Drop the shoulders away from the ears. Just an inch. And again.
+
+Down through the chest. The arms. The hands. Let the hands soften open.
+
+Through the belly. The lower back. The hips. The legs. All the way down to the feet.
+
+You are heavier now. The chair is doing more of the work. The day is a little further away.
+
+Stay here, breathing easy, for as long as you have. When you come back, come back gently. There is nothing you need to rush toward.`,
+  },
+  'med-sleep-winddown-5min': {
+    title: 'Sleep Wind-Down',
+    desc: 'Slow the mind for rest',
+    mins: 5, color: '#5BBFB4', voice: ELEVEN_VOICE_CHARLOTTE, kind: 'guided',
+    script: `Lie back. Or sit, if that's where you are. We're going to slow everything down.
+
+Take a long breath in through the nose. And let it leave through the mouth, like a long, soft sigh. Once more. In through the nose… out through the mouth, slowly.
+
+Tonight you don't have to solve anything. The work is done. Whatever isn't done can be done tomorrow. That is allowed.
+
+Begin to notice your body, from the feet up. Feel the weight of your feet. Heavy. Resting on whatever is supporting them.
+
+Up to the ankles, the calves, the thighs. The legs are heavy now. They are not going anywhere. They can let go.
+
+The hips, the lower back, the belly. Each part softer than before. The breath is rising and falling on its own.
+
+The chest, the upper back, the shoulders. The shoulders are wide and easy.
+
+The arms, the hands, the fingers. Heavy.
+
+The neck. The jaw. The face. The mind. Let the mind become like a wide, dark room. Quiet. Still.
+
+Your only job, for the rest of this practice, is to lie here and breathe. The mind will wander. That is fine. Each time it wanders, return to the breath. Without judgment.
+
+Sleep, when it comes, will come on its own. You don't have to chase it. Rest is its own gift, even before sleep arrives.
+
+Goodnight.`,
+  },
+};
+
+// ─── ElevenLabs synth helper (refactored from /api/coach/speak) ────────
+async function _synthesizeTTS(text, voice, settings) {
+  const model = 'eleven_turbo_v2_5';
+  const cacheKey = _ttsCacheKey(text, voice, model);
+  const cachePath = _ttsCachePath(cacheKey);
+  try {
+    if (_fs.existsSync(cachePath)) {
+      _ttsCacheStats.hits++;
+      return { audio: _fs.readFileSync(cachePath), cache: 'hit' };
+    }
+  } catch (e) {}
+  _ttsCacheStats.misses++;
+  const r = await fetch('https://api.elevenlabs.io/v1/text-to-speech/' + voice, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'xi-api-key': ELEVENLABS_KEY, 'Accept': 'audio/mpeg' },
+    body: JSON.stringify({
+      text, model_id: model,
+      voice_settings: settings || { stability: 0.5, similarity_boost: 0.75, style: 0.20, use_speaker_boost: true },
+    }),
+  });
+  if (!r.ok) {
+    const t = await r.text();
+    throw new Error('elevenlabs ' + r.status + ': ' + t.slice(0, 200));
+  }
+  const audio = Buffer.from(await r.arrayBuffer());
+  try { _fs.writeFileSync(cachePath, audio) } catch (e) { console.warn('[tts] cache write failed', e.message) }
+  return { audio, cache: 'miss' };
+}
+
+// GET /api/audio/:id — token query-param, streams MP3.
+// Used by <audio src> for affirmations + ElevenLabs guided meditations.
+app.get('/api/audio/:id', async (req, res) => {
+  // Auth via ?token= so <audio> tags work without an Authorization header.
+  const token = String(req.query.token || req.headers['x-token'] || '').trim();
+  const u = token ? db.prepare('SELECT * FROM users WHERE token=?').get(token) : null;
+  if (!u) return res.status(401).json({ error: 'unauthorized' });
+  if (!ELEVENLABS_KEY) return res.status(503).json({ error: 'TTS not configured' });
+  const id = String(req.params.id || '').replace(/[^a-zA-Z0-9_-]/g, '');
+  const entry = AUDIO_LIBRARY[id];
+  if (!entry) return res.status(404).json({ error: 'unknown audio id' });
+  try {
+    const { audio, cache } = await _synthesizeTTS(entry.script, entry.voice, AUDIO_TUNING_CALM);
+    res.set('Content-Type', 'audio/mpeg')
+       .set('Cache-Control', 'public, max-age=86400')
+       .set('X-Tts-Cache', cache)
+       .send(audio);
+  } catch (e) {
+    console.error('[audio]', id, e.message);
+    res.status(502).json({ error: e.message });
+  }
+});
+
+// GET /api/audio-library — small JSON manifest the client uses to render cards.
+app.get('/api/audio-library', auth, (req, res) => {
+  const items = Object.entries(AUDIO_LIBRARY).map(([id, e]) => ({
+    id, title: e.title, desc: e.desc, mins: e.mins, color: e.color, kind: e.kind,
+  }));
+  res.json({ items });
+});
+
 // Lightweight cache stats endpoint — useful for confirming cost savings
 app.get('/api/coach/cache-stats',(req,res)=>{
   let count=0,bytes=0;
@@ -6227,23 +6475,52 @@ function waConnPhInput(v){if(!S.waConn)return;S.waConn={...S.waConn,phoneInput:v
 function waConnCcInput(v){if(!S.waConn)return;S.waConn={...S.waConn,cc:v};_waPersist()}
 function waConnCodeInput(v){if(!S.waConn)return;S.waConn={...S.waConn,codeInput:v};_waPersist();if((v||'').replace(/\D/g,'').length>=6)waConnectVerify()}
 function waOpenJoin(){const code=window.__TWILIO_SANDBOX_CODE||'along-wool';window.open('https://wa.me/14155238886?text='+encodeURIComponent('join '+code),'_blank')}
-// Three categories x two durations = six English-language meditation audios; durations VERIFIED to match the labels
+// Meditation slots:
+//   directId = Archive.org item (legacy real-teacher recordings)
+//   elevenId = AUDIO_LIBRARY key (server-side ElevenLabs-rendered scripts)
+// New affirmations + extra guided sessions added via ElevenLabs.
 const MED_SLOTS=[
+// Affirmations · 5 short ElevenLabs audios (Sarah / Charlotte / Brian)
+{cat:'affirmations',mins:2,title:'Calm Focus',desc:'Settle the mind for one task \\u2022 2 min',color:'#FF7A45',elevenId:'aff-calm-focus'},
+{cat:'affirmations',mins:2,title:'Confident Morning',desc:'Start the day grounded \\u2022 2 min',color:'#FCB851',elevenId:'aff-confident-morning'},
+{cat:'affirmations',mins:2,title:'Resilience',desc:'For the hard moments \\u2022 2 min',color:'#5BBFB4',elevenId:'aff-resilience'},
+{cat:'affirmations',mins:2,title:'Gratitude',desc:'Three breaths, three small things \\u2022 2 min',color:'#FF7A45',elevenId:'aff-gratitude'},
+{cat:'affirmations',mins:2,title:'Letting Go',desc:'Release what you cannot control \\u2022 2 min',color:'#FCB851',elevenId:'aff-letting-go'},
+// Vipassana
 {cat:'vipassana',mins:10,title:'Anāpāna + Mettā',desc:'Breath-awareness intro \\u2022 12 min',color:'#06B6D4',directId:'AnapanaEnglishMetta',directFile:'Anapana English+Metta.mp3'},
 {cat:'vipassana',mins:20,title:'Anāpāna · 20-min Sit',desc:'Extended breath-awareness \\u2022 21 min',color:'#3B82F6',directId:'70_Minutes_Anapana_Part_1',directFile:'70-m-anapana-M0052.mp3'},
+// Music
 {cat:'music',mins:10,title:'Meditation Morning',desc:'Calming instrumental \\u2022 10 min',color:'#8B5CF6',directId:'SleepMeditationCalming',directFile:'10 min Meditation morning.mp3'},
 {cat:'music',mins:30,title:'Ambient Soundbath',desc:'Slow, layered tones \\u2022 30 min',color:'#EC4899',directId:'AmbientSoundbathPodcast',directFile:'AmbientSoundbathPodcast-001.mp3'},
+// Guided · 2 Archive.org + 3 ElevenLabs short sessions
 {cat:'guided',mins:15,title:'Body Scan',desc:'Body scan with Judith \\u2022 15 min',color:'#10B981',directId:'JR12-2015-10-03-RTR-CIW-body-scan-meditation-judith',directFile:'JR12-2015-10-03-RTR-CIW-body-scan-meditation-judith.mp3'},
-{cat:'guided',mins:25,title:'Loving-Kindness',desc:'Guided practice with Ajahn Brahm \\u2022 25 min',color:'#F59E0B',directId:'BSWA-Meditation',directFile:'2018-11-02- Guided Meditation with AB.mp3'}
+{cat:'guided',mins:25,title:'Loving-Kindness',desc:'Guided with Ajahn Brahm \\u2022 25 min',color:'#F59E0B',directId:'BSWA-Meditation',directFile:'2018-11-02- Guided Meditation with AB.mp3'},
+{cat:'guided',mins:3,title:'Three-minute Grounding',desc:'A short reset for any moment \\u2022 3 min',color:'#5BBFB4',elevenId:'med-grounding-3min'},
+{cat:'guided',mins:5,title:'Stress Release',desc:'Soften the body, release the day \\u2022 5 min',color:'#FF7A45',elevenId:'med-stress-release-5min'},
+{cat:'guided',mins:5,title:'Sleep Wind-Down',desc:'Slow the mind for rest \\u2022 5 min',color:'#5BBFB4',elevenId:'med-sleep-winddown-5min'}
 ];
 const MED_CATEGORIES=[
+  {k:'affirmations',l:'Affirmations',e:'\\u{2728}'},
+  {k:'guided',l:'Guided',e:'\\u{1F50A}'},
   {k:'vipassana',l:'Vipassana',e:'\\u{1F9D8}\\u200D\\u2642\\uFE0F'},
-  {k:'music',l:'Music',e:'\\u{1F3B5}'},
-  {k:'guided',l:'Guided',e:'\\u{1F50A}'}
+  {k:'music',l:'Music',e:'\\u{1F3B5}'}
 ];
 async function loadMeditations(){if(S.medLoading)return;S.medLoading=true;S.meditations=S.meditations||{};MED_SLOTS.forEach(s=>{if(s.directId&&!S.meditations[s.directId])S.meditations[s.directId]={identifier:s.directId,title:s.title}});S.medLoading=false;render()}
 function setMedCat(k){S.medCat=k;render()}
 function playMedDirect(id,title,mins,file){playMeditation(id,title,mins,file)}
+// ElevenLabs-rendered audio (affirmations + new guided meditations).
+// The URL streams directly from /api/audio/:id with a token query param so
+// <audio src="…"> works without an Authorization header. First listen is
+// generated + cached server-side; subsequent listens hit disk cache (free).
+function playMedEleven(id,title,mins){
+  const url='/api/audio/'+encodeURIComponent(id)+'?token='+encodeURIComponent(token||'');
+  S.meditating={active:true,title,mins:mins||2,startedAt:Date.now()};
+  S.playing={id:'el-'+id,title,author:'\\u2728 ElevenLabs voice \\u2022 generated for you',url,external:null,loading:false};
+  // Track session count (same protection as playMeditation against double-counting within 60s)
+  try{const last=parseInt(localStorage.getItem('med_last_count_ts')||'0',10);if(Date.now()-last>60000){const cur=parseInt(localStorage.getItem('med_count')||'0',10)||0;localStorage.setItem('med_count',String(cur+1));localStorage.setItem('med_last_count_ts',String(Date.now()));const today=new Date().toISOString().slice(0,10);const days=(localStorage.getItem('med_days')||'').split(',').filter(Boolean);if(days[days.length-1]!==today){days.push(today);localStorage.setItem('med_days',days.slice(-365).join(','))}}}catch(e){}
+  render();
+  setTimeout(()=>{const a=document.getElementById('audioEl');if(!a)return;a.setAttribute('playsinline','');a.preload='auto';a.load();const p=a.play();if(p&&p.catch)p.catch(()=>toast('\\u25B6\\uFE0F Tap play on the bar','err'))},250);
+}
 async function loadGoogleStatus(){const r=await api('/google/status');if(r){S.google={configured:!!r.configured,accounts:r.accounts||[],loaded:true};render();if(S.google.accounts.length&&S.tab==='cal')loadGcalEvents()}}
 async function connectGoogle(){const r=await api('/google/auth-url');if(!r||!r.url){toast('\\u26A0\\uFE0F Google integration is not configured yet. Ask admin to set GOOGLE_CLIENT_ID/SECRET.','err');return}const w=window.open(r.url,'_blank','width=520,height=640');if(!w){location.href=r.url;return}window.addEventListener('message',function onMsg(e){if(e.data&&e.data.type==='google-connected'){window.removeEventListener('message',onMsg);toast('\\u2705 Connected '+e.data.email);loadGoogleStatus()}},{once:false});const poll=setInterval(()=>{if(w.closed){clearInterval(poll);loadGoogleStatus()}},900)}
 async function disconnectGoogle(email){if(!confirm('Disconnect '+(email||'all Google accounts')+' from Brodoit Calendar?'))return;const r=await api('/google/disconnect',{method:'POST',body:JSON.stringify({email:email||''})});if(r&&r.ok){toast('\\u23F8 Disconnected');S.gcalEvents=[];loadGoogleStatus()}}
@@ -8925,10 +9202,10 @@ else if(S.tab==='books'){
   }
 }
 
-// MEDITATION TAB — three categories with 2 audios each (10 + 20 min)
+// WISDOM TAB — affirmations + guided meditations + vipassana + music
 else if(S.tab==='meditation'){
-  const cat=S.medCat||'vipassana';
-  h+='<div class="section-hd"><span class="section-ic">'+ic('meditation',22)+'</span><div><h3>Meditation</h3><p>Vipassana \\u2022 Music \\u2022 Guided \\u2022 short sittings in English</p></div></div>';
+  const cat=S.medCat||'affirmations';
+  h+='<div class="section-hd"><span class="section-ic">'+ic('meditation',22)+'</span><div><h3>Wisdom</h3><p>Affirmations \\u2022 Guided \\u2022 Vipassana \\u2022 Music \\u2014 a daily sitting in English</p></div></div>';
   // Category pills
   h+='<div class="mag-pills" style="margin-bottom:14px">';
   MED_CATEGORIES.forEach(c=>{h+='<button class="mag-pill'+(cat===c.k?' on':'')+'" onclick="setMedCat(\\''+c.k+'\\')"><span class="mag-pill-e">'+c.e+'</span>'+esc(c.l)+'</button>'});
@@ -8936,10 +9213,19 @@ else if(S.tab==='meditation'){
   if(S.medLoading&&!S.meditations)h+='<div class="loading">Finding meditations...</div>';
   h+='<div class="med-grid">';
   MED_SLOTS.filter(s=>s.cat===cat).forEach(x=>{
-    const doc=(S.meditations||{})[x.directId];
-    const ready=!!doc;
-    const safeTitle=esc(x.title).replace(/\\\\u/g,'\\\\\\\\u').replace(/'/g,"\\\\'");const safeFile=(x.directFile||'').replace(/'/g,"\\\\'");const onclick=ready?('playMedDirect(\\''+x.directId+'\\',\\''+safeTitle+'\\','+x.mins+',\\''+safeFile+'\\')'):'toast(\\'\\u23F3 Loading audio...\\',\\'err\\')';
-    h+='<button class="med-card'+(ready?'':' loading')+'" onclick="'+onclick+'" style="--mc:'+x.color+'">';
+    let ready,onclick;
+    const safeTitle=esc(x.title).replace(/\\\\u/g,'\\\\\\\\u').replace(/'/g,"\\\\'");
+    if(x.elevenId){
+      // ElevenLabs-rendered audio: ready immediately (server caches on first hit)
+      ready=true;
+      onclick='playMedEleven(\\''+x.elevenId+'\\',\\''+safeTitle+'\\','+x.mins+')';
+    } else {
+      const doc=(S.meditations||{})[x.directId];
+      ready=!!doc;
+      const safeFile=(x.directFile||'').replace(/'/g,"\\\\'");
+      onclick=ready?('playMedDirect(\\''+x.directId+'\\',\\''+safeTitle+'\\','+x.mins+',\\''+safeFile+'\\')'):'toast(\\'\\u23F3 Loading audio...\\',\\'err\\')';
+    }
+    h+='<button class="med-card'+(ready?'':' loading')+(x.elevenId?' med-card-el':'')+'" onclick="'+onclick+'" style="--mc:'+x.color+'">';
     h+='<div class="med-card-mins"><b>'+x.mins+'</b><small>min</small></div>';
     h+='<div class="med-card-body"><div class="med-card-title">'+esc(x.title)+'</div><div class="med-card-desc">'+esc(x.desc)+'</div></div>';
     h+='<div class="med-card-play">'+(ready?'<svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>':'<div class="med-load-dot"></div>')+'</div>';
