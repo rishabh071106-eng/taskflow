@@ -8187,15 +8187,14 @@ function _browserTtsSpeak(text,opts,onAllDone,onProgress){
 // Structured narration — assembles a full ~12-15 min audio experience from the book's parts:
 // title, why-pitch, each numbered insight, then the long summary. Slow male narrator pace.
 function _bookFullNarration(book){
-  // Chapter-style narration: walk through each idea fully, finish, move on.
-  // No "Insight 1 / Insight 2" labels — flowing chapters with breathing room.
-  // Sentences from book.summary that mention each insight's topic are pulled in
-  // as elaboration so each chapter feels developed rather than tag-line short.
+  // Clean chapter-wise audiobook narration.
+  // No "take a breath", no meditation-style filler — this is a book brief,
+  // not a guided meditation. Each chapter is announced by number + title,
+  // then the body, with elaboration from the summary woven in.
   const parts=[];
-  // Opening
+  // Opening — title, author, why-line. No instructions to the listener.
   parts.push(book.title+', by '+book.author+'.');
-  parts.push(book.why);
-  parts.push('Take a breath. We will walk through this brief one chapter at a time, finish each idea, then move on. Settle in.');
+  if (book.why) parts.push(book.why);
   // Pre-segment summary by sentences for elaboration mining
   const summSentences=(book.summary||'').replace(/\\u2026/g,'...').split(/(?<=[.!?])\\s+/).filter(s=>s.trim().length>20);
   const used=new Set();
@@ -8216,25 +8215,20 @@ function _bookFullNarration(book){
     ranked.forEach(x=>used.add(x.i));
     return ranked.map(x=>x.s);
   }
-  // Chapters
+  // Chapters — numbered headings + body + woven elaboration. No transitional fluff.
   book.insights.forEach((it,i)=>{
-    const isLast=i===book.insights.length-1;
-    const intro=i===0?'The first idea.':i===1?'Now the second.':i===2?'Onto the third.':i===3?'The fourth.':i===4?'And the final core idea.':'Next.';
-    parts.push(intro);
-    parts.push(it[0]+'.');  // chapter title
-    parts.push(it[1]);       // base body
+    parts.push('Chapter '+(i+1)+'. '+it[0]+'.');  // "Chapter 1. Nose, not mouth."
+    parts.push(it[1]);                              // chapter body
     const elab=findElab(it[0],it[1]);
     if(elab.length){parts.push(elab.join(' '))}
-    parts.push(isLast?'Sit with that. It is the most important idea in this brief.':'Take a beat with that one before we move on.');
   });
-  // Stitch any unused summary sentences as a closing reflection — keeps content feeling complete
+  // Closing — any unused summary sentences as a final chapter, no exhortations.
   const leftover=summSentences.filter((_,i)=>!used.has(i));
   if(leftover.length){
-    parts.push('A closing thought.');
+    parts.push('Closing notes.');
     parts.push(leftover.slice(0,3).join(' '));
   }
-  parts.push('That is the brief. One small idea acted on today is worth more than five remembered. Choose one, and go do it.');
-  // Normalise typography for cleaner TTS pacing
+  parts.push('That concludes '+book.title+'.');
   return parts.join('  ').replace(/\\\\u2019/g,"'").replace(/\\\\u2014/g,', ').replace(/\\u2026/g,'...').replace(/\\s+/g,' ').trim();
 }
 function bookReaderToggleTTS(){
