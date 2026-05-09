@@ -1352,42 +1352,56 @@ const HTML=`<!DOCTYPE html><html lang="en"><head>
 <!-- Structured data for Google rich results -->
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://brodoit.com/#org","name":"Brodoit","url":"https://brodoit.com/","logo":"https://brodoit.com/icon-512.png","email":"hello@brodoit.com","sameAs":["https://github.com/rishabh071106-eng/taskflow"]},{"@type":"WebSite","@id":"https://brodoit.com/#site","url":"https://brodoit.com/","name":"Brodoit","description":"Tasks, audiobooks and daily wisdom — your calm productivity companion.","publisher":{"@id":"https://brodoit.com/#org"},"inLanguage":"en"},{"@type":"WebApplication","@id":"https://brodoit.com/#app","name":"Brodoit","url":"https://brodoit.com/","description":"A calm productivity app: manage tasks with WhatsApp reminders, listen to free public-domain audiobooks, sharpen your mind with daily drills, and build a streak that sticks.","applicationCategory":"ProductivityApplication","operatingSystem":"Web, Android, iOS","browserRequirements":"Requires JavaScript. Requires HTML5.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD","availability":"https://schema.org/InStock"},"featureList":["Task management","WhatsApp reminders","Email reminders","Free public-domain audiobooks","Daily wisdom quotes","Mind Gym brain games","Voice training","Step tracking","Google Calendar sync"],"publisher":{"@id":"https://brodoit.com/#org"},"inLanguage":"en"}]}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,500;1,6..72,600&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+/* ─────────────────────────────────────────────────────────────
+   Warm Reading Room palette — adopted from Claude Design handoff
+   "Like a stoic's evening library — calm, candlelit, serif-led."
+   bg #1A1816 · text #E8DCC4 · terracotta #C97A3F · sage #7BA188 · candle gold #D9B26B
+   Typography: Newsreader (display + reading) + IBM Plex Sans (UI) + JetBrains Mono (timestamps)
+─────────────────────────────────────────────────────────────── */
 :root{
---bg:#FAFAF7;--bg-elev:#FFFFFF;--bg-sunken:#F4F3EE;
---ink:#1A1A1A;--ink-2:#3D3D3D;--ink-3:#6B6B6B;--ink-4:#9A9A9A;--ink-5:#CFCFCF;
---line:#E8E6E0;--line-2:#DEDBD3;
---accent:#1F4D3F;--accent-soft:#E6EFEA;--accent-ink:#0E2E25;
---shadow-1:0 1px 2px rgba(26,26,26,.04),0 1px 3px rgba(26,26,26,.06);
---shadow-2:0 4px 8px rgba(26,26,26,.04),0 8px 24px rgba(26,26,26,.06);
---radius:12px}
-body{font-family:'Inter','SF Pro Text',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-feature-settings:'cv11','ss01','ss03';letter-spacing:-.011em;font-weight:450}
-::selection{background:rgba(31,77,63,.18);color:var(--ink)}
-button{cursor:pointer;font-family:inherit;-webkit-font-smoothing:inherit}
-input,textarea,select{font-family:inherit;-webkit-font-smoothing:inherit}
-h1,h2,h3,h4{font-family:'Instrument Serif','Playfair Display',Georgia,serif;font-weight:400;letter-spacing:-.02em;color:var(--ink)}
-/* Ambient mesh background (Classic theme only) */
-body:not([data-theme=aurora])::before{content:'';position:fixed;inset:-100px;pointer-events:none;z-index:0;background:
-  radial-gradient(680px 480px at 8% 12%,rgba(99,102,241,.13),transparent 65%),
-  radial-gradient(560px 440px at 92% 18%,rgba(236,72,153,.09),transparent 65%),
-  radial-gradient(620px 460px at 50% 108%,rgba(16,185,129,.08),transparent 65%);filter:blur(20px);animation:mesh-shift 24s ease-in-out infinite alternate}
-@keyframes mesh-shift{0%{transform:translate(0,0)}50%{transform:translate(-24px,18px)}100%{transform:translate(18px,-22px)}}
+--bg:#1A1816;--bg-2:#221E1A;--bg-elev:#25201B;--bg-sunken:#2C2620;
+--surface:#25201B;--surface-2:#2C2620;
+--ink:#E8DCC4;--text:#E8DCC4;--text-mute:#A89A82;--text-dim:#6F6557;
+--ink-2:#A89A82;--ink-3:#A89A82;--ink-4:#6F6557;--ink-5:#3A332C;
+--line:#3A332C;--line-2:#4A4136;--border:#3A332C;--border-2:#4A4136;
+--accent:#C97A3F;--accent-soft:rgba(201,122,63,.14);--accent-ink:#1A1816;
+--accent-2:#7BA188;--warm:#D9B26B;--paper:#EFE6D2;
+--serif:'Newsreader','Iowan Old Style',Georgia,serif;
+--sans:'IBM Plex Sans','Inter','SF Pro Text',-apple-system,BlinkMacSystemFont,sans-serif;
+--mono:'JetBrains Mono',ui-monospace,monospace;
+--shadow-1:0 1px 2px rgba(0,0,0,.18),0 1px 3px rgba(0,0,0,.22);
+--shadow-2:0 4px 8px rgba(0,0,0,.18),0 8px 24px rgba(0,0,0,.30);
+--radius:14px}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;letter-spacing:-.005em;font-weight:400}
+::selection{background:rgba(201,122,63,.30);color:#FFF}
+button{cursor:pointer;font-family:inherit;-webkit-font-smoothing:inherit;color:inherit}
+input,textarea,select{font-family:inherit;-webkit-font-smoothing:inherit;color:inherit}
+h1,h2,h3,h4{font-family:var(--serif);font-weight:500;letter-spacing:-.015em;color:var(--text)}
+/* Ambient candlelight background — warm radial gradients on dark */
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:
+  radial-gradient(ellipse at 30% 20%,#2A231D 0%,transparent 50%),
+  radial-gradient(ellipse at 70% 80%,#201914 0%,transparent 50%);}
+/* Faint paper-grain noise overlay — very subtle */
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 0.95  0 0 0 0 0.85  0 0 0 0.04 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
+  opacity:.4;mix-blend-mode:overlay}
 button{cursor:pointer;border:none;background:none;font-family:inherit;color:inherit}
-input,textarea,select{font-family:inherit;border:1.5px solid #E8E9EF;border-radius:12px;padding:13px 14px;font-size:15px;background:#fff;width:100%;color:#0F172A}
-input:focus,textarea:focus{outline:none;border-color:#0F172A}textarea{resize:vertical;min-height:56px}select{-webkit-appearance:none;appearance:none}
+input,textarea,select{font-family:inherit;border:1px solid var(--border);border-radius:12px;padding:13px 14px;font-size:15px;background:var(--surface);width:100%;color:var(--text)}
+input:focus,textarea:focus{outline:none;border-color:var(--accent)}textarea{resize:vertical;min-height:56px}select{-webkit-appearance:none;appearance:none}
 .app{max-width:520px;margin:0 auto;padding:18px 18px 120px;position:relative;z-index:1}
 .main-col{display:block}
 .hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;padding:0 2px}
 /* ─── Brand mark ─── */
-.logo{font-family:'Instrument Serif','Playfair Display',Georgia,serif;font-size:36px;font-weight:400;letter-spacing:-.025em;line-height:1;display:inline-flex;align-items:baseline;gap:1px;color:var(--ink);user-select:none;cursor:default}
+.logo{font-family:var(--serif);font-size:36px;font-weight:500;letter-spacing:-.025em;line-height:1;display:inline-flex;align-items:baseline;gap:1px;color:var(--text);user-select:none;cursor:default}
 .logo .b1{font-style:italic}
-.logo .b2{font-style:italic;font-weight:600;color:#FF6B47;display:inline-block;transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
+.logo .b2{font-style:italic;font-weight:600;color:var(--accent);display:inline-block;transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
 .logo .b3{font-style:italic}
-.logo .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#FF6B47;margin-left:3px;align-self:flex-end;margin-bottom:5px;box-shadow:0 0 0 0 rgba(255,107,71,.5);animation:brandDot 2.4s ease-in-out infinite}
+.logo .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--warm);margin-left:3px;align-self:flex-end;margin-bottom:5px;box-shadow:0 0 0 0 rgba(217,178,107,.5);animation:brandDot 2.4s ease-in-out infinite}
 .logo:hover .b2{transform:translateY(-3px) rotate(-4deg)}
-@keyframes brandDot{0%,100%{box-shadow:0 0 0 0 rgba(255,107,71,.5)}50%{box-shadow:0 0 0 6px rgba(255,107,71,0)}}
+@keyframes brandDot{0%,100%{box-shadow:0 0 0 0 rgba(217,178,107,.5)}50%{box-shadow:0 0 0 6px rgba(217,178,107,0)}}
 .hdr-tagline{display:none;font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-size:13px;color:#94A3B8;margin-top:2px;letter-spacing:.04em}
 /* Phone scenic masthead — desktop hidden by default */
 .phone-banner{display:none}
@@ -2520,45 +2534,54 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
     flex-direction:row !important;
     justify-content:space-around !important;
     overflow-x:visible !important;overflow-y:visible !important;
-    background:rgba(13,11,20,.78) !important;
-    backdrop-filter:saturate(180%) blur(28px) !important;
-    -webkit-backdrop-filter:saturate(180%) blur(28px) !important;
-    border-top:1px solid rgba(255,255,255,.06) !important;
-    border-bottom:0 !important;border-left:0 !important;border-right:0 !important;
+    /* Warm Reading Room nav: floating pill bar on a candlelit gradient. */
+    background:transparent !important;
+    backdrop-filter:none !important;
+    -webkit-backdrop-filter:none !important;
+    border:0 !important;border-top:0 !important;
     border-radius:0 !important;
-    padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px)) !important;
+    padding:8px 14px calc(20px + env(safe-area-inset-bottom,0px)) !important;
     gap:0 !important;
     z-index:60 !important;
-    box-shadow:0 -10px 36px rgba(0,0,0,.4) !important;
+    box-shadow:none !important;
     margin:0 !important;
+  }
+  .tabs.page-t::after{content:'';position:absolute;left:0;right:0;top:-40px;bottom:0;background:linear-gradient(to top,var(--bg) 60%,transparent);z-index:-1;pointer-events:none}
+  .tabs.page-t > div.tabs-inner,.tabs.page-t > .tabs-inner{display:none}
+  .tabs.page-t{
+    /* Inner pill — hairline border, surface fill, subtle shadow */
+    background:var(--surface) !important;
+    border:1px solid var(--border) !important;
+    border-radius:100px !important;
+    padding:8px 6px calc(8px + env(safe-area-inset-bottom,0px)) !important;
+    margin:0 14px calc(20px + env(safe-area-inset-bottom,0px)) !important;
+    left:0 !important;right:0 !important;
+    box-shadow:0 -2px 14px rgba(0,0,0,.4),0 0 0 1px rgba(0,0,0,.2) !important;
   }
   .tabs.page-t::-webkit-scrollbar{display:none}
   .tabs.page-t .tab{
     flex:1 1 0 !important;
     min-width:0 !important;
-    padding:10px 8px !important;
+    padding:10px 4px !important;
     flex-direction:column !important;
     align-items:center !important;
     justify-content:center !important;
     text-align:center !important;
-    min-height:64px !important;
-    border-radius:14px !important;
-    gap:4px !important;
+    min-height:56px !important;
+    border-radius:100px !important;
+    gap:2px !important;
     transition:color .25s ease, transform .35s cubic-bezier(.34,1.56,.64,1) !important;
     background:transparent !important;
-    color:rgba(255,255,255,.5) !important;
+    color:var(--text-dim) !important;
     box-shadow:none !important;
     position:relative;
     overflow:visible;
   }
+  /* Active dot indicator below the icon — replaces the orange glow */
   .tabs.page-t .tab::before{
-    content:''; position:absolute; inset:6px 10px;
-    border-radius:14px;
-    background:linear-gradient(135deg,#FF6B47 0%,#FFB547 100%);
-    opacity:0; transform:scale(.6);
-    transition:opacity .35s ease, transform .45s cubic-bezier(.34,1.56,.64,1);
-    z-index:-1;
-    box-shadow:0 8px 22px rgba(255,107,71,.45);
+    content:'';position:absolute;left:50%;bottom:6px;transform:translateX(-50%) scale(0);
+    width:4px;height:4px;border-radius:2px;background:var(--accent);
+    transition:transform .3s cubic-bezier(.34,1.56,.64,1);z-index:1;
   }
   .tabs.page-t .tab .ti{
     font-size:22px !important;
@@ -2569,23 +2592,24 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
   }
   .tabs.page-t .tab .ti svg{width:22px !important;height:22px !important}
   .tabs.page-t .tab .tl{
-    font-size:10.5px !important;
-    font-weight:600 !important;
-    letter-spacing:.01em !important;
+    font-family:var(--mono) !important;
+    font-size:9px !important;
+    font-weight:500 !important;
+    letter-spacing:.16em !important;
+    text-transform:uppercase !important;
     white-space:nowrap !important;
     color:inherit !important;
     transition:opacity .25s ease, color .25s ease;
     opacity:.85;
   }
-  .tabs.page-t .tab:active{transform:scale(.92) !important}
+  .tabs.page-t .tab:active{transform:scale(.94) !important}
   .tabs.page-t .tab.on{
-    color:#fff !important;
-    transform:translateY(-2px) !important;
+    color:var(--accent) !important;
+    transform:none !important;
   }
-  .tabs.page-t .tab.on::before{opacity:1; transform:scale(1)}
+  .tabs.page-t .tab.on::before{transform:translateX(-50%) scale(1)}
   .tabs.page-t .tab.on .ti{
-    transform:scale(1.15) translateY(-2px) !important;
-    filter:none;
+    transform:none !important;
   }
   .tabs.page-t .tab.on .tl{color:#fff !important;font-weight:700 !important;opacity:1}
   /* Float other UI above the new bottom bar */
@@ -3763,28 +3787,29 @@ body:not([data-theme=aurora]) .lvl-link{background:#E8E6E0}
 @media (max-width:560px){.lvl-step{width:26px;height:26px;font-size:10.5px}.lvl-link{min-width:4px;max-width:14px}.lvl-path-t{font-size:20px}.lvl-path-overall b{font-size:22px}}
 /* ─── Home hero greeting (Tasks tab) ─── */
 .home-hero{position:relative;border-radius:24px;padding:30px 28px 24px;margin:0 0 18px;overflow:hidden;color:#fff;isolation:isolate;background:linear-gradient(135deg,#1A0E2E 0%,#2A1845 50%,#3D1F5F 100%);box-shadow:0 22px 50px -16px rgba(91,33,182,.45)}
-/* Light variant — used on the home/Tasks tab so the page reads as a light theme.
-   Modal-mounted heroes (.hl-hero, .mtg-hero, .sch-hero, .mg-detail-hero) keep
-   their dark gradient because they sit inside a dark fullscreen modal. */
-.home-hero.home-hero-light{background:linear-gradient(135deg,#FFF7ED 0%,#FCE7F3 50%,#EDE9FE 100%);color:#1A1A1A;box-shadow:0 18px 40px -16px rgba(167,139,250,.25),0 1px 0 rgba(0,0,0,.04)}
-.home-hero-light .hh-bg{background:radial-gradient(900px 500px at 0% 0%,rgba(255,107,71,.18) 0%,transparent 55%),radial-gradient(700px 500px at 100% 100%,rgba(167,139,250,.22) 0%,transparent 55%);opacity:.7}
-.home-hero-light .hh-greet{color:#1A1A1A}
-.home-hero-light .hh-line{color:#4A4A4A}
-.home-hero-light .hh-line b{color:#1A1A1A}
-.home-hero-light .hh-eyebrow{color:rgba(0,0,0,.5)}
-.home-hero-light .hh-stat{background:rgba(255,255,255,.65);border-color:rgba(0,0,0,.06);color:#1A1A1A;backdrop-filter:blur(8px)}
-.home-hero-light .hh-stat:hover{background:#fff}
-.home-hero-light .hh-stat b{color:#1A1A1A}
-.home-hero-light .hh-stat small{color:rgba(0,0,0,.55)}
-.home-hero-light .hh-progress-chip,.home-hero-light .mg-prog-chip{background:rgba(255,255,255,.7);border-color:rgba(0,0,0,.08);color:#1A1A1A}
-.home-hero-light .hh-progress-chip:hover{background:#fff}
-.home-hero-light .hh-pc-t{color:#1A1A1A}
-.home-hero-light .hh-pc-mini{color:rgba(0,0,0,.55)}
-.home-hero-light .hh-pc-arrow{color:rgba(0,0,0,.45)}
-.home-hero-light .qa-stat-tile{background:rgba(255,255,255,.7);border-color:rgba(0,0,0,.06)}
-.home-hero-light .qa-stat-tile:hover{background:#fff}
-.home-hero-light .qa-stat-tile small{color:rgba(0,0,0,.7) !important}
-.home-hero-light .qa-stat-bdg{background:rgba(0,0,0,.06);color:#1A1A1A}
+/* Warm Reading Room hero variant — replaces the previous light gradient with
+   a calm, dark-on-warm-toned card that matches the palette adopted from the
+   Claude Design handoff. */
+.home-hero.home-hero-light{background:var(--surface);color:var(--text);border:1px solid var(--border);box-shadow:none}
+.home-hero-light .hh-bg{display:none}
+.home-hero-light .hh-greet{color:var(--text);font-family:var(--serif)}
+.home-hero-light .hh-greet em{color:var(--warm);font-style:italic;background:none;-webkit-text-fill-color:var(--warm)}
+.home-hero-light .hh-line{color:var(--text-mute)}
+.home-hero-light .hh-line b{color:var(--text)}
+.home-hero-light .hh-eyebrow{color:var(--text-dim);font-family:var(--mono)}
+.home-hero-light .hh-stat{background:var(--bg-2);border:1px solid var(--border);color:var(--text)}
+.home-hero-light .hh-stat:hover{background:var(--surface-2)}
+.home-hero-light .hh-stat b{color:var(--text)}
+.home-hero-light .hh-stat small{color:var(--text-dim);font-family:var(--mono)}
+.home-hero-light .hh-progress-chip,.home-hero-light .mg-prog-chip{background:var(--bg-2);border-color:var(--border);color:var(--text)}
+.home-hero-light .hh-progress-chip:hover{background:var(--surface-2)}
+.home-hero-light .hh-pc-t{color:var(--text)}
+.home-hero-light .hh-pc-mini{color:var(--text-dim);font-family:var(--mono)}
+.home-hero-light .hh-pc-arrow{color:var(--text-dim)}
+.home-hero-light .qa-stat-tile{background:var(--bg-2);border:1px solid var(--border)}
+.home-hero-light .qa-stat-tile:hover{background:var(--surface-2);border-color:var(--accent)}
+.home-hero-light .qa-stat-tile small{color:var(--text-mute) !important;font-family:var(--mono)}
+.home-hero-light .qa-stat-bdg{background:rgba(217,178,107,.16);color:var(--warm);border:1px solid transparent}
 .home-hero .hh-bg{position:absolute;inset:0;background:radial-gradient(900px 500px at 0% 0%,rgba(255,107,71,.35) 0%,transparent 55%),radial-gradient(700px 500px at 100% 100%,rgba(167,139,250,.3) 0%,transparent 55%);z-index:-1;animation:hhBgDrift 18s ease-in-out infinite alternate}
 @keyframes hhBgDrift{0%{transform:scale(1) translate(0,0)}100%{transform:scale(1.08) translate(-20px,15px)}}
 .hh-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
@@ -8395,7 +8420,12 @@ if(isMain){
   const dayOfYear=Math.floor((now-yStart)/86400000);
   const yearPct=Math.round(dayOfYear/365*100);
   const dateStr=now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-  const tabsHtml=[{k:'tasks',l:'Tasks'},{k:'board',l:'Board'},{k:'cal',l:'Cal'},{k:'books',l:'Briefs'},{k:'meditation',l:'Calm'},{k:'mindgym',l:'Games'}].map(x=>'<button class="tab tab-'+x.k+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(ID[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
+  // Warm Reading Room tab structure: Today / Tasks / Listen / Train / Wisdom
+  // Existing tabs preserved underneath: tasks→Tasks, books→Listen (audiobooks/Briefs),
+  // mindgym→Train, meditation→Wisdom (daily verse + sit). Cal + Board still available
+  // through modals/secondary surfaces. The "Today" tab is rendered into the existing
+  // Tasks tab dashboard hero — clicking Today maps to tasks.
+  const tabsHtml=[{k:'tasks',l:'Tasks'},{k:'books',l:'Listen'},{k:'mindgym',l:'Train'},{k:'meditation',l:'Wisdom'},{k:'cal',l:'Cal'}].map(x=>'<button class="tab tab-'+x.k+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(ID[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
   // "Bro, do it!" mascot — a character with a speech bubble that animates
   const climbScene='<div class="bro-mascot" aria-hidden="true">'
     +'<svg class="bro-svg" viewBox="0 0 340 130" xmlns="http://www.w3.org/2000/svg">'
