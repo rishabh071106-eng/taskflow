@@ -82,12 +82,13 @@ def bullet(text):
 def header():
     name = Paragraph("RISHABH SHARMA", styles["name"])
     headline = Paragraph(
-        "Head of Product — Payments, Treasury &amp; Platform Growth",
+        "Vice President — Product Management  ·  Fintech Platforms · AI Agents · Payments",
         styles["headline"],
     )
     contact = Paragraph(
         "Bengaluru, India  ·  +91 70877 50777  ·  rishabh071106@gmail.com  ·  "
-        "linkedin.com/in/rishabh-sharmaiimk  ·  Open to Singapore relocation",
+        '<link href="https://www.linkedin.com/in/rishabh-sharmaiimk/">linkedin.com/in/rishabh-sharmaiimk</link>'
+        "  ·  Open to Singapore relocation",
         styles["contact"],
     )
     return [name, headline, contact, hr(), Spacer(1, 6)]
@@ -100,9 +101,11 @@ def profile():
         "geographically distributed product squads. Currently <b>Vice President — Product Management at "
         "J.P. Morgan</b>, owning the global digital lending platform across CIB and CB clients. "
         "Hands-on operator with deep experience in <b>real-time payment rails, treasury, liquidity &amp; FX, "
-        "platform APIs, partner onboarding and ICP-led use-case enablement</b>. Known for translating "
-        "ambiguous market signals into scalable roadmaps, partnering closely with engineering, "
-        "compliance and GTM, and delivering measurable P&amp;L impact in matrixed, multi-region environments."
+        "platform APIs, partner onboarding and ICP-led use-case enablement</b>, and an active builder of "
+        "<b>agentic AI workflows</b> — from production loan-booking copilots to side-project agent stacks "
+        "orchestrating LLMs, tool-use, and voice models. Known for translating ambiguous market signals into "
+        "scalable roadmaps, partnering closely with engineering, compliance and GTM, and delivering measurable "
+        "P&amp;L impact in matrixed, multi-region environments."
     )
     return [Paragraph(text, styles["body"]), Spacer(1, 4)]
 
@@ -166,7 +169,7 @@ def core_competencies_table():
         ["Product Strategy &amp; Roadmap", "GTM &amp; ICP Enablement", "P&amp;L &amp; Business Cases"],
         ["Pay CORE Platform &amp; APIs", "Treasury, Liquidity &amp; FX", "Real-Time Payments &amp; Wallets"],
         ["Onboarding &amp; KYC Platforms", "Cross-Functional Leadership", "Matrix &amp; Multi-Region Ops"],
-        ["AI/ML &amp; Agentic Workflows", "Regulatory &amp; Compliance", "Data, Metrics &amp; Experimentation"],
+        ["Agentic AI &amp; LLM Orchestration", "Regulatory &amp; Compliance", "Data, Metrics &amp; Experimentation"],
     ]
     para_rows = [[Paragraph(c, styles["side_chip"]) for c in r] for r in rows]
     t = Table(para_rows, colWidths=[56 * mm, 56 * mm, 56 * mm])
@@ -184,6 +187,40 @@ def core_competencies_table():
 
 def core_competencies():
     return section("Core Competencies") + [core_competencies_table(), Spacer(1, 4)]
+
+
+def ai_agents():
+    items = section("AI Agents &amp; Workflow Automation")
+    items.append(Paragraph(
+        "Hands-on practitioner shipping agentic systems — production at JPM and "
+        "personal builds — across LLM orchestration, tool-use, retrieval, and voice.",
+        styles["body"],
+    ))
+    items.append(Spacer(1, 2))
+    for b in [
+        "<b>Agentic Loan Booking (JPM):</b> designed a multi-agent workflow where "
+        "extraction, validation, KYC and covenant-check agents collaborate over a shared "
+        "context bus; replaced ~30% of manual ops touchpoints and cut average booking "
+        "turnaround from days to hours.",
+        "<b>AI Document Intelligence:</b> orchestrated LLM + OCR pipelines with "
+        "structured-output guards and human-in-the-loop review gates; rolled out across "
+        "CIB and CB lending with measurable accuracy lift on covenant and term-sheet parsing.",
+        "<b>TaskFlow (personal build, 2026):</b> a daily-routine app powered by an "
+        "agent stack that plans the user's day, generates <b>chapter-wise book briefs</b>, "
+        "<b>ElevenLabs voice affirmations</b> and <b>guided meditations</b>, and serves "
+        "them through a streaming audio layer with a cache-warmup agent — calendar, "
+        "wisdom and Mind Gym modules feed off the same orchestrator.",
+        "<b>Tooling fluency:</b> Claude / Anthropic API, OpenAI, ElevenLabs voice, "
+        "RAG with vector stores, agent frameworks (tool-use, function calling, MCP-style "
+        "servers), prompt &amp; eval harnesses, and product instrumentation for agent "
+        "quality, latency and unit economics.",
+        "<b>Product POV on agents:</b> evaluate agentic features on <i>task success, "
+        "intervention rate, $/successful task and trust signals</i> — not just demos; "
+        "advocate for guardrails, observability and graceful fallbacks before scale-out.",
+    ]:
+        items.append(bullet(b))
+    items.append(Spacer(1, 4))
+    return items
 
 
 def selected_outcomes():
@@ -219,6 +256,7 @@ def two_col_footer():
     tools = [
         Paragraph("Tools &amp; Tech", styles["side_h"]),
         Paragraph("AWS, Kafka, REST APIs, SQL, Tableau, SAS", styles["side_b"]),
+        Paragraph("Claude / OpenAI APIs, ElevenLabs, RAG, MCP", styles["side_b"]),
         Paragraph("Jira Align, Confluence, Figma, InVision", styles["side_b"]),
         Paragraph("Loan IQ, ACBS, SAP CRM/BS", styles["side_b"]),
     ]
@@ -248,6 +286,7 @@ def build():
     story += profile()
     story += core_competencies()
     story += experience()
+    story += ai_agents()
     story += selected_outcomes()
     story += two_col_footer()
     doc.build(story)
