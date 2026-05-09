@@ -556,6 +556,39 @@ app.get('/api/audio-library', auth, (req, res) => {
   res.json({ items });
 });
 
+// ─── Cache warmup ──────────────────────────────────────────────────────
+// Pre-render every script in AUDIO_LIBRARY at boot so the first listener
+// never waits on ElevenLabs. Runs serially with a small inter-request
+// delay to avoid hammering the API. Skips entries already on disk. Errors
+// are logged but never crash boot — runtime fallback still works.
+async function _warmAudioCache() {
+  if (!ELEVENLABS_KEY) {
+    console.log('[audio] cache warm skipped — no ELEVENLABS_KEY');
+    return;
+  }
+  const entries = Object.entries(AUDIO_LIBRARY);
+  let warmed = 0, hits = 0, errs = 0;
+  for (const [id, e] of entries) {
+    try {
+      const model = 'eleven_turbo_v2_5';
+      const cacheKey = _ttsCacheKey(e.script, e.voice, model);
+      if (_fs.existsSync(_ttsCachePath(cacheKey))) { hits++; continue; }
+      console.log('[audio] warming', id, '(' + e.script.length + ' chars)…');
+      await _synthesizeTTS(e.script, e.voice, AUDIO_TUNING_CALM);
+      warmed++;
+      // Small delay between API calls so we don't spike the rate limit.
+      await new Promise(r => setTimeout(r, 350));
+    } catch (err) {
+      errs++;
+      console.warn('[audio] warm failed', id, err.message);
+    }
+  }
+  console.log('[audio] cache warm done — hits=' + hits + ' warmed=' + warmed + ' errs=' + errs);
+}
+// Fire in the background a few seconds after boot so it doesn't compete
+// with /api/health and /api/me responses on a cold container.
+setTimeout(() => _warmAudioCache().catch(e => console.warn('[audio] warmup error', e.message)), 4000);
+
 // Lightweight cache stats endpoint — useful for confirming cost savings
 app.get('/api/coach/cache-stats',(req,res)=>{
   let count=0,bytes=0;
@@ -1604,34 +1637,32 @@ const HTML=`<!DOCTYPE html><html lang="en"><head>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 /* ─────────────────────────────────────────────────────────────
-   Light productivity palette — Elevate / Headspace inspired.
-   Cream peach background, charcoal ink, warm orange + soft teal accents.
-   Generous padding, rounded cards, friendly geometry.
+   Low-light productivity palette — calm, muted, low-saturation.
+   Warm off-white surfaces, deep ink text, dusty terracotta accent,
+   soft sage secondary. Less neon than Elevate / Headspace but the
+   same friendly geometry: large radii, generous whitespace.
 ─────────────────────────────────────────────────────────────── */
 :root{
---bg:#FFF8F0;--bg-2:#FEF3E6;--bg-elev:#FFFFFF;--bg-sunken:#FAEFDC;
---surface:#FFFFFF;--surface-2:#FEFBF7;
---ink:#1A1A1A;--text:#1A1A1A;--text-mute:#6A6258;--text-dim:#A39989;
---ink-2:#3A3A3A;--ink-3:#6A6258;--ink-4:#9A9080;--ink-5:#CFC8BB;
---line:#F0E6D6;--line-2:#E5D9C5;--border:#F0E6D6;--border-2:#E5D9C5;
---accent:#FF7A45;--accent-soft:rgba(255,122,69,.10);--accent-ink:#FFFFFF;
---accent-2:#5BBFB4;--warm:#FCB851;--paper:#FFF1DC;
+--bg:#F5F1EA;--bg-2:#EFEAE0;--bg-elev:#FFFCF6;--bg-sunken:#E8E2D3;
+--surface:#FFFCF6;--surface-2:#FAF5EB;
+--ink:#1F1B16;--text:#1F1B16;--text-mute:#6A5F4F;--text-dim:#9A8E7C;
+--ink-2:#3A3328;--ink-3:#6A5F4F;--ink-4:#9A8E7C;--ink-5:#C8BEAB;
+--line:#E5DDC9;--line-2:#D5CBB3;--border:#E5DDC9;--border-2:#D5CBB3;
+--accent:#C97A3F;--accent-soft:rgba(201,122,63,.10);--accent-ink:#FFFFFF;
+--accent-2:#7BA188;--warm:#C8A464;--paper:#F2EBDD;
 --serif:'Newsreader','Iowan Old Style',Georgia,serif;
 --sans:'Inter','IBM Plex Sans','SF Pro Text',-apple-system,BlinkMacSystemFont,sans-serif;
 --mono:'JetBrains Mono',ui-monospace,monospace;
---shadow-1:0 1px 2px rgba(120,86,42,.04),0 1px 3px rgba(120,86,42,.06);
---shadow-2:0 8px 24px -8px rgba(120,86,42,.10),0 4px 12px -4px rgba(120,86,42,.06);
+--shadow-1:0 1px 2px rgba(60,45,20,.04),0 1px 3px rgba(60,45,20,.05);
+--shadow-2:0 6px 18px -8px rgba(60,45,20,.08),0 2px 6px -2px rgba(60,45,20,.05);
 --radius:18px}
 body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;letter-spacing:-.011em;font-weight:450}
 ::selection{background:rgba(255,122,69,.20);color:var(--ink)}
 button{cursor:pointer;font-family:inherit;-webkit-font-smoothing:inherit;color:inherit}
 input,textarea,select{font-family:inherit;-webkit-font-smoothing:inherit;color:inherit}
 h1,h2,h3,h4{font-family:var(--serif);font-weight:500;letter-spacing:-.018em;color:var(--ink)}
-/* Ambient warm-light background — subtle peach + sun glow on cream */
-body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:
-  radial-gradient(900px 600px at 12% 6%,rgba(255,122,69,.10) 0%,transparent 60%),
-  radial-gradient(700px 500px at 92% 12%,rgba(252,184,81,.08) 0%,transparent 55%),
-  radial-gradient(700px 500px at 50% 100%,rgba(91,191,180,.06) 0%,transparent 60%)}
+/* No body gradients — keep the page calm and matte. Surfaces carry the
+   warmth via cream fill + hairline borders. */
 button{cursor:pointer;border:none;background:none;font-family:inherit;color:inherit}
 input,textarea,select{font-family:inherit;border:1px solid var(--border);border-radius:14px;padding:13px 14px;font-size:15px;background:var(--surface);width:100%;color:var(--text)}
 input:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}textarea{resize:vertical;min-height:56px}select{-webkit-appearance:none;appearance:none}
@@ -2841,13 +2872,16 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
     font-family:var(--mono) !important;
     font-size:9px !important;
     font-weight:500 !important;
-    letter-spacing:.16em !important;
+    letter-spacing:.10em !important;
     text-transform:uppercase !important;
     white-space:nowrap !important;
     color:inherit !important;
     transition:opacity .25s ease, color .25s ease;
     opacity:.85;
+    overflow:hidden;text-overflow:clip;max-width:100%;
   }
+  /* Slightly tighter spacing on the longer "Calendar" label so it never truncates. */
+  .tabs.page-t .tab.tab-cal .tl{letter-spacing:.06em !important;font-size:8.5px !important}
   .tabs.page-t .tab:active{transform:scale(.94) !important}
   .tabs.page-t .tab.on{
     color:var(--accent) !important;
@@ -4033,28 +4067,28 @@ body:not([data-theme=aurora]) .lvl-link{background:#E8E6E0}
 @media (max-width:560px){.lvl-step{width:26px;height:26px;font-size:10.5px}.lvl-link{min-width:4px;max-width:14px}.lvl-path-t{font-size:20px}.lvl-path-overall b{font-size:22px}}
 /* ─── Home hero greeting (Tasks tab) ─── */
 .home-hero{position:relative;border-radius:24px;padding:30px 28px 24px;margin:0 0 18px;overflow:hidden;color:#fff;isolation:isolate;background:linear-gradient(135deg,#1A0E2E 0%,#2A1845 50%,#3D1F5F 100%);box-shadow:0 22px 50px -16px rgba(91,33,182,.45)}
-/* Light productivity hero — Elevate/Headspace style.
-   Soft peach gradient card on cream, friendly geometry, generous padding. */
-.home-hero.home-hero-light{background:linear-gradient(135deg,#FFE9D4 0%,#FFD9BD 50%,#FFE3CC 100%);color:var(--ink);border:1px solid rgba(255,122,69,.18);box-shadow:0 12px 36px -16px rgba(255,122,69,.32),0 2px 6px rgba(120,86,42,.04)}
+/* Low-light hero — matte cream surface with hairline border, no gradient.
+   Adds quiet visual hierarchy without screaming for attention. */
+.home-hero.home-hero-light{background:var(--surface);color:var(--ink);border:1px solid var(--border);box-shadow:var(--shadow-1)}
 .home-hero-light .hh-bg{display:none}
 .home-hero-light .hh-greet{color:var(--ink);font-family:var(--serif)}
-.home-hero-light .hh-greet em{color:#D85A1E;font-style:italic;background:none;-webkit-text-fill-color:#D85A1E}
-.home-hero-light .hh-line{color:#6E5238}
+.home-hero-light .hh-greet em{color:var(--accent);font-style:italic;background:none;-webkit-text-fill-color:var(--accent)}
+.home-hero-light .hh-line{color:var(--text-mute)}
 .home-hero-light .hh-line b{color:var(--ink)}
-.home-hero-light .hh-eyebrow{color:#A86A35;font-family:var(--mono)}
-.home-hero-light .hh-stat{background:rgba(255,255,255,.7);border:1px solid rgba(255,122,69,.16);color:var(--ink);backdrop-filter:blur(4px)}
-.home-hero-light .hh-stat:hover{background:#fff;border-color:rgba(255,122,69,.32)}
+.home-hero-light .hh-eyebrow{color:var(--text-dim);font-family:var(--mono);letter-spacing:.16em}
+.home-hero-light .hh-stat{background:var(--bg-2);border:1px solid var(--border);color:var(--ink)}
+.home-hero-light .hh-stat:hover{background:#fff;border-color:var(--border-2)}
 .home-hero-light .hh-stat b{color:var(--ink)}
-.home-hero-light .hh-stat small{color:#7A6452;font-family:var(--mono)}
-.home-hero-light .hh-progress-chip,.home-hero-light .mg-prog-chip{background:rgba(255,255,255,.7);border-color:rgba(255,122,69,.16);color:var(--ink)}
+.home-hero-light .hh-stat small{color:var(--text-mute);font-family:var(--mono)}
+.home-hero-light .hh-progress-chip,.home-hero-light .mg-prog-chip{background:var(--bg-2);border-color:var(--border);color:var(--ink)}
 .home-hero-light .hh-progress-chip:hover{background:#fff}
 .home-hero-light .hh-pc-t{color:var(--ink)}
-.home-hero-light .hh-pc-mini{color:#7A6452;font-family:var(--mono)}
-.home-hero-light .hh-pc-arrow{color:#A86A35}
-.home-hero-light .qa-stat-tile{background:rgba(255,255,255,.78);border:1px solid rgba(255,122,69,.14)}
-.home-hero-light .qa-stat-tile:hover{background:#fff;border-color:var(--accent)}
-.home-hero-light .qa-stat-tile small{color:var(--ink) !important;font-family:var(--sans);font-weight:600}
-.home-hero-light .qa-stat-bdg{background:var(--accent);color:#fff;border:1px solid transparent}
+.home-hero-light .hh-pc-mini{color:var(--text-mute);font-family:var(--mono)}
+.home-hero-light .hh-pc-arrow{color:var(--text-dim)}
+.home-hero-light .qa-stat-tile{background:var(--bg-2);border:1px solid var(--border)}
+.home-hero-light .qa-stat-tile:hover{background:#fff;border-color:var(--border-2)}
+.home-hero-light .qa-stat-tile small{color:var(--ink) !important;font-family:var(--sans);font-weight:500}
+.home-hero-light .qa-stat-bdg{background:var(--accent-soft);color:var(--accent);border:1px solid var(--border-2)}
 .home-hero .hh-bg{position:absolute;inset:0;background:radial-gradient(900px 500px at 0% 0%,rgba(255,107,71,.35) 0%,transparent 55%),radial-gradient(700px 500px at 100% 100%,rgba(167,139,250,.3) 0%,transparent 55%);z-index:-1;animation:hhBgDrift 18s ease-in-out infinite alternate}
 @keyframes hhBgDrift{0%{transform:scale(1) translate(0,0)}100%{transform:scale(1.08) translate(-20px,15px)}}
 .hh-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
@@ -6509,17 +6543,27 @@ async function loadMeditations(){if(S.medLoading)return;S.medLoading=true;S.medi
 function setMedCat(k){S.medCat=k;render()}
 function playMedDirect(id,title,mins,file){playMeditation(id,title,mins,file)}
 // ElevenLabs-rendered audio (affirmations + new guided meditations).
-// The URL streams directly from /api/audio/:id with a token query param so
-// <audio src="…"> works without an Authorization header. First listen is
-// generated + cached server-side; subsequent listens hit disk cache (free).
+// First listen on a cold cache may take a few seconds while the server
+// synthesizes — we surface that as a loading toast so the user knows
+// something is happening. Subsequent listens are instant (disk cache).
 function playMedEleven(id,title,mins){
   const url='/api/audio/'+encodeURIComponent(id)+'?token='+encodeURIComponent(token||'');
   S.meditating={active:true,title,mins:mins||2,startedAt:Date.now()};
-  S.playing={id:'el-'+id,title,author:'\\u2728 ElevenLabs voice \\u2022 generated for you',url,external:null,loading:false};
+  S.playing={id:'el-'+id,title,author:'\\u2728 Generated for you \\u2022 ElevenLabs voice',url,external:null,loading:false};
   // Track session count (same protection as playMeditation against double-counting within 60s)
   try{const last=parseInt(localStorage.getItem('med_last_count_ts')||'0',10);if(Date.now()-last>60000){const cur=parseInt(localStorage.getItem('med_count')||'0',10)||0;localStorage.setItem('med_count',String(cur+1));localStorage.setItem('med_last_count_ts',String(Date.now()));const today=new Date().toISOString().slice(0,10);const days=(localStorage.getItem('med_days')||'').split(',').filter(Boolean);if(days[days.length-1]!==today){days.push(today);localStorage.setItem('med_days',days.slice(-365).join(','))}}}catch(e){}
   render();
-  setTimeout(()=>{const a=document.getElementById('audioEl');if(!a)return;a.setAttribute('playsinline','');a.preload='auto';a.load();const p=a.play();if(p&&p.catch)p.catch(()=>toast('\\u25B6\\uFE0F Tap play on the bar','err'))},250);
+  // Show a "preparing" toast that auto-dismisses when audio actually starts.
+  let prepShown=false;const prepTimer=setTimeout(()=>{prepShown=true;toast('\\u23F3 Preparing audio\\u2026 first listen takes a moment','ok')},800);
+  setTimeout(()=>{
+    const a=document.getElementById('audioEl');if(!a)return;
+    a.setAttribute('playsinline','');a.preload='auto';
+    a.addEventListener('canplay',function _on(){clearTimeout(prepTimer);if(prepShown)try{S.toast=null;render()}catch(e){}a.removeEventListener('canplay',_on)},{once:true});
+    a.addEventListener('error',function _err(){clearTimeout(prepTimer);toast('\\u26A0\\uFE0F Audio failed to load \\u2014 try again','err');a.removeEventListener('error',_err)},{once:true});
+    a.load();
+    const p=a.play();
+    if(p&&p.catch)p.catch(()=>toast('\\u25B6\\uFE0F Tap play on the bar','err'));
+  },200);
 }
 async function loadGoogleStatus(){const r=await api('/google/status');if(r){S.google={configured:!!r.configured,accounts:r.accounts||[],loaded:true};render();if(S.google.accounts.length&&S.tab==='cal')loadGcalEvents()}}
 async function connectGoogle(){const r=await api('/google/auth-url');if(!r||!r.url){toast('\\u26A0\\uFE0F Google integration is not configured yet. Ask admin to set GOOGLE_CLIENT_ID/SECRET.','err');return}const w=window.open(r.url,'_blank','width=520,height=640');if(!w){location.href=r.url;return}window.addEventListener('message',function onMsg(e){if(e.data&&e.data.type==='google-connected'){window.removeEventListener('message',onMsg);toast('\\u2705 Connected '+e.data.email);loadGoogleStatus()}},{once:false});const poll=setInterval(()=>{if(w.closed){clearInterval(poll);loadGoogleStatus()}},900)}
@@ -8699,7 +8743,7 @@ if(isMain){
   // mindgym→Train, meditation→Wisdom (daily verse + sit). Cal + Board still available
   // through modals/secondary surfaces. The "Today" tab is rendered into the existing
   // Tasks tab dashboard hero — clicking Today maps to tasks.
-  const tabsHtml=[{k:'tasks',l:'Tasks'},{k:'books',l:'Listen'},{k:'mindgym',l:'Train'},{k:'meditation',l:'Wisdom'},{k:'cal',l:'Cal'}].map(x=>'<button class="tab tab-'+x.k+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(ID[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
+  const tabsHtml=[{k:'tasks',l:'Tasks'},{k:'books',l:'Listen'},{k:'mindgym',l:'Train'},{k:'meditation',l:'Wisdom'},{k:'cal',l:'Calendar'}].map(x=>'<button class="tab tab-'+x.k+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(ID[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
   // "Bro, do it!" mascot — a character with a speech bubble that animates
   const climbScene='<div class="bro-mascot" aria-hidden="true">'
     +'<svg class="bro-svg" viewBox="0 0 340 130" xmlns="http://www.w3.org/2000/svg">'
