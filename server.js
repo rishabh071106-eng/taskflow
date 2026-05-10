@@ -315,15 +315,19 @@ app.post('/api/coach/speak',auth,async(req,res)=>{
 // streams the resulting MP3 with a token query-param so <audio src="…">
 // works without an Authorization header.
 // ─────────────────────────────────────────────────────────────────────────
-const ELEVEN_VOICE_SARAH     = 'EXAVITQu4vr4xnSDxMAC'; // warm female · classic narration
-const ELEVEN_VOICE_CHARLOTTE = 'XB0fDUnXU5powFXDhCwa'; // soft, intimate female
-const ELEVEN_VOICE_BRIAN     = 'nPczCjzI2devNBz1zQrb'; // deep meditative male
+// Premium ElevenLabs voice IDs — selected specifically for meditation/affirmation
+// quality (clear diction, calm pace, natural breath placement). Rachel is the
+// industry-standard voice for guided-meditation apps (Calm, Headspace clones
+// all use voices in this register). Lily and Will round out the lineup.
+const ELEVEN_VOICE_SARAH     = '21m00Tcm4TlvDq8ikWAM'; // Rachel — calm professional female (industry standard)
+const ELEVEN_VOICE_CHARLOTTE = 'pFZP5JQG7iQjIQuC4Bku'; // Lily — warm intimate British female
+const ELEVEN_VOICE_BRIAN     = 'bIHbv24MWmeRgasZH58o'; // Will — gentle deep American male
 
-// Voice settings for affirmation/meditation: warm, intimate, slightly more
-// expressive than before — calmer pace, gentle inflection. Tuned to remove
-// the "robotic" feel users were getting from the previous defaults.
+// Premium voice tuning. eleven_multilingual_v2 (used below) is the higher-quality
+// model — slower than turbo but much more natural prosody, especially for long-form
+// guided content. stability lowered for more expressive inflection on pauses.
 const AUDIO_TUNING_CALM = {
-  stability: 0.48, similarity_boost: 0.88, style: 0.22, use_speaker_boost: true
+  stability: 0.42, similarity_boost: 0.92, style: 0.30, use_speaker_boost: true
 };
 
 const AUDIO_LIBRARY = {
@@ -589,7 +593,9 @@ app.get('/api/audio/:id', async (req, res) => {
   const entry = AUDIO_LIBRARY[id];
   if (!entry) return res.status(404).json({ error: 'unknown audio id' });
 
-  const model = 'eleven_turbo_v2_5';
+  // Upgraded to multilingual_v2 for richer prosody on long-form meditation
+  // content. Slightly slower first-render; cached afterwards forever.
+  const model = 'eleven_multilingual_v2';
   const cacheKey = _ttsCacheKey(entry.script, entry.voice, model);
   const cachePath = _ttsCachePath(cacheKey);
 
@@ -692,7 +698,7 @@ async function _warmAudioCache() {
   let warmed = 0, hits = 0, errs = 0;
   for (const [id, e] of entries) {
     try {
-      const model = 'eleven_turbo_v2_5';
+      const model = 'eleven_multilingual_v2';
       const cacheKey = _ttsCacheKey(e.script, e.voice, model);
       if (_fs.existsSync(_ttsCachePath(cacheKey))) { hits++; continue; }
       console.log('[audio] warming', id, '(' + e.script.length + ' chars)…');
@@ -1790,20 +1796,23 @@ const HTML=`<!DOCTYPE html><html lang="en"><head>
    Tighter geometry, modest radii (14px), hairline borders only.
 ─────────────────────────────────────────────────────────────── */
 :root{
---bg:#F8F7F4;--bg-2:#F2F0EC;--bg-elev:#FFFFFF;--bg-sunken:#EBE8E2;
---surface:#FFFFFF;--surface-2:#FAF9F6;
---ink:#1A1A1A;--text:#1A1A1A;--text-mute:#5C5A55;--text-dim:#8A877F;
---ink-2:#2D2D2D;--ink-3:#5C5A55;--ink-4:#8A877F;--ink-5:#BFBCB4;
---line:#E8E5DE;--line-2:#D6D2C9;--border:#E8E5DE;--border-2:#D6D2C9;
---accent:#3D4A52;--accent-soft:rgba(61,74,82,.06);--accent-ink:#FFFFFF;
---accent-2:#7BA188;--warm:#B8954E;--paper:#F4F1EA;
+/* Professional graphite-grey palette: Linear/Notion vibe. Slightly darker
+   page bg for editorial feel without going to true dark mode. Surfaces
+   stay light enough to feel premium in daylight; type stays high-contrast. */
+--bg:#EDECE8;--bg-2:#E5E3DE;--bg-elev:#FFFFFF;--bg-sunken:#DCDAD4;
+--surface:#FFFFFF;--surface-2:#F6F5F2;
+--ink:#0F1115;--text:#0F1115;--text-mute:#52555C;--text-dim:#7E8189;
+--ink-2:#1F2228;--ink-3:#52555C;--ink-4:#7E8189;--ink-5:#B0B2B8;
+--line:#D7D5CF;--line-2:#C2BFB8;--border:#D7D5CF;--border-2:#C2BFB8;
+--accent:#2A2D34;--accent-soft:rgba(42,45,52,.06);--accent-ink:#FFFFFF;
+--accent-2:#5A8A75;--warm:#9C7A3F;--paper:#EDECE8;
 --serif:'Newsreader','Iowan Old Style',Georgia,serif;
 --sans:'Inter','IBM Plex Sans','SF Pro Text',-apple-system,BlinkMacSystemFont,sans-serif;
 --mono:'JetBrains Mono',ui-monospace,monospace;
 --shadow-1:0 1px 2px rgba(20,20,20,.03),0 1px 2px rgba(20,20,20,.04);
 --shadow-2:0 4px 14px -6px rgba(20,20,20,.07),0 2px 4px -2px rgba(20,20,20,.04);
 --radius:14px}
-body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;letter-spacing:-.011em;font-weight:450}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;letter-spacing:-.011em;font-weight:450;background-image:radial-gradient(circle at 1px 1px,rgba(15,17,21,.04) 1px,transparent 0);background-size:24px 24px;background-attachment:fixed}
 ::selection{background:rgba(255,122,69,.20);color:var(--ink)}
 button{cursor:pointer;font-family:inherit;-webkit-font-smoothing:inherit;color:inherit}
 input,textarea,select{font-family:inherit;-webkit-font-smoothing:inherit;color:inherit}
@@ -9094,16 +9103,13 @@ if(isMain){
     +'<button class="hh-progress-chip'+(_statsExpanded?' is-open':'')+'" onclick="S.statsExpanded=!S.statsExpanded;render()" aria-expanded="'+_statsExpanded+'">'
       +'<span class="hh-pc-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>'
       +'<span class="hh-pc-t">Progress</span>'
-      +'<span class="hh-pc-mini">'+s.act+' active \\u00B7 \\u{1F525}'+_streak+' \\u00B7 \\u{1F9E0} '+_mindLvl+'</span>'
+      +'<span class="hh-pc-mini">'+s.act+' active \\u00B7 '+_streak+' day streak</span>'
       +'<span class="hh-pc-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>'
     +'</button>'
     +(_statsExpanded?'<div class="hh-stats">'
-      +'<button class="hh-stat hh-stat-act" onclick="switchTab(\\'tasks\\');S.view=\\'in-progress\\';render()"><b style="color:#22D3EE">'+s.act+'</b><small>Active tasks</small></button>'
-      +'<div class="hh-stat"><b style="color:#86EFAC">'+_doneToday+'</b><small>Done today</small></div>'
-      +'<div class="hh-stat"><b style="color:#FFB547">\\u{1F525} '+_streak+'</b><small>Task streak</small></div>'
-      +'<button class="hh-stat" onclick="switchTab(\\'books\\')"><b style="color:#A78BFA">\\u{1F3A7} '+_bkStreak+'</b><small>Brief streak</small></button>'
-      +'<button class="hh-stat" onclick="switchTab(\\'meditation\\')"><b style="color:#34D399">\\u{1F9D8} '+_medCount+'</b><small>Meditations</small></button>'
-      +'<button class="hh-stat" onclick="switchTab(\\'mindgym\\')"><b style="color:#F472B6">\\u{1F9E0} '+_mindLvl+'</b><small>Mind level</small></button>'
+      +'<button class="hh-stat" onclick="switchTab(\\'tasks\\');S.view=\\'in-progress\\';render()"><b>'+s.act+'</b><small>Active</small></button>'
+      +'<div class="hh-stat"><b>'+_doneToday+'</b><small>Done today</small></div>'
+      +'<div class="hh-stat"><b>'+_streak+'</b><small>Streak</small></div>'
     +'</div>':'')
   +'</section>';
   moralBlock=hero;
