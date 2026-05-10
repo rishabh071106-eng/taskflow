@@ -15,7 +15,7 @@ from reportlab.lib.colors import HexColor, white
 from reportlab.lib.enums import TA_LEFT, TA_JUSTIFY, TA_CENTER
 from reportlab.platypus import (
     SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Flowable,
-    KeepTogether,
+    KeepTogether, PageBreak,
 )
 
 # ---------- Palette ----------
@@ -86,7 +86,12 @@ def _decode(text):
 # ---------- Custom flowables ----------
 
 class SectionHeader(Flowable):
-    """Coloured bar with white section title; also creates a PDF bookmark."""
+    """Coloured bar with white section title.
+
+    When an anchor name is supplied, also registers a named destination
+    (so nav-strip links jump here) AND a side-panel outline entry so PDF
+    readers show this section in their bookmarks tree.
+    """
 
     def __init__(self, text, anchor=None, accent=GOLD, color=NAVY,
                  width=CONTENT_W, height=15):
@@ -104,6 +109,9 @@ class SectionHeader(Flowable):
     def draw(self):
         c = self.canv
         if self.anchor:
+            # bookmarkHorizontal registers a named destination at this y; the
+            # nav strip's <link href="#anchor"> jumps here. addOutlineEntry
+            # adds a clickable entry to the reader's side bookmark panel.
             c.bookmarkHorizontal(self.anchor, 0, self.height + 4)
             c.addOutlineEntry(self.text, self.anchor, level=0)
         c.setFillColor(self.color)
@@ -440,18 +448,25 @@ def build_thunes():
     story.append(Paragraph(profile, S["body"]))
     story.append(Spacer(1, 6))
 
-    story.append(anchor("roadmap"))
-    story += section("Career Roadmap", anchor=None, accent=accent)
+    story += section("Career Roadmap", anchor="roadmap", accent=accent)
     story.append(CareerRoadmap(milestones, accent=accent))
     story.append(Spacer(1, 4))
 
-    story.append(anchor("competencies"))
-    story += section("Core Competencies", anchor=None, accent=accent)
+    story += section("Core Competencies", anchor="competencies", accent=accent)
     story.append(chip_grid(competencies, S))
     story.append(Spacer(1, 6))
 
-    story.append(anchor("experience"))
-    story += section("Professional Experience", anchor=None, accent=accent)
+    story += section("AI Agents &amp; Workflow Automation", anchor="agents", accent=accent)
+    story.append(Paragraph(
+        "Hands-on practitioner shipping agentic systems — production at JPM and personal builds — "
+        "across LLM orchestration, tool-use, retrieval and voice.",
+        S["body"]))
+    story.append(Spacer(1, 2))
+    for b in ai_agents_bullets():
+        story.append(bullet(b, S))
+
+    story.append(PageBreak())
+    story += section("Professional Experience", anchor="experience", accent=accent)
     story.append(role_with_badge("JPM", NAVY,
         "Vice President — Product Management", S))
     story.append(Paragraph(
@@ -474,26 +489,15 @@ def build_thunes():
     story.append(KeepTogether(wipro))
     story.append(Spacer(1, 5))
 
-    story.append(anchor("agents"))
-    story += section("AI Agents &amp; Workflow Automation", anchor=None, accent=accent)
-    story.append(Paragraph(
-        "Hands-on practitioner shipping agentic systems — production at JPM and personal builds — "
-        "across LLM orchestration, tool-use, retrieval and voice.",
-        S["body"]))
-    story.append(Spacer(1, 2))
-    for b in ai_agents_bullets():
-        story.append(bullet(b, S))
-    story.append(Spacer(1, 5))
-
-    story.append(anchor("outcomes"))
-    story += section("Selected Outcomes &amp; Recognition", anchor=None, accent=accent)
+    story += section("Selected Outcomes &amp; Recognition", anchor="outcomes", accent=accent)
     for b in outcomes:
         story.append(bullet(b, S))
     story.append(Spacer(1, 5))
 
-    story.append(anchor("education"))
-    story += section("Education, Certifications &amp; Tooling", anchor=None, accent=accent)
-    story.append(footer_block(S))
+    edu_block = (section("Education, Certifications &amp; Tooling",
+                         anchor="education", accent=accent)
+                 + [footer_block(S)])
+    story.append(KeepTogether(edu_block))
 
     doc.build(story, onFirstPage=page_chrome, onLaterPages=page_chrome)
     print(f"Wrote {output}")
@@ -567,9 +571,6 @@ def build_wellsfargo():
     outcomes = [
         "Scaled JPM Loan Booking Platform adoption from <b>40% → 85% in 12 months</b> via React UI, "
         "embedded Tableau analytics, in-app onboarding and structured change management.",
-        "Cut customer onboarding lead time by <b>~40%</b> through a workflow-driven, configurable "
-        "platform with country-specific rule packs.",
-        "Delivered <b>~30% efficiency gain</b> using AI/ML document extraction across global operations.",
         "Reduced AML false positives by <b>~35%</b> across <b>14 African markets</b> at Standard Bank.",
         "JPM <b>MVP Award (Q3'22)</b>, <b>Team of the Quarter (Q3'24)</b>; winner — Wipro White Paper "
         "Contest on the Future of Software Testing.",
@@ -581,18 +582,25 @@ def build_wellsfargo():
     story.append(Paragraph(profile, S["body"]))
     story.append(Spacer(1, 6))
 
-    story.append(anchor("roadmap"))
-    story += section("Career Roadmap", anchor=None, accent=accent)
+    story += section("Career Roadmap", anchor="roadmap", accent=accent)
     story.append(CareerRoadmap(milestones, accent=accent))
     story.append(Spacer(1, 4))
 
-    story.append(anchor("competencies"))
-    story += section("Core Competencies", anchor=None, accent=accent)
+    story += section("Core Competencies", anchor="competencies", accent=accent)
     story.append(chip_grid(competencies, S))
     story.append(Spacer(1, 6))
 
-    story.append(anchor("experience"))
-    story += section("Professional Experience", anchor=None, accent=accent)
+    story += section("AI Agents &amp; Workflow Automation", anchor="agents", accent=accent)
+    story.append(Paragraph(
+        "Active builder of agentic AI systems — production at JPM and personal builds — "
+        "with a clear product POV on metrics, guardrails and unit economics.",
+        S["body"]))
+    story.append(Spacer(1, 2))
+    for b in ai_agents_bullets():
+        story.append(bullet(b, S))
+
+    story.append(PageBreak())
+    story += section("Professional Experience", anchor="experience", accent=accent)
     story.append(role_with_badge("JPM", NAVY,
         "Vice President — Product Management", S))
     story.append(Paragraph(
@@ -615,26 +623,15 @@ def build_wellsfargo():
     story.append(KeepTogether(wipro))
     story.append(Spacer(1, 5))
 
-    story.append(anchor("agents"))
-    story += section("AI Agents &amp; Workflow Automation", anchor=None, accent=accent)
-    story.append(Paragraph(
-        "Active builder of agentic AI systems — production at JPM and personal builds — "
-        "with a clear product POV on metrics, guardrails and unit economics.",
-        S["body"]))
-    story.append(Spacer(1, 2))
-    for b in ai_agents_bullets():
-        story.append(bullet(b, S))
-    story.append(Spacer(1, 5))
-
-    story.append(anchor("outcomes"))
-    story += section("Selected Outcomes &amp; Recognition", anchor=None, accent=accent)
+    story += section("Selected Outcomes &amp; Recognition", anchor="outcomes", accent=accent)
     for b in outcomes:
         story.append(bullet(b, S))
     story.append(Spacer(1, 5))
 
-    story.append(anchor("education"))
-    story += section("Education, Certifications &amp; Tooling", anchor=None, accent=accent)
-    story.append(footer_block(S))
+    edu_block = (section("Education, Certifications &amp; Tooling",
+                         anchor="education", accent=accent)
+                 + [footer_block(S)])
+    story.append(KeepTogether(edu_block))
 
     doc.build(story, onFirstPage=page_chrome, onLaterPages=page_chrome)
     print(f"Wrote {output}")
@@ -759,10 +756,6 @@ def build_hybrid():
     ]
 
     outcomes = [
-        "Scaled a global lending platform's adoption from <b>40% → 85% in 12 months</b> via React UI, "
-        "embedded Tableau analytics, in-app onboarding and structured change management.",
-        "Cut customer onboarding lead time by <b>~40%</b> through a workflow-driven, configurable "
-        "platform with country-specific rule packs.",
         "Delivered <b>~30% efficiency gain</b> using AI/ML document extraction across global "
         "lending operations.",
         "Reduced AML false positives by <b>~35%</b> across <b>14 African markets</b>.",
@@ -777,27 +770,26 @@ def build_hybrid():
     story.append(Paragraph(profile, S["body"]))
     story.append(Spacer(1, 6))
 
-    story.append(anchor("roadmap"))
-    story += section("Career Roadmap", anchor=None, accent=accent)
+    story += section("Career Roadmap", anchor="roadmap", accent=accent)
     story.append(CareerRoadmap(milestones, accent=accent))
     story.append(Spacer(1, 4))
 
-    story.append(anchor("competencies"))
-    story += section("Core Competencies", anchor=None, accent=accent)
+    story += section("Core Competencies", anchor="competencies", accent=accent)
     story.append(chip_grid(competencies, S))
     story.append(Spacer(1, 6))
 
     # Agents section elevated above Professional Experience to signal focus.
-    story.append(anchor("agents"))
-    story += section("AI Agents &amp; Agentic Workflows", anchor=None, accent=accent)
+    story += section("AI Agents &amp; Agentic Workflows", anchor="agents", accent=accent)
     story.append(Paragraph(agents_intro, S["body"]))
     story.append(Spacer(1, 2))
     for b in agents_bullets:
         story.append(bullet(b, S))
-    story.append(Spacer(1, 5))
 
-    story.append(anchor("experience"))
-    story += section("Professional Experience", anchor=None, accent=accent)
+    # Force Professional Experience onto a fresh page so the role title and
+    # company line are never orphaned at the bottom of page 1.
+    story.append(PageBreak())
+
+    story += section("Professional Experience", anchor="experience", accent=accent)
 
     # Current role — generic descriptor instead of employer name.
     story.append(role_with_badge("VP", NAVY,
@@ -823,15 +815,15 @@ def build_hybrid():
     story.append(KeepTogether(prior))
     story.append(Spacer(1, 5))
 
-    story.append(anchor("outcomes"))
-    story += section("Selected Outcomes &amp; Recognition", anchor=None, accent=accent)
+    story += section("Selected Outcomes &amp; Recognition", anchor="outcomes", accent=accent)
     for b in outcomes:
         story.append(bullet(b, S))
     story.append(Spacer(1, 5))
 
-    story.append(anchor("education"))
-    story += section("Education, Certifications &amp; Tooling", anchor=None, accent=accent)
-    story.append(footer_block(S))
+    edu_block = (section("Education, Certifications &amp; Tooling",
+                         anchor="education", accent=accent)
+                 + [footer_block(S)])
+    story.append(KeepTogether(edu_block))
 
     doc.build(story, onFirstPage=page_chrome, onLaterPages=page_chrome)
     print(f"Wrote {output}")
