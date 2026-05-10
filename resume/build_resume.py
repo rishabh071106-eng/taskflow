@@ -116,14 +116,20 @@ class SectionHeader(Flowable):
 
 
 class CareerRoadmap(Flowable):
-    """Horizontal milestone timeline with diamond markers."""
+    """Horizontal milestone timeline with diamond markers.
 
-    def __init__(self, milestones, width=CONTENT_W, height=58, accent=GOLD):
+    Labels are hard-constrained to (step - gap) so they never collide with
+    neighbouring labels.
+    """
+
+    def __init__(self, milestones, width=CONTENT_W, height=72, accent=GOLD,
+                 gap=10):
         super().__init__()
         self.milestones = milestones
         self.width = width
         self.height = height
         self.accent = accent
+        self.gap = gap
 
     def wrap(self, *_):
         return self.width, self.height
@@ -143,24 +149,27 @@ class CareerRoadmap(Flowable):
     def draw(self):
         c = self.canv
         n = len(self.milestones)
-        pad = 10
-        line_y = self.height - 22
+        pad = 14
+        line_y = self.height - 28
         x_start = pad
         x_end = self.width - pad
         c.setStrokeColor(RULE)
-        c.setLineWidth(1.1)
+        c.setLineWidth(1.0)
         c.line(x_start, line_y, x_end, line_y)
         step = (x_end - x_start) / max(n - 1, 1)
+        max_label_w = step - self.gap
         S = _styles()
         for i, (year, label) in enumerate(self.milestones):
             x = x_start + i * step
-            self._diamond(x, line_y, 4.2, self.accent)
+            self._diamond(x, line_y, 4.5, self.accent)
+            # Year above the line.
             yp = Paragraph(year, S["milestone_year"])
             yw, yh = yp.wrap(60, 14)
-            yp.drawOn(c, x - yw / 2, line_y + 7)
+            yp.drawOn(c, x - yw / 2, line_y + 8)
+            # Label below — hard-constrained so it never overflows the slot.
             lp = Paragraph(label, S["milestone_label"])
-            lw, lh = lp.wrap(min(step + 18, 110), 30)
-            lp.drawOn(c, x - lw / 2, line_y - lh - 7)
+            lw, lh = lp.wrap(max_label_w, 36)
+            lp.drawOn(c, x - lw / 2, line_y - lh - 9)
 
 
 class CompanyBadge(Flowable):
@@ -401,13 +410,12 @@ def build_thunes():
     )
 
     milestones = [
-        ("2011", "Joined Wipro · Standard Bank core banking"),
-        ("2016", "Agile transformation across 14 markets"),
-        ("2019", "AML &amp; compliance overhaul, 26 partner platforms"),
-        ("2020", "Joined JPM as VP — Product Management"),
-        ("2022", "Launched global Loan Booking Platform v1"),
-        ("2024", "Scaled adoption 40 → 85%; AI doc extraction live"),
-        ("2026", "Agentic loan ecosystem · TaskFlow agent stack"),
+        ("2011", "Wipro · Standard Bank"),
+        ("2016", "Agile across 14 markets"),
+        ("2020", "Joined JPM · VP Product"),
+        ("2022", "Loan Booking v1 launched"),
+        ("2024", "Adoption 40% → 85%"),
+        ("2026", "Agentic stack · TaskFlow"),
     ]
     competencies = [
         ["Product Strategy &amp; Roadmap", "GTM &amp; ICP Enablement", "P&amp;L &amp; Business Cases"],
@@ -520,13 +528,12 @@ def build_wellsfargo():
     )
 
     milestones = [
-        ("2011", "Joined Wipro · Standard Bank core banking"),
-        ("2016", "Agile transformation across 14 markets"),
-        ("2019", "AML &amp; compliance overhaul, 26 partner platforms"),
-        ("2020", "Joined JPM as VP — Product Management"),
-        ("2022", "Launched lending platform with embedded analytics"),
-        ("2024", "Adoption 40 → 85% via in-app analytics &amp; campaigns"),
-        ("2026", "Agentic platform · TaskFlow MarTech-style agent stack"),
+        ("2011", "Wipro · Standard Bank"),
+        ("2016", "Agile across 14 markets"),
+        ("2020", "Joined JPM · VP Product"),
+        ("2022", "Platform v1 + analytics"),
+        ("2024", "Adoption 40% → 85%"),
+        ("2026", "MarTech-style agent stack"),
     ]
     competencies = [
         ["MarTech &amp; Marketing Platforms", "Customer Journey &amp; Segmentation", "Adoption Analytics &amp; OKRs"],
