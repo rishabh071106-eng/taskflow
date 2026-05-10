@@ -12,25 +12,47 @@
     "company": "J.P. Morgan Chase & Co.",
     "designation": "Vice President — Product Management",
     "total_experience_years": 15,
-    "current_ctc_lpa": 55,
-    "expected_ctc_lpa": 80,
+    "current_ctc_lpa": 58,
+    "expected_ctc_lpa_min": 75,
+    "expected_ctc_lpa_max": 120,
     "notice_period_days": 90,
-    "city": "Bengaluru"
+    "city": "Bengaluru",
+    "industry": "Banking / FinTech",
+    "team_size": 25,
+    "product_ownership": true,
+    "ai_experience": "Multi-agent systems and AI automation"
+  },
+
+  "education": {
+    "highest": "Executive MBA + M.Tech in AI",
+    "executive_mba": "IIM Kozhikode",
+    "mtech_ai": "IIT Bhilai (Ongoing)",
+    "btech": "Electronics & Communication"
   },
 
   "preferences": {
-    "preferred_locations": ["Bengaluru", "Mumbai", "Pune", "Hyderabad", "Gurgaon", "Remote"],
+    "preferred_locations": ["Bengaluru", "Mumbai", "Pune", "Hyderabad", "Gurgaon", "Noida", "Chennai", "Remote"],
     "willing_to_relocate_within_india": true,
-    "open_to_remote": true
+    "open_to_remote": true,
+    "outside_india_only_if_remote": true
   },
 
   "search_queries": [
-    "Director Product Management Fintech",
-    "VP Product Management Banking",
-    "Head of Product Lending",
-    "Principal Product Manager AI",
+    "Director Product Management",
+    "Senior Director Product Management",
+    "Head of Product",
     "Director AI Products",
-    "Group Product Manager Payments"
+    "Director Digital Products",
+    "Director Lending Products",
+    "Director Commercial Banking Products",
+    "Director Platform Products",
+    "Director FinTech Products",
+    "Group Product Manager",
+    "Principal Product Manager",
+    "VP Product Management",
+    "AVP Product",
+    "Head of AI Products",
+    "Product Transformation Lead"
   ],
 
   "filters": {
@@ -39,14 +61,24 @@
     "min_salary_lpa": 60,
     "posted_within_days": 7,
     "preferred_locations_only": true,
-    "min_match_score": 75
+    "min_match_score": 75,
+    "functional_area": "Product Management",
+    "employment_type": "Full-time"
   },
 
   "exclusions": {
-    "employers": ["JP Morgan", "JPMorgan", "JPMC", "J.P. Morgan", "JPMorgan Chase"],
+    "employers": [
+      "JP Morgan", "JPMorgan", "JPMC", "J.P. Morgan", "JPMorgan Chase",
+      "JPMC India", "JP Morgan Services"
+    ],
     "title_keywords_to_skip": [
-      "junior", "associate", "intern", "fresher",
-      "sales", "support", "operations associate", "ops associate"
+      "junior", "associate product", "intern", "fresher",
+      "business analyst", "ba ", " ba,", " ba.",
+      "program manager",
+      "sales", "support", "operations associate", "ops associate",
+      "qa", "quality assurance", "testing", "tester",
+      "engineer", "developer", "swe", "sde",
+      "internship", "trainee"
     ]
   },
 
@@ -60,6 +92,10 @@
   "files": {
     "resume_pdf": "/Users/rishabh/Documents/Rishabh_Sharma_Resume_2026_AI_Agents_Hybrid.pdf",
     "applications_csv": "applications.csv",
-    "playwright_user_data_dir": "./.naukri-browser-profile"
-  }
+    "playwright_user_data_dir": "./.naukri-browser-profile",
+    "summary_log": "runs.log"
+  },
+
+  "cover_letter": "Dear Hiring Team,\n\nI am currently Vice President — Product Management at J.P. Morgan Chase, where I lead the strategic roadmap for a global digital loan booking platform and drive AI-enabled transformation across commercial banking.\n\nWith 15+ years of experience across banking, FinTech, AI and digital transformation, along with an Executive MBA from IIM Kozhikode and an ongoing M.Tech in AI from IIT Bhilai, I believe my background aligns strongly with this opportunity.\n\nI would welcome the opportunity to discuss how I can contribute to your product vision and business growth.\n\nBest regards,\nRishabh Sharma"
 }
+

@@ -317,6 +317,32 @@ def list_search_results(page, profile: dict, query: str) -> list[str]:
     return urls
 
 
+def print_summary(scanned: list[dict], applied: list[dict],
+                  shortlisted: list[dict], skipped: list[dict]) -> None:
+    print("\n" + "=" * 60)
+    print("  RUN SUMMARY")
+    print("=" * 60)
+    print(f"  Jobs scanned     : {len(scanned)}")
+    print(f"  Jobs shortlisted : {len(shortlisted)}  (score >= threshold)")
+    print(f"  Jobs applied     : {len(applied)}")
+    if shortlisted:
+        top = sorted(shortlisted, key=lambda x: x.get("score", 0),
+                     reverse=True)[:5]
+        print("\n  Top 5 strongest matches this run:")
+        for i, j in enumerate(top, 1):
+            print(f"    {i}. [{j.get('score', 0):>3}] "
+                  f"{j.get('company', '?')} — {j.get('title', '?')}")
+    if skipped:
+        print("\n  Skip reasons:")
+        reasons = {}
+        for s in skipped:
+            r = s.get("reason", "unspecified")
+            reasons[r] = reasons.get(r, 0) + 1
+        for reason, n in sorted(reasons.items(), key=lambda x: -x[1]):
+            print(f"    {n:>3} × {reason}")
+    print("=" * 60 + "\n")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--profile", default=str(HERE / "profile.json"))
@@ -335,13 +361,21 @@ def main():
         user_dir = HERE / user_dir
     user_dir.mkdir(parents=True, exist_ok=True)
 
+    # Per-run aggregates for the end-of-run summary.
+    scanned: list[dict] = []
+    applied: list[dict] = []
+    shortlisted: list[dict] = []
+    skipped: list[dict] = []
+
     # Pre-flight cap check.
     if daily_count(csv_path) >= profile["rate_limits"][
             "max_applications_per_day"]:
-        print("Daily cap already hit. Exiting.")
+        print(f"[{dt.datetime.now().isoformat(timespec='seconds')}] "
+              "Daily cap already hit. Exiting.")
         return
 
-    print("Launching Chromium with persistent profile at:", user_dir)
+    print(f"[{dt.datetime.now().isoformat(timespec='seconds')}] "
+          f"Launching Chromium with persistent profile at: {user_dir}")
     with sync_playwright() as pw:
         ctx = pw.chromium.launch_persistent_context(
             user_data_dir=str(user_dir),
@@ -353,36 +387,52 @@ def main():
         print("\nLog in to Naukri in the browser window if you aren't already.")
         input("Press <Enter> here once your dashboard is visible: ")
 
-        for query in profile["search_queries"]:
-            urls = list_search_results(page, profile, query)
-            for u in urls:
-                if daily_count(csv_path) >= profile["rate_limits"][
-                        "max_applications_per_day"]:
-                    print("Daily cap reached. Stopping.")
-                    return
-                outcome = process_job(page, u, profile, args.apply, csv_path)
-                if outcome["action"] in ("applied", "skipped_by_user"):
-                    append_row(csv_path, {
-                        "date": dt.datetime.now().isoformat(timespec="seconds"),
-                        "company": outcome.get("company", ""),
-                        "role": outcome.get("title", ""),
-                        "location": outcome.get("location", ""),
-                        "salary_lpa": outcome.get("salary", ""),
-                        "match_score": outcome.get("score", 0),
-                        "source": "naukri",
-                        "url": outcome.get("url", u),
-                        "status": outcome["action"],
-                        "notes": outcome.get("reason", ""),
-                    })
-                elif outcome["action"] == "stopped":
-                    print("STOPPED:", outcome["reason"])
-                    return
-                else:
-                    print(f"  → {outcome['action']}: {outcome['reason']}")
-                random_delay(profile)
+        try:
+            for query in profile["search_queries"]:
+                urls = list_search_results(page, profile, query)
+                for u in urls:
+                    if daily_count(csv_path) >= profile["rate_limits"][
+                            "max_applications_per_day"]:
+                        print("Daily cap reached. Stopping.")
+                        raise StopIteration
+                    outcome = process_job(page, u, profile, args.apply,
+                                          csv_path)
+                    scanned.append(outcome)
+                    if outcome["action"] == "applied":
+                        applied.append(outcome)
+                        shortlisted.append(outcome)
+                    elif outcome["action"] in ("scored_only",):
+                        shortlisted.append(outcome)
+                    elif outcome["action"] == "stopped":
+                        print("STOPPED:", outcome["reason"])
+                        raise StopIteration
+                    else:
+                        skipped.append(outcome)
 
-        print("\nAll queries processed.")
-        input("Press <Enter> to close the browser: ")
+                    if outcome["action"] in ("applied", "skipped_by_user"):
+                        append_row(csv_path, {
+                            "date": dt.datetime.now().isoformat(
+                                timespec="seconds"),
+                            "company": outcome.get("company", ""),
+                            "role": outcome.get("title", ""),
+                            "location": outcome.get("location", ""),
+                            "salary_lpa": outcome.get("salary", ""),
+                            "match_score": outcome.get("score", 0),
+                            "source": "naukri",
+                            "url": outcome.get("url", u),
+                            "status": outcome["action"],
+                            "notes": outcome.get("reason", ""),
+                        })
+                    print(f"  → {outcome['action']}: {outcome['reason']}")
+                    random_delay(profile)
+        except StopIteration:
+            pass
+
+        print_summary(scanned, applied, shortlisted, skipped)
+        # When run by launchd there is no human at the keyboard; do not
+        # block on input(). Skip the prompt if not a TTY.
+        if sys.stdin.isatty():
+            input("Press <Enter> to close the browser: ")
         ctx.close()
 
 

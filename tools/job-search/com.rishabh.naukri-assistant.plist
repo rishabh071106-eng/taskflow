@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- com.rishabh.naukri-assistant.plist
+     macOS launchd job. Fires the Naukri assistant every 60 minutes.
+     See SETUP.md for install / uninstall / log paths / important notes. -->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.rishabh.naukri-assistant</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <!-- Path to your venv's python AND to the script.  EDIT BOTH. -->
+        <string>/Users/rishabh/path/to/taskflow/tools/job-search/.venv/bin/python3</string>
+        <string>/Users/rishabh/path/to/taskflow/tools/job-search/naukri_assistant.py</string>
+        <string>--apply</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>/Users/rishabh/path/to/taskflow/tools/job-search</string>
+
+    <key>StartInterval</key>
+    <integer>3600</integer>
+
+    <key>RunAtLoad</key>
+    <false/>
+
+    <key>StandardOutPath</key>
+    <string>/Users/rishabh/Library/Logs/naukri-assistant.out.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/rishabh/Library/Logs/naukri-assistant.err.log</string>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin</string>
+    </dict>
+
+    <!-- Don't run if the previous run is still in progress. -->
+    <key>AbandonProcessGroup</key>
+    <false/>
+</dict>
+</plist>

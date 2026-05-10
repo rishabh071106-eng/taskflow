@@ -78,6 +78,56 @@ Naukri rolls out UI changes from time to time.  Two failure modes:
 Selectors live in one block at the top of `naukri_assistant.py`.  No
 other code needs to change.
 
+## Schedule it with launchd (every hour)
+
+The repo ships a launchd plist at `com.rishabh.naukri-assistant.plist`.
+
+1. Open the plist and edit the three placeholder paths:
+   - the `python3` inside your venv (`.../tools/job-search/.venv/bin/python3`)
+   - the script (`.../tools/job-search/naukri_assistant.py`)
+   - the working directory (`.../tools/job-search`)
+2. Copy it into LaunchAgents and load it:
+   ```
+   cp com.rishabh.naukri-assistant.plist  ~/Library/LaunchAgents/
+   launchctl load -w ~/Library/LaunchAgents/com.rishabh.naukri-assistant.plist
+   ```
+3. Logs land at `~/Library/Logs/naukri-assistant.out.log` and `.err.log`.
+
+To pause:
+```
+launchctl unload -w ~/Library/LaunchAgents/com.rishabh.naukri-assistant.plist
+```
+
+To trigger a single run on demand without waiting for the hour:
+```
+launchctl start com.rishabh.naukri-assistant
+```
+
+### Important reality check on the schedule
+
+`launchd` will fire the script every hour. The script will:
+
+- Open a Chromium window (visible — not headless).
+- Run searches and score results.
+- For matches that pass, click Apply and fill known screening fields.
+- **Stop at the Submit step and wait for you in the terminal.**
+
+If your laptop is asleep, the alarm is missed (StartInterval-based jobs
+do not wake the machine). If your laptop is awake but you aren't at the
+keyboard, the run will block on the Submit prompt until you arrive or
+launchd kills it. This is by design — auto-clicking Submit is the line
+where automation becomes the kind of bot Naukri bans accounts over.
+
+If you want the unattended workflow anyway, **the safe shape is**:
+
+- Run `naukri_assistant.py` in dry-run mode every hour (omit `--apply`).
+- It scores, ranks and logs candidates without clicking anything.
+- You batch-apply manually in the evening, in 5–10 minutes, using
+  `score_jd.py` + `answers.md` for each.
+
+To switch the schedule to dry-run, drop `--apply` from the
+`ProgramArguments` array in the plist and re-load.
+
 ## What this script will NOT do
 
 - It will not solve CAPTCHAs.  If one appears, you solve it in the browser.
