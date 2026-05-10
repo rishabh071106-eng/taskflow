@@ -4299,15 +4299,17 @@ body:not([data-theme=aurora]) .mg-prog-chip .hh-pc-arrow{color:#999}
 @media (max-width:560px){.hh-pc-mini{display:none}}
 .hh-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 @media (min-width:760px){.hh-stats{grid-template-columns:repeat(6,1fr)}}
-/* Mind Gym tab: 4 games as a 2x2 grid of bigger, richer chips with hover lift */
+/* Mind Gym tab: 4 games as a 2x2 grid of LARGE chips with rich gradients and hover lift */
 .qa-hero .hh-stats{grid-template-columns:repeat(2,1fr) !important;gap:14px}
-.qa-hero .qa-stat-tile{padding:24px 20px 20px !important;min-height:128px;border-radius:18px !important;transition:transform .2s cubic-bezier(.2,.8,.2,1),box-shadow .25s ease,border-color .2s ease}
-.qa-hero .qa-stat-tile:hover{transform:translateY(-3px);box-shadow:0 14px 30px -10px rgba(15,23,42,.18)}
-.qa-hero .qa-stat-tile:active{transform:scale(.98)}
-.qa-hero .qa-stat-emoji{width:48px !important;height:48px !important;font-size:24px;border-radius:14px !important;margin-bottom:18px !important}
-.qa-hero .qa-stat-tile small{font-size:13px !important;letter-spacing:.02em !important;text-transform:none !important;font-family:'Instrument Serif',Georgia,serif !important;font-weight:400 !important}
-.qa-hero .qa-stat-bdg{font-size:11px !important;padding:4px 10px !important}
-@media (min-width:760px){.qa-hero .hh-stats{grid-template-columns:repeat(4,1fr) !important}}
+.qa-hero .qa-stat-tile{padding:28px 22px 22px !important;min-height:160px !important;border-radius:22px !important;transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s ease,border-color .2s ease;display:flex !important;flex-direction:column !important;justify-content:space-between !important;position:relative;overflow:hidden}
+.qa-hero .qa-stat-tile::before{content:'';position:absolute;top:-50%;right:-30%;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.18),transparent 65%);pointer-events:none;z-index:0}
+.qa-hero .qa-stat-tile>*{position:relative;z-index:1}
+.qa-hero .qa-stat-tile:hover{transform:translateY(-4px);box-shadow:0 20px 40px -12px rgba(15,23,42,.22)}
+.qa-hero .qa-stat-tile:active{transform:scale(.97)}
+.qa-hero .qa-stat-emoji{width:52px !important;height:52px !important;font-size:26px !important;border-radius:16px !important;margin-bottom:20px !important;box-shadow:0 8px 20px -6px rgba(0,0,0,.35) !important}
+.qa-hero .qa-stat-tile small{font-size:18px !important;letter-spacing:-.01em !important;text-transform:none !important;font-family:'Instrument Serif',Georgia,serif !important;font-weight:400 !important;font-style:italic !important;line-height:1.1 !important;margin-top:auto !important}
+.qa-hero .qa-stat-bdg{font-size:11px !important;padding:5px 11px !important;border-radius:8px !important;font-weight:700 !important}
+@media (min-width:760px){.qa-hero .hh-stats{grid-template-columns:repeat(4,1fr) !important}.qa-hero .qa-stat-tile{min-height:180px !important}}
 .hh-stat{font-family:inherit;text-align:left;cursor:default;border:1px solid rgba(255,255,255,.08);color:#fff}
 button.hh-stat{cursor:pointer}
 button.hh-stat:active{transform:scale(.96)}
@@ -4907,6 +4909,32 @@ body[data-theme=aurora] .inshort-share{background:rgba(167,139,250,.18);color:#A
 
 /* Meditation tab */
 .med-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:14px}
+/* ── Headspace/Elevate-style affirmation cards ── */
+.hs-cats{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}
+.hs-cats::-webkit-scrollbar{display:none}
+.hs-cat{background:rgba(15,23,42,.04)!important;border:1px solid rgba(15,23,42,.06)!important;color:#0F172A!important;padding:10px 18px!important;border-radius:24px!important;font-size:13px!important;font-weight:600!important;white-space:nowrap!important;transition:all .2s ease}
+.hs-cat.on{background:#0F172A!important;color:#fff!important;border-color:#0F172A!important;box-shadow:0 6px 16px -4px rgba(15,23,42,.3)}
+.hs-cat:not(.on):hover{background:rgba(15,23,42,.08)!important}
+.hs-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:14px}
+@media (min-width:600px){.hs-grid{grid-template-columns:1fr 1fr}}
+.hs-card{position:relative;overflow:hidden;border:none;cursor:pointer;border-radius:28px;padding:28px 24px 24px;min-height:200px;display:flex;flex-direction:column;justify-content:space-between;text-align:left;color:#fff;background:var(--g,linear-gradient(135deg,#FCB851,#F59E0B));box-shadow:0 12px 32px -10px rgba(15,23,42,.2);transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s ease;font-family:inherit;animation:hsCardIn .5s cubic-bezier(.2,.8,.2,1) backwards;isolation:isolate}
+@keyframes hsCardIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.hs-card:hover{transform:translateY(-3px);box-shadow:0 20px 40px -12px rgba(15,23,42,.3)}
+.hs-card:active{transform:scale(.98)}
+.hs-card-blob{position:absolute;top:-40%;right:-30%;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.18);filter:blur(20px);z-index:-1;animation:hsBlob 12s ease-in-out infinite alternate}
+.hs-card-blob-2{top:auto;bottom:-50%;left:-30%;right:auto;width:280px;height:280px;background:rgba(255,255,255,.1);animation-duration:16s;animation-delay:-3s}
+@keyframes hsBlob{from{transform:translate(0,0) scale(1)}to{transform:translate(20px,-20px) scale(1.15)}}
+.hs-card-top{display:flex;align-items:baseline;gap:6px}
+.hs-card-dur{font-family:'Instrument Serif',Georgia,serif;font-size:64px;line-height:.85;font-weight:400;letter-spacing:-.04em;text-shadow:0 4px 24px rgba(0,0,0,.18)}
+.hs-card-durU{font-family:'JetBrains Mono','Space Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.18em;opacity:.85;align-self:flex-end;padding-bottom:8px}
+.hs-card-title{font-family:'Instrument Serif',Georgia,serif;font-size:22px;font-weight:400;letter-spacing:-.01em;margin-top:auto;line-height:1.15;font-style:italic;text-shadow:0 2px 12px rgba(0,0,0,.12)}
+.hs-card-desc{font-size:13px;line-height:1.45;opacity:.92;margin-top:6px;font-weight:450;max-width:90%}
+.hs-card-play{position:absolute;bottom:20px;right:20px;width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.95);color:#0F172A;display:grid;place-items:center;box-shadow:0 8px 20px -4px rgba(0,0,0,.25);transition:transform .2s ease,background .2s ease}
+.hs-card:hover .hs-card-play{transform:scale(1.1) translateX(2px);background:#fff}
+.hs-card.is-loading .hs-card-play{background:rgba(255,255,255,.4)}
+body[data-theme=aurora] .hs-cat{background:rgba(255,255,255,.06)!important;color:#F5F5FA!important;border-color:rgba(255,255,255,.08)!important}
+body[data-theme=aurora] .hs-cat.on{background:#FFD27A!important;color:#1B0E2E!important;border-color:#FFD27A!important}
+
 .med-card{display:flex;align-items:center;gap:14px;padding:18px 18px;border-radius:18px;background:linear-gradient(135deg,rgba(255,255,255,.92),rgba(255,255,255,.78));border:1.5px solid rgba(15,23,42,.06);text-align:left;cursor:pointer;transition:transform .2s ease,box-shadow .25s ease,border-color .2s ease;position:relative;overflow:hidden;width:100%;color:#0F172A}
 .med-card::before{content:'';position:absolute;top:0;left:0;width:6px;height:100%;background:var(--mc,#6366F1)}
 .med-card:hover{transform:translateY(-3px);box-shadow:0 14px 38px rgba(15,23,42,.08);border-color:var(--mc,#6366F1)}
@@ -5902,19 +5930,30 @@ body:not([data-theme=aurora]) .mg-ach.locked .medal{background:#F0EFEA;color:#9C
 .mg-mdl .mw-stats{color:#3D3D3D !important}
 .mg-mdl .mw-stats b{color:#1A1A1A !important}
 .mg-mdl .mw-let{
-  background:rgba(255,255,255,.07) !important;
-  border:1.5px solid rgba(255,255,255,.14) !important;
-  color:#F5F5FA !important;
-  box-shadow:0 4px 12px -4px rgba(0,0,0,.5) !important;
-  backdrop-filter:blur(8px) !important;
+  background:linear-gradient(180deg,#1F2937,#0F172A) !important;
+  border:2px solid #FFD27A !important;
+  color:#FFD27A !important;
+  box-shadow:0 6px 18px -4px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,210,122,.18) !important;
+  font-weight:700 !important;
+  font-size:26px !important;
 }
 .mg-mdl .mw-let:hover{
-  background:rgba(167,139,250,.18) !important;
-  border-color:#A78BFA !important;
-  box-shadow:0 6px 18px rgba(167,139,250,.3) !important;
+  background:linear-gradient(180deg,#FFD27A,#F59E0B) !important;
+  border-color:#F59E0B !important;
+  color:#1F2937 !important;
+  box-shadow:0 8px 22px rgba(245,158,11,.4) !important;
   transform:translateY(-2px) !important;
 }
-.mg-mdl .mw-let.used{opacity:.35 !important;background:rgba(255,255,255,.04) !important}
+.mg-mdl .mw-let.used{opacity:.25 !important;background:rgba(31,41,55,.4) !important;color:rgba(255,210,122,.4) !important;border-color:rgba(255,210,122,.2) !important}
+.mg-mdl .mw-cur{
+  font-size:28px !important;
+  font-weight:700 !important;
+  letter-spacing:.12em !important;
+  color:#fff !important;
+  background:rgba(0,0,0,.35) !important;
+  border-color:rgba(255,210,122,.5) !important;
+  min-height:60px !important;
+}
 .mg-mdl .mw-cur{
   border:2px dashed rgba(255,255,255,.2) !important;
   background:rgba(255,255,255,.05) !important;
@@ -6743,26 +6782,59 @@ function playMedDirect(id,title,mins,file){playMeditation(id,title,mins,file)}
 // ElevenLabs endpoint fails (missing API key, upstream error, etc.). Speaks
 // the script via window.speechSynthesis. Stops automatically when the user
 // closes the meditation overlay.
+// Quality speechSynthesis fallback. The previous attempt chunked by sentence
+// which sounded jerky. This version speaks the script as one continuous
+// utterance, waits for voices to load, and selects the highest-quality
+// voice available on the device (Samantha on iOS, Google neural on Android,
+// Microsoft Aria on Windows, premium voices preferred everywhere). Sounds
+// markedly better than the default robot voice.
 function _speakScriptFallback(id,onEnd){
   if(!window.speechSynthesis)return false;
+  const _doSpeak=(script)=>{
+    try{window.speechSynthesis.cancel()}catch(e){}
+    const voices=window.speechSynthesis.getVoices();
+    // Priority order: known premium/neural voices → cloud-rendered en voices →
+    // any en-US voice → any en voice. Each predicate is tried in order.
+    const prefs=[
+      v=>/Samantha/i.test(v.name)&&/en-?US/i.test(v.lang),
+      v=>/Karen/i.test(v.name)&&/en-?AU/i.test(v.lang),
+      v=>/Microsoft (Aria|Jenny|Sonia|Libby) Online/i.test(v.name),
+      v=>/Google (UK|US) English/i.test(v.name)&&/Female/i.test(v.name||''),
+      v=>/Google (UK|US) English/i.test(v.name),
+      v=>/Allison|Ava|Tessa|Moira|Serena|Susan/i.test(v.name)&&/^en/i.test(v.lang),
+      v=>v.localService===false&&/^en/i.test(v.lang),
+      v=>/^en-?US/i.test(v.lang),
+      v=>/^en/i.test(v.lang)
+    ];
+    let voice=null;for(const p of prefs){voice=voices.find(p);if(voice)break}
+    // Speak as one long utterance for natural prosody. Strip extra whitespace
+    // but keep paragraph breaks (turned into commas) so the engine pauses.
+    const cleaned=String(script).replace(/\\n\\n+/g,'… ').replace(/\\n+/g,', ').replace(/\\s+/g,' ').trim();
+    const u=new SpeechSynthesisUtterance(cleaned);
+    u.rate=.92;u.pitch=1.0;u.volume=1.0;
+    if(voice)u.voice=voice;
+    u.onend=function(){if(onEnd)onEnd()};
+    u.onerror=function(){};
+    window.speechSynthesis.speak(u);
+    // iOS Safari sometimes pauses after ~15 seconds. Workaround: pause+resume
+    // every 10 seconds while speaking. Stops automatically when user closes
+    // the meditation overlay (S.meditating.active becomes false).
+    if(window._fbKeepalive)clearInterval(window._fbKeepalive);
+    window._fbKeepalive=setInterval(()=>{
+      if(!(S.meditating&&S.meditating.active)){clearInterval(window._fbKeepalive);window._fbKeepalive=null;try{window.speechSynthesis.cancel()}catch(e){}return}
+      try{if(window.speechSynthesis.speaking&&!window.speechSynthesis.paused){window.speechSynthesis.pause();window.speechSynthesis.resume()}}catch(e){}
+    },9000);
+  };
   fetch('/api/audio-script/'+encodeURIComponent(id)).then(r=>r.json()).then(j=>{
     if(!j||!j.script)return;
-    try{window.speechSynthesis.cancel()}catch(e){}
-    const sentences=String(j.script).replace(/\\s+/g,' ').split(/(?<=[.!?\\u2026])\\s+/).filter(Boolean);
-    let i=0;
-    const speakNext=()=>{
-      if(!(S.meditating&&S.meditating.active))return;
-      if(i>=sentences.length){if(onEnd)onEnd();return}
-      const u=new SpeechSynthesisUtterance(sentences[i++]);
-      u.rate=.86;u.pitch=1.0;u.volume=1.0;
-      const voices=window.speechSynthesis.getVoices();
-      const pref=voices.find(v=>/Samantha|Karen|Allison|Joanna|Tessa|Microsoft Aria|Google US English/i.test(v.name))||voices.find(v=>/^en/i.test(v.lang));
-      if(pref)u.voice=pref;
-      u.onend=()=>setTimeout(speakNext,250);
-      u.onerror=()=>setTimeout(speakNext,250);
-      window.speechSynthesis.speak(u);
-    };
-    speakNext();
+    // Voices load async on Chrome/Safari. Wait if they're not ready yet.
+    if(window.speechSynthesis.getVoices().length>0){_doSpeak(j.script)}
+    else{
+      const onVoices=()=>{window.speechSynthesis.removeEventListener('voiceschanged',onVoices);_doSpeak(j.script)};
+      window.speechSynthesis.addEventListener('voiceschanged',onVoices);
+      // Fallback: if voiceschanged never fires (some devices), poll once at 300ms.
+      setTimeout(()=>{if(window.speechSynthesis.getVoices().length>0){window.speechSynthesis.removeEventListener('voiceschanged',onVoices);_doSpeak(j.script)}},300);
+    }
   }).catch(()=>{});
   return true;
 }
@@ -6782,9 +6854,29 @@ function playMedEleven(id,title,mins){
     const a=document.getElementById('audioEl');if(!a)return;
     a.setAttribute('playsinline','');a.preload='auto';
     a.addEventListener('canplay',function _on(){clearTimeout(prepTimer);if(prepNode&&prepNode.parentNode)prepNode.remove();prepNode=null;a.removeEventListener('canplay',_on)},{once:true});
-    a.addEventListener('error',function _err(){clearTimeout(prepTimer);if(prepNode&&prepNode.parentNode)prepNode.remove();a.removeEventListener('error',_err);const e=document.createElement('div');e.className='toast toast-err';e.innerHTML='\\u26A0\\uFE0F Audio temporarily unavailable \\u2014 try again in a moment';document.body.appendChild(e);setTimeout(()=>{if(e.parentNode)e.remove()},3500)},{once:true});
+    a.addEventListener('error',function _err(){
+      clearTimeout(prepTimer);
+      if(prepNode&&prepNode.parentNode)prepNode.remove();
+      a.removeEventListener('error',_err);
+      // Hide the broken audio element so it doesn't show a "missing media" UI
+      try{a.style.display='none';a.removeAttribute('src');a.load()}catch(e){}
+      // Fall back to high-quality device speech synthesis. Always works.
+      const ok=_speakScriptFallback(id);
+      const note=document.createElement('div');note.className='toast toast-ok';
+      note.innerHTML=ok?'\\u{1F50A} Reading aloud':'\\u26A0\\uFE0F Audio unavailable';
+      document.body.appendChild(note);
+      setTimeout(()=>{if(note.parentNode)note.remove()},2400);
+    },{once:true});
     const p=a.play();
-    if(p&&p.catch)p.catch(()=>{const e=document.createElement('div');e.className='toast toast-err';e.innerHTML='\\u25B6\\uFE0F Tap the play button on the bar';document.body.appendChild(e);setTimeout(()=>{if(e.parentNode)e.remove()},2800)});
+    if(p&&p.catch)p.catch(()=>{
+      // play() failed — likely autoplay restriction. Try TTS fallback so
+      // the user gets audio without a manual tap.
+      _speakScriptFallback(id);
+      const e=document.createElement('div');e.className='toast toast-ok';
+      e.innerHTML='\\u{1F50A} Reading aloud';
+      document.body.appendChild(e);
+      setTimeout(()=>{if(e.parentNode)e.remove()},2400);
+    });
   },200);
 }
 async function loadGoogleStatus(){const r=await api('/google/status');if(r){S.google={configured:!!r.configured,accounts:r.accounts||[],loaded:true};render();if(S.google.accounts.length&&S.tab==='cal')loadGcalEvents()}}
@@ -7550,6 +7642,10 @@ function mgWordTap(idx){
 }
 function mgWordBack(){const p=S.mgPlay;if(!p||p.game!=='word'||p.done)return;p.used.pop();render()}
 function mgWordClear(){const p=S.mgPlay;if(!p||p.game!=='word'||p.done)return;p.used=[];render()}
+// Reveal one valid word the user hasn't found yet (small cost — does not award XP)
+function mgWordHint(){const p=S.mgPlay;if(!p||p.game!=='word'||p.done)return;const remaining=p.valid.filter(w=>!p.foundSet.has(w));if(!remaining.length){p.feedback={ok:true,msg:'You found them all!'};render();return}const word=remaining[Math.floor(Math.random()*remaining.length)];p.feedback={ok:true,msg:'\\u{1F4A1} '+word};render();setTimeout(()=>{const cur=S.mgPlay;if(cur&&cur.game==='word'){cur.feedback=null;render()}},2200)}
+// End the round early — show all words the user missed, no penalty for the score
+function mgWordGiveUp(){const p=S.mgPlay;if(!p||p.game!=='word'||p.done)return;p.done=true;p.gaveUp=true;p.allWords=p.valid.slice();if(S._mwTimer){clearInterval(S._mwTimer);S._mwTimer=null}try{document.removeEventListener('keydown',_mwOnKey)}catch(e){}render()}
 function mgWordSubmit(){
   const p=S.mgPlay;if(!p||p.game!=='word'||p.done)return;
   const word=p.used.map(i=>p.letters[i]).join('');
@@ -9204,7 +9300,7 @@ else if(S.tab==='mindgym'){
   const _mgPOpen=!!S.mgProgressOpen;
   h+='<button class="hh-progress-chip mg-prog-chip'+(_mgPOpen?' is-open':'')+'" onclick="S.mgProgressOpen=!S.mgProgressOpen;render()" aria-expanded="'+_mgPOpen+'">'
     +'<span class="hh-pc-ic" style="background:linear-gradient(135deg,#A78BFA,#5B21B6)">\\u{1F9E0}</span>'
-    +'<span class="hh-pc-t">Mind Gym progress</span>'
+    +'<span class="hh-pc-t">Progress</span>'
     +'<span class="hh-pc-mini">'+overall+'% \\u00B7 L'+totalLevel+' \\u00B7 \\u{1F525}'+streak.current+' \\u00B7 '+totalXp+' XP</span>'
     +'<svg class="hh-pc-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>'
   +'</button>';
@@ -9213,7 +9309,6 @@ else if(S.tab==='mindgym'){
       +'<div class="hh-bg"></div>'
       +'<div class="hh-row"><div class="hh-eyebrow">\\u{1F9E0} Mind Gym</div></div>'
       +'<h1 class="hh-greet">Train your mind, <em>daily</em>.</h1>'
-      +'<p class="hh-line">Four micro-games. Sub-90 seconds each. Pick one and start.</p>'
       +'<div class="hh-stats">'
         +'<div class="hh-stat"><b style="color:#86EFAC">'+overall+'%</b><small>Overall</small></div>'
         +'<div class="hh-stat"><b style="color:#A78BFA">L'+totalLevel+'</b><small>Total levels</small></div>'
@@ -9236,9 +9331,6 @@ else if(S.tab==='mindgym'){
   // ─── Mind Games chip — same hero Actions pattern as the home tab (light) ───
   h+='<section class="home-hero home-hero-light qa-hero">'
     +'<div class="hh-bg"></div>'
-    +'<div class="hh-row"><div class="hh-eyebrow">\\u{1F3AE} Mind Games</div></div>'
-    +'<h1 class="hh-greet" style="font-size:clamp(28px,5vw,42px);margin:6px 0 14px">Pick a <em>game</em>.</h1>'
-    +'<p class="hh-line" style="margin-bottom:18px">Four brain workouts. Tap any to open in fullscreen. Each one tracks levels and your best score.</p>'
     +'<div class="hh-stats">';
   _games.forEach(g=>{
     const p=g.pData;
@@ -9471,8 +9563,8 @@ else if(S.tab==='cal'){
 else if(S.tab==='books'){
   const bs=S.bookStreak||{streak:0,total:0,today:false};
   if(!S.booksMode)S.booksMode='summaries';
-  h+='<div class="section-hd"><span class="section-ic" style="background:linear-gradient(135deg,#8B5CF6,#EC4899);color:#fff">\\u{1F4DA}</span><div><h3>Book Briefs \\u2014 listen, learn, level up</h3><p>15-minute summaries to read \\u2022 audiobooks to listen \\u2022 keep your streak alive</p></div></div>';
-  h+='<div class="streak-card"><div class="streak-ico">'+ic('flame',24)+'</div><div class="streak-body"><div class="streak-n">'+bs.streak+'<span>day'+(bs.streak===1?'':'s')+'</span></div><div class="streak-lbl">Reading streak'+(bs.today?' \\u2022 done today \\u2705':'')+'</div></div><div class="streak-tot"><b>'+bs.total+'</b><small>total days</small></div></div>';
+  h+='<div class="section-hd"><span class="section-ic" style="background:linear-gradient(135deg,#8B5CF6,#EC4899);color:#fff">\\u{1F4DA}</span><div><h3>Listen</h3></div></div>';
+  if(bs.streak>0)h+='<div class="streak-card"><div class="streak-ico">'+ic('flame',24)+'</div><div class="streak-body"><div class="streak-n">'+bs.streak+'<span>day'+(bs.streak===1?'':'s')+'</span></div><div class="streak-lbl">Streak'+(bs.today?' \\u2022 done today':'')+'</div></div></div>';
   // Mode toggle: summaries vs audiobooks
   // Mode toggle: chip-style parent that expands to two options
   {
@@ -9481,18 +9573,18 @@ else if(S.tab==='books'){
     h+='<button class="qa-chip" style="margin-bottom:'+(_bmOpen?'10px':'18px')+'" onclick="S.bkModeOpen=!S.bkModeOpen;render()" aria-expanded="'+_bmOpen+'">'
       +'<span class="qa-ic" style="background:'+(isSum?'linear-gradient(135deg,#FF6B47,#FFB547)':'linear-gradient(135deg,#A78BFA,#EC4899)')+'">'+(isSum?'\\u2728':'\\u{1F3A7}')+'</span>'
       +'<span class="qa-t">'+(isSum?'15-min summaries':'Audiobooks')+'</span>'
-      +'<span class="qa-mini">Switch mode</span>'
+      +'<span class="qa-mini">Switch</span>'
       +'<span class="qa-arrow'+(_bmOpen?' is-open':'')+'"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>'
     +'</button>';
     if(_bmOpen){
       h+='<div class="qa-grid" style="margin-bottom:18px">'
         +'<button class="qa-tile'+(isSum?' is-active':'')+'" onclick="S.booksMode=\\'summaries\\';S.bkModeOpen=false;render()">'
           +'<span class="qa-tile-ic" style="background:linear-gradient(135deg,#FF6B47,#FFB547)">\\u2728</span>'
-          +'<div class="qa-tile-body"><div class="qa-tile-t">15-minute summaries'+(isSum?'<span class="qa-tile-bdg">Active</span>':'')+'</div><div class="qa-tile-d">Distilled key ideas \\u00B7 read or listen</div></div>'
+          +'<div class="qa-tile-body"><div class="qa-tile-t">Summaries'+(isSum?'<span class="qa-tile-bdg">On</span>':'')+'</div></div>'
         +'</button>'
         +'<button class="qa-tile'+(isSum?'':' is-active')+'" onclick="S.booksMode=\\'audiobooks\\';S.bkModeOpen=false;render()">'
           +'<span class="qa-tile-ic" style="background:linear-gradient(135deg,#A78BFA,#EC4899)">\\u{1F3A7}</span>'
-          +'<div class="qa-tile-body"><div class="qa-tile-t">Full audiobooks'+(isSum?'':'<span class="qa-tile-bdg">Active</span>')+'</div><div class="qa-tile-d">Free LibriVox library \\u00B7 listen end-to-end</div></div>'
+          +'<div class="qa-tile-body"><div class="qa-tile-t">Audiobooks'+(isSum?'':'<span class="qa-tile-bdg">On</span>')+'</div></div>'
         +'</button>'
       +'</div>';
     }
@@ -9524,7 +9616,6 @@ else if(S.tab==='books'){
       h+='</button>';
     });
     h+='</div>';
-    h+='<div style="margin-top:18px;padding:18px 20px;border:1px dashed #E8E6E0;border-radius:14px;color:#6B6B6B;font-size:13px;line-height:1.55"><b style="color:#1A1A1A">Distilled, not dumbed down.</b> Each summary is a 12-15 minute read that captures the actual ideas \\u2014 not bullet trivia. Tap any cover, then tap <b style="color:#1F4D3F">Listen</b> to have it narrated aloud while you walk, drive, or wash dishes.</div>';
   } else {
     h+='<div class="srch"><input id="bsearch" placeholder="Search audiobooks..." value="'+esc(S.bookSearch)+'" oninput="filterBooks(this.value)"></div>';
     h+='<div class="flt">'+[{k:'all',l:'All'},{k:'fiction',l:'Fiction'},{k:'self-help',l:'Self Development'},{k:'mystery',l:'Mystery'},{k:'philosophy',l:'Philosophy'},{k:'adventure',l:'Adventure'},{k:'kids',l:'Kids'}].map(c=>'<button class="fb'+(S.booksCat===c.k?' on':'')+'" onclick="loadBooks(\\''+c.k+'\\')">'+c.l+'</button>').join('')+'</div>';
@@ -9540,21 +9631,21 @@ else if(S.tab==='books'){
   }
 }
 
-// WISDOM TAB — affirmations + guided meditations + vipassana + music
+// WISDOM TAB — Headspace/Elevate-styled affirmations + meditations
 else if(S.tab==='meditation'){
   const cat=S.medCat||'affirmations';
-  h+='<div class="section-hd"><span class="section-ic">'+ic('meditation',22)+'</span><div><h3>Wisdom</h3><p>Affirmations \\u2022 Guided \\u2022 Vipassana \\u2022 Music \\u2014 a daily sitting in English</p></div></div>';
+  h+='<div class="section-hd"><span class="section-ic">'+ic('meditation',22)+'</span><div><h3>Wisdom</h3></div></div>';
   // Category pills
-  h+='<div class="mag-pills" style="margin-bottom:14px">';
-  MED_CATEGORIES.forEach(c=>{h+='<button class="mag-pill'+(cat===c.k?' on':'')+'" onclick="setMedCat(\\''+c.k+'\\')"><span class="mag-pill-e">'+c.e+'</span>'+esc(c.l)+'</button>'});
+  h+='<div class="mag-pills hs-cats" style="margin-bottom:18px">';
+  MED_CATEGORIES.forEach(c=>{h+='<button class="mag-pill hs-cat'+(cat===c.k?' on':'')+'" onclick="setMedCat(\\''+c.k+'\\')"><span class="mag-pill-e">'+c.e+'</span>'+esc(c.l)+'</button>'});
   h+='</div>';
-  if(S.medLoading&&!S.meditations)h+='<div class="loading">Finding meditations...</div>';
-  h+='<div class="med-grid">';
-  MED_SLOTS.filter(s=>s.cat===cat).forEach(x=>{
+  if(S.medLoading&&!S.meditations)h+='<div class="loading">Loading...</div>';
+  // ── Big, beautiful Headspace-style cards ──
+  h+='<div class="hs-grid">';
+  MED_SLOTS.filter(s=>s.cat===cat).forEach((x,i)=>{
     let ready,onclick;
     const safeTitle=esc(x.title).replace(/\\\\u/g,'\\\\\\\\u').replace(/'/g,"\\\\'");
     if(x.elevenId){
-      // ElevenLabs-rendered audio: ready immediately (server caches on first hit)
       ready=true;
       onclick='playMedEleven(\\''+x.elevenId+'\\',\\''+safeTitle+'\\','+x.mins+')';
     } else {
@@ -9563,14 +9654,33 @@ else if(S.tab==='meditation'){
       const safeFile=(x.directFile||'').replace(/'/g,"\\\\'");
       onclick=ready?('playMedDirect(\\''+x.directId+'\\',\\''+safeTitle+'\\','+x.mins+',\\''+safeFile+'\\')'):'toast(\\'\\u23F3 Loading audio...\\',\\'err\\')';
     }
-    h+='<button class="med-card'+(ready?'':' loading')+(x.elevenId?' med-card-el':'')+'" onclick="'+onclick+'" style="--mc:'+x.color+'">';
-    h+='<div class="med-card-mins"><b>'+x.mins+'</b><small>min</small></div>';
-    h+='<div class="med-card-body"><div class="med-card-title">'+esc(x.title)+'</div><div class="med-card-desc">'+esc(x.desc)+'</div></div>';
-    h+='<div class="med-card-play">'+(ready?'<svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>':'<div class="med-load-dot"></div>')+'</div>';
+    // Map color to a soft warm/cool gradient pair, Headspace style
+    const grads={
+      '#FCB851':'linear-gradient(135deg,#FFD27A 0%,#F59E0B 60%,#B45309 100%)',
+      '#5BBFB4':'linear-gradient(135deg,#7DD3C0 0%,#0F766E 100%)',
+      '#FF7A45':'linear-gradient(135deg,#FB923C 0%,#C2410C 100%)',
+      '#06B6D4':'linear-gradient(135deg,#67E8F9 0%,#0E7490 100%)',
+      '#3B82F6':'linear-gradient(135deg,#93C5FD 0%,#1E40AF 100%)',
+      '#8B5CF6':'linear-gradient(135deg,#C4B5FD 0%,#5B21B6 100%)',
+      '#EC4899':'linear-gradient(135deg,#F9A8D4 0%,#9D174D 100%)',
+      '#10B981':'linear-gradient(135deg,#86EFAC 0%,#065F46 100%)',
+      '#F59E0B':'linear-gradient(135deg,#FCD34D 0%,#92400E 100%)'
+    };
+    const grad=grads[x.color]||('linear-gradient(135deg,'+x.color+',rgba(0,0,0,.6))');
+    h+='<button class="hs-card'+(ready?'':' is-loading')+'" onclick="'+onclick+'" style="--g:'+grad+';animation-delay:'+(i*0.06)+'s">';
+    // Decorative blob (the "headspace orb" feel)
+    h+='<div class="hs-card-blob"></div>';
+    h+='<div class="hs-card-blob hs-card-blob-2"></div>';
+    // Top row: duration pill
+    h+='<div class="hs-card-top"><span class="hs-card-dur">'+x.mins+'</span><span class="hs-card-durU">MIN</span></div>';
+    // Title (serif italic, large)
+    h+='<div class="hs-card-title">'+esc(x.title)+'</div>';
+    h+='<div class="hs-card-desc">'+esc(x.desc)+'</div>';
+    // Play button
+    h+='<div class="hs-card-play">'+(ready?'<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>':'<div class="med-load-dot"></div>')+'</div>';
     h+='</button>';
   });
   h+='</div>';
-  h+='<div class="med-foot">\\u{1F50A} Use headphones, find a quiet spot, and let the guide lead you.</div>';
 }
 
 // KNOWLEDGE TAB removed at user request (kept stub so saved state doesn't break)
@@ -10060,8 +10170,9 @@ if(S.mgPlay){
       h+='<div class="mg-body mt-end">'
         +'<div class="mt-end-stars">'+starsHTML+'</div>'
         +'<div class="mt-end-t">Found <b>'+p.foundSet.size+'</b> words \\u2022 <b>'+p.score+'</b> pts</div>'
-        +'<div class="mt-end-s">Base word: <b>'+p.base+'</b> \\u2022 +'+Math.min(50,p.score)+' XP saved</div>'
-        +(p.foundSet.size>0?'<div class="mw-found" style="margin-top:14px">'+[...p.foundSet].map(w=>'<span>'+w+'</span>').join('')+'</div>':'')
+        +'<div class="mt-end-s">Base: <b>'+p.base+'</b>'+(p.gaveUp?'':' \\u2022 +'+Math.min(50,p.score)+' XP')+'</div>'
+        +(p.foundSet.size>0?'<div style="margin-top:14px"><div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#86EFAC;margin-bottom:6px">You found</div><div class="mw-found">'+[...p.foundSet].map(w=>'<span>'+w+'</span>').join('')+'</div></div>':'')
+        +(p.gaveUp&&p.allWords?'<div style="margin-top:14px"><div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#FCA5A5;margin-bottom:6px">All possible words</div><div class="mw-found">'+p.allWords.filter(w=>!p.foundSet.has(w)).map(w=>'<span style="background:rgba(251,191,36,.16)!important;border-color:rgba(251,191,36,.3)!important;color:#FBBF24!important">'+w+'</span>').join('')+'</div></div>':'')
         +'<div class="was-acts"><button class="mb mb-c" onclick="mgClose()">Done</button><button class="mb mb-s" onclick="mgWordStart()">\\u21BB Play again</button></div>'
       +'</div>';
     } else {
@@ -10082,8 +10193,9 @@ if(S.mgPlay){
         h+='<button class="mw-let'+(used?' used':'')+'" onclick="mgWordTap('+i+')">'+c+'</button>';
       });
       h+='</div>'
-        +'<div class="mw-cur'+(p.feedback?(p.feedback.ok?' flash-good':' flash-bad'):'')+'">'+(p.feedback?p.feedback.msg:(cur||'Tap or type letters'))+'</div>'
-        +'<div class="mw-acts"><button class="mw-btn" onclick="mgWordClear()">Clear</button><button class="mw-btn" onclick="mgWordBack()">\\u232B Back</button><button class="mw-btn mw-btn-primary" onclick="mgWordSubmit()">Submit \\u21B5</button></div>'
+        +'<div class="mw-cur'+(p.feedback?(p.feedback.ok?' flash-good':' flash-bad'):'')+'">'+(p.feedback?p.feedback.msg:(cur||'Tap letters'))+'</div>'
+        +'<div class="mw-acts"><button class="mw-btn" onclick="mgWordHint()" title="Reveal one word">\\u{1F4A1} Hint</button><button class="mw-btn" onclick="mgWordBack()">\\u232B</button><button class="mw-btn" onclick="mgWordClear()">Clear</button><button class="mw-btn mw-btn-primary" onclick="mgWordSubmit()">Submit \\u21B5</button></div>'
+        +'<div class="mw-acts" style="margin-top:8px"><button class="mw-btn" style="flex:1;background:rgba(220,38,38,.08);color:#DC2626;border-color:rgba(220,38,38,.18)" onclick="mgWordGiveUp()">Give up \\u2014 reveal all</button></div>'
         +'<div class="mw-found">'
         +(p.foundSet.size===0?'<span class="empty">Found words appear here \\u2022 use keyboard or tap tiles</span>':[...p.foundSet].map(w=>'<span>'+w+'</span>').join(''))
       +'</div></div>';
