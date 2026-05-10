@@ -28,6 +28,11 @@ try{db.exec("UPDATE tasks SET board='home' WHERE board IS NULL OR board=''")}cat
 try{db.exec("ALTER TABLE users ADD COLUMN wa_phone TEXT")}catch(e){}
 try{db.exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_wa_phone ON users(wa_phone) WHERE wa_phone IS NOT NULL AND wa_phone!=''")}catch(e){}
 try{db.exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email) WHERE email IS NOT NULL AND email!=''")}catch(e){}
+// Beta-tester activity tracking — column updated on every authenticated request.
+// Used by GET /admin/testers to show who's actively using the app for the
+// 14-day Play Store closed-test count.
+try{db.exec("ALTER TABLE users ADD COLUMN last_seen TEXT")}catch(e){}
+try{db.exec("ALTER TABLE users ADD COLUMN is_beta_tester INTEGER DEFAULT 0")}catch(e){}
 try{db.exec("CREATE TABLE IF NOT EXISTS steps(id INTEGER PRIMARY KEY AUTOINCREMENT,user_phone TEXT NOT NULL,date TEXT NOT NULL,count INTEGER NOT NULL DEFAULT 0,source TEXT DEFAULT'manual',updated_at TEXT DEFAULT(datetime('now')))")}catch(e){}
 try{db.exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_steps_user_date ON steps(user_phone,date)")}catch(e){}
 try{db.exec("CREATE TABLE IF NOT EXISTS book_listens(user_phone TEXT NOT NULL,date TEXT NOT NULL,seconds INTEGER DEFAULT 120,PRIMARY KEY(user_phone,date))")}catch(e){}
@@ -109,11 +114,55 @@ function rateLimited(identifier){
   return false;
 }
 
+// Throttle last_seen writes to once per 60s per user — avoid hammering the
+// DB on every API call (which fires every few seconds on the home tab).
+const _lastSeenCache=new Map();
 function auth(req,res,next){
   const t=req.headers['x-token'];if(!t)return res.status(401).json({error:'Login required'});
   const u=db.prepare('SELECT * FROM users WHERE token=?').get(t);if(!u)return res.status(401).json({error:'Invalid token'});
-  req.user=u;next();
+  req.user=u;
+  // Touch last_seen for tester activity tracking. Throttled.
+  try{const now=Date.now();const cached=_lastSeenCache.get(u.phone)||0;if(now-cached>60000){_lastSeenCache.set(u.phone,now);db.prepare("UPDATE users SET last_seen=datetime('now') WHERE phone=?").run(u.phone)}}catch(e){}
+  next();
 }
+
+// Admin auth — gates the tester dashboard. Requires ADMIN_TOKEN env var
+// set on Railway. Read via either ?token= query, x-admin-token header, or
+// the regular login token if user.email matches ADMIN_EMAIL.
+const ADMIN_TOKEN=process.env.ADMIN_TOKEN||'';
+const ADMIN_EMAIL=(process.env.ADMIN_EMAIL||'').toLowerCase();
+function adminAuth(req,res,next){
+  const provided=String(req.query.token||req.headers['x-admin-token']||'').trim();
+  if(ADMIN_TOKEN&&provided===ADMIN_TOKEN)return next();
+  // Allow logged-in admin email to bypass
+  const t=String(req.headers['x-token']||req.query.x_token||'').trim();
+  if(t&&ADMIN_EMAIL){
+    const u=db.prepare('SELECT email FROM users WHERE token=?').get(t);
+    if(u&&(u.email||'').toLowerCase()===ADMIN_EMAIL)return next();
+  }
+  return res.status(401).send('Unauthorized. Set ADMIN_TOKEN or ADMIN_EMAIL env var.');
+}
+
+// GET /admin/testers — HTML dashboard showing every user, when they signed
+// up, when they were last seen, and whether they cross the 14-day mark.
+// Use to track Play Store closed-test progress.
+app.get('/admin/testers',adminAuth,(req,res)=>{
+  const rows=db.prepare("SELECT phone,name,email,is_beta_tester,created_at,last_seen FROM users ORDER BY created_at DESC").all();
+  const now=Date.now();
+  const escH=s=>(s||'').replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'})[c]);
+  const fmtAgo=ts=>{if(!ts)return '<span style="color:#9CA3AF">never</span>';const t=new Date(ts.replace(' ','T')+'Z').getTime();const m=Math.floor((now-t)/60000);if(m<2)return 'just now';if(m<60)return m+'m ago';const h=Math.floor(m/60);if(h<24)return h+'h ago';const d=Math.floor(h/24);return d+'d ago'};
+  const days=ts=>{if(!ts)return 0;return Math.floor((now-new Date(ts.replace(' ','T')+'Z').getTime())/86400000)};
+  const total=rows.length;
+  const eligible=rows.filter(r=>r.last_seen&&days(r.created_at)>=14&&days(r.last_seen)<=2).length;
+  const tableRows=rows.map((r,i)=>{
+    const seenDays=r.last_seen?days(r.last_seen):null;
+    const memberDays=days(r.created_at);
+    const status=memberDays>=14&&seenDays!=null&&seenDays<=2?'✅ 14-day':memberDays<14?'⏱ day '+memberDays+'/14':seenDays>2?'⚠️ lapsed':'⏱';
+    const statusColor=memberDays>=14&&seenDays!=null&&seenDays<=2?'#16A34A':seenDays>2?'#DC2626':'#D97706';
+    return `<tr style="border-bottom:1px solid #E5E7EB"><td style="padding:10px 8px">${i+1}</td><td style="padding:10px 8px;font-weight:600">${escH(r.name||'—')}</td><td style="padding:10px 8px;color:#6B7280;font-family:monospace;font-size:12px">${escH(r.email||r.phone)}</td><td style="padding:10px 8px;color:#6B7280">${memberDays}d ago</td><td style="padding:10px 8px">${fmtAgo(r.last_seen)}</td><td style="padding:10px 8px;color:${statusColor};font-weight:600">${status}</td></tr>`;
+  }).join('');
+  res.send(`<!doctype html><html><head><title>Brodoit · Testers</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{font-family:-apple-system,Segoe UI,sans-serif;background:#F9FAFB;color:#111827;margin:0;padding:24px;max-width:980px;margin:0 auto}h1{font-size:22px;margin:0 0 6px}.sub{color:#6B7280;font-size:13px;margin-bottom:24px}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:24px}.card{background:#fff;border:1px solid #E5E7EB;border-radius:12px;padding:16px}.card .v{font-size:32px;font-weight:700;letter-spacing:-.02em}.card .l{font-size:12px;color:#6B7280;margin-top:4px;text-transform:uppercase;letter-spacing:.04em;font-weight:600}table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #E5E7EB;border-radius:12px;overflow:hidden}th{text-align:left;padding:12px 8px;background:#F9FAFB;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#6B7280;font-weight:600;border-bottom:1px solid #E5E7EB}.note{margin-top:18px;padding:14px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;font-size:13px;color:#1E40AF;line-height:1.5}</style></head><body><h1>Brodoit · Closed Test Dashboard</h1><div class="sub">Tester activity for Play Store 14-day requirement. Auto-refreshes when you reload.</div><div class="cards"><div class="card"><div class="v">${total}</div><div class="l">Total signups</div></div><div class="card"><div class="v" style="color:${eligible>=12?'#16A34A':'#D97706'}">${eligible}</div><div class="l">14-day eligible</div></div><div class="card"><div class="v">${Math.max(0,12-eligible)}</div><div class="l">Still needed</div></div></div><table><thead><tr><th>#</th><th>Name</th><th>Login</th><th>Joined</th><th>Last seen</th><th>14-day status</th></tr></thead><tbody>${tableRows||'<tr><td colspan="6" style="padding:32px;text-align:center;color:#9CA3AF">No users yet</td></tr>'}</tbody></table><div class="note"><b>14-day eligibility</b> = user joined ≥14 days ago AND last seen within 2 days. Once <b>12 testers</b> are eligible, you can promote to production.</div></body></html>`);
+});
 
 // ═══ OTP AUTH ═══
 app.post('/api/send-otp',async(req,res)=>{
@@ -1818,6 +1867,20 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
    tasks but the user hasn't done anything. Only user-driven renders
    (tab switch, click, modal open) replay the entrance animations. */
 body.no-anim *,body.no-anim *::before,body.no-anim *::after{animation-duration:0.001s !important;animation-delay:0s !important;animation-iteration-count:1 !important;transition:none !important}
+/* Beta-tester acknowledgment pill — shown once per device during closed test */
+.beta-pill{display:flex;align-items:center;gap:12px;padding:12px 14px;margin:10px 0 14px;background:linear-gradient(135deg,#FFF6E5,#FEF3D7);border:1px solid #F4D88A;border-radius:14px;animation:betaPillIn .4s cubic-bezier(.2,.8,.2,1);position:relative}
+@keyframes betaPillIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.beta-pill-dot{flex:0 0 auto;width:8px;height:8px;border-radius:50%;background:#D97706;box-shadow:0 0 0 0 rgba(217,119,6,.55);animation:betaPulse 2s ease-in-out infinite}
+@keyframes betaPulse{0%,100%{box-shadow:0 0 0 0 rgba(217,119,6,.5)}50%{box-shadow:0 0 0 8px rgba(217,119,6,0)}}
+.beta-pill-t{flex:1;display:flex;flex-direction:column;line-height:1.3;min-width:0}
+.beta-pill-t b{font-size:13px;font-weight:700;color:#7C2D12;letter-spacing:-.005em}
+.beta-pill-t small{font-size:11.5px;color:#92400E;font-weight:500;margin-top:2px;opacity:.85}
+.beta-pill-x{flex:0 0 auto;width:26px;height:26px;border-radius:50%;background:transparent;border:none;color:#92400E;cursor:pointer;display:grid;place-items:center;font-size:14px;opacity:.7;transition:opacity .15s ease,background .15s ease}
+.beta-pill-x:hover{opacity:1;background:rgba(146,64,14,.08)}
+body[data-theme=aurora] .beta-pill{background:linear-gradient(135deg,rgba(251,191,36,.12),rgba(245,158,11,.08));border-color:rgba(251,191,36,.3)}
+body[data-theme=aurora] .beta-pill-t b{color:#FCD34D}
+body[data-theme=aurora] .beta-pill-t small{color:rgba(252,211,77,.75)}
+body[data-theme=aurora] .beta-pill-x{color:#FCD34D}
 ::selection{background:rgba(255,122,69,.20);color:var(--ink)}
 button{cursor:pointer;font-family:inherit;-webkit-font-smoothing:inherit;color:inherit}
 input,textarea,select{font-family:inherit;-webkit-font-smoothing:inherit;color:inherit}
@@ -9139,6 +9202,11 @@ const isMain=(S.tab==='tasks'||!S.tab);
 const HELP_BTN='<button class="hdr-help" onclick="openHelp()" aria-label="Help" title="How to use Brodoit">?</button>';
 const LOGO_MARK='<div class="logo" aria-label="Brodoit"><span class="b1">Bro</span><span class="b2">do</span><span class="b3">it</span><span class="dot"></span></div>';
 let h='<div class="hdr"><div class="hdr-l">'+LOGO_MARK+'</div><div class="hdr-actions">'+HELP_BTN+PROFILE_BTN+'<button class="theme-tg" onclick="toggleTheme()" title="Switch theme">'+(S.theme==='aurora'?ic('sun',18):ic('moon',18))+'</button></div></div>';
+// Beta-tester acknowledgment pill — visible to every signed-in user during
+// closed test. Dismissable; remembers in localStorage so it doesn't nag.
+if(S.user&&!localStorage.getItem('tf_beta_seen')){
+  h+='<div class="beta-pill" id="betaPill"><span class="beta-pill-dot"></span><span class="beta-pill-t"><b>You are a Brodoit beta tester</b><small>Thanks for helping ship this. Reply to my message any time with feedback.</small></span><button class="beta-pill-x" onclick="document.getElementById(\\'betaPill\\').style.display=\\'none\\';localStorage.setItem(\\'tf_beta_seen\\',\\'1\\')" aria-label="Dismiss">\\u2715</button></div>';
+}
 
 const m=MORALS[S.moralIdx];
 let moralBlock='';
