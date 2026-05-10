@@ -2592,8 +2592,12 @@ body:not([data-theme=aurora]) .sud-cell{background:#fff;border-color:rgba(15,23,
 body:not([data-theme=aurora]) .sud-cell.sud-given{background:rgba(15,23,42,.04);color:rgba(15,23,42,.55)}
 body:not([data-theme=aurora]) .sud-cell.sud-sel{background:rgba(245,158,11,.15)!important;border-color:#F59E0B!important;box-shadow:0 0 0 2px rgba(245,158,11,.3)}
 body:not([data-theme=aurora]) .sud-num.sud-clear{background:#fff;color:#1A1A1A;border:1px solid rgba(15,23,42,.1)}
-.sch-cell{font-family:'Inter',sans-serif;font-weight:600;font-size:clamp(16px,4vw,22px);aspect-ratio:1;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.07);color:#F5F5FA;border-radius:12px;cursor:pointer;display:grid;place-items:center;transition:transform .12s ease,background .15s ease,border-color .15s ease,color .15s ease;backdrop-filter:blur(6px)}
-body:not([data-theme=aurora]) .sch-cell{background:rgba(255,255,255,.07);color:#F5F5FA}
+.sch-cell{font-family:'JetBrains Mono','Space Mono',ui-monospace,monospace;font-weight:700;font-size:clamp(20px,4.5vw,26px);aspect-ratio:1;border:1.5px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#F5F5FA;border-radius:12px;cursor:pointer;display:grid;place-items:center;transition:transform .12s ease,background .15s ease,border-color .15s ease,color .15s ease;backdrop-filter:blur(6px);letter-spacing:-.02em}
+.sch-cell:hover:not(:disabled){background:rgba(255,210,122,.18);border-color:#FFD27A;color:#FFD27A}
+/* Light-theme override — Schulte modal grid has a white background, so cells
+   need dark text to be visible. The previous rule was white-on-white. */
+body:not([data-theme=aurora]) .sch-cell{background:#F8F7F4;color:#0F1115;border-color:rgba(15,17,21,.12);box-shadow:inset 0 1px 2px rgba(15,17,21,.04),0 1px 2px rgba(15,17,21,.04)}
+body:not([data-theme=aurora]) .sch-cell:hover:not(:disabled){background:#1A1A1A;color:#FFD27A;border-color:#1A1A1A;transform:scale(1.04)}
 .sch-target{color:rgba(255,255,255,.7) !important}
 .sch-target b{color:#FFB547 !important}
 .sch-cell:not(:disabled):active{transform:scale(.92)}
@@ -4313,9 +4317,21 @@ body:not([data-theme=aurora]) .mg-prog-chip .hh-pc-arrow{color:#999}
 @media (max-width:560px){.hh-pc-mini{display:none}}
 .hh-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 @media (min-width:760px){.hh-stats{grid-template-columns:repeat(6,1fr)}}
-/* Mind Gym tab: 4 games as a 2x2 grid of LARGE chips with rich gradients and hover lift */
+/* Mind Gym tab: 6 games as a rich grid of LARGE chips with gradient shimmer + lift */
 .qa-hero .hh-stats{grid-template-columns:repeat(2,1fr) !important;gap:14px}
-.qa-hero .qa-stat-tile{padding:24px 18px !important;min-height:170px !important;border-radius:20px !important;transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s ease,border-color .2s ease;display:flex !important;flex-direction:column !important;align-items:flex-start !important;justify-content:space-between !important;position:relative;overflow:hidden;text-align:left !important}
+.qa-hero .qa-stat-tile{padding:24px 18px !important;min-height:170px !important;border-radius:20px !important;transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s ease,border-color .2s ease;display:flex !important;flex-direction:column !important;align-items:flex-start !important;justify-content:space-between !important;position:relative;overflow:hidden;text-align:left !important;animation:gameTileIn .5s cubic-bezier(.2,.8,.2,1) backwards}
+@keyframes gameTileIn{from{opacity:0;transform:translateY(20px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+.qa-hero .qa-stat-tile:nth-child(1){animation-delay:0s}
+.qa-hero .qa-stat-tile:nth-child(2){animation-delay:.06s}
+.qa-hero .qa-stat-tile:nth-child(3){animation-delay:.12s}
+.qa-hero .qa-stat-tile:nth-child(4){animation-delay:.18s}
+.qa-hero .qa-stat-tile:nth-child(5){animation-delay:.24s}
+.qa-hero .qa-stat-tile:nth-child(6){animation-delay:.30s}
+/* Shimmer sweep on hover — premium "expensive" feel */
+.qa-hero .qa-stat-tile::after{content:'';position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.18) 50%,transparent 70%);transform:translateX(-100%);transition:transform .8s ease;pointer-events:none;z-index:2}
+.qa-hero .qa-stat-tile:hover::after{transform:translateX(100%)}
+/* Emoji wiggle when tile is hovered */
+.qa-hero .qa-stat-tile:hover .qa-stat-emoji{transform:rotate(-8deg) scale(1.08);transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
 .qa-hero .qa-stat-tile::before{content:'';position:absolute;top:-50%;right:-30%;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.18),transparent 65%);pointer-events:none;z-index:0}
 .qa-hero .qa-stat-tile>*{position:relative;z-index:1}
 .qa-hero .qa-stat-tile:hover{transform:translateY(-4px);box-shadow:0 20px 40px -12px rgba(15,23,42,.22)}
