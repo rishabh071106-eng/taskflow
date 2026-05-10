@@ -11,29 +11,45 @@ This kit is the operational playbook to clear those two gates.
 
 ---
 
-## 1 · Pre-flight (5 min, do once)
+## 1 · Pre-flight — ZERO config needed
 
-Set three env vars on Railway → Service → Variables, then redeploy:
+The system now bootstraps automatically. **You don't need to set any
+Railway env vars.** As long as you're signed in to brodoit.com with
+the email of the *first account ever created* on the database, the
+admin dashboards will recognize you and let you in.
 
-| Variable           | Value                                                 | Why                                              |
-|--------------------|-------------------------------------------------------|--------------------------------------------------|
-| `ADMIN_TOKEN`      | `_R6HkqWzgooYoSaLhL4hvUl1` (or generate a new one)    | Gates the admin dashboards                       |
-| `ADMIN_EMAIL`      | the email you log in to Brodoit with                  | Lets you view dashboards while signed in         |
-| `BETA_OPT_IN_URL`  | the Play Console opt-in URL for your closed test      | Auto-emailed to anyone who signs up via /beta    |
-
-The `BETA_OPT_IN_URL` looks like `https://play.google.com/apps/internaltest/4972957219436856411` — copy it from Play Console → Closed testing → "How testers join your test".
+The Play Console opt-in URL is hardcoded as fallback (using your app
+ID `4972957219436856411`), so the email auto-send to new signups
+already works.
 
 Bookmark these three URLs:
 
 ```
-https://brodoit.com/beta                                          ← share this
-https://brodoit.com/admin/testers?token=_R6HkqWzgooYoSaLhL4hvUl1   ← activity
-https://brodoit.com/admin/beta-signups?token=_R6HkqWzgooYoSaLhL4hvUl1  ← signup queue
+https://brodoit.com/beta                  ← share this
+https://brodoit.com/admin/beta-signups    ← signup queue
+https://brodoit.com/admin/testers         ← activity tracker
 ```
 
-The flow is now automated:
-1. You share `brodoit.com/beta` (or `brodoit.com/beta?src=whatsapp` to track)
-2. Friend enters their Play email → server emails them the install link
+If you visit either admin URL while signed in to brodoit.com (same
+browser), the page injects your login token automatically and shows
+the dashboard. If you're not signed in, you'll get a "Sign in first"
+card with a button to brodoit.com.
+
+### Optional: stricter auth via env vars
+
+If you want shareable admin URLs (or want to deploy a fresh DB later),
+set on Railway → Service → Variables:
+
+```
+ADMIN_TOKEN = _R6HkqWzgooYoSaLhL4hvUl1
+```
+
+Then access via `https://brodoit.com/admin/testers?token=_R6HkqWzgooYoSaLhL4hvUl1`.
+
+### The flow is fully automated:
+
+1. You share `brodoit.com/beta` (or `brodoit.com/beta?src=whatsapp` to track channel)
+2. Friend enters their Play email → server emails them the install link instantly
 3. Their email shows up in `/admin/beta-signups`
 4. You paste it into Play Console → Closed testing → Testers
 5. After 14 days of activity, `/admin/testers` shows them as eligible

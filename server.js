@@ -126,21 +126,42 @@ function auth(req,res,next){
   next();
 }
 
-// Admin auth — gates the tester dashboard. Requires ADMIN_TOKEN env var
-// set on Railway. Read via either ?token= query, x-admin-token header, or
-// the regular login token if user.email matches ADMIN_EMAIL.
+// Admin auth — gates the tester dashboards. Three ways to authenticate
+// (in priority order):
+//   1. ?token= matches ADMIN_TOKEN env var
+//   2. logged-in user's email matches ADMIN_EMAIL env var
+//   3. fallback: logged-in user is the FIRST account ever created on this DB
+//      (the original developer account — works without any env vars set)
 const ADMIN_TOKEN=process.env.ADMIN_TOKEN||'';
 const ADMIN_EMAIL=(process.env.ADMIN_EMAIL||'').toLowerCase();
+function _isFirstAccountUser(t){
+  if(!t)return false;
+  try{
+    const u=db.prepare('SELECT email,created_at FROM users WHERE token=?').get(t);
+    if(!u||!u.email)return false;
+    const first=db.prepare("SELECT email FROM users WHERE email IS NOT NULL AND email!='' ORDER BY created_at ASC LIMIT 1").get();
+    return first&&first.email===u.email;
+  }catch(e){return false}
+}
 function adminAuth(req,res,next){
   const provided=String(req.query.token||req.headers['x-admin-token']||'').trim();
   if(ADMIN_TOKEN&&provided===ADMIN_TOKEN)return next();
-  // Allow logged-in admin email to bypass
   const t=String(req.headers['x-token']||req.query.x_token||'').trim();
   if(t&&ADMIN_EMAIL){
     const u=db.prepare('SELECT email FROM users WHERE token=?').get(t);
     if(u&&(u.email||'').toLowerCase()===ADMIN_EMAIL)return next();
   }
-  return res.status(401).send('Unauthorized. Set ADMIN_TOKEN or ADMIN_EMAIL env var.');
+  // Bootstrap fallback: first registered account on this DB (= the developer)
+  if(_isFirstAccountUser(t))return next();
+  // If accessed from a browser (no token at all), inject a bootstrap script
+  // that reads the user's login token from localStorage and re-requests the
+  // same URL with ?x_token=. If they're signed in to Brodoit in the same
+  // browser, they'll land on the dashboard instantly. If not, they see the
+  // "Sign in first" card with a clear next step.
+  if(!provided&&!t&&req.headers.accept&&req.headers.accept.includes('text/html')){
+    return res.status(200).type('html').send(`<!doctype html><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Brodoit · Admin</title><script>(function(){try{var t=localStorage.getItem('tf_token');if(t){var sep=location.search?'&':'?';location.replace(location.pathname+sep+'x_token='+encodeURIComponent(t)+(location.search?'&'+location.search.substr(1):''));}else{document.body.innerHTML='<div class="card"><h1>Sign in first</h1><p>Open Brodoit, sign in with your developer email, then return here in the same browser.</p><a href="/">Open Brodoit \\u2192</a></div>';}}catch(e){document.body.innerHTML='<div class="card"><h1>Sign in first</h1><p>Open Brodoit and sign in.</p><a href="/">Open Brodoit \\u2192</a></div>';}})();</script><style>body{font-family:-apple-system,Segoe UI,sans-serif;background:#0F1115;color:#FFD27A;display:grid;place-items:center;min-height:100vh;margin:0;padding:24px;text-align:center;line-height:1.6}.card{max-width:420px;background:#1A1A1A;border:1px solid rgba(255,210,122,.15);border-radius:18px;padding:36px 28px}h1{font-family:Georgia,serif;font-weight:400;font-size:28px;margin:0 0 8px}p{color:rgba(255,210,122,.65);font-size:14px;margin:0 0 22px}a{display:inline-block;padding:13px 24px;background:#FFD27A;color:#0F1115;text-decoration:none;border-radius:10px;font-weight:600;font-size:14px}</style>`);
+  }
+  return res.status(401).send('Unauthorized');
 }
 
 // GET /admin/testers — HTML dashboard showing every user, when they signed
@@ -10789,7 +10810,10 @@ const MARKETING_CHROME=LEGAL_CHROME+`<style>.hero-tag{display:inline-flex;align-
 try{db.exec("CREATE TABLE IF NOT EXISTS beta_signups(id TEXT PRIMARY KEY,name TEXT,email TEXT NOT NULL,source TEXT DEFAULT'',referrer TEXT DEFAULT'',created_at TEXT DEFAULT(datetime('now')),added_to_console INTEGER DEFAULT 0,added_at TEXT)")}catch(e){}
 try{db.exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_beta_signups_email ON beta_signups(email)")}catch(e){}
 
-const BETA_OPT_IN_URL=process.env.BETA_OPT_IN_URL||'https://play.google.com/apps/internaltest';
+// Default points to Brodoit's Play Console closed-test opt-in URL. Overridable
+// via env var if the URL ever changes. The numeric tail is the app ID from
+// Play Console (visible in the URL when viewing the app dashboard).
+const BETA_OPT_IN_URL=process.env.BETA_OPT_IN_URL||'https://play.google.com/apps/internaltest/4972957219436856411';
 
 app.post('/api/beta-signup',async(req,res)=>{
   const name=String(req.body.name||'').trim().slice(0,80);
