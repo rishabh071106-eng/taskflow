@@ -8601,7 +8601,7 @@ function voicePronRecord(){
   r.onend=function(){S._pronRec=null;if(S.pron&&S.pron.recording){S.pron.recording=false;render()}};
   try{r.start();S._pronRec=r}catch(e){toast('\\u26A0\\uFE0F '+e.message,'err');S._pronRec=null;S.pron={...(S.pron||{}),recording:false};render()}
 }
-function closePlayer(){stopBookListenTimer();S.playing=null;S.meditating={active:false,title:'',mins:0,startedAt:0};render()}
+function closePlayer(){stopBookListenTimer();S.playing=null;S.meditating={active:false,title:'',mins:0,startedAt:0};S._renderForce=true;render();setTimeout(()=>{S._renderForce=false},100)}
 function closeMeditation(){const a=document.getElementById('audioEl');if(a){try{a.pause()}catch(e){}}closePlayer()}
 let _bkTimer=null;
 function startBookListenTimer(){if(_bkTimer)return;S._bkSec=0;_bkTimer=setInterval(async()=>{const a=document.getElementById('audioEl');if(!a||a.paused||a.ended)return;S._bkSec+=5;if(S._bkSec===120&&S.user&&!S.bookStreak.today){const r=await api('/book-streak',{method:'POST',body:JSON.stringify({date:new Date().toISOString().slice(0,10),seconds:120})});if(r?.ok){S.bookStreak={streak:r.streak,total:r.total,today:true,days:S.bookStreak.days};toast('\\u{1F389} '+r.streak+'-day listening streak!');render()}}},5000)}
@@ -8620,6 +8620,11 @@ function _render(){
 // While the canvas-based Memory Tap is running, suspend full re-renders so the canvas state
 // (game loop, animations) is preserved.
 if(S._mtActive&&S.mgPlay&&S.mgPlay.canvasGame==='mt'&&document.getElementById('mtCanvas'))return;
+// HARD GUARD: while a meditation/affirmation overlay is in the DOM, skip every passive re-render.
+// Otherwise innerHTML rewriting destroys the <audio> element mid-playback, retriggering autoplay
+// and producing the "screen keeps refreshing" loop. closeMeditation() bypasses this by clearing
+// S.meditating.active first, so user-driven exits still work.
+if(S.meditating&&S.meditating.active&&document.querySelector('.med-scene')&&!S._renderForce)return;
 // Preserve scroll position across re-renders — fixes the "page jumps to top every 10s" bug
 // when background polls (load, loadMgData, loadGoogleStatus, etc.) trigger a render while the
 // user is reading a long page. switchTab() still explicitly scrolls to top AFTER render(), so
