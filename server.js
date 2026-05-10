@@ -620,6 +620,17 @@ app.get('/api/audio-library', auth, (req, res) => {
   res.json({ items });
 });
 
+// GET /api/audio-script/:id — returns just the script text. Used as a fallback
+// when ElevenLabs is unavailable (no API key on server, or upstream error) —
+// the client speaks the script via the browser's speechSynthesis. Means
+// affirmations always work, even on a fresh deploy with no TTS configured.
+app.get('/api/audio-script/:id', (req, res) => {
+  const id = String(req.params.id || '').replace(/[^a-zA-Z0-9_-]/g, '');
+  const entry = AUDIO_LIBRARY[id];
+  if (!entry) return res.status(404).json({ error: 'unknown audio id' });
+  res.json({ id, title: entry.title, script: entry.script, kind: entry.kind, mins: entry.mins });
+});
+
 // ─── Cache warmup ──────────────────────────────────────────────────────
 // Pre-render every script in AUDIO_LIBRARY at boot so the first listener
 // never waits on ElevenLabs. Runs serially with a small inter-request
@@ -2501,6 +2512,25 @@ body[data-theme=aurora] .mg-timer-track{background:rgba(255,255,255,.08)}
 body[data-theme=aurora] .sch-target{color:rgba(255,255,255,.7)}
 .sch-prog{font-family:'JetBrains Mono','Space Mono',monospace;font-size:11.5px;letter-spacing:.08em;color:#9A9A9A;text-transform:uppercase;font-weight:600}
 .sch-grid{display:grid;gap:6px;width:100%}
+/* Mini Sudoku */
+.sud-body{display:flex;flex-direction:column;align-items:center;gap:18px}
+.sud-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;width:100%;max-width:360px;aspect-ratio:1;background:rgba(255,255,255,.06);padding:6px;border-radius:14px;border:1px solid rgba(255,255,255,.1)}
+.sud-cell{aspect-ratio:1;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#F5F5FA;border-radius:10px;font-family:'Instrument Serif',Georgia,serif;font-size:clamp(28px,7vw,38px);font-weight:400;display:grid;place-items:center;cursor:pointer;transition:all .15s ease;padding:0}
+.sud-cell:hover:not(:disabled):not(.sud-given){background:rgba(255,255,255,.1);border-color:rgba(167,139,250,.4)}
+.sud-cell.sud-given{background:rgba(255,255,255,.02);color:rgba(245,245,250,.55);cursor:default;font-weight:600}
+.sud-cell.sud-sel{background:rgba(167,139,250,.2)!important;border-color:#A78BFA!important;box-shadow:0 0 0 2px rgba(167,139,250,.4)}
+.sud-cell.sud-bx-r{margin-right:3px}
+.sud-cell.sud-bx-b{margin-bottom:3px}
+.sud-pad{display:flex;gap:8px;width:100%;max-width:360px}
+.sud-num{flex:1;aspect-ratio:1;background:linear-gradient(135deg,#FBBF24,#F59E0B);border:none;color:#1B0E2E;border-radius:14px;font-family:'Instrument Serif',Georgia,serif;font-size:24px;font-weight:600;cursor:pointer;transition:transform .15s ease,box-shadow .2s ease;box-shadow:0 4px 12px -4px rgba(245,158,11,.5)}
+.sud-num:hover{transform:translateY(-2px);box-shadow:0 8px 18px -4px rgba(245,158,11,.6)}
+.sud-num:active{transform:scale(.94)}
+.sud-num.sud-clear{background:rgba(255,255,255,.08);color:#F5F5FA;font-size:18px;box-shadow:none}
+body:not([data-theme=aurora]) .sud-grid{background:rgba(15,23,42,.04);border-color:rgba(15,23,42,.08)}
+body:not([data-theme=aurora]) .sud-cell{background:#fff;border-color:rgba(15,23,42,.08);color:#1A1A1A}
+body:not([data-theme=aurora]) .sud-cell.sud-given{background:rgba(15,23,42,.04);color:rgba(15,23,42,.55)}
+body:not([data-theme=aurora]) .sud-cell.sud-sel{background:rgba(245,158,11,.15)!important;border-color:#F59E0B!important;box-shadow:0 0 0 2px rgba(245,158,11,.3)}
+body:not([data-theme=aurora]) .sud-num.sud-clear{background:#fff;color:#1A1A1A;border:1px solid rgba(15,23,42,.1)}
 .sch-cell{font-family:'Inter',sans-serif;font-weight:600;font-size:clamp(16px,4vw,22px);aspect-ratio:1;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.07);color:#F5F5FA;border-radius:12px;cursor:pointer;display:grid;place-items:center;transition:transform .12s ease,background .15s ease,border-color .15s ease,color .15s ease;backdrop-filter:blur(6px)}
 body:not([data-theme=aurora]) .sch-cell{background:rgba(255,255,255,.07);color:#F5F5FA}
 .sch-target{color:rgba(255,255,255,.7) !important}
@@ -2919,17 +2949,25 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
   .tabs.page-t::after{content:'';position:absolute;left:0;right:0;top:-40px;bottom:0;background:linear-gradient(to top,var(--bg) 65%,transparent);z-index:-1;pointer-events:none}
   .tabs.page-t > div.tabs-inner,.tabs.page-t > .tabs-inner{display:none}
   .tabs.page-t{
-    /* Inner pill — slightly darker than page bg for clear separation, frosted glass */
-    background:rgba(252,250,247,.98) !important;
+    /* Dark high-contrast pill — readable against any page background. The previous
+       cream-on-cream pill was nearly invisible on light themes, hiding the bottom
+       options on phone. */
+    background:#1A1A1A !important;
     backdrop-filter:saturate(160%) blur(16px) !important;
     -webkit-backdrop-filter:saturate(160%) blur(16px) !important;
-    border:1px solid rgba(120,86,42,.14) !important;
+    border:1px solid rgba(255,255,255,.08) !important;
     border-radius:100px !important;
     padding:10px 8px calc(10px + env(safe-area-inset-bottom,0px)) !important;
     margin:0 12px calc(14px + env(safe-area-inset-bottom,0px)) !important;
     left:0 !important;right:0 !important;
-    box-shadow:0 1px 3px rgba(15,23,42,.04),0 8px 24px -6px rgba(120,86,42,.18),0 18px 36px -12px rgba(15,23,42,.10) !important;
+    box-shadow:0 -4px 20px rgba(0,0,0,.16),0 12px 32px -8px rgba(0,0,0,.36) !important;
   }
+  .tabs.page-t .tab{color:rgba(255,255,255,.62) !important;background:transparent !important}
+  .tabs.page-t .tab.on{color:#FFF !important;background:rgba(255,255,255,.10) !important}
+  .tabs.page-t .tab .ti,.tabs.page-t .tab .tl{color:inherit !important}
+  .tabs.page-t .tab .tl{opacity:1 !important;letter-spacing:.08em !important;font-weight:600 !important}
+  .tabs.page-t .tab.on .tl{font-weight:700 !important}
+  .tabs.page-t .tab::before{background:#FBBF24 !important}
   .tabs.page-t::-webkit-scrollbar{display:none}
   .tabs.page-t .tab{
     flex:1 1 0 !important;
@@ -4213,6 +4251,15 @@ body:not([data-theme=aurora]) .mg-prog-chip .hh-pc-arrow{color:#999}
 @media (max-width:560px){.hh-pc-mini{display:none}}
 .hh-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 @media (min-width:760px){.hh-stats{grid-template-columns:repeat(6,1fr)}}
+/* Mind Gym tab: 4 games as a 2x2 grid of bigger, richer chips with hover lift */
+.qa-hero .hh-stats{grid-template-columns:repeat(2,1fr) !important;gap:14px}
+.qa-hero .qa-stat-tile{padding:24px 20px 20px !important;min-height:128px;border-radius:18px !important;transition:transform .2s cubic-bezier(.2,.8,.2,1),box-shadow .25s ease,border-color .2s ease}
+.qa-hero .qa-stat-tile:hover{transform:translateY(-3px);box-shadow:0 14px 30px -10px rgba(15,23,42,.18)}
+.qa-hero .qa-stat-tile:active{transform:scale(.98)}
+.qa-hero .qa-stat-emoji{width:48px !important;height:48px !important;font-size:24px;border-radius:14px !important;margin-bottom:18px !important}
+.qa-hero .qa-stat-tile small{font-size:13px !important;letter-spacing:.02em !important;text-transform:none !important;font-family:'Instrument Serif',Georgia,serif !important;font-weight:400 !important}
+.qa-hero .qa-stat-bdg{font-size:11px !important;padding:4px 10px !important}
+@media (min-width:760px){.qa-hero .hh-stats{grid-template-columns:repeat(4,1fr) !important}}
 .hh-stat{font-family:inherit;text-align:left;cursor:default;border:1px solid rgba(255,255,255,.08);color:#fff}
 button.hh-stat{cursor:pointer}
 button.hh-stat:active{transform:scale(.96)}
@@ -6646,6 +6693,33 @@ function playMedDirect(id,title,mins,file){playMeditation(id,title,mins,file)}
 // First listen on a cold cache may take a few seconds while the server
 // synthesizes — we surface that as a loading toast so the user knows
 // something is happening. Subsequent listens are instant (disk cache).
+// Browser-TTS fallback for affirmations/meditations. Used when the server's
+// ElevenLabs endpoint fails (missing API key, upstream error, etc.). Speaks
+// the script via window.speechSynthesis. Stops automatically when the user
+// closes the meditation overlay.
+function _speakScriptFallback(id,onEnd){
+  if(!window.speechSynthesis)return false;
+  fetch('/api/audio-script/'+encodeURIComponent(id)).then(r=>r.json()).then(j=>{
+    if(!j||!j.script)return;
+    try{window.speechSynthesis.cancel()}catch(e){}
+    const sentences=String(j.script).replace(/\\s+/g,' ').split(/(?<=[.!?\\u2026])\\s+/).filter(Boolean);
+    let i=0;
+    const speakNext=()=>{
+      if(!(S.meditating&&S.meditating.active))return;
+      if(i>=sentences.length){if(onEnd)onEnd();return}
+      const u=new SpeechSynthesisUtterance(sentences[i++]);
+      u.rate=.86;u.pitch=1.0;u.volume=1.0;
+      const voices=window.speechSynthesis.getVoices();
+      const pref=voices.find(v=>/Samantha|Karen|Allison|Joanna|Tessa|Microsoft Aria|Google US English/i.test(v.name))||voices.find(v=>/^en/i.test(v.lang));
+      if(pref)u.voice=pref;
+      u.onend=()=>setTimeout(speakNext,250);
+      u.onerror=()=>setTimeout(speakNext,250);
+      window.speechSynthesis.speak(u);
+    };
+    speakNext();
+  }).catch(()=>{});
+  return true;
+}
 function playMedEleven(id,title,mins){
   const url='/api/audio/'+encodeURIComponent(id)+'?token='+encodeURIComponent(token||'');
   S.meditating={active:true,title,mins:mins||2,startedAt:Date.now()};
@@ -6662,9 +6736,9 @@ function playMedEleven(id,title,mins){
     const a=document.getElementById('audioEl');if(!a)return;
     a.setAttribute('playsinline','');a.preload='auto';
     a.addEventListener('canplay',function _on(){clearTimeout(prepTimer);if(prepNode&&prepNode.parentNode)prepNode.remove();prepNode=null;a.removeEventListener('canplay',_on)},{once:true});
-    a.addEventListener('error',function _err(){clearTimeout(prepTimer);if(prepNode&&prepNode.parentNode)prepNode.remove();const e=document.createElement('div');e.className='toast toast-err';e.innerHTML='\\u26A0\\uFE0F Audio failed to load \\u2014 try again';document.body.appendChild(e);setTimeout(()=>e.remove(),3000);a.removeEventListener('error',_err)},{once:true});
+    a.addEventListener('error',function _err(){clearTimeout(prepTimer);if(prepNode&&prepNode.parentNode)prepNode.remove();a.removeEventListener('error',_err);const ok=_speakScriptFallback(id);const note=document.createElement('div');note.className='toast toast-ok';note.innerHTML=ok?'\\u{1F50A} Using device voice':'\\u26A0\\uFE0F Audio unavailable';document.body.appendChild(note);setTimeout(()=>{if(note.parentNode)note.remove()},2400)},{once:true});
     const p=a.play();
-    if(p&&p.catch)p.catch(()=>{const e=document.createElement('div');e.className='toast toast-err';e.innerHTML='\\u25B6\\uFE0F Tap play on the bar';document.body.appendChild(e);setTimeout(()=>e.remove(),3000)});
+    if(p&&p.catch)p.catch(()=>{_speakScriptFallback(id);const e=document.createElement('div');e.className='toast toast-ok';e.innerHTML='\\u{1F50A} Using device voice';document.body.appendChild(e);setTimeout(()=>{if(e.parentNode)e.remove()},2400)});
   },200);
 }
 async function loadGoogleStatus(){const r=await api('/google/status');if(r){S.google={configured:!!r.configured,accounts:r.accounts||[],loaded:true};render();if(S.google.accounts.length&&S.tab==='cal')loadGcalEvents()}}
@@ -7311,7 +7385,79 @@ function mgPlayLevel(key,lvl){
   else if(key==='reaction')mgReactionStart();
   else if(key==='word')mgWordStart();
   else if(key==='schulte')mgSchulteStart();
+  else if(key==='sudoku')mgSudokuStart();
 }
+
+// ── 4x4 Mini Sudoku ──────────────────────────────────────────────────
+// 6 hand-crafted 4x4 puzzles. Each row is the 16-cell grid flattened
+// (row-major). 0 = empty cell the player must fill. Each puzzle's
+// solution is computed at start-time via a tiny backtrack solver.
+const MG_SUDOKU=[
+  [1,0,0,4, 0,4,3,0, 0,1,4,0, 4,0,0,1],
+  [0,3,4,0, 4,0,0,2, 1,0,0,3, 0,4,1,0],
+  [2,0,0,3, 0,1,4,0, 0,2,1,0, 3,0,0,2],
+  [0,1,2,0, 3,0,0,4, 2,0,0,1, 0,4,3,0],
+  [4,0,0,1, 0,3,2,0, 0,4,3,0, 1,0,0,2],
+  [0,2,1,0, 1,0,0,3, 4,0,0,2, 0,3,4,0]
+];
+function _sudokuValid(g,r,c,n){
+  for(let i=0;i<4;i++){if(g[r*4+i]===n||g[i*4+c]===n)return false}
+  const br=Math.floor(r/2)*2,bc=Math.floor(c/2)*2;
+  for(let i=0;i<2;i++)for(let j=0;j<2;j++)if(g[(br+i)*4+(bc+j)]===n)return false;
+  return true;
+}
+function _sudokuSolve(g){
+  const grid=g.slice();
+  const solve=()=>{
+    for(let r=0;r<4;r++)for(let c=0;c<4;c++){
+      if(grid[r*4+c]===0){
+        for(let n=1;n<=4;n++){
+          if(_sudokuValid(grid,r,c,n)){grid[r*4+c]=n;if(solve())return true;grid[r*4+c]=0}
+        }
+        return false;
+      }
+    }
+    return true;
+  };
+  solve();return grid;
+}
+function mgSudokuStart(){
+  const lvl=(S.mg.progress.sudoku&&S.mg.progress.sudoku.level)||1;
+  const idx=Math.floor(Math.random()*MG_SUDOKU.length);
+  const initial=MG_SUDOKU[idx].slice();
+  // Higher level = remove a few more givens to make it harder
+  const extraRemove=Math.min(4,Math.max(0,lvl-1));
+  const filled=[];for(let i=0;i<16;i++)if(initial[i])filled.push(i);
+  for(let k=0;k<extraRemove&&filled.length;k++){const j=Math.floor(Math.random()*filled.length);initial[filled.splice(j,1)[0]]=0}
+  const solution=_sudokuSolve(initial.slice());
+  S.mgPlay={game:'sudoku',level:lvl,_baseLevel:lvl,initial,grid:initial.slice(),solution,selected:-1,timeStart:Date.now(),mistakes:0,done:false};
+  render();
+}
+function mgSudokuTap(i){const p=S.mgPlay;if(!p||p.game!=='sudoku'||p.done)return;if(p.initial[i]!==0)return;p.selected=i;render()}
+function mgSudokuPlace(n){
+  const p=S.mgPlay;if(!p||p.game!=='sudoku'||p.done||p.selected<0)return;
+  if(p.initial[p.selected]!==0)return;
+  if(n===0){p.grid[p.selected]=0;render();return}
+  if(p.solution[p.selected]!==n){p.mistakes++;toast('\\u26A0\\uFE0F Not quite','err');render();return}
+  p.grid[p.selected]=n;
+  // Check completion
+  let complete=true;for(let i=0;i<16;i++)if(p.grid[i]===0){complete=false;break}
+  if(complete){
+    p.done=true;
+    const seconds=Math.round((Date.now()-p.timeStart)/1000);
+    p.elapsed=seconds;
+    const xpGain=Math.max(20,80-seconds-p.mistakes*5);
+    const cur=S.mg.progress.sudoku||{level:1,xp:0,best:0};
+    const newXp=(cur.xp||0)+xpGain;
+    const newLevel=Math.min(10,1+Math.floor(newXp/100));
+    const newBest=cur.best===0?seconds:Math.min(cur.best,seconds);
+    S.mg.progress.sudoku={level:newLevel,xp:newXp,best:newBest};
+    api('/mindgym/progress',{method:'POST',body:JSON.stringify({game:'sudoku',xp:xpGain,best:newBest,level:newLevel,seconds})}).catch(()=>{});
+    toast('\\u2728 Solved in '+seconds+'s \\u2014 +'+xpGain+' XP');
+  }
+  render();
+}
+function mgSudokuClose(){if(S.mgPlay&&S.mgPlay.game==='sudoku'){S.mgPlay=null;render()}}
 
 // ── Word Sprint (anagram unscrambler, 90-sec timer, length-squared scoring) ──
 const MG_PUZZLES=[
@@ -8607,7 +8753,7 @@ function voicePronRecord(){
   r.onend=function(){S._pronRec=null;if(S.pron&&S.pron.recording){S.pron.recording=false;render()}};
   try{r.start();S._pronRec=r}catch(e){toast('\\u26A0\\uFE0F '+e.message,'err');S._pronRec=null;S.pron={...(S.pron||{}),recording:false};render()}
 }
-function closePlayer(){stopBookListenTimer();S.playing=null;S.meditating={active:false,title:'',mins:0,startedAt:0};S._renderForce=true;render();setTimeout(()=>{S._renderForce=false},100)}
+function closePlayer(){stopBookListenTimer();try{if(window.speechSynthesis)window.speechSynthesis.cancel()}catch(e){}S.playing=null;S.meditating={active:false,title:'',mins:0,startedAt:0};S._renderForce=true;render();setTimeout(()=>{S._renderForce=false},100)}
 function closeMeditation(){const a=document.getElementById('audioEl');if(a){try{a.pause()}catch(e){}}closePlayer()}
 let _bkTimer=null;
 function startBookListenTimer(){if(_bkTimer)return;S._bkSec=0;_bkTimer=setInterval(async()=>{const a=document.getElementById('audioEl');if(!a||a.paused||a.ended)return;S._bkSec+=5;if(S._bkSec===120&&S.user&&!S.bookStreak.today){const r=await api('/book-streak',{method:'POST',body:JSON.stringify({date:new Date().toISOString().slice(0,10),seconds:120})});if(r?.ok){S.bookStreak={streak:r.streak,total:r.total,today:true,days:S.bookStreak.days};toast('\\u{1F389} '+r.streak+'-day listening streak!');render()}}},5000)}
@@ -8801,7 +8947,7 @@ if(isMain){
     +'<div class="hh-bg"></div>'
     +'<div class="hh-row"><div class="hh-eyebrow">'+esc(_today)+'</div></div>'
     +'<h1 class="hh-greet">'+esc(_greet)+(_firstName?', <em>'+esc(_firstName)+'</em>':'')+'.</h1>'
-    +'<p class="hh-line">'+(_dueToday>0?'<b>'+_dueToday+'</b> '+(_dueToday===1?'task':'tasks')+' due today':_overdue>0?'<b>'+_overdue+'</b> overdue. Pick one and start.':'<span style="color:rgba(255,255,255,.7)">No tasks due today.</span> Add one below \\u2192')+'</p>'
+    +'<p class="hh-line">'+(_dueToday>0?'<b>'+_dueToday+'</b> due today':_overdue>0?'<b>'+_overdue+'</b> overdue':'<span style="color:rgba(255,255,255,.7)">All clear today.</span>')+'</p>'
     // Compact "Progress" chip — tap to reveal the metrics tiles
     +'<button class="hh-progress-chip'+(_statsExpanded?' is-open':'')+'" onclick="S.statsExpanded=!S.statsExpanded;render()" aria-expanded="'+_statsExpanded+'">'
       +'<span class="hh-pc-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>'
@@ -8956,7 +9102,6 @@ if(S.tab==='tasks'){
       +'<div class="hh-bg"></div>'
       +'<div class="hh-row"><div class="hh-eyebrow">Actions</div></div>'
       +'<h1 class="hh-greet" style="font-size:clamp(28px,5vw,42px);margin:6px 0 14px">What\\u2019s next, <em>Rishabh</em>?</h1>'
-      +'<p class="hh-line" style="margin-bottom:18px">Tap any of the four to open it. Everything saves and syncs automatically.</p>'
       +'<div class="hh-stats">'
         +'<button class="hh-stat qa-stat-tile" onclick="opA()">'
           +'<span class="qa-stat-emoji" style="background:linear-gradient(135deg,#FF6B47,#FFB547)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>'
@@ -9022,7 +9167,7 @@ else if(S.tab==='mindgym'){
       +'<div class="hh-bg"></div>'
       +'<div class="hh-row"><div class="hh-eyebrow">\\u{1F9E0} Mind Gym</div></div>'
       +'<h1 class="hh-greet">Train your mind, <em>daily</em>.</h1>'
-      +'<p class="hh-line">Five micro-games. Sub-90 seconds each. Pick one and start.</p>'
+      +'<p class="hh-line">Four micro-games. Sub-90 seconds each. Pick one and start.</p>'
       +'<div class="hh-stats">'
         +'<div class="hh-stat"><b style="color:#86EFAC">'+overall+'%</b><small>Overall</small></div>'
         +'<div class="hh-stat"><b style="color:#A78BFA">L'+totalLevel+'</b><small>Total levels</small></div>'
@@ -9035,17 +9180,19 @@ else if(S.tab==='mindgym'){
   // Memory Tap (janky Simon clone, canvas issues) were cut. These three each
   // have replayable depth: math scales arithmetic difficulty, word builds
   // vocabulary, schulte trains peripheral vision. ───
+  const _sudP=(mg.progress.sudoku||{level:1,xp:0,best:0});
   const _games=[
     {k:'math',e:'\\u{1F522}',n:'Math Sprint',d:'Mental arithmetic, against the clock. Each level adds harder operations or a tighter window.',accent:'#22D3EE',accent2:'#3B82F6',pData:mg.progress.math,pct:mgPercent('math'),bestL:'Best streak'},
     {k:'word',e:'\\u{1F520}',n:'Word Sprint',d:'Seven scrambled letters, ninety seconds. Find every word you can.',accent:'#34D399',accent2:'#10B981',pData:(mg.progress.word||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((mg.progress.word||{}).xp||0)/(5*100))*100)),bestL:'Best',bestSuffix:' words'},
-    {k:'schulte',e:'\\u{1F3AF}',n:'Schulte Grid',d:'Tap 1 to 25 in order. Higher levels grow the grid up to 7\\u00D77 (49 cells).',accent:'#F472B6',accent2:'#A78BFA',pData:(mg.progress.schulte||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((mg.progress.schulte||{}).xp||0)/(5*100))*100)),bestL:'Best time',bestSuffix:' s'}
+    {k:'schulte',e:'\\u{1F3AF}',n:'Schulte Grid',d:'Tap 1 to 25 in order. Higher levels grow the grid up to 7\\u00D77 (49 cells).',accent:'#F472B6',accent2:'#A78BFA',pData:(mg.progress.schulte||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((mg.progress.schulte||{}).xp||0)/(5*100))*100)),bestL:'Best time',bestSuffix:' s'},
+    {k:'sudoku',e:'\\u{1F9E9}',n:'Mini Sudoku',d:'Fill the 4x4 grid so every row, column, and 2x2 box has 1\\u20134. Beat the timer.',accent:'#FBBF24',accent2:'#F59E0B',pData:_sudP,pct:Math.min(100,Math.round(((_sudP.xp||0)/(5*100))*100)),bestL:'Best time',bestSuffix:' s'}
   ];
   // ─── Mind Games chip — same hero Actions pattern as the home tab (light) ───
   h+='<section class="home-hero home-hero-light qa-hero">'
     +'<div class="hh-bg"></div>'
     +'<div class="hh-row"><div class="hh-eyebrow">\\u{1F3AE} Mind Games</div></div>'
     +'<h1 class="hh-greet" style="font-size:clamp(28px,5vw,42px);margin:6px 0 14px">Pick a <em>game</em>.</h1>'
-    +'<p class="hh-line" style="margin-bottom:18px">Three brain workouts. Tap any to open in fullscreen. Each one tracks levels and your best score.</p>'
+    +'<p class="hh-line" style="margin-bottom:18px">Four brain workouts. Tap any to open in fullscreen. Each one tracks levels and your best score.</p>'
     +'<div class="hh-stats">';
   _games.forEach(g=>{
     const p=g.pData;
@@ -9792,7 +9939,7 @@ if(S.mgDetail&&!S.mgPlay){
 if(S.mgPlay){
   const p=S.mgPlay;
   h+='<div class="ov ov-locked"><div class="mdl mg-mdl">';
-  h+='<div class="mg-hd"><div><h2 class="mg-t">'+(p.game==='math'?'\\u{1F522} Math Sprint':p.game==='memory'?'\\u{1F9E9} Memory Tap':p.game==='word'?'\\u{1F520} Word Sprint':p.game==='schulte'?'\\u{1F3AF} Schulte Grid':'\\u26A1 Reaction')+' \\u2022 L'+p.level+'</h2><div class="mg-s">'+(p.game==='math'?'Solve 10 to win XP':p.game==='memory'?'Repeat the pattern \\u2014 it grows each round':p.game==='word'?'90 seconds. Find every word you can.':p.game==='schulte'?'Tap 1 \\u2192 '+(p.total||25)+' as fast as possible':'Tap when the screen turns green')+'</div></div><button class="was-x" onclick="mgClose()">\\u2715</button></div>';
+  h+='<div class="mg-hd"><div><h2 class="mg-t">'+(p.game==='math'?'\\u{1F522} Math Sprint':p.game==='memory'?'\\u{1F9E9} Memory Tap':p.game==='word'?'\\u{1F520} Word Sprint':p.game==='schulte'?'\\u{1F3AF} Schulte Grid':p.game==='sudoku'?'\\u{1F9E9} Mini Sudoku':'\\u26A1 Reaction')+' \\u2022 L'+p.level+'</h2><div class="mg-s">'+(p.game==='math'?'Solve 10 to win XP':p.game==='memory'?'Repeat the pattern':p.game==='word'?'90s. Find every word.':p.game==='schulte'?'Tap 1 \\u2192 '+(p.total||25):p.game==='sudoku'?'Each row, column, and 2\\u00D72 box: 1\\u20134':'Tap when green')+'</div></div><button class="was-x" onclick="mgClose()">\\u2715</button></div>';
 
   if(p.game==='math'){
     if(p.done){
@@ -9933,6 +10080,39 @@ if(S.mgPlay){
         const cls='sch-cell'+(isDone?' sch-done':'')+(isFlash?(p.flash.bad?' sch-bad':' sch-good'):'');
         h+='<button class="'+cls+'" onclick="mgSchulteTap('+n+')"'+(isDone?' disabled':'')+'>'+n+'</button>';
       });
+      h+='</div>';
+    }
+    h+='</div>';
+  } else if(p.game==='sudoku'){
+    h+='<div class="mg-body sud-body">';
+    if(p.done){
+      const stars=p.elapsed<60?3:p.elapsed<120?2:1;
+      const starsHTML=[1,2,3].map(n=>'<span class="mt-star'+(n<=stars?' mt-star-on':'')+'">\\u2605</span>').join('');
+      h+='<div class="mt-end">'
+        +'<div class="mt-end-stars">'+starsHTML+'</div>'
+        +'<div class="mt-end-score">'+p.elapsed+'<small>s</small></div>'
+        +'<div class="mt-end-meta">'+p.mistakes+' mistake'+(p.mistakes===1?'':'s')+'</div>'
+        +'<div class="was-acts" style="justify-content:center"><button class="mb mb-c" onclick="mgClose()">Done</button><button class="mb mb-s" onclick="mgSudokuStart()">\\u21BB Again</button></div>'
+      +'</div>';
+    } else {
+      const elapsed=Math.floor((Date.now()-p.timeStart)/1000);
+      h+='<div class="mg-elevate-hd">'
+        +'<div class="mg-elevate-prog"><span>L'+p.level+(p.mistakes?' \\u2022 '+p.mistakes+' miss':'')+'</span></div>'
+        +'<div class="mg-timer-pill">'+elapsed+'s</div>'
+      +'</div>';
+      h+='<div class="sud-grid">';
+      for(let i=0;i<16;i++){
+        const r=Math.floor(i/4),c=i%4;
+        const isGiven=p.initial[i]!==0;
+        const v=p.grid[i];
+        const isSelected=p.selected===i;
+        const cls='sud-cell'+(isGiven?' sud-given':'')+(isSelected?' sud-sel':'')+(c===1?' sud-bx-r':'')+(r===1?' sud-bx-b':'');
+        h+='<button class="'+cls+'" onclick="mgSudokuTap('+i+')"'+(isGiven?' disabled':'')+'>'+(v||'')+'</button>';
+      }
+      h+='</div>';
+      h+='<div class="sud-pad">';
+      for(let n=1;n<=4;n++)h+='<button class="sud-num" onclick="mgSudokuPlace('+n+')">'+n+'</button>';
+      h+='<button class="sud-num sud-clear" onclick="mgSudokuPlace(0)">\\u232B</button>';
       h+='</div>';
     }
     h+='</div>';
