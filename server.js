@@ -10782,6 +10782,160 @@ const LEGAL_FOOT=`<footer class="foot"><span>© 2026 Brodoit · Made with discip
 const MARKETING_CHROME=LEGAL_CHROME+`<style>.hero-tag{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;background:rgba(31,77,63,.08);color:#1F4D3F;border:1px solid rgba(31,77,63,.18);border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;margin-bottom:24px}.hero-tag .pulse{width:6px;height:6px;border-radius:999px;background:#1F4D3F;box-shadow:0 0 8px #1F4D3F;animation:pulse 2.4s ease-in-out infinite}@keyframes pulse{0%,100%{opacity:.55;transform:scale(1)}50%{opacity:1;transform:scale(1.4)}}h1.huge{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp(56px,9vw,104px);line-height:.95;letter-spacing:-.035em;margin-bottom:0}h1.huge em{font-style:italic;color:#1F4D3F}.tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:60px}@media (max-width:840px){.tiers{grid-template-columns:1fr;gap:14px}}.tier{position:relative;padding:36px 30px;background:#fff;border:1px solid #E8E6E0;border-radius:20px;display:flex;flex-direction:column;gap:18px;transition:transform .35s cubic-bezier(.16,1,.3,1),border-color .25s,box-shadow .35s}.tier:hover{transform:translateY(-4px);border-color:#CFCFCF;box-shadow:0 14px 40px -16px rgba(26,26,26,.16)}.tier.featured{border-color:#1F4D3F;background:linear-gradient(180deg,#fff,#F4FBF6);box-shadow:0 16px 48px -18px rgba(31,77,63,.32)}.tier .ribbon{position:absolute;top:-12px;right:24px;background:#1F4D3F;color:#fff;padding:5px 12px;border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase}.tier .name{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#6B6B6B;font-weight:500}.tier h3{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-style:italic;font-size:32px;line-height:1;color:#1A1A1A;margin-top:-4px}.price{display:flex;align-items:flex-start;gap:4px;margin-top:-2px}.price .dollar{font-size:22px;color:#6B6B6B;margin-top:8px;font-weight:400}.price .num{font-family:'Inter',sans-serif;font-size:60px;font-weight:600;letter-spacing:-.04em;color:#1A1A1A;line-height:.95}.price .suffix{font-size:13px;color:#6B6B6B;margin-top:auto;margin-bottom:9px;font-family:'JetBrains Mono',monospace;letter-spacing:.05em}.tier .blurb{font-size:14px;line-height:1.55;color:#3D3D3D;min-height:42px}.tier ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}.tier li{display:flex;align-items:flex-start;gap:10px;font-size:14px;line-height:1.45;color:#1A1A1A}.tier li svg{flex-shrink:0;margin-top:3px;color:#1F4D3F}.tier li.muted{color:#9A9A9A}.tier li.muted svg{color:#CFCFCF}.tier .cta{margin-top:auto;padding:14px 22px;text-align:center;border-radius:12px;font-weight:600;font-size:14.5px;border:1.5px solid #E8E6E0;color:#1A1A1A;text-decoration:none;transition:all .25s;cursor:pointer;background:#fff}.tier .cta:hover{border-color:#1A1A1A;background:#FAFAF7;transform:translateY(-1px)}.tier.featured .cta{background:#1F4D3F;color:#fff;border-color:#1F4D3F}.tier.featured .cta:hover{background:#0E2E25}.feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:48px}@media (max-width:760px){.feature-grid{grid-template-columns:1fr}}.feat{padding:24px;background:#fff;border:1px solid #E8E6E0;border-radius:16px;transition:border-color .25s,transform .35s cubic-bezier(.16,1,.3,1)}.feat:hover{border-color:#CFCFCF;transform:translateY(-2px)}.feat .ic{width:42px;height:42px;border-radius:12px;background:rgba(31,77,63,.08);color:#1F4D3F;display:grid;place-items:center;margin-bottom:14px}.feat h4{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-style:italic;font-size:22px;color:#1A1A1A;margin-bottom:6px}.feat p{font-size:14px;line-height:1.5;color:#3D3D3D;margin:0}.faq{display:flex;flex-direction:column;gap:10px;margin-top:36px}.faq details{background:#fff;border:1px solid #E8E6E0;border-radius:14px;padding:18px 22px;cursor:pointer;transition:border-color .25s}.faq details:hover{border-color:#CFCFCF}.faq details[open]{border-color:#1F4D3F;background:#F4FBF6}.faq summary{font-weight:500;font-size:15.5px;letter-spacing:-.005em;list-style:none;display:flex;justify-content:space-between;align-items:center;color:#1A1A1A}.faq summary::after{content:'+';font-size:22px;color:#1F4D3F;font-weight:300;transition:transform .25s;font-family:'JetBrains Mono',monospace}.faq details[open] summary::after{transform:rotate(45deg)}.faq p{margin-top:14px;font-size:14.5px;color:#3D3D3D;line-height:1.6}.cta-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:36px;align-items:center}.btn-primary{display:inline-flex;align-items:center;gap:8px;padding:14px 26px;background:#1A1A1A;color:#fff;text-decoration:none;border-radius:12px;font-weight:500;font-size:15px;transition:background .25s,transform .2s;border:0;cursor:pointer;font-family:inherit}.btn-primary:hover{background:#1F4D3F;transform:translateY(-1px)}.btn-ghost{display:inline-flex;align-items:center;gap:8px;padding:14px 26px;background:#fff;color:#1A1A1A;text-decoration:none;border-radius:12px;font-weight:500;font-size:15px;border:1px solid #E8E6E0;transition:border-color .25s}.btn-ghost:hover{border-color:#1A1A1A}.proof{margin-top:48px;padding:28px;background:#fff;border:1px solid #E8E6E0;border-radius:16px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px;text-align:center}@media (max-width:560px){.proof{grid-template-columns:1fr;gap:14px}}.proof .num{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:36px;color:#1F4D3F;line-height:1}.proof .lbl{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6B6B6B;margin-top:6px}.changelog{display:flex;flex-direction:column;gap:24px;margin-top:32px}.cl-item{padding:24px;background:#fff;border:1px solid #E8E6E0;border-radius:14px;display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:flex-start}@media (max-width:600px){.cl-item{grid-template-columns:1fr}}.cl-date{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:#1F4D3F;background:rgba(31,77,63,.08);padding:6px 12px;border-radius:999px;width:fit-content;height:fit-content;white-space:nowrap}.cl-body h3{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-style:italic;font-size:22px;color:#1A1A1A;margin-bottom:8px}.cl-body p{font-size:14.5px;color:#3D3D3D;line-height:1.55;margin-top:6px}.cl-body ul{margin-top:12px;padding-left:22px;font-size:14.5px;color:#3D3D3D}.cl-body li{margin-top:5px;line-height:1.5}.about-quote{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-size:clamp(22px,3vw,30px);line-height:1.35;color:#1A1A1A;padding:32px 0;border-top:1px solid #E8E6E0;border-bottom:1px solid #E8E6E0;margin:48px 0}</style>`;
 
 // Privacy Policy (required by Play Store)
+// ─── Beta tester signup ───────────────────────────────────────────────
+// Public landing page at /beta. Captures Play email + name, stores in
+// beta_signups table, immediately emails the opt-in URL. Reduces the
+// manual step of copy-pasting from chat replies into Play Console.
+try{db.exec("CREATE TABLE IF NOT EXISTS beta_signups(id TEXT PRIMARY KEY,name TEXT,email TEXT NOT NULL,source TEXT DEFAULT'',referrer TEXT DEFAULT'',created_at TEXT DEFAULT(datetime('now')),added_to_console INTEGER DEFAULT 0,added_at TEXT)")}catch(e){}
+try{db.exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_beta_signups_email ON beta_signups(email)")}catch(e){}
+
+const BETA_OPT_IN_URL=process.env.BETA_OPT_IN_URL||'https://play.google.com/apps/internaltest';
+
+app.post('/api/beta-signup',async(req,res)=>{
+  const name=String(req.body.name||'').trim().slice(0,80);
+  const email=String(req.body.email||'').trim().toLowerCase();
+  const source=String(req.body.source||'').trim().slice(0,40);
+  const referrer=String(req.headers.referer||'').slice(0,200);
+  if(!isEmail(email))return res.status(400).json({ok:false,error:'Enter a valid email'});
+  // Idempotent: same email re-signs up = re-send the opt-in URL, don't error
+  let row=db.prepare('SELECT * FROM beta_signups WHERE email=?').get(email);
+  if(!row){
+    const id='bs_'+crypto.randomBytes(8).toString('hex');
+    db.prepare('INSERT INTO beta_signups(id,name,email,source,referrer)VALUES(?,?,?,?,?)').run(id,name,email,source,referrer);
+    row={id,name,email};
+  } else if(name&&!row.name){
+    db.prepare('UPDATE beta_signups SET name=? WHERE email=?').run(name,email);
+  }
+  // Send the welcome email with the Play Store opt-in URL.
+  const html=`<div style="font-family:-apple-system,Segoe UI,sans-serif;max-width:520px;margin:0 auto;padding:32px 22px;background:#F8F7F4;color:#1A1A1A;line-height:1.6">
+    <div style="text-align:center;margin-bottom:28px">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;color:#9C7A3F;text-transform:uppercase;font-weight:600">Brodoit · Beta</div>
+      <h1 style="font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:32px;margin:6px 0 0;color:#0F1115;letter-spacing:-.02em">Welcome aboard${name?', '+name.split(' ')[0]:''}.</h1>
+    </div>
+    <p style="font-size:15px;color:#1F2228">Thank you for testing Brodoit. Two short steps:</p>
+    <ol style="font-size:15px;color:#1F2228;padding-left:22px;line-height:1.7">
+      <li><b>Open this link on your Android phone</b> and tap <b>Become a tester</b>:<br><a href="${BETA_OPT_IN_URL}" style="display:inline-block;margin-top:8px;color:#0F1115;font-weight:600;word-break:break-all">${BETA_OPT_IN_URL}</a></li>
+      <li>Tap <b>Download it on Google Play</b> — install Brodoit. That's it.</li>
+    </ol>
+    <p style="margin-top:24px;font-size:14px;color:#52555C">Use the app whenever you'd normally check tasks. Google's closed-test rule needs the app installed for 14 days before I can promote to public. After that, you'll get the public Play Store link as a thank-you.</p>
+    <a href="${BETA_OPT_IN_URL}" style="display:inline-block;margin-top:22px;padding:14px 28px;background:#0F1115;color:#FFD27A;text-decoration:none;border-radius:12px;font-weight:600;font-size:15px">Join the beta →</a>
+    <p style="margin-top:30px;padding-top:22px;border-top:1px solid #D7D5CF;font-size:13px;color:#7E8189">Questions? Reply to this email or text Rishabh directly.</p>
+  </div>`;
+  try{await sendEmail(email,"You're in — Brodoit beta",html)}catch(e){}
+  res.json({ok:true,opt_in_url:BETA_OPT_IN_URL});
+});
+
+// Admin endpoint listing beta signups, for tracking who's in the queue
+// to add to Play Console
+app.get('/admin/beta-signups',adminAuth,(req,res)=>{
+  const rows=db.prepare('SELECT id,name,email,source,added_to_console,created_at,added_at FROM beta_signups ORDER BY created_at DESC').all();
+  const escH=s=>(s||'').replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'})[c]);
+  const tableRows=rows.map((r,i)=>`<tr style="border-bottom:1px solid #E5E7EB"><td style="padding:10px 8px">${i+1}</td><td style="padding:10px 8px;font-weight:600">${escH(r.name||'—')}</td><td style="padding:10px 8px;font-family:monospace;font-size:13px">${escH(r.email)}</td><td style="padding:10px 8px;color:#6B7280;font-size:12px">${escH(r.source||'direct')}</td><td style="padding:10px 8px">${r.added_to_console?'<span style="color:#16A34A;font-weight:600">✅ added</span>':'<span style="color:#D97706;font-weight:600">⏳ pending</span>'}</td><td style="padding:10px 8px;color:#6B7280;font-size:12px">${escH((r.created_at||'').split(' ')[0])}</td></tr>`).join('');
+  res.send(`<!doctype html><html><head><title>Brodoit · Beta Signups</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{font-family:-apple-system,Segoe UI,sans-serif;background:#F9FAFB;color:#111827;margin:0;padding:24px;max-width:980px;margin:0 auto}h1{font-size:22px;margin:0 0 6px}.sub{color:#6B7280;font-size:13px;margin-bottom:18px}.bar{display:flex;gap:8px;margin-bottom:16px}.btn{padding:8px 14px;background:#0F1115;color:#FFD27A;text-decoration:none;border-radius:8px;font-size:13px;font-weight:600}.btn.sec{background:#fff;color:#0F1115;border:1px solid #E5E7EB}table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #E5E7EB;border-radius:12px;overflow:hidden}th{text-align:left;padding:12px 8px;background:#F9FAFB;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#6B7280;font-weight:600;border-bottom:1px solid #E5E7EB}.note{margin-top:18px;padding:14px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;font-size:13px;color:#1E40AF;line-height:1.5}</style></head><body><h1>Brodoit · Beta Signups</h1><div class="sub">${rows.length} total — ${rows.filter(r=>!r.added_to_console).length} pending Play Console add</div><div class="bar"><a class="btn" href="/admin/testers?token=${escH(req.query.token||'')}">Activity dashboard →</a><a class="btn sec" href="/beta">View signup page →</a></div><table><thead><tr><th>#</th><th>Name</th><th>Play email</th><th>Source</th><th>Added to console</th><th>Joined</th></tr></thead><tbody>${tableRows||'<tr><td colspan="6" style="padding:32px;text-align:center;color:#9CA3AF">No signups yet. Share <b>brodoit.com/beta</b>.</td></tr>'}</tbody></table><div class="note"><b>Workflow:</b> emails arriving here = paste into Play Console → Closed testing → Testers list, then mark as added: <code>POST /api/beta-mark-added</code> with {email}.</div></body></html>`);
+});
+
+app.post('/api/beta-mark-added',adminAuth,(req,res)=>{
+  const email=String(req.body.email||'').trim().toLowerCase();
+  if(!email)return res.status(400).json({ok:false,error:'email required'});
+  db.prepare("UPDATE beta_signups SET added_to_console=1,added_at=datetime('now') WHERE email=?").run(email);
+  res.json({ok:true});
+});
+
+// Public landing page — the "/beta" URL you share with friends
+app.get('/beta',(req,res)=>{
+  const src=String(req.query.src||'').replace(/[^a-zA-Z0-9_-]/g,'').slice(0,20);
+  res.type('html').send(`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0F1115"><title>Become a Brodoit beta tester</title><meta name="description" content="Help test Brodoit before public launch. 30 seconds to install."><meta property="og:title" content="Test Brodoit before launch"><meta property="og:description" content="30 seconds to join the closed beta"><meta property="og:image" content="https://brodoit.com/icon-512.png"><link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet"><style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter','SF Pro Text',-apple-system,BlinkMacSystemFont,sans-serif;background:#EDECE8;color:#0F1115;min-height:100vh;-webkit-font-smoothing:antialiased;letter-spacing:-.011em;font-weight:450;background-image:radial-gradient(circle at 1px 1px,rgba(15,17,21,.05) 1px,transparent 0);background-size:24px 24px}
+.wrap{max-width:520px;margin:0 auto;padding:48px 24px 64px}
+.kicker{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.18em;color:#9C7A3F;text-transform:uppercase}
+h1{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp(36px,7vw,52px);line-height:1.05;letter-spacing:-.025em;color:#0F1115;margin:8px 0 14px}
+h1 em{font-style:italic;color:#9C7A3F}
+.lede{font-size:17px;line-height:1.55;color:#52555C;margin-bottom:28px}
+.steps{display:flex;flex-direction:column;gap:14px;margin:30px 0;background:#fff;border:1px solid #D7D5CF;border-radius:18px;padding:22px;box-shadow:0 1px 3px rgba(15,17,21,.04)}
+.step{display:flex;gap:14px;align-items:flex-start}
+.step-n{flex:0 0 auto;width:30px;height:30px;border-radius:50%;background:#0F1115;color:#FFD27A;display:grid;place-items:center;font-family:'JetBrains Mono',monospace;font-weight:600;font-size:13px}
+.step-t{flex:1;font-size:15px;line-height:1.5;color:#1F2228;padding-top:4px}
+.step-t b{color:#0F1115}
+form{margin-top:8px;background:#fff;border:1px solid #D7D5CF;border-radius:18px;padding:22px;box-shadow:0 1px 3px rgba(15,17,21,.04)}
+label{display:block;font-size:12px;font-weight:600;color:#52555C;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px;margin-top:14px}
+label:first-of-type{margin-top:0}
+input{width:100%;padding:14px 16px;border:1.5px solid #D7D5CF;border-radius:12px;font-size:16px;background:#fff;color:#0F1115;font-family:inherit;transition:border-color .15s ease,box-shadow .15s ease}
+input:focus{outline:none;border-color:#0F1115;box-shadow:0 0 0 4px rgba(15,17,21,.06)}
+button{margin-top:18px;width:100%;padding:16px;border:none;background:#0F1115;color:#FFD27A;font-family:inherit;font-size:15px;font-weight:600;letter-spacing:-.005em;border-radius:12px;cursor:pointer;transition:transform .15s ease,box-shadow .2s ease}
+button:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 18px -4px rgba(15,17,21,.3)}
+button:disabled{opacity:.6;cursor:not-allowed}
+.success{margin-top:18px;padding:18px;background:#ECFDF5;border:1px solid #86EFAC;border-radius:14px;color:#065F46;font-size:14px;line-height:1.55;display:none}
+.success.on{display:block;animation:fadeIn .35s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.success b{color:#064E3B}
+.success a{color:#065F46;font-weight:600}
+.error{margin-top:14px;padding:12px 14px;background:#FEF2F2;border:1px solid #FCA5A5;border-radius:10px;color:#991B1B;font-size:13px;display:none}
+.error.on{display:block}
+.share{margin-top:32px;padding:18px 20px;background:#fff;border:1px dashed #C2BFB8;border-radius:14px;font-size:13px;line-height:1.6;color:#52555C}
+.share b{color:#0F1115}
+.share-btn{margin-top:10px;display:inline-block;padding:8px 14px;background:#F6F5F2;color:#0F1115;text-decoration:none;border:1px solid #D7D5CF;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer}
+.share-btn:hover{background:#fff;border-color:#0F1115}
+.foot{margin-top:48px;padding-top:24px;border-top:1px solid #D7D5CF;font-size:12px;color:#7E8189;text-align:center}
+.foot a{color:#52555C;text-decoration:none}
+.foot a:hover{color:#0F1115}
+</style></head><body><div class="wrap">
+<div class="kicker">Brodoit · Closed beta</div>
+<h1>Test Brodoit before <em>everyone else</em>.</h1>
+<p class="lede">Help me launch this productivity app to Google Play. Drop your Play email below — you'll get the install link in 30 seconds.</p>
+
+<div class="steps">
+  <div class="step"><div class="step-n">1</div><div class="step-t">Enter the <b>email you use on Google Play</b> below.</div></div>
+  <div class="step"><div class="step-n">2</div><div class="step-t">Check your inbox — install link arrives instantly.</div></div>
+  <div class="step"><div class="step-n">3</div><div class="step-t">Open it on your Android phone, tap <b>Become a tester</b>, install.</div></div>
+</div>
+
+<form id="bf" onsubmit="return submitBeta(event)">
+  <label for="bn">Your name</label>
+  <input id="bn" name="name" placeholder="Rishabh" autocomplete="name">
+  <label for="be">Google Play email</label>
+  <input id="be" name="email" type="email" required placeholder="you@gmail.com" autocomplete="email" inputmode="email">
+  <button type="submit" id="bs">Send me the install link →</button>
+  <div class="error" id="berr"></div>
+  <div class="success" id="bok">
+    <b>You're in.</b> Check your inbox (and spam) — the install link is on its way. Open it on your Android phone.
+  </div>
+</form>
+
+<div class="share">
+  <b>Know another Android user?</b> Share this page — every tester moves the launch closer.
+  <br><a href="#" class="share-btn" onclick="copyShare();return false">📋 Copy share link</a>
+</div>
+
+<footer class="foot">© 2026 Brodoit · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a> · <a href="mailto:hello@brodoit.com">Contact</a></footer>
+</div>
+<script>
+const SOURCE=${JSON.stringify(src)};
+async function submitBeta(e){
+  e.preventDefault();
+  const btn=document.getElementById('bs');const err=document.getElementById('berr');const ok=document.getElementById('bok');
+  err.classList.remove('on');ok.classList.remove('on');
+  const name=document.getElementById('bn').value.trim();
+  const email=document.getElementById('be').value.trim();
+  if(!email){err.textContent='Email is required';err.classList.add('on');return false}
+  btn.disabled=true;btn.textContent='Sending...';
+  try{
+    const r=await fetch('/api/beta-signup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,email,source:SOURCE})});
+    const j=await r.json();
+    if(j.ok){ok.classList.add('on');btn.textContent='✓ Sent';setTimeout(()=>{btn.disabled=false;btn.textContent='Send another →'},3000)}
+    else{err.textContent=j.error||'Something went wrong';err.classList.add('on');btn.disabled=false;btn.textContent='Send me the install link →'}
+  }catch(ex){err.textContent='Network error — try again';err.classList.add('on');btn.disabled=false;btn.textContent='Send me the install link →'}
+  return false;
+}
+function copyShare(){
+  const url='https://brodoit.com/beta';
+  navigator.clipboard.writeText(url).then(()=>{
+    const btn=event.target;const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>{btn.textContent=orig},2000);
+  }).catch(()=>{prompt('Copy this link:',url)});
+}
+</script></body></html>`);
+});
+
 app.get('/privacy',(_,res)=>{
   res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Privacy Policy — Brodoit</title><meta name="description" content="What Brodoit collects, why, and your rights. Plain-English privacy policy."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Privacy</div><h1>Privacy, plainly.</h1><p class="lede">We built Brodoit to be a calm, private place. This page explains exactly what we collect, why, and what we will never do. No dark patterns, no fine print.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">What we collect</h2><ul><li><strong>Email address</strong> or <strong>phone number</strong> — used only to authenticate you via a one-time verification code.</li><li><strong>Your name</strong> — displayed in your profile screen.</li><li><strong>Your tasks, notes, due dates, reminders</strong> — stored so we can show them back to you and send reminders on the times you set.</li><li><strong>Session token</strong> — a random string stored in your browser so you stay logged in.</li></ul><div class="note">We do <strong>not</strong> collect: your location, your contacts, advertising IDs, device IDs, photos, payment info, or any data we don't explicitly list above.</div><h2 data-n="02">How we use it</h2><ul><li>Deliver one-time codes by email or WhatsApp.</li><li>Show your tasks, books, and other content you've created.</li><li>Send reminders at the times you set.</li></ul><h2 data-n="03">Who we share with</h2><p>We share data only with the following service providers, strictly to operate the service:</p><ul><li><strong>Resend</strong> — to deliver verification emails (<a href="https://resend.com/privacy">privacy policy</a>).</li><li><strong>Twilio</strong> — to deliver WhatsApp messages (<a href="https://www.twilio.com/legal/privacy">privacy policy</a>).</li><li><strong>Railway</strong> — our hosting provider (<a href="https://railway.app/legal/privacy">privacy policy</a>).</li><li><strong>Internet Archive (LibriVox)</strong> — we fetch public-domain audiobook metadata. No personal data is sent.</li></ul><div class="note">We never sell your data. We never show ads. We never track you across other apps or sites.</div><h2 data-n="04">Data retention</h2><p>Your tasks and account persist until you delete them or ask us to delete your account. Verification codes expire after 5 minutes and are wiped after use.</p><h2 data-n="05">Your rights</h2><p>Email <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> any time to export your data, correct it, or permanently delete your account. We respond within seven days.</p><h2 data-n="06">Children</h2><p>Brodoit is not directed at children under 13. We do not knowingly collect data from children under 13. If you believe we have, please contact us and we will delete it immediately.</p><h2 data-n="07">Changes</h2><p>If we make material changes, we'll update the date at the top of this page and notify you by email if we have your address.</p><h2 data-n="08">Contact</h2><p>Questions about anything on this page? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });

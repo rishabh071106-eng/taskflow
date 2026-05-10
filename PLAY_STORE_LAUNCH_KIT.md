@@ -13,21 +13,30 @@ This kit is the operational playbook to clear those two gates.
 
 ## 1 · Pre-flight (5 min, do once)
 
-Set two env vars on Railway → Service → Variables, then redeploy:
+Set three env vars on Railway → Service → Variables, then redeploy:
 
-| Variable      | Value                          | Why                                |
-|---------------|--------------------------------|------------------------------------|
-| `ADMIN_TOKEN` | any random 24-char string      | Gates the testers dashboard        |
-| `ADMIN_EMAIL` | the email you log in to Brodoit with | Lets you view the dashboard while signed in |
+| Variable           | Value                                                 | Why                                              |
+|--------------------|-------------------------------------------------------|--------------------------------------------------|
+| `ADMIN_TOKEN`      | `_R6HkqWzgooYoSaLhL4hvUl1` (or generate a new one)    | Gates the admin dashboards                       |
+| `ADMIN_EMAIL`      | the email you log in to Brodoit with                  | Lets you view dashboards while signed in         |
+| `BETA_OPT_IN_URL`  | the Play Console opt-in URL for your closed test      | Auto-emailed to anyone who signs up via /beta    |
 
-Bookmark the dashboard:
+The `BETA_OPT_IN_URL` looks like `https://play.google.com/apps/internaltest/4972957219436856411` — copy it from Play Console → Closed testing → "How testers join your test".
+
+Bookmark these three URLs:
 
 ```
-https://brodoit.com/admin/testers?token=YOUR_ADMIN_TOKEN
+https://brodoit.com/beta                                          ← share this
+https://brodoit.com/admin/testers?token=_R6HkqWzgooYoSaLhL4hvUl1   ← activity
+https://brodoit.com/admin/beta-signups?token=_R6HkqWzgooYoSaLhL4hvUl1  ← signup queue
 ```
 
-It shows total signups, who's eligible for the 14-day count, and
-who's lapsed. Reload anytime — auto-refreshes from the live DB.
+The flow is now automated:
+1. You share `brodoit.com/beta` (or `brodoit.com/beta?src=whatsapp` to track)
+2. Friend enters their Play email → server emails them the install link
+3. Their email shows up in `/admin/beta-signups`
+4. You paste it into Play Console → Closed testing → Testers
+5. After 14 days of activity, `/admin/testers` shows them as eligible
 
 ---
 
@@ -54,16 +63,14 @@ Name | Play email | Sent invite | Joined | Day-1 install | Day-14 cleared | Note
 
 #### WhatsApp / iMessage — short, casual
 
-> Hey — I built a productivity app called Brodoit and need to get
-> 12 friends testing it for 2 weeks before Google lets me launch
-> publicly. Takes 30 seconds to install. Would mean a lot.
+> Hey — I built a productivity app called Brodoit and need 12
+> friends testing it for 2 weeks before Google lets me launch.
+> Takes 30 seconds.
 >
-> 1. Send me the email you use on Google Play
-> 2. I'll add you to the tester list
-> 3. You'll get a link — open it on Android, install, use it
->    when you'd normally check your tasks
+> Tap → brodoit.com/beta?src=whatsapp
 >
-> That's it. Thanks 🙏
+> Drop your Play Store email there, install the app on Android,
+> done. Means a lot 🙏
 
 #### Email — formal
 
@@ -91,9 +98,9 @@ Name | Play email | Sent invite | Joined | Day-1 install | Day-14 cleared | Note
 #### LinkedIn / X DM — one-liner
 
 > Quick favor — shipping a productivity app to Play Store, stuck on
-> Google's 12-tester requirement. If you're on Android: drop me your
-> Google Play email and I'll add you. 14-day test, then it goes
-> public. Thanks!
+> Google's 12-tester requirement. If you're on Android, take 30 sec:
+> brodoit.com/beta?src=linkedin — drop your Play email, you'll get
+> the install link. 14-day test, then it goes public. Thanks!
 
 ---
 
