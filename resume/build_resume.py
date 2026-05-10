@@ -640,6 +640,204 @@ def build_wellsfargo():
     print(f"Wrote {output}")
 
 
+def build_hybrid():
+    """Generalised, AI-agents-first resume.
+
+    No employer names — uses generic descriptors so the resume can be shared
+    broadly. Combines the platform/syndicated-lending depth and the
+    MarTech/OKR/team-leadership framing into one document with the AI Agents
+    section elevated above Professional Experience.
+    """
+    output = "/home/user/taskflow/resume/Rishabh_Sharma_Resume_2026_AI_Agents_Hybrid.pdf"
+    accent = GOLD
+    S = _styles(accent=accent)
+    doc = SimpleDocTemplate(
+        output, pagesize=A4,
+        leftMargin=MARGIN, rightMargin=MARGIN,
+        topMargin=14 * mm, bottomMargin=14 * mm,
+        title="Rishabh Sharma — Resume (Product Leader · AI Agents)",
+        author="Rishabh Sharma",
+    )
+    headline = ("Vice President — Product Management  &nbsp;·&nbsp;  "
+                "AI Agents · Fintech Platforms · Payments")
+    location = "Bengaluru, India"
+
+    profile = (
+        "Product leader with <b>15+ years</b> across global fintech, payments and banking platforms — "
+        "<b>8+ years in product management</b> and <b>5+ years leading distributed product squads</b>. "
+        "Active builder of <b>agentic AI workflows</b> — production loan-booking copilots and "
+        "side-project agent stacks orchestrating LLMs, tool-use, retrieval and voice models. Combines "
+        "deep <b>platform-product DNA</b> (syndicated lending on industry servicing platforms, real-time "
+        "treasury and FX, partner onboarding, customer-journey instrumentation, adoption analytics) with "
+        "hands-on <b>agent design</b> — multi-agent decomposition, structured-output guards, "
+        "human-in-the-loop gates and product instrumentation for <b>agent quality, latency and unit "
+        "economics</b>. Translates ambiguous business needs into a clear capabilities roadmap and ships "
+        "in a matrixed, multi-region, OKR-driven way."
+    )
+
+    milestones = [
+        ("2011", "Joined consultancy · Pan-African bank"),
+        ("2016", "Agile rollout across 14 markets"),
+        ("2020", "Joined investment bank · VP Product"),
+        ("2022", "Global lending platform v1 launched"),
+        ("2024", "AI doc extraction · adoption 40→85%"),
+        ("2026", "Agentic platform · TaskFlow agent stack"),
+    ]
+
+    competencies = [
+        # AI / agents pillar lives in the top row.
+        ["Agentic AI &amp; LLM Orchestration", "Multi-Agent Workflow Design", "Prompt, RAG &amp; Eval Harnesses"],
+        ["Product Strategy &amp; Roadmap", "OKR-Driven Capabilities Planning", "GTM &amp; Customer Journeys"],
+        ["APIs, Kafka &amp; Integrations", "Onboarding/KYC · Treasury/FX", "Syndicated Lending &amp; Agency"],
+        ["Cross-Functional Leadership", "Talent Development &amp; Hiring", "Data, Analytics &amp; Experimentation"],
+    ]
+
+    # Generic current-role bullets — no employer name.
+    current_role_bullets = [
+        "Own the <b>global product strategy and roadmap</b> for a digital loan booking &amp; servicing "
+        "platform serving CIB and CB clients across <b>30+ countries</b>; led the shift from legacy "
+        "COBOL/manual workflows to an <b>AI-native, agentic ecosystem</b>.",
+        "Lead a cross-functional squad of <b>25+ engineers, product owners and data specialists</b> "
+        "across India, US and EMEA; coach 4 PMs, run quarterly OKRs, hiring and talent development "
+        "for a <b>high-performing product organisation</b>.",
+        "Deep <b>syndicated lending</b> exposure: shaped agency-bank workflows on industry servicing "
+        "platforms covering deal setup, lender allocations, drawdowns, rollovers, interest &amp; fee "
+        "accruals, secondary trades and notices.",
+        "Architected <b>API and Kafka integrations</b> with <b>12+ upstream underwriting and "
+        "pre-booking systems</b> on AWS, and partnered with Treasury, Liquidity &amp; Risk to model "
+        "collateral, exposure and FX hedging flows.",
+        "Built embedded <b>Tableau adoption dashboards</b>, <b>in-app analytics</b> and "
+        "<b>customer-journey instrumentation</b>; defined and continuously evolved the product "
+        "success metrics and OKRs the platform is measured on.",
+        "Built the <b>partner onboarding platform</b> with country-specific KYC, AML and regulatory "
+        "workflows; secured approvals across multiple jurisdictions and reduced onboarding lead time "
+        "by <b>~40%</b>.",
+        "Drove <b>segmentation and campaign-style GTM</b> for two new client segments — defined ICP, "
+        "value props, enablement and rollout playbook with Marketing, Legal and Compliance; adoption "
+        "rose from <b>40% to 85% in 12 months</b>.",
+    ]
+
+    prior_role_bullets = [
+        "Led the <b>core banking and payments modernisation</b> programme for a top Pan-African bank — "
+        "designed the SAP-based target architecture and migrated <b>26 partner platforms</b> (mobile "
+        "money, card schemes, agency banking, remittance corridors) into a unified ecosystem.",
+        "Drove a high-impact <b>AML &amp; compliance</b> initiative across <b>14 African markets</b>, "
+        "hardening the bank's risk framework and cutting false-positive alerts by <b>~35%</b>.",
+        "Managed a global delivery team of <b>38 developers, BAs and data specialists</b>; introduced "
+        "Agile ceremonies and migrated the programme from Waterfall, lifting release cadence from "
+        "quarterly to fortnightly.",
+        "Partnered with enterprise architects on <b>API &amp; integration strategy</b> for self-service "
+        "channels, branch operations and <b>mobile money rails (M-Pesa, MTN, Airtel)</b>.",
+        "<b>6 years of international experience</b> across Sub-Saharan Africa with deep exposure to "
+        "emerging-market consumer behaviour and regulatory diversity.",
+    ]
+
+    # AI Agents section — expanded for the hybrid; no employer names.
+    agents_intro = (
+        "Hands-on operator shipping agentic systems — both production at work and personal builds — "
+        "across LLM orchestration, tool-use, retrieval, evaluation and voice. Treats every agent as a "
+        "<b>product surface</b> with metrics, guardrails and unit economics, not a demo."
+    )
+    agents_bullets = [
+        "<b>Agentic Loan Booking (production):</b> multi-agent workflow where extraction, validation, "
+        "KYC and covenant-check agents collaborate over a shared context bus with structured-output "
+        "guards and human-in-the-loop gates; replaced ~30% of manual ops touchpoints and cut average "
+        "booking turnaround from days to hours.",
+        "<b>AI Document Intelligence:</b> orchestrated LLM + OCR pipelines across CIB and CB lending "
+        "with measurable accuracy lift on covenant and term-sheet parsing; designed the eval harness, "
+        "exception-routing flow and graceful fallback to human review.",
+        "<b>TaskFlow (personal build, 2026):</b> daily-routine app powered by an agent stack that "
+        "plans the user's day, generates <b>chapter-wise book briefs</b>, <b>ElevenLabs voice "
+        "affirmations</b> and <b>guided meditations</b>, served through a streaming audio layer with "
+        "a cache-warmup agent — calendar, wisdom and Mind Gym modules feed off the same orchestrator.",
+        "<b>Tooling fluency:</b> Claude / Anthropic API, OpenAI, ElevenLabs voice, RAG with vector "
+        "stores, agent frameworks (tool-use, function calling, MCP-style servers), prompt &amp; eval "
+        "harnesses, structured outputs.",
+        "<b>Product POV on agents:</b> evaluate agentic features on <i>task success, intervention "
+        "rate, $/successful task and trust signals</i> — not demos; insist on guardrails, "
+        "observability and graceful fallbacks before scale-out.",
+    ]
+
+    outcomes = [
+        "Scaled a global lending platform's adoption from <b>40% → 85% in 12 months</b> via React UI, "
+        "embedded Tableau analytics, in-app onboarding and structured change management.",
+        "Cut customer onboarding lead time by <b>~40%</b> through a workflow-driven, configurable "
+        "platform with country-specific rule packs.",
+        "Delivered <b>~30% efficiency gain</b> using AI/ML document extraction across global "
+        "lending operations.",
+        "Reduced AML false positives by <b>~35%</b> across <b>14 African markets</b>.",
+        "<b>MVP Award (Q3'22)</b> and <b>Team of the Quarter (Q3'24)</b> at current employer; "
+        "winner — industry White Paper Contest on the Future of Software Testing.",
+    ]
+
+    story = []
+    story += header(headline, accent, location, S)
+
+    story.append(anchor("profile"))
+    story.append(Paragraph(profile, S["body"]))
+    story.append(Spacer(1, 6))
+
+    story.append(anchor("roadmap"))
+    story += section("Career Roadmap", anchor=None, accent=accent)
+    story.append(CareerRoadmap(milestones, accent=accent))
+    story.append(Spacer(1, 4))
+
+    story.append(anchor("competencies"))
+    story += section("Core Competencies", anchor=None, accent=accent)
+    story.append(chip_grid(competencies, S))
+    story.append(Spacer(1, 6))
+
+    # Agents section elevated above Professional Experience to signal focus.
+    story.append(anchor("agents"))
+    story += section("AI Agents &amp; Agentic Workflows", anchor=None, accent=accent)
+    story.append(Paragraph(agents_intro, S["body"]))
+    story.append(Spacer(1, 2))
+    for b in agents_bullets:
+        story.append(bullet(b, S))
+    story.append(Spacer(1, 5))
+
+    story.append(anchor("experience"))
+    story += section("Professional Experience", anchor=None, accent=accent)
+
+    # Current role — generic descriptor instead of employer name.
+    story.append(role_with_badge("VP", NAVY,
+        "Vice President — Product Management", S))
+    story.append(Paragraph(
+        "Tier-1 Global Investment &amp; Commercial Bank  ·  Bengaluru, India  ·  Jun 2020 – Present",
+        S["meta"]))
+    for b in current_role_bullets:
+        story.append(bullet(b, S))
+    story.append(Spacer(1, 5))
+
+    # Prior role — generic descriptor instead of employer name.
+    prior = [
+        role_with_badge("SC", HexColor("#341A6E"),
+            "Senior Consultant — Product &amp; Platform Modernisation", S),
+        Paragraph(
+            "Global IT Services Consultancy (Pan-African Banking client)  ·  "
+            "Johannesburg, South Africa  ·  Oct 2011 – Jun 2020",
+            S["meta"]),
+    ]
+    for b in prior_role_bullets:
+        prior.append(bullet(b, S))
+    story.append(KeepTogether(prior))
+    story.append(Spacer(1, 5))
+
+    story.append(anchor("outcomes"))
+    story += section("Selected Outcomes &amp; Recognition", anchor=None, accent=accent)
+    for b in outcomes:
+        story.append(bullet(b, S))
+    story.append(Spacer(1, 5))
+
+    story.append(anchor("education"))
+    story += section("Education, Certifications &amp; Tooling", anchor=None, accent=accent)
+    story.append(footer_block(S))
+
+    doc.build(story, onFirstPage=page_chrome, onLaterPages=page_chrome)
+    print(f"Wrote {output}")
+
+
 if __name__ == "__main__":
     build_thunes()
     build_wellsfargo()
+    build_hybrid()
