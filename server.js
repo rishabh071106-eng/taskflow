@@ -319,102 +319,149 @@ const ELEVEN_VOICE_SARAH     = 'EXAVITQu4vr4xnSDxMAC'; // warm female · classic
 const ELEVEN_VOICE_CHARLOTTE = 'XB0fDUnXU5powFXDhCwa'; // soft, intimate female
 const ELEVEN_VOICE_BRIAN     = 'nPczCjzI2devNBz1zQrb'; // deep meditative male
 
-// Voice settings for affirmation/meditation: more stable, slightly less expressive
-// than coach-conversation tuning — feels grounded and unhurried.
+// Voice settings for affirmation/meditation: warm, intimate, slightly more
+// expressive than before — calmer pace, gentle inflection. Tuned to remove
+// the "robotic" feel users were getting from the previous defaults.
 const AUDIO_TUNING_CALM = {
-  stability: 0.62, similarity_boost: 0.82, style: 0.12, use_speaker_boost: true
+  stability: 0.48, similarity_boost: 0.88, style: 0.22, use_speaker_boost: true
 };
 
 const AUDIO_LIBRARY = {
-  // ─── 5 affirmations ───────────────────────────────────────────────────
-  'aff-calm-focus': {
-    title: 'Calm Focus',
-    desc: 'Settle the mind for one task at a time',
-    mins: 2, color: '#FF7A45', voice: ELEVEN_VOICE_SARAH, kind: 'affirmation',
+  // ─── 3 affirmation SKUs, by duration ──────────────────────────────────
+  // Each is a single coherent piece, narrated by ElevenLabs. Scripts are
+  // sized so the rendered audio lands close to the labeled duration at a
+  // calm 130 wpm pace.
+  'aff-5min': {
+    title: '5-minute Affirmation',
+    desc: 'A grounded reset — start the day or settle a busy mind',
+    mins: 5, color: '#FCB851', voice: ELEVEN_VOICE_SARAH, kind: 'affirmation',
     script: `Take a slow breath in… and a slower breath out.
 
 You are here. Right now. That is enough.
 
-I have one task in front of me, and I will give it my full attention.
-The other things will wait. They always do.
+Today does not need to be perfect. It only needs to be lived, one moment at a time. I will not chase every thought. I will choose what deserves my attention, and I will give it that attention fully.
 
-I do not have to feel ready. I only have to begin.
-Beginning is the work.
+I am capable. Not because everything will be easy, but because I have done hard things before, and I will do them again.
 
-When my mind drifts, I notice — without judgment — and I return.
-Calmly. Again and again. That is focus. That is the practice.
+Take another slow breath in… and let it go.
+
+I have one thing in front of me, and I will give it my full presence. The other things will wait. They always do. I do not have to feel ready in order to begin. Beginning is the work.
+
+When my mind drifts, I notice — without judgment — and I return. Calmly. Again and again. That is focus. That is the practice.
 
 I am not behind. I am not ahead. I am exactly here, doing exactly this.
 
-Take one more breath… and begin.`,
+I am allowed to move slowly. I am allowed to rest. I am allowed to begin again, as many times as I need to.
+
+The work I do today is enough. The pace I keep today is enough. I am enough.
+
+Take one more deep breath in… hold it for a moment… and let it go.
+
+Stand up gently when you are ready. Carry this calm with you. Begin.`,
   },
-  'aff-confident-morning': {
-    title: 'Confident Morning',
-    desc: 'Start the day grounded and clear',
-    mins: 2, color: '#FCB851', voice: ELEVEN_VOICE_SARAH, kind: 'affirmation',
-    script: `Good morning.
+  'aff-10min': {
+    title: '10-minute Affirmation',
+    desc: 'A deeper settling — build resilience, soften the day',
+    mins: 10, color: '#5BBFB4', voice: ELEVEN_VOICE_BRIAN, kind: 'affirmation',
+    script: `Welcome. Find a place where you can sit comfortably.
 
-Today is a fresh page. Yesterday's mistakes do not define me, and yesterday's wins do not carry me. I begin again, gently.
+Let your shoulders drop. Soften your jaw. Unclench your hands. Let your face be at rest.
 
-I am capable. Not because everything will be easy — but because I have done hard things before, and I will do them again.
+Take one slow breath in through your nose… and a longer breath out through your mouth. Good. Let the breath find its own rhythm now. You are not forcing anything. You are just watching.
 
-Today I will speak clearly. I will listen well. I will say no when I need to, and yes when it matters.
+I will speak slowly. There is no rush.
 
-I will not chase every distraction. I will choose what deserves my attention, and I will give it that attention fully.
+You are here. Right now. That is enough.
 
-I am ready. I have everything I need to begin. Take a breath, stand up, and start.`,
+I have done difficult things before. I am still here. That is real evidence that I can carry what today asks of me.
+
+Pause. Breathe.
+
+There may be a heaviness on my mind right now. A worry. A thing I cannot fix. A person whose choices are not mine to make. I can name it quietly, to myself. And then, slowly, I can imagine setting it down. Not throwing it away. Just placing it on the ground beside me. It can stay there for now. I can pick it back up later if I need to. But for the next few minutes, it does not have to live in my hands.
+
+My shoulders are softer now. My jaw is softer. My breath is slower.
+
+Take another slow breath in… and let it sigh out.
+
+I am capable. I am steady. I am enough — in this exact moment, with this exact breath, in this exact body.
+
+The feeling I have right now will pass. Every feeling does. I do not have to fix it. I only have to let it move through me, the way weather moves across a sky.
+
+I will speak gently to myself today. The voice I use with myself shapes the day I have. I will speak to myself the way I would speak to someone I love.
+
+When I look back on this season of my life, I will be glad I was kind to myself in it.
+
+Pause. Three slower breaths. In… and out. In… and out. In… and out.
+
+I trust myself to know what I need. I trust myself to slow down when I need to slow down, and to begin again when I am ready.
+
+I do not have to be productive every minute. I do not have to be cheerful every minute. I do not have to be anything other than what I am, right now.
+
+I am present. I am steady. I am soft where I need to be soft, and strong where I need to be strong.
+
+When I am ready, I will take one more deep breath in… and let it go… and slowly, gently, return to the room.
+
+Take that breath now. Open your eyes. Carry this calm with you into the next thing you do.`,
   },
-  'aff-resilience': {
-    title: 'Resilience',
-    desc: 'For the hard moments — pause, breathe, continue',
-    mins: 2, color: '#5BBFB4', voice: ELEVEN_VOICE_BRIAN, kind: 'affirmation',
-    script: `Pause. Just for a moment.
+  'aff-15min': {
+    title: '15-minute Affirmation',
+    desc: 'Long-form practice — letting go, gratitude, returning to centre',
+    mins: 15, color: '#FF7A45', voice: ELEVEN_VOICE_CHARLOTTE, kind: 'affirmation',
+    script: `Welcome. Settle in. We will take fifteen minutes together.
 
-This is hard. I'm not pretending it isn't. But hard does not mean impossible.
+Find a comfortable seat. Feet flat on the floor if you can. Hands resting where they want to rest. Eyes soft, or closed. Whatever feels right for you.
 
-I have been through difficult things before. I'm still here. That is evidence — real evidence — that I can do hard things.
+Take one deeper breath in through your nose… and let it sigh out through your mouth. Good. Now let the breath find its own quiet rhythm. You do not need to control it. You only need to notice it.
 
-The feeling I have right now will pass. Every feeling does. I do not have to fix it. I only have to let it move through me.
+You are here. Right now. That is enough.
 
-I take one breath. And another. My shoulders soften. My jaw unclenches.
+I will speak slowly. There is no destination. There is only this — your breath, this room, this moment.
 
-I am not weak for struggling. I am human. And I am still standing.
+Bring your attention to the points where your body meets the world. Your feet on the floor. Your seat in the chair. Your hands at rest. These are the places where you are held, right now. You are supported. You are safe enough, for these few minutes.
 
-When I am ready, I take the next small step. Not the whole road. Just the next step. That is enough.`,
-  },
-  'aff-gratitude': {
-    title: 'Gratitude',
-    desc: 'Three breaths, three small things',
-    mins: 2, color: '#FF7A45', voice: ELEVEN_VOICE_CHARLOTTE, kind: 'affirmation',
-    script: `Take a slow breath in… and let it go.
+Take another slow breath in… and let it go.
 
-Bring to mind one small thing from today that went well. Anything. A warm drink. A kind word. A quiet minute.
+I am here. I am breathing. I am alive in this exact moment. That is the foundation. Everything else builds on this.
 
-Hold it. Notice how it feels in your body. That feeling is real. Let it sit a moment longer.
+There may be a heaviness on my mind. A worry. A thing I cannot fix. A conversation that did not go the way I hoped. A choice someone else made that affected me. I am not going to push these things away. I am only going to set them down for a moment.
 
-Now bring to mind one person you are glad to know. Picture their face. Send a quiet thank you in their direction. They don't need to hear it for it to count.
+I name what is on my mind, quietly, to myself. Just a word or two for each thing.
 
-Last — find one thing about your own self that you are grateful for. Not a big thing. A small thing. The fact that you are here, breathing, trying. That counts.
+And then, slowly, one by one, I imagine placing each one on the ground beside me. They can stay there. I can pick them back up later if I need to. But for the next few minutes, they do not have to live in my hands.
 
-Three breaths. Three small things. That is the practice.`,
-  },
-  'aff-letting-go': {
-    title: 'Letting Go',
-    desc: 'Release what you cannot control',
-    mins: 2, color: '#FCB851', voice: ELEVEN_VOICE_CHARLOTTE, kind: 'affirmation',
-    script: `Settle in. Eyes soft, or closed.
+Pause. Notice how your body feels with those things set down.
 
-There is something heavy on my mind right now. Maybe a worry. Maybe a thing I cannot fix. Maybe someone else's choice.
+Your shoulders are softer now. Your jaw is softer. Your breath is slower.
 
-I cannot control all of this. Some of it was never mine to control.
+Take three slow breaths together. In… and out. In… and out. In… and out.
 
-I name it, quietly, to myself. And then — slowly — I imagine setting it down. Not throwing it away. Just placing it on the ground beside me.
+Now bring to mind one small thing from today that went well. It does not have to be big. A warm drink. A kind word. A quiet minute. Let yourself feel it. Notice how it lives in your body.
 
-It can stay there for a moment. I can pick it back up later if I need to. But for the next few breaths — it doesn't have to be in my hands.
+Now bring to mind one person you are grateful for. Picture their face. You do not have to send them a message. Simply send a quiet thank you in their direction. That counts.
 
-My shoulders are softer now. My breath is slower. My mind is a little quieter.
+And now, find one thing about your own self that you are glad of. Not a big thing. A small thing. The fact that you are here. Breathing. Trying. Caring enough to take these fifteen minutes for yourself. That counts.
 
-I am not the heaviness. I am the one carrying it. And I can choose, sometimes, to put it down.`,
+Pause. Sit with all three for a moment.
+
+Three breaths together. In… and out. In… and out. In… and out.
+
+I am capable. I have done hard things before. I am still here. That is real evidence.
+
+The feeling I have right now, whatever it is, will pass. Every feeling does. I do not have to fix it. I only have to let it move through me the way weather moves across a sky.
+
+I will speak gently to myself today. The voice I use with myself shapes the day I have. I will speak to myself the way I would speak to someone I love.
+
+I am allowed to move slowly. I am allowed to rest. I am allowed to begin again, as many times as I need to.
+
+I am enough — in this exact moment, with this exact breath, in this exact body.
+
+Take one more long breath in… hold it for a moment at the top… and let it slowly go.
+
+When you are ready — and only when you are ready — soften your eyes open. Notice the room. Notice the light. Notice that you are still here, still breathing, slightly more at ease than you were fifteen minutes ago.
+
+Carry this calm with you. Take it into the next thing you do.
+
+Thank you for taking this time. Be well.`,
   },
 
   // ─── 3 ElevenLabs-generated guided meditations (3-5 min) ──────────────
@@ -2949,25 +2996,26 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
   .tabs.page-t::after{content:'';position:absolute;left:0;right:0;top:-40px;bottom:0;background:linear-gradient(to top,var(--bg) 65%,transparent);z-index:-1;pointer-events:none}
   .tabs.page-t > div.tabs-inner,.tabs.page-t > .tabs-inner{display:none}
   .tabs.page-t{
-    /* Dark high-contrast pill — readable against any page background. The previous
-       cream-on-cream pill was nearly invisible on light themes, hiding the bottom
-       options on phone. */
-    background:#1A1A1A !important;
-    backdrop-filter:saturate(160%) blur(16px) !important;
-    -webkit-backdrop-filter:saturate(160%) blur(16px) !important;
-    border:1px solid rgba(255,255,255,.08) !important;
+    /* World-class dark navigation pill — deep slate with subtle gradient, gold
+       accent on the active tab, generous shadows for separation from the page. */
+    background:linear-gradient(180deg,#0B0B0F 0%,#161620 100%) !important;
+    backdrop-filter:saturate(180%) blur(20px) !important;
+    -webkit-backdrop-filter:saturate(180%) blur(20px) !important;
+    border:1px solid rgba(255,255,255,.06) !important;
     border-radius:100px !important;
     padding:10px 8px calc(10px + env(safe-area-inset-bottom,0px)) !important;
     margin:0 12px calc(14px + env(safe-area-inset-bottom,0px)) !important;
     left:0 !important;right:0 !important;
-    box-shadow:0 -4px 20px rgba(0,0,0,.16),0 12px 32px -8px rgba(0,0,0,.36) !important;
+    box-shadow:0 -2px 4px rgba(0,0,0,.06),0 8px 24px -6px rgba(0,0,0,.32),0 24px 56px -12px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.06) !important;
   }
-  .tabs.page-t .tab{color:rgba(255,255,255,.62) !important;background:transparent !important}
-  .tabs.page-t .tab.on{color:#FFF !important;background:rgba(255,255,255,.10) !important}
+  .tabs.page-t::after{content:'';position:absolute;left:0;right:0;top:-50px;bottom:-20px;background:linear-gradient(to top,rgba(0,0,0,.18) 0%,transparent 60%);z-index:-1;pointer-events:none}
+  .tabs.page-t .tab{color:rgba(255,255,255,.55) !important;background:transparent !important;transition:color .25s ease,background .25s ease,transform .35s cubic-bezier(.34,1.56,.64,1) !important}
+  .tabs.page-t .tab:active{transform:scale(.92) !important}
+  .tabs.page-t .tab.on{color:#FFD27A !important;background:rgba(255,210,122,.08) !important}
   .tabs.page-t .tab .ti,.tabs.page-t .tab .tl{color:inherit !important}
-  .tabs.page-t .tab .tl{opacity:1 !important;letter-spacing:.08em !important;font-weight:600 !important}
-  .tabs.page-t .tab.on .tl{font-weight:700 !important}
-  .tabs.page-t .tab::before{background:#FBBF24 !important}
+  .tabs.page-t .tab .tl{opacity:1 !important;letter-spacing:.10em !important;font-weight:600 !important;font-size:9.5px !important}
+  .tabs.page-t .tab.on .tl{font-weight:700 !important;letter-spacing:.12em !important}
+  .tabs.page-t .tab::before{background:#FFD27A !important;box-shadow:0 0 8px rgba(255,210,122,.5) !important}
   .tabs.page-t::-webkit-scrollbar{display:none}
   .tabs.page-t .tab{
     flex:1 1 0 !important;
@@ -6662,11 +6710,9 @@ function waOpenJoin(){const code=window.__TWILIO_SANDBOX_CODE||'along-wool';wind
 // New affirmations + extra guided sessions added via ElevenLabs.
 const MED_SLOTS=[
 // Affirmations · 5 short ElevenLabs audios (Sarah / Charlotte / Brian)
-{cat:'affirmations',mins:2,title:'Calm Focus',desc:'Settle the mind for one task \\u2022 2 min',color:'#FF7A45',elevenId:'aff-calm-focus'},
-{cat:'affirmations',mins:2,title:'Confident Morning',desc:'Start the day grounded \\u2022 2 min',color:'#FCB851',elevenId:'aff-confident-morning'},
-{cat:'affirmations',mins:2,title:'Resilience',desc:'For the hard moments \\u2022 2 min',color:'#5BBFB4',elevenId:'aff-resilience'},
-{cat:'affirmations',mins:2,title:'Gratitude',desc:'Three breaths, three small things \\u2022 2 min',color:'#FF7A45',elevenId:'aff-gratitude'},
-{cat:'affirmations',mins:2,title:'Letting Go',desc:'Release what you cannot control \\u2022 2 min',color:'#FCB851',elevenId:'aff-letting-go'},
+{cat:'affirmations',mins:5,title:'5 minutes',desc:'A grounded reset \\u2014 quick start to the day',color:'#FCB851',elevenId:'aff-5min'},
+{cat:'affirmations',mins:10,title:'10 minutes',desc:'Build resilience, soften the day',color:'#5BBFB4',elevenId:'aff-10min'},
+{cat:'affirmations',mins:15,title:'15 minutes',desc:'Long-form practice — let go and return to centre',color:'#FF7A45',elevenId:'aff-15min'},
 // Vipassana
 {cat:'vipassana',mins:10,title:'Anāpāna + Mettā',desc:'Breath-awareness intro \\u2022 12 min',color:'#06B6D4',directId:'AnapanaEnglishMetta',directFile:'Anapana English+Metta.mp3'},
 {cat:'vipassana',mins:20,title:'Anāpāna · 20-min Sit',desc:'Extended breath-awareness \\u2022 21 min',color:'#3B82F6',directId:'70_Minutes_Anapana_Part_1',directFile:'70-m-anapana-M0052.mp3'},
@@ -6736,9 +6782,9 @@ function playMedEleven(id,title,mins){
     const a=document.getElementById('audioEl');if(!a)return;
     a.setAttribute('playsinline','');a.preload='auto';
     a.addEventListener('canplay',function _on(){clearTimeout(prepTimer);if(prepNode&&prepNode.parentNode)prepNode.remove();prepNode=null;a.removeEventListener('canplay',_on)},{once:true});
-    a.addEventListener('error',function _err(){clearTimeout(prepTimer);if(prepNode&&prepNode.parentNode)prepNode.remove();a.removeEventListener('error',_err);const ok=_speakScriptFallback(id);const note=document.createElement('div');note.className='toast toast-ok';note.innerHTML=ok?'\\u{1F50A} Using device voice':'\\u26A0\\uFE0F Audio unavailable';document.body.appendChild(note);setTimeout(()=>{if(note.parentNode)note.remove()},2400)},{once:true});
+    a.addEventListener('error',function _err(){clearTimeout(prepTimer);if(prepNode&&prepNode.parentNode)prepNode.remove();a.removeEventListener('error',_err);const e=document.createElement('div');e.className='toast toast-err';e.innerHTML='\\u26A0\\uFE0F Audio temporarily unavailable \\u2014 try again in a moment';document.body.appendChild(e);setTimeout(()=>{if(e.parentNode)e.remove()},3500)},{once:true});
     const p=a.play();
-    if(p&&p.catch)p.catch(()=>{_speakScriptFallback(id);const e=document.createElement('div');e.className='toast toast-ok';e.innerHTML='\\u{1F50A} Using device voice';document.body.appendChild(e);setTimeout(()=>{if(e.parentNode)e.remove()},2400)});
+    if(p&&p.catch)p.catch(()=>{const e=document.createElement('div');e.className='toast toast-err';e.innerHTML='\\u25B6\\uFE0F Tap the play button on the bar';document.body.appendChild(e);setTimeout(()=>{if(e.parentNode)e.remove()},2800)});
   },200);
 }
 async function loadGoogleStatus(){const r=await api('/google/status');if(r){S.google={configured:!!r.configured,accounts:r.accounts||[],loaded:true};render();if(S.google.accounts.length&&S.tab==='cal')loadGcalEvents()}}
