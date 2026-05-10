@@ -1,0 +1,65 @@
+{
+  "_comment": "Edit the values below. The naukri_assistant.py script reads this file each run.",
+
+  "personal": {
+    "full_name": "Rishabh Sharma",
+    "phone": "+917087750777",
+    "email": "rishabh071106@gmail.com",
+    "linkedin": "https://www.linkedin.com/in/rishabh-sharmaiimk/"
+  },
+
+  "current": {
+    "company": "J.P. Morgan Chase & Co.",
+    "designation": "Vice President — Product Management",
+    "total_experience_years": 15,
+    "current_ctc_lpa": 55,
+    "expected_ctc_lpa": 80,
+    "notice_period_days": 90,
+    "city": "Bengaluru"
+  },
+
+  "preferences": {
+    "preferred_locations": ["Bengaluru", "Mumbai", "Pune", "Hyderabad", "Gurgaon", "Remote"],
+    "willing_to_relocate_within_india": true,
+    "open_to_remote": true
+  },
+
+  "search_queries": [
+    "Director Product Management Fintech",
+    "VP Product Management Banking",
+    "Head of Product Lending",
+    "Principal Product Manager AI",
+    "Director AI Products",
+    "Group Product Manager Payments"
+  ],
+
+  "filters": {
+    "min_experience_years": 12,
+    "max_experience_years": 20,
+    "min_salary_lpa": 60,
+    "posted_within_days": 7,
+    "preferred_locations_only": true,
+    "min_match_score": 75
+  },
+
+  "exclusions": {
+    "employers": ["JP Morgan", "JPMorgan", "JPMC", "J.P. Morgan", "JPMorgan Chase"],
+    "title_keywords_to_skip": [
+      "junior", "associate", "intern", "fresher",
+      "sales", "support", "operations associate", "ops associate"
+    ]
+  },
+
+  "rate_limits": {
+    "max_applications_per_day": 10,
+    "max_applications_per_company_per_week": 2,
+    "delay_between_jobs_seconds_min": 6,
+    "delay_between_jobs_seconds_max": 14
+  },
+
+  "files": {
+    "resume_pdf": "/Users/rishabh/Documents/Rishabh_Sharma_Resume_2026_AI_Agents_Hybrid.pdf",
+    "applications_csv": "applications.csv",
+    "playwright_user_data_dir": "./.naukri-browser-profile"
+  }
+}
