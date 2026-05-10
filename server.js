@@ -2890,7 +2890,13 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
    horizontally scrollable so all 9 tabs are reachable without truncation,
    springy active state, smooth motion. Tab names always visible, never abbreviated. */
 @media (max-width:1023px){
-  body{padding-left:0 !important;padding-bottom:104px !important}
+  body{padding-left:0 !important;padding-bottom:120px !important}
+  /* Hide all desktop-only side-col contents on mobile EXCEPT the bottom nav (.tabs.page-t),
+     which is repositioned as the fixed bottom bar. The life-goal card, side-now widget,
+     etc. would otherwise render in normal flow ABOVE the bottom nav and either overlap
+     or peek through, making the nav look like it has a second row. */
+  .app>.side-col>:not(.tabs.page-t){display:none !important}
+  .app>.side-col{display:contents}
   .tabs.page-t{
     position:fixed !important;
     bottom:0 !important;left:0 !important;right:0 !important;top:auto !important;
@@ -2913,16 +2919,16 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
   .tabs.page-t::after{content:'';position:absolute;left:0;right:0;top:-40px;bottom:0;background:linear-gradient(to top,var(--bg) 65%,transparent);z-index:-1;pointer-events:none}
   .tabs.page-t > div.tabs-inner,.tabs.page-t > .tabs-inner{display:none}
   .tabs.page-t{
-    /* Inner pill — white surface, hairline cream border, soft warm shadow */
-    background:rgba(255,255,255,.96) !important;
-    backdrop-filter:saturate(140%) blur(12px) !important;
-    -webkit-backdrop-filter:saturate(140%) blur(12px) !important;
-    border:1px solid var(--border) !important;
+    /* Inner pill — slightly darker than page bg for clear separation, frosted glass */
+    background:rgba(252,250,247,.98) !important;
+    backdrop-filter:saturate(160%) blur(16px) !important;
+    -webkit-backdrop-filter:saturate(160%) blur(16px) !important;
+    border:1px solid rgba(120,86,42,.14) !important;
     border-radius:100px !important;
-    padding:8px 6px calc(8px + env(safe-area-inset-bottom,0px)) !important;
-    margin:0 14px calc(20px + env(safe-area-inset-bottom,0px)) !important;
+    padding:10px 8px calc(10px + env(safe-area-inset-bottom,0px)) !important;
+    margin:0 12px calc(14px + env(safe-area-inset-bottom,0px)) !important;
     left:0 !important;right:0 !important;
-    box-shadow:0 -2px 14px rgba(120,86,42,.10),0 8px 24px -8px rgba(120,86,42,.12) !important;
+    box-shadow:0 1px 3px rgba(15,23,42,.04),0 8px 24px -6px rgba(120,86,42,.18),0 18px 36px -12px rgba(15,23,42,.10) !important;
   }
   .tabs.page-t::-webkit-scrollbar{display:none}
   .tabs.page-t .tab{
