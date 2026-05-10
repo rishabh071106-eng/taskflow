@@ -4315,15 +4315,26 @@ body:not([data-theme=aurora]) .mg-prog-chip .hh-pc-arrow{color:#999}
 @media (min-width:760px){.hh-stats{grid-template-columns:repeat(6,1fr)}}
 /* Mind Gym tab: 4 games as a 2x2 grid of LARGE chips with rich gradients and hover lift */
 .qa-hero .hh-stats{grid-template-columns:repeat(2,1fr) !important;gap:14px}
-.qa-hero .qa-stat-tile{padding:28px 22px 22px !important;min-height:160px !important;border-radius:22px !important;transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s ease,border-color .2s ease;display:flex !important;flex-direction:column !important;justify-content:space-between !important;position:relative;overflow:hidden}
+.qa-hero .qa-stat-tile{padding:24px 18px !important;min-height:170px !important;border-radius:20px !important;transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s ease,border-color .2s ease;display:flex !important;flex-direction:column !important;align-items:flex-start !important;justify-content:space-between !important;position:relative;overflow:hidden;text-align:left !important}
 .qa-hero .qa-stat-tile::before{content:'';position:absolute;top:-50%;right:-30%;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.18),transparent 65%);pointer-events:none;z-index:0}
 .qa-hero .qa-stat-tile>*{position:relative;z-index:1}
 .qa-hero .qa-stat-tile:hover{transform:translateY(-4px);box-shadow:0 20px 40px -12px rgba(15,23,42,.22)}
 .qa-hero .qa-stat-tile:active{transform:scale(.97)}
-.qa-hero .qa-stat-emoji{width:52px !important;height:52px !important;font-size:26px !important;border-radius:16px !important;margin-bottom:20px !important;box-shadow:0 8px 20px -6px rgba(0,0,0,.35) !important}
-.qa-hero .qa-stat-tile small{font-size:18px !important;letter-spacing:-.01em !important;text-transform:none !important;font-family:'Instrument Serif',Georgia,serif !important;font-weight:400 !important;font-style:italic !important;line-height:1.1 !important;margin-top:auto !important}
-.qa-hero .qa-stat-bdg{font-size:11px !important;padding:5px 11px !important;border-radius:8px !important;font-weight:700 !important}
-@media (min-width:760px){.qa-hero .hh-stats{grid-template-columns:repeat(4,1fr) !important}.qa-hero .qa-stat-tile{min-height:180px !important}}
+.qa-hero .qa-stat-emoji{width:48px !important;height:48px !important;font-size:24px !important;border-radius:14px !important;margin:0 0 auto 0 !important;box-shadow:0 8px 20px -6px rgba(0,0,0,.35) !important;align-self:flex-start !important}
+.qa-hero .qa-stat-tile small{font-size:16px !important;letter-spacing:-.01em !important;text-transform:none !important;font-family:'Instrument Serif',Georgia,serif !important;font-weight:400 !important;font-style:italic !important;line-height:1.1 !important;margin:auto 0 0 0 !important;color:var(--ink) !important;align-self:flex-start !important}
+/* Level badge: top-right, NOT overlapping the title */
+.qa-hero .qa-stat-bdg{position:absolute !important;top:14px !important;right:14px !important;left:auto !important;bottom:auto !important;font-size:10px !important;padding:3px 8px !important;border-radius:6px !important;font-weight:700 !important;letter-spacing:.04em !important;font-family:'JetBrains Mono','Space Mono',monospace !important}
+@media (min-width:760px){.qa-hero .hh-stats{grid-template-columns:repeat(4,1fr) !important}.qa-hero .qa-stat-tile{min-height:190px !important}}
+/* Compact achievement strip — replaces the 4-card grid + explainer cards */
+.mg-ach-strip{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;background:#fff;border:1px solid var(--line);border-radius:16px;margin-top:14px;box-shadow:0 1px 3px rgba(15,23,42,.04)}
+.mg-ach-strip-l{display:flex;align-items:baseline;gap:6px;font-family:'Instrument Serif',Georgia,serif;font-size:24px;font-weight:400;color:var(--ink);letter-spacing:-.02em;line-height:1}
+.mg-ach-strip-l small{font-family:var(--sans);font-size:12px;color:var(--text-mute);font-weight:500;letter-spacing:0}
+.mg-ach-strip-r{display:flex;gap:8px}
+.mg-ach-mini{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--bg-2);font-size:16px;opacity:.4;transition:transform .2s ease}
+.mg-ach-mini.on{opacity:1;background:linear-gradient(135deg,#FBBF24,#F59E0B);box-shadow:0 4px 10px -3px rgba(245,158,11,.4)}
+body[data-theme=aurora] .mg-ach-strip{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.06)}
+body[data-theme=aurora] .mg-ach-strip-l{color:#F5F5FA}
+body[data-theme=aurora] .mg-ach-mini{background:rgba(255,255,255,.05)}
 .hh-stat{font-family:inherit;text-align:left;cursor:default;border:1px solid rgba(255,255,255,.08);color:#fff}
 button.hh-stat{cursor:pointer}
 button.hh-stat:active{transform:scale(.96)}
@@ -9366,11 +9377,15 @@ else if(S.tab==='mindgym'){
   // have replayable depth: math scales arithmetic difficulty, word builds
   // vocabulary, schulte trains peripheral vision. ───
   const _sudP=(mg.progress.sudoku||{level:1,xp:0,best:0});
+  const _reactP=(mg.progress.reaction||{level:1,xp:0,best:0});
+  const _memP=(mg.progress.memory||{level:1,xp:0,best:0});
   const _games=[
-    {k:'math',e:'\\u{1F522}',n:'Math Sprint',d:'Mental arithmetic, against the clock. Each level adds harder operations or a tighter window.',accent:'#22D3EE',accent2:'#3B82F6',pData:mg.progress.math,pct:mgPercent('math'),bestL:'Best streak'},
-    {k:'word',e:'\\u{1F520}',n:'Word Sprint',d:'Seven scrambled letters, ninety seconds. Find every word you can.',accent:'#34D399',accent2:'#10B981',pData:(mg.progress.word||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((mg.progress.word||{}).xp||0)/(5*100))*100)),bestL:'Best',bestSuffix:' words'},
-    {k:'schulte',e:'\\u{1F3AF}',n:'Schulte Grid',d:'Tap 1 to 25 in order. Higher levels grow the grid up to 7\\u00D77 (49 cells).',accent:'#F472B6',accent2:'#A78BFA',pData:(mg.progress.schulte||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((mg.progress.schulte||{}).xp||0)/(5*100))*100)),bestL:'Best time',bestSuffix:' s'},
-    {k:'sudoku',e:'\\u{1F9E9}',n:'Mini Sudoku',d:'Fill the 4x4 grid so every row, column, and 2x2 box has 1\\u20134. Beat the timer.',accent:'#FBBF24',accent2:'#F59E0B',pData:_sudP,pct:Math.min(100,Math.round(((_sudP.xp||0)/(5*100))*100)),bestL:'Best time',bestSuffix:' s'}
+    {k:'math',e:'\\u{1F522}',n:'Math',d:'Mental arithmetic against the clock.',accent:'#22D3EE',accent2:'#3B82F6',pData:mg.progress.math,pct:mgPercent('math'),bestL:'Best streak'},
+    {k:'word',e:'\\u{1F520}',n:'Word',d:'Anagram unscramble.',accent:'#34D399',accent2:'#10B981',pData:(mg.progress.word||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((mg.progress.word||{}).xp||0)/(5*100))*100)),bestL:'Best',bestSuffix:' words'},
+    {k:'schulte',e:'\\u{1F3AF}',n:'Schulte',d:'Tap 1\\u201325 in order.',accent:'#F472B6',accent2:'#A78BFA',pData:(mg.progress.schulte||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((mg.progress.schulte||{}).xp||0)/(5*100))*100)),bestL:'Best time',bestSuffix:' s'},
+    {k:'sudoku',e:'\\u{1F9E9}',n:'Sudoku',d:'4\\u00D74 logic puzzle.',accent:'#FBBF24',accent2:'#F59E0B',pData:_sudP,pct:Math.min(100,Math.round(((_sudP.xp||0)/(5*100))*100)),bestL:'Best time',bestSuffix:' s'},
+    {k:'reaction',e:'\\u26A1',n:'Reaction',d:'Tap when it turns green.',accent:'#FB923C',accent2:'#DC2626',pData:_reactP,pct:Math.min(100,Math.round(((_reactP.xp||0)/(5*100))*100)),bestL:'Best',bestSuffix:'ms'},
+    {k:'memory',e:'\\u{1F9E0}',n:'Memory',d:'Repeat the pattern.',accent:'#A855F7',accent2:'#7C3AED',pData:_memP,pct:Math.min(100,Math.round(((_memP.xp||0)/(5*100))*100)),bestL:'Best level'}
   ];
   // ─── Mind Games chip — same hero Actions pattern as the home tab (light) ───
   h+='<section class="home-hero home-hero-light qa-hero">'
@@ -9392,31 +9407,21 @@ else if(S.tab==='mindgym'){
     +'<div class="mg-overall-bar"><i style="width:'+Math.round(totalUnlocked/_maxLvl*100)+'%"></i></div>'
     +'<div>'+Math.round(totalUnlocked/_maxLvl*100)+'%</div>'
   +'</div>';
-  // Achievements row — 4 badges, some unlocked based on real progress
+  // Compact achievements strip — small inline pills, only show unlocked count.
+  // The full 4-card grid + 3 explainer cards were pure clutter.
   {
     const totalLvl=(mg.progress.math.level||1)+(_wordP.level||1)+(_schP.level||1);
     const ach=[
-      {k:'first',cls:'',name:'First step',desc:'Played your first game',unlocked:totalLvl>3},
-      {k:'week',cls:'streak',name:'Week warrior',desc:'7-day streak',unlocked:streak.current>=7},
-      {k:'sharp',cls:'cool',name:'Sharp mind',desc:'L5 in any game',unlocked:Math.max(mg.progress.math.level||1,_wordP.level||1,_schP.level||1)>=5},
-      {k:'flow',cls:'purple',name:'In the flow',desc:'500 XP earned',unlocked:totalXp>=500}
+      {e:'\\u2728',n:'First step',u:totalLvl>3},
+      {e:'\\u{1F525}',n:'Week warrior',u:streak.current>=7},
+      {e:'\\u26A1',n:'Sharp mind',u:Math.max(mg.progress.math.level||1,_wordP.level||1,_schP.level||1)>=5},
+      {e:'\\u{1F4AB}',n:'In the flow',u:totalXp>=500}
     ];
-    h+='<div class="mg-achievements">';
-    ach.forEach(a=>{
-      h+='<div class="mg-ach '+(a.unlocked?a.cls:'locked')+'">'
-        +'<div class="medal">'+(a.unlocked?(a.k==='first'?'\\u2728':a.k==='week'?'\\u{1F525}':a.k==='sharp'?'\\u26A1':'\\u{1F4AB}'):'\\u{1F512}')+'</div>'
-        +'<div class="name">'+a.name+'</div>'
-        +'<div class="desc">'+a.desc+'</div>'
-      +'</div>';
-    });
-    h+='</div>';
+    const unlocked=ach.filter(a=>a.u).length;
+    h+='<div class="mg-ach-strip"><div class="mg-ach-strip-l"><b>'+unlocked+'</b><small>/ '+ach.length+' badges</small></div><div class="mg-ach-strip-r">';
+    ach.forEach(a=>{h+='<span class="mg-ach-mini'+(a.u?' on':'')+'" title="'+a.n+'">'+(a.u?a.e:'\\u{1F512}')+'</span>'});
+    h+='</div></div>';
   }
-  // Why train? — value-prop strip
-  h+='<div class="mg-why">'
-    +'<div class="mg-why-card"><span class="mg-why-emoji">\\u{1F4C8}</span><div><div class="mg-why-t">Trackable progress</div><div class="mg-why-d">Every play saves to your account. Your level travels with you across phone and laptop.</div></div></div>'
-    +'<div class="mg-why-card"><span class="mg-why-emoji">\\u23F1\\uFE0F</span><div><div class="mg-why-t">Five minutes a day</div><div class="mg-why-d">Each game is a sub-90-second commitment. Stack them for a 5-minute morning warm-up.</div></div></div>'
-    +'<div class="mg-why-card"><span class="mg-why-emoji">\\u{1F525}</span><div><div class="mg-why-t">Daily streaks</div><div class="mg-why-d">Build the habit. The streak counter rewards consistency over volume.</div></div></div>'
-  +'</div>';
 }
 
 
