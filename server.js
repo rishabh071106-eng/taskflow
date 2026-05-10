@@ -6256,7 +6256,7 @@ const fT=t=>{if(!t)return'';const[h,m]=t.split(':');const hr=+h;return(hr>12?hr-
 const isOD=(d,s)=>d&&s!=='done'&&new Date(d+'T00:00:00')<new Date(new Date().setHours(0,0,0,0));
 const isTd=d=>d===new Date().toISOString().split('T')[0];
 const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-function toast(m,t){S.toast=m;S.toastType=t||'ok';render();setTimeout(()=>{S.toast=null;render()},3000)}
+function toast(m,t){S.toast=m;S.toastType=t||'ok';if(_audioBusy()){const ex=document.querySelector('.toast');if(ex)ex.remove();const el=document.createElement('div');el.className='toast toast-'+(S.toastType==='err'?'err':'ok');el.innerHTML=m;document.body.appendChild(el);setTimeout(()=>{S.toast=null;if(el&&el.parentNode)el.remove()},3000);return}render();setTimeout(()=>{S.toast=null;if(!_audioBusy())render()},3000)}
 const WI='<svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>';
 
 const COUNTRY_CODES=[
@@ -6316,7 +6316,11 @@ function logout(){
 // One source of truth: any open modal / overlay / in-flight typing state where a
 // background re-render would wipe the user's keystrokes or scroll position.
 function _isModalOpen(){return !!(S.showWASetup||S.showAdd||S.showProfile||S.showHelp||S.schPanel||S.mtgPanel||S.hlPanel||S.mgDetail||S.mgPlay||S.mgGamesPanel||(S.bookReader&&S.bookReader.open)||S.hlEditing||(S.articleEditor&&S.articleEditor.open))}
-async function load(){const a=document.getElementById('audioEl');if(a&&!a.paused)return;
+// True if audio is playing OR loading (S.playing/S.meditating set means user just tapped a play
+// card and we're waiting for bytes — re-rendering now wipes the <audio> element before it can
+// connect, causing the "affirmation refreshes the screen forever" bug.
+function _audioBusy(){if(S.playing||(S.meditating&&S.meditating.active))return true;const a=document.getElementById('audioEl');return !!(a&&!a.paused)}
+async function load(){if(_audioBusy())return;
   // Skip background poll entirely while any modal/overlay is open. Re-renders during
   // an open modal wipe drag state, audio recordings, in-progress text, and cause flicker.
   if(_isModalOpen())return;
@@ -6663,7 +6667,7 @@ function calPrev(){const d=new Date(S.calMonth);d.setMonth(d.getMonth()-1);S.cal
 function calNext(){const d=new Date(S.calMonth);d.setMonth(d.getMonth()+1);S.calMonth=d;render()}
 function calSelect(d){S.calSelectedDate=d;render()}
 function calAddForDate(){S.form={title:'',notes:'',priority:'medium',dueDate:S.calSelectedDate||'',reminderTime:'',status:'pending',board:S.board==='combined'?'home':S.board};S.editing=null;S.showAdd=true;render();/* No auto-focus: keyboard appears only when the user taps the input */}
-function rotateMoral(){const a=document.getElementById('audioEl');if(a&&!a.paused)return;if(_isModalOpen())return;S.moralIdx=(S.moralIdx+1)%MORALS.length;render()}
+function rotateMoral(){if(_audioBusy())return;if(_isModalOpen())return;S.moralIdx=(S.moralIdx+1)%MORALS.length;render()}
 setInterval(()=>{if(S.user)rotateMoral()},45000);
 // Tic Tac Toe vs a simple bot (you play X, bot plays O)
 const TTT_LINES=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
@@ -7736,7 +7740,7 @@ function rollDice(){
   if(S.dice.rolling)return;S.dice.rolling=true;render();
   setTimeout(()=>{const a=1+Math.floor(Math.random()*6),b=1+Math.floor(Math.random()*6);S.dice.values=[a,b];S.dice.history.unshift(a+b);if(S.dice.history.length>10)S.dice.history.length=10;S.dice.rolling=false;render()},650);
 }
-async function loadWeather(){if(S.weather.loading)return;if(_isModalOpen())return;S.weather.loading=true;S.weather.error=null;render();try{const r=await fetch('/api/weather?city='+encodeURIComponent(S.weather.city||'Bangalore'));const j=await r.json();if(j.error){S.weather.error=j.error}else{S.weather.city=j.city||S.weather.city;S.weather.country=j.country||'';S.weather.temp=j.temp;S.weather.aqi=j.aqi}}catch(e){S.weather.error=String(e)}S.weather.loaded=true;S.weather.loading=false;if(_isModalOpen())return;render()}
+async function loadWeather(){if(S.weather.loading)return;if(_isModalOpen()||_audioBusy())return;S.weather.loading=true;S.weather.error=null;render();try{const r=await fetch('/api/weather?city='+encodeURIComponent(S.weather.city||'Bangalore'));const j=await r.json();if(j.error){S.weather.error=j.error}else{S.weather.city=j.city||S.weather.city;S.weather.country=j.country||'';S.weather.temp=j.temp;S.weather.aqi=j.aqi}}catch(e){S.weather.error=String(e)}S.weather.loaded=true;S.weather.loading=false;if(_isModalOpen()||_audioBusy())return;render()}
 const INDIA_CITIES=['Delhi','Mumbai','Chennai','Bengaluru','Pune','Shimla','Indore','Jaipur'];
 const WORLD_CITY_LIST=[
   {key:'New York',label:'New York',tz:'America/New_York'},
@@ -7746,12 +7750,12 @@ const WORLD_CITY_LIST=[
   {key:'Tokyo',label:'Tokyo',tz:'Asia/Tokyo'},
   {key:'Sydney',label:'Sydney',tz:'Australia/Sydney'}
 ];
-async function loadCityTemps(){if(_isModalOpen())return;const all=[...INDIA_CITIES,...WORLD_CITY_LIST.map(c=>c.key)];const results=await Promise.all(all.map(c=>fetch('/api/weather?city='+encodeURIComponent(c)).then(r=>r.json()).catch(()=>({}))));const m={};results.forEach((r,i)=>{if(r&&!r.error)m[all[i].toLowerCase()]={temp:r.temp,city:r.city||all[i]}});S.cityTemps=m;if(_isModalOpen())return;render()}
-async function loadRemember(){if(_isModalOpen())return;try{const r=await fetch('/api/remember/today');const j=await r.json();S.remember={person:j.person||null,loaded:true};if(!_isModalOpen())render()}catch(e){S.remember={person:null,loaded:true};if(!_isModalOpen())render()}}
+async function loadCityTemps(){if(_isModalOpen()||_audioBusy())return;const all=[...INDIA_CITIES,...WORLD_CITY_LIST.map(c=>c.key)];const results=await Promise.all(all.map(c=>fetch('/api/weather?city='+encodeURIComponent(c)).then(r=>r.json()).catch(()=>({}))));const m={};results.forEach((r,i)=>{if(r&&!r.error)m[all[i].toLowerCase()]={temp:r.temp,city:r.city||all[i]}});S.cityTemps=m;if(_isModalOpen()||_audioBusy())return;render()}
+async function loadRemember(){if(_isModalOpen()||_audioBusy())return;try{const r=await fetch('/api/remember/today');const j=await r.json();S.remember={person:j.person||null,loaded:true};if(!_isModalOpen()&&!_audioBusy())render()}catch(e){S.remember={person:null,loaded:true};if(!_isModalOpen()&&!_audioBusy())render()}}
 function editLifeGoal(){const v=prompt('Your goal in life \\u2014 your north star.\\nEdit any time.',S.lifeGoal||'');if(v===null)return;const t=v.trim().slice(0,400);S.lifeGoal=t;localStorage.setItem('tf_life_goal',t);render()}
-async function loadTicker(){if(_isModalOpen())return;try{const r=await fetch('/api/news?cat=world',{cache:'no-store'});const j=await r.json();S.ticker={items:(j.items||[]).slice(0,12),idx:0,loaded:true};if(!_isModalOpen())render();_startTicker()}catch(e){}}
+async function loadTicker(){if(_isModalOpen()||_audioBusy())return;try{const r=await fetch('/api/news?cat=world',{cache:'no-store'});const j=await r.json();S.ticker={items:(j.items||[]).slice(0,12),idx:0,loaded:true};if(!_isModalOpen()&&!_audioBusy())render();_startTicker()}catch(e){}}
 let _tickerTimer=null;
-function _startTicker(){if(_tickerTimer)clearInterval(_tickerTimer);if(!S.ticker.items.length)return;_tickerTimer=setInterval(()=>{if(!S.ticker.items.length)return;if(_isModalOpen())return;S.ticker.idx=(S.ticker.idx+3)%S.ticker.items.length;const stack=document.getElementById('newsTickerStack');if(stack)render()},9000)}
+function _startTicker(){if(_tickerTimer)clearInterval(_tickerTimer);if(!S.ticker.items.length)return;_tickerTimer=setInterval(()=>{if(!S.ticker.items.length)return;if(_isModalOpen())return;S.ticker.idx=(S.ticker.idx+3)%S.ticker.items.length;if(_audioBusy()){const stack=document.getElementById('newsTickerStack');if(!stack)return;const items=S.ticker.items;const baseIdx=S.ticker.idx;const visible=[0,1,2,3,4].map(o=>items[(baseIdx+o)%(items.length||1)]||{title:'Loading…',link:'#',source:''});stack.innerHTML=visible.map((ti,i)=>'<a class="news-ticker-row" style="animation-delay:'+(i*0.07)+'s" href="'+esc(ti.link||'#')+'" target="_blank" rel="noopener" title="'+esc(ti.title||'')+'"><span class="news-ticker-pulse"></span><span class="news-ticker-src">'+esc((ti.source||'').toUpperCase())+'</span><span class="news-ticker-link">'+esc(ti.title||'')+'</span></a>').join('');return}const stack=document.getElementById('newsTickerStack');if(stack)render()},9000)}
 function setCity(){const c=prompt('Set your city',S.weather.city||'Bangalore');if(!c)return;const t=c.trim();if(!t)return;localStorage.setItem('tf_city',t);S.weather.city=t;S.weather.loaded=false;loadWeather()}
 // Live-tick the sidebar, header clocks AND world clocks without re-rendering the whole tree
 setInterval(()=>{const n=new Date();const hm=n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false});const sec=String(n.getSeconds()).padStart(2,'0');const t=document.getElementById('sideNowTime');const s=document.getElementById('sideNowSec');if(t&&s){if(t.firstChild&&t.firstChild.nodeValue!==hm)t.firstChild.nodeValue=hm;s.textContent=':'+sec}const ht=document.getElementById('hdrTimeHm');const hs=document.getElementById('hdrTimeSec');if(ht&&hs){if(ht.textContent!==hm)ht.textContent=hm;hs.textContent=':'+sec}const cities=document.querySelectorAll('[data-tz]');cities.forEach(el=>{try{const tz=el.getAttribute('data-tz');const t2=new Date().toLocaleTimeString('en-US',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false});if(el.textContent!==t2)el.textContent=t2}catch(e){}})},1000);
