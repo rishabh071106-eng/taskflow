@@ -324,67 +324,106 @@ def anchor(name):
         "anchor", fontSize=1, leading=1, textColor=white))
 
 
-# ---------- Shared content ----------
+# ---------- Shared content (only facts from the original resume) ----------
 
 def jpm_bullets():
+    """Current-role bullets, lifted from the original resume verbatim
+    (with light tightening). No fabricated counts or systems."""
     return [
-        "Own the <b>global product strategy and roadmap</b> for the digital loan booking &amp; servicing "
-        "platform serving Commercial &amp; Investment Banking clients across <b>30+ countries</b>; defined "
-        "the target-state architecture and led the shift from legacy COBOL/manual workflows to an "
-        "<b>AI-native, agentic ecosystem</b>.",
-        "Deep <b>syndicated lending</b> exposure: shaped agency-bank workflows on <b>Loan IQ</b> and "
-        "<b>ACBS</b> covering deal setup, lender allocations, drawdowns, rollovers, interest &amp; fee "
-        "accruals, secondary trades and notices.",
-        "Architected <b>API and Kafka integrations</b> with Loan IQ, ACBS and <b>12+ upstream "
-        "underwriting and pre-booking systems</b> on AWS.",
-        "Lead a cross-functional squad of <b>25+ engineers, product owners and data specialists</b> "
-        "across India, US and EMEA; coach 4 PMs, run quarterly OKRs, sprint reviews and steering committees.",
-        "Partnered with <b>Treasury, Liquidity and Risk</b> to model collateral, exposure and FX hedging "
-        "flows; delivered controls that improved limit utilisation accuracy and shortened reconciliation cycles.",
-        "Built the <b>partner onboarding platform</b> with country-specific KYC, AML and regulatory "
-        "workflows; secured approvals across multiple jurisdictions and reduced onboarding lead time by <b>~40%</b>.",
-        "Drove <b>Go-To-Market</b> for two new client segments — defined ICP, pricing tiers, sales "
-        "enablement and rollout playbook with Marketing, Legal and Compliance; adoption rose from "
-        "<b>40% to 85% in 12 months</b>.",
-        "Delivered <b>~30% FTE optimisation</b> via AI/ML document extraction, intelligent routing and "
-        "exception handling.",
+        "Spearheading the <b>strategic vision and roadmap</b> for a <b>global digital loan booking "
+        "platform</b>, defining the target-state architecture and driving the shift from legacy "
+        "processes to an <b>AI-enabled, agentic ecosystem</b> serving <b>CIB and CB clients worldwide</b>.",
+        "Formulating and delivering an <b>enterprise-scale architecture on AWS</b>, integrating with "
+        "<b>Loan IQ, ACBS and upstream underwriting / pre-underwriting systems</b> through "
+        "<b>APIs and Kafka</b>, facilitating seamless loan booking and downstream system synchronisation.",
+        "Collaborating with global <b>risk, compliance and regulatory bodies</b> to achieve "
+        "<b>country-specific approvals</b> and alignment, while advancing <b>multi-LOB expansion</b> "
+        "in adherence to international banking standards.",
+        "Defining and maintaining a <b>dynamic product roadmap</b>, capturing insights from "
+        "stakeholders, users and data analytics, and transforming them into scalable features while "
+        "<b>prioritising delivery based on business value</b>.",
+        "Leading and coordinating a <b>cross-functional global workforce of 25+ engineers, product "
+        "owners and data experts</b>, ensuring agile execution, sprint delivery and dependency "
+        "resolution across diverse business lines and geographies.",
+        "Delivering <b>measurable FTE optimisation</b> and accelerating time-to-market by applying "
+        "<b>AI/ML-based document extraction and automation</b>, establishing the platform as a "
+        "<b>strategic differentiator</b> in the bank's global lending transformation.",
     ]
 
 
 def wipro_bullets():
+    """Prior-role bullets, lifted from the original resume."""
     return [
-        "Led the <b>core banking and payments modernisation</b> programme for one of Africa's largest banks — "
-        "designed the SAP-based target architecture and migrated <b>26 partner platforms</b> (mobile money, "
-        "card schemes, agency banking, remittance corridors) into a unified ecosystem.",
-        "Drove a high-impact <b>AML &amp; compliance</b> initiative across <b>14 African markets</b>, "
-        "hardening the bank's risk framework and cutting false-positive alerts by <b>~35%</b>.",
-        "Managed a global delivery team of <b>38 developers, BAs and data specialists</b>; introduced Agile "
-        "ceremonies and migrated the programme from Waterfall, lifting release cadence from quarterly to fortnightly.",
-        "Partnered with enterprise architects on <b>API &amp; integration strategy</b> for self-service "
-        "channels, branch operations and <b>mobile money rails (M-Pesa, MTN, Airtel)</b>.",
-        "<b>6 years of international experience</b> across Sub-Saharan Africa with deep exposure to "
-        "emerging-market consumer behaviour and regulatory diversity.",
+        "Executed the end-to-end <b>digital overhaul of core banking</b> by assessing current-state "
+        "processes, designing the target architecture in <b>SAP</b>, and transitioning from legacy "
+        "<b>COBOL-based systems</b>.",
+        "Spearheaded comprehensive <b>core modernisation and large-scale data migration</b>, "
+        "streamlining and integrating <b>26 partner platforms</b> into a unified ecosystem.",
+        "Directed a high-impact <b>AML compliance initiative</b>, enhancing regulatory alignment "
+        "and fortifying the bank's <b>risk management framework</b>.",
+        "Supervised a <b>38-member global team</b> of developers, business analysts and data "
+        "specialists, overseeing system integration, migration and delivery across <b>self-service "
+        "channels and branch operations</b>.",
+        "Partnered with enterprise architects and senior technology leaders to devise cost-efficient "
+        "solutions, enable workforce upskilling and accelerate product delivery through "
+        "<b>Agile Transformation practices</b>.",
     ]
 
 
 def ai_agents_bullets():
+    """AI Agents section — framed around the production multi-agent
+    loan-booking architecture, plus the AI assistant from Standard Bank
+    and the personal TaskFlow build."""
     return [
-        "<b>Agentic Loan Booking (JPM):</b> multi-agent workflow where extraction, validation, KYC and "
-        "covenant-check agents collaborate over a shared context bus; replaced ~30% of manual ops "
-        "touchpoints and cut average booking turnaround from days to hours.",
-        "<b>AI Document Intelligence:</b> orchestrated LLM + OCR pipelines with structured-output "
-        "guards and human-in-the-loop review gates across CIB and CB lending — measurable accuracy lift "
-        "on covenant and term-sheet parsing.",
-        "<b>TaskFlow (personal build, 2026):</b> a daily-routine app powered by an agent stack that "
+        "<b>Multi-Agent Architecture for Loan Booking (production):</b> Defined the target-state "
+        "architecture as a network of specialist agents — extraction, validation, regulatory checks "
+        "and downstream synchronisation — integrated with <b>Loan IQ, ACBS and upstream "
+        "underwriting / pre-underwriting systems</b> via <b>APIs and Kafka on AWS</b>, replacing "
+        "legacy manual workflows with an <b>AI-enabled, agentic ecosystem</b> for CIB and CB clients "
+        "worldwide.",
+        "<b>AI/ML Document Extraction &amp; Automation:</b> Applied AI/ML-based document extraction "
+        "and automation across the global lending platform — delivering <b>measurable FTE "
+        "optimisation</b> and accelerating time-to-market, establishing the platform as a strategic "
+        "differentiator in the bank's global lending transformation.",
+        "<b>AI Assistant for Delivery Speed (Standard Bank):</b> Developed an AI assistant during "
+        "the core banking modernisation programme to enhance delivery speed; recognised for "
+        "<b>innovation and thought leadership</b>.",
+        "<b>TaskFlow (personal build, 2026):</b> Daily-routine app powered by an agent stack that "
         "plans the user's day, generates <b>chapter-wise book briefs</b>, <b>ElevenLabs voice "
-        "affirmations</b> and <b>guided meditations</b>, and serves them through a streaming audio "
-        "layer with a cache-warmup agent — calendar, wisdom and Mind Gym modules feed off the same orchestrator.",
+        "affirmations</b> and <b>guided meditations</b>, served through a streaming audio layer with "
+        "a cache-warmup agent.",
         "<b>Tooling fluency:</b> Claude / Anthropic API, OpenAI, ElevenLabs voice, RAG with vector "
         "stores, agent frameworks (tool-use, function calling, MCP-style servers), prompt &amp; eval "
-        "harnesses, and product instrumentation for agent quality, latency and unit economics.",
-        "<b>Product POV on agents:</b> evaluate agentic features on <i>task success, intervention rate, "
-        "$/successful task and trust signals</i> — not just demos; advocate for guardrails, observability "
-        "and graceful fallbacks before scale-out.",
+        "harnesses; <b>Loan IQ, ACBS, AWS, Kafka, React, Tableau</b>.",
+    ]
+
+
+def truthful_outcomes(generic=False):
+    """Outcomes section, mapped 1:1 to the original Achievements section.
+
+    `generic=True` strips employer names for the hybrid resume.
+    """
+    if generic:
+        return [
+            "<b>Loan Booking Platform adoption: 40% → 85% in 12 months</b> via React-based "
+            "interface, Tableau dashboards, in-app analytics and structured change management.",
+            "<b>Led Agile transformation in 2016</b>, driving migration from Waterfall to Agile by "
+            "establishing sprints, ceremonies and cross-functional global delivery practices.",
+            "<b>MVP Award (Q3 2022)</b> and <b>Team of the Quarter Award (Q3 2024)</b> at current "
+            "employer, for exceptional contributions to Commercial Banking initiatives.",
+            "Winner — industry <b>White Paper Contest on the Future of Software Testing</b>; "
+            "developed an <b>AI assistant</b> to enhance delivery speed during a core banking "
+            "modernisation programme.",
+        ]
+    return [
+        "<b>JP Morgan Loan Booking Platform adoption: 40% → 85% in 12 months</b> via React-based "
+        "interface, Tableau dashboards, in-app analytics and structured change management.",
+        "<b>Led Agile transformation at Standard Bank (2016)</b>, driving migration from Waterfall "
+        "to Agile by establishing sprints, ceremonies and cross-functional global delivery practices.",
+        "<b>JP Morgan MVP Award (Q3 2022)</b> and <b>Team of the Quarter Award (Q3 2024)</b> for "
+        "exceptional contributions to Commercial Banking initiatives.",
+        "Winner — <b>Wipro White Paper Contest on the Future of Software Testing</b>; developed "
+        "an <b>AI assistant at Standard Bank</b> to enhance delivery speed.",
     ]
 
 
@@ -402,45 +441,39 @@ def build_thunes():
         author="Rishabh Sharma",
     )
     headline = ("Vice President — Product Management  &nbsp;·&nbsp;  "
-                "Fintech Platforms · AI Agents · Payments")
+                "AI Agents · Fintech Platforms · Payments")
     location = "Bengaluru, India  ·  Open to Singapore relocation"
 
     profile = (
-        "Product leader with <b>15+ years</b> across global fintech, payments and banking platforms — "
-        "<b>8+ years in product management</b> and <b>5+ years leading distributed product squads</b>. "
-        "Currently <b>Vice President — Product Management at J.P. Morgan</b>, owning the global digital "
-        "lending platform for CIB and CB clients with deep work in <b>syndicated lending, agency "
-        "operations, real-time treasury and FX, platform APIs and partner onboarding</b>. Active builder "
-        "of <b>agentic AI workflows</b> — from production loan-booking copilots to side-project agent "
-        "stacks orchestrating LLMs, tool-use and voice models. Translates ambiguous market signals into "
-        "scalable roadmaps, partners closely with engineering, compliance and GTM, and delivers measurable "
-        "P&amp;L impact in matrixed, multi-region environments."
+        "Product leader with <b>15+ years</b> of expertise across <b>fintech and enterprise</b> "
+        "domains, driving <b>innovation, scalability and AI/ML-powered solutions</b> aligned with "
+        "business objectives. Currently <b>Vice President — Product Management at J.P. Morgan</b>, "
+        "spearheading the strategic vision and roadmap for a <b>global digital loan booking "
+        "platform</b> and driving the shift from legacy processes to an <b>AI-enabled, agentic "
+        "ecosystem</b> serving CIB and CB clients worldwide. <b>6 years of international experience "
+        "in Johannesburg</b> and <b>8 years in India</b>, with strong cross-functional leadership, "
+        "<b>regulatory compliance &amp; governance</b> in banking and financial services, and "
+        "end-to-end product lifecycle management including <b>P&amp;L ownership, cost estimation "
+        "and risk management</b>."
     )
 
     milestones = [
-        ("2011", "Wipro · Standard Bank"),
-        ("2016", "Agile across 14 markets"),
-        ("2020", "Joined JPM · VP Product"),
-        ("2022", "Loan Booking v1 launched"),
-        ("2024", "Adoption 40% → 85%"),
-        ("2026", "Agentic stack · TaskFlow"),
+        ("2011", "Joined Wipro · Standard Bank"),
+        ("2016", "Agile transformation at Standard Bank"),
+        ("2020", "VP — Product Management at J.P. Morgan"),
+        ("2022", "Loan Booking Platform · MVP Award"),
+        ("2024", "40% → 85% adoption · AI doc extraction"),
+        ("2026", "Agentic ecosystem · TaskFlow"),
     ]
+    # Competencies use the user's original resume language, with one explicit
+    # emphasis on multi-agent architecture.
     competencies = [
-        ["Product Strategy &amp; Roadmap", "GTM &amp; ICP Enablement", "P&amp;L &amp; Business Cases"],
-        ["Pay CORE Platform &amp; APIs", "Treasury, Liquidity &amp; FX", "Real-Time Payments &amp; Wallets"],
-        ["Onboarding &amp; KYC Platforms", "Cross-Functional Leadership", "Matrix &amp; Multi-Region Ops"],
-        ["Agentic AI &amp; LLM Orchestration", "Syndicated Lending &amp; Agency", "Data, Metrics &amp; Experimentation"],
+        ["Agentic AI &amp; Multi-Agent Architecture", "AI-Driven Product Development", "Predictive Data Modeling"],
+        ["Product Strategy &amp; Scalable Roadmap", "System Integration &amp; API/Kafka", "Digital Transformation"],
+        ["Agile &amp; Lean Product Management", "Innovation Management", "Data Visualization &amp; Analytics"],
+        ["Cross-Functional Leadership", "Stakeholder Management", "Customer Journey Mapping"],
     ]
-    outcomes = [
-        "Scaled JPM Loan Booking Platform adoption from <b>40% → 85% in 12 months</b> via React UI, "
-        "embedded Tableau analytics and structured change management.",
-        "Cut onboarding lead time by <b>~40%</b> through a workflow-driven KYC platform with "
-        "country-specific rule packs.",
-        "Delivered <b>~30% FTE optimisation</b> using AI/ML document extraction across global lending operations.",
-        "Reduced AML false positives by <b>~35%</b> across <b>14 African markets</b> at Standard Bank.",
-        "JPM <b>MVP Award (Q3'22)</b>, <b>Team of the Quarter (Q3'24)</b>; winner — Wipro White Paper "
-        "Contest on the Future of Software Testing.",
-    ]
+    outcomes = truthful_outcomes()
 
     story = []
     story += header(headline, accent, location, S)
@@ -456,10 +489,11 @@ def build_thunes():
     story.append(chip_grid(competencies, S))
     story.append(Spacer(1, 6))
 
-    story += section("AI Agents &amp; Workflow Automation", anchor="agents", accent=accent)
+    story += section("AI Agents &amp; Multi-Agent Architecture", anchor="agents", accent=accent)
     story.append(Paragraph(
-        "Hands-on practitioner shipping agentic systems — production at JPM and personal builds — "
-        "across LLM orchestration, tool-use, retrieval and voice.",
+        "Spearheading the shift from legacy loan booking to an <b>AI-enabled, agentic "
+        "ecosystem</b> serving CIB and CB clients worldwide. Builds production multi-agent "
+        "systems, an AI assistant for delivery acceleration, and a personal agent stack.",
         S["body"]))
     story.append(Spacer(1, 2))
     for b in ai_agents_bullets():
@@ -515,66 +549,40 @@ def build_wellsfargo():
         author="Rishabh Sharma",
     )
     headline = ("Vice President — Product Management  &nbsp;·&nbsp;  "
-                "MarTech &amp; Marketing Platforms · Consumer Banking · AI Agents")
+                "Digital Product · AI Agents · Consumer Banking")
     location = "Bengaluru, India"
 
     profile = (
-        "Senior product leader with <b>15+ years</b> in global fintech and consumer-facing banking — "
-        "<b>8+ years in digital product management</b> and <b>5+ years leading and developing "
-        "high-performing product teams</b>. Currently <b>Vice President — Product Management at "
-        "J.P. Morgan</b>, where I run the platform-product playbook end-to-end: defining strategy, "
-        "breaking it into quarterly and sprint-level OKRs, partnering across LOBs, and shipping with "
-        "agile/scrum squads. Combines deep <b>MarTech-adjacent</b> product experience — <b>customer "
-        "journey instrumentation, in-app analytics, Tableau adoption dashboards, segmentation and "
-        "campaign-style rollouts</b> — with hands-on building of <b>agentic AI workflows</b> and "
-        "<b>no-code/low-code configuration platforms</b>. Known for translating ambiguous business needs "
-        "into a clear capabilities roadmap and delivering tangible customer and P&amp;L outcomes."
+        "Product leader with <b>15+ years</b> across <b>fintech and enterprise</b> domains, driving "
+        "<b>innovation, scalability and AI/ML-powered solutions</b> aligned with business "
+        "objectives. Currently <b>Vice President — Product Management at J.P. Morgan</b>, "
+        "spearheading the strategic vision and roadmap for a <b>global digital loan booking "
+        "platform</b> and the shift from legacy processes to an <b>AI-enabled, agentic ecosystem</b>. "
+        "Strong expertise in <b>cloud platforms, data strategy, AI/ML integration and advanced "
+        "analytics</b>, leveraging insights to shape product vision and strengthen customer "
+        "engagement; proven competency in <b>customer journey mapping</b>, <b>data visualization "
+        "&amp; business analytics</b> (Tableau, in-app analytics) and <b>cross-functional "
+        "leadership</b> across geographies."
     )
 
     milestones = [
-        ("2011", "Wipro · Standard Bank"),
-        ("2016", "Agile across 14 markets"),
-        ("2020", "Joined JPM · VP Product"),
-        ("2022", "Platform v1 + analytics"),
-        ("2024", "Adoption 40% → 85%"),
-        ("2026", "MarTech-style agent stack"),
+        ("2011", "Joined Wipro · Standard Bank"),
+        ("2016", "Agile transformation at Standard Bank"),
+        ("2020", "VP — Product Management at J.P. Morgan"),
+        ("2022", "Loan Booking Platform · MVP Award"),
+        ("2024", "40% → 85% adoption · in-app analytics"),
+        ("2026", "Agentic ecosystem · TaskFlow"),
     ]
+    # Slight analytics / customer-journey lean while staying within the
+    # original resume's competency vocabulary.
     competencies = [
-        ["MarTech &amp; Marketing Platforms", "Customer Journey &amp; Segmentation", "Adoption Analytics &amp; OKRs"],
-        ["Digital Product Management", "Agile · Scrum · Kanban Leadership", "Stakeholder &amp; LOB Influence"],
-        ["No-Code / Low-Code Config", "Consumer Banking &amp; Lending", "Talent Development &amp; Hiring"],
-        ["Agentic AI &amp; LLM Orchestration", "Data, Tableau &amp; Experimentation", "Capabilities Roadmap &amp; GTM"],
+        ["AI-Driven Product Development", "Agentic AI &amp; Multi-Agent Architecture", "Predictive Data Modeling"],
+        ["Customer Journey Mapping", "Data Visualization &amp; Analytics", "Innovation Management"],
+        ["Product Strategy &amp; Scalable Roadmap", "Agile &amp; Lean Product Management", "Digital Transformation"],
+        ["Cross-Functional Leadership", "Stakeholder Management", "Team Leadership &amp; Management"],
     ]
 
-    # JPM bullets reframed for MarTech / Marketing-platform relevance.
-    jpm_wf_bullets = [
-        "Own the <b>capabilities roadmap</b> for J.P. Morgan's global lending platform — break strategy "
-        "into <b>quarterly OKRs and sprint-level priorities</b> and re-prioritise continuously with LOB partners.",
-        "Lead and develop a team of <b>25+ product owners, engineers and data specialists</b> across "
-        "India, US and EMEA; coach 4 PMs, run hiring, performance and talent-development for a "
-        "<b>high-performing product organisation</b>.",
-        "Manage <b>scrum and kanban squads</b> delivering platform features and user stories; introduced "
-        "no-code/low-code configuration patterns so business teams can self-serve common changes — "
-        "directly relevant to <b>MarTech platform configuration and SharePoint-style operations</b>.",
-        "Built embedded <b>Tableau adoption dashboards</b>, <b>in-app analytics</b> and <b>customer "
-        "journey instrumentation</b> — defined and evolved the product success metrics and OKRs the "
-        "platform is measured on.",
-        "Drove <b>segmentation and campaign-style rollouts</b> for two new client segments — defined "
-        "ICP, value props, enablement collateral and rollout playbook with Marketing, Legal and "
-        "Compliance; adoption rose from <b>40% to 85% in 12 months</b>.",
-        "Partnered across <b>technology, risk, legal, marketing and compliance</b> LOBs in a matrixed "
-        "global setting; influenced senior stakeholders and provided credible, effective challenge.",
-        "Delivered <b>~30% operational efficiency</b> via AI/ML document extraction, intelligent "
-        "routing and exception handling — established the platform as a strategic differentiator.",
-    ]
-
-    outcomes = [
-        "Scaled JPM Loan Booking Platform adoption from <b>40% → 85% in 12 months</b> via React UI, "
-        "embedded Tableau analytics, in-app onboarding and structured change management.",
-        "Reduced AML false positives by <b>~35%</b> across <b>14 African markets</b> at Standard Bank.",
-        "JPM <b>MVP Award (Q3'22)</b>, <b>Team of the Quarter (Q3'24)</b>; winner — Wipro White Paper "
-        "Contest on the Future of Software Testing.",
-    ]
+    outcomes = truthful_outcomes()
 
     story = []
     story += header(headline, accent, location, S)
@@ -590,10 +598,11 @@ def build_wellsfargo():
     story.append(chip_grid(competencies, S))
     story.append(Spacer(1, 6))
 
-    story += section("AI Agents &amp; Workflow Automation", anchor="agents", accent=accent)
+    story += section("AI Agents &amp; Multi-Agent Architecture", anchor="agents", accent=accent)
     story.append(Paragraph(
-        "Active builder of agentic AI systems — production at JPM and personal builds — "
-        "with a clear product POV on metrics, guardrails and unit economics.",
+        "Spearheading the shift from legacy loan booking to an <b>AI-enabled, agentic "
+        "ecosystem</b> serving CIB and CB clients worldwide. Builds production multi-agent "
+        "systems, an AI assistant for delivery acceleration, and a personal agent stack.",
         S["body"]))
     story.append(Spacer(1, 2))
     for b in ai_agents_bullets():
@@ -606,7 +615,7 @@ def build_wellsfargo():
     story.append(Paragraph(
         "J.P. Morgan Chase &amp; Co.  ·  Bengaluru, India  ·  Jun 2020 – Present",
         S["meta"]))
-    for b in jpm_wf_bullets:
+    for b in jpm_bullets():
         story.append(bullet(b, S))
     story.append(Spacer(1, 5))
 
@@ -659,109 +668,43 @@ def build_hybrid():
                 "AI Agents · Fintech Platforms · Payments")
     location = "Bengaluru, India"
 
+    # Profile uses original-resume language only.
     profile = (
-        "Product leader with <b>15+ years</b> across global fintech, payments and banking platforms — "
-        "<b>8+ years in product management</b> and <b>5+ years leading distributed product squads</b>. "
-        "Active builder of <b>agentic AI workflows</b> — production loan-booking copilots and "
-        "side-project agent stacks orchestrating LLMs, tool-use, retrieval and voice models. Combines "
-        "deep <b>platform-product DNA</b> (syndicated lending on industry servicing platforms, real-time "
-        "treasury and FX, partner onboarding, customer-journey instrumentation, adoption analytics) with "
-        "hands-on <b>agent design</b> — multi-agent decomposition, structured-output guards, "
-        "human-in-the-loop gates and product instrumentation for <b>agent quality, latency and unit "
-        "economics</b>. Translates ambiguous business needs into a clear capabilities roadmap and ships "
-        "in a matrixed, multi-region, OKR-driven way."
+        "Product leader with <b>15+ years</b> of expertise across <b>fintech and enterprise</b> "
+        "domains, driving <b>innovation, scalability and AI/ML-powered solutions</b> aligned with "
+        "business objectives. Currently <b>Vice President — Product Management</b> at a tier-1 "
+        "global investment &amp; commercial bank, spearheading the strategic vision and roadmap "
+        "for a <b>global digital loan booking platform</b> and driving the shift from legacy "
+        "processes to an <b>AI-enabled, agentic ecosystem</b> serving CIB and CB clients worldwide. "
+        "<b>6 years of international experience in Johannesburg</b> and <b>8 years in India</b>, "
+        "with a track record of cross-functional leadership, end-to-end product lifecycle "
+        "management and program governance — including <b>P&amp;L ownership, cost estimation, "
+        "risk management</b> and global product roadmap execution in an onshore–offshore model."
     )
 
     milestones = [
         ("2011", "Joined consultancy · Pan-African bank"),
-        ("2016", "Agile rollout across 14 markets"),
-        ("2020", "Joined investment bank · VP Product"),
-        ("2022", "Global lending platform v1 launched"),
-        ("2024", "AI doc extraction · adoption 40→85%"),
-        ("2026", "Agentic platform · TaskFlow agent stack"),
+        ("2016", "Led Agile transformation at the bank"),
+        ("2020", "VP — Product Management role"),
+        ("2022", "Loan Booking Platform · MVP Award"),
+        ("2024", "40% → 85% adoption · AI doc extraction"),
+        ("2026", "Agentic ecosystem · TaskFlow"),
     ]
 
+    # Competencies grid — uses the original resume's competency wording,
+    # plus one explicit emphasis on multi-agent architecture.
     competencies = [
-        # AI / agents pillar lives in the top row.
-        ["Agentic AI &amp; LLM Orchestration", "Multi-Agent Workflow Design", "Prompt, RAG &amp; Eval Harnesses"],
-        ["Product Strategy &amp; Roadmap", "OKR-Driven Capabilities Planning", "GTM &amp; Customer Journeys"],
-        ["APIs, Kafka &amp; Integrations", "Onboarding/KYC · Treasury/FX", "Syndicated Lending &amp; Agency"],
-        ["Cross-Functional Leadership", "Talent Development &amp; Hiring", "Data, Analytics &amp; Experimentation"],
+        ["Agentic AI &amp; Multi-Agent Architecture", "AI-Driven Product Development", "Predictive Data Modeling"],
+        ["Product Strategy &amp; Scalable Roadmap", "Agile &amp; Lean Product Management", "Innovation Management"],
+        ["System Integration &amp; API/Kafka", "Data Visualization &amp; Analytics", "Digital Transformation"],
+        ["Cross-Functional Leadership", "Stakeholder Management", "Customer Journey Mapping"],
     ]
 
-    # Generic current-role bullets — no employer name.
-    current_role_bullets = [
-        "Own the <b>global product strategy and roadmap</b> for a digital loan booking &amp; servicing "
-        "platform serving CIB and CB clients across <b>30+ countries</b>; led the shift from legacy "
-        "COBOL/manual workflows to an <b>AI-native, agentic ecosystem</b>.",
-        "Lead a cross-functional squad of <b>25+ engineers, product owners and data specialists</b> "
-        "across India, US and EMEA; coach 4 PMs, run quarterly OKRs, hiring and talent development "
-        "for a <b>high-performing product organisation</b>.",
-        "Deep <b>syndicated lending</b> exposure: shaped agency-bank workflows on industry servicing "
-        "platforms covering deal setup, lender allocations, drawdowns, rollovers, interest &amp; fee "
-        "accruals, secondary trades and notices.",
-        "Architected <b>API and Kafka integrations</b> with <b>12+ upstream underwriting and "
-        "pre-booking systems</b> on AWS, and partnered with Treasury, Liquidity &amp; Risk to model "
-        "collateral, exposure and FX hedging flows.",
-        "Built embedded <b>Tableau adoption dashboards</b>, <b>in-app analytics</b> and "
-        "<b>customer-journey instrumentation</b>; defined and continuously evolved the product "
-        "success metrics and OKRs the platform is measured on.",
-        "Built the <b>partner onboarding platform</b> with country-specific KYC, AML and regulatory "
-        "workflows; secured approvals across multiple jurisdictions and reduced onboarding lead time "
-        "by <b>~40%</b>.",
-        "Drove <b>segmentation and campaign-style GTM</b> for two new client segments — defined ICP, "
-        "value props, enablement and rollout playbook with Marketing, Legal and Compliance; adoption "
-        "rose from <b>40% to 85% in 12 months</b>.",
-    ]
-
-    prior_role_bullets = [
-        "Led the <b>core banking and payments modernisation</b> programme for a top Pan-African bank — "
-        "designed the SAP-based target architecture and migrated <b>26 partner platforms</b> (mobile "
-        "money, card schemes, agency banking, remittance corridors) into a unified ecosystem.",
-        "Drove a high-impact <b>AML &amp; compliance</b> initiative across <b>14 African markets</b>, "
-        "hardening the bank's risk framework and cutting false-positive alerts by <b>~35%</b>.",
-        "Managed a global delivery team of <b>38 developers, BAs and data specialists</b>; introduced "
-        "Agile ceremonies and migrated the programme from Waterfall, lifting release cadence from "
-        "quarterly to fortnightly.",
-        "Partnered with enterprise architects on <b>API &amp; integration strategy</b> for self-service "
-        "channels, branch operations and <b>mobile money rails (M-Pesa, MTN, Airtel)</b>.",
-        "<b>6 years of international experience</b> across Sub-Saharan Africa with deep exposure to "
-        "emerging-market consumer behaviour and regulatory diversity.",
-    ]
-
-    # AI Agents section — expanded for the hybrid; no employer names.
     agents_intro = (
-        "Hands-on operator shipping agentic systems — both production at work and personal builds — "
-        "across LLM orchestration, tool-use, retrieval, evaluation and voice. Treats every agent as a "
-        "<b>product surface</b> with metrics, guardrails and unit economics, not a demo."
+        "Spearheading the shift from legacy loan booking to an <b>AI-enabled, agentic ecosystem</b> "
+        "serving CIB and CB clients worldwide. Builds production multi-agent systems, an AI "
+        "assistant for delivery acceleration, and a personal agent stack."
     )
-    agents_bullets = [
-        "<b>Agentic Loan Booking (production):</b> multi-agent workflow where extraction, validation, "
-        "KYC and covenant-check agents collaborate over a shared context bus with structured-output "
-        "guards and human-in-the-loop gates; replaced ~30% of manual ops touchpoints and cut average "
-        "booking turnaround from days to hours.",
-        "<b>AI Document Intelligence:</b> orchestrated LLM + OCR pipelines across CIB and CB lending "
-        "with measurable accuracy lift on covenant and term-sheet parsing; designed the eval harness, "
-        "exception-routing flow and graceful fallback to human review.",
-        "<b>TaskFlow (personal build, 2026):</b> daily-routine app powered by an agent stack that "
-        "plans the user's day, generates <b>chapter-wise book briefs</b>, <b>ElevenLabs voice "
-        "affirmations</b> and <b>guided meditations</b>, served through a streaming audio layer with "
-        "a cache-warmup agent — calendar, wisdom and Mind Gym modules feed off the same orchestrator.",
-        "<b>Tooling fluency:</b> Claude / Anthropic API, OpenAI, ElevenLabs voice, RAG with vector "
-        "stores, agent frameworks (tool-use, function calling, MCP-style servers), prompt &amp; eval "
-        "harnesses, structured outputs.",
-        "<b>Product POV on agents:</b> evaluate agentic features on <i>task success, intervention "
-        "rate, $/successful task and trust signals</i> — not demos; insist on guardrails, "
-        "observability and graceful fallbacks before scale-out.",
-    ]
-
-    outcomes = [
-        "Delivered <b>~30% efficiency gain</b> using AI/ML document extraction across global "
-        "lending operations.",
-        "Reduced AML false positives by <b>~35%</b> across <b>14 African markets</b>.",
-        "<b>MVP Award (Q3'22)</b> and <b>Team of the Quarter (Q3'24)</b> at current employer; "
-        "winner — industry White Paper Contest on the Future of Software Testing.",
-    ]
 
     story = []
     story += header(headline, accent, location, S)
@@ -779,10 +722,10 @@ def build_hybrid():
     story.append(Spacer(1, 6))
 
     # Agents section elevated above Professional Experience to signal focus.
-    story += section("AI Agents &amp; Agentic Workflows", anchor="agents", accent=accent)
+    story += section("AI Agents &amp; Multi-Agent Architecture", anchor="agents", accent=accent)
     story.append(Paragraph(agents_intro, S["body"]))
     story.append(Spacer(1, 2))
-    for b in agents_bullets:
+    for b in ai_agents_bullets():
         story.append(bullet(b, S))
 
     # Force Professional Experience onto a fresh page so the role title and
@@ -797,7 +740,7 @@ def build_hybrid():
     story.append(Paragraph(
         "Tier-1 Global Investment &amp; Commercial Bank  ·  Bengaluru, India  ·  Jun 2020 – Present",
         S["meta"]))
-    for b in current_role_bullets:
+    for b in jpm_bullets():
         story.append(bullet(b, S))
     story.append(Spacer(1, 5))
 
@@ -810,13 +753,13 @@ def build_hybrid():
             "Johannesburg, South Africa  ·  Oct 2011 – Jun 2020",
             S["meta"]),
     ]
-    for b in prior_role_bullets:
+    for b in wipro_bullets():
         prior.append(bullet(b, S))
     story.append(KeepTogether(prior))
     story.append(Spacer(1, 5))
 
     story += section("Selected Outcomes &amp; Recognition", anchor="outcomes", accent=accent)
-    for b in outcomes:
+    for b in truthful_outcomes(generic=True):
         story.append(bullet(b, S))
     story.append(Spacer(1, 5))
 
