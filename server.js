@@ -899,6 +899,31 @@ app.put('/api/tasks/:id',auth,(req,res)=>{
   res.json(db.prepare('SELECT * FROM tasks WHERE id=?').get(req.params.id));
 });
 app.delete('/api/tasks/:id',auth,(req,res)=>{db.prepare('DELETE FROM tasks WHERE id=? AND user_phone=?').run(req.params.id,req.user.phone);res.json({ok:true})});
+
+// Email pending tasks to the user's account email
+app.post('/api/email-tasks',auth,async(req,res)=>{
+  const u=req.user;if(!u.email)return res.status(400).json({ok:false,error:'No email on account'});
+  const tasks=db.prepare("SELECT * FROM tasks WHERE user_phone=? AND status!='done' ORDER BY CASE priority WHEN 'high' THEN 1 WHEN 'medium' THEN 2 ELSE 3 END, due_date ASC").all(u.phone);
+  if(!tasks.length)return res.json({ok:false,error:'No pending tasks'});
+  const today=new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  const escH=s=>(s||'').replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'})[c]);
+  const rows=tasks.map(t=>{
+    const pColor=t.priority==='high'?'#E8453C':t.priority==='medium'?'#D97706':'#6B665E';
+    const due=t.due_date?'<span style="color:#6B665E;font-size:13px"> · due '+escH(t.due_date)+'</span>':'';
+    const rem=t.reminder_time?'<span style="color:#6B665E;font-size:13px"> · '+escH(t.reminder_time)+'</span>':'';
+    return `<tr><td style="padding:14px 18px;border-bottom:1px solid #E8E4DD"><div style="display:flex;align-items:flex-start;gap:12px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${pColor};margin-top:7px;flex:0 0 auto"></span><div style="flex:1"><div style="font-weight:600;color:#2D2A26;font-size:15px;line-height:1.4">${escH(t.title)}</div>${t.notes?'<div style="color:#6B665E;font-size:13px;margin-top:4px;line-height:1.5">'+escH(t.notes)+'</div>':''}<div style="margin-top:6px;color:'+pColor+';font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px">${escH(t.priority)}${due}${rem}</div></div></div></td></tr>`;
+  }).join('');
+  const html=`<div style="font-family:-apple-system,Segoe UI,sans-serif;max-width:560px;margin:0 auto;padding:32px 20px;background:#F8F7F4">
+    <div style="text-align:center;margin-bottom:28px"><h1 style="font-family:monospace;font-size:28px;margin:0;color:#2D2A26">Bro<span style="color:#3DAE5C">Do</span>it</h1><div style="color:#6B665E;font-size:13px;margin-top:6px">${today}</div></div>
+    <h2 style="font-size:20px;margin:0 0 16px;color:#2D2A26;font-weight:600">Your ${tasks.length} pending task${tasks.length===1?'':'s'}</h2>
+    <table style="width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04)">${rows}</table>
+    <p style="color:#9C968D;font-size:12px;text-align:center;margin-top:28px">Open Brodoit to update your tasks.</p>
+  </div>`;
+  const r=await sendEmail(u.email,'Your Brodoit tasks — '+today,html);
+  if(r.ok)res.json({ok:true,count:tasks.length});
+  else res.status(500).json({ok:false,error:'Failed to send email'});
+});
+
 // ═══ STEPS API ═══
 app.get('/api/steps',auth,(req,res)=>{
   const days=Math.min(Math.max(parseInt(req.query.days)||30,1),365);
@@ -6411,6 +6436,7 @@ async function composeSubmit(){
 }
 async function savE(){if(!S.form.title.trim()||!S.editing)return;const r=await api('/tasks/'+S.editing,{method:'PUT',body:JSON.stringify({title:S.form.title,notes:S.form.notes,priority:S.form.priority,status:S.form.status,due_date:S.form.dueDate,reminder_time:S.form.reminderTime,board:S.form.board})});if(r){const i=S.tasks.findIndex(t=>t.id===S.editing);if(i>-1)S.tasks[i]=r;clM();toast('\\u2705 Updated!')}}
 async function del(id){await api('/tasks/'+id,{method:'DELETE'});S.tasks=S.tasks.filter(t=>t.id!==id);render()}
+async function emailTasks(){if(S.sending&&S.sending._e)return;S.sending=S.sending||{};S.sending._e=true;render();const r=await api('/email-tasks',{method:'POST',body:'{}'});S.sending._e=false;if(r&&r.ok)toast('\\u2705 Sent '+r.count+' task'+(r.count===1?'':'s')+' to your email');else toast('\\u26A0\\uFE0F '+(r&&r.error||'Failed to send'),'err')}
 async function tog(id){const t=S.tasks.find(x=>x.id===id);if(!t)return;const r=await api('/tasks/'+id,{method:'PUT',body:JSON.stringify({status:t.status==='done'?'pending':'done'})});if(r){const i=S.tasks.findIndex(x=>x.id===id);if(i>-1)S.tasks[i]=r;render()}}
 async function cyc(id){const o=['pending','in-progress','done'],t=S.tasks.find(x=>x.id===id);if(!t)return;const r=await api('/tasks/'+id,{method:'PUT',body:JSON.stringify({status:o[(o.indexOf(t.status)+1)%3]})});if(r){const i=S.tasks.findIndex(x=>x.id===id);if(i>-1)S.tasks[i]=r;render()}}
 async function sWA(id){S.sending[id]=1;render();const r=await api('/send-task/'+id,{method:'POST'});delete S.sending[id];toast(r?.ok?'\\u{1F4F1} Sent!':'\\u26A0\\uFE0F Failed',r?.ok?'ok':'err');render()}
@@ -6622,15 +6648,17 @@ function playMedEleven(id,title,mins){
   try{const last=parseInt(localStorage.getItem('med_last_count_ts')||'0',10);if(Date.now()-last>60000){const cur=parseInt(localStorage.getItem('med_count')||'0',10)||0;localStorage.setItem('med_count',String(cur+1));localStorage.setItem('med_last_count_ts',String(Date.now()));const today=new Date().toISOString().slice(0,10);const days=(localStorage.getItem('med_days')||'').split(',').filter(Boolean);if(days[days.length-1]!==today){days.push(today);localStorage.setItem('med_days',days.slice(-365).join(','))}}}catch(e){}
   render();
   // Show a "preparing" toast that auto-dismisses when audio actually starts.
-  let prepShown=false;const prepTimer=setTimeout(()=>{prepShown=true;toast('\\u23F3 Preparing audio\\u2026 first listen takes a moment','ok')},800);
+  // CRITICAL: never call render() inside canplay — it destroys the just-loaded
+  // audio element, causing the affirmation refresh loop. Manipulate the toast
+  // DOM node directly instead.
+  let prepNode=null;const prepTimer=setTimeout(()=>{const ex=document.querySelector('.toast');if(ex)ex.remove();prepNode=document.createElement('div');prepNode.className='toast toast-ok';prepNode.innerHTML='\\u23F3 Preparing audio\\u2026 first listen takes a moment';document.body.appendChild(prepNode)},800);
   setTimeout(()=>{
     const a=document.getElementById('audioEl');if(!a)return;
     a.setAttribute('playsinline','');a.preload='auto';
-    a.addEventListener('canplay',function _on(){clearTimeout(prepTimer);if(prepShown)try{S.toast=null;render()}catch(e){}a.removeEventListener('canplay',_on)},{once:true});
-    a.addEventListener('error',function _err(){clearTimeout(prepTimer);toast('\\u26A0\\uFE0F Audio failed to load \\u2014 try again','err');a.removeEventListener('error',_err)},{once:true});
-    a.load();
+    a.addEventListener('canplay',function _on(){clearTimeout(prepTimer);if(prepNode&&prepNode.parentNode)prepNode.remove();prepNode=null;a.removeEventListener('canplay',_on)},{once:true});
+    a.addEventListener('error',function _err(){clearTimeout(prepTimer);if(prepNode&&prepNode.parentNode)prepNode.remove();const e=document.createElement('div');e.className='toast toast-err';e.innerHTML='\\u26A0\\uFE0F Audio failed to load \\u2014 try again';document.body.appendChild(e);setTimeout(()=>e.remove(),3000);a.removeEventListener('error',_err)},{once:true});
     const p=a.play();
-    if(p&&p.catch)p.catch(()=>toast('\\u25B6\\uFE0F Tap play on the bar','err'));
+    if(p&&p.catch)p.catch(()=>{const e=document.createElement('div');e.className='toast toast-err';e.innerHTML='\\u25B6\\uFE0F Tap play on the bar';document.body.appendChild(e);setTimeout(()=>e.remove(),3000)});
   },200);
 }
 async function loadGoogleStatus(){const r=await api('/google/status');if(r){S.google={configured:!!r.configured,accounts:r.accounts||[],loaded:true};render();if(S.google.accounts.length&&S.tab==='cal')loadGcalEvents()}}
@@ -8945,8 +8973,8 @@ if(S.tab==='tasks'){
   if(s.od>0)h+='<div class="al" style="background:#FEF1F0;border:1px solid #F5C6C2;color:#E8453C;cursor:pointer" onclick="S.view=\\'overdue\\';render()">\\u26A0\\uFE0F '+s.od+' overdue</div>';
   h+='<div class="srch"><input placeholder="Search tasks..." value="'+esc(S.search)+'" oninput="S.search=this.value;render()"></div>';
   h+='<div class="flt">'+[{k:'all',l:'All'},{k:'pending',l:'To Do'},{k:'in-progress',l:'Doing'},{k:'done',l:'Done'},{k:'today',l:'Today'}].map(x=>'<button class="fb'+(S.view===x.k?' on':'')+'" onclick="S.view=\\''+x.k+'\\';render()">'+x.l+'</button>').join('')+'</div>';
-  if((s.pend+s.act)>0&&S.profile&&S.profile.wa_phone){
-    h+='<button class="bwa" onclick="sAll()"'+(S.sending&&S.sending._a?' disabled':'')+'>'+WI+' '+(S.sending&&S.sending._a?'Sending\\u2026':'Send all tasks to WhatsApp')+'</button>';
+  if((s.pend+s.act)>0){
+    h+='<button class="bwa" style="border-color:#0F172A;background:#0F172A;color:#fff" onclick="emailTasks()"'+(S.sending&&S.sending._e?' disabled':'')+'><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7L12 13 2 7"/></svg>'+(S.sending&&S.sending._e?'Sending\\u2026':'Email all tasks to me')+'</button>';
   }
   h+='<div>';
   if(!f.length)h+='<div class="empty"><div style="font-size:36px;margin-bottom:8px">\\u2728</div><div style="font-size:15px;font-weight:600">No tasks yet</div><div style="font-size:13px;margin-top:4px">Tap + to add your first task</div></div>';
