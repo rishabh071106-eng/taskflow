@@ -1812,7 +1812,12 @@ const HTML=`<!DOCTYPE html><html lang="en"><head>
 --shadow-1:0 1px 2px rgba(20,20,20,.03),0 1px 2px rgba(20,20,20,.04);
 --shadow-2:0 4px 14px -6px rgba(20,20,20,.07),0 2px 4px -2px rgba(20,20,20,.04);
 --radius:14px}
-body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;letter-spacing:-.011em;font-weight:450;background-image:radial-gradient(circle at 1px 1px,rgba(15,17,21,.04) 1px,transparent 0);background-size:24px 24px;background-attachment:fixed}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;letter-spacing:-.011em;font-weight:450;background-image:radial-gradient(circle at 1px 1px,rgba(15,17,21,.04) 1px,transparent 0);background-size:24px 24px}
+/* Suppress entrance animations during passive (background-poll) renders.
+   This stops the screen from flickering every 10s when load() refreshes
+   tasks but the user hasn't done anything. Only user-driven renders
+   (tab switch, click, modal open) replay the entrance animations. */
+body.no-anim *,body.no-anim *::before,body.no-anim *::after{animation-duration:0.001s !important;animation-delay:0s !important;animation-iteration-count:1 !important;transition:none !important}
 ::selection{background:rgba(255,122,69,.20);color:var(--ink)}
 button{cursor:pointer;font-family:inherit;-webkit-font-smoothing:inherit;color:inherit}
 input,textarea,select{font-family:inherit;-webkit-font-smoothing:inherit;color:inherit}
@@ -6514,7 +6519,7 @@ async function load(){if(_audioBusy())return;
       }
     }
   }catch(e){}
-  const h=JSON.stringify(t);if(h===S._lastTasksHash)return;S._lastTasksHash=h;S.tasks=t;render();
+  const h=JSON.stringify(t);if(h===S._lastTasksHash)return;S._lastTasksHash=h;S.tasks=t;renderPassive();
 }
 async function restoreFromBackup(){
   const raw=localStorage.getItem('tf_tasks_backup');if(!raw)return toast('\\u26A0\\uFE0F No backup found','err');
@@ -6922,7 +6927,15 @@ function calPrev(){const d=new Date(S.calMonth);d.setMonth(d.getMonth()-1);S.cal
 function calNext(){const d=new Date(S.calMonth);d.setMonth(d.getMonth()+1);S.calMonth=d;render()}
 function calSelect(d){S.calSelectedDate=d;render()}
 function calAddForDate(){S.form={title:'',notes:'',priority:'medium',dueDate:S.calSelectedDate||'',reminderTime:'',status:'pending',board:S.board==='combined'?'home':S.board};S.editing=null;S.showAdd=true;render();/* No auto-focus: keyboard appears only when the user taps the input */}
-function rotateMoral(){if(_audioBusy())return;if(_isModalOpen())return;S.moralIdx=(S.moralIdx+1)%MORALS.length;render()}
+function rotateMoral(){if(_audioBusy())return;if(_isModalOpen())return;S.moralIdx=(S.moralIdx+1)%MORALS.length;
+  // Direct DOM update — no full re-render. This used to fire every 45 seconds
+  // and rebuild every card on the page.
+  const m=MORALS[S.moralIdx];
+  const txt=document.querySelector('.quote-strip-txt');if(txt)txt.textContent='"'+m.t+'"';
+  const by=document.querySelector('.quote-strip-by');if(by)by.textContent='— '+m.a;
+  // Fall back to a passive render if those nodes aren't on the page (other tab, etc.)
+  if(!txt)renderPassive();
+}
 setInterval(()=>{if(S.user)rotateMoral()},45000);
 // Tic Tac Toe vs a simple bot (you play X, bot plays O)
 const TTT_LINES=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
@@ -8071,7 +8084,7 @@ function rollDice(){
   if(S.dice.rolling)return;S.dice.rolling=true;render();
   setTimeout(()=>{const a=1+Math.floor(Math.random()*6),b=1+Math.floor(Math.random()*6);S.dice.values=[a,b];S.dice.history.unshift(a+b);if(S.dice.history.length>10)S.dice.history.length=10;S.dice.rolling=false;render()},650);
 }
-async function loadWeather(){if(S.weather.loading)return;if(_isModalOpen()||_audioBusy())return;S.weather.loading=true;S.weather.error=null;render();try{const r=await fetch('/api/weather?city='+encodeURIComponent(S.weather.city||'Bangalore'));const j=await r.json();if(j.error){S.weather.error=j.error}else{S.weather.city=j.city||S.weather.city;S.weather.country=j.country||'';S.weather.temp=j.temp;S.weather.aqi=j.aqi}}catch(e){S.weather.error=String(e)}S.weather.loaded=true;S.weather.loading=false;if(_isModalOpen()||_audioBusy())return;render()}
+async function loadWeather(){if(S.weather.loading)return;if(_isModalOpen()||_audioBusy())return;S.weather.loading=true;S.weather.error=null;try{const r=await fetch('/api/weather?city='+encodeURIComponent(S.weather.city||'Bangalore'));const j=await r.json();if(j.error){S.weather.error=j.error}else{S.weather.city=j.city||S.weather.city;S.weather.country=j.country||'';S.weather.temp=j.temp;S.weather.aqi=j.aqi}}catch(e){S.weather.error=String(e)}S.weather.loaded=true;S.weather.loading=false;if(_isModalOpen()||_audioBusy())return;renderPassive()}
 const INDIA_CITIES=['Delhi','Mumbai','Chennai','Bengaluru','Pune','Shimla','Indore','Jaipur'];
 const WORLD_CITY_LIST=[
   {key:'New York',label:'New York',tz:'America/New_York'},
@@ -8081,12 +8094,22 @@ const WORLD_CITY_LIST=[
   {key:'Tokyo',label:'Tokyo',tz:'Asia/Tokyo'},
   {key:'Sydney',label:'Sydney',tz:'Australia/Sydney'}
 ];
-async function loadCityTemps(){if(_isModalOpen()||_audioBusy())return;const all=[...INDIA_CITIES,...WORLD_CITY_LIST.map(c=>c.key)];const results=await Promise.all(all.map(c=>fetch('/api/weather?city='+encodeURIComponent(c)).then(r=>r.json()).catch(()=>({}))));const m={};results.forEach((r,i)=>{if(r&&!r.error)m[all[i].toLowerCase()]={temp:r.temp,city:r.city||all[i]}});S.cityTemps=m;if(_isModalOpen()||_audioBusy())return;render()}
-async function loadRemember(){if(_isModalOpen()||_audioBusy())return;try{const r=await fetch('/api/remember/today');const j=await r.json();S.remember={person:j.person||null,loaded:true};if(!_isModalOpen()&&!_audioBusy())render()}catch(e){S.remember={person:null,loaded:true};if(!_isModalOpen()&&!_audioBusy())render()}}
+async function loadCityTemps(){if(_isModalOpen()||_audioBusy())return;const all=[...INDIA_CITIES,...WORLD_CITY_LIST.map(c=>c.key)];const results=await Promise.all(all.map(c=>fetch('/api/weather?city='+encodeURIComponent(c)).then(r=>r.json()).catch(()=>({}))));const m={};results.forEach((r,i)=>{if(r&&!r.error)m[all[i].toLowerCase()]={temp:r.temp,city:r.city||all[i]}});S.cityTemps=m;if(_isModalOpen()||_audioBusy())return;renderPassive()}
+async function loadRemember(){if(_isModalOpen()||_audioBusy())return;try{const r=await fetch('/api/remember/today');const j=await r.json();S.remember={person:j.person||null,loaded:true};if(!_isModalOpen()&&!_audioBusy())renderPassive()}catch(e){S.remember={person:null,loaded:true};if(!_isModalOpen()&&!_audioBusy())renderPassive()}}
 function editLifeGoal(){const v=prompt('Your goal in life \\u2014 your north star.\\nEdit any time.',S.lifeGoal||'');if(v===null)return;const t=v.trim().slice(0,400);S.lifeGoal=t;localStorage.setItem('tf_life_goal',t);render()}
-async function loadTicker(){if(_isModalOpen()||_audioBusy())return;try{const r=await fetch('/api/news?cat=world',{cache:'no-store'});const j=await r.json();S.ticker={items:(j.items||[]).slice(0,12),idx:0,loaded:true};if(!_isModalOpen()&&!_audioBusy())render();_startTicker()}catch(e){}}
+async function loadTicker(){if(_isModalOpen()||_audioBusy())return;try{const r=await fetch('/api/news?cat=world',{cache:'no-store'});const j=await r.json();S.ticker={items:(j.items||[]).slice(0,12),idx:0,loaded:true};if(!_isModalOpen()&&!_audioBusy())renderPassive();_startTicker()}catch(e){}}
 let _tickerTimer=null;
-function _startTicker(){if(_tickerTimer)clearInterval(_tickerTimer);if(!S.ticker.items.length)return;_tickerTimer=setInterval(()=>{if(!S.ticker.items.length)return;if(_isModalOpen())return;S.ticker.idx=(S.ticker.idx+3)%S.ticker.items.length;if(_audioBusy()){const stack=document.getElementById('newsTickerStack');if(!stack)return;const items=S.ticker.items;const baseIdx=S.ticker.idx;const visible=[0,1,2,3,4].map(o=>items[(baseIdx+o)%(items.length||1)]||{title:'Loading…',link:'#',source:''});stack.innerHTML=visible.map((ti,i)=>'<a class="news-ticker-row" style="animation-delay:'+(i*0.07)+'s" href="'+esc(ti.link||'#')+'" target="_blank" rel="noopener" title="'+esc(ti.title||'')+'"><span class="news-ticker-pulse"></span><span class="news-ticker-src">'+esc((ti.source||'').toUpperCase())+'</span><span class="news-ticker-link">'+esc(ti.title||'')+'</span></a>').join('');return}const stack=document.getElementById('newsTickerStack');if(stack)render()},9000)}
+function _startTicker(){if(_tickerTimer)clearInterval(_tickerTimer);if(!S.ticker.items.length)return;_tickerTimer=setInterval(()=>{
+  if(!S.ticker.items.length)return;if(_isModalOpen())return;
+  S.ticker.idx=(S.ticker.idx+3)%S.ticker.items.length;
+  // Always direct-DOM update, never re-render the whole app. The ticker
+  // is a small strip — there is no reason to rebuild every chip and card
+  // every 9 seconds just to swap 5 headlines.
+  const stack=document.getElementById('newsTickerStack');if(!stack)return;
+  const items=S.ticker.items;const baseIdx=S.ticker.idx;
+  const visible=[0,1,2,3,4].map(o=>items[(baseIdx+o)%(items.length||1)]||{title:'Loading…',link:'#',source:''});
+  stack.innerHTML=visible.map((ti,i)=>'<a class="news-ticker-row" style="animation-delay:'+(i*0.07)+'s" href="'+esc(ti.link||'#')+'" target="_blank" rel="noopener" title="'+esc(ti.title||'')+'"><span class="news-ticker-pulse"></span><span class="news-ticker-src">'+esc((ti.source||'').toUpperCase())+'</span><span class="news-ticker-link">'+esc(ti.title||'')+'</span></a>').join('');
+},9000)}
 function setCity(){const c=prompt('Set your city',S.weather.city||'Bangalore');if(!c)return;const t=c.trim();if(!t)return;localStorage.setItem('tf_city',t);S.weather.city=t;S.weather.loaded=false;loadWeather()}
 // Live-tick the sidebar, header clocks AND world clocks without re-rendering the whole tree
 setInterval(()=>{const n=new Date();const hm=n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false});const sec=String(n.getSeconds()).padStart(2,'0');const t=document.getElementById('sideNowTime');const s=document.getElementById('sideNowSec');if(t&&s){if(t.firstChild&&t.firstChild.nodeValue!==hm)t.firstChild.nodeValue=hm;s.textContent=':'+sec}const ht=document.getElementById('hdrTimeHm');const hs=document.getElementById('hdrTimeSec');if(ht&&hs){if(ht.textContent!==hm)ht.textContent=hm;hs.textContent=':'+sec}const cities=document.querySelectorAll('[data-tz]');cities.forEach(el=>{try{const tz=el.getAttribute('data-tz');const t2=new Date().toLocaleTimeString('en-US',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false});if(el.textContent!==t2)el.textContent=t2}catch(e){}})},1000);
@@ -8915,11 +8938,26 @@ async function loadBookStreak(){if(!S.user)return;const r=await api('/book-strea
 // a modal could trigger 2-3 render passes in <500ms (open + data fetch + auto-select),
 // each rebuilding the entire app DOM and producing visible flicker / cursor resets.
 let _renderRAF=0;
+// Passive renders (background polls — load/loadWeather/loadCityTemps/ticker/etc.)
+// should NOT replay the entrance animations. Only user-driven renders (tab switch,
+// click, form change) should animate. We mark passive renders by setting
+// S._passiveRender just before calling render() — _render() then adds .no-anim to
+// body so all CSS animations short-circuit. Removed automatically the next paint.
 function render(){
   if(_renderRAF)return;
   _renderRAF=requestAnimationFrame(()=>{_renderRAF=0;_render()});
 }
+function renderPassive(){S._passiveRender=true;render()}
 function _render(){
+// Suppress entrance animations on passive (background-poll-triggered) renders.
+// Without this every 10s data poll replays every fade-in / slide-in across the
+// page — that's the flicker the user has been complaining about for sessions.
+if(S._passiveRender){
+  document.body.classList.add('no-anim');
+  S._passiveRender=false;
+  // Remove the flag two frames later so the next user-driven render animates again.
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{document.body.classList.remove('no-anim')}));
+}
 // While the canvas-based Memory Tap is running, suspend full re-renders so the canvas state
 // (game loop, animations) is preserved.
 if(S._mtActive&&S.mgPlay&&S.mgPlay.canvasGame==='mt'&&document.getElementById('mtCanvas'))return;
