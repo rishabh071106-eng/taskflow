@@ -78,6 +78,24 @@ Naukri rolls out UI changes from time to time.  Two failure modes:
 Selectors live in one block at the top of `naukri_assistant.py`.  No
 other code needs to change.
 
+## One-click launcher (Finder / Dock)
+
+After first-time setup is done (venv + Playwright installed once), the
+fastest way to start a run is:
+
+1. In Finder, navigate to `tools/job-search`.
+2. Double-click **`Naukri Assistant.command`**.
+3. A Terminal window opens, Chromium launches, the run starts.
+
+Want it in your Dock? Drag `Naukri Assistant.command` to the right side
+of the Dock (the docs/files side, not the apps side). One click from
+there too.
+
+The launcher runs `naukri_assistant.py --apply` by default. If the file
+has the wrong default for you, edit the `MODE="--apply"` line near the
+top of `Naukri Assistant.command` to `MODE=""` for a dry-run-only
+launcher.
+
 ## Schedule it with launchd (every hour)
 
 The repo ships a launchd plist at `com.rishabh.naukri-assistant.plist`.
