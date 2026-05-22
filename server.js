@@ -313,9 +313,7 @@ app.post('/api/bro/chat',auth,async(req,res)=>{
   const messages=Array.isArray(req.body&&req.body.messages)?req.body.messages.slice(-20):null;
   if(!messages||!messages.length)return res.status(400).json({error:'messages required'});
   const agent=(req.body.agent==='bri')?'bri':'bro';
-  const broSys=`You are Bro, a personal growth coach inside the Brodoit productivity app. Your mission is to help people GROW — build discipline, crush goals, level up their career, master their mindset, get fit, and become the best version of themselves. You speak like a supportive older brother who's been through it: direct, real, no-BS, but always encouraging. Keep responses concise (2-4 paragraphs max). Use simple, punchy language. Focus every answer on growth and action — give specific steps, routines, challenges, or frameworks they can start TODAY. If someone shares a problem, acknowledge it briefly, then pivot to what they can DO about it. Suggest habits, morning routines, workout plans, reading lists, accountability systems, or mindset reframes. Always end with a challenge or action step. Never be preachy. Never say you are an AI or language model. IMPORTANT: Your responses are read aloud via text-to-speech. Never use emojis, asterisks, bullet points, markdown formatting, or special characters. Write in plain conversational sentences only.`;
-  const briSys=`You are Bri, a personal growth and wellness coach inside the Brodoit productivity app. Your mission is to help people GROW — build healthy habits, find balance, level up their fitness, nurture their mental health, and become the strongest version of themselves. You speak like a supportive big sister and best friend: warm, caring, real, and motivating. Keep responses concise (2-4 paragraphs max). Use simple, uplifting language. Focus every answer on growth and wellness — give specific routines, self-care practices, workout ideas, journaling prompts, nutrition tips, or mindset shifts they can start TODAY. If someone shares a struggle, validate their feelings first, then guide them toward action. You love fitness, yoga, meditation, healthy eating, and mental wellness. Always end with encouragement and a specific next step. Never say you are an AI or language model. IMPORTANT: Your responses are read aloud via text-to-speech. Never use emojis, asterisks, bullet points, markdown formatting, or special characters. Write in plain conversational sentences only.`;
-  const sys=agent==='bri'?briSys:broSys;
+  const sys=`You are Bro, a smart AI assistant inside the Brodoit app. You can answer questions on ANY topic — science, math, history, coding, writing, travel, health, career advice, life decisions, creative ideas, explanations, analysis, and more. You are helpful, knowledgeable, and conversational. Keep responses concise and clear (2-4 paragraphs max unless a detailed answer is needed). When someone asks a question, give a direct, useful answer. When someone needs advice, be thoughtful and actionable. When someone wants to brainstorm, suggest creative ideas. At the end of your response, suggest 1-2 follow-up questions they might want to ask, formatted naturally like "You might also want to know about..." or "A good next question would be...". Never say you are an AI or language model. Be warm and approachable but not overly casual.`;
   try{
     const r=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
@@ -6286,89 +6284,76 @@ body:not([data-theme=aurora]) .mg-ach.locked .medal{background:#F0EFEA;color:#9C
 }
 
 /* ─── BRO CHAT ─── */
-.bro-container{display:flex;flex-direction:column;height:calc(100vh - 140px);margin:-8px -18px 0;border-radius:24px;overflow:hidden;background:#F8F9FB;position:relative}
+.bro-container{display:flex;flex-direction:column;height:calc(100vh - 140px);margin:-8px -18px 0;border-radius:0;overflow:hidden;background:#FFFFFF;position:relative}
 body[data-theme=aurora] .bro-container{background:linear-gradient(180deg,rgba(15,12,30,1),rgba(20,16,40,1))}
-.bro-header{display:flex;align-items:center;gap:14px;padding:18px 22px;background:rgba(255,255,255,.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(0,0,0,.06);position:relative;z-index:10}
-body[data-theme=aurora] .bro-header{background:rgba(20,18,40,.85);border-bottom-color:rgba(255,255,255,.08)}
-.bro-header-avatar{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,.12)}
+.bro-header{display:flex;align-items:center;gap:12px;padding:14px 20px;background:#FFFFFF;border-bottom:1px solid #F0F0F0;position:relative;z-index:10}
+body[data-theme=aurora] .bro-header{background:rgba(20,18,40,.95);border-bottom-color:rgba(255,255,255,.08)}
+.bro-header-avatar{width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
 .bro-header-info{flex:1;min-width:0}
-.bro-header-name{font-family:var(--serif);font-size:20px;font-weight:700;color:#1A1A1A;display:flex;align-items:center;gap:8px}
+.bro-header-name{font-family:var(--sans);font-size:16px;font-weight:600;color:#111827;display:flex;align-items:center;gap:6px}
 body[data-theme=aurora] .bro-header-name{color:#F5F5FA}
-.bro-header-name .bro-online{width:8px;height:8px;border-radius:50%;background:#22C55E;box-shadow:0 0 6px rgba(34,197,94,.5)}
+.bro-header-name .bro-online{width:7px;height:7px;border-radius:50%;background:#22C55E}
 .bro-header-sub{font-size:12px;color:#9CA3AF;margin-top:1px}
 body[data-theme=aurora] .bro-header-sub{color:rgba(255,255,255,.4)}
 .bro-header-actions{display:flex;gap:4px}
-.bro-header-btn{background:none;border:none;cursor:pointer;padding:8px;border-radius:12px;color:#9CA3AF;transition:all .2s}
-.bro-header-btn:hover{background:rgba(0,0,0,.05);color:#1A1A1A}
+.bro-header-btn{background:none;border:none;cursor:pointer;padding:8px;border-radius:10px;color:#9CA3AF;transition:all .2s}
+.bro-header-btn:hover{background:rgba(0,0,0,.04);color:#1A1A1A}
 body[data-theme=aurora] .bro-header-btn:hover{background:rgba(255,255,255,.08);color:#F5F5FA}
-.bro-chat{flex:1;display:flex;flex-direction:column;gap:16px;padding:20px 22px 100px;overflow-y:auto;scroll-behavior:smooth}
-.bro-msg{display:flex;gap:10px;align-items:flex-end;animation:broFadeIn .35s cubic-bezier(.16,1,.3,1)}
+.bro-chat{flex:1;display:flex;flex-direction:column;gap:20px;padding:24px 20px 100px;overflow-y:auto;scroll-behavior:smooth}
+.bro-msg{display:flex;gap:10px;align-items:flex-start;animation:broFadeIn .3s ease-out}
 .bro-msg-user{flex-direction:row-reverse}
-.bro-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.1)}
-.bro-msg-content{display:flex;flex-direction:column;gap:4px;max-width:75%}
+.bro-avatar{width:28px;height:28px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;margin-top:2px}
+.bro-msg-content{display:flex;flex-direction:column;gap:4px;max-width:80%}
 .bro-msg-user .bro-msg-content{align-items:flex-end}
-.bro-bubble{padding:14px 18px;font-size:14.5px;line-height:1.65;word-break:break-word}
+.bro-bubble{padding:12px 16px;font-size:14.5px;line-height:1.7;word-break:break-word}
 .bro-bubble p{margin:0 0 8px}
 .bro-bubble p:last-child{margin-bottom:0}
-.bro-bubble strong{font-weight:700}
+.bro-bubble strong{font-weight:600}
 .bro-bubble ul,.bro-bubble ol{margin:4px 0 8px;padding-left:20px}
 .bro-bubble li{margin:2px 0}
-.bro-msg-ai .bro-bubble{background:#FFFFFF;color:#1F2937;border-radius:2px 20px 20px 20px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
-body[data-theme=aurora] .bro-msg-ai .bro-bubble{background:rgba(255,255,255,.08);color:rgba(255,255,255,.92);box-shadow:0 1px 4px rgba(0,0,0,.2)}
-.bro-msg-user .bro-bubble{border-radius:20px 2px 20px 20px;color:#fff}
-.bro-bubble-bro{background:linear-gradient(135deg,#4F46E5,#7C3AED)}
+.bro-msg-ai .bro-bubble{background:#F7F7F8;color:#1F2937;border-radius:4px 18px 18px 18px}
+body[data-theme=aurora] .bro-msg-ai .bro-bubble{background:rgba(255,255,255,.07);color:rgba(255,255,255,.92)}
+.bro-msg-user .bro-bubble{border-radius:18px 4px 18px 18px;color:#fff}
+.bro-bubble-bro{background:#4F46E5}
 .bro-bubble-bri{background:linear-gradient(135deg,#EC4899,#F472B6)}
 .bro-msg-meta{font-size:11px;color:#C4C4C4;padding:0 4px}
 body[data-theme=aurora] .bro-msg-meta{color:rgba(255,255,255,.25)}
 .bro-msg-actions{display:flex;gap:2px;padding:0 4px}
-.bro-speak-btn{background:none;border:none;color:#C4C4C4;cursor:pointer;padding:4px;border-radius:8px;transition:all .2s;display:flex;align-items:center}
-.bro-speak-btn:hover{color:#4F46E5;background:rgba(79,70,229,.08)}
-.bro-typing-wrap{display:flex;gap:10px;align-items:flex-end;animation:broFadeIn .35s cubic-bezier(.16,1,.3,1)}
-.bro-typing{display:flex;align-items:center;gap:5px;padding:16px 20px;background:#FFFFFF;border-radius:2px 20px 20px 20px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
-body[data-theme=aurora] .bro-typing{background:rgba(255,255,255,.08);box-shadow:0 1px 4px rgba(0,0,0,.2)}
-.bro-typing-dot{width:7px;height:7px;border-radius:50%;background:#B0B0B0;animation:broTypeDot 1.4s ease-in-out infinite}
+.bro-typing-wrap{display:flex;gap:10px;align-items:flex-start;animation:broFadeIn .3s ease-out}
+.bro-typing{display:flex;align-items:center;gap:5px;padding:14px 18px;background:#F7F7F8;border-radius:4px 18px 18px 18px}
+body[data-theme=aurora] .bro-typing{background:rgba(255,255,255,.07)}
+.bro-typing-dot{width:6px;height:6px;border-radius:50%;background:#C0C0C0;animation:broTypeDot 1.4s ease-in-out infinite}
 .bro-typing-dot:nth-child(2){animation-delay:.2s}
 .bro-typing-dot:nth-child(3){animation-delay:.4s}
 body[data-theme=aurora] .bro-typing-dot{background:rgba(255,255,255,.35)}
-@keyframes broTypeDot{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-6px);opacity:1}}
-.bro-input-wrap{position:absolute;bottom:0;left:0;right:0;padding:12px 16px 16px;background:linear-gradient(0deg,#FCF6F1 70%,rgba(252,246,241,0));z-index:20}
+@keyframes broTypeDot{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-5px);opacity:1}}
+.bro-input-wrap{position:absolute;bottom:0;left:0;right:0;padding:12px 16px 16px;background:linear-gradient(0deg,#FFFFFF 70%,rgba(255,255,255,0));z-index:20}
 body[data-theme=aurora] .bro-input-wrap{background:linear-gradient(0deg,rgba(15,12,30,1) 70%,rgba(15,12,30,0))}
-.bro-input-bar{display:flex;gap:6px;padding:6px 6px 6px 16px;background:rgba(255,255,255,.95);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1.5px solid rgba(0,0,0,.08);border-radius:28px;box-shadow:0 4px 24px rgba(0,0,0,.08);align-items:center}
-body[data-theme=aurora] .bro-input-bar{background:rgba(30,25,55,.92);border-color:rgba(255,255,255,.1);box-shadow:0 4px 24px rgba(0,0,0,.3)}
+.bro-input-bar{display:flex;gap:6px;padding:6px 6px 6px 16px;background:#F7F7F8;border:1px solid #E5E7EB;border-radius:24px;align-items:center;transition:border-color .2s}
+.bro-input-bar:focus-within{border-color:#4F46E5}
+body[data-theme=aurora] .bro-input-bar{background:rgba(30,25,55,.92);border-color:rgba(255,255,255,.1)}
 .bro-input{flex:1;border:none;background:transparent;font-size:15px;outline:none;color:inherit;font-family:inherit;padding:8px 0}
-.bro-input::placeholder{color:#B0B0B0}
+.bro-input::placeholder{color:#9CA3AF}
 body[data-theme=aurora] .bro-input::placeholder{color:rgba(255,255,255,.3)}
-.bro-mic-btn{background:none;border:none;cursor:pointer;padding:10px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .2s;color:#9CA3AF}
-.bro-mic-btn:hover{background:rgba(0,0,0,.05);color:#1A1A1A}
-body[data-theme=aurora] .bro-mic-btn:hover{background:rgba(255,255,255,.08);color:#F5F5FA}
-.bro-mic-on{background:rgba(239,68,68,.12)!important;color:#EF4444!important;animation:broPulse 1.2s infinite}
-.bro-send-btn{width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;color:#fff;flex-shrink:0}
-.bro-send-btn:hover{transform:scale(1.06);box-shadow:0 4px 16px rgba(79,70,229,.35)}
-.bro-send-btn:active{transform:scale(.94)}
-.bro-send-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
-.bro-send-bro{background:linear-gradient(135deg,#4F46E5,#818CF8)}
+.bro-send-btn{width:36px;height:36px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;color:#fff;flex-shrink:0}
+.bro-send-btn:hover{transform:scale(1.05)}
+.bro-send-btn:active{transform:scale(.93)}
+.bro-send-btn:disabled{opacity:.3;cursor:not-allowed;transform:none}
+.bro-send-bro{background:#4F46E5}
 .bro-send-bri{background:linear-gradient(135deg,#EC4899,#F472B6)}
-@keyframes broFadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-@keyframes broPulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.3)}50%{box-shadow:0 0 0 8px rgba(239,68,68,0)}}
-.bro-speaking-bar{display:flex;align-items:center;gap:8px;padding:8px 16px;font-size:13px;font-weight:600;animation:broPulse 1.2s infinite}
-.bro-speaking-bar.bro-accent{background:rgba(79,70,229,.08);color:#4F46E5}
-.bro-speaking-bar.bri-accent{background:rgba(236,72,153,.08);color:#EC4899}
-body[data-theme=aurora] .bro-speaking-bar.bro-accent{background:rgba(79,70,229,.15)}
-body[data-theme=aurora] .bro-speaking-bar.bri-accent{background:rgba(236,72,153,.15)}
-.bro-speaking-bar button{background:none;border:none;cursor:pointer;color:inherit;font-weight:700;padding:2px 6px;border-radius:6px;transition:background .2s}
-.bro-speaking-bar button:hover{background:rgba(0,0,0,.06)}
-.bro-welcome{display:flex;flex-direction:column;align-items:center;gap:12px;padding:40px 20px;text-align:center;opacity:.7}
-.bro-welcome-avatar{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:4px}
-.bro-welcome-text{font-size:14px;color:#9CA3AF;max-width:280px;line-height:1.5}
+@keyframes broFadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.bro-welcome{display:flex;flex-direction:column;align-items:center;gap:16px;padding:60px 24px 40px;text-align:center}
+.bro-welcome-avatar{width:56px;height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px}
+.bro-welcome-text{font-size:14px;color:#6B7280;max-width:300px;line-height:1.6}
 body[data-theme=aurora] .bro-welcome-text{color:rgba(255,255,255,.4)}
-.bro-suggestions{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:4px}
-.bro-suggest-btn{background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.06);border-radius:20px;padding:8px 16px;font-size:13px;color:#6B7280;cursor:pointer;transition:all .2s;font-family:inherit}
-.bro-suggest-btn:hover{background:rgba(79,70,229,.08);border-color:rgba(79,70,229,.2);color:#4F46E5}
+.bro-suggestions{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:8px}
+.bro-suggest-btn{background:#FFFFFF;border:1px solid #E5E7EB;border-radius:12px;padding:10px 16px;font-size:13px;color:#374151;cursor:pointer;transition:all .15s;font-family:inherit;font-weight:500}
+.bro-suggest-btn:hover{border-color:#4F46E5;color:#4F46E5;background:#F5F3FF}
 body[data-theme=aurora] .bro-suggest-btn{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.08);color:rgba(255,255,255,.5)}
 body[data-theme=aurora] .bro-suggest-btn:hover{background:rgba(79,70,229,.15);border-color:rgba(79,70,229,.3);color:#A5B4FC}
 /* ─── COACH SELECTOR ─── */
-.coach-select{display:flex;flex-direction:column;align-items:center;padding:40px 0 30px;gap:28px;background:#FCF6F1;border-radius:24px;margin:-8px -18px 0;padding-left:18px;padding-right:18px}
-body[data-theme=aurora] .coach-select{background:linear-gradient(180deg,rgba(252,246,241,.06),rgba(252,246,241,.02))}
+.coach-select{display:flex;flex-direction:column;align-items:center;padding:40px 0 30px;gap:28px;background:#F8F9FB;border-radius:24px;margin:-8px -18px 0;padding-left:18px;padding-right:18px}
+body[data-theme=aurora] .coach-select{background:linear-gradient(180deg,rgba(248,249,251,.06),rgba(248,249,251,.02))}
 .coach-select h2{font-family:var(--serif);font-size:32px;font-weight:600;color:#1A1A1A;text-align:center;margin:0;letter-spacing:-.02em}
 body[data-theme=aurora] .coach-select h2{color:#F5F5FA}
 .coach-select p{color:#6B6B6B;font-size:15px;text-align:center;margin:-10px 0 0;max-width:300px}
@@ -6829,7 +6814,7 @@ const KNOWLEDGE_TOPICS=[
 ];
 function getKnowledgeTopic(k){return KNOWLEDGE_TOPICS.find(t=>t.k===k)||KNOWLEDGE_TOPICS[0]}
 function getKnowledgeSec(topicK,secK){const t=getKnowledgeTopic(topicK);return t.sections.find(s=>s.k===secK)||t.sections[0]}
-function switchTab(t){if(t==='steps'||t==='dash'||t==='history'||t==='geography'||t==='knowledge'||t==='ipl'||t==='games'||t==='news'||t==='voice')t=t==='games'?'mindgym':'tasks';S.tab=t;if(t==='books'&&!S.books.length)loadBooks('all');if(t==='meditation'&&!S.meditations)loadMeditations();if(t==='cal'){if(!S.google.loaded)loadGoogleStatus();else if(S.google.accounts.length&&!S.gcalEvents.length&&!S.gcalLoading)loadGcalEvents()}if(t==='mindgym'&&!S.mg.loaded)loadMindGym();if(t==='bro'&&!S.bro.agent){S.bro.agent='bro';var _bn=((S.user&&S.user.name)||'').split(' ')[0]||'';S.bro.messages=[{role:'bro',text:'Hey'+(_bn?' '+_bn:'')+', I\\'m Bro \\u2014 your personal life coach. Tell me what\\'s on your mind, ask for advice, or let me help you build a better routine. What would you like to work on today?'}]};S._suppressScrollRestore=true;render();S._suppressScrollRestore=false;try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}}
+function switchTab(t){if(t==='steps'||t==='dash'||t==='history'||t==='geography'||t==='knowledge'||t==='ipl'||t==='games'||t==='news'||t==='voice')t=t==='games'?'mindgym':'tasks';S.tab=t;if(t==='books'&&!S.books.length)loadBooks('all');if(t==='meditation'&&!S.meditations)loadMeditations();if(t==='cal'){if(!S.google.loaded)loadGoogleStatus();else if(S.google.accounts.length&&!S.gcalEvents.length&&!S.gcalLoading)loadGcalEvents()}if(t==='mindgym'&&!S.mg.loaded)loadMindGym();if(t==='bro'&&!S.bro.agent){S.bro.agent='bro';var _bn=((S.user&&S.user.name)||'').split(' ')[0]||'';S.bro.messages=[{role:'bro',text:'Hey'+(_bn?' '+_bn:'')+', I\\'m Bro \\u2014 your AI assistant. Ask me anything \\u2014 science, coding, writing, advice, ideas, or whatever\\'s on your mind.'}]};S._suppressScrollRestore=true;render();S._suppressScrollRestore=false;try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}}
 async function loadKnowledge(topicK,secK){S.knowledge.topic=topicK;S.knowledge.sec=secK;S.knowledge.loading=true;render();const cacheKey=topicK+':'+secK;try{if(topicK==='history'&&secK==='today'){const r=await fetch('/api/history/today');const j=await r.json();S.knowledge.events=j.events||[]}else{const tObj=KNOWLEDGE_TOPICS.find(t=>t.k===topicK);const sObj=tObj&&tObj.sections.find(s=>s.k===secK);if(!sObj||!sObj.titles){S.knowledge.loaded[cacheKey]=true;S.knowledge.loading=false;render();return}const r=await fetch('/api/wiki/summaries?titles='+encodeURIComponent(sObj.titles.join(',')));const j=await r.json();S.knowledge.articles[cacheKey]=j.summaries||[]}}catch(e){}S.knowledge.loaded[cacheKey]=true;S.knowledge.loading=false;render()}
 function switchKnowledgeTopic(k){S.knowledge.topic=k;const tObj=KNOWLEDGE_TOPICS.find(t=>t.k===k);const sk=(tObj&&tObj.sections[0]&&tObj.sections[0].k)||'today';loadKnowledge(k,sk)}
 async function loadNews(cat){S.newsCat=cat;S.newsLoading=true;render();try{const r=await fetch('/api/news?cat='+encodeURIComponent(cat),{cache:'no-store'});const j=await r.json();S.news[cat]=j.items||[]}catch(e){S.news[cat]=[]}S.newsLoading=false;render()}
@@ -9157,25 +9142,9 @@ function selectCoach(agent){
   if(agent==='bri'){
     S.bro.messages=[{role:'bro',text:'Hey'+(name?' '+name:'')+', I\\'m Bri \\u2014 your personal wellness coach and biggest cheerleader. Tell me what\\'s going on, ask for advice, or let me help you build a routine that actually sticks. What are we working on today?'}];
   }else{
-    S.bro.messages=[{role:'bro',text:'Hey'+(name?' '+name:'')+', I\\'m Bro \\u2014 your personal life coach. Tell me what\\'s on your mind, ask for advice, or let me help you build a better routine. What would you like to work on today?'}];
+    S.bro.messages=[{role:'bro',text:'Hey'+(name?' '+name:'')+', I\\'m Bro \\u2014 your AI assistant. Ask me anything \\u2014 science, coding, writing, advice, ideas, or whatever\\'s on your mind.'}];
   }
   render();
-}
-var BRO_VOICES={bro:'nwj0s2LU9bDWRKND5yzA',bri:'kPzsL2i3teMYv0FxEYQ6'};
-function pickVoiceForAgent(agent){
-  try{const vs=speechSynthesis.getVoices()||[];if(!vs.length)return null;
-  const en=vs.filter(v=>(v.lang||'').toLowerCase().startsWith('en'));
-  if(agent==='bri'){
-    const femPref=['Samantha','Google UK English Female','Microsoft Aria Online (Natural) - English (United States)','Microsoft Jenny Online (Natural) - English (United States)','Karen','Moira','Tessa','Fiona','Allison','Ava','Susan'];
-    for(const name of femPref){const v=en.find(x=>x.name===name||x.name.indexOf(name)===0);if(v)return v}
-    const fem=en.find(v=>/female|samantha|karen|moira|tessa|fiona|allison|ava|susan|aria|jenny/i.test(v.name));
-    if(fem)return fem;return en[0]||vs[0];
-  }else{
-    const malePref=['Daniel','Google UK English Male','Microsoft Guy Online (Natural) - English (United States)','Alex','Fred','Thomas','Oliver','Rishi'];
-    for(const name of malePref){const v=en.find(x=>x.name===name||x.name.indexOf(name)===0);if(v)return v}
-    const male=en.find(v=>/male|daniel|alex|fred|thomas|oliver|rishi|guy/i.test(v.name)&&!/female/i.test(v.name));
-    if(male)return male;return en[0]||vs[0];
-  }}catch(e){return null}
 }
 async function broSend(){
   const txt=(S.bro.input||'').trim();if(!txt||S.bro.sending)return;
@@ -9191,99 +9160,6 @@ async function broSend(){
   }catch(e){S.bro.messages.push({role:'bro',text:'Something went wrong. Let\\'s try again.'})}
   S.bro.sending=false;render();
   setTimeout(()=>{const c=document.getElementById('broChat');if(c)c.scrollTop=c.scrollHeight},60);
-}
-var _broAudio=null;
-async function _broElevenSpeak(txt){
-  var agent=S.bro.agent||'bro';
-  var voice=BRO_VOICES[agent]||BRO_VOICES.bro;
-  broStopSpeaking();
-  S.bro.speaking=true;render();
-  console.log('[tts] starting eleven speak, voice='+voice+', token='+(token?'yes':'NO'));
-  try{
-    var clean=_cleanForSpeech(txt).slice(0,500);
-    if(!clean){S.bro.speaking=false;render();return false;}
-    var r=await fetch('/api/coach/speak',{method:'POST',headers:{'Content-Type':'application/json','x-token':token||''},body:JSON.stringify({text:clean,voice:voice,model:'eleven_turbo_v2_5',stability:0.3,similarity_boost:0.75,style:0.7})});
-    console.log('[tts] response status='+r.status);
-    if(!r.ok){var j=await r.json().catch(function(){return {}});console.log('[tts] error response',JSON.stringify(j));if(j.fallback==='browser-tts')return false;throw new Error(j.error||'TTS failed');}
-    var blob=await r.blob();
-    console.log('[tts] got blob size='+blob.size+' type='+blob.type);
-    var url=URL.createObjectURL(blob);
-    _broAudio=new Audio(url);
-    _broAudio.onended=function(){console.log('[tts] audio ended');S.bro.speaking=false;_broAudio=null;URL.revokeObjectURL(url);render()};
-    _broAudio.onerror=function(e){console.log('[tts] audio error',e);S.bro.speaking=false;_broAudio=null;URL.revokeObjectURL(url);render()};
-    try{await _broAudio.play();console.log('[tts] playing ElevenLabs audio OK');}catch(pe){console.log('[tts] play() BLOCKED: '+pe.message);S.bro.speaking=false;_broAudio=null;URL.revokeObjectURL(url);render();return false;}
-    return true;
-  }catch(e){console.log('[tts] CATCH error',e.message);S.bro.speaking=false;render();return false}
-}
-function _cleanForSpeech(t){
-  var o='',i,cc;
-  for(i=0;i<t.length;i++){
-    cc=t.charCodeAt(i);
-    if(cc>=0xD800&&cc<=0xDFFF){i++;continue}
-    if(cc>=0x2600&&cc<=0x27BF)continue;
-    if(cc>=0x2700&&cc<=0x27B0)continue;
-    if(cc>=0xFE00&&cc<=0xFE0F)continue;
-    if(cc===0x200D||cc===0x20E3)continue;
-    o+=t[i];
-  }
-  o=o.split('*').join('');
-  o=o.split('#').join('');
-  o=o.split('~').join('');
-  o=o.split('|').join('');
-  o=o.split('>').join('');
-  o=o.split(String.fromCharCode(10)).join(' ');
-  o=o.replace(/ {2,}/g,' ');
-  return o.trim();
-}
-function _broFallbackSpeak(txt){
-  try{if(!('speechSynthesis' in window))return;
-  speechSynthesis.cancel();
-  var clean=_cleanForSpeech(txt);
-  if(!clean)return;
-  var u=new SpeechSynthesisUtterance(clean);
-  var v=pickVoiceForAgent(S.bro.agent||'bro');
-  if(v){u.voice=v;u.lang=v.lang}
-  u.rate=S.bro.agent==='bri'?0.95:0.90;u.pitch=S.bro.agent==='bri'?1.15:0.88;
-  u.volume=1;
-  S.bro.speaking=true;render();
-  u.onend=function(){S.bro.speaking=false;render()};
-  u.onerror=function(){S.bro.speaking=false;render()};
-  speechSynthesis.speak(u)}catch(e){}
-}
-var _broSpeaking=false;
-async function broAutoSpeak(txt){
-  if(_broSpeaking){console.log('[tts] skipping duplicate call');return;}
-  _broSpeaking=true;
-  console.log('[tts] broAutoSpeak called');
-  try{
-    var ok=await _broElevenSpeak(txt);
-    console.log('[tts] eleven returned ok='+ok);
-    if(!ok){console.log('[tts] FALLING BACK to browser TTS');_broFallbackSpeak(txt);}
-  }finally{_broSpeaking=false;}
-}
-async function broSpeak(btn){
-  var el=btn.closest('.bro-msg-content')||btn.parentElement;
-  var bubble=el?el.querySelector('.bro-bubble'):null;
-  if(!bubble)return;
-  var txt=bubble.textContent||bubble.innerText;
-  var ok=await _broElevenSpeak(txt);
-  if(!ok)_broFallbackSpeak(txt);
-}
-function broStopSpeaking(){
-  try{if(_broAudio){_broAudio.pause();_broAudio.src='';_broAudio=null}}catch(e){}
-  try{speechSynthesis&&speechSynthesis.cancel()}catch(e){}
-  S.bro.speaking=false;render();
-}
-let _broRec=null;
-function broVoiceToggle(){
-  if(S.bro.listening){S.bro.listening=false;if(_broRec)try{_broRec.stop()}catch(e){}render();return}
-  if(!('webkitSpeechRecognition' in window)&&!('SpeechRecognition' in window)){toast('\\u26A0\\uFE0F Speech recognition not supported','err');return}
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;_broRec=new SR();
-  _broRec.continuous=false;_broRec.interimResults=false;_broRec.lang='en-US';
-  _broRec.onresult=e=>{const t=e.results[0][0].transcript;S.bro.input=t;S.bro.listening=false;render();broSend()};
-  _broRec.onerror=()=>{S.bro.listening=false;render();toast('\\u26A0\\uFE0F Could not hear you, try again','err')};
-  _broRec.onend=()=>{S.bro.listening=false;render()};
-  _broRec.start();S.bro.listening=true;render();toast('\\u{1F3A4} Listening\\u2026');
 }
 
 // ═══ HYDRATION REMINDER ═══
@@ -10069,36 +9945,36 @@ else if(S.tab==='meditation'){
   h+='</div>';
 }
 
-// BRO TAB — personal growth coach (direct chat, no selection)
+// BRO TAB — AI assistant (direct chat)
 else if(S.tab==='bro'){
   {
     // Chat with Bro — modern iMessage-style UI
     h+='<div class="bro-container">';
     // Header
     h+='<div class="bro-header">';
-    h+='<div class="bro-header-avatar" style="background:linear-gradient(135deg,#4F46E5,#818CF8)">\\u{1F9D1}\\u200D\\u{1F3EB}</div>';
-    h+='<div class="bro-header-info"><div class="bro-header-name">Bro<span class="bro-online"></span></div><div class="bro-header-sub">Your personal growth coach</div></div>';
+    h+='<div class="bro-header-avatar" style="background:linear-gradient(135deg,#4F46E5,#818CF8)">\\u26A1</div>';
+    h+='<div class="bro-header-info"><div class="bro-header-name">Bro<span class="bro-online"></span></div><div class="bro-header-sub">Ask me anything</div></div>';
     h+='</div>';
     // Chat messages
     h+='<div class="bro-chat" id="broChat">';
     if(S.bro.messages.length<=1){
-      h+='<div class="bro-welcome"><div class="bro-welcome-avatar" style="background:linear-gradient(135deg,#4F46E5,#818CF8)">\\u{1F9D1}\\u200D\\u{1F3EB}</div>';
-      h+='<div class="bro-welcome-text">Ask Bro anything about personal growth, habits, mindset, fitness, or routines.</div>';
+      h+='<div class="bro-welcome"><div class="bro-welcome-avatar" style="background:linear-gradient(135deg,#4F46E5,#818CF8)">\\u26A1</div>';
+      h+='<div class="bro-welcome-text">I can help with questions, writing, ideas, advice, coding, and more.</div>';
       h+='<div class="bro-suggestions">';
-      h+='<button class="bro-suggest-btn" onclick="S.bro.input=\\'How do I build a morning routine?\\';broSend()">Morning routine</button>';
-      h+='<button class="bro-suggest-btn" onclick="S.bro.input=\\'Help me set a 30-day fitness goal\\';broSend()">Fitness goal</button>';
-      h+='<button class="bro-suggest-btn" onclick="S.bro.input=\\'How to stay consistent with habits?\\';broSend()">Stay consistent</button>';
+      h+='<button class="bro-suggest-btn" onclick="S.bro.input=\\'Explain something to me\\';broSend()">Explain something</button>';
+      h+='<button class="bro-suggest-btn" onclick="S.bro.input=\\'Help me write something\\';broSend()">Help me write</button>';
+      h+='<button class="bro-suggest-btn" onclick="S.bro.input=\\'Give me creative ideas\\';broSend()">Give me ideas</button>';
       h+='</div></div>';
     }
     S.bro.messages.forEach(m=>{
       const isAgent=m.role==='bro';
       h+='<div class="bro-msg '+(isAgent?'bro-msg-ai':'bro-msg-user')+'">';
-      if(isAgent)h+='<div class="bro-avatar" style="background:linear-gradient(135deg,#4F46E5,#818CF8)">\\u{1F9D1}\\u200D\\u{1F3EB}</div>';
+      if(isAgent)h+='<div class="bro-avatar" style="background:linear-gradient(135deg,#4F46E5,#818CF8)">\\u26A1</div>';
       h+='<div class="bro-msg-content">';
       h+='<div class="bro-bubble '+(isAgent?'':'bro-bubble-bro')+'">'+broMd(m.text)+'</div>';
       h+='</div></div>';
     });
-    if(S.bro.sending)h+='<div class="bro-typing-wrap"><div class="bro-avatar" style="background:linear-gradient(135deg,#4F46E5,#818CF8)">\\u{1F9D1}\\u200D\\u{1F3EB}</div><div class="bro-typing"><span class="bro-typing-dot"></span><span class="bro-typing-dot"></span><span class="bro-typing-dot"></span></div></div>';
+    if(S.bro.sending)h+='<div class="bro-typing-wrap"><div class="bro-avatar" style="background:linear-gradient(135deg,#4F46E5,#818CF8)">\\u26A1</div><div class="bro-typing"><span class="bro-typing-dot"></span><span class="bro-typing-dot"></span><span class="bro-typing-dot"></span></div></div>';
     h+='</div>';
     // Input bar
     h+='<div class="bro-input-wrap">';
@@ -10174,7 +10050,7 @@ else if(S.tab==='__obsolete_knowledge__'){
 
 h+='</main>';
 // Global FAB+ — always rendered, fixed-position, bouncy animation. Adapts behavior per tab.
-{
+if(S.tab!=='bro'){
   const isTaskTab=S.tab==='tasks'||S.tab==='board';
   const isCalTab=S.tab==='cal';
   const action=isTaskTab?'opA()':(isCalTab?'calAddForDate()':"switchTab('tasks');setTimeout(opA,80)");
