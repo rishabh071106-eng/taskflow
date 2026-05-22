@@ -6365,27 +6365,86 @@ body:not([data-theme=aurora]) .mg-ach.locked .medal{background:#F0EFEA;color:#9C
 }
 
 /* ─── BRO CHAT ─── */
-.bro-chat{display:flex;flex-direction:column;gap:12px;padding:12px 0 80px;max-height:calc(100vh - 280px);overflow-y:auto;scroll-behavior:smooth}
-.bro-msg{display:flex;gap:10px;align-items:flex-start;animation:broFadeIn .3s ease}
+.bro-container{display:flex;flex-direction:column;height:calc(100vh - 140px);margin:-8px -18px 0;border-radius:24px;overflow:hidden;background:#FCF6F1;position:relative}
+body[data-theme=aurora] .bro-container{background:linear-gradient(180deg,rgba(15,12,30,1),rgba(20,16,40,1))}
+.bro-header{display:flex;align-items:center;gap:14px;padding:18px 22px;background:rgba(255,255,255,.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(0,0,0,.06);position:relative;z-index:10}
+body[data-theme=aurora] .bro-header{background:rgba(20,18,40,.85);border-bottom-color:rgba(255,255,255,.08)}
+.bro-header-avatar{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,.12)}
+.bro-header-info{flex:1;min-width:0}
+.bro-header-name{font-family:var(--serif);font-size:20px;font-weight:700;color:#1A1A1A;display:flex;align-items:center;gap:8px}
+body[data-theme=aurora] .bro-header-name{color:#F5F5FA}
+.bro-header-name .bro-online{width:8px;height:8px;border-radius:50%;background:#22C55E;box-shadow:0 0 6px rgba(34,197,94,.5)}
+.bro-header-sub{font-size:12px;color:#9CA3AF;margin-top:1px}
+body[data-theme=aurora] .bro-header-sub{color:rgba(255,255,255,.4)}
+.bro-header-actions{display:flex;gap:4px}
+.bro-header-btn{background:none;border:none;cursor:pointer;padding:8px;border-radius:12px;color:#9CA3AF;transition:all .2s}
+.bro-header-btn:hover{background:rgba(0,0,0,.05);color:#1A1A1A}
+body[data-theme=aurora] .bro-header-btn:hover{background:rgba(255,255,255,.08);color:#F5F5FA}
+.bro-chat{flex:1;display:flex;flex-direction:column;gap:16px;padding:20px 22px 100px;overflow-y:auto;scroll-behavior:smooth}
+.bro-msg{display:flex;gap:10px;align-items:flex-end;animation:broFadeIn .35s cubic-bezier(.16,1,.3,1)}
 .bro-msg-user{flex-direction:row-reverse}
-.bro-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#6366F1,#EC4899);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
-.bro-bubble{max-width:78%;padding:12px 16px;border-radius:18px;font-size:14px;line-height:1.55;white-space:pre-wrap;word-break:break-word}
-.bro-msg-ai .bro-bubble{background:#F3F4F6;color:#1F2937;border-bottom-left-radius:4px}
-body[data-theme=aurora] .bro-msg-ai .bro-bubble{background:rgba(255,255,255,.08);color:rgba(255,255,255,.9)}
-.bro-msg-user .bro-bubble{background:linear-gradient(135deg,#6366F1,#818CF8);color:#fff;border-bottom-right-radius:4px}
-.bro-typing{opacity:.6;font-style:normal}
-.bro-speak-btn{background:none;border:none;color:#94A3B8;cursor:pointer;padding:4px;margin-top:4px;border-radius:6px;transition:color .2s}
-.bro-speak-btn:hover{color:#6366F1}
-.bro-input-bar{position:sticky;bottom:70px;display:flex;gap:8px;padding:10px 12px;background:rgba(255,255,255,.95);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid #E5E7EB;border-radius:16px;z-index:20;box-shadow:0 -4px 20px rgba(0,0,0,.06)}
-body[data-theme=aurora] .bro-input-bar{background:rgba(20,20,40,.9);border-color:rgba(255,255,255,.1)}
-.bro-input{flex:1;border:none;background:transparent;font-size:15px;outline:none;color:inherit;font-family:inherit}
-.bro-mic-btn,.bro-send-btn{background:none;border:none;cursor:pointer;padding:8px;border-radius:10px;display:flex;align-items:center;justify-content:center;transition:background .2s,transform .15s}
-.bro-mic-btn:hover,.bro-send-btn:hover{background:rgba(99,102,241,.1)}
-.bro-mic-btn:active,.bro-send-btn:active{transform:scale(.92)}
-.bro-mic-on{background:rgba(239,68,68,.12)!important;animation:broPulse 1.2s infinite}
-.bro-send-btn{font-size:18px;color:#6366F1}
-@keyframes broFadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.bro-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.bro-msg-content{display:flex;flex-direction:column;gap:4px;max-width:75%}
+.bro-msg-user .bro-msg-content{align-items:flex-end}
+.bro-bubble{padding:14px 18px;font-size:14.5px;line-height:1.65;word-break:break-word}
+.bro-bubble p{margin:0 0 8px}
+.bro-bubble p:last-child{margin-bottom:0}
+.bro-bubble strong{font-weight:700}
+.bro-bubble ul,.bro-bubble ol{margin:4px 0 8px;padding-left:20px}
+.bro-bubble li{margin:2px 0}
+.bro-msg-ai .bro-bubble{background:#FFFFFF;color:#1F2937;border-radius:2px 20px 20px 20px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+body[data-theme=aurora] .bro-msg-ai .bro-bubble{background:rgba(255,255,255,.08);color:rgba(255,255,255,.92);box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.bro-msg-user .bro-bubble{border-radius:20px 2px 20px 20px;color:#fff}
+.bro-bubble-bro{background:linear-gradient(135deg,#6366F1,#818CF8)}
+.bro-bubble-bri{background:linear-gradient(135deg,#EC4899,#F472B6)}
+.bro-msg-meta{font-size:11px;color:#C4C4C4;padding:0 4px}
+body[data-theme=aurora] .bro-msg-meta{color:rgba(255,255,255,.25)}
+.bro-msg-actions{display:flex;gap:2px;padding:0 4px}
+.bro-speak-btn{background:none;border:none;color:#C4C4C4;cursor:pointer;padding:4px;border-radius:8px;transition:all .2s;display:flex;align-items:center}
+.bro-speak-btn:hover{color:#6366F1;background:rgba(99,102,241,.08)}
+.bro-typing-wrap{display:flex;gap:10px;align-items:flex-end;animation:broFadeIn .35s cubic-bezier(.16,1,.3,1)}
+.bro-typing{display:flex;align-items:center;gap:5px;padding:16px 20px;background:#FFFFFF;border-radius:2px 20px 20px 20px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+body[data-theme=aurora] .bro-typing{background:rgba(255,255,255,.08);box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.bro-typing-dot{width:7px;height:7px;border-radius:50%;background:#B0B0B0;animation:broTypeDot 1.4s ease-in-out infinite}
+.bro-typing-dot:nth-child(2){animation-delay:.2s}
+.bro-typing-dot:nth-child(3){animation-delay:.4s}
+body[data-theme=aurora] .bro-typing-dot{background:rgba(255,255,255,.35)}
+@keyframes broTypeDot{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-6px);opacity:1}}
+.bro-input-wrap{position:absolute;bottom:0;left:0;right:0;padding:12px 16px 16px;background:linear-gradient(0deg,#FCF6F1 70%,rgba(252,246,241,0));z-index:20}
+body[data-theme=aurora] .bro-input-wrap{background:linear-gradient(0deg,rgba(15,12,30,1) 70%,rgba(15,12,30,0))}
+.bro-input-bar{display:flex;gap:6px;padding:6px 6px 6px 16px;background:rgba(255,255,255,.95);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1.5px solid rgba(0,0,0,.08);border-radius:28px;box-shadow:0 4px 24px rgba(0,0,0,.08);align-items:center}
+body[data-theme=aurora] .bro-input-bar{background:rgba(30,25,55,.92);border-color:rgba(255,255,255,.1);box-shadow:0 4px 24px rgba(0,0,0,.3)}
+.bro-input{flex:1;border:none;background:transparent;font-size:15px;outline:none;color:inherit;font-family:inherit;padding:8px 0}
+.bro-input::placeholder{color:#B0B0B0}
+body[data-theme=aurora] .bro-input::placeholder{color:rgba(255,255,255,.3)}
+.bro-mic-btn{background:none;border:none;cursor:pointer;padding:10px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .2s;color:#9CA3AF}
+.bro-mic-btn:hover{background:rgba(0,0,0,.05);color:#1A1A1A}
+body[data-theme=aurora] .bro-mic-btn:hover{background:rgba(255,255,255,.08);color:#F5F5FA}
+.bro-mic-on{background:rgba(239,68,68,.12)!important;color:#EF4444!important;animation:broPulse 1.2s infinite}
+.bro-send-btn{width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;color:#fff;flex-shrink:0}
+.bro-send-btn:hover{transform:scale(1.06);box-shadow:0 4px 16px rgba(99,102,241,.35)}
+.bro-send-btn:active{transform:scale(.94)}
+.bro-send-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+.bro-send-bro{background:linear-gradient(135deg,#6366F1,#818CF8)}
+.bro-send-bri{background:linear-gradient(135deg,#EC4899,#F472B6)}
+@keyframes broFadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes broPulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.3)}50%{box-shadow:0 0 0 8px rgba(239,68,68,0)}}
+.bro-speaking-bar{display:flex;align-items:center;gap:8px;padding:8px 16px;font-size:13px;font-weight:600;animation:broPulse 1.2s infinite}
+.bro-speaking-bar.bro-accent{background:rgba(99,102,241,.08);color:#6366F1}
+.bro-speaking-bar.bri-accent{background:rgba(236,72,153,.08);color:#EC4899}
+body[data-theme=aurora] .bro-speaking-bar.bro-accent{background:rgba(99,102,241,.15)}
+body[data-theme=aurora] .bro-speaking-bar.bri-accent{background:rgba(236,72,153,.15)}
+.bro-speaking-bar button{background:none;border:none;cursor:pointer;color:inherit;font-weight:700;padding:2px 6px;border-radius:6px;transition:background .2s}
+.bro-speaking-bar button:hover{background:rgba(0,0,0,.06)}
+.bro-welcome{display:flex;flex-direction:column;align-items:center;gap:12px;padding:40px 20px;text-align:center;opacity:.7}
+.bro-welcome-avatar{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:4px}
+.bro-welcome-text{font-size:14px;color:#9CA3AF;max-width:280px;line-height:1.5}
+body[data-theme=aurora] .bro-welcome-text{color:rgba(255,255,255,.4)}
+.bro-suggestions{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:4px}
+.bro-suggest-btn{background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.06);border-radius:20px;padding:8px 16px;font-size:13px;color:#6B7280;cursor:pointer;transition:all .2s;font-family:inherit}
+.bro-suggest-btn:hover{background:rgba(99,102,241,.08);border-color:rgba(99,102,241,.2);color:#6366F1}
+body[data-theme=aurora] .bro-suggest-btn{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.08);color:rgba(255,255,255,.5)}
+body[data-theme=aurora] .bro-suggest-btn:hover{background:rgba(99,102,241,.15);border-color:rgba(99,102,241,.3);color:#A5B4FC}
 /* ─── COACH SELECTOR ─── */
 .coach-select{display:flex;flex-direction:column;align-items:center;padding:40px 0 30px;gap:28px;background:#FCF6F1;border-radius:24px;margin:-8px -18px 0;padding-left:18px;padding-right:18px}
 body[data-theme=aurora] .coach-select{background:linear-gradient(180deg,rgba(252,246,241,.06),rgba(252,246,241,.02))}
@@ -6418,10 +6477,8 @@ body[data-theme=aurora] .card-bri .coach-card-tag{background:rgba(236,72,153,.2)
 body[data-theme=aurora] .card-bro .coach-card-tag{background:rgba(99,102,241,.2);color:#A5B4FC}
 @keyframes coachFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 @keyframes coachSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-.coach-back{background:none;border:none;color:#64748B;font-size:13px;cursor:pointer;padding:6px 12px;border-radius:8px;transition:color .2s;display:flex;align-items:center;gap:4px;margin-bottom:6px}
+.coach-back{background:none;border:none;color:#64748B;font-size:13px;cursor:pointer;padding:6px 12px;border-radius:8px;transition:color .2s;display:flex;align-items:center;gap:4px}
 .coach-back:hover{color:var(--ink)}
-.bro-speaking-indicator{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;background:rgba(99,102,241,.1);border-radius:20px;font-size:12px;color:#6366F1;font-weight:600;animation:broPulse 1.2s infinite}
-.bro-speaking-indicator.bri-speaking{background:rgba(236,72,153,.1);color:#EC4899}
 
 /* ─── HYDRATION WIDGET ─── */
 .hydration-bar{display:flex;align-items:center;gap:10px;padding:12px 16px;margin:10px 0;background:linear-gradient(135deg,rgba(14,165,233,.08),rgba(6,182,212,.08));border:1px solid rgba(14,165,233,.15);border-radius:14px;cursor:pointer;transition:transform .2s}
@@ -9149,6 +9206,30 @@ async function loadBookStreak(){if(!S.user)return;const r=await api('/book-strea
 // each rebuilding the entire app DOM and producing visible flicker / cursor resets.
 let _renderRAF=0;
 // ═══ BRO / BRI — AI Life Coach ═══
+function broMd(t){
+  t=esc(t);
+  var boldRe=new RegExp('\\\\*\\\\*(.+?)\\\\*\\\\*','g');
+  t=t.replace(boldRe,function(_,m){return '<strong>'+m+'<\\/strong>';});
+  var lines=t.split('\\n');
+  var out=[],inList=false;
+  for(var i=0;i<lines.length;i++){
+    var ln=lines[i];
+    var bulletRe=new RegExp('^[*\\\\-]\\\\s+(.+)');
+    var numRe=new RegExp('^\\\\d+\\\\.\\\\s+(.+)');
+    var bm=ln.match(bulletRe);
+    var nm=ln.match(numRe);
+    if(bm||nm){
+      if(!inList){out.push('<ul>');inList=true;}
+      out.push('<li>'+(bm?bm[1]:nm[1])+'<\\/li>');
+    }else{
+      if(inList){out.push('<\\/ul>');inList=false;}
+      if(ln.trim()==='')out.push('<\\/p><p>');
+      else out.push(ln);
+    }
+  }
+  if(inList)out.push('<\\/ul>');
+  return '<p>'+out.join(' ')+'<\\/p>';
+}
 function selectCoach(agent){
   S.bro.agent=agent;S.bro.messages=[];
   const name=((S.user&&S.user.name)||'').split(' ')[0]||'';
@@ -10063,28 +10144,50 @@ else if(S.tab==='bro'){
     h+='</div>';
     h+='</div></div>';
   } else {
-    // Chat with selected agent
+    // Chat with selected agent — modern iMessage-style UI
     const agName=S.bro.agent==='bri'?'Bri':'Bro';
     const agEmoji=S.bro.agent==='bri'?'\\u{1F469}\\u200D\\u{1F3EB}':'\\u{1F9D1}\\u200D\\u{1F3EB}';
     const agGrad=S.bro.agent==='bri'?'linear-gradient(135deg,#EC4899,#F9A8D4)':'linear-gradient(135deg,#6366F1,#818CF8)';
-    h+='<button class="coach-back" onclick="S.bro.agent=null;S.bro.messages=[];render()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg> Switch coach</button>';
-    h+='<div class="section-hd"><span class="section-ic" style="background:'+agGrad+'">'+agEmoji+'</span><div><h3>'+agName+' \\u2022 your growth coach</h3><p>Talk about goals, habits, fitness, routines, mindset \\u2014 level up every day</p></div></div>';
-    if(S.bro.speaking)h+='<div class="bro-speaking-indicator'+(S.bro.agent==='bri'?' bri-speaking':'')+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg> '+agName+' is speaking\\u2026 <button onclick="broStopSpeaking()" style="background:none;border:none;cursor:pointer;color:inherit;font-weight:700;padding:0 4px">\\u2716</button></div>';
+    const agAccent=S.bro.agent==='bri'?'bri':'bro';
+    h+='<div class="bro-container">';
+    // Header
+    h+='<div class="bro-header">';
+    h+='<button class="coach-back" onclick="S.bro.agent=null;S.bro.messages=[];render()" style="margin:0;padding:4px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg></button>';
+    h+='<div class="bro-header-avatar" style="background:'+agGrad+'">'+agEmoji+'</div>';
+    h+='<div class="bro-header-info"><div class="bro-header-name">'+agName+'<span class="bro-online"></span></div><div class="bro-header-sub">Your personal growth coach</div></div>';
+    h+='<div class="bro-header-actions">';
+    h+='<button class="bro-header-btn" onclick="broVoiceToggle()" title="Voice"><svg width="18" height="18" viewBox="0 0 24 24" fill="'+(S.bro.listening?'#EF4444':'none')+'" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/></svg></button>';
+    h+='</div></div>';
+    // Speaking indicator
+    if(S.bro.speaking)h+='<div class="bro-speaking-bar '+agAccent+'-accent"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg> '+agName+' is speaking\\u2026 <button onclick="broStopSpeaking()">\\u2716</button></div>';
+    // Chat messages
     h+='<div class="bro-chat" id="broChat">';
+    if(S.bro.messages.length<=1){
+      h+='<div class="bro-welcome"><div class="bro-welcome-avatar" style="background:'+agGrad+'">'+agEmoji+'</div>';
+      h+='<div class="bro-welcome-text">Ask '+agName+' anything about personal growth, habits, mindset, fitness, or routines.</div>';
+      h+='<div class="bro-suggestions">';
+      h+='<button class="bro-suggest-btn" onclick="S.bro.input=\\'How do I build a morning routine?\\';broSend()">Morning routine</button>';
+      h+='<button class="bro-suggest-btn" onclick="S.bro.input=\\'Help me set a 30-day fitness goal\\';broSend()">Fitness goal</button>';
+      h+='<button class="bro-suggest-btn" onclick="S.bro.input=\\'How to stay consistent with habits?\\';broSend()">Stay consistent</button>';
+      h+='</div></div>';
+    }
     S.bro.messages.forEach(m=>{
       const isAgent=m.role==='bro';
       h+='<div class="bro-msg '+(isAgent?'bro-msg-ai':'bro-msg-user')+'">';
       if(isAgent)h+='<div class="bro-avatar" style="background:'+agGrad+'">'+agEmoji+'</div>';
-      h+='<div class="bro-bubble">'+esc(m.text)+'</div>';
-      if(isAgent)h+='<button class="bro-speak-btn" onclick="broSpeak(this)" title="Listen"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button>';
-      h+='</div>';
+      h+='<div class="bro-msg-content">';
+      h+='<div class="bro-bubble '+(isAgent?'':'bro-bubble-'+agAccent)+'">'+broMd(m.text)+'</div>';
+      if(isAgent)h+='<div class="bro-msg-actions"><button class="bro-speak-btn" onclick="broSpeak(this)" title="Listen"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button></div>';
+      h+='</div></div>';
     });
-    if(S.bro.sending)h+='<div class="bro-msg bro-msg-ai"><div class="bro-avatar" style="background:'+agGrad+'">'+agEmoji+'</div><div class="bro-bubble bro-typing">Thinking\\u2026</div></div>';
+    if(S.bro.sending)h+='<div class="bro-typing-wrap"><div class="bro-avatar" style="background:'+agGrad+'">'+agEmoji+'</div><div class="bro-typing"><span class="bro-typing-dot"></span><span class="bro-typing-dot"></span><span class="bro-typing-dot"></span></div></div>';
     h+='</div>';
+    // Input bar
+    h+='<div class="bro-input-wrap">';
     h+='<div class="bro-input-bar">';
-    h+='<button class="bro-mic-btn'+(S.bro.listening?' bro-mic-on':'')+'" onclick="broVoiceToggle()" title="Speak to '+agName+'"><svg width="20" height="20" viewBox="0 0 24 24" fill="'+(S.bro.listening?'#EF4444':'none')+'" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/></svg></button>';
-    h+='<input class="bro-input" id="broInput" value="'+esc(S.bro.input)+'" placeholder="Ask '+agName+' anything\\u2026" oninput="S.bro.input=this.value" onkeydown="if(event.key===\\'Enter\\')broSend()">';
-    h+='<button class="bro-send-btn" onclick="broSend()" '+(S.bro.sending?'disabled':'')+' style="color:'+(S.bro.agent==='bri'?'#EC4899':'#6366F1')+'">\\u2794</button>';
+    h+='<input class="bro-input" id="broInput" value="'+esc(S.bro.input)+'" placeholder="Message '+agName+'\\u2026" oninput="S.bro.input=this.value" onkeydown="if(event.key===\\'Enter\\')broSend()">';
+    h+='<button class="bro-send-btn bro-send-'+agAccent+'" onclick="broSend()" '+(S.bro.sending?'disabled':'')+'><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>';
+    h+='</div></div>';
     h+='</div>';
   }
 }
