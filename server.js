@@ -362,7 +362,7 @@ try{_fs.mkdirSync(TTS_CACHE_DIR,{recursive:true})}catch(e){}
 // Cache key bumped to v2 so the new warmer voice settings (stability 0.5, style 0.20)
 // don't serve the old monotone cached audio. Old chunks stay on disk but go unused
 // until a future cleanup task; cost of duplication is small.
-function _ttsCacheKey(text,voice,model){return _crypto.createHash('sha256').update('v2:'+voice+':'+model+':'+text).digest('hex')}
+function _ttsCacheKey(text,voice,model,style){return _crypto.createHash('sha256').update('v3:'+voice+':'+model+':'+(style||'')+':'+text).digest('hex')}
 function _ttsCachePath(key){return _path.join(TTS_CACHE_DIR,key+'.mp3')}
 let _ttsCacheStats={hits:0,misses:0};
 app.post('/api/coach/speak',auth,async(req,res)=>{
@@ -371,7 +371,8 @@ app.post('/api/coach/speak',auth,async(req,res)=>{
   if(!text)return res.status(400).json({error:'text required'});
   const voice=String((req.body&&req.body.voice)||ELEVENLABS_VOICE).replace(/[^a-zA-Z0-9]/g,'');
   const model='eleven_turbo_v2_5';
-  const cacheKey=_ttsCacheKey(text,voice,model);
+  const styleKey=String(req.body.stability||'')+':'+(req.body.style||'');
+  const cacheKey=_ttsCacheKey(text,voice,model,styleKey);
   const cachePath=_ttsCachePath(cacheKey);
   // Cache hit — stream the saved file
   try{
@@ -386,12 +387,7 @@ app.post('/api/coach/speak',auth,async(req,res)=>{
     const r=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+voice,{
       method:'POST',
       headers:{'Content-Type':'application/json','xi-api-key':ELEVENLABS_KEY,'Accept':'audio/mpeg'},
-      // Warmer, more expressive Headspace-style narration tuning:
-      // - stability 0.5 (was 0.7): allows natural inflection on emphasis words instead of monotone
-      // - style 0.20 (was 0.05): adds gentle emotional warmth without theatricality
-      // - similarity_boost 0.75 (was 0.85): a touch more expressive room
-      // - speaker_boost on for clarity on phone speakers
-      body:JSON.stringify({text,model_id:model,voice_settings:{stability:0.5,similarity_boost:0.75,style:0.20,use_speaker_boost:true}})
+      body:JSON.stringify({text,model_id:model,voice_settings:{stability:Number(req.body.stability)||0.35,similarity_boost:Number(req.body.similarity_boost)||0.7,style:Number(req.body.style)||0.35,use_speaker_boost:true}})
     });
     if(!r.ok){const t=await r.text();return res.status(502).json({error:t.slice(0,200)})}
     const audio=Buffer.from(await r.arrayBuffer());
@@ -9240,7 +9236,7 @@ function selectCoach(agent){
   }
   render();
 }
-var BRO_VOICES={bro:'JBFqnCBsd6RMkjVDRZzb',bri:'EXAVITQu4vr4xnSDxMaL'};
+var BRO_VOICES={bro:'TX3LPaxmHKxF',bri:'cgSgspJ2msm6'};
 function pickVoiceForAgent(agent){
   try{const vs=speechSynthesis.getVoices()||[];if(!vs.length)return null;
   const en=vs.filter(v=>(v.lang||'').toLowerCase().startsWith('en'));
@@ -9279,7 +9275,7 @@ async function _broElevenSpeak(txt){
   broStopSpeaking();
   S.bro.speaking=true;render();
   try{
-    var r=await fetch('/api/coach/speak',{method:'POST',headers:{'Content-Type':'application/json','x-token':localStorage.getItem('token')||''},body:JSON.stringify({text:txt.slice(0,2000),voice:voice})});
+    var r=await fetch('/api/coach/speak',{method:'POST',headers:{'Content-Type':'application/json','x-token':localStorage.getItem('token')||''},body:JSON.stringify({text:txt.slice(0,2000),voice:voice,stability:0.3,similarity_boost:0.65,style:0.45})});
     if(!r.ok){var j=await r.json().catch(function(){return {}});if(j.fallback==='browser-tts')return false;throw new Error(j.error||'TTS failed');}
     var blob=await r.blob();
     var url=URL.createObjectURL(blob);
