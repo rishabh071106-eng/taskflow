@@ -3168,7 +3168,7 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
    horizontally scrollable so all 9 tabs are reachable without truncation,
    springy active state, smooth motion. Tab names always visible, never abbreviated. */
 @media (max-width:1023px){
-  body{padding-left:0 !important;padding-bottom:120px !important}
+  body{padding-left:0 !important;padding-bottom:110px !important}
   /* Hide all desktop-only side-col contents on mobile EXCEPT the bottom nav (.tabs.page-t),
      which is repositioned as the fixed bottom bar. The life-goal card, side-now widget,
      etc. would otherwise render in normal flow ABOVE the bottom nav and either overlap
@@ -3180,18 +3180,18 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
     bottom:0 !important;left:0 !important;right:0 !important;top:auto !important;
     width:100% !important;
     flex-direction:row !important;
-    justify-content:space-around !important;
+    justify-content:space-evenly !important;
     overflow-x:auto !important;overflow-y:visible !important;
-    background:rgba(255,255,255,.92) !important;
-    backdrop-filter:saturate(180%) blur(28px) !important;
-    -webkit-backdrop-filter:saturate(180%) blur(28px) !important;
+    background:#FFFFFF !important;
+    backdrop-filter:none !important;
+    -webkit-backdrop-filter:none !important;
     border:0 !important;
-    border-top:1px solid rgba(0,0,0,.06) !important;
+    border-top:1.5px solid #E5E7EB !important;
     border-radius:0 !important;
-    padding:10px 6px calc(12px + env(safe-area-inset-bottom,0px)) !important;
+    padding:8px 4px calc(10px + env(safe-area-inset-bottom,0px)) !important;
     gap:0 !important;
     z-index:60 !important;
-    box-shadow:0 -2px 16px rgba(0,0,0,.06) !important;
+    box-shadow:0 -4px 24px rgba(0,0,0,.1) !important;
     margin:0 !important;
   }
   .tabs.page-t::after{display:none !important}
@@ -3200,37 +3200,37 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
   .tabs.page-t .tab{
     flex:1 1 0 !important;
     min-width:0 !important;
-    padding:6px 2px 4px !important;
+    padding:8px 2px 6px !important;
     flex-direction:column !important;
     align-items:center !important;
     justify-content:center !important;
     text-align:center !important;
-    min-height:60px !important;
-    border-radius:12px !important;
-    gap:5px !important;
-    transition:color .2s ease,transform .15s ease !important;
+    min-height:64px !important;
+    border-radius:14px !important;
+    gap:4px !important;
+    transition:all .2s ease !important;
     background:transparent !important;
-    color:#9CA3AF !important;
+    color:#A0A0A0 !important;
     box-shadow:none !important;
     position:relative;
     overflow:visible;
   }
   .tabs.page-t .tab::before{display:none !important}
   .tabs.page-t .tab .ti{
-    font-size:28px !important;
-    width:34px !important;height:34px !important;
+    font-size:26px !important;
+    width:36px !important;height:36px !important;
     display:flex !important;align-items:center !important;justify-content:center !important;
-    transition:transform .2s ease,color .2s ease !important;
+    transition:all .25s cubic-bezier(.34,1.56,.64,1) !important;
     color:inherit !important;
-    background:none !important;border-radius:0 !important;box-shadow:none !important;
+    background:none !important;border-radius:12px !important;box-shadow:none !important;
     overflow:visible !important;
   }
   .tabs.page-t .tab .ti::after{display:none !important}
   .tabs.page-t .tab .ti::before{display:none !important}
-  .tabs.page-t .tab .ti svg{width:28px !important;height:28px !important;filter:none !important;stroke-width:1.8 !important}
+  .tabs.page-t .tab .ti svg{width:26px !important;height:26px !important;filter:none !important;stroke-width:2 !important}
   .tabs.page-t .tab .tl{
     font-family:var(--sans) !important;
-    font-size:12px !important;
+    font-size:11.5px !important;
     font-weight:600 !important;
     letter-spacing:.01em !important;
     text-transform:none !important;
@@ -3238,30 +3238,31 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
     color:inherit !important;
     opacity:1 !important;
     overflow:hidden;text-overflow:ellipsis;max-width:100%;
-    margin-top:0 !important;
+    margin-top:1px !important;
   }
-  .tabs.page-t .tab.tab-cal .tl{font-size:11.5px !important;letter-spacing:0 !important}
-  .tabs.page-t .tab:active{transform:scale(.9) !important}
+  .tabs.page-t .tab.tab-cal .tl{font-size:11px !important;letter-spacing:0 !important}
+  .tabs.page-t .tab:active{transform:scale(.88) !important}
   .tabs.page-t .tab.on{
     color:#78552B !important;
     transform:none !important;
-    background:transparent !important;
+    background:rgba(120,85,43,.08) !important;
   }
   .tabs.page-t .tab.on .ti{
-    transform:scale(1.12) !important;background:none !important;box-shadow:none !important;
+    transform:scale(1.1) !important;background:none !important;box-shadow:none !important;
+    color:#78552B !important;
   }
-  .tabs.page-t .tab.on .tl{color:#78552B !important;font-weight:700 !important;opacity:1 !important;font-size:12.5px !important}
+  .tabs.page-t .tab.on .tl{color:#78552B !important;font-weight:800 !important;opacity:1 !important;font-size:11.5px !important}
   .tabs.page-t .tab.on::after{
     content:'' !important;display:block !important;
-    width:5px !important;height:5px !important;border-radius:50% !important;
-    background:#78552B !important;
-    position:absolute !important;bottom:1px !important;left:50% !important;
+    width:20px !important;height:3px !important;border-radius:2px !important;
+    background:linear-gradient(90deg,#78552B,#C2703E) !important;
+    position:absolute !important;top:2px !important;left:50% !important;
     transform:translateX(-50%) !important;
   }
   /* Float other UI above the new bottom bar */
-  .bk-mini{bottom:116px !important;right:14px !important}
-  .player{bottom:116px !important;left:12px !important;right:96px !important}
-  .fab{bottom:114px !important;right:18px !important}
+  .bk-mini{bottom:120px !important;right:14px !important}
+  .player{bottom:120px !important;left:12px !important;right:96px !important}
+  .fab{bottom:118px !important;right:18px !important}
   /* Other surfaces stay readable — not bloated */
   .flt button.fb,.fb{padding:11px 16px !important;font-size:14.5px !important;min-height:44px !important;border-radius:12px !important}
   .add-bar .plus{font-size:30px !important;width:46px !important;height:46px !important}
@@ -3270,10 +3271,11 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
   .section-hd h3{font-size:19px !important}
   .stats .st b{font-size:22px !important}
 }
-body[data-theme=aurora] .tabs.page-t{background:rgba(20,20,36,.92) !important;border-color:rgba(255,255,255,.06) !important}
+body[data-theme=aurora] .tabs.page-t{background:rgba(20,20,36,.97) !important;border-color:rgba(255,255,255,.08) !important;box-shadow:0 -4px 24px rgba(0,0,0,.3) !important}
 body[data-theme=aurora] .tabs.page-t .tab{color:rgba(255,255,255,.4) !important}
-body[data-theme=aurora] .tabs.page-t .tab.on{color:#D4A574 !important}
+body[data-theme=aurora] .tabs.page-t .tab.on{color:#D4A574 !important;background:rgba(212,165,116,.1) !important}
 body[data-theme=aurora] .tabs.page-t .tab.on .tl{color:#D4A574 !important}
+body[data-theme=aurora] .tabs.page-t .tab.on::after{background:linear-gradient(90deg,#D4A574,#E8D5C4) !important}
 /* Desktop sidebar layout */
 @media (min-width:1024px){
   .app{max-width:1440px;padding:12px 24px 40px;display:grid;grid-template-columns:220px 1fr;grid-template-areas:"hdr hdr" "side main";column-gap:22px;row-gap:6px;align-items:start}
@@ -4958,7 +4960,7 @@ body.audio-on .fab-global{bottom:calc(96px + env(safe-area-inset-bottom,0px))!im
 .qc-input::placeholder{color:var(--ink-3,#94A3B8)}
 .qc-send{width:38px;height:38px;border-radius:50%;border:none;background:linear-gradient(135deg,#3DAE5C,#2D8A4E);color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .15s;box-shadow:0 2px 8px rgba(61,174,92,.3)}
 .qc-send:active{transform:scale(.92)}
-@media(max-width:1023px){.qc-bar{padding:20px 18px;border-radius:20px;margin-bottom:18px;border-width:2px;box-shadow:0 4px 16px rgba(0,0,0,.08)}.qc-input{font-size:18px;padding:12px 0;min-height:48px}.qc-input::placeholder{font-size:17px}.qc-send{width:52px;height:52px;font-size:26px;font-weight:700}.qc-chips{gap:12px;margin-top:14px;flex-wrap:wrap}.qc-chip{padding:14px 26px;font-size:16px;border-radius:30px;font-weight:700;letter-spacing:.02em;border-width:2px}.qc-chip .qc-dot{width:12px;height:12px}}
+@media(max-width:1023px){.qc-bar{padding:22px 20px;border-radius:22px;margin-bottom:20px;border:2px solid #D4A574;box-shadow:0 6px 24px rgba(120,85,43,.12);background:#FFFBF7 !important}.qc-row{gap:14px}.qc-input{font-size:19px;padding:14px 0;min-height:52px;font-weight:500}.qc-input::placeholder{font-size:17px;color:#B8A394}.qc-send{width:56px;height:56px;font-size:28px;font-weight:800;background:linear-gradient(135deg,#78552B,#C2703E) !important;box-shadow:0 4px 16px rgba(120,85,43,.35)}.qc-chips{gap:10px;margin-top:16px;flex-wrap:wrap}.qc-chip{padding:14px 24px;font-size:16px;border-radius:30px;font-weight:700;letter-spacing:.02em;border-width:2.5px}.qc-chip .qc-dot{width:12px;height:12px}.qc-expand{font-size:14px !important;font-weight:700 !important;color:#78552B !important;background:rgba(120,85,43,.08);padding:10px 18px;border-radius:24px;transition:all .15s}}
 .qc-chips{display:flex;gap:6px;margin-top:8px;align-items:center}
 .qc-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;border:1.5px solid transparent;font-size:11.5px;font-weight:600;cursor:pointer;transition:all .15s;background:var(--bg,#F1F5F9);color:var(--ink-2,#64748B);user-select:none}
 .qc-chip:active{transform:scale(.95)}
@@ -6526,8 +6528,8 @@ body[data-theme=aurora] .bro-img-err{background:rgba(239,68,68,.12)}
   body.bro-tab .moral-wrap{display:none !important}
   body.bro-tab .tab-hero{display:none !important}
   body.bro-tab .bro-container{position:fixed !important;top:0 !important;left:0 !important;right:0 !important;bottom:0 !important;height:100% !important;margin:0 !important;z-index:50 !important;border-radius:0 !important}
-  body.bro-tab .bro-chat{padding-bottom:calc(80px + env(safe-area-inset-bottom,0px) + 82px) !important}
-  body.bro-tab .bro-input-wrap{bottom:calc(82px + env(safe-area-inset-bottom,0px)) !important;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px)) !important}
+  body.bro-tab .bro-chat{padding-bottom:calc(80px + env(safe-area-inset-bottom,0px) + 86px) !important}
+  body.bro-tab .bro-input-wrap{bottom:calc(86px + env(safe-area-inset-bottom,0px)) !important;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px)) !important}
   body.bro-tab .tabs.page-t{z-index:61 !important}
 }
 /* ─── COACH SELECTOR ─── */
