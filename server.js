@@ -3210,7 +3210,7 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
     gap:4px !important;
     transition:all .3s cubic-bezier(.34,1.56,.64,1) !important;
     background:transparent !important;
-    color:#C4B5A3 !important;
+    color:#8B7355 !important;
     box-shadow:none !important;
     position:relative;
     overflow:visible;
@@ -3222,12 +3222,12 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
     display:flex !important;align-items:center !important;justify-content:center !important;
     transition:all .3s cubic-bezier(.34,1.56,.64,1) !important;
     color:inherit !important;
-    background:#F5EDE4 !important;border-radius:14px !important;border:1.5px solid rgba(120,85,43,.15) !important;box-shadow:inset 0 1px 2px rgba(0,0,0,.04) !important;
+    background:#EDE3D5 !important;border-radius:14px !important;border:1.5px solid rgba(120,85,43,.22) !important;box-shadow:inset 0 1px 2px rgba(0,0,0,.04) !important;
     overflow:visible !important;
   }
   .tabs.page-t .tab .ti::after{display:none !important}
   .tabs.page-t .tab .ti::before{display:none !important}
-  .tabs.page-t .tab .ti svg{width:22px !important;height:22px !important;filter:none !important;stroke-width:2.2 !important}
+  .tabs.page-t .tab .ti svg{width:22px !important;height:22px !important;filter:none !important;stroke-width:2.4 !important;color:#8B7355 !important}
   .tabs.page-t .tab .tl{
     font-family:var(--sans) !important;
     font-size:11px !important;
