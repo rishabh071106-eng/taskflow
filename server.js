@@ -7303,7 +7303,7 @@ document.addEventListener('visibilitychange',async()=>{if(document.visibilitySta
 function toggleTheme(){S.theme=S.theme==='aurora'?'classic':'aurora';localStorage.setItem('theme',S.theme);document.body.setAttribute('data-theme',S.theme);toast(S.theme==='aurora'?'\\u{1F30C} Aurora theme on':'\\u2728 Classic theme on');render()}
 function applyTheme(){document.body.setAttribute('data-theme',S.theme||'aurora');applyColorThemeCSS(S.themeColor||'blue')}
 const _COLOR_THEMES={
-  blue:{c1:'#4A6CF7',c2:'#6B89F9',c3:'#93AAFB',c4:'#1B2541',c5:'#3858D6',bg:'#EEF1FF',bg2:'#F5F7FF',border:'#E2E6F0',rgba1:'74,108,247',rgba2:'107,137,249'},
+  blue:{c1:'#6B89F9',c2:'#93AAFB',c3:'#B4C6FC',c4:'#1B2541',c5:'#4A6CF7',bg:'#F0F4FF',bg2:'#F7F9FF',border:'#E2E6F0',rgba1:'107,137,249',rgba2:'147,170,251'},
   emerald:{c1:'#10B981',c2:'#34D399',c3:'#6EE7B7',c4:'#064E3B',c5:'#059669',bg:'#ECFDF5',bg2:'#F0FDF4',border:'#D1FAE5',rgba1:'16,185,129',rgba2:'52,211,153'},
   violet:{c1:'#8B5CF6',c2:'#A78BFA',c3:'#C4B5FD',c4:'#2E1065',c5:'#7C3AED',bg:'#F5F3FF',bg2:'#FAF5FF',border:'#E9D5FF',rgba1:'139,92,246',rgba2:'167,139,250'},
   rose:{c1:'#F43F5E',c2:'#FB7185',c3:'#FDA4AF',c4:'#4C0519',c5:'#E11D48',bg:'#FFF1F2',bg2:'#FFF5F6',border:'#FECDD3',rgba1:'244,63,94',rgba2:'251,113,133'},
@@ -10033,7 +10033,7 @@ if(isMain){
     +'<div class="hgc-left">'
       +'<div class="hgc-greet">'+esc(_greet)+(_firstName?', <em>'+esc(_firstName)+'</em>':'')+'</div>'
       +'<div class="hgc-sub">'+esc(_today)+' \\u00B7 '+esc(_statusLine)+'</div>'
-      +'<div class="hgc-day">Day '+_dayOfYear+' \\u00B7 '+_daysLeft+' left \\u00B7 '+_yearPct+'%<span class="hgc-day-bar"><i style="width:'+_yearPct+'%"></i></span></div>'
+      +'<div class="hgc-day">Day '+_dayOfYear+' of 365 \\u00B7 '+_daysLeft+' left in year \\u00B7 '+_yearPct+'%<span class="hgc-day-bar"><i style="width:'+_yearPct+'%"></i></span></div>'
       +'<div class="hgc-wx" onclick="event.stopPropagation();S.weatherExpanded=!S.weatherExpanded;render()">'+(_w.temp!=null?(_w.temp>30?'\\u2600\\uFE0F':_w.temp>20?'\\u26C5':'\\u2601\\uFE0F')+' '+_w.temp+'\\u00B0C \\u00B7 '+esc(_w.city||'')+(_wxRainHint>0?' \\u00B7 \\u{1F327}\\uFE0F'+_wxRainHint+'d rain':'')+'  \\u25BE':'')+'</div>'
     +'</div>'
     +'<div class="hgc-right">'
@@ -10308,7 +10308,7 @@ if(S.tab==='tasks'){
   h+='<div class="qc-notebook"><div class="qc-nb-cover"><div class="qc-nb-ring"></div><div class="qc-nb-ring"></div><div class="qc-nb-ring"></div><div class="qc-nb-ring"></div><div class="qc-nb-line"></div><div class="qc-nb-line"></div><div class="qc-nb-line"></div><div class="qc-nb-line"></div><div class="qc-nb-ink"></div><div class="qc-nb-ink"></div><div class="qc-nb-ink"></div></div><div class="qc-nb-check"></div></div>';
   h+='<div class="qc-pencil"></div>';
   h+='<div class="qc-sparkles"><div class="qc-sparkle"></div><div class="qc-sparkle"></div><div class="qc-sparkle"></div><div class="qc-sparkle"></div></div>';
-  h+='<div class="qc-cta-text">Write it down, get it done!</div>';
+  h+='<div class="qc-cta-text">Tap + to make your life faster</div>';
   h+='</div>';
   h+='<div class="qc-bar">';
   h+='<div class="qc-row"><input class="qc-input" placeholder="Add a task... (try: Buy milk tomorrow !high)" value="'+esc(S.compose.value||'')+'" oninput="composeUpdate(this.value)" onkeydown="if(event.key===\\'Enter\\')composeSubmit()">';
