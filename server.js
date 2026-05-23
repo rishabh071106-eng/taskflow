@@ -1677,20 +1677,28 @@ app.get('/api/history/today',async(req,res)=>{
 const weatherCache={};
 function _fetchT(url,ms){return new Promise((resolve)=>{const ctrl=new AbortController();const tm=setTimeout(()=>{try{ctrl.abort()}catch(e){}resolve({})},ms);fetch(url,{signal:ctrl.signal,headers:{'User-Agent':'Brodoit/1.0'}}).then(r=>r.json()).then(j=>{clearTimeout(tm);resolve(j||{})}).catch(()=>{clearTimeout(tm);resolve({})})})}
 app.get('/api/weather',async(req,res)=>{
-  const city=String(req.query.city||'Bangalore').slice(0,80).trim();
-  const key=city.toLowerCase();
+  const hasCoords=req.query.lat&&req.query.lon;
+  const city=hasCoords?'gps':String(req.query.city||'Bangalore').slice(0,80).trim();
+  const key=hasCoords?('gps:'+Number(req.query.lat).toFixed(2)+','+Number(req.query.lon).toFixed(2)):city.toLowerCase();
   const c=weatherCache[key];
-  // Only honor cache if it has a real temp (or has a fresh partial that's <90s old)
   if(c&&c.data){
     const fresh=Date.now()-c.ts;
     if(c.data.temp!=null&&fresh<15*60*1000)return res.json({...c.data,cached:true});
     if(c.data.temp==null&&fresh<90*1000)return res.json({...c.data,cached:true,partial:true});
   }
   try{
-    const geoJ=await _fetchT('https://geocoding-api.open-meteo.com/v1/search?count=1&language=en&format=json&name='+encodeURIComponent(city),5000);
-    const place=(geoJ.results||[])[0];
-    if(!place)return res.json({error:'city_not_found',city});
-    const lat=place.latitude,lon=place.longitude,cityName=place.name,country=place.country_code||'';
+    let lat,lon,cityName,country='';
+    if(hasCoords){
+      lat=Number(req.query.lat);lon=Number(req.query.lon);
+      const revGeo=await _fetchT('https://geocoding-api.open-meteo.com/v1/search?count=1&language=en&format=json&name='+encodeURIComponent(lat.toFixed(1)+','+lon.toFixed(1)),3000);
+      const rgPlace=(revGeo.results||[])[0];
+      cityName=rgPlace?rgPlace.name:'Your location';country=rgPlace?rgPlace.country_code||'':'';
+    }else{
+      const geoJ=await _fetchT('https://geocoding-api.open-meteo.com/v1/search?count=1&language=en&format=json&name='+encodeURIComponent(city),5000);
+      const place=(geoJ.results||[])[0];
+      if(!place)return res.json({error:'city_not_found',city});
+      lat=place.latitude;lon=place.longitude;cityName=place.name;country=place.country_code||'';
+    }
     // Use the modern Open-Meteo "current" param (current_weather is legacy and occasionally drops fields)
     const [wxR,aqR]=await Promise.all([
       _fetchT('https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&current=temperature_2m,weather_code',5000),
@@ -3096,16 +3104,16 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
     flex-direction:row !important;
     justify-content:space-around !important;
     overflow-x:auto !important;overflow-y:visible !important;
-    background:rgba(255,255,255,.92) !important;
+    background:rgba(255,255,255,.95) !important;
     backdrop-filter:saturate(180%) blur(28px) !important;
     -webkit-backdrop-filter:saturate(180%) blur(28px) !important;
     border:0 !important;
     border-top:1px solid rgba(0,0,0,.06) !important;
     border-radius:0 !important;
-    padding:6px 4px calc(8px + env(safe-area-inset-bottom,0px)) !important;
+    padding:8px 6px calc(10px + env(safe-area-inset-bottom,0px)) !important;
     gap:0 !important;
     z-index:60 !important;
-    box-shadow:0 -1px 0 rgba(0,0,0,.04),0 -4px 16px rgba(0,0,0,.04) !important;
+    box-shadow:0 -2px 12px rgba(0,0,0,.06) !important;
     margin:0 !important;
   }
   .tabs.page-t::after{display:none !important}
@@ -3114,39 +3122,39 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
   .tabs.page-t .tab{
     flex:1 1 0 !important;
     min-width:0 !important;
-    padding:4px 2px 2px !important;
+    padding:6px 2px 4px !important;
     flex-direction:column !important;
     align-items:center !important;
     justify-content:center !important;
     text-align:center !important;
-    min-height:52px !important;
-    border-radius:10px !important;
-    gap:3px !important;
-    transition:color .2s ease !important;
+    min-height:58px !important;
+    border-radius:12px !important;
+    gap:4px !important;
+    transition:color .2s ease,transform .2s cubic-bezier(.34,1.56,.64,1) !important;
     background:transparent !important;
-    color:#8E8E93 !important;
+    color:#9CA3AF !important;
     box-shadow:none !important;
     position:relative;
     overflow:visible;
   }
   .tabs.page-t .tab::before{display:none !important}
   .tabs.page-t .tab .ti{
-    font-size:26px !important;
-    width:28px !important;height:28px !important;
+    font-size:28px !important;
+    width:32px !important;height:32px !important;
     display:flex !important;align-items:center !important;justify-content:center !important;
-    transition:transform .2s ease !important;
+    transition:transform .25s cubic-bezier(.34,1.56,.64,1) !important;
     color:inherit !important;
     background:none !important;border-radius:0 !important;box-shadow:none !important;
     overflow:visible !important;
   }
   .tabs.page-t .tab .ti::after{display:none !important}
   .tabs.page-t .tab .ti::before{display:none !important}
-  .tabs.page-t .tab .ti svg{width:24px !important;height:24px !important;filter:none !important;stroke-width:1.8 !important}
+  .tabs.page-t .tab .ti svg{width:26px !important;height:26px !important;filter:none !important;stroke-width:1.8 !important}
   .tabs.page-t .tab .tl{
     font-family:var(--sans) !important;
-    font-size:10.5px !important;
-    font-weight:500 !important;
-    letter-spacing:0 !important;
+    font-size:11.5px !important;
+    font-weight:600 !important;
+    letter-spacing:.01em !important;
     text-transform:none !important;
     white-space:nowrap !important;
     color:inherit !important;
@@ -3154,17 +3162,28 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
     overflow:hidden;text-overflow:ellipsis;max-width:100%;
     margin-top:0 !important;
   }
-  .tabs.page-t .tab.tab-cal .tl{font-size:10.5px !important;letter-spacing:0 !important}
-  .tabs.page-t .tab:active{transform:scale(.92) !important}
+  .tabs.page-t .tab.tab-cal .tl{font-size:11px !important;letter-spacing:0 !important}
+  .tabs.page-t .tab:active{transform:scale(.88) !important}
   .tabs.page-t .tab.on{
     color:#4F46E5 !important;
     transform:none !important;
     background:transparent !important;
   }
   .tabs.page-t .tab.on .ti{
-    transform:none !important;background:none !important;box-shadow:none !important;
+    transform:scale(1.15) translateY(-2px) !important;background:none !important;box-shadow:none !important;
+    animation:tabBounceIn .35s cubic-bezier(.34,1.56,.64,1) !important;
   }
-  .tabs.page-t .tab.on .tl{color:#4F46E5 !important;font-weight:600 !important;opacity:1 !important}
+  .tabs.page-t .tab.on .tl{color:#4F46E5 !important;font-weight:700 !important;opacity:1 !important}
+  .tabs.page-t .tab.on::after{
+    content:'' !important;display:block !important;
+    width:5px !important;height:5px !important;border-radius:50% !important;
+    background:#4F46E5 !important;
+    position:absolute !important;bottom:0 !important;left:50% !important;
+    transform:translateX(-50%) !important;
+    animation:tabDotIn .3s ease !important;
+  }
+  @keyframes tabBounceIn{0%{transform:scale(.8) translateY(0)}60%{transform:scale(1.2) translateY(-4px)}100%{transform:scale(1.15) translateY(-2px)}}
+  @keyframes tabDotIn{0%{transform:translateX(-50%) scale(0)}100%{transform:translateX(-50%) scale(1)}}
   /* Float other UI above the new bottom bar */
   .bk-mini{bottom:116px !important;right:14px !important}
   .player{bottom:116px !important;left:12px !important;right:96px !important}
@@ -6400,6 +6419,55 @@ body[data-theme=aurora] .hydration-info b{color:#7DD3FC}
 .hydration-glass{width:20px;height:20px;border-radius:6px;border:1.5px solid rgba(14,165,233,.3);display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .2s}
 .hydration-glass.filled{background:linear-gradient(135deg,#0EA5E9,#06B6D4);border-color:transparent}
 @keyframes hydDrop{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+/* ─── Info strip: weather + day counter + hydration ─── */
+.info-strip{display:flex;gap:10px;margin:0 0 16px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:2px 0}
+.info-strip::-webkit-scrollbar{display:none}
+.is-card{flex:1;min-width:0;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:16px;padding:14px 16px;transition:transform .2s,box-shadow .2s}
+.is-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,.06)}
+body[data-theme=aurora] .is-card{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.08)}
+.is-weather{cursor:pointer}
+.is-weather-top{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.is-weather-icon{font-size:28px;line-height:1}
+.is-weather-temp{font-size:26px;font-weight:700;font-family:var(--serif);color:#111827;letter-spacing:-.02em}
+body[data-theme=aurora] .is-weather-temp{color:#F5F5FA}
+.is-weather-city{font-size:12px;color:#6B7280;font-weight:500}
+.is-weather-aqi{font-size:11px;color:#9CA3AF;margin-top:2px}
+.is-daycounter{position:relative}
+.is-day-num{font-size:15px;font-weight:700;color:#111827;margin-bottom:8px}
+body[data-theme=aurora] .is-day-num{color:#F5F5FA}
+.is-day-bar{position:relative;height:6px;background:#E5E7EB;border-radius:3px;overflow:visible}
+.is-day-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#4F46E5,#818CF8);transition:width .5s ease}
+.is-walker{position:absolute;top:-18px;transform:translateX(-50%);animation:walkerBob 1s ease-in-out infinite}
+.walk-arm-l,.walk-arm-r,.walk-leg-l,.walk-leg-r{transform-origin:7px 7px}
+.walk-arm-l{animation:walkArmL .6s ease-in-out infinite alternate}
+.walk-arm-r{animation:walkArmR .6s ease-in-out infinite alternate}
+.walk-leg-l{animation:walkLegL .6s ease-in-out infinite alternate}
+.walk-leg-r{animation:walkLegR .6s ease-in-out infinite alternate}
+@keyframes walkerBob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-2px)}}
+@keyframes walkArmL{0%{transform:rotate(-15deg)}100%{transform:rotate(15deg)}}
+@keyframes walkArmR{0%{transform:rotate(15deg)}100%{transform:rotate(-15deg)}}
+@keyframes walkLegL{0%{transform:rotate(20deg)}100%{transform:rotate(-20deg)}}
+@keyframes walkLegR{0%{transform:rotate(-20deg)}100%{transform:rotate(20deg)}}
+.is-day-sub{font-size:11px;color:#9CA3AF;margin-top:8px;font-weight:500}
+.is-hydration{display:flex;flex-direction:column;gap:6px}
+.is-hyd-top{display:flex;align-items:center;gap:6px}
+.is-hyd-icon{font-size:22px;animation:hydDrop 2s ease-in-out infinite}
+.is-hyd-count{font-size:18px;font-weight:700;color:#0284C7;font-family:var(--serif)}
+body[data-theme=aurora] .is-hyd-count{color:#7DD3FC}
+.is-hyd-glasses{display:flex;gap:4px;flex-wrap:wrap}
+.is-hyd-dot{width:14px;height:14px;border-radius:50%;border:2px solid rgba(14,165,233,.3);transition:all .3s cubic-bezier(.34,1.56,.64,1)}
+.is-hyd-dot.filled{background:linear-gradient(135deg,#0EA5E9,#06B6D4);border-color:transparent;animation:hydFillIn .4s cubic-bezier(.34,1.56,.64,1)}
+@keyframes hydFillIn{0%{transform:scale(0)}100%{transform:scale(1)}}
+.is-hyd-actions{display:flex;gap:6px;margin-top:2px}
+.is-hyd-drink{padding:5px 12px;border-radius:8px;border:none;background:#0EA5E9;color:#fff;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;font-family:inherit}
+.is-hyd-drink:hover{background:#0284C7}
+.is-hyd-drink:active{transform:scale(.93)}
+.is-hyd-toggle{width:28px;height:28px;border-radius:8px;border:1px solid #E5E7EB;background:transparent;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.is-hyd-toggle.on{background:#FEF3C7;border-color:#F59E0B}
+@media(max-width:560px){
+  .info-strip{flex-direction:row;gap:8px;margin:0 -4px 12px}
+  .is-card{min-width:120px;flex:0 0 auto;padding:12px 14px;border-radius:14px}
+}
 </style></head><body>
 <div class="bg-blob a"></div><div class="bg-blob b"></div><div class="bg-blob c"></div><div class="bg-blob d"></div>
 <div class="ocean" aria-hidden="true">
@@ -8257,7 +8325,13 @@ function rollDice(){
   if(S.dice.rolling)return;S.dice.rolling=true;render();
   setTimeout(()=>{const a=1+Math.floor(Math.random()*6),b=1+Math.floor(Math.random()*6);S.dice.values=[a,b];S.dice.history.unshift(a+b);if(S.dice.history.length>10)S.dice.history.length=10;S.dice.rolling=false;render()},650);
 }
-async function loadWeather(){if(S.weather.loading)return;if(_isModalOpen()||_audioBusy())return;S.weather.loading=true;S.weather.error=null;try{const r=await fetch('/api/weather?city='+encodeURIComponent(S.weather.city||'Bangalore'));const j=await r.json();if(j.error){S.weather.error=j.error}else{S.weather.city=j.city||S.weather.city;S.weather.country=j.country||'';S.weather.temp=j.temp;S.weather.aqi=j.aqi}}catch(e){S.weather.error=String(e)}S.weather.loaded=true;S.weather.loading=false;if(_isModalOpen()||_audioBusy())return;renderPassive()}
+async function loadWeather(){if(S.weather.loading)return;if(_isModalOpen()||_audioBusy())return;S.weather.loading=true;S.weather.error=null;try{
+  let url='/api/weather?city='+encodeURIComponent(S.weather.city||'Bangalore');
+  if(S.weather._geoLat&&S.weather._geoLon){url='/api/weather?lat='+S.weather._geoLat+'&lon='+S.weather._geoLon}
+  const r=await fetch(url);const j=await r.json();if(j.error){S.weather.error=j.error}else{S.weather.city=j.city||S.weather.city;S.weather.country=j.country||'';S.weather.temp=j.temp;S.weather.aqi=j.aqi}
+}catch(e){S.weather.error=String(e)}S.weather.loaded=true;S.weather.loading=false;if(_isModalOpen()||_audioBusy())return;renderPassive()}
+function _tryGeoWeather(){if(!navigator.geolocation)return;if(localStorage.getItem('tf_city'))return;navigator.geolocation.getCurrentPosition(function(pos){S.weather._geoLat=pos.coords.latitude;S.weather._geoLon=pos.coords.longitude;S.weather.loaded=false;loadWeather()},function(){},{ timeout:8000,maximumAge:300000 })}
+setTimeout(_tryGeoWeather,3000);
 const INDIA_CITIES=['Delhi','Mumbai','Chennai','Bengaluru','Pune','Shimla','Indore','Jaipur'];
 const WORLD_CITY_LIST=[
   {key:'New York',label:'New York',tz:'America/New_York'},
@@ -9409,7 +9483,59 @@ if(isMain){
       +'<div class="hh-stat"><b>'+_streak+'</b><small>Streak</small></div>'
     +'</div>':'')
   +'</section>';
-  moralBlock=hero;
+  // --- Info strip: weather + day counter + walking man + hydration ---
+  _hydrationToday();
+  const _now=new Date();const _yStart=new Date(_now.getFullYear(),0,0);
+  const _dayOfYear=Math.floor((_now-_yStart)/86400000);
+  const _yearPct=Math.round(_dayOfYear/365*100);
+  const _daysLeft=365-_dayOfYear;
+  const _w=S.weather||{};
+  const _hyd=S.hydration;
+  let infoStrip='<div class="info-strip">';
+  // Weather card
+  infoStrip+='<div class="is-card is-weather" onclick="setCity()">'
+    +'<div class="is-weather-top">'
+      +'<span class="is-weather-icon">'+(_w.temp!=null?(_w.temp>30?'\\u2600\\uFE0F':_w.temp>20?'\\u26C5':'\\u2601\\uFE0F'):'\\u{1F321}\\uFE0F')+'</span>'
+      +'<span class="is-weather-temp">'+(_w.temp!=null?_w.temp+'\\u00B0':'--')+'</span>'
+    +'</div>'
+    +'<div class="is-weather-city">'+esc(_w.city||'Loading...')+'</div>'
+    +(_w.aqi!=null?'<div class="is-weather-aqi">AQI '+_w.aqi+'</div>':'')
+  +'</div>';
+  // Day counter with walking man
+  infoStrip+='<div class="is-card is-daycounter">'
+    +'<div class="is-day-num">Day '+_dayOfYear+'</div>'
+    +'<div class="is-day-bar"><div class="is-day-fill" style="width:'+_yearPct+'%"></div>'
+      +'<div class="is-walker" style="left:'+_yearPct+'%">'
+        +'<svg viewBox="0 0 14 18" width="14" height="18" fill="none" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">'
+          +'<circle cx="7" cy="3" r="2" fill="#4F46E5"/>'
+          +'<line x1="7" y1="5" x2="7" y2="11" stroke="#4F46E5"/>'
+          +'<g class="walk-arm-l"><line x1="7" y1="7" x2="3" y2="9" stroke="#4F46E5"/></g>'
+          +'<g class="walk-arm-r"><line x1="7" y1="7" x2="11" y2="6" stroke="#4F46E5"/></g>'
+          +'<g class="walk-leg-l"><line x1="7" y1="11" x2="4" y2="16" stroke="#4F46E5"/></g>'
+          +'<g class="walk-leg-r"><line x1="7" y1="11" x2="10" y2="16" stroke="#4F46E5"/></g>'
+        +'</svg>'
+      +'</div>'
+    +'</div>'
+    +'<div class="is-day-sub">'+_daysLeft+' days left \\u00B7 '+_yearPct+'%</div>'
+  +'</div>';
+  // Hydration card
+  infoStrip+='<div class="is-card is-hydration">'
+    +'<div class="is-hyd-top">'
+      +'<span class="is-hyd-icon">\\u{1F4A7}</span>'
+      +'<span class="is-hyd-count">'+_hyd.glass+'/'+_hyd.goal+'</span>'
+    +'</div>'
+    +'<div class="is-hyd-glasses">';
+  for(let _gi=0;_gi<_hyd.goal;_gi++){
+    infoStrip+='<span class="is-hyd-dot'+(_gi<_hyd.glass?' filled':'')+'"></span>';
+  }
+  infoStrip+='</div>'
+    +'<div class="is-hyd-actions">'
+      +'<button class="is-hyd-drink" onclick="event.stopPropagation();drinkWater()">+ Drink</button>'
+      +'<button class="is-hyd-toggle'+(_hyd.enabled?' on':'')+'" onclick="event.stopPropagation();toggleHydration()" title="'+(_hyd.enabled?'Reminders ON':'Turn on reminders')+'">\\u{1F514}</button>'
+    +'</div>'
+  +'</div>';
+  infoStrip+='</div>';
+  moralBlock=hero+infoStrip;
   // Bottom strip — keep moral + news ticker + clocks but tucked away as a subtle footer.
   const items=S.ticker.items||[];const baseIdx=S.ticker.idx||0;
   const visible=[0,1,2,3,4].map(o=>items[(baseIdx+o)%(items.length||1)]||{title:'Loading\\u2026',link:'#',source:''});
