@@ -7144,7 +7144,7 @@ function parseCompose(raw){
   for(const [re,fn,lbl] of dateRules){const m=t.match(re);if(m){dueDate=fn(m);dueLabel=typeof lbl==='function'?lbl(m):lbl;t=t.replace(re,' ');break}}
   return {title:t.replace(/\s+/g,' ').trim(),priority,dueDate,dueLabel}
 }
-function composeUpdate(v){S.compose.value=v;render()}
+function composeUpdate(v){S.compose.value=v}
 function composeSetDate(d){S.compose.dueDate=S.compose.dueDate===d?null:d;render()}
 function composeSetPriority(p){S.compose.priority=S.compose.priority===p?null:p;render()}
 async function composeSubmit(){
