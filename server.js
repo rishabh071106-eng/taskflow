@@ -6751,6 +6751,17 @@ body[data-theme=aurora] .bro-img-err{background:rgba(239,68,68,.12)}
   body.bro-tab .bro-input-bar{padding:6px 6px 6px 14px}
   body.bro-tab .bro-send-btn{width:32px;height:32px}
   body.bro-tab .tabs.page-t{z-index:61 !important}
+  body.bro-tab .bro-welcome{padding:20px 16px 12px;gap:8px}
+  body.bro-tab .bro-welcome-avatar{width:40px;height:40px;font-size:20px}
+  body.bro-tab .bro-welcome-title{font-size:19px}
+  body.bro-tab .bro-welcome-text{font-size:13px;max-width:260px}
+  body.bro-tab .bro-scene{height:100px;max-width:280px;margin:4px auto 0}
+  body.bro-tab .bro-suggestions{margin-top:4px;gap:5px;padding:0 4px}
+  body.bro-tab .bro-suggest-btn{padding:6px 12px;font-size:12px}
+  body.bro-tab .bro-modes{margin-top:0;margin-bottom:2px}
+  body.bro-tab .bro-mode-btn{padding:6px 14px;font-size:12px}
+  body.bro-tab .bro-msg{gap:6px}
+  body.bro-tab .bro-chat{gap:12px}
 }
 /* ─── COACH SELECTOR ─── */
 .coach-select{display:flex;flex-direction:column;align-items:center;padding:40px 0 30px;gap:28px;background:#F8F9FB;border-radius:24px;margin:-8px -18px 0;padding-left:18px;padding-right:18px}
