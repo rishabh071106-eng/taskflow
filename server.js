@@ -6652,7 +6652,7 @@ body[data-theme=aurora] .bro-send-bro svg{stroke:#000}
 @keyframes broWelcomeIn{from{opacity:0;transform:translateY(16px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes broGlow{0%,100%{box-shadow:0 4px 20px rgba(196,122,58,.25)}50%{box-shadow:0 6px 28px rgba(196,122,58,.45)}}
 @keyframes broFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
-.bro-welcome{display:flex;flex-direction:column;align-items:center;gap:10px;padding:16px 20px 16px;text-align:center;margin:auto 0;animation:broWelcomeIn .6s cubic-bezier(.16,1,.3,1) both}
+.bro-welcome{display:flex;flex-direction:column;align-items:center;gap:10px;padding:20px 20px 16px;text-align:center;animation:broWelcomeIn .6s cubic-bezier(.16,1,.3,1) both}
 .bro-welcome-avatar{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 4px 20px rgba(196,122,58,.25);animation:broGlow 3s ease-in-out infinite,broFloat 4s ease-in-out infinite}
 .bro-welcome-title{font-family:var(--sans);font-size:22px;font-weight:700;color:#3A2D22;letter-spacing:-.02em;animation:broWelcomeIn .6s cubic-bezier(.16,1,.3,1) .1s both}
 body[data-theme=aurora] .bro-welcome-title{color:#ECECEC}
@@ -6754,15 +6754,15 @@ body[data-theme=aurora] .bro-img-err{background:rgba(239,68,68,.12)}
   body.bro-tab .bro-input-bar{padding:6px 6px 6px 14px}
   body.bro-tab .bro-send-btn{width:32px;height:32px}
   body.bro-tab .tabs.page-t{z-index:61 !important}
-  body.bro-tab .bro-welcome{padding:16px 16px 8px;gap:6px}
-  body.bro-tab .bro-welcome-avatar{width:36px;height:36px;font-size:18px}
-  body.bro-tab .bro-welcome-title{font-size:18px}
-  body.bro-tab .bro-welcome-text{font-size:13px;max-width:260px;line-height:1.4}
-  body.bro-tab .bro-scene{height:90px;max-width:260px;margin:2px auto 0;border-radius:16px}
-  body.bro-tab .bro-suggestions{margin-top:2px;gap:5px;padding:0 4px}
-  body.bro-tab .bro-suggest-btn{padding:5px 11px;font-size:12px}
-  body.bro-tab .bro-modes{margin-top:0;margin-bottom:0}
-  body.bro-tab .bro-mode-btn{padding:5px 13px;font-size:12px}
+  body.bro-tab .bro-welcome{padding:24px 16px 16px;gap:12px}
+  body.bro-tab .bro-welcome-avatar{width:52px;height:52px;font-size:26px}
+  body.bro-tab .bro-welcome-title{font-size:22px}
+  body.bro-tab .bro-welcome-text{font-size:14px;max-width:280px;line-height:1.5}
+  body.bro-tab .bro-scene{height:120px;max-width:300px;margin:6px auto 4px;border-radius:18px}
+  body.bro-tab .bro-suggestions{margin-top:10px;gap:7px;padding:0 10px}
+  body.bro-tab .bro-suggest-btn{padding:8px 12px;font-size:12px}
+  body.bro-tab .bro-modes{margin-top:2px;margin-bottom:4px;gap:10px}
+  body.bro-tab .bro-mode-btn{padding:8px 18px;font-size:14px}
   body.bro-tab .bro-msg{gap:6px}
 }
 /* ─── COACH SELECTOR ─── */
