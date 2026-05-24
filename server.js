@@ -6629,7 +6629,7 @@ body[data-theme=aurora] .bro-msg-meta{color:rgba(255,255,255,.25)}
 .bro-typing-dot:nth-child(3){animation-delay:.4s}
 body[data-theme=aurora] .bro-typing-dot{background:rgba(255,255,255,.4)}
 @keyframes broTypeDot{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-5px);opacity:1}}
-.bro-input-wrap{flex-shrink:0;padding:8px 14px 10px;background:#FBF7F1;border-top:none;z-index:20}
+.bro-input-wrap{flex-shrink:0;padding:8px 14px 10px;background:#FBF7F1;border-top:none;z-index:20;transition:padding .15s ease}
 body[data-theme=aurora] .bro-input-wrap{background:#212121}
 .bro-input-bar{display:flex;gap:8px;padding:14px 14px 14px 16px;background:rgba(58,45,34,.05);border:none;border-radius:14px;align-items:center;box-shadow:none;transition:background .2s}
 .bro-input-bar:focus-within{background:rgba(58,45,34,.08)}
@@ -6942,11 +6942,13 @@ body[data-theme=aurora] .tc-name{color:rgba(255,255,255,.7)}
 body[data-theme=aurora] .theme-chip.on .tc-name{color:#fff}
 /* Plan My Day */
 .pmd-wrap{margin-top:8px}
-.pmd-btn{display:flex;align-items:center;gap:8px;width:100%;padding:12px 16px;border:1.5px solid #E8E0D4;border-radius:14px;background:#fff;color:#2C3E6B;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit}
-.pmd-btn:hover{border-color:#C47A3A;color:#C47A3A}
+.pmd-btn{display:flex;align-items:center;gap:8px;width:100%;padding:14px 16px;border:none;border-radius:14px;background:rgba(196,122,58,.08);color:#3A2D22;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit}
+.pmd-btn:hover{background:rgba(196,122,58,.14);color:#A0612E}
 .pmd-btn:active{transform:scale(.97)}
 .pmd-btn svg{color:#C47A3A}
-.pmd-panel{background:#fff;border:1.5px solid #E8E0D4;border-radius:14px;padding:16px;margin-top:8px;animation:fadeSlideDown .2s ease-out}
+.pmd-btn .pmd-arrow{margin-left:auto;font-size:12px;transition:transform .2s;color:#9C8B7A}
+.pmd-btn.open .pmd-arrow{transform:rotate(180deg)}
+.pmd-panel{background:#FBF7F1;border:none;border-radius:14px;padding:16px;margin-top:8px;animation:fadeSlideDown .25s ease-out;box-shadow:0 2px 12px rgba(58,45,34,.06)}
 @keyframes fadeSlideDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
 .pmd-header{font-size:15px;font-weight:700;color:#3A2D22;margin-bottom:4px}
 .pmd-sub{font-size:12px;color:#9C8B7A;margin-bottom:12px}
@@ -9920,6 +9922,12 @@ function _broActionToast(actions){
     else if(a.tool==='create_schedule_block'&&a.result&&a.result.ok)toast('\\u{1F4CB} Block: '+a.result.block.label+' '+a.result.block.start+'-'+a.result.block.end);
   });
 }
+function _broFill(txt){
+  S.bro.input=txt;
+  var inp=document.getElementById('broInput');
+  if(inp){inp.value=txt;inp.focus();inp.setSelectionRange(txt.length,txt.length)}
+  else{render();setTimeout(function(){var el=document.getElementById('broInput');if(el){el.value=txt;el.focus();el.setSelectionRange(txt.length,txt.length)}},100)}
+}
 async function broSend(){
   var txt=(S.bro.input||'').trim();if(!txt||S.bro.sending)return;
   var userMsg=txt;
@@ -10214,7 +10222,7 @@ if(isMain){
   const _pmdOpen=!!S.planMyDay;
   const _pmdTasks=ts.filter(t=>t.status!=='done').slice(0,8);
   hero+='<div class="pmd-wrap">';
-  hero+='<button class="pmd-btn" onclick="event.stopPropagation();S.planMyDay=!S.planMyDay;render()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Plan My Day</button>';
+  hero+='<button class="pmd-btn'+(_pmdOpen?' open':'')+'" onclick="event.stopPropagation();S.planMyDay=!S.planMyDay;render()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Plan My Day <span class="pmd-arrow">▼</span></button>';
   if(_pmdOpen){
     hero+='<div class="pmd-panel">';
     hero+='<div class="pmd-header">\\u{1F4C5} Plan My Day</div>';
@@ -10915,15 +10923,15 @@ else if(S.tab==='bro'){
       h+='</div>';
       h+='<div class="bro-suggestions">';
       if(_bm==='friend'){
-        h+='<button class="bro-suggest-btn" onclick="S.bro.input=\\'How\\'s my vibe today?\\';broSend()">\\u2728 Check my vibe</button>';
-        h+='<button class="bro-suggest-btn" onclick="S.bro.input=\\'I\\'m feeling low today\\';broSend()">\\u{1F614} Feeling low</button>';
-        h+='<button class="bro-suggest-btn" onclick="S.bro.input=\\'Tell me something fun\\';broSend()">\\u{1F389} Something fun</button>';
-        h+='<button class="bro-suggest-btn" onclick="S.bro.input=\\'Roast me to motivate me\\';broSend()">\\u{1F525} Roast me</button>';
+        h+='<button class="bro-suggest-btn" onclick="_broFill(\\'How\\'s my vibe today?\\')">\\u2728 Check my vibe</button>';
+        h+='<button class="bro-suggest-btn" onclick="_broFill(\\'I\\'m feeling low because \\')">\\u{1F614} Feeling low</button>';
+        h+='<button class="bro-suggest-btn" onclick="_broFill(\\'Tell me something fun about \\')">\\u{1F389} Something fun</button>';
+        h+='<button class="bro-suggest-btn" onclick="_broFill(\\'Roast me to motivate me\\')">\\u{1F525} Roast me</button>';
       }else{
-        h+='<button class="bro-suggest-btn" onclick="S.bro.input=\\'Help me write a professional email\\';broSend()">\\u270D\\uFE0F Help me write</button>';
-        h+='<button class="bro-suggest-btn" onclick="S.bro.input=\\'Explain quantum computing simply\\';broSend()">\\u{1F9E0} Explain something</button>';
-        h+='<button class="bro-suggest-btn" onclick="S.bro.input=\\'Give me 5 startup ideas for 2026\\';broSend()">\\u{1F4A1} Brainstorm ideas</button>';
-        h+='<button class="bro-suggest-btn" onclick="S.bro.input=\\'Plan my day: \\';render();setTimeout(function(){var el=document.getElementById(\\'broInput\\');if(el){el.focus();el.setSelectionRange(el.value.length,el.value.length)}},100)">\\u{1F4C5} Plan my day</button>';
+        h+='<button class="bro-suggest-btn" onclick="_broFill(\\'Help me write \\')">\\u270D\\uFE0F Help me write</button>';
+        h+='<button class="bro-suggest-btn" onclick="_broFill(\\'Explain \\')">\\u{1F9E0} Explain something</button>';
+        h+='<button class="bro-suggest-btn" onclick="_broFill(\\'Give me ideas for \\')">\\u{1F4A1} Brainstorm ideas</button>';
+        h+='<button class="bro-suggest-btn" onclick="_broFill(\\'Plan my day: \\')">\\u{1F4C5} Plan my day</button>';
       }
       h+='</div></div>';
     }
