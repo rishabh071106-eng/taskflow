@@ -6520,11 +6520,11 @@ body[data-theme=aurora] .bro-typing-dot{background:rgba(255,255,255,.4)}
 @keyframes broTypeDot{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-5px);opacity:1}}
 .bro-input-wrap{flex-shrink:0;padding:8px 14px 10px;background:#FBF7F1;border-top:none;z-index:20;transition:padding .15s ease}
 body[data-theme=aurora] .bro-input-wrap{background:#212121}
-.bro-input-bar{display:flex;gap:8px;padding:14px 14px 14px 16px;background:rgba(58,45,34,.05);border:none;border-radius:14px;align-items:center;box-shadow:none;transition:background .2s}
+.bro-input-bar{display:flex;gap:8px;padding:14px 14px 14px 16px;background:rgba(58,45,34,.05);border:none;border-radius:18px;align-items:flex-end;box-shadow:none;transition:background .2s}
 .bro-input-bar:focus-within{background:rgba(58,45,34,.08)}
 body[data-theme=aurora] .bro-input-bar{background:rgba(255,255,255,.08);box-shadow:none}
 body[data-theme=aurora] .bro-input-bar:focus-within{background:rgba(255,255,255,.12)}
-.bro-input{flex:1;border:none;background:transparent;font-size:16px;outline:none;color:#3A2D22;font-family:inherit;padding:4px 0;line-height:1.5;min-height:24px;-webkit-appearance:none;appearance:none}
+.bro-input{flex:1;border:none;background:transparent;font-size:16px;outline:none;color:#3A2D22;font-family:inherit;padding:6px 0;line-height:1.5;min-height:40px;max-height:140px;resize:none;overflow-y:auto;word-wrap:break-word;overflow-wrap:break-word;white-space:pre-wrap;-webkit-appearance:none;appearance:none}
 .bro-input::placeholder{color:#B5A898}
 body[data-theme=aurora] .bro-input{color:#fff}
 body[data-theme=aurora] .bro-input::placeholder{color:rgba(255,255,255,.35)}
@@ -6645,8 +6645,8 @@ body[data-theme=aurora] .bro-img-err{background:rgba(239,68,68,.12)}
   body.bro-tab.kb-open .bro-container{height:var(--vv-h,100%) !important;top:var(--vv-top,0px) !important;bottom:auto !important}
   body.bro-tab.kb-open .bro-input-wrap{padding-bottom:8px !important;padding-top:8px !important}
   body.bro-tab.kb-open .tabs.page-t{display:none !important}
-  body.bro-tab .bro-input{font-size:16px !important;-webkit-text-size-adjust:none !important;caret-color:#C47A3A;line-height:1.5 !important;min-height:24px !important;padding:4px 0 !important;-webkit-appearance:none !important}
-  body.bro-tab .bro-input-bar{padding:14px 12px 14px 16px !important;border-radius:14px !important;background:rgba(58,45,34,.05) !important;box-shadow:none !important;border:none !important}
+  body.bro-tab .bro-input{font-size:16px !important;-webkit-text-size-adjust:none !important;caret-color:#C47A3A;line-height:1.5 !important;min-height:40px !important;max-height:120px !important;padding:6px 0 !important;-webkit-appearance:none !important;word-wrap:break-word !important;overflow-wrap:break-word !important;white-space:pre-wrap !important}
+  body.bro-tab .bro-input-bar{padding:12px 12px 12px 16px !important;border-radius:18px !important;background:rgba(58,45,34,.05) !important;box-shadow:none !important;border:none !important;align-items:flex-end !important}
   body.bro-tab .bro-send-btn{width:38px;height:38px}
   body.bro-tab .tabs.page-t{z-index:61 !important}
   body.bro-tab .bro-welcome{padding:24px 16px 16px;gap:12px}
@@ -11404,8 +11404,8 @@ function _broActionToast(actions){
 function _broFill(txt){
   S.bro.input=txt;
   var inp=document.getElementById('broInput');
-  if(inp){inp.value=txt;inp.focus();inp.setSelectionRange(txt.length,txt.length)}
-  else{render();setTimeout(function(){var el=document.getElementById('broInput');if(el){el.value=txt;el.focus();el.setSelectionRange(txt.length,txt.length)}},100)}
+  if(inp){inp.value=txt;inp.style.height='auto';inp.style.height=Math.min(inp.scrollHeight,140)+'px';inp.focus();inp.setSelectionRange(txt.length,txt.length)}
+  else{render();setTimeout(function(){var el=document.getElementById('broInput');if(el){el.value=txt;el.style.height='auto';el.style.height=Math.min(el.scrollHeight,140)+'px';el.focus();el.setSelectionRange(txt.length,txt.length)}},100)}
 }
 async function broSend(){
   var txt=(S.bro.input||'').trim();if(!txt||S.bro.sending)return;
@@ -11413,7 +11413,7 @@ async function broSend(){
   if(S.bro._fileText){userMsg='[Attached file: '+S.bro._file+']\\n---\\n'+S.bro._fileText+'\\n---\\n\\n'+txt;S.bro._file=null;S.bro._fileText=null}
   var msg={role:'user',text:txt};S.bro.messages.push(msg);
   S.bro.input='';S.bro.sending=true;
-  var inp=document.getElementById('broInput');if(inp)inp.value='';
+  var inp=document.getElementById('broInput');if(inp){inp.value='';inp.style.height='auto';inp.style.height='40px'}
   var wel=document.querySelector('.bro-welcome');if(wel)wel.remove();
   _broAppendMsg(msg);
   _broShowTyping(true);
@@ -12432,7 +12432,7 @@ else if(S.tab==='bro'){
     h+='<div class="bro-input-bar">';
     h+='<button class="bro-attach-btn" onclick="document.getElementById(\\'broFileInput\\').click()" title="Attach a file"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></button>';
     h+='<input type="file" id="broFileInput" style="display:none" accept=".txt,.md,.csv,.json,.js,.py,.html,.css,.xml,.log,.pdf,.doc,.docx" onchange="broAttachFile(this)">';
-    h+='<input class="bro-input" id="broInput" value="'+esc(S.bro.input)+'" placeholder="'+(S.bro._file?'Ask about this file\\u2026':S.bro.mode==='friend'?'Talk to me...':'Ask me anything...')+'" autocomplete="off" autocorrect="off" spellcheck="false" oninput="S.bro.input=this.value" onkeydown="if(event.key===\\'Enter\\')broSend()">';
+    h+='<textarea class="bro-input" id="broInput" rows="1" placeholder="'+(S.bro._file?'Ask about this file\\u2026':S.bro.mode==='friend'?'Talk to me...':'Ask me anything...')+'" autocomplete="off" autocorrect="off" spellcheck="false" oninput="S.bro.input=this.value;this.style.height=\\'auto\\';this.style.height=Math.min(this.scrollHeight,140)+\\'px\\'" onkeydown="if(event.key===\\'Enter\\'&&!event.shiftKey){event.preventDefault();broSend()}">'+esc(S.bro.input)+'</textarea>';
     h+='<button class="bro-send-btn bro-send-bro" onclick="broSend()" '+(S.bro.sending?'disabled':'')+'><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>';
     h+='</div></div>';
     h+='</div>';
