@@ -6520,11 +6520,11 @@ body[data-theme=aurora] .bro-typing-dot{background:rgba(255,255,255,.4)}
 @keyframes broTypeDot{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-5px);opacity:1}}
 .bro-input-wrap{flex-shrink:0;padding:8px 14px 10px;background:#FBF7F1;border-top:none;z-index:20;transition:padding .15s ease}
 body[data-theme=aurora] .bro-input-wrap{background:#212121}
-.bro-input-bar{display:flex;gap:8px;padding:14px 14px 14px 16px;background:rgba(58,45,34,.05);border:none;border-radius:18px;align-items:flex-end;box-shadow:none;transition:background .2s}
-.bro-input-bar:focus-within{background:rgba(58,45,34,.08)}
-body[data-theme=aurora] .bro-input-bar{background:rgba(255,255,255,.08);box-shadow:none}
-body[data-theme=aurora] .bro-input-bar:focus-within{background:rgba(255,255,255,.12)}
-.bro-input{flex:1;border:none;background:transparent;font-size:16px;outline:none;color:#3A2D22;font-family:inherit;padding:8px 0;line-height:1.6;min-height:90px;max-height:200px;resize:none;overflow-y:auto;word-wrap:break-word;overflow-wrap:break-word;white-space:pre-wrap;-webkit-appearance:none;appearance:none}
+.bro-input-bar{display:flex;gap:8px;padding:14px 14px 14px 16px;background:#fff;border:1.5px solid rgba(58,45,34,.10);border-radius:20px;align-items:flex-end;box-shadow:0 1px 6px rgba(58,45,34,.06);transition:all .2s}
+.bro-input-bar:focus-within{border-color:rgba(196,122,58,.35);box-shadow:0 2px 12px rgba(196,122,58,.10)}
+body[data-theme=aurora] .bro-input-bar{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12);box-shadow:none}
+body[data-theme=aurora] .bro-input-bar:focus-within{background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.25);box-shadow:0 2px 12px rgba(255,255,255,.05)}
+.bro-input{flex:1;border:none;background:transparent;font-size:16px;outline:none;color:#3A2D22;font-family:inherit;padding:10px 2px;line-height:1.6;min-height:100px;max-height:200px;resize:none;overflow-y:auto;word-wrap:break-word;overflow-wrap:break-word;white-space:pre-wrap;-webkit-appearance:none;appearance:none}
 .bro-input::placeholder{color:#B5A898}
 body[data-theme=aurora] .bro-input{color:#fff}
 body[data-theme=aurora] .bro-input::placeholder{color:rgba(255,255,255,.35)}
@@ -6641,12 +6641,14 @@ body[data-theme=aurora] .bro-img-err{background:rgba(239,68,68,.12)}
   body.bro-tab .bro-container{position:fixed !important;top:0 !important;left:0 !important;right:0 !important;bottom:0 !important;height:100% !important;height:100dvh !important;margin:0 !important;z-index:50 !important;border-radius:0 !important;display:flex !important;flex-direction:column !important}
   body.bro-tab .bro-header{padding:8px 14px;flex-shrink:0}
   body.bro-tab .bro-chat{flex:1 !important;min-height:0 !important;padding:12px 14px 12px !important;gap:12px}
-  body.bro-tab .bro-input-wrap{flex-shrink:0 !important;padding:8px 12px calc(8px + env(safe-area-inset-bottom,0px)) !important;padding-bottom:calc(78px + env(safe-area-inset-bottom,0px)) !important;border-top:none !important;background:#FBF7F1 !important}
+  body.bro-tab .bro-input-wrap{flex-shrink:0 !important;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px)) !important;padding-bottom:calc(78px + env(safe-area-inset-bottom,0px)) !important;border-top:1px solid rgba(58,45,34,.08) !important;background:#FBF7F1 !important}
   body.bro-tab.kb-open .bro-container{height:var(--vv-h,100%) !important;top:var(--vv-top,0px) !important;bottom:auto !important}
-  body.bro-tab.kb-open .bro-input-wrap{padding-bottom:8px !important;padding-top:8px !important}
+  body.bro-tab.kb-open .bro-input-wrap{padding-bottom:10px !important;padding-top:10px !important}
   body.bro-tab.kb-open .tabs.page-t{display:none !important}
-  body.bro-tab .bro-input{font-size:16px !important;-webkit-text-size-adjust:none !important;caret-color:#C47A3A;line-height:1.6 !important;min-height:90px !important;max-height:180px !important;padding:8px 0 !important;-webkit-appearance:none !important;word-wrap:break-word !important;overflow-wrap:break-word !important;white-space:pre-wrap !important}
-  body.bro-tab .bro-input-bar{padding:14px 14px 14px 16px !important;border-radius:20px !important;background:rgba(58,45,34,.05) !important;box-shadow:none !important;border:none !important;align-items:flex-end !important}
+  body.bro-tab.kb-open .bro-input{min-height:100px !important;max-height:45vh !important}
+  body.bro-tab.kb-open .bro-chat{flex:0 1 auto !important;max-height:30vh !important;overflow-y:auto !important}
+  body.bro-tab .bro-input{font-size:16px !important;-webkit-text-size-adjust:none !important;caret-color:#C47A3A;line-height:1.6 !important;min-height:100px !important;max-height:200px !important;padding:10px 2px !important;-webkit-appearance:none !important;word-wrap:break-word !important;overflow-wrap:break-word !important;white-space:pre-wrap !important}
+  body.bro-tab .bro-input-bar{padding:14px 14px 14px 16px !important;border-radius:20px !important;background:#fff !important;box-shadow:0 1px 6px rgba(58,45,34,.08) !important;border:1.5px solid rgba(58,45,34,.10) !important;align-items:flex-end !important}
   body.bro-tab .bro-send-btn{width:38px;height:38px}
   body.bro-tab .tabs.page-t{z-index:61 !important}
   body.bro-tab .bro-welcome{padding:24px 16px 16px;gap:12px}
@@ -11413,7 +11415,7 @@ async function broSend(){
   if(S.bro._fileText){userMsg='[Attached file: '+S.bro._file+']\\n---\\n'+S.bro._fileText+'\\n---\\n\\n'+txt;S.bro._file=null;S.bro._fileText=null}
   var msg={role:'user',text:txt};S.bro.messages.push(msg);
   S.bro.input='';S.bro.sending=true;
-  var inp=document.getElementById('broInput');if(inp){inp.value='';inp.style.height='90px'}
+  var inp=document.getElementById('broInput');if(inp){inp.value='';inp.style.height='100px'}
   var wel=document.querySelector('.bro-welcome');if(wel)wel.remove();
   _broAppendMsg(msg);
   _broShowTyping(true);
@@ -12432,7 +12434,7 @@ else if(S.tab==='bro'){
     h+='<div class="bro-input-bar">';
     h+='<button class="bro-attach-btn" onclick="document.getElementById(\\'broFileInput\\').click()" title="Attach a file"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></button>';
     h+='<input type="file" id="broFileInput" style="display:none" accept=".txt,.md,.csv,.json,.js,.py,.html,.css,.xml,.log,.pdf,.doc,.docx" onchange="broAttachFile(this)">';
-    h+='<textarea class="bro-input" id="broInput" rows="3" placeholder="'+(S.bro._file?'Ask about this file\\u2026':S.bro.mode==='friend'?'Talk to me...':'Type your message here...')+'" autocomplete="off" autocorrect="off" spellcheck="false" oninput="S.bro.input=this.value;this.style.height=\\'auto\\';this.style.height=Math.min(this.scrollHeight,200)+\\'px\\'" onkeydown="if(event.key===\\'Enter\\'&&!event.shiftKey){event.preventDefault();broSend()}">'+esc(S.bro.input)+'</textarea>';
+    h+='<textarea class="bro-input" id="broInput" rows="4" placeholder="'+(S.bro._file?'Ask about this file\\u2026':S.bro.mode==='friend'?'Talk to me...':'Type your message here...')+'" autocomplete="off" autocorrect="off" spellcheck="false" oninput="S.bro.input=this.value;this.style.height=\\'auto\\';this.style.height=Math.min(this.scrollHeight,200)+\\'px\\'" onfocus="setTimeout(function(){var c=document.getElementById(\\'broChat\\');if(c)c.scrollTop=c.scrollHeight},300)" onkeydown="if(event.key===\\'Enter\\'&&!event.shiftKey){event.preventDefault();broSend()}">'+esc(S.bro.input)+'</textarea>';
     h+='<button class="bro-send-btn bro-send-bro" onclick="broSend()" '+(S.bro.sending?'disabled':'')+'><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>';
     h+='</div></div>';
     h+='</div>';
