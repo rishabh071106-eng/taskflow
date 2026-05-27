@@ -278,18 +278,12 @@ app.post('/api/verify-otp',(req,res)=>{
   res.json({phone:user.phone,name:user.name||name,token});
 });
 
-// ═══ AI COACH — proxy endpoints for Claude, Whisper, ElevenLabs ═══
+// ═══ AI COACH — proxy endpoints for Claude, Whisper ═══
 // API keys stay on the server. The browser never sees them.
 const ANTHROPIC_KEY=process.env.ANTHROPIC_API_KEY||'';
 const OPENAI_KEY=process.env.OPENAI_API_KEY||'';
-const ELEVENLABS_KEY=process.env.ELEVENLABS_API_KEY||'';
 const GROQ_KEY=process.env.GROQ_API_KEY||'';
-// George — warm, calm British male narrator. Widely regarded as the closest ElevenLabs voice
-// to Headspace-style soothing narration. Override via ELEVENLABS_VOICE env var.
-// Other strong narration choices: Brian (nPczCjzI2devNBz1zQrb), Daniel (onwK4e9ZLuTAKqWW03F9),
-// Bill (pqHfZKP75CvOlQylNhV4 — older, calming).
-const ELEVENLABS_VOICE=process.env.ELEVENLABS_VOICE||'JBFqnCBsd6RMkjVDRZzb';  // George (warm British male)
-console.log('[ai] anthropic',ANTHROPIC_KEY?'\\u2705':'\\u274C','openai',OPENAI_KEY?'\\u2705':'\\u274C','elevenlabs',ELEVENLABS_KEY?'\\u2705':'\\u274C','groq',GROQ_KEY?'\\u2705':'\\u274C');
+console.log('[ai] anthropic',ANTHROPIC_KEY?'\\u2705':'\\u274C','openai',OPENAI_KEY?'\\u2705':'\\u274C','groq',GROQ_KEY?'\\u2705':'\\u274C');
 
 const COACH_SYSTEM=`You are an expert Business English coach speaking with a fluent professional who wants to sound MORE polished and use more sophisticated vocabulary in business contexts.
 
@@ -462,82 +456,23 @@ app.post('/api/coach/transcribe',auth,express.raw({type:'audio/*',limit:'10mb'})
   }catch(e){res.status(500).json({error:String(e.message||e)})}
 });
 
-// Disk-based audio cache. The same chunk + voice pair only ever calls ElevenLabs once.
-// Persists on Railway when /data volume is mounted (same convention as database).
 const _crypto=require('crypto');
 const _fs=require('fs');
 const _path=require('path');
-const TTS_CACHE_DIR=process.env.TTS_CACHE_DIR||(function(){try{if(_fs.existsSync('/data'))return '/data/tts-cache'}catch(e){}return _path.join(process.cwd(),'tts-cache')})();
-console.log('[tts] cache dir:',TTS_CACHE_DIR);
-try{_fs.mkdirSync(TTS_CACHE_DIR,{recursive:true})}catch(e){}
-// Cache key bumped to v2 so the new warmer voice settings (stability 0.5, style 0.20)
-// don't serve the old monotone cached audio. Old chunks stay on disk but go unused
-// until a future cleanup task; cost of duplication is small.
-function _ttsCacheKey(text,voice,model,style){return _crypto.createHash('sha256').update('v3:'+voice+':'+model+':'+(style||'')+':'+text).digest('hex')}
-function _ttsCachePath(key){return _path.join(TTS_CACHE_DIR,key+'.mp3')}
-let _ttsCacheStats={hits:0,misses:0};
-app.post('/api/coach/speak',auth,async(req,res)=>{
-  if(!ELEVENLABS_KEY)return res.status(503).json({error:'TTS not configured',fallback:'browser-tts'});
-  const text=String((req.body&&req.body.text)||'').slice(0,2000);
-  if(!text)return res.status(400).json({error:'text required'});
-  const voice=String((req.body&&req.body.voice)||ELEVENLABS_VOICE).replace(/[^a-zA-Z0-9]/g,'');
-  const model=req.body.model||'eleven_turbo_v2_5';
-  const styleKey=String(req.body.stability||'')+':'+(req.body.style||'');
-  const cacheKey=_ttsCacheKey(text,voice,model,styleKey);
-  const cachePath=_ttsCachePath(cacheKey);
-  // Cache hit — stream the saved file
-  try{
-    if(_fs.existsSync(cachePath)){
-      _ttsCacheStats.hits++;
-      const buf=_fs.readFileSync(cachePath);
-      return res.set('Content-Type','audio/mpeg').set('Cache-Control','public, max-age=86400').set('X-Tts-Cache','hit').send(buf);
-    }
-  }catch(e){}
-  _ttsCacheStats.misses++;
-  try{
-    const r=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+voice,{
-      method:'POST',
-      headers:{'Content-Type':'application/json','xi-api-key':ELEVENLABS_KEY,'Accept':'audio/mpeg'},
-      body:JSON.stringify({text,model_id:model,voice_settings:{stability:Number(req.body.stability)||0.35,similarity_boost:Number(req.body.similarity_boost)||0.7,style:Number(req.body.style)||0.35,use_speaker_boost:true}})
-    });
-    if(!r.ok){const t=await r.text();return res.status(502).json({error:t.slice(0,200)})}
-    const audio=Buffer.from(await r.arrayBuffer());
-    // Persist for next listener
-    try{_fs.writeFileSync(cachePath,audio)}catch(e){console.warn('[tts] cache write failed',e.message)}
-    res.set('Content-Type','audio/mpeg').set('Cache-Control','public, max-age=86400').set('X-Tts-Cache','miss').send(audio);
-  }catch(e){res.status(500).json({error:String(e.message||e)})}
-});
 // ─────────────────────────────────────────────────────────────────────────
-// Affirmation + guided-meditation library, rendered through ElevenLabs.
-// Each entry is a self-contained script + voice + tuning. Audio is generated
-// on first listen, cached on disk by (script-id, voice). The route below
-// streams the resulting MP3 with a token query-param so <audio src="…">
-// works without an Authorization header.
+// Affirmation + guided-meditation library. All audio is pre-rendered as
+// static MP3 files in audio-static/ (edge-tts, Azure Neural voices, $0).
+// The /api/audio/:id route streams the file; no external TTS API needed.
 // ─────────────────────────────────────────────────────────────────────────
-// Premium ElevenLabs voice IDs — selected specifically for meditation/affirmation
-// quality (clear diction, calm pace, natural breath placement). Rachel is the
-// industry-standard voice for guided-meditation apps (Calm, Headspace clones
-// all use voices in this register). Lily and Will round out the lineup.
-const ELEVEN_VOICE_SARAH     = '21m00Tcm4TlvDq8ikWAM'; // Rachel — calm professional female (industry standard)
-const ELEVEN_VOICE_CHARLOTTE = 'pFZP5JQG7iQjIQuC4Bku'; // Lily — warm intimate British female
-const ELEVEN_VOICE_BRIAN     = 'bIHbv24MWmeRgasZH58o'; // Will — gentle deep American male
-
-// Premium voice tuning. eleven_multilingual_v2 (used below) is the higher-quality
-// model — slower than turbo but much more natural prosody, especially for long-form
-// guided content. stability lowered for more expressive inflection on pauses.
-const AUDIO_TUNING_CALM = {
-  stability: 0.42, similarity_boost: 0.92, style: 0.30, use_speaker_boost: true
-};
 
 const AUDIO_LIBRARY = {
   // ─── 3 affirmation SKUs, by duration ──────────────────────────────────
-  // Each is a single coherent piece, narrated by ElevenLabs. Scripts are
-  // sized so the rendered audio lands close to the labeled duration at a
-  // calm 130 wpm pace.
+  // Each is a single coherent piece. Scripts are sized so the rendered
+  // audio lands close to the labeled duration at a calm narration pace.
   'aff-2min': {
     title: '2-minute Affirmation',
     desc: 'A quick centering — ground yourself in under two minutes',
-    mins: 2, color: '#FCB851', voice: ELEVEN_VOICE_SARAH, kind: 'affirmation',
+    mins: 2, color: '#FCB851', kind: 'affirmation',
     script: `Take a slow breath in… and a slower breath out.
 
 You are here. Right now. That is enough.
@@ -567,7 +502,7 @@ Begin.`,
   'aff-5min': {
     title: '5-minute Affirmation',
     desc: 'A grounded reset — build resilience, soften the day',
-    mins: 5, color: '#5BBFB4', voice: ELEVEN_VOICE_BRIAN, kind: 'affirmation',
+    mins: 5, color: '#5BBFB4', kind: 'affirmation',
     script: `Welcome. Find a place where you can sit comfortably.
 
 Let your shoulders drop. Soften your jaw. Unclench your hands. Let your face be at rest. If your eyes are open, let them soften. If you feel like closing them, close them.
@@ -615,7 +550,7 @@ Begin.`,
   'aff-10min': {
     title: '10-minute Affirmation',
     desc: 'Deep practice — letting go, gratitude, returning to centre',
-    mins: 10, color: '#FF7A45', voice: ELEVEN_VOICE_CHARLOTTE, kind: 'affirmation',
+    mins: 10, color: '#FF7A45', kind: 'affirmation',
     script: `Welcome. Settle in. We will take ten minutes together.
 
 Find a comfortable seat. Feet flat on the floor if you can. Hands resting where they want to rest. Eyes soft, or closed. Whatever feels right for you.
@@ -693,11 +628,11 @@ Carry this calm with you. Take it into the next thing you do. You have earned it
 Thank you for taking this time. Be well.`,
   },
 
-  // ─── 3 ElevenLabs-generated guided meditations (3-5 min) ──────────────
+  // ─── 3 guided meditations (3-5 min) ──────────────────────────────────
   'med-grounding-3min': {
     title: 'Three-minute Grounding',
     desc: 'A short reset for any moment',
-    mins: 3, color: '#5BBFB4', voice: ELEVEN_VOICE_BRIAN, kind: 'guided',
+    mins: 3, color: '#5BBFB4', kind: 'guided',
     script: `Welcome. We will take three minutes together. That is all. Three minutes of quiet.
 
 Find a comfortable seat. Feet on the floor if you can. Hands resting where they want to rest. Let your shoulders drop. Let your jaw soften. Let the muscles around your eyes go easy.
@@ -727,7 +662,7 @@ When you are ready, let your eyes open softly. Notice the room around you. Notic
   'med-stress-release-5min': {
     title: 'Stress Release',
     desc: 'Soften the body, release the day',
-    mins: 5, color: '#FF7A45', voice: ELEVEN_VOICE_BRIAN, kind: 'guided',
+    mins: 5, color: '#FF7A45', kind: 'guided',
     script: `Settle into the seat. We have five minutes. Just five. The to-do list will wait. The messages will wait. Everything out there can hold itself together for five minutes while you hold yourself together in here.
 
 Close your eyes if it feels right. If it doesn't, soften your gaze toward something neutral — a spot on the floor, the back of your hands, the wall.
@@ -769,7 +704,7 @@ Stay here, in this softness, for as long as you have. And when you are ready to 
   'med-sleep-winddown-5min': {
     title: 'Sleep Wind-Down',
     desc: 'Slow the mind for rest',
-    mins: 5, color: '#5BBFB4', voice: ELEVEN_VOICE_CHARLOTTE, kind: 'guided',
+    mins: 5, color: '#5BBFB4', kind: 'guided',
     script: `Lie back. Or sit, if that's where you are. Either way, let your body be supported. We're going to slow everything down. There is nothing left to do today. Nothing that cannot wait until tomorrow.
 
 Take a long breath in through the nose. Feel the air fill your chest, your belly. And let it leave through the mouth, like a long, soft sigh. Good.
@@ -814,43 +749,8 @@ Goodnight.`,
   },
 };
 
-// ─── ElevenLabs synth helper (refactored from /api/coach/speak) ────────
-async function _synthesizeTTS(text, voice, settings) {
-  const model = 'eleven_turbo_v2_5';
-  const cacheKey = _ttsCacheKey(text, voice, model);
-  const cachePath = _ttsCachePath(cacheKey);
-  try {
-    if (_fs.existsSync(cachePath)) {
-      _ttsCacheStats.hits++;
-      return { audio: _fs.readFileSync(cachePath), cache: 'hit' };
-    }
-  } catch (e) {}
-  _ttsCacheStats.misses++;
-  const r = await fetch('https://api.elevenlabs.io/v1/text-to-speech/' + voice, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'xi-api-key': ELEVENLABS_KEY, 'Accept': 'audio/mpeg' },
-    body: JSON.stringify({
-      text, model_id: model,
-      voice_settings: settings || { stability: 0.5, similarity_boost: 0.75, style: 0.20, use_speaker_boost: true },
-    }),
-  });
-  if (!r.ok) {
-    const t = await r.text();
-    throw new Error('elevenlabs ' + r.status + ': ' + t.slice(0, 200));
-  }
-  const audio = Buffer.from(await r.arrayBuffer());
-  try { _fs.writeFileSync(cachePath, audio) } catch (e) { console.warn('[tts] cache write failed', e.message) }
-  return { audio, cache: 'miss' };
-}
+// Used by <audio src> for affirmations + guided meditations (static MP3s).
 
-// GET /api/audio/:id — token query-param, streams MP3.
-// Used by <audio src> for affirmations + ElevenLabs guided meditations.
-//
-// Cache-hit path: read file from disk and send. Fast.
-// Cache-miss path: stream ElevenLabs response *directly* to the client
-// (and tee a copy to disk for next time). Means audio bytes start
-// arriving at the browser within ~200ms instead of waiting for the full
-// synthesis to complete server-side. Crucial for "instant" feel.
 app.get('/api/audio/:id', async (req, res) => {
   const token = String(req.query.token || req.headers['x-token'] || '').trim();
   const u = token ? db.prepare('SELECT * FROM users WHERE token=?').get(token) : null;
@@ -873,79 +773,8 @@ app.get('/api/audio/:id', async (req, res) => {
     }
   } catch (e) {}
 
-  // 2) No static file and no ElevenLabs key — tell client to use browser TTS
-  if (!ELEVENLABS_KEY) return res.status(503).json({ error: 'TTS not configured' });
-
-  // Upgraded to multilingual_v2 for richer prosody on long-form meditation
-  // content. Slightly slower first-render; cached afterwards forever.
-  const model = 'eleven_multilingual_v2';
-  const cacheKey = _ttsCacheKey(entry.script, entry.voice, model);
-  const cachePath = _ttsCachePath(cacheKey);
-
-  // Cache hit — stream from disk
-  try {
-    if (_fs.existsSync(cachePath)) {
-      _ttsCacheStats.hits++;
-      const stat = _fs.statSync(cachePath);
-      res.set('Content-Type', 'audio/mpeg');
-      res.set('Cache-Control', 'public, max-age=86400');
-      res.set('X-Tts-Cache', 'hit');
-      res.set('Content-Length', String(stat.size));
-      res.set('Accept-Ranges', 'bytes');
-      return _fs.createReadStream(cachePath).pipe(res);
-    }
-  } catch (e) {}
-
-  // Cache miss — stream from ElevenLabs straight to client + write to cache
-  _ttsCacheStats.misses++;
-  try {
-    const r = await fetch('https://api.elevenlabs.io/v1/text-to-speech/' + entry.voice + '/stream', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'xi-api-key': ELEVENLABS_KEY, 'Accept': 'audio/mpeg' },
-      body: JSON.stringify({
-        text: entry.script, model_id: model,
-        voice_settings: AUDIO_TUNING_CALM,
-      }),
-    });
-    if (!r.ok) {
-      const t = await r.text();
-      console.error('[audio]', id, 'eleven', r.status, t.slice(0, 200));
-      return res.status(502).json({ error: 'tts upstream ' + r.status });
-    }
-    res.set('Content-Type', 'audio/mpeg');
-    res.set('Cache-Control', 'public, max-age=86400');
-    res.set('X-Tts-Cache', 'miss');
-    // Tee: write to disk while piping to response
-    const tmpPath = cachePath + '.partial';
-    const fileSink = _fs.createWriteStream(tmpPath);
-    const reader = r.body.getReader();
-    let totalBytes = 0;
-    const pump = async () => {
-      try {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          totalBytes += value.length;
-          // Write to both the response (so user hears it now) and disk (so next listen is instant)
-          if (!res.writableEnded) res.write(value);
-          fileSink.write(value);
-        }
-        res.end();
-        fileSink.end();
-        // On successful complete, atomically promote .partial → final
-        try { _fs.renameSync(tmpPath, cachePath) } catch (e) {}
-      } catch (err) {
-        console.warn('[audio]', id, 'stream error', err.message);
-        try { res.end() } catch (e) {}
-        try { fileSink.destroy() } catch (e) {}
-        try { _fs.unlinkSync(tmpPath) } catch (e) {}
-      }
-    };
-    pump();
-  } catch (e) {
-    console.error('[audio]', id, e.message);
-    if (!res.headersSent) res.status(502).json({ error: e.message });
-  }
+  // No static file — tell client to use browser TTS fallback
+  return res.status(404).json({ error: 'audio not found — use browser TTS' });
 });
 
 // GET /api/audio-library — small JSON manifest the client uses to render cards.
@@ -956,10 +785,8 @@ app.get('/api/audio-library', auth, (req, res) => {
   res.json({ items });
 });
 
-// GET /api/audio-script/:id — returns just the script text. Used as a fallback
-// when ElevenLabs is unavailable (no API key on server, or upstream error) —
-// the client speaks the script via the browser's speechSynthesis. Means
-// affirmations always work, even on a fresh deploy with no TTS configured.
+// GET /api/audio-script/:id — returns the script text so the client can
+// fall back to browser speechSynthesis if the static MP3 fails to load.
 app.get('/api/audio-script/:id', (req, res) => {
   const id = String(req.params.id || '').replace(/[^a-zA-Z0-9_-]/g, '');
   const entry = AUDIO_LIBRARY[id];
@@ -985,49 +812,9 @@ app.get('/api/book-audio/:id', auth, (req, res) => {
   res.status(404).json({ error: 'no static audio' });
 });
 
-// ─── Cache warmup ──────────────────────────────────────────────────────
-// Pre-render every script in AUDIO_LIBRARY at boot so the first listener
-// never waits on ElevenLabs. Runs serially with a small inter-request
-// delay to avoid hammering the API. Skips entries already on disk. Errors
-// are logged but never crash boot — runtime fallback still works.
-async function _warmAudioCache() {
-  if (!ELEVENLABS_KEY) {
-    console.log('[audio] cache warm skipped — no ELEVENLABS_KEY');
-    return;
-  }
-  const entries = Object.entries(AUDIO_LIBRARY);
-  let warmed = 0, hits = 0, errs = 0;
-  for (const [id, e] of entries) {
-    try {
-      const model = 'eleven_multilingual_v2';
-      const cacheKey = _ttsCacheKey(e.script, e.voice, model);
-      if (_fs.existsSync(_ttsCachePath(cacheKey))) { hits++; continue; }
-      console.log('[audio] warming', id, '(' + e.script.length + ' chars)…');
-      await _synthesizeTTS(e.script, e.voice, AUDIO_TUNING_CALM);
-      warmed++;
-      // Small delay between API calls so we don't spike the rate limit.
-      await new Promise(r => setTimeout(r, 350));
-    } catch (err) {
-      errs++;
-      console.warn('[audio] warm failed', id, err.message);
-    }
-  }
-  console.log('[audio] cache warm done — hits=' + hits + ' warmed=' + warmed + ' errs=' + errs);
-}
-// Fire in the background a few seconds after boot so it doesn't compete
-// with /api/health and /api/me responses on a cold container.
-setTimeout(() => _warmAudioCache().catch(e => console.warn('[audio] warmup error', e.message)), 4000);
-
-// Lightweight cache stats endpoint — useful for confirming cost savings
-app.get('/api/coach/cache-stats',(req,res)=>{
-  let count=0,bytes=0;
-  try{const files=_fs.readdirSync(TTS_CACHE_DIR);count=files.length;files.forEach(f=>{try{bytes+=_fs.statSync(_path.join(TTS_CACHE_DIR,f)).size}catch(e){}})}catch(e){}
-  res.json({...{},..._ttsCacheStats,cachedFiles:count,cachedBytes:bytes,cacheDir:TTS_CACHE_DIR});
-});
-
 // AI status — client-only check, no key exposure
 app.get('/api/coach/status',(req,res)=>{
-  res.json({chat:!!(GROQ_KEY||ANTHROPIC_KEY),transcribe:!!OPENAI_KEY,tts:!!ELEVENLABS_KEY});
+  res.json({chat:!!(GROQ_KEY||ANTHROPIC_KEY),transcribe:!!OPENAI_KEY,tts:false});
 });
 
 // ═══ VOICE TRAINER — 90-day "zero to hero" English accent + functional-English course ═══
@@ -7669,10 +7456,9 @@ function waConnCodeInput(v){if(!S.waConn)return;S.waConn={...S.waConn,codeInput:
 function waOpenJoin(){const code=window.__TWILIO_SANDBOX_CODE||'along-wool';window.open('https://wa.me/14155238886?text='+encodeURIComponent('join '+code),'_blank')}
 // Meditation slots:
 //   directId = Archive.org item (legacy real-teacher recordings)
-//   elevenId = AUDIO_LIBRARY key (server-side ElevenLabs-rendered scripts)
-// New affirmations + extra guided sessions added via ElevenLabs.
+//   elevenId = AUDIO_LIBRARY key (pre-rendered static MP3 scripts)
 const MED_SLOTS=[
-// Affirmations · 5 short ElevenLabs audios (Sarah / Charlotte / Brian)
+// Affirmations · 3 pre-rendered audio sessions (2 / 5 / 10 min)
 {cat:'affirmations',mins:2,title:'2 minutes',desc:'A quick centering \\u2014 ground yourself fast',color:'#FCB851',elevenId:'aff-2min'},
 {cat:'affirmations',mins:5,title:'5 minutes',desc:'A grounded reset \\u2014 build resilience, soften the day',color:'#5BBFB4',elevenId:'aff-5min'},
 {cat:'affirmations',mins:10,title:'10 minutes',desc:'Deep practice \\u2014 letting go, gratitude, returning to centre',color:'#FF7A45',elevenId:'aff-10min'},
@@ -7682,7 +7468,7 @@ const MED_SLOTS=[
 // Music
 {cat:'music',mins:10,title:'Meditation Morning',desc:'Calming instrumental \\u2022 10 min',color:'#A0612E',directId:'SleepMeditationCalming',directFile:'10 min Meditation morning.mp3'},
 {cat:'music',mins:30,title:'Ambient Soundbath',desc:'Slow, layered tones \\u2022 30 min',color:'#EC4899',directId:'AmbientSoundbathPodcast',directFile:'AmbientSoundbathPodcast-001.mp3'},
-// Guided · 2 Archive.org + 3 ElevenLabs short sessions
+// Guided · 2 Archive.org + 3 short sessions
 {cat:'guided',mins:15,title:'Body Scan',desc:'Body scan with Judith \\u2022 15 min',color:'#A0612E',directId:'JR12-2015-10-03-RTR-CIW-body-scan-meditation-judith',directFile:'JR12-2015-10-03-RTR-CIW-body-scan-meditation-judith.mp3'},
 {cat:'guided',mins:25,title:'Loving-Kindness',desc:'Guided with Ajahn Brahm \\u2022 25 min',color:'#F59E0B',directId:'BSWA-Meditation',directFile:'2018-11-02- Guided Meditation with AB.mp3'},
 {cat:'guided',mins:3,title:'Three-minute Grounding',desc:'A short reset for any moment \\u2022 3 min',color:'#5BBFB4',elevenId:'med-grounding-3min'},
@@ -7698,12 +7484,12 @@ const MED_CATEGORIES=[
 async function loadMeditations(){if(S.medLoading)return;S.medLoading=true;S.meditations=S.meditations||{};MED_SLOTS.forEach(s=>{if(s.directId&&!S.meditations[s.directId])S.meditations[s.directId]={identifier:s.directId,title:s.title}});S.medLoading=false;render()}
 function setMedCat(k){S.medCat=k;render()}
 function playMedDirect(id,title,mins,file){playMeditation(id,title,mins,file)}
-// ElevenLabs-rendered audio (affirmations + new guided meditations).
+// Pre-rendered audio (affirmations + guided meditations).
 // First listen on a cold cache may take a few seconds while the server
 // synthesizes — we surface that as a loading toast so the user knows
 // something is happening. Subsequent listens are instant (disk cache).
 // Browser-TTS fallback for affirmations/meditations. Used when the server's
-// ElevenLabs endpoint fails (missing API key, upstream error, etc.). Speaks
+// static MP3 is unavailable. Speaks
 // the script via window.speechSynthesis. Stops automatically when the user
 // closes the meditation overlay.
 // Quality speechSynthesis fallback. The previous attempt chunked by sentence
@@ -7946,7 +7732,7 @@ function _mgIsDoneToday(g){try{return localStorage.getItem(_mgTodayKey(g))==='1'
 // ─── AI COACH (Phase 2) ──────────────────────────────────────────────
 async function coachInit(){
   const s=await fetch('/api/coach/status').then(r=>r.json()).catch(()=>null);
-  if(s){S.coach.status=s;window._ttsAvailable=!!s.tts}
+  if(s){S.coach.status=s}
   // Greet on first open
   if(!S.coach.history.length){
     S.coach.history=[{role:'assistant',content:"Hi, I'm your Business English coach. We can practise vocabulary, refine how you phrase ideas, or rehearse a real scenario — your call. Type or tap the mic to speak. Where shall we start?"}];
@@ -7977,7 +7763,7 @@ function _coachScenarioSystem(sc){
   return 'You are roleplaying as '+role+' in a Business English practice session. Stay strictly in character. The user is practising the scenario: "'+sc.title+'".\\n\\nRespond as the character would \\u2014 realistic, contextual, sometimes slightly challenging. Keep responses under 80 words. After 6-8 exchanges, naturally wrap up the scenario.\\n\\nIf the user says "STOP" or "feedback", break character and give a brief Business English coaching note about their performance: vocabulary, tone, pace, structure. Then offer to restart or try a new scenario.';
 }
 async function coachSpeak(text){
-  if(!S.coach.status||!S.coach.status.tts){
+  if(true){
     // Fallback to browser TTS
     voiceSpeak(text);return;
   }
@@ -11056,7 +10842,7 @@ function playBookBrief(id){
         S.bkMini.startedAt=S.bookReader.startedAt;
         S.bkMini.rate=S.bookReader.rate;
         S.bkMini.progress=S.bookReader.progress;
-        S.bkMini.usingEleven=S.bookReader.usingEleven;
+        
         render();
       }
     },300);
@@ -11065,7 +10851,7 @@ function playBookBrief(id){
 function closeBookReader(){
   // If audio is currently playing, keep it going as a persistent mini-player at the bottom
   if(S.bookReader&&S.bookReader.playing&&S.bookReader.book){
-    S.bkMini={book:S.bookReader.book,startedAt:S.bookReader.startedAt,rate:S.bookReader.rate,progress:S.bookReader.progress,usingEleven:S.bookReader.usingEleven};
+    S.bkMini={book:S.bookReader.book,startedAt:S.bookReader.startedAt,rate:S.bookReader.rate,progress:S.bookReader.progress};
     S.bookReader={open:false};
     render();
     return;
@@ -11091,7 +10877,7 @@ function bkMiniToggle(){
   render();
 }
 function bkMiniClose(){_premiumStop();if(window.speechSynthesis)try{speechSynthesis.cancel()}catch(e){}S.bkMini=null;render()}
-function bkMiniReopen(){if(!S.bkMini||!S.bkMini.book)return;S.bookReader={open:true,book:S.bkMini.book,playing:!S.bkMini.paused,rate:S.bkMini.rate,progress:S.bkMini.progress,startedAt:S.bkMini.startedAt,usingEleven:S.bkMini.usingEleven};S.bkMini=null;render()}
+function bkMiniReopen(){if(!S.bkMini||!S.bkMini.book)return;S.bookReader={open:true,book:S.bkMini.book,playing:!S.bkMini.paused,rate:S.bkMini.rate,progress:S.bkMini.progress,startedAt:S.bkMini.startedAt};S.bkMini=null;render()}
 function _pickPremiumVoice(){
   if(!('speechSynthesis' in window))return null;
   const vs=speechSynthesis.getVoices();
@@ -11118,87 +10904,20 @@ function _pickPremiumVoice(){
 // Chunked TTS — splits long text into sentence groups so Chrome doesn't time out at ~15s
 // Plus a keepalive pause/resume hack that fights the well-known Web Speech cutoff bug
 function _ttsStop(){try{speechSynthesis.cancel()}catch(e){}if(window._ttsKeepalive){clearInterval(window._ttsKeepalive);window._ttsKeepalive=null}if(window._ttsQueue)window._ttsQueue.cancelled=true;window._ttsQueue=null}
-// Premium narration — uses ElevenLabs (deep male studio voice) when configured server-side,
+// Narration — routes through browser TTS. Static MP3s are used for books via /api/book-audio/:id.
 // gracefully falls back to chunked browser TTS otherwise. Now THE primary entry point for
 // every TTS call across the app — _ttsSpeak is aliased to this below.
 async function _premiumNarrate(text,opts,onAllDone,onProgress){
   _premiumStop();
-  // Always re-fetch status on each call (cheap, ensures fresh state after env-var changes)
-  try{const r=await fetch('/api/coach/status',{cache:'no-store'});const j=await r.json();if(!S.coach)S.coach={};S.coach.status=j}catch(e){console.warn('[narr] status check failed',e)}
-  const useEleven=!!(S.coach&&S.coach.status&&S.coach.status.tts);
-  console.log('[narr] tts available:',useEleven,'status:',S.coach&&S.coach.status);
-  if(!useEleven){console.log('[narr] falling back to browser TTS — set ELEVENLABS_API_KEY');return _browserTtsSpeak(text,opts,onAllDone,onProgress)}
-  // Chunk small for fast first-byte — first chunk ~300 chars (~3-5s to first audio)
-  // After that, larger chunks (~1500 chars) for fewer round trips during playback
-  const sentences=(text.match(/[^.!?\\u2026]+[.!?\\u2026]+["\\u2019\\u201d)]?\\s*/g))||[text];
-  const chunks=[];let cur='';let firstChunkSize=300;
-  for(const s of sentences){
-    const limit=chunks.length===0?firstChunkSize:1500;
-    if((cur+s).length>limit){if(cur)chunks.push(cur.trim());cur=s}
-    else cur+=s;
-  }
-  if(cur.trim())chunks.push(cur.trim());
-  if(!chunks.length)return false;
-  const queue={chunks,idx:0,audio:null,cancelled:false};
-  window._narration=queue;
-  async function playNext(){
-    if(queue.cancelled)return;
-    if(queue.idx>=queue.chunks.length){if(typeof onAllDone==='function')onAllDone();return}
-    if(typeof onProgress==='function')try{onProgress(queue.idx,queue.chunks.length,queue.chunks[queue.idx])}catch(e){}
-    try{
-      const r=await fetch('/api/coach/speak',{method:'POST',headers:{'Content-Type':'application/json','x-token':token},body:JSON.stringify({text:queue.chunks[queue.idx]})});
-      console.log('[narr] /api/coach/speak chunk',queue.idx+1,'/',queue.chunks.length,'status:',r.status);
-      if(queue.cancelled)return;
-      if(!r.ok){
-        let errBody='';try{errBody=await r.text();}catch(e){}
-        console.warn('[narr] ElevenLabs request failed:',r.status,errBody);
-        if(queue.idx===0&&typeof toast==='function')toast('\\u26A0\\uFE0F Studio voice failed: '+r.status+' — using browser fallback','err');
-        const rem=queue.chunks.slice(queue.idx).join(' ');
-        return _browserTtsSpeak(rem,opts,onAllDone,function(i,t,l){if(typeof onProgress==='function')try{onProgress(queue.idx+i,queue.chunks.length,l)}catch(e){}});
-      }
-      if(queue.idx===0&&typeof toast==='function')toast('\\u{1F3AC} Studio voice loaded','ok');
-      const blob=await r.blob();
-      console.log('[narr] chunk',queue.idx+1,'received blob size:',blob.size,'type:',blob.type);
-      if(queue.cancelled)return;
-      const url=URL.createObjectURL(blob);
-      // Use a persistent in-DOM audio element — survives async transitions, browsers respect it more
-      let a=document.getElementById('bk-narr-audio');
-      if(!a){a=document.createElement('audio');a.id='bk-narr-audio';a.preload='auto';a.controls=false;document.body.appendChild(a)}
-      a.src=url;
-      a.volume=1.0;
-      a.muted=false;
-      queue.audio=a;
-      a.playbackRate=Math.max(0.5,Math.min(2.0,(opts&&opts.rate)||1.0));
-      a.onended=function(){console.log('[narr] chunk',queue.idx+1,'ended');URL.revokeObjectURL(url);queue.idx++;playNext()};
-      a.onerror=function(){console.warn('[narr] chunk',queue.idx+1,'audio error',a.error);URL.revokeObjectURL(url);queue.idx++;playNext()};
-      a.oncanplay=function(){console.log('[narr] chunk',queue.idx+1,'canplay (duration:',a.duration,')')};
-      a.onplay=function(){console.log('[narr] chunk',queue.idx+1,'play started')};
-      console.log('[narr] calling audio.play() for chunk',queue.idx+1);
-      const p=a.play();
-      if(p&&p.then){
-        p.then(function(){console.log('[narr] chunk',queue.idx+1,'play() resolved')});
-        p.catch(function(err){
-          console.warn('[narr] chunk',queue.idx+1,'play() rejected:',err&&err.message);
-          if(queue.idx===0&&typeof toast==='function')toast('\\u26A0\\uFE0F Browser blocked autoplay \\u2014 using browser TTS','err');
-          URL.revokeObjectURL(url);
-          if(queue.cancelled)return;
-          const rem=queue.chunks.slice(queue.idx).join(' ');
-          _browserTtsSpeak(rem,opts,onAllDone,function(i,t,l){if(typeof onProgress==='function')try{onProgress(queue.idx+i,queue.chunks.length,l)}catch(e){}});
-        });
-      }
-    }catch(e){if(queue.cancelled)return;queue.idx++;playNext()}
-  }
-  playNext();
-  return true;
+  return _browserTtsSpeak(text,opts,onAllDone,onProgress);
 }
 function _premiumStop(){_ttsStop();if(window._narration){window._narration.cancelled=true;if(window._narration.audio){try{window._narration.audio.pause();window._narration.audio.src=''}catch(e){}}window._narration=null}}
 // _ttsSpeak is the public entry point for every TTS call across the app.
-// Routes through _premiumNarrate so callers automatically get ElevenLabs when configured,
-// and the chunked browser-TTS fallback when not. Old code that called _ttsSpeak still works
-// (Voice trainer drills, game celebrations, vocabulary cards, lesson runner, etc.) and now
-// gets studio voice for free.
+// Routes through _premiumNarrate so callers get browser TTS,
+// which chunks text for the browser's speechSynthesis. Old code that called _ttsSpeak still works
+// (Voice trainer drills, game celebrations, vocabulary cards, lesson runner, etc.).
 function _ttsSpeak(text,opts,onAllDone,onProgress){return _premiumNarrate(text,opts,onAllDone,onProgress)}
-// Browser-only chunked TTS — used as fallback inside _premiumNarrate when ElevenLabs is unavailable.
+// Browser chunked TTS — the primary voice engine for non-book narration.
 // All public callers should use _ttsSpeak (the dispatcher alias defined below) so they get the
 // premium voice automatically when configured.
 function _browserTtsSpeak(text,opts,onAllDone,onProgress){
@@ -11302,9 +11021,9 @@ function bookReaderToggleTTS(){
   }).catch(function(){_fallbackBookTTS(r,onDone,onProgress)});
 }
 function _fallbackBookTTS(r,onDone,onProgress){
-  const baseRate=r.rate||(S.coach&&S.coach.status&&S.coach.status.tts?1.0:0.78);
+  const baseRate=r.rate||0.78;
   const fullText=_bookFullNarration(r.book);
-  r.usingEleven=!!(S.coach&&S.coach.status&&S.coach.status.tts);
+  
   const ok=_premiumNarrate(fullText,{rate:baseRate,pitch:0.95,volume:1.0},onDone,onProgress);
   if(ok===false){r.playing=false;render()}
 }
@@ -12813,7 +12532,7 @@ if(S.bkMini&&S.bkMini.book){
   const isPaused=S.bkMini.paused;
   h+='<div class="bk-mini" onclick="bkMiniReopen()" style="--bm-grad:'+m.grad.replace(/"/g,'&quot;')+'">'
     +'<div class="bk-mini-cover" style="background:'+m.grad+'"></div>'
-    +'<div class="bk-mini-info"><b>'+esc(m.title)+'</b><small>'+esc(m.author)+(S.bkMini.usingEleven?' \\u00B7 STUDIO':' \\u00B7 BROWSER')+'</small></div>'
+    +'<div class="bk-mini-info"><b>'+esc(m.title)+'</b><small>'+esc(m.author)+'</small></div>'
     +'<button class="bk-mini-btn'+(isPaused?'':' bk-mini-pulse')+'" onclick="event.stopPropagation();bkMiniToggle()" aria-label="'+(isPaused?'Resume':'Pause')+'">'+(isPaused?'\\u25B6':'\\u23F8')+'</button>'
     +'<button class="bk-mini-x" onclick="event.stopPropagation();bkMiniClose()" aria-label="Stop">\\u2715</button>'
   +'</div>';
@@ -12911,15 +12630,7 @@ if(S.bookReader&&S.bookReader.open&&S.bookReader.book){
   b.insights.forEach((it,i)=>{h+='<div class="bk-chapter"><div class="bk-chapter-tag">Chapter '+(i+1)+'</div><h4>'+esc(it[0])+'</h4><p>'+esc(it[1])+'</p></div>'});
   h+='</div>';
   h+='<div class="bk-section" id="bk-summary-anchor"><h3>The full brief</h3><p class="bk-section-sub">A '+b.mins+'-minute read \\u2014 or hit <b>Listen</b> above to have it narrated.</p><div class="bk-summary"><p>'+esc(b.summary).split('. ').reduce((acc,s,i,a)=>{if(i===0)acc.push(s);else if(i%4===0)acc.push('</p><p>'+s);else acc.push('. '+s);return acc},[]).join('')+(b.summary.endsWith('.')?'':'.')+'</p></div></div>';
-  // Upgrade prompt — only when ElevenLabs is NOT configured and user clicks Listen
-  if(!(S.coach&&S.coach.status&&S.coach.status.tts)){
-    h+='<div class="bk-section" style="padding-bottom:14px"><div style="padding:18px 22px;background:linear-gradient(135deg,#F7F8FF,#FFFFFF);border:1px solid #FFD0B5;border-radius:14px;display:flex;gap:14px;align-items:flex-start"><span style="font-size:24px">\\u{1F3AC}</span><div style="flex:1;font-size:13.5px;line-height:1.55;color:#3D3D3D"><b style="color:#3A2D22;font-weight:600">Want a real human-quality narrator?</b><br/>The current voice is your browser\\u2019s built-in TTS \\u2014 functional, but robotic. Add an <a href="https://elevenlabs.io/app/settings/api-keys" target="_blank" rel="noopener" style="color:#C47A3A;font-weight:600">ElevenLabs API key</a> to <code style="font-family:\\'JetBrains Mono\\',monospace;font-size:11px;background:rgba(0,0,0,.05);padding:2px 6px;border-radius:4px">ELEVENLABS_API_KEY</code> in your Railway env, redeploy, and the reader switches to studio-quality Adam (deep, warm, deliberate). Free tier covers ~10 books/month.</div></div></div>';
-  }
-  // Podcast-style audio bar with real progress, current line, elapsed time
-  const prog=r.progress||{idx:0,total:0,line:'Tap play to begin'};
-  const pctNow=prog.total?Math.round((prog.idx/prog.total)*100):0;
-  const elapsedNow=r.startedAt&&r.playing?Math.floor((Date.now()-r.startedAt)/1000):0;
-  const isStudio=!!(S.coach&&S.coach.status&&S.coach.status.tts);
+  
   h+='<div class="bk-tts">'
     +'<button class="play" onclick="bookReaderToggleTTS()">'+(r.playing?'\\u23F8':'\\u25B6')+'</button>'
     +'<div class="info" style="overflow:hidden">'
