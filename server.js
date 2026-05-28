@@ -6521,13 +6521,13 @@ body[data-theme=aurora] .bro-msg-meta{color:rgba(255,255,255,.25)}
 .bro-typing-dot:nth-child(3){animation-delay:.4s}
 body[data-theme=aurora] .bro-typing-dot{background:rgba(255,255,255,.4)}
 @keyframes broTypeDot{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-5px);opacity:1}}
-.bro-input-wrap{flex-shrink:0;padding:8px 14px 10px;background:#FBF7F1;border-top:none;z-index:20;transition:padding .15s ease}
+.bro-input-wrap{flex-shrink:0;padding:8px 14px 10px;background:#FBF7F1;border-top:none;z-index:20;transition:padding .15s ease;overflow:hidden}
 body[data-theme=aurora] .bro-input-wrap{background:#212121}
-.bro-input-bar{display:flex;gap:8px;padding:14px 14px 14px 16px;background:#fff;border:1.5px solid rgba(58,45,34,.10);border-radius:20px;align-items:flex-end;box-shadow:0 1px 6px rgba(58,45,34,.06);transition:all .2s}
+.bro-input-bar{display:flex;gap:8px;padding:14px 14px 14px 16px;background:#fff;border:1.5px solid rgba(58,45,34,.10);border-radius:20px;align-items:flex-end;box-shadow:0 1px 6px rgba(58,45,34,.06);transition:all .2s;min-width:0;overflow:hidden}
 .bro-input-bar:focus-within{border-color:rgba(196,122,58,.35);box-shadow:0 2px 12px rgba(196,122,58,.10)}
 body[data-theme=aurora] .bro-input-bar{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12);box-shadow:none}
 body[data-theme=aurora] .bro-input-bar:focus-within{background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.25);box-shadow:0 2px 12px rgba(255,255,255,.05)}
-.bro-input{flex:1;border:none;background:transparent;font-size:16px;outline:none;color:#3A2D22;font-family:inherit;padding:10px 2px;line-height:1.6;min-height:100px;max-height:200px;resize:none;overflow-y:auto;word-wrap:break-word;overflow-wrap:break-word;white-space:pre-wrap;-webkit-appearance:none;appearance:none}
+.bro-input{flex:1;min-width:0;border:none;background:transparent;font-size:16px;outline:none;color:#3A2D22;font-family:inherit;padding:10px 2px;line-height:1.6;min-height:100px;max-height:200px;resize:none;overflow-y:auto;overflow-x:hidden;word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;white-space:pre-wrap;-webkit-appearance:none;appearance:none;box-sizing:border-box;width:100%}
 .bro-input::placeholder{color:#B5A898}
 body[data-theme=aurora] .bro-input{color:#fff}
 body[data-theme=aurora] .bro-input::placeholder{color:rgba(255,255,255,.35)}
@@ -6645,7 +6645,7 @@ body[data-theme=aurora] .bro-img-err{background:rgba(239,68,68,.12)}
   body.bro-tab .bro-header{padding:8px 14px;flex-shrink:0}
   body.bro-tab .bro-chat{flex:1 !important;min-height:0 !important;padding:12px 14px 12px !important;gap:12px}
   body.bro-tab .bro-input-wrap{flex-shrink:0 !important;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px)) !important;padding-bottom:calc(78px + env(safe-area-inset-bottom,0px)) !important;border-top:1px solid rgba(58,45,34,.08) !important;background:#FBF7F1 !important}
-  body.bro-tab .bro-input{font-size:16px !important;-webkit-text-size-adjust:none !important;caret-color:#C47A3A;line-height:1.6 !important;min-height:100px !important;max-height:220px !important;padding:10px 4px !important;-webkit-appearance:none !important;word-wrap:break-word !important;word-break:break-word !important;overflow-wrap:break-word !important;white-space:pre-wrap !important;display:block !important;width:100% !important}
+  body.bro-tab .bro-input{font-size:16px !important;-webkit-text-size-adjust:none !important;caret-color:#C47A3A;line-height:1.6 !important;min-height:100px !important;max-height:220px !important;padding:10px 4px !important;-webkit-appearance:none !important;word-wrap:break-word !important;word-break:break-word !important;overflow-wrap:break-word !important;white-space:pre-wrap !important;display:block !important;width:100% !important;min-width:0 !important;overflow-x:hidden !important;box-sizing:border-box !important}
   body.bro-tab .bro-input-bar{padding:14px 14px 14px 16px !important;border-radius:20px !important;background:#fff !important;box-shadow:0 2px 8px rgba(58,45,34,.08) !important;border:1.5px solid rgba(58,45,34,.12) !important;align-items:flex-end !important;flex-wrap:wrap !important}
   body.bro-tab.kb-open .bro-container{height:var(--vv-h,100%) !important;top:var(--vv-top,0px) !important;bottom:auto !important}
   body.bro-tab.kb-open .bro-header{display:none !important}
@@ -11479,7 +11479,12 @@ function render(){
   if(_renderRAF)return;
   _renderRAF=requestAnimationFrame(()=>{_renderRAF=0;_render()});
 }
-function renderPassive(){S._passiveRender=true;render()}
+function renderPassive(){
+  // Skip passive re-renders entirely while user is on the Bro tab — rebuilding
+  // innerHTML destroys the textarea, causing flicker and losing cursor position.
+  if(S.tab==='bro')return;
+  S._passiveRender=true;render()
+}
 function _render(){
 // Suppress entrance animations on passive (background-poll-triggered) renders.
 // Without this every 10s data poll replays every fade-in / slide-in across the
