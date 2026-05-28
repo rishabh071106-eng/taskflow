@@ -7464,12 +7464,12 @@ function waConnCodeInput(v){if(!S.waConn)return;S.waConn={...S.waConn,codeInput:
 function waOpenJoin(){const code=window.__TWILIO_SANDBOX_CODE||'along-wool';window.open('https://wa.me/14155238886?text='+encodeURIComponent('join '+code),'_blank')}
 // Meditation slots:
 //   directId = Archive.org item (legacy real-teacher recordings)
-//   elevenId = AUDIO_LIBRARY key (pre-rendered static MP3 scripts)
+//   audioId = AUDIO_LIBRARY key (pre-rendered static MP3 in audio-static/)
 const MED_SLOTS=[
 // Affirmations · 3 pre-rendered audio sessions (2 / 5 / 10 min)
-{cat:'affirmations',mins:2,title:'2 minutes',desc:'A quick centering \\u2014 ground yourself fast',color:'#FCB851',elevenId:'aff-2min'},
-{cat:'affirmations',mins:5,title:'5 minutes',desc:'A grounded reset \\u2014 build resilience, soften the day',color:'#5BBFB4',elevenId:'aff-5min'},
-{cat:'affirmations',mins:10,title:'10 minutes',desc:'Deep practice \\u2014 letting go, gratitude, returning to centre',color:'#FF7A45',elevenId:'aff-10min'},
+{cat:'affirmations',mins:2,title:'2 minutes',desc:'A quick centering \\u2014 ground yourself fast',color:'#FCB851',audioId:'aff-2min'},
+{cat:'affirmations',mins:5,title:'5 minutes',desc:'A grounded reset \\u2014 build resilience, soften the day',color:'#5BBFB4',audioId:'aff-5min'},
+{cat:'affirmations',mins:10,title:'10 minutes',desc:'Deep practice \\u2014 letting go, gratitude, returning to centre',color:'#FF7A45',audioId:'aff-10min'},
 // Vipassana
 {cat:'vipassana',mins:10,title:'Anāpāna + Mettā',desc:'Breath-awareness intro \\u2022 12 min',color:'#06B6D4',directId:'AnapanaEnglishMetta',directFile:'Anapana English+Metta.mp3'},
 {cat:'vipassana',mins:20,title:'Anāpāna · 20-min Sit',desc:'Extended breath-awareness \\u2022 21 min',color:'#3B82F6',directId:'70_Minutes_Anapana_Part_1',directFile:'70-m-anapana-M0052.mp3'},
@@ -7479,9 +7479,9 @@ const MED_SLOTS=[
 // Guided · 2 Archive.org + 3 short sessions
 {cat:'guided',mins:15,title:'Body Scan',desc:'Body scan with Judith \\u2022 15 min',color:'#A0612E',directId:'JR12-2015-10-03-RTR-CIW-body-scan-meditation-judith',directFile:'JR12-2015-10-03-RTR-CIW-body-scan-meditation-judith.mp3'},
 {cat:'guided',mins:25,title:'Loving-Kindness',desc:'Guided with Ajahn Brahm \\u2022 25 min',color:'#F59E0B',directId:'BSWA-Meditation',directFile:'2018-11-02- Guided Meditation with AB.mp3'},
-{cat:'guided',mins:3,title:'Three-minute Grounding',desc:'A short reset for any moment \\u2022 3 min',color:'#5BBFB4',elevenId:'med-grounding-3min'},
-{cat:'guided',mins:5,title:'Stress Release',desc:'Soften the body, release the day \\u2022 5 min',color:'#FF7A45',elevenId:'med-stress-release-5min'},
-{cat:'guided',mins:5,title:'Sleep Wind-Down',desc:'Slow the mind for rest \\u2022 5 min',color:'#5BBFB4',elevenId:'med-sleep-winddown-5min'}
+{cat:'guided',mins:3,title:'Three-minute Grounding',desc:'A short reset for any moment \\u2022 3 min',color:'#5BBFB4',audioId:'med-grounding-3min'},
+{cat:'guided',mins:5,title:'Stress Release',desc:'Soften the body, release the day \\u2022 5 min',color:'#FF7A45',audioId:'med-stress-release-5min'},
+{cat:'guided',mins:5,title:'Sleep Wind-Down',desc:'Slow the mind for rest \\u2022 5 min',color:'#5BBFB4',audioId:'med-sleep-winddown-5min'}
 ];
 const MED_CATEGORIES=[
   {k:'affirmations',l:'Affirmations',e:'\\u{2728}'},
@@ -7556,7 +7556,7 @@ function _speakScriptFallback(id,onEnd){
   }).catch(()=>{});
   return true;
 }
-function playMedEleven(id,title,mins){
+function playMedAudio(id,title,mins){
   const url='/api/audio/'+encodeURIComponent(id)+'?token='+encodeURIComponent(token||'');
   S.meditating={active:true,title,mins:mins||2,startedAt:Date.now()};
   // Check if server has TTS configured (cached from /api/coach/status at boot)
@@ -7569,7 +7569,7 @@ function playMedEleven(id,title,mins){
     toast('\\u{1F50A} Reading aloud');
     return;
   }
-  S.playing={id:'el-'+id,title,author:'\\u2728 Generated for you \\u2022 Premium voice',url,external:null,loading:false};
+  S.playing={id:'el-'+id,title,author:'\\u{1F50A} Voice narration',url,external:null,loading:false};
   // Track session count (same protection as playMeditation against double-counting within 60s)
   try{const last=parseInt(localStorage.getItem('med_last_count_ts')||'0',10);if(Date.now()-last>60000){const cur=parseInt(localStorage.getItem('med_count')||'0',10)||0;localStorage.setItem('med_count',String(cur+1));localStorage.setItem('med_last_count_ts',String(Date.now()));const today=new Date().toISOString().slice(0,10);const days=(localStorage.getItem('med_days')||'').split(',').filter(Boolean);if(days[days.length-1]!==today){days.push(today);localStorage.setItem('med_days',days.slice(-365).join(','))}}}catch(e){}
   render();
@@ -7771,21 +7771,7 @@ function _coachScenarioSystem(sc){
   return 'You are roleplaying as '+role+' in a Business English practice session. Stay strictly in character. The user is practising the scenario: "'+sc.title+'".\\n\\nRespond as the character would \\u2014 realistic, contextual, sometimes slightly challenging. Keep responses under 80 words. After 6-8 exchanges, naturally wrap up the scenario.\\n\\nIf the user says "STOP" or "feedback", break character and give a brief Business English coaching note about their performance: vocabulary, tone, pace, structure. Then offer to restart or try a new scenario.';
 }
 async function coachSpeak(text){
-  if(true){
-    // Fallback to browser TTS
-    voiceSpeak(text);return;
-  }
-  try{
-    S.coach.playing=true;render();
-    const r=await fetch('/api/coach/speak',{method:'POST',headers:{'Content-Type':'application/json','x-token':token},body:JSON.stringify({text})});
-    if(!r.ok){S.coach.playing=false;render();voiceSpeak(text);return}
-    const blob=await r.blob();
-    const url=URL.createObjectURL(blob);
-    const a=new Audio(url);S._coachAudio=a;
-    a.onended=()=>{S.coach.playing=false;URL.revokeObjectURL(url);render()};
-    a.onerror=()=>{S.coach.playing=false;render()};
-    a.play().catch(()=>{S.coach.playing=false;render()});
-  }catch(e){S.coach.playing=false;render()}
+  voiceSpeak(text);
 }
 function coachStopSpeak(){try{S._coachAudio&&S._coachAudio.pause();S._coachAudio=null}catch(e){}try{window.speechSynthesis&&window.speechSynthesis.cancel()}catch(e){}S.coach.playing=false;render()}
 let _coachRec=null,_coachChunks=[];
@@ -10912,9 +10898,9 @@ function _pickPremiumVoice(){
 // Chunked TTS — splits long text into sentence groups so Chrome doesn't time out at ~15s
 // Plus a keepalive pause/resume hack that fights the well-known Web Speech cutoff bug
 function _ttsStop(){try{speechSynthesis.cancel()}catch(e){}if(window._ttsKeepalive){clearInterval(window._ttsKeepalive);window._ttsKeepalive=null}if(window._ttsQueue)window._ttsQueue.cancelled=true;window._ttsQueue=null}
-// Narration — routes through browser TTS. Static MP3s are used for books via /api/book-audio/:id.
-// gracefully falls back to chunked browser TTS otherwise. Now THE primary entry point for
-// every TTS call across the app — _ttsSpeak is aliased to this below.
+// Narration — all voice is browser TTS (speechSynthesis). Static MP3s are used
+// for books via /api/book-audio/:id and meditations via /api/audio/:id.
+// _premiumNarrate is kept as the name for backward compat — it just calls browser TTS.
 async function _premiumNarrate(text,opts,onAllDone,onProgress){
   _premiumStop();
   return _browserTtsSpeak(text,opts,onAllDone,onProgress);
@@ -12342,9 +12328,9 @@ else if(S.tab==='meditation'){
   MED_SLOTS.filter(s=>s.cat===cat).forEach((x,i)=>{
     let ready,onclick;
     const safeTitle=esc(x.title).replace(/\\\\u/g,'\\\\\\\\u').replace(/'/g,"\\\\'");
-    if(x.elevenId){
+    if(x.audioId){
       ready=true;
-      onclick='playMedEleven(\\''+x.elevenId+'\\',\\''+safeTitle+'\\','+x.mins+')';
+      onclick='playMedAudio(\\''+x.audioId+'\\',\\''+safeTitle+'\\','+x.mins+')';
     } else {
       const doc=(S.meditations||{})[x.directId];
       ready=!!doc;
