@@ -4942,13 +4942,13 @@ body.audio-on .fab-global{bottom:calc(96px + env(safe-area-inset-bottom,0px))!im
 .add-bar .txt small{display:block;font-size:12px;color:rgba(245,242,237,.7);margin-top:2px;font-weight:500}
 /* Quick-compose bar */
 .qc-bar{background:var(--bg-elev,#fff);border:1.5px solid var(--line,#E8E0D4);border-radius:16px;padding:12px 14px;margin-bottom:14px;box-shadow:0 2px 10px rgba(0,0,0,.06);overflow:hidden}
-.qc-row{display:flex;align-items:flex-end;gap:10px;min-width:0;overflow:hidden}
-.qc-input-col{flex:1 1 0;min-width:0;overflow:hidden}
+.qc-row{display:block;overflow:hidden}
 .qc-input{display:block;width:100%;border:none;background:transparent;font-size:15px;font-family:inherit;outline:none;color:var(--ink,#3A2D22);padding:6px 0;resize:none;overflow-x:hidden;overflow-y:auto;word-wrap:break-word;overflow-wrap:break-word;white-space:pre-wrap;line-height:1.5;max-height:120px;box-sizing:border-box}
+.qc-send-row{display:flex;justify-content:flex-end;margin-top:8px}
 .qc-input::placeholder{color:var(--ink-3,#A0AEC0)}
 .qc-send{width:38px;height:38px;border-radius:50%;border:none;background:linear-gradient(135deg,#3DAE5C,#2D8A4E);color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .15s;box-shadow:0 2px 8px rgba(61,174,92,.3)}
 .qc-send:active{transform:scale(.92)}
-@media(max-width:1023px){.qc-bar{padding:22px 20px;border-radius:22px;margin-bottom:20px;border:2px solid #D4956A;box-shadow:0 6px 24px rgba(58,45,34,.12);background:#FBF7F1 !important}.qc-row{gap:14px}.qc-input-col{flex:1 1 0 !important;min-width:0 !important;overflow:hidden !important}.qc-input{display:block !important;width:100% !important;font-size:19px;padding:14px 0;min-height:52px;font-weight:500;word-wrap:break-word !important;overflow-wrap:break-word !important;white-space:pre-wrap !important;overflow-x:hidden !important}.qc-input::placeholder{font-size:17px;color:#B8A394}.qc-send{width:56px;height:56px;font-size:28px;font-weight:800;background:linear-gradient(135deg,#C47A3A,#D4956A) !important;box-shadow:0 4px 16px rgba(58,45,34,.35)}.qc-chips{gap:10px;margin-top:16px;flex-wrap:wrap}.qc-chip{padding:14px 24px;font-size:16px;border-radius:30px;font-weight:700;letter-spacing:.02em;border-width:2.5px}.qc-chip .qc-dot{width:12px;height:12px}.qc-expand{font-size:14px !important;font-weight:700 !important;color:#C47A3A !important;background:rgba(58,45,34,.08);padding:10px 18px;border-radius:24px;transition:all .15s}}
+@media(max-width:1023px){.qc-bar{padding:22px 20px;border-radius:22px;margin-bottom:20px;border:2px solid #D4956A;box-shadow:0 6px 24px rgba(58,45,34,.12);background:#FBF7F1 !important}.qc-row{display:block !important;overflow:hidden !important}.qc-input{display:block !important;width:100% !important;font-size:19px;padding:14px 0;min-height:52px;font-weight:500;word-wrap:break-word !important;overflow-wrap:break-word !important;white-space:pre-wrap !important;overflow-x:hidden !important;box-sizing:border-box !important}.qc-input::placeholder{font-size:17px;color:#B8A394}.qc-send{width:56px;height:56px;font-size:28px;font-weight:800;background:linear-gradient(135deg,#C47A3A,#D4956A) !important;box-shadow:0 4px 16px rgba(58,45,34,.35)}.qc-chips{gap:10px;margin-top:16px;flex-wrap:wrap}.qc-chip{padding:14px 24px;font-size:16px;border-radius:30px;font-weight:700;letter-spacing:.02em;border-width:2.5px}.qc-chip .qc-dot{width:12px;height:12px}.qc-expand{font-size:14px !important;font-weight:700 !important;color:#C47A3A !important;background:rgba(58,45,34,.08);padding:10px 18px;border-radius:24px;transition:all .15s}}
 .qc-chips{display:flex;gap:6px;margin-top:8px;align-items:center}
 .qc-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;border:1.5px solid transparent;font-size:11.5px;font-weight:600;cursor:pointer;transition:all .15s;background:var(--bg,#FDF8F3);color:var(--ink-2,#9C8B7A);user-select:none}
 .qc-chip:active{transform:scale(.95)}
@@ -6524,12 +6524,13 @@ body[data-theme=aurora] .bro-typing-dot{background:rgba(255,255,255,.4)}
 @keyframes broTypeDot{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-5px);opacity:1}}
 .bro-input-wrap{flex-shrink:0;padding:8px 14px 10px;background:#FBF7F1;border-top:none;z-index:20;transition:padding .15s ease;overflow:hidden;width:100%;box-sizing:border-box}
 body[data-theme=aurora] .bro-input-wrap{background:#212121}
-.bro-input-bar{display:flex;gap:8px;padding:14px 14px 14px 16px;background:#fff;border:1.5px solid rgba(58,45,34,.10);border-radius:20px;align-items:flex-end;box-shadow:0 1px 6px rgba(58,45,34,.06);transition:all .2s;min-width:0;overflow:hidden;width:100%;box-sizing:border-box}
+.bro-input-bar{display:block;padding:14px 16px;background:#fff;border:1.5px solid rgba(58,45,34,.10);border-radius:20px;box-shadow:0 1px 6px rgba(58,45,34,.06);transition:all .2s;overflow:hidden;width:100%;box-sizing:border-box}
+.bro-input-actions{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
 .bro-input-bar:focus-within{border-color:rgba(196,122,58,.35);box-shadow:0 2px 12px rgba(196,122,58,.10)}
 body[data-theme=aurora] .bro-input-bar{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12);box-shadow:none}
 body[data-theme=aurora] .bro-input-bar:focus-within{background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.25);box-shadow:0 2px 12px rgba(255,255,255,.05)}
-.bro-input-col{flex:1 1 0;min-width:0;overflow:hidden}
-.bro-input{display:block;width:100%;border:none;background:transparent;font-size:16px;outline:none;color:#3A2D22;font-family:inherit;padding:10px 2px;line-height:1.6;min-height:100px;max-height:200px;resize:none;overflow-y:auto;overflow-x:hidden;word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;white-space:pre-wrap;-webkit-appearance:none;appearance:none;box-sizing:border-box}
+body[data-theme=aurora] .bro-input-actions{border-top-color:rgba(255,255,255,.08)}
+.bro-input{display:block;width:100%;border:none;background:transparent;font-size:16px;outline:none;color:#3A2D22;font-family:inherit;padding:10px 0;line-height:1.6;min-height:80px;max-height:200px;resize:none;overflow-y:auto;overflow-x:hidden;word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;white-space:pre-wrap;-webkit-appearance:none;appearance:none;box-sizing:border-box}
 .bro-input::placeholder{color:#B5A898}
 body[data-theme=aurora] .bro-input{color:#fff}
 body[data-theme=aurora] .bro-input::placeholder{color:rgba(255,255,255,.35)}
@@ -6647,16 +6648,15 @@ body[data-theme=aurora] .bro-img-err{background:rgba(239,68,68,.12)}
   body.bro-tab .bro-header{padding:8px 14px;flex-shrink:0}
   body.bro-tab .bro-chat{flex:1 !important;min-height:0 !important;padding:12px 14px 12px !important;gap:12px}
   body.bro-tab .bro-input-wrap{flex-shrink:0 !important;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px)) !important;padding-bottom:calc(78px + env(safe-area-inset-bottom,0px)) !important;border-top:1px solid rgba(58,45,34,.08) !important;background:#FBF7F1 !important}
-  body.bro-tab .bro-input-col{flex:1 1 0 !important;min-width:0 !important;overflow:hidden !important}
-  body.bro-tab .bro-input{display:block !important;width:100% !important;font-size:16px !important;-webkit-text-size-adjust:none !important;caret-color:#C47A3A;line-height:1.6 !important;min-height:100px !important;max-height:220px !important;padding:10px 4px !important;-webkit-appearance:none !important;word-wrap:break-word !important;word-break:break-word !important;overflow-wrap:break-word !important;white-space:pre-wrap !important;overflow-x:hidden !important;box-sizing:border-box !important}
-  body.bro-tab .bro-input-bar{padding:14px 14px 14px 16px !important;border-radius:20px !important;background:#fff !important;box-shadow:0 2px 8px rgba(58,45,34,.08) !important;border:1.5px solid rgba(58,45,34,.12) !important;align-items:flex-end !important;flex-wrap:wrap !important}
+  body.bro-tab .bro-input{display:block !important;width:100% !important;font-size:16px !important;-webkit-text-size-adjust:none !important;caret-color:#C47A3A;line-height:1.6 !important;min-height:80px !important;max-height:220px !important;padding:10px 0 !important;-webkit-appearance:none !important;word-wrap:break-word !important;word-break:break-word !important;overflow-wrap:break-word !important;white-space:pre-wrap !important;overflow-x:hidden !important;box-sizing:border-box !important}
+  body.bro-tab .bro-input-bar{display:block !important;padding:14px 16px !important;border-radius:20px !important;background:#fff !important;box-shadow:0 2px 8px rgba(58,45,34,.08) !important;border:1.5px solid rgba(58,45,34,.12) !important;overflow:hidden !important}
   body.bro-tab.kb-open .bro-container{height:var(--vv-h,100%) !important;top:var(--vv-top,0px) !important;bottom:auto !important}
   body.bro-tab.kb-open .bro-header{display:none !important}
   body.bro-tab.kb-open .bro-welcome{display:none !important}
   body.bro-tab.kb-open .bro-suggestions{display:none !important}
   body.bro-tab.kb-open .bro-input-wrap{padding:10px 12px 10px !important;flex:1 !important}
   body.bro-tab.kb-open .tabs.page-t{display:none !important}
-  body.bro-tab.kb-open .bro-input{min-height:120px !important;max-height:50vh !important;font-size:17px !important;display:block !important;width:100% !important}
+  body.bro-tab.kb-open .bro-input{min-height:100px !important;max-height:50vh !important;font-size:17px !important;display:block !important;width:100% !important}
   body.bro-tab.kb-open .bro-chat{flex:0 0 auto !important;max-height:80px !important;overflow-y:auto !important;padding:6px 14px !important}
   body.bro-tab .bro-send-btn{width:38px;height:38px}
   body.bro-tab .tabs.page-t{z-index:61 !important}
@@ -11963,8 +11963,8 @@ if(S.tab==='tasks'){
   h+='<div class="qc-sparkles"><div class="qc-sparkle"></div><div class="qc-sparkle"></div><div class="qc-sparkle"></div><div class="qc-sparkle"></div></div>';
   h+='</div>';
   h+='<div class="qc-bar">';
-  h+='<div class="qc-row"><div class="qc-input-col"><textarea class="qc-input" rows="1" placeholder="Add a task... (try: Buy milk tomorrow !high)" oninput="composeUpdate(this.value);this.style.height=\\'auto\\';this.style.height=Math.min(this.scrollHeight,120)+\\'px\\'" onkeydown="if(event.key===\\'Enter\\'&&!event.shiftKey){event.preventDefault();composeSubmit()}">'+esc(S.compose.value||'')+'</textarea></div>';
-  h+='<button class="qc-send" onclick="composeSubmit()" title="Add task">+</button></div>';
+  h+='<div class="qc-row"><textarea class="qc-input" rows="2" wrap="soft" style="display:block;width:100%;box-sizing:border-box;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;overflow-x:hidden;resize:none" placeholder="Add a task... (try: Buy milk tomorrow !high)" oninput="composeUpdate(this.value);this.style.height=\\'auto\\';this.style.height=Math.min(this.scrollHeight,120)+\\'px\\'" onkeydown="if(event.key===\\'Enter\\'&&!event.shiftKey){event.preventDefault();composeSubmit()}">'+esc(S.compose.value||'')+'</textarea>';
+  h+='<div class="qc-send-row"><button class="qc-send" onclick="composeSubmit()" title="Add task">+</button></div></div>';
   h+='<div class="qc-chips">';
   h+='<span class="qc-chip qc-high'+(_cp==='high'?' on':'')+'" onclick="composeSetPriority(\\'high\\')"><span class="qc-dot" style="background:#DC2626"></span>High</span>';
   h+='<span class="qc-chip qc-med'+(_cp==='medium'?' on':'')+'" onclick="composeSetPriority(\\'medium\\')"><span class="qc-dot" style="background:#EA580C"></span>Med</span>';
@@ -12432,11 +12432,12 @@ else if(S.tab==='bro'){
     h+='<div class="bro-input-wrap">';
     if(S.bro._file){h+='<div class="bro-file-badge" onclick="S.bro._file=null;S.bro._fileText=null;render()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> '+esc(S.bro._file)+' <span class="bro-file-x">\\u2715</span></div>'}
     h+='<div class="bro-input-bar">';
+    h+='<textarea class="bro-input" id="broInput" rows="3" wrap="soft" placeholder="'+(S.bro._file?'Ask about this file\\u2026':S.bro.mode==='friend'?'Talk to me...':'Type your message here...')+'" autocomplete="off" autocorrect="off" spellcheck="false" style="display:block;width:100%;box-sizing:border-box;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;overflow-x:hidden;resize:none" oninput="S.bro.input=this.value;this.style.height=\\'auto\\';this.style.height=Math.min(this.scrollHeight,200)+\\'px\\'" onfocus="setTimeout(function(){var c=document.getElementById(\\'broChat\\');if(c)c.scrollTop=c.scrollHeight},300)" onkeydown="if(event.key===\\'Enter\\'&&!event.shiftKey){event.preventDefault();broSend()}">'+esc(S.bro.input)+'</textarea>';
+    h+='<div class="bro-input-actions">';
     h+='<button class="bro-attach-btn" onclick="document.getElementById(\\'broFileInput\\').click()" title="Attach a file"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></button>';
     h+='<input type="file" id="broFileInput" style="display:none" accept=".txt,.md,.csv,.json,.js,.py,.html,.css,.xml,.log,.pdf,.doc,.docx" onchange="broAttachFile(this)">';
-    h+='<div class="bro-input-col"><textarea class="bro-input" id="broInput" rows="4" placeholder="'+(S.bro._file?'Ask about this file\\u2026':S.bro.mode==='friend'?'Talk to me...':'Type your message here...')+'" autocomplete="off" autocorrect="off" spellcheck="false" oninput="S.bro.input=this.value;this.style.height=\\'auto\\';this.style.height=Math.min(this.scrollHeight,200)+\\'px\\'" onfocus="setTimeout(function(){var c=document.getElementById(\\'broChat\\');if(c)c.scrollTop=c.scrollHeight},300)" onkeydown="if(event.key===\\'Enter\\'&&!event.shiftKey){event.preventDefault();broSend()}">'+esc(S.bro.input)+'</textarea></div>';
     h+='<button class="bro-send-btn bro-send-bro" onclick="broSend()" '+(S.bro.sending?'disabled':'')+'><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>';
-    h+='</div></div>';
+    h+='</div></div></div>';
     h+='</div>';
   }
 }
@@ -13375,6 +13376,8 @@ try{document.body.classList.toggle('audio-on',!!(S.playing&&(S.playing.url||S.pl
 // Lock body scroll when any fullscreen modal is open so the background can't scroll behind
 try{document.body.classList.toggle('modal-open',_isModalOpen())}catch(e){}
 try{document.body.classList.toggle('bro-tab',S.tab==='bro')}catch(e){}
+// Force textarea width to parent's pixel width — WebView ignores CSS width on textareas
+try{var _ta=document.querySelectorAll('textarea.bro-input,textarea.qc-input');for(var _i=0;_i<_ta.length;_i++){var _p=_ta[_i].parentNode;if(_p&&_p.clientWidth>0)_ta[_i].style.width=_p.clientWidth+'px'}}catch(e){}
 }
 fetch('/api/config').then(r=>r.json()).then(c=>{window.__TWILIO_SANDBOX_CODE=c.sandboxCode||'';render()}).catch(()=>{});
 applyTheme();
@@ -13726,7 +13729,7 @@ app.get('/privacy',(_,res)=>{
 app.get('/terms',(_,res)=>{
   res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Terms of Service — Brodoit</title><meta name="description" content="The simple terms for using Brodoit. Plain English, no surprises."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Terms</div><h1>The simple rules.</h1><p class="lede">We've kept these terms short and human. Use Brodoit kindly, and we'll keep building it for you.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">The service</h2><p>Brodoit is a personal productivity app: it lets you manage tasks with optional WhatsApp and email reminders, listen to free public-domain audiobooks, sharpen your mind with brain games, and see a daily wisdom quote.</p><h2 data-n="02">Your account</h2><p>You register with your email address or phone number. Keep your one-time verification codes private — anyone with the code can sign in. You are responsible for activity on your account.</p><h2 data-n="03">Acceptable use</h2><p>Please don't abuse the service: no spam, no impersonation, no automated scraping, no attempts to disrupt other users or the service itself. We may suspend or remove accounts that do.</p><h2 data-n="04">Content</h2><p>You own your tasks, notes, and other content you create. We store them so we can show them back to you. Audiobook content belongs to the respective public-domain authors and is served from the Internet Archive's LibriVox collection.</p><h2 data-n="05">No warranty</h2><p>The service is provided "as is". We try hard to keep it running, but can't promise zero downtime or guarantee that every reminder is delivered (WhatsApp and email providers can fail). If something matters, please don't rely solely on Brodoit.</p><h2 data-n="06">Limitation of liability</h2><p>Brodoit is a personal tool. We're not liable for missed deadlines, lost data, or any consequential damages from using — or not using — the service.</p><h2 data-n="07">Changes</h2><p>We may update these terms. If we do, we'll update the date at the top. Continued use after a change means you accept the new terms.</p><h2 data-n="08">Contact</h2><p>Need anything? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });
-app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send('var CACHE_VER="v9";self.addEventListener("install",function(e){self.skipWaiting()});self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});self.addEventListener("fetch",function(e){});')});
+app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send('var CACHE_VER="v10";self.addEventListener("install",function(e){self.skipWaiting()});self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});self.addEventListener("fetch",function(e){});')});
 
 // ═══ MARKETING / PUBLIC PAGES ═══
 
