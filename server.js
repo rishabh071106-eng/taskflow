@@ -1863,6 +1863,9 @@ for(const t of due){
 // ═══ FRONTEND ═══
 const HTML=`<!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="google-site-verification" content="0dus2qjhVhSPP2gWIDJlVBb7LxvrMDbrhECxY8tiO4U" />
 <title>Brodoit — Tasks, audiobooks &amp; daily wisdom</title>
 <meta name="description" content="Brodoit is your calm productivity companion. Manage tasks with email reminders, listen to free public-domain audiobooks, sharpen your mind, and build a daily ritual that sticks.">
