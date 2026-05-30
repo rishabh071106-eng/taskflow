@@ -9257,10 +9257,15 @@ function _pickPremiumVoice(){
 // Nuclear kill: stops ALL book/summary audio — TTS queue, static audio, pending timers, speechSynthesis
 function _killAllBookAudio(){
   if(window._bkBriefTimer){clearTimeout(window._bkBriefTimer);window._bkBriefTimer=null}
+  // Mark playback as dead BEFORE stopping audio — prevents onerror/catch handlers from
+  // triggering _fallbackBookTTS() which starts a NEW female-voice TTS after the kill.
+  if(S.bookReader)S.bookReader.playing=false;
   _premiumStop();
   if(window._fbKeepalive){clearInterval(window._fbKeepalive);window._fbKeepalive=null}
-  const bna=document.getElementById('bk-narr-audio');if(bna){try{bna.pause();bna.src=''}catch(e){}}
-  if(S.bookReader&&S.bookReader._staticAudio){try{S.bookReader._staticAudio.pause();S.bookReader._staticAudio.src=''}catch(e){}}
+  // Nullify event handlers BEFORE setting src='' — setting src='' fires onerror which
+  // was calling _fallbackBookTTS(), starting a new TTS session with the wrong voice.
+  const bna=document.getElementById('bk-narr-audio');if(bna){try{bna.onerror=null;bna.onended=null;bna.ontimeupdate=null;bna.pause();bna.src=''}catch(e){}}
+  if(S.bookReader&&S.bookReader._staticAudio){try{S.bookReader._staticAudio.onerror=null;S.bookReader._staticAudio.onended=null;S.bookReader._staticAudio.ontimeupdate=null;S.bookReader._staticAudio.pause();S.bookReader._staticAudio.src=''}catch(e){}}
   try{if(window.speechSynthesis){speechSynthesis.cancel()}}catch(e){}
   setTimeout(function(){try{if(window.speechSynthesis)speechSynthesis.cancel()}catch(e){}},80);
 }
@@ -9379,15 +9384,20 @@ function bookReaderToggleTTS(){
     a.playbackRate=Math.max(0.5,Math.min(2.0,r.rate||1.0));
     r._staticAudio=a;
     a.ontimeupdate=function(){if(a.duration){onProgress(Math.floor(a.currentTime),Math.ceil(a.duration),r.book.title)}};
-    a.onended=function(){r._staticAudio=null;onDone()};
-    a.onerror=function(){r._staticAudio=null;_fallbackBookTTS(r,onDone,onProgress)};
-    const p=a.play();if(p&&p.catch)p.catch(function(){_fallbackBookTTS(r,onDone,onProgress)});
-  }).catch(function(){_fallbackBookTTS(r,onDone,onProgress)});
+    a.onended=function(){r._staticAudio=null;if(r.playing)onDone()};
+    a.onerror=function(){r._staticAudio=null;if(!r.playing)return;_fallbackBookTTS(r,onDone,onProgress)};
+    const p=a.play();if(p&&p.catch)p.catch(function(){if(!r.playing)return;_fallbackBookTTS(r,onDone,onProgress)});
+  }).catch(function(){if(!r.playing)return;_fallbackBookTTS(r,onDone,onProgress)});
 }
 function _fallbackBookTTS(r,onDone,onProgress){
+  // Guard: don't start TTS fallback if playback was stopped by user (close/X button).
+  // Without this, onerror/catch handlers from the killed audio element trigger a NEW
+  // browser TTS session, which is the "lady voice starts speaking" bug on Android.
+  if(!r||!r.playing)return;
+  if(!S.bookReader||!S.bookReader.playing)return;
   const baseRate=r.rate||0.78;
   const fullText=_bookFullNarration(r.book);
-  
+
   const ok=_premiumNarrate(fullText,{rate:baseRate,pitch:0.95,volume:1.0},onDone,onProgress);
   if(ok===false){r.playing=false;render()}
 }
