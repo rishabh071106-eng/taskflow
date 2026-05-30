@@ -708,6 +708,227 @@ Sleep, when it comes, will come on its own. You don't have to chase it. You don'
 
 Goodnight.`,
   },
+
+  // ─── Vipassana guided sessions (5 / 10 / 15 min) ─────────────────────
+  'vip-5min': {
+    title: '5-minute Vipassana',
+    desc: 'Breath awareness — Anapana',
+    mins: 5, color: '#06B6D4', kind: 'vipassana',
+    script: `Find a comfortable seat. Keep your back straight but not rigid. Close your eyes gently.
+
+Take a deep breath in through your nose... and slowly release it.
+
+Now bring your full attention to the area just below your nostrils, above your upper lip. This small triangular area is where you will focus for the next five minutes.
+
+Begin to observe your natural breath. Do not try to control it. Do not try to make it deeper or slower. Simply observe it as it is... as it comes in... as it goes out.
+
+Feel the sensation of air entering your nostrils. Is it cool? Is it warm? Notice the subtle touch of the breath against the skin below your nose.
+
+The breath comes in... the breath goes out. That is all. Nothing else exists right now. Just this breath. Just this moment.
+
+Your mind will wander. This is natural. This is what minds do. When you notice it has wandered, do not judge yourself. Do not feel frustrated. Simply smile inwardly and return your attention to the breath at the nostrils.
+
+Breath coming in... breath going out.
+
+Perhaps you notice the breath is longer on one side. Perhaps it is shorter. Perhaps one nostril is more open than the other. Simply observe. Do not change anything. You are a scientist observing a natural phenomenon. The breath will change on its own.
+
+Continue to feel the breath... the gentle sensation at the nostrils... the subtle warmth of the air leaving... the slight coolness entering...
+
+Let your awareness become sharper. More focused. Like a magnifying glass gathering sunlight into a single point. All of your attention on this tiny area. The triangular area between the nostrils and the upper lip.
+
+Breath in... breath out... moment to moment... sensation to sensation...
+
+Keep your attention here. Steady. Patient. Equanimous. Whatever arises, observe it without reacting. Without craving. Without aversion. Just pure observation.
+
+Now slowly begin to widen your awareness. Feel your whole body sitting here, breathing. Feel the weight of your body on the seat. The sounds around you beginning to return.
+
+Take one deep breath in... and let it go.
+
+May you be happy. May you be peaceful. May you be free from suffering.
+
+When you are ready, slowly open your eyes.`,
+  },
+  'vip-10min': {
+    title: '10-minute Vipassana',
+    desc: 'Breath awareness + body scan',
+    mins: 10, color: '#3B82F6', kind: 'vipassana',
+    script: `Sit comfortably. Spine straight. Hands resting on your knees or in your lap. Close your eyes.
+
+Take three deep breaths to settle the mind. Breathe in deeply through your nose... and out through your mouth. Again... in... and out. One more time... in... and out.
+
+Now let your breathing return to its natural rhythm. Do not control it. Just observe.
+
+Bring your attention to the area below your nostrils, above your upper lip. This is your anchor point. Your mind will return here whenever it wanders.
+
+Feel the sensation of the breath passing through the nostrils. The cool air entering... the warm air leaving. Each breath a wave arriving on a shore and retreating. Arriving... and retreating.
+
+Stay with this sensation. Breath after breath. If your mind pulls you away to a thought, a worry, a plan, a memory... notice where it went. And gently, patiently, bring it back to the breath at the nostrils.
+
+No judgment. No frustration. The wandering is part of the practice. The returning is the practice.
+
+Continue observing the breath for the next few moments in silence...
+
+Now we will begin to move our attention through the body. Starting from the top of the head.
+
+Bring your awareness to the very top of your head. The crown. Can you feel any sensation there? Tingling... warmth... pressure... or perhaps nothing at all. Whatever you feel, simply observe it. Do not react to it. Do not wish it to be different.
+
+Move your attention slowly down to the forehead. Feel the skin of the forehead. Any tightness... any smoothness. Just observe.
+
+Down to the eyes. The closed eyelids. The area around the eyes. Notice whatever is there.
+
+The cheeks. The nose. The upper lip... here you may still feel the breath passing.
+
+The lower lip. The chin. The jaw. So much tension often lives here. Do not try to release it. Just notice it. Observe it. It will release on its own when you stop fighting it.
+
+Move your attention to the throat. The neck. Feel the sensations on the surface. Feel any pulsing, any warmth.
+
+The shoulders. Both shoulders together. Whatever is there... heaviness, tightness, ease... just observe.
+
+Down the upper arms. The elbows. The forearms. The wrists. The hands. Each finger. Can you feel the blood pulsing in your fingertips?
+
+Bring your attention to the chest. Feel the breath moving the ribcage. Expanding... contracting. The heart beating behind the ribs. Steady. Faithful.
+
+The upper back. The middle back. Feel wherever your back touches the chair or cushion.
+
+The belly. Rising with each inhale. Falling with each exhale. Soft. Open.
+
+The lower back. The hips. The sitting bones pressing into the seat.
+
+Down through the thighs. The knees. The calves. The ankles. The feet. The soles of the feet. The toes.
+
+Now feel your entire body as one. From the crown of the head to the tips of the toes. One unified field of sensation. Breathing together. Existing together. Right here. Right now.
+
+Sit with this whole-body awareness for a moment...
+
+Whatever sensations you found... pleasant or unpleasant... they are all impermanent. They arise and they pass away. This is the fundamental truth that vipassana reveals. Everything changes. Everything passes.
+
+Take a deep breath in... and slowly let it go.
+
+May you be happy. May you be peaceful. May you be free from suffering. May all beings be happy. May all beings be peaceful. May all beings be free from suffering.
+
+When you are ready, gently open your eyes. Carry this awareness with you.`,
+  },
+  'vip-15min': {
+    title: '15-minute Vipassana',
+    desc: 'Full practice — breath, body scan, metta',
+    mins: 15, color: '#8B5CF6', kind: 'vipassana',
+    script: `Welcome to this fifteen-minute vipassana practice. Find your seat. Let the spine be straight and dignified, like a mountain. Let the shoulders be soft, like water flowing over rocks. Close your eyes.
+
+Take three settling breaths. A deep breath in through the nose... hold it gently... and release slowly through the mouth. Again... in... hold... and release. One final time... in... hold... and out. Let the breath return to normal now.
+
+For the first five minutes, we practice Anapana. Pure breath awareness.
+
+Narrow your attention to the small area between your nostrils and upper lip. This triangle of skin is your entire world right now. Nothing else matters. Nothing else exists.
+
+Feel the breath as it enters the nostrils. Is it cool? Warm? Strong? Faint? Different on the left than the right? Simply notice. Do not change it. Do not improve it. It is already perfect.
+
+The breath goes out. Feel it on the upper lip. A gentle warmth. A soft flow. Then a pause. Then the next breath arrives on its own.
+
+If your mind wanders... and it will... notice where it went. Was it the future? The past? A worry? A fantasy? Name it quietly... future... past... worry... and then, like picking up a wandering child by the hand, gently guide your attention back to the breath.
+
+No frustration. No judgment. Each time you return is a victory. Each time you notice the wandering is awareness waking up.
+
+Stay with the breath now... moment after moment... sensation after sensation...
+
+Now we transition to the body scan. Vipassana means seeing things as they really are. We will move our attention through the body, part by part, observing whatever sensations arise with perfect equanimity. Not clinging to pleasant sensations. Not pushing away unpleasant ones. Just observing.
+
+Begin at the top of the head. The crown. Move your awareness there like a spotlight. What do you feel? Tingling? Pressure? Warmth? Nothing? All of these are valid. Simply observe.
+
+Slowly move down. The forehead. The temples. The area around the eyes. The cheeks. The ears. Notice each area for a few moments before moving on.
+
+The nose. The upper lip. Here, the breath may be noticeable. Good. Notice it and continue moving down.
+
+The lower lip. The chin. The jaw. Allow yourself to notice without reacting. If there is pain, observe it. If there is pleasure, observe it. Both are temporary. Both will change.
+
+The throat. The neck. Front and back. The muscles that hold your head all day long.
+
+The right shoulder. Down the right upper arm. The elbow. The forearm. The wrist. The right hand. Each finger of the right hand.
+
+Now the left shoulder. The left upper arm. The elbow. The forearm. The wrist. The left hand. Each finger.
+
+The upper chest. Feel the breath moving here. The heart center. Whatever you feel... openness, constriction, warmth, nothing... just observe.
+
+The upper back. Between the shoulder blades. Down the spine. Vertebra by vertebra if you can.
+
+The belly. Soft. Rising and falling. The lower back. The hips.
+
+The right thigh. The right knee. The right calf. The right ankle. The right foot. Each toe.
+
+The left thigh. The left knee. The left calf. The left ankle. The left foot. Each toe.
+
+Now sweep your attention from the top of your head to the tips of your toes in one flowing movement. Like a wave of light washing down through you. Feel the entire body as one field of sensation.
+
+And sweep back up. From the toes to the crown. One flowing movement of awareness.
+
+Rest in this whole-body awareness for a moment. The body breathing. The mind observing. This moment, complete.
+
+Now for the final minutes, we practice Metta. Loving-kindness.
+
+Bring to mind your own image. See yourself sitting here, practicing, trying your best. And silently repeat:
+
+May I be happy. May I be healthy. May I be safe. May I live with ease.
+
+Now bring to mind someone you love. See their face. Feel the warmth you have for them. And silently offer:
+
+May you be happy. May you be healthy. May you be safe. May you live with ease.
+
+Now bring to mind someone neutral. A stranger you passed today. The person at the shop. And offer them the same wish:
+
+May you be happy. May you be healthy. May you be safe. May you live with ease.
+
+Now, if you can, bring to mind someone difficult. Someone who has caused you pain. This is the hardest practice. And the most liberating. Try, if you can, to offer:
+
+May you be happy. May you be healthy. May you be safe. May you live with ease.
+
+Finally, expand your awareness to all beings everywhere. Every person on this earth. Every creature. Every form of life. And offer:
+
+May all beings be happy. May all beings be healthy. May all beings be safe. May all beings live with ease.
+
+Take a deep breath in. Feel the love you have just generated. And breathe it out into the world.
+
+Sadhu. Sadhu. Sadhu. Well done.
+
+When you are ready, open your eyes gently. Carry this peace with you through the rest of your day.`,
+  },
+
+  // ─── Ambient music (2 / 5 / 10 min) ──────────────────────────────────
+  'music-2min': {
+    title: '2-minute Calm',
+    desc: 'Ambient tones for a quick reset',
+    mins: 2, color: '#EC4899', kind: 'music', script: '',
+  },
+  'music-5min': {
+    title: '5-minute Ambient',
+    desc: 'Layered healing frequencies',
+    mins: 5, color: '#8B5CF6', kind: 'music', script: '',
+  },
+  'music-10min': {
+    title: '10-minute Soundscape',
+    desc: 'Deep ambient for extended calm',
+    mins: 10, color: '#06B6D4', kind: 'music', script: '',
+  },
+
+  // ─── Wisdom Stories (5 min each) ──────────────────────────────────────
+  'story-01': { title: 'The Two Wolves', desc: 'Which wolf wins? The one you feed.', mins: 5, color: '#C47A3A', kind: 'story', script: '' },
+  'story-02': { title: 'The Bamboo Tree', desc: 'Five years underground, then unstoppable.', mins: 5, color: '#3DAE5C', kind: 'story', script: '' },
+  'story-03': { title: 'The Cracked Pot', desc: 'Beauty grows from imperfection.', mins: 5, color: '#5BBFB4', kind: 'story', script: '' },
+  'story-04': { title: 'The Stonecutter', desc: 'Power is never what you think it is.', mins: 5, color: '#D97706', kind: 'story', script: '' },
+  'story-05': { title: 'The Empty Cup', desc: 'You cannot fill what is already full.', mins: 5, color: '#06B6D4', kind: 'story', script: '' },
+  'story-06': { title: "The Farmer's Horse", desc: 'Good luck, bad luck — who can say?', mins: 5, color: '#8B5CF6', kind: 'story', script: '' },
+  'story-07': { title: 'The Golden Buddha', desc: 'Your true nature is hidden, not lost.', mins: 5, color: '#FCB851', kind: 'story', script: '' },
+  'story-08': { title: 'The Starfish Story', desc: 'It mattered to that one.', mins: 5, color: '#EC4899', kind: 'story', script: '' },
+  'story-09': { title: 'The Elephant and the Rope', desc: 'Beliefs can become invisible chains.', mins: 5, color: '#A0612E', kind: 'story', script: '' },
+  'story-10': { title: 'The Oak and the Reed', desc: 'Flexibility outlasts rigidity.', mins: 5, color: '#3B82F6', kind: 'story', script: '' },
+  'story-11': { title: "The King's Painting", desc: 'Only one saw the full picture.', mins: 5, color: '#DC2626', kind: 'story', script: '' },
+  'story-12': { title: 'The Jar of Life', desc: 'Put the big rocks in first.', mins: 5, color: '#FF7A45', kind: 'story', script: '' },
+  'story-13': { title: 'The Eagle Who Forgot', desc: 'You were born to fly.', mins: 5, color: '#06B6D4', kind: 'story', script: '' },
+  'story-14': { title: 'The Lighthouse', desc: 'Some things do not move for you.', mins: 5, color: '#5BBFB4', kind: 'story', script: '' },
+  'story-15': { title: "The Carpenter's House", desc: 'Build every day like it matters.', mins: 5, color: '#C47A3A', kind: 'story', script: '' },
+  'story-16': { title: "The Butterfly's Struggle", desc: 'The struggle is the gift.', mins: 5, color: '#3DAE5C', kind: 'story', script: '' },
+  'story-17': { title: "The Wise Woman's Stone", desc: 'True wealth cannot be held.', mins: 5, color: '#8B5CF6', kind: 'story', script: '' },
+  'story-18': { title: 'The Fisherman', desc: 'You already have what you seek.', mins: 5, color: '#3B82F6', kind: 'story', script: '' },
+  'story-19': { title: 'The Bridge Builder', desc: 'The greatest work is for those who follow.', mins: 5, color: '#D97706', kind: 'story', script: '' },
+  'story-20': { title: 'The Samurai and the Tea Master', desc: 'Courage is doing what you know.', mins: 5, color: '#DC2626', kind: 'story', script: '' },
 };
 
 // Used by <audio src> for affirmations + guided meditations (static MP3s).
@@ -6934,7 +7155,7 @@ bro:{messages:[],input:'',sending:false,listening:false,speaking:false,agent:nul
 hydration:{enabled:JSON.parse(localStorage.getItem('tf_hydration')||'false'),interval:null,lastReminder:0,glass:parseInt(localStorage.getItem('tf_hydration_glass')||'0',10),goal:8,todayDate:new Date().toISOString().slice(0,10)},
 weather:{city:localStorage.getItem('tf_city')||'Bangalore',temp:null,aqi:null,country:'',loaded:false,loading:false,error:null,daily:null},weatherExpanded:false,
 cityTemps:{},remember:{person:null,loaded:false},lifeGoal:localStorage.getItem('tf_life_goal')||'',meditating:{active:false,title:'',mins:0,startedAt:0},
-medCat:localStorage.getItem('tf_medcat')||'vipassana',
+medCat:localStorage.getItem('tf_medcat')||'affirmations',
 ticker:{items:[],idx:0,loaded:false},
 waConnected:false,showWAOnboard:false,activeMeditation:null,
 google:{configured:false,accounts:[],loaded:false},gcalEvents:[],gcalLoading:false,showGcalAdd:false,gcalForm:{title:'',date:'',time:'',duration:30,notes:'',email:''},showCalSchedule:false,calSchedule:null,
@@ -7488,24 +7709,46 @@ const MED_SLOTS=[
 {cat:'affirmations',mins:2,title:'2 minutes',desc:'A quick centering \\u2014 ground yourself fast',color:'#FCB851',audioId:'aff-2min'},
 {cat:'affirmations',mins:5,title:'5 minutes',desc:'A grounded reset \\u2014 build resilience, soften the day',color:'#5BBFB4',audioId:'aff-5min'},
 {cat:'affirmations',mins:10,title:'10 minutes',desc:'Deep practice \\u2014 letting go, gratitude, returning to centre',color:'#FF7A45',audioId:'aff-10min'},
-// Vipassana
-{cat:'vipassana',mins:10,title:'Anāpāna + Mettā',desc:'Breath-awareness intro \\u2022 12 min',color:'#06B6D4',directId:'AnapanaEnglishMetta',directFile:'Anapana English+Metta.mp3'},
-{cat:'vipassana',mins:20,title:'Anāpāna · 20-min Sit',desc:'Extended breath-awareness \\u2022 21 min',color:'#3B82F6',directId:'70_Minutes_Anapana_Part_1',directFile:'70-m-anapana-M0052.mp3'},
-// Music
-{cat:'music',mins:10,title:'Meditation Morning',desc:'Calming instrumental \\u2022 10 min',color:'#A0612E',directId:'SleepMeditationCalming',directFile:'10 min Meditation morning.mp3'},
-{cat:'music',mins:30,title:'Ambient Soundbath',desc:'Slow, layered tones \\u2022 30 min',color:'#EC4899',directId:'AmbientSoundbathPodcast',directFile:'AmbientSoundbathPodcast-001.mp3'},
-// Guided · 2 Archive.org + 3 short sessions
-{cat:'guided',mins:15,title:'Body Scan',desc:'Body scan with Judith \\u2022 15 min',color:'#A0612E',directId:'JR12-2015-10-03-RTR-CIW-body-scan-meditation-judith',directFile:'JR12-2015-10-03-RTR-CIW-body-scan-meditation-judith.mp3'},
-{cat:'guided',mins:25,title:'Loving-Kindness',desc:'Guided with Ajahn Brahm \\u2022 25 min',color:'#F59E0B',directId:'BSWA-Meditation',directFile:'2018-11-02- Guided Meditation with AB.mp3'},
+// Vipassana · pre-rendered (no external loading)
+{cat:'vipassana',mins:5,title:'5-min Anapana',desc:'Breath awareness \\u2022 5 min',color:'#06B6D4',audioId:'vip-5min'},
+{cat:'vipassana',mins:10,title:'10-min Body Scan',desc:'Breath + body scan \\u2022 10 min',color:'#3B82F6',audioId:'vip-10min'},
+{cat:'vipassana',mins:15,title:'15-min Full Practice',desc:'Breath, body scan + metta \\u2022 15 min',color:'#8B5CF6',audioId:'vip-15min'},
+// Music · pre-rendered ambient
+{cat:'music',mins:2,title:'2-min Calm',desc:'Ambient tones for a quick reset',color:'#EC4899',audioId:'music-2min'},
+{cat:'music',mins:5,title:'5-min Ambient',desc:'Layered healing frequencies',color:'#8B5CF6',audioId:'music-5min'},
+{cat:'music',mins:10,title:'10-min Soundscape',desc:'Deep ambient for extended calm',color:'#06B6D4',audioId:'music-10min'},
+// Guided · 3 pre-rendered short sessions
 {cat:'guided',mins:3,title:'Three-minute Grounding',desc:'A short reset for any moment \\u2022 3 min',color:'#5BBFB4',audioId:'med-grounding-3min'},
 {cat:'guided',mins:5,title:'Stress Release',desc:'Soften the body, release the day \\u2022 5 min',color:'#FF7A45',audioId:'med-stress-release-5min'},
-{cat:'guided',mins:5,title:'Sleep Wind-Down',desc:'Slow the mind for rest \\u2022 5 min',color:'#5BBFB4',audioId:'med-sleep-winddown-5min'}
+{cat:'guided',mins:5,title:'Sleep Wind-Down',desc:'Slow the mind for rest \\u2022 5 min',color:'#5BBFB4',audioId:'med-sleep-winddown-5min'},
+// Stories · 5-min wisdom tales
+{cat:'stories',mins:5,title:'The Two Wolves',desc:'Which wolf wins? The one you feed.',color:'#C47A3A',audioId:'story-01'},
+{cat:'stories',mins:5,title:'The Bamboo Tree',desc:'Five years underground, then unstoppable.',color:'#3DAE5C',audioId:'story-02'},
+{cat:'stories',mins:5,title:'The Cracked Pot',desc:'Beauty grows from imperfection.',color:'#5BBFB4',audioId:'story-03'},
+{cat:'stories',mins:5,title:'The Stonecutter',desc:'Power is never what you think.',color:'#D97706',audioId:'story-04'},
+{cat:'stories',mins:5,title:'The Empty Cup',desc:'You cannot fill what is already full.',color:'#06B6D4',audioId:'story-05'},
+{cat:'stories',mins:5,title:'The Farmer\\'s Horse',desc:'Good luck, bad luck \\u2014 who can say?',color:'#8B5CF6',audioId:'story-06'},
+{cat:'stories',mins:5,title:'The Golden Buddha',desc:'Your true nature is hidden, not lost.',color:'#FCB851',audioId:'story-07'},
+{cat:'stories',mins:5,title:'The Starfish Story',desc:'It mattered to that one.',color:'#EC4899',audioId:'story-08'},
+{cat:'stories',mins:5,title:'The Elephant and the Rope',desc:'Beliefs can become invisible chains.',color:'#A0612E',audioId:'story-09'},
+{cat:'stories',mins:5,title:'The Oak and the Reed',desc:'Flexibility outlasts rigidity.',color:'#3B82F6',audioId:'story-10'},
+{cat:'stories',mins:5,title:'The King\\'s Painting',desc:'Only one saw the full picture.',color:'#DC2626',audioId:'story-11'},
+{cat:'stories',mins:5,title:'The Jar of Life',desc:'Put the big rocks in first.',color:'#FF7A45',audioId:'story-12'},
+{cat:'stories',mins:5,title:'The Eagle Who Forgot',desc:'You were born to fly.',color:'#06B6D4',audioId:'story-13'},
+{cat:'stories',mins:5,title:'The Lighthouse',desc:'Some things do not move for you.',color:'#5BBFB4',audioId:'story-14'},
+{cat:'stories',mins:5,title:'The Carpenter\\'s House',desc:'Build every day like it matters.',color:'#C47A3A',audioId:'story-15'},
+{cat:'stories',mins:5,title:'The Butterfly\\'s Struggle',desc:'The struggle is the gift.',color:'#3DAE5C',audioId:'story-16'},
+{cat:'stories',mins:5,title:'The Wise Woman\\'s Stone',desc:'True wealth cannot be held.',color:'#8B5CF6',audioId:'story-17'},
+{cat:'stories',mins:5,title:'The Fisherman',desc:'You already have what you seek.',color:'#3B82F6',audioId:'story-18'},
+{cat:'stories',mins:5,title:'The Bridge Builder',desc:'The greatest work is for those who follow.',color:'#D97706',audioId:'story-19'},
+{cat:'stories',mins:5,title:'The Samurai and the Tea Master',desc:'Courage is doing what you know.',color:'#DC2626',audioId:'story-20'}
 ];
 const MED_CATEGORIES=[
   {k:'affirmations',l:'Affirmations',e:'\\u{2728}'},
-  {k:'guided',l:'Guided',e:'\\u{1F50A}'},
   {k:'vipassana',l:'Vipassana',e:'\\u{1F9D8}\\u200D\\u2642\\uFE0F'},
-  {k:'music',l:'Music',e:'\\u{1F3B5}'}
+  {k:'guided',l:'Guided',e:'\\u{1F50A}'},
+  {k:'music',l:'Music',e:'\\u{1F3B5}'},
+  {k:'stories',l:'Stories',e:'\\u{1F4D6}'}
 ];
 async function loadMeditations(){if(S.medLoading)return;S.medLoading=true;S.meditations=S.meditations||{};MED_SLOTS.forEach(s=>{if(s.directId&&!S.meditations[s.directId])S.meditations[s.directId]={identifier:s.directId,title:s.title}});S.medLoading=false;render()}
 function setMedCat(k){S.medCat=k;render()}
@@ -10788,11 +11031,15 @@ else if(S.tab==='meditation'){
       '#5BBFB4':'linear-gradient(135deg,#7DD3C0 0%,#0F766E 100%)',
       '#FF7A45':'linear-gradient(135deg,#FB923C 0%,#C2410C 100%)',
       '#06B6D4':'linear-gradient(135deg,#67E8F9 0%,#0E7490 100%)',
-      '#3B82F6':'linear-gradient(135deg,#93C5FD 0%,#C47A3A 100%)',
+      '#3B82F6':'linear-gradient(135deg,#93C5FD 0%,#1D4ED8 100%)',
       '#A0612E':'linear-gradient(135deg,#E8E0D4 0%,#7A5D3A 100%)',
       '#EC4899':'linear-gradient(135deg,#F9A8D4 0%,#9D174D 100%)',
-      '#A0612E':'linear-gradient(135deg,#86EFAC 0%,#C47A3A 100%)',
-      '#F59E0B':'linear-gradient(135deg,#FCD34D 0%,#92400E 100%)'
+      '#F59E0B':'linear-gradient(135deg,#FCD34D 0%,#92400E 100%)',
+      '#8B5CF6':'linear-gradient(135deg,#C4B5FD 0%,#6D28D9 100%)',
+      '#C47A3A':'linear-gradient(135deg,#D4956A 0%,#8B4513 100%)',
+      '#3DAE5C':'linear-gradient(135deg,#86EFAC 0%,#166534 100%)',
+      '#D97706':'linear-gradient(135deg,#FCD34D 0%,#92400E 100%)',
+      '#DC2626':'linear-gradient(135deg,#FCA5A5 0%,#991B1B 100%)'
     };
     const grad=grads[x.color]||('linear-gradient(135deg,'+x.color+',rgba(0,0,0,.6))');
     h+='<button class="hs-card'+(ready?'':' is-loading')+'" onclick="'+onclick+'" style="--g:'+grad+';animation-delay:'+(i*0.06)+'s">';
