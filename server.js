@@ -1862,6 +1862,8 @@ for(const t of due){
 
 // ═══ FRONTEND ═══
 const HTML=`<!DOCTYPE html><html lang="en"><head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZYGVF2BNV9"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-ZYGVF2BNV9');</script>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
