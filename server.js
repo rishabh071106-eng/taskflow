@@ -6937,7 +6937,7 @@ cityTemps:{},remember:{person:null,loaded:false},lifeGoal:localStorage.getItem('
 medCat:localStorage.getItem('tf_medcat')||'vipassana',
 ticker:{items:[],idx:0,loaded:false},
 waConnected:false,showWAOnboard:false,activeMeditation:null,
-google:{configured:false,accounts:[],loaded:false},gcalEvents:[],gcalLoading:false,showGcalAdd:false,gcalForm:{title:'',date:'',time:'',duration:30,notes:'',email:''},
+google:{configured:false,accounts:[],loaded:false},gcalEvents:[],gcalLoading:false,showGcalAdd:false,gcalForm:{title:'',date:'',time:'',duration:30,notes:'',email:''},showCalSchedule:false,calSchedule:null,
 calMonth:new Date(),calSelectedDate:new Date().toISOString().slice(0,10),
 steps:[],stepGoal:parseInt(localStorage.getItem('step_goal')||'10000',10),stepLive:{active:false,count:0},
 theme:localStorage.getItem('theme')||'classic',
@@ -7167,7 +7167,7 @@ function logout(){
 }
 // One source of truth: any open modal / overlay / in-flight typing state where a
 // background re-render would wipe the user's keystrokes or scroll position.
-function _isModalOpen(){return !!(S.showWASetup||S.showAdd||S.showProfile||S.showHelp||S.schPanel||S.mtgPanel||S.hlPanel||S.mgDetail||S.mgPlay||S.mgGamesPanel||(S.bookReader&&S.bookReader.open)||S.hlEditing||(S.articleEditor&&S.articleEditor.open))}
+function _isModalOpen(){return !!(S.showWASetup||S.showAdd||S.showProfile||S.showHelp||S.schPanel||S.mtgPanel||S.hlPanel||S.mgDetail||S.mgPlay||S.mgGamesPanel||(S.bookReader&&S.bookReader.open)||S.hlEditing||(S.articleEditor&&S.articleEditor.open)||S.showCalSchedule||S.showGcalAdd)}
 // True if audio is playing OR loading (S.playing/S.meditating set means user just tapped a play
 // card and we're waiting for bytes — re-rendering now wipes the <audio> element before it can
 // connect, causing the "affirmation refreshes the screen forever" bug.
@@ -7659,6 +7659,13 @@ function calPrev(){const d=new Date(S.calMonth);d.setMonth(d.getMonth()-1);S.cal
 function calNext(){const d=new Date(S.calMonth);d.setMonth(d.getMonth()+1);S.calMonth=d;render()}
 function calSelect(d){S.calSelectedDate=d;render()}
 function calAddForDate(){S.form={title:'',notes:'',priority:'medium',dueDate:S.calSelectedDate||'',reminderTime:'',status:'pending',board:S.board==='combined'?'home':S.board};S.editing=null;S.showAdd=true;render();/* No auto-focus: keyboard appears only when the user taps the input */}
+function _calTimeDropdowns(pfx,fld,hv,mv,pv){var q='&#39;';var s='<select class="pmd-sel pmd-sel-hr" onchange="'+pfx+q+fld+'h'+q+',this.value)"><option value="">--</option>';for(var i=1;i<=12;i++)s+='<option value="'+i+'"'+(String(hv)===String(i)?' selected':'')+'>'+i+'</option>';s+='</select><span class="pmd-colon">:</span><select class="pmd-sel pmd-sel-min" onchange="'+pfx+q+fld+'m'+q+',this.value)">';['00','15','30','45'].forEach(function(v){s+='<option value="'+v+'"'+(mv===v?' selected':'')+'>'+v+'</option>'});s+='</select><select class="pmd-sel pmd-sel-ap" onchange="'+pfx+q+fld+'p'+q+',this.value)"><option value="AM"'+(pv==='AM'||!pv?' selected':'')+'>AM</option><option value="PM"'+(pv==='PM'?' selected':'')+'>PM</option></select>';return s}
+function openCalSchedule(){var selDate=S.calSelectedDate||new Date().toISOString().slice(0,10);var pending=S.tasks.filter(function(t){return t.status!=='done'}).slice(0,10);S.calSchedule={date:selDate,items:pending.map(function(t){return{id:t.id,title:t.title,priority:t.priority,selected:false,sh:'',sm:'00',sp:'AM',eh:'',em:'00',ep:'AM'}}),custom:'',csh:'',csm:'00',csp:'AM',ceh:'',cem:'00',cep:'AM'};S.showCalSchedule=true;render()}
+function closeCalSchedule(){S.showCalSchedule=false;render()}
+function calSchedToggle(idx){if(S.calSchedule&&S.calSchedule.items[idx])S.calSchedule.items[idx].selected=!S.calSchedule.items[idx].selected;render()}
+function calSchedTime(idx,field,val){if(S.calSchedule&&S.calSchedule.items[idx])S.calSchedule.items[idx][field]=val}
+function calSchedCustomTime(field,val){if(S.calSchedule)S.calSchedule[field]=val}
+async function calSchedSave(){if(!S.calSchedule)return;var d=S.calSchedule.date;var saved=0;for(var i=0;i<S.calSchedule.items.length;i++){var item=S.calSchedule.items[i];if(!item.selected||!item.sh)continue;var shr=parseInt(item.sh,10);if(item.sp==='PM'&&shr<12)shr+=12;if(item.sp==='AM'&&shr===12)shr=0;var ehr=item.eh?parseInt(item.eh,10):shr+1;if(item.eh){if(item.ep==='PM'&&ehr<12)ehr+=12;if(item.ep==='AM'&&ehr===12)ehr=0}var st=(shr<10?'0':'')+shr+':'+(item.sm||'00');var en=(ehr<10?'0':'')+ehr+':'+(item.em||'00');try{var r=await api('/schedule',{method:'POST',body:JSON.stringify({date:d,start_time:st,end_time:en,label:item.title,color:'#C47A3A'})});if(r&&r.ok)saved++}catch(e){}}var cLabel=(S.calSchedule.custom||'').trim();if(cLabel&&S.calSchedule.csh){var cshr=parseInt(S.calSchedule.csh,10);if(S.calSchedule.csp==='PM'&&cshr<12)cshr+=12;if(S.calSchedule.csp==='AM'&&cshr===12)cshr=0;var cehr=S.calSchedule.ceh?parseInt(S.calSchedule.ceh,10):cshr+1;if(S.calSchedule.ceh){if(S.calSchedule.cep==='PM'&&cehr<12)cehr+=12;if(S.calSchedule.cep==='AM'&&cehr===12)cehr=0}var cst=(cshr<10?'0':'')+cshr+':'+(S.calSchedule.csm||'00');var cen=(cehr<10?'0':'')+cehr+':'+(S.calSchedule.cem||'00');try{var cr=await api('/schedule',{method:'POST',body:JSON.stringify({date:d,start_time:cst,end_time:cen,label:cLabel,color:'#4285F4'})});if(cr&&cr.ok)saved++}catch(e){}}if(saved){toast('\\u2705 '+saved+' item'+(saved>1?'s':'')+' added to calendar');S.showCalSchedule=false;loadGcalEvents();render()}else toast('\\u26A0\\uFE0F Select a task and set a start time','err')}
 function rotateMoral(){if(_audioBusy())return;if(_isModalOpen())return;S.moralIdx=(S.moralIdx+1)%MORALS.length;
   // Direct DOM update — no full re-render. This used to fire every 45 seconds
   // and rebuild every card on the page.
@@ -9736,7 +9743,7 @@ async function pmdAddTask(){
 }
 function pmdSetTime(id,part,val){
   if(!S.pmdTimes)S.pmdTimes={};
-  if(!S.pmdTimes[id])S.pmdTimes[id]={h:'',m:'00',p:'AM'};
+  if(!S.pmdTimes[id])S.pmdTimes[id]={h:'',m:'00',p:'AM',eh:'',em:'00',ep:'AM'};
   S.pmdTimes[id][part]=val;
 }
 async function planMyDaySave(){
@@ -9751,14 +9758,20 @@ async function planMyDaySave(){
     let hr=parseInt(tm.h,10);const mn=tm.m||'00';const ap=tm.p||'AM';
     if(ap==='PM'&&hr<12)hr+=12;if(ap==='AM'&&hr===12)hr=0;
     const st=(hr<10?'0':'')+hr+':'+mn;
-    const endHr=hr+1;
-    const en=(endHr<10?'0':'')+endHr+':'+mn;
+    let ehr;let emn;
+    if(tm.eh){
+      ehr=parseInt(tm.eh,10);emn=tm.em||'00';const eap=tm.ep||'AM';
+      if(eap==='PM'&&ehr<12)ehr+=12;if(eap==='AM'&&ehr===12)ehr=0;
+    }else{
+      ehr=hr+1;emn=mn;
+    }
+    const en=(ehr<10?'0':'')+ehr+':'+emn;
     try{
-      await api('/schedule',{method:'POST',body:JSON.stringify({date:today,start:st,end:en,label:t.title,color:'#C47A3A'})});
+      await api('/schedule',{method:'POST',body:JSON.stringify({date:today,start_time:st,end_time:en,label:t.title,color:'#C47A3A'})});
       saved++;
     }catch(e){}
   }
-  if(saved){toast('\\u2705 '+saved+' task'+(saved>1?'s':'')+' added to calendar');S.planMyDay=false;S.pmdTimes={};render()}
+  if(saved){toast('\\u2705 '+saved+' task'+(saved>1?'s':'')+' synced to calendar');S.planMyDay=false;S.pmdTimes={};loadGcalEvents();render()}
   else toast('\\u26A0\\uFE0F Could not save','err');
 }
 async function planMyDayEmail(){
@@ -10130,18 +10143,27 @@ if(isMain){
       _pmdTasks.slice(0,6).forEach(function(t){
         const pCol=t.priority==='high'?'#DC2626':t.priority==='medium'?'#D97706':'#C47A3A';
         const tid=t.id;
+        const _tm=(S.pmdTimes&&S.pmdTimes[tid])||{};
         hero+='<div class="pmd-task-row">'
           +'<div class="pmd-task-dot" style="background:'+pCol+'"></div>'
           +'<div class="pmd-task-name">'+esc(t.title)+'</div>'
-          +'<div class="pmd-time-pick">'
-          +'<select class="pmd-sel pmd-sel-hr" onchange="pmdSetTime('+tid+',\\'h\\',this.value)"><option value="">--</option>';
-        for(var hr=1;hr<=12;hr++)hero+='<option value="'+hr+'">'+hr+'</option>';
-        hero+='</select>'
-          +'<span class="pmd-colon">:</span>'
-          +'<select class="pmd-sel pmd-sel-min" onchange="pmdSetTime('+tid+',\\'m\\',this.value)"><option value="00">00</option><option value="15">15</option><option value="30">30</option><option value="45">45</option></select>'
-          +'<select class="pmd-sel pmd-sel-ap" onchange="pmdSetTime('+tid+',\\'p\\',this.value)"><option value="AM">AM</option><option value="PM">PM</option></select>'
-          +'</div>'
         +'</div>';
+        hero+='<div style="display:flex;align-items:center;gap:6px;padding:0 10px 8px;flex-wrap:wrap">';
+        hero+='<span style="font-size:11px;color:#9C8B7A;font-weight:600;width:32px">Start</span>';
+        hero+='<select class="pmd-sel pmd-sel-hr" onchange="pmdSetTime(\\''+tid+'\\',\\'h\\',this.value)"><option value="">--</option>';
+        for(var hr=1;hr<=12;hr++)hero+='<option value="'+hr+'"'+(String(_tm.h)===String(hr)?' selected':'')+'>'+hr+'</option>';
+        hero+='</select><span class="pmd-colon">:</span>';
+        hero+='<select class="pmd-sel pmd-sel-min" onchange="pmdSetTime(\\''+tid+'\\',\\'m\\',this.value)"><option value="00"'+(_tm.m==='00'||!_tm.m?' selected':'')+'>00</option><option value="15"'+(_tm.m==='15'?' selected':'')+'>15</option><option value="30"'+(_tm.m==='30'?' selected':'')+'>30</option><option value="45"'+(_tm.m==='45'?' selected':'')+'>45</option></select>';
+        hero+='<select class="pmd-sel pmd-sel-ap" onchange="pmdSetTime(\\''+tid+'\\',\\'p\\',this.value)"><option value="AM"'+(_tm.p==='AM'||!_tm.p?' selected':'')+'>AM</option><option value="PM"'+(_tm.p==='PM'?' selected':'')+'>PM</option></select>';
+        hero+='</div>';
+        hero+='<div style="display:flex;align-items:center;gap:6px;padding:0 10px 8px;flex-wrap:wrap">';
+        hero+='<span style="font-size:11px;color:#9C8B7A;font-weight:600;width:32px">End</span>';
+        hero+='<select class="pmd-sel pmd-sel-hr" onchange="pmdSetTime(\\''+tid+'\\',\\'eh\\',this.value)"><option value="">--</option>';
+        for(var hr2=1;hr2<=12;hr2++)hero+='<option value="'+hr2+'"'+(String(_tm.eh)===String(hr2)?' selected':'')+'>'+hr2+'</option>';
+        hero+='</select><span class="pmd-colon">:</span>';
+        hero+='<select class="pmd-sel pmd-sel-min" onchange="pmdSetTime(\\''+tid+'\\',\\'em\\',this.value)"><option value="00"'+(_tm.em==='00'||!_tm.em?' selected':'')+'>00</option><option value="15"'+(_tm.em==='15'?' selected':'')+'>15</option><option value="30"'+(_tm.em==='30'?' selected':'')+'>30</option><option value="45"'+(_tm.em==='45'?' selected':'')+'>45</option></select>';
+        hero+='<select class="pmd-sel pmd-sel-ap" onchange="pmdSetTime(\\''+tid+'\\',\\'ep\\',this.value)"><option value="AM"'+(_tm.ep==='AM'||!_tm.ep?' selected':'')+'>AM</option><option value="PM"'+(_tm.ep==='PM'?' selected':'')+'>PM</option></select>';
+        hero+='</div>';
       });
       hero+='</div>';
     } else {
@@ -10650,8 +10672,7 @@ else if(S.tab==='cal'){
       gSelHere.forEach(e=>{const tm=e.allDay?'All day':(e.start?new Date(e.start).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'');h+='<div class="gcal-evt"><div class="gcal-evt-time">'+esc(tm)+'</div><div class="gcal-evt-body"><div class="gcal-evt-title">'+esc(e.title)+'</div>'+(e.location?'<div class="gcal-evt-loc">\\u{1F4CD} '+esc(e.location)+'</div>':'')+'</div><a class="gcal-evt-open" href="'+esc(e.link||'#')+'" target="_blank" rel="noopener">Open \\u2197</a></div>'});
       h+='</div>';
     }
-    h+='<div class="cal-add-row" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px"><button class="add-bar" style="margin:0" onclick="calAddForDate()"><span class="plus">+</span><span class="txt"><b>Brodoit task</b><small>'+esc(selLabel)+'</small></span></button>';
-    if(S.google.accounts.length)h+='<button class="add-bar gcal-add-bar" style="margin:0" onclick="openGcalAdd()"><span class="plus" style="background:#4285F4">G</span><span class="txt"><b>Google Calendar</b><small>Adds event to Gmail</small></span></button>';
+    h+='<div style="margin-top:10px;text-align:center"><button class="add-bar" style="margin:0;max-width:100%" onclick="openCalSchedule()"><span class="plus">+</span><span class="txt"><b>Add to Calendar</b><small>Pick tasks or create event</small></span></button>';
     h+='</div>';
     h+='</div>';
   }
@@ -10943,7 +10964,7 @@ h+='</main>';
 if(S.tab!=='bro'){
   const isTaskTab=S.tab==='tasks'||S.tab==='board';
   const isCalTab=S.tab==='cal';
-  const action=isTaskTab?'opA()':(isCalTab?'calAddForDate()':"switchTab('tasks');setTimeout(opA,80)");
+  const action=isTaskTab?'opA()':(isCalTab?'openCalSchedule()':"switchTab('tasks');setTimeout(opA,80)");
   const lbl=isTaskTab?'Add a new task':(isCalTab?'Add to calendar':'Add a task');
   h+='<button class="fab fab-global" onclick="'+action+'" aria-label="'+lbl+'" title="'+lbl+'">+</button>';
 }
@@ -11098,6 +11119,50 @@ if(S.showWAOnboard){
     h+='<div style="background:#FFF8F0;border:1px solid #D4C4B0;border-radius:12px;padding:14px;font-size:13.5px;color:#A0612E;margin-bottom:16px;display:flex;align-items:center;gap:10px"><span style="font-size:22px">\\u2705</span><span><b>You\\'re connected.</b> Reminders and quick task creation are now active.</span></div>';
     h+='<div class="macts"><button class="mb mb-d" onclick="disconnectWA()">Disconnect</button><button class="mb mb-s" onclick="closeWAOnboard()">Done</button></div>';
   }
+  h+='</div></div>';
+}
+
+if(S.showCalSchedule&&S.calSchedule){
+  const cs=S.calSchedule;
+  const dlbl=new Date(cs.date+'T00:00:00').toLocaleDateString('en-US',{weekday:'short',month:'long',day:'numeric'});
+  h+='<div class="ov" onclick="closeCalSchedule()"><div class="mdl" onclick="event.stopPropagation()" style="max-width:480px">';
+  h+='<h2 style="margin:0 0 4px">\u{1F4C5} Schedule on '+esc(dlbl)+'</h2>';
+  h+='<div style="font-size:12px;color:#9C8B7A;margin-bottom:14px">Pick tasks and set times — syncs to Google Calendar</div>';
+  if(cs.items.length){
+    h+='<div style="font-size:12px;font-weight:600;color:#9C8B7A;margin-bottom:8px">YOUR TASKS</div>';
+    h+='<div style="max-height:240px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;margin-bottom:14px">';
+    cs.items.forEach(function(item,i){
+      const pCol=item.priority==='high'?'#DC2626':item.priority==='medium'?'#D97706':'#C47A3A';
+      h+='<div style="background:'+(item.selected?'#FFF8F0':'#FAFAFA')+';border:1.5px solid '+(item.selected?'#C47A3A':'#E8E0D4')+';border-radius:10px;padding:10px;transition:all .2s">';
+      h+='<div style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="calSchedToggle('+i+')">';
+      h+='<div style="width:20px;height:20px;border-radius:6px;border:2px solid '+(item.selected?'#C47A3A':'#D0D0D0')+';background:'+(item.selected?'#C47A3A':'#fff')+';display:grid;place-items:center;flex-shrink:0">'+(item.selected?'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>':'')+'</div>';
+      h+='<div style="width:8px;height:8px;border-radius:50%;background:'+pCol+';flex-shrink:0"></div>';
+      h+='<div style="flex:1;font-size:13px;font-weight:500;color:#2C3E6B">'+esc(item.title)+'</div></div>';
+      if(item.selected){
+        h+='<div style="display:flex;align-items:center;gap:6px;margin-top:8px;padding-left:36px;flex-wrap:wrap">';
+        h+='<span style="font-size:11px;color:#9C8B7A;font-weight:600;width:32px">Start</span>';
+        h+=_calTimeDropdowns('calSchedTime('+i+',','s',item.sh,item.sm,item.sp);
+        h+='</div>';
+        h+='<div style="display:flex;align-items:center;gap:6px;margin-top:4px;padding-left:36px;flex-wrap:wrap">';
+        h+='<span style="font-size:11px;color:#9C8B7A;font-weight:600;width:32px">End</span>';
+        h+=_calTimeDropdowns('calSchedTime('+i+',','e',item.eh,item.em,item.ep);
+        h+='</div>';
+      }
+      h+='</div>';
+    });
+    h+='</div>';
+  }
+  h+='<div style="font-size:12px;font-weight:600;color:#9C8B7A;margin-bottom:8px">OR ADD NEW EVENT</div>';
+  h+='<input style="width:100%;padding:10px 14px;border:1.5px solid #E8E0D4;border-radius:10px;font-size:14px;font-family:inherit;color:#2C3E6B;background:#FBF7F1;outline:none;box-sizing:border-box;margin-bottom:8px" placeholder="Event title…" value="'+esc(cs.custom||'')+'" oninput="S.calSchedule.custom=this.value">';
+  h+='<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">';
+  h+='<span style="font-size:11px;color:#9C8B7A;font-weight:600;width:32px">Start</span>';
+  h+=_calTimeDropdowns('calSchedCustomTime(','cs',cs.csh,cs.csm,cs.csp);
+  h+='</div>';
+  h+='<div style="display:flex;align-items:center;gap:6px;margin-top:4px;flex-wrap:wrap">';
+  h+='<span style="font-size:11px;color:#9C8B7A;font-weight:600;width:32px">End</span>';
+  h+=_calTimeDropdowns('calSchedCustomTime(','ce',cs.ceh,cs.cem,cs.cep);
+  h+='</div>';
+  h+='<div class="macts" style="margin-top:14px"><button class="mb mb-c" onclick="closeCalSchedule()">Cancel</button><button class="mb mb-s" onclick="calSchedSave()">✅ Save to Calendar</button></div>';
   h+='</div></div>';
 }
 
