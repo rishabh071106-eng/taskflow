@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1A1614"/>
+      <stop offset="100%" style="stop-color:#2D2520"/>
+    </linearGradient>
+    <linearGradient id="fistL" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#E8A86D"/>
+      <stop offset="100%" style="stop-color:#C47A3A"/>
+    </linearGradient>
+    <linearGradient id="fistR" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#E8A86D"/>
+      <stop offset="100%" style="stop-color:#C47A3A"/>
+    </linearGradient>
+    <radialGradient id="impact" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#FFD27A;stop-opacity:0.9"/>
+      <stop offset="60%" style="stop-color:#FFD27A;stop-opacity:0.3"/>
+      <stop offset="100%" style="stop-color:#FFD27A;stop-opacity:0"/>
+    </radialGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Full bleed background (maskable safe zone is inner 80%) -->
+  <rect width="512" height="512" fill="url(#bg)"/>
+
+  <!-- Impact burst (centered in safe zone) -->
+  <circle cx="256" cy="210" r="38" fill="url(#impact)"/>
+
+  <!-- Impact lines -->
+  <g stroke="#FFD27A" stroke-width="2.5" stroke-linecap="round" opacity="0.7">
+    <line x1="256" y1="170" x2="256" y2="156"/>
+    <line x1="282" y1="178" x2="292" y2="168"/>
+    <line x1="230" y1="178" x2="220" y2="168"/>
+    <line x1="290" y1="202" x2="302" y2="198"/>
+    <line x1="222" y1="202" x2="210" y2="198"/>
+  </g>
+
+  <!-- Left fist -->
+  <g transform="translate(132, 183)">
+    <rect x="-5" y="16" width="42" height="28" rx="12" fill="url(#fistL)"/>
+    <rect x="24" y="5" width="48" height="50" rx="14" fill="url(#fistL)"/>
+    <rect x="20" y="35" width="24" height="16" rx="8" fill="#D4956A"/>
+    <line x1="32" y1="16" x2="64" y2="16" stroke="#B5723A" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
+    <line x1="32" y1="24" x2="66" y2="24" stroke="#B5723A" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
+    <line x1="32" y1="32" x2="64" y2="32" stroke="#B5723A" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
+    <circle cx="66" cy="12" r="4" fill="#F0C28B" opacity="0.5"/>
+    <circle cx="66" cy="21" r="4" fill="#F0C28B" opacity="0.5"/>
+    <circle cx="66" cy="30" r="4" fill="#F0C28B" opacity="0.5"/>
+  </g>
+
+  <!-- Right fist (mirrored) -->
+  <g transform="translate(380, 183) scale(-1,1)">
+    <rect x="-5" y="16" width="42" height="28" rx="12" fill="url(#fistR)"/>
+    <rect x="24" y="5" width="48" height="50" rx="14" fill="url(#fistR)"/>
+    <rect x="20" y="35" width="24" height="16" rx="8" fill="#D4956A"/>
+    <line x1="32" y1="16" x2="64" y2="16" stroke="#B5723A" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
+    <line x1="32" y1="24" x2="66" y2="24" stroke="#B5723A" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
+    <line x1="32" y1="32" x2="64" y2="32" stroke="#B5723A" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
+    <circle cx="66" cy="12" r="4" fill="#F0C28B" opacity="0.5"/>
+    <circle cx="66" cy="21" r="4" fill="#F0C28B" opacity="0.5"/>
+    <circle cx="66" cy="30" r="4" fill="#F0C28B" opacity="0.5"/>
+  </g>
+
+  <!-- "BRO" -->
+  <text x="256" y="330" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif" font-size="54" font-weight="800" fill="#FFFFFF" letter-spacing="6">BRO</text>
+
+  <!-- "DO IT" -->
+  <text x="256" y="378" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif" font-size="42" font-weight="700" fill="#FFD27A" letter-spacing="3" filter="url(#glow)">DO IT</text>
+
+  <!-- Dot -->
+  <circle cx="256" cy="400" r="3.5" fill="#3DAE5C"/>
+</svg>
