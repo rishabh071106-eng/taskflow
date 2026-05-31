@@ -120,7 +120,7 @@ function rateLimited(identifier){
 // DB on every API call (which fires every few seconds on the home tab).
 const _lastSeenCache=new Map();
 function auth(req,res,next){
-  let t=req.headers['x-token'];
+  let t=req.headers['x-token']||String(req.query&&req.query.token||'').trim()||'';
   if(!t){try{const c=(req.headers.cookie||'');const m=c.match(/tf_token=([^;]+)/);if(m)t=decodeURIComponent(m[1])}catch(e){}}
   if(!t)return res.status(401).json({error:'Login required'});
   const u=db.prepare('SELECT * FROM users WHERE token=?').get(t);if(!u)return res.status(401).json({error:'Invalid token'});
@@ -1028,10 +1028,28 @@ app.get('/api/audio/:id', async (req, res) => {
   try {
     if (_fs.existsSync(staticPath)) {
       const stat = _fs.statSync(staticPath);
+      const total = stat.size;
+      // Handle Range requests (required for iOS Safari audio playback)
+      const range = req.headers.range;
+      if (range) {
+        const parts = range.replace(/bytes=/, '').split('-');
+        const start = parseInt(parts[0], 10);
+        const end = parts[1] ? parseInt(parts[1], 10) : total - 1;
+        const chunkSize = end - start + 1;
+        res.writeHead(206, {
+          'Content-Range': 'bytes ' + start + '-' + end + '/' + total,
+          'Accept-Ranges': 'bytes',
+          'Content-Length': String(chunkSize),
+          'Content-Type': 'audio/mpeg',
+          'Cache-Control': 'public, max-age=604800',
+          'X-Tts-Source': 'static',
+        });
+        return _fs.createReadStream(staticPath, { start, end }).pipe(res);
+      }
       res.set('Content-Type', 'audio/mpeg');
       res.set('Cache-Control', 'public, max-age=604800');
       res.set('X-Tts-Source', 'static');
-      res.set('Content-Length', String(stat.size));
+      res.set('Content-Length', String(total));
       res.set('Accept-Ranges', 'bytes');
       return _fs.createReadStream(staticPath).pipe(res);
     }
@@ -1058,16 +1076,41 @@ app.get('/api/audio-script/:id', (req, res) => {
   res.json({ id, title: entry.title, script: entry.script, kind: entry.kind, mins: entry.mins });
 });
 
-app.get('/api/book-audio/:id', auth, (req, res) => {
+app.get('/api/book-audio/:id', (req, res) => {
+  // Auth: accept token from query string (needed for <audio src=...> on iOS),
+  // x-token header, or tf_token cookie
+  const t = String(req.query.token||'').trim() || req.headers['x-token'] ||
+    (()=>{try{const c=(req.headers.cookie||'');const m=c.match(/tf_token=([^;]+)/);return m?decodeURIComponent(m[1]):''}catch(e){return ''}})();
+  if(!t)return res.status(401).json({error:'Login required'});
+  const u=db.prepare('SELECT * FROM users WHERE token=?').get(t);
+  if(!u)return res.status(401).json({error:'Invalid token'});
+
   const id = String(req.params.id || '').replace(/[^a-zA-Z0-9_-]/g, '');
   const staticPath = _path.join(__dirname, 'audio-static', id + '.mp3');
   try {
     if (_fs.existsSync(staticPath)) {
       const stat = _fs.statSync(staticPath);
       if (stat.size > 0) {
+        const total = stat.size;
+        // Handle Range requests (required for iOS Safari audio playback)
+        const range = req.headers.range;
+        if (range) {
+          const parts = range.replace(/bytes=/, '').split('-');
+          const start = parseInt(parts[0], 10);
+          const end = parts[1] ? parseInt(parts[1], 10) : total - 1;
+          const chunkSize = end - start + 1;
+          res.writeHead(206, {
+            'Content-Range': 'bytes ' + start + '-' + end + '/' + total,
+            'Accept-Ranges': 'bytes',
+            'Content-Length': String(chunkSize),
+            'Content-Type': 'audio/mpeg',
+            'Cache-Control': 'public, max-age=604800',
+          });
+          return _fs.createReadStream(staticPath, { start, end }).pipe(res);
+        }
         res.set('Content-Type', 'audio/mpeg');
         res.set('Cache-Control', 'public, max-age=604800');
-        res.set('Content-Length', String(stat.size));
+        res.set('Content-Length', String(total));
         res.set('Accept-Ranges', 'bytes');
         return _fs.createReadStream(staticPath).pipe(res);
       }
