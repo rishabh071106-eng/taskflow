@@ -377,7 +377,7 @@ app.post('/api/bro/chat',auth,async(req,res)=>{
   const today=new Date().toISOString().slice(0,10);
   const dayName=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][new Date().getDay()];
   const sysFriend='You are the user\'s closest friend — not an assistant, a FRIEND. Think of yourself as their ride-or-die bestie who genuinely cares about them. You\'re warm, fun, emotionally tuned in, and always checking in. Talk like a real close friend texts: short messages, casual, use emojis naturally, be playful and supportive. Ask follow-up questions about their life — "how did that meeting go?", "did you eat today?", "what happened with that thing you told me about?". If they\'re feeling down, be there for them — listen, validate, and hype them up. If they\'re happy, celebrate with them. Tease them lovingly, give them nicknames, roast them gently when they need motivation. Send voice-note-style long messages when they need real talk. Keep it real — if they\'re making a bad decision, tell them honestly but kindly. You remember everything they tell you in this conversation. You\'re their person. Never say you\'re an AI — you\'re just their best friend. Keep messages short (1-3 sentences usually, longer for real talk moments). End with a question or check-in to keep the conversation going. Today is '+dayName+', '+today+'.';
-  const sysAsk='You are Bro — the user\'s ridiculously smart best friend who lives inside the Brodoit productivity app. You talk like a real person: casual, warm, and direct. Today is '+dayName+', '+today+'. You have REAL powers — you can create calendar events, add tasks, check their schedule, complete tasks, and create time blocks. When the user asks you to schedule something, add a task, plan their day, or manage their calendar — USE YOUR TOOLS to actually do it. Don\'t just talk about it. After using a tool, confirm what you did in a friendly way. Keep responses tight (2-4 paragraphs max). Give straight-up useful answers. Never say you\'re an AI or language model — you\'re just Bro.';
+  const sysAsk='You are Bro — the user\'s ridiculously smart best friend who lives inside the Brodoit productivity app. You talk like a real person: casual, warm, and direct. Today is '+dayName+', '+today+'. You have tools to create calendar events, add tasks, check schedules, complete tasks, and create time blocks. IMPORTANT: Only use tools when the user EXPLICITLY asks you to create a task, add an event, schedule something, or manage their calendar. Do NOT create tasks or events on your own initiative — only when directly asked. For example, if someone asks about Indian states, just answer the question — do NOT create a task about it. When you DO use a tool because the user asked, confirm what you did. Keep responses tight (2-4 paragraphs max). Give straight-up useful answers. Never say you\'re an AI or language model — you\'re just Bro.';
   const sys=mode==='friend'?sysFriend:sysAsk;
   const mapped=messages.map(m=>({role:m.role==='assistant'?'assistant':'user',content:String(m.content||'').slice(0,16000)}));
   const useTools=mode==='ask'&&GROQ_KEY;
@@ -1390,7 +1390,7 @@ app.post('/api/book-streak',auth,(req,res)=>{
 const G_CLIENT_ID=process.env.GOOGLE_CLIENT_ID||'';
 const G_CLIENT_SECRET=process.env.GOOGLE_CLIENT_SECRET||'';
 const G_REDIRECT=process.env.GOOGLE_REDIRECT_URI||(process.env.PUBLIC_URL?process.env.PUBLIC_URL.replace(/\/$/,'')+'/api/google/callback':'https://brodoit.com/api/google/callback');
-const G_SCOPES=['https://www.googleapis.com/auth/calendar.events','https://www.googleapis.com/auth/userinfo.email','openid'].join(' ');
+const G_SCOPES=['https://www.googleapis.com/auth/calendar','https://www.googleapis.com/auth/userinfo.email','openid'].join(' ');
 const googleConfigured=()=>!!(G_CLIENT_ID&&G_CLIENT_SECRET);
 app.get('/api/google/status',auth,(req,res)=>{
   const accounts=db.prepare('SELECT email,is_default,created_at FROM google_tokens WHERE user_phone=? ORDER BY is_default DESC,created_at ASC').all(req.user.phone);
@@ -1462,7 +1462,7 @@ app.get('/api/calendar/events',auth,async(req,res)=>{
   try{
     const r=await fetch(url,{headers:{Authorization:'Bearer '+ga.token}});
     const j=await r.json();
-    if(j.error)return res.status(400).json({error:j.error.message||'fetch failed'});
+    if(j.error){if(j.error.status==='PERMISSION_DENIED'||/insufficient.*scope/i.test(j.error.message||''))return res.status(403).json({error:'Calendar permissions need updating. Disconnect and reconnect your Google account.'});return res.status(400).json({error:j.error.message||'fetch failed'})}
     const items=(j.items||[]).map(e=>({id:e.id,title:e.summary||'(no title)',start:e.start?.dateTime||e.start?.date||'',end:e.end?.dateTime||e.end?.date||'',allDay:!!(e.start&&e.start.date&&!e.start.dateTime),link:e.htmlLink,location:e.location||''}));
     res.json({email:ga.email,events:items});
   }catch(e){res.status(500).json({error:e.message})}
