@@ -2372,13 +2372,16 @@ input:focus,textarea:focus{outline:none;border-color:#C47A3A;box-shadow:0 0 0 4p
 .main-col{display:block}
 .hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;padding:0 2px}
 /* ─── Brand mark ─── */
-.logo{font-family:var(--serif);font-size:36px;font-weight:500;letter-spacing:-.025em;line-height:1;display:inline-flex;align-items:baseline;gap:1px;color:var(--text);user-select:none;cursor:default}
+.logo{font-family:var(--serif);font-size:36px;font-weight:500;letter-spacing:-.025em;line-height:1;display:inline-flex;align-items:center;gap:1px;color:var(--text);user-select:none;cursor:default}
+.logo .logo-fist{font-size:24px;margin-right:6px;display:inline-block;line-height:1}
 .logo .b1{font-style:normal}
 .logo .b2{font-style:normal;font-weight:600;color:var(--accent);display:inline-block;transition:transform .4s cubic-bezier(.34,1.56,.64,1);-webkit-text-fill-color:var(--accent)}
 .logo .b3{font-style:normal}
 .logo .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--warm);margin-left:3px;align-self:flex-end;margin-bottom:5px;box-shadow:0 0 0 0 rgba(217,178,107,.5);animation:brandDot 2.4s ease-in-out infinite}
 .logo:hover .b2{transform:translateY(-3px) rotate(-4deg)}
+.logo:hover .logo-fist{animation:fistBump .5s ease-in-out}
 @keyframes brandDot{0%,100%{box-shadow:0 0 0 0 rgba(217,178,107,.5)}50%{box-shadow:0 0 0 6px rgba(217,178,107,0)}}
+@keyframes fistBump{0%{transform:scale(1)}40%{transform:scale(1.25)}60%{transform:scale(0.95)}100%{transform:scale(1)}}
 .hdr-tagline{display:none;font-family:'Instrument Serif',Georgia,serif;font-style:normal;font-size:13px;color:#A0AEC0;margin-top:2px;letter-spacing:.04em}
 /* Phone scenic masthead — desktop hidden by default */
 .phone-banner{display:none}
@@ -5127,7 +5130,8 @@ body.modal-open{padding-bottom:0 !important}
 .hero-photo img{width:100%;height:100%;object-fit:cover;display:block;animation:photoFade .9s ease}
 .hero-photo-overlay{position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(0,0,0,.18) 100%);pointer-events:none}
 @keyframes photoFade{from{opacity:0;transform:scale(1.04)}to{opacity:1;transform:scale(1)}}
-.login-logo{font-family:'Instrument Serif',Georgia,serif;font-size:56px;font-weight:400;margin-bottom:8px;letter-spacing:-.025em;color:var(--ink);line-height:1;display:inline-flex;align-items:baseline;gap:1px}
+.login-logo{font-family:'Instrument Serif',Georgia,serif;font-size:56px;font-weight:400;margin-bottom:8px;letter-spacing:-.025em;color:var(--ink);line-height:1;display:inline-flex;align-items:center;gap:1px}
+.login-logo .logo-fist{font-size:36px;margin-right:8px;display:inline-block;line-height:1}
 .login-logo .b1{font-style:normal}
 .login-logo .b2{font-style:normal;font-weight:600;color:#D4956A}
 .login-logo .b3{font-style:normal}
@@ -10649,7 +10653,7 @@ if(S.loginStep!=='otp'){
 let h='<div class="login">';
 if(S.loginStep==='phone'){
 h+='<div class="hero-photo"><img src="https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?auto=format&fit=crop&w=1200&q=80" alt="Calm productive workspace" loading="eager"/><div class="hero-photo-overlay"></div></div>';
-h+='<div class="login-logo"><span class="b1">Bro</span><span class="b2">do</span><span class="b3">it</span><span class="dot"></span></div>';
+h+='<div class="login-logo"><span class="logo-fist">\\u{1F91C}\\u{1F91B}</span><span class="b1">Bro</span><span class="b2">do</span><span class="b3">it</span><span class="dot"></span></div>';
 h+='<div class="login-tagline">Tasks. Books. Wisdom.</div>';
 h+='<a class="whatsnew-pill" href="/about" style="display:inline-flex;align-items:center;gap:8px;padding:7px 14px;margin:0 0 18px;background:rgba(31,77,63,.08);border:1px solid rgba(31,77,63,.2);border-radius:999px;font-size:12px;font-weight:500;letter-spacing:.04em;color:#C47A3A;text-decoration:none;font-family:\\'JetBrains Mono\\',monospace;text-transform:uppercase"><span style="width:6px;height:6px;border-radius:999px;background:#C47A3A;box-shadow:0 0 8px #C47A3A;animation:wn-pulse 2s ease-in-out infinite"></span>NEW · Our Story <span style="opacity:.7">→</span></a>';
 h+='<div class="login-sub">A calm, focused space for the work that matters.</div>';
@@ -10772,7 +10776,7 @@ if(S.remember&&S.remember.person){
 // Tasks tab is the "main page" — moral, news, person-of-day, world-clocks render only here.
 const isMain=(S.tab==='tasks'||!S.tab);
 const HELP_BTN='<button class="hdr-help" onclick="openHelp()" aria-label="Help" title="How to use Brodoit">?</button>';
-const LOGO_MARK='<div class="logo" aria-label="Brodoit"><span class="b1">Bro</span><span class="b2">do</span><span class="b3">it</span><span class="dot"></span></div>';
+const LOGO_MARK='<div class="logo" aria-label="Brodoit"><span class="logo-fist">\\u{1F91C}\\u{1F91B}</span><span class="b1">Bro</span><span class="b2">do</span><span class="b3">it</span><span class="dot"></span></div>';
 let h='<div class="hdr"><div class="hdr-l">'+LOGO_MARK+'</div><div class="hdr-actions">'+HELP_BTN+PROFILE_BTN+'<button class="theme-tg" onclick="toggleTheme()" title="Switch theme">'+(S.theme==='aurora'?ic('sun',18):ic('moon',18))+'</button></div></div>';
 
 const m=MORALS[S.moralIdx];
@@ -12731,7 +12735,9 @@ app.get('/manifest.json',(_,res)=>res.json({
 // Icon endpoints — generate on the fly via ui-avatars until custom PNGs uploaded
 app.get(['/icon-192.png','/icon-512.png','/icon-maskable-512.png'],(req,res)=>{
   const size=req.path.includes('512')?512:192;
-  res.redirect(302,'https://ui-avatars.com/api/?name=Bd&background=2D2A26&color=3DAE5C&size='+size+'&bold=true&format=png&font-size=0.5');
+  const file=_path.join(__dirname,'icon-'+size+'.png');
+  if(_fs.existsSync(file)){res.set('Cache-Control','public, max-age=86400').type('image/png').send(_fs.readFileSync(file))}
+  else{res.redirect(302,'https://ui-avatars.com/api/?name=Bd&background=2D2A26&color=3DAE5C&size='+size+'&bold=true&format=png&font-size=0.5')}
 });
 
 // Digital Asset Links for TWA (Google Play Store verification).
