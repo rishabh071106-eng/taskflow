@@ -438,8 +438,10 @@ app.post('/api/bro/chat',auth,async(req,res)=>{
   const sysAsk='You are Bro — the user\'s ridiculously smart best friend who lives inside the Brodoit productivity app. You talk like a real person: casual, warm, and direct. Today is '+dayName+', '+today+'. You have tools to create calendar events, add tasks, check schedules, complete tasks, and create time blocks. IMPORTANT: Only use tools when the user EXPLICITLY asks you to create a task, add an event, schedule something, or manage their calendar. Do NOT create tasks or events on your own initiative — only when directly asked. For example, if someone asks about Indian states, just answer the question — do NOT create a task about it. When you DO use a tool because the user asked, confirm what you did. Give detailed, helpful, step-by-step answers when asked complex questions. Never say you\'re an AI or language model — you\'re just Bro.';
   const sys=mode==='friend'?sysFriend:sysAsk;
   const mapped=messages.map(m=>({role:m.role==='assistant'?'assistant':'user',content:String(m.content||'').slice(0,8000)}));
-  const useTools=mode==='ask'&&GROQ_KEY;
-  const groqTools=useTools?BRO_TOOLS.map(t=>({type:'function',function:{name:t.name,description:t.description,parameters:t.input_schema}})):undefined;
+  const groqTools=GROQ_KEY?BRO_TOOLS.map(t=>({type:'function',function:{name:t.name,description:t.description,parameters:t.input_schema}})):undefined;
+  // Detect if user's message likely needs tools (task/calendar actions)
+  const lastMsg=String((mapped[mapped.length-1]&&mapped[mapped.length-1].content)||'').toLowerCase();
+  const needsTools=mode==='ask'&&GROQ_KEY&&/\b(add|create|schedule|remind|task|event|block|calendar|complete|done|finish|mark)\b/i.test(lastMsg);
 
   // Check cache first
   const cacheKey=_aiCacheKey(mapped);
@@ -454,8 +456,8 @@ app.post('/api/bro/chat',auth,async(req,res)=>{
     let apiMsgs=[{role:'system',content:sys},...mapped];
     let actions=[];
 
-    // If tools are needed, must use Groq (Gemini doesn't support our tool format the same way)
-    if(useTools){
+    // If user explicitly needs tools (task/calendar actions), use Groq with tools
+    if(needsTools){
       for(let loop=0;loop<4;loop++){
         const groqResult=await _callGroq(apiMsgs,{maxTokens:maxTok,tools:groqTools});
         const msg=groqResult.message;
@@ -476,17 +478,17 @@ app.post('/api/bro/chat',auth,async(req,res)=>{
       return res.json({reply:'I tried to help but hit a loop — try rephrasing.',actions:actions.length?actions:undefined});
     }
 
-    // No tools needed — try Gemini first (more generous free tier), fall back to Groq
+    // Regular chat — try Gemini first (most generous free tier), fall back to Groq
     let reply='',provider='';
     let lastError='';
-    // Provider 1: Gemini Flash
+    // Provider 1: Gemini Flash (1500 req/day free)
     if(GEMINI_KEY){
       try{
         const g=await _callGemini(apiMsgs,{maxTokens:maxTok,systemPrompt:sys});
         reply=g.reply;provider=g.provider;
       }catch(e){lastError='Gemini: '+e.message;console.log('[bro] Gemini failed:',e.message)}
     }
-    // Provider 2: Groq
+    // Provider 2: Groq (fallback)
     if(!reply&&GROQ_KEY){
       try{
         const g=await _callGroq(apiMsgs,{maxTokens:maxTok});
