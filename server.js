@@ -2221,7 +2221,7 @@ input:focus,textarea:focus{outline:none;border-color:#C47A3A;box-shadow:0 0 0 4p
 /* ─── Brand mark ─── */
 .logo{font-family:var(--serif);font-size:36px;font-weight:500;letter-spacing:-.025em;line-height:1;display:inline-flex;align-items:baseline;gap:1px;color:var(--text);user-select:none;cursor:default}
 .logo .b1{font-style:normal}
-.logo .b2{font-style:normal;font-weight:600;color:var(--accent);display:inline-block;transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
+.logo .b2{font-style:normal;font-weight:600;color:var(--accent);display:inline-block;transition:transform .4s cubic-bezier(.34,1.56,.64,1);-webkit-text-fill-color:var(--accent)}
 .logo .b3{font-style:normal}
 .logo .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--warm);margin-left:3px;align-self:flex-end;margin-bottom:5px;box-shadow:0 0 0 0 rgba(217,178,107,.5);animation:brandDot 2.4s ease-in-out infinite}
 .logo:hover .b2{transform:translateY(-3px) rotate(-4deg)}
@@ -6533,10 +6533,12 @@ body:not([data-theme=aurora]) .mg-ach.locked .medal{background:#F0EFEA;color:#B5
 .bk-mode-toggle{display:inline-flex;gap:4px;padding:4px;background:#F4F3EE;border:1px solid #E8E6E0;border-radius:999px;margin-bottom:18px}
 .bk-mode-toggle button{padding:8px 16px;border-radius:999px;font-weight:500;font-size:13.5px;color:#6B6B6B;background:transparent;border:0;cursor:pointer;transition:all .2s;font-family:inherit}
 .bk-mode-toggle button.on{background:#3A2D22;color:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12)}
-.bk-sum-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:18px;margin-bottom:24px}
+.bk-sum-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:24px}
+@media (min-width:600px){.bk-sum-grid{grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:18px}}
 .bk-sum-card{cursor:pointer;border:0;background:none;padding:0;font-family:inherit;text-align:left;display:flex;flex-direction:column;gap:10px;transition:transform .35s cubic-bezier(.16,1,.3,1);position:relative}
 .bk-sum-card:hover{transform:translateY(-6px)}
-.bk-sum-cover{position:relative;aspect-ratio:3/4;border-radius:14px;padding:18px 16px;display:flex;flex-direction:column;justify-content:space-between;color:#fff;border:1px solid rgba(255,255,255,.08);box-shadow:0 14px 36px -12px rgba(0,0,0,.55);overflow:hidden;isolation:isolate;transition:box-shadow .3s ease}
+.bk-sum-cover{position:relative;border-radius:14px;padding:18px 16px;display:flex;flex-direction:column;justify-content:space-between;color:#fff;border:1px solid rgba(255,255,255,.08);box-shadow:0 14px 36px -12px rgba(0,0,0,.55);overflow:hidden;isolation:isolate;transition:box-shadow .3s ease;min-height:0;padding-bottom:133.33%}
+@supports (aspect-ratio:3/4){.bk-sum-cover{aspect-ratio:3/4;padding-bottom:18px}}
 .bk-sum-cover>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
 .bk-sum-cover.has-img{padding:0}
 .bk-sum-cover.has-img::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(0,0,0,.6));z-index:1;pointer-events:none}

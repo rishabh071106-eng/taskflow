@@ -9,15 +9,6 @@ brodoit.db-shm
 brodoit.db-wal
 tts-cache/
 audio-static/*
-!audio-static/aff-*.mp3
-!audio-static/vip-*.mp3
-!audio-static/music-*.mp3
-!audio-static/med-*.mp3
-!audio-static/story-*.mp3
-!audio-static/sleep-*.mp3
-!audio-static/jazz-*.mp3
-!audio-static/morning-*.mp3
-!audio-static/whiskey-*.mp3
-!audio-static/work-*.mp3
+!audio-static/*.mp3
 .claude/
 *.aab
