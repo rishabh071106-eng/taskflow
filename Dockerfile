@@ -1,18 +1,16 @@
 FROM node:18-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3 make g++ curl ca-certificates \
+    python3 make g++ curl ca-certificates bash \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install --production
-
+# Copy everything first so postinstall script is available
 COPY . .
 
-# Fetch audio assets if not already present
-RUN bash scripts/fetch-audio.sh || true
+# Install deps (postinstall runs fetch-audio.sh)
+RUN npm install --production
 
 EXPOSE 3000
 
