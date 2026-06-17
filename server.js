@@ -4965,6 +4965,11 @@ body[data-theme=aurora] .sb-d{color:#7373A0}
 body[data-theme=aurora] .sb-d.today{color:#FBBF24}
 body[data-theme=aurora] .live-ind{color:#D4956A}
 body[data-theme=aurora] .pulse-d{background:#D4956A;box-shadow:0 0 12px rgba(52,211,153,.6)}
+body[data-theme=aurora] .health-note{background:linear-gradient(135deg,rgba(245,158,11,.12),rgba(217,119,6,.08));border:1px solid rgba(251,191,36,.2);border-radius:16px;padding:18px 20px;margin-bottom:14px}
+body[data-theme=aurora] .health-note .lbl{color:#FBBF24}
+body[data-theme=aurora] .health-note div{color:#E8E8F4}
+body[data-theme=aurora] .hydration-glass{border-color:rgba(14,165,233,.3)}
+body[data-theme=aurora] .hydration-glass.filled{background:linear-gradient(135deg,#0EA5E9,#06B6D4);border-color:transparent}
 /* Calendar */
 body[data-theme=aurora] .cal-day{color:#E8E8F4}
 body[data-theme=aurora] .cal-day:hover{background:rgba(255,255,255,.05);border-color:rgba(196,122,58,.3)}
@@ -7447,7 +7452,7 @@ ticker:{items:[],idx:0,loaded:false},
 waConnected:false,showWAOnboard:false,activeMeditation:null,
 google:{configured:false,accounts:[],loaded:false},gcalEvents:[],gcalLoading:false,showGcalAdd:false,gcalForm:{title:'',date:'',time:'',duration:30,notes:'',email:''},showCalSchedule:false,calSchedule:null,
 calMonth:new Date(),calSelectedDate:new Date().toISOString().slice(0,10),
-steps:[],stepGoal:parseInt(localStorage.getItem('step_goal')||'10000',10),stepLive:{active:false,count:0},
+steps:[],stepGoal:parseInt(localStorage.getItem('step_goal')||'10000',10),stepLive:{active:false,count:0},healthLoaded:false,
 theme:localStorage.getItem('theme')||'classic',
 themeColor:localStorage.getItem('themeColor')||'blue',
 news:{},newsCat:'world',newsLoading:false,
@@ -7503,7 +7508,8 @@ games:'<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http:/
 mindgym:'<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11 6 C 7 6 4 9 4 13 C 4 14.5 4.5 16 5.5 17.2 C 5 18.5 5 20 6 21.5 C 7 23 9 24 11 24 L 11 28 L 14 28 L 14 6 Z" fill="currentColor" opacity="0.85"/><path d="M21 6 C 25 6 28 9 28 13 C 28 14.5 27.5 16 26.5 17.2 C 27 18.5 27 20 26 21.5 C 25 23 23 24 21 24 L 21 28 L 18 28 L 18 6 Z" fill="currentColor" opacity="0.55"/><circle cx="9.5" cy="13" r="1.4" fill="#fff" opacity="0.9"/><circle cx="22.5" cy="13" r="1.4" fill="#fff" opacity="0.7"/></svg>',
 voice:'<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="13" y="4" width="6" height="16" rx="3" fill="currentColor" opacity="0.85"/><path d="M8 14 C 8 18.5 11.5 22 16 22 C 20.5 22 24 18.5 24 14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" fill="none" opacity="0.55"/><line x1="16" y1="22" x2="16" y2="27" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" opacity="0.55"/><line x1="12" y1="27" x2="20" y2="27" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" opacity="0.55"/></svg>',
 knowledge:'<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 7 a2 2 0 0 1 2 -2 h18 a2 2 0 0 1 2 2 v18 a2 2 0 0 1 -2 2 h-18 a2 2 0 0 1 -2 -2 z" fill="currentColor" opacity="0.2"/><path d="M5 25 a2 2 0 0 0 2 2 h18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M9 9 v14 M22 9 v14 M9 12 H 22 M9 18 H 18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity="0.85"/><circle cx="13" cy="13" r="1" fill="currentColor"/><circle cx="13" cy="20" r="1" fill="currentColor"/></svg>',
-bro:'<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="10" r="5" fill="currentColor" opacity="0.85"/><path d="M8 26 C8 20 11.6 17 16 17 C20.4 17 24 20 24 26" fill="currentColor" opacity="0.55"/><path d="M4 16 Q2 14 4 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none" opacity="0.6"/><path d="M2 17 Q-1 14 2 11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.35"/><path d="M28 16 Q30 14 28 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none" opacity="0.6"/><path d="M30 17 Q33 14 30 11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.35"/></svg>'
+bro:'<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="10" r="5" fill="currentColor" opacity="0.85"/><path d="M8 26 C8 20 11.6 17 16 17 C20.4 17 24 20 24 26" fill="currentColor" opacity="0.55"/><path d="M4 16 Q2 14 4 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none" opacity="0.6"/><path d="M2 17 Q-1 14 2 11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.35"/><path d="M28 16 Q30 14 28 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none" opacity="0.6"/><path d="M30 17 Q33 14 30 11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.35"/></svg>',
+health:'<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 28s-10-6.5-10-14a6 6 0 0 1 10-4.5A6 6 0 0 1 26 14c0 7.5-10 14-10 14z" fill="currentColor" opacity="0.85"/><path d="M11 14l3 3 5-6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
 };
 // "Rise Together" doodle — 4 animated figures climbing the same curve, holding hands; full SMIL animation
 const MORAL_DOODLE='<svg class="moral-doodle" viewBox="0 0 520 200" preserveAspectRatio="xMaxYMid meet" xmlns="http://www.w3.org/2000/svg">'
@@ -7584,7 +7590,8 @@ const TAB_HERO={
   news:{img:'1495020689067-958852a7765e',h:'What\\u2019s new today',s:'Curated stories from across the web'},
   books:{img:'1507842217343-583bb7270b66',h:'Read &amp; grow',s:'Free public-domain audio \\u2022 a few minutes a day'},
   meditation:{img:'1518609878373-06d740f60d8b',h:'Pause and breathe',s:'Guided sessions for a calm mind'},
-  knowledge:{img:'1481627834876-b7833e8f5570',h:'The Knowledge desk',s:'History \\u2022 Geography \\u2022 Space \\u2022 Karma & Dharma'}
+  knowledge:{img:'1481627834876-b7833e8f5570',h:'The Knowledge desk',s:'History \\u2022 Geography \\u2022 Space \\u2022 Karma & Dharma'},
+  health:{img:'1571019613454-1cb2f99b2d8b',h:'Your Health',s:'Steps \\u2022 Hydration \\u2022 Move more, sit less'}
 };
 function ic(n,sz){sz=sz||20;const s='width="'+sz+'" height="'+sz+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"';const m={
 tasks:'<svg '+s+'><path d="M9 11l2 2 4-4"/><path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c1.66 0 3.22.45 4.56 1.23"/></svg>',
@@ -7822,7 +7829,7 @@ const KNOWLEDGE_TOPICS=[
 ];
 function getKnowledgeTopic(k){return KNOWLEDGE_TOPICS.find(t=>t.k===k)||KNOWLEDGE_TOPICS[0]}
 function getKnowledgeSec(topicK,secK){const t=getKnowledgeTopic(topicK);return t.sections.find(s=>s.k===secK)||t.sections[0]}
-function switchTab(t){if(t==='steps'||t==='dash'||t==='history'||t==='geography'||t==='knowledge'||t==='ipl'||t==='games'||t==='news'||t==='voice')t=t==='games'?'mindgym':'tasks';_mgSound('tab');S.tab=t;if(t==='books'&&!S.books.length)loadBooks('all');if(t==='meditation'&&!S.meditations)loadMeditations();if(t==='cal'){if(!S.google.loaded)loadGoogleStatus();else if(S.google.accounts.length&&!S.gcalEvents.length&&!S.gcalLoading)loadGcalEvents()}if(t==='mindgym'&&!S.mg.loaded)loadMindGym();if(t==='bro'&&!S.bro.agent){S.bro.agent='bro';S.bro.mode=S.bro.mode||'ask';var _bn=((S.user&&S.user.name)||'').split(' ')[0]||'';S.bro.messages=[{role:'bro',text:'Hey'+(_bn?' '+_bn:'')+', I\\'m Bro \\u2014 your AI assistant. Ask me anything \\u2014 science, coding, writing, advice, ideas, or plan your day.'}];_broLoadHistory()};S._suppressScrollRestore=true;render();S._suppressScrollRestore=false;try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}}
+function switchTab(t){if(t==='steps')t='health';if(t==='dash'||t==='history'||t==='geography'||t==='knowledge'||t==='ipl'||t==='games'||t==='news'||t==='voice')t=t==='games'?'mindgym':'tasks';_mgSound('tab');S.tab=t;if(t==='books'&&!S.books.length)loadBooks('all');if(t==='meditation'&&!S.meditations)loadMeditations();if(t==='cal'){if(!S.google.loaded)loadGoogleStatus();else if(S.google.accounts.length&&!S.gcalEvents.length&&!S.gcalLoading)loadGcalEvents()}if(t==='mindgym'&&!S.mg.loaded)loadMindGym();if(t==='health'&&!S.healthLoaded){S.healthLoaded=true;loadSteps()}if(t==='bro'&&!S.bro.agent){S.bro.agent='bro';S.bro.mode=S.bro.mode||'ask';var _bn=((S.user&&S.user.name)||'').split(' ')[0]||'';S.bro.messages=[{role:'bro',text:'Hey'+(_bn?' '+_bn:'')+', I\\'m Bro \\u2014 your AI assistant. Ask me anything \\u2014 science, coding, writing, advice, ideas, or plan your day.'}];_broLoadHistory()};S._suppressScrollRestore=true;render();S._suppressScrollRestore=false;try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}}
 async function loadKnowledge(topicK,secK){S.knowledge.topic=topicK;S.knowledge.sec=secK;S.knowledge.loading=true;render();const cacheKey=topicK+':'+secK;try{if(topicK==='history'&&secK==='today'){const r=await fetch('/api/history/today');const j=await r.json();S.knowledge.events=j.events||[]}else{const tObj=KNOWLEDGE_TOPICS.find(t=>t.k===topicK);const sObj=tObj&&tObj.sections.find(s=>s.k===secK);if(!sObj||!sObj.titles){S.knowledge.loaded[cacheKey]=true;S.knowledge.loading=false;render();return}const r=await fetch('/api/wiki/summaries?titles='+encodeURIComponent(sObj.titles.join(',')));const j=await r.json();S.knowledge.articles[cacheKey]=j.summaries||[]}}catch(e){}S.knowledge.loaded[cacheKey]=true;S.knowledge.loading=false;render()}
 function switchKnowledgeTopic(k){S.knowledge.topic=k;const tObj=KNOWLEDGE_TOPICS.find(t=>t.k===k);const sk=(tObj&&tObj.sections[0]&&tObj.sections[0].k)||'today';loadKnowledge(k,sk)}
 async function loadNews(cat){S.newsCat=cat;S.newsLoading=true;render();try{const r=await fetch('/api/news?cat='+encodeURIComponent(cat),{cache:'no-store'});const j=await r.json();S.news[cat]=j.items||[]}catch(e){S.news[cat]=[]}S.newsLoading=false;render()}
@@ -7832,11 +7839,12 @@ async function loadSteps(){const r=await api('/steps?days=30');if(Array.isArray(
 function setStepGoal(v){const n=parseInt(v,10);if(isFinite(n)&&n>=500&&n<=100000){S.stepGoal=n;localStorage.setItem('step_goal',String(n));render()}}
 async function logSteps(){const today=new Date().toISOString().slice(0,10);const current=(S.steps.find(s=>s.date===today)?.count)||0;const v=prompt('Enter today\\'s steps (from Samsung Health, Apple Health, or any tracker):',current||'');if(v===null)return;const n=parseInt(String(v).replace(/[^0-9]/g,''),10);if(!isFinite(n)||n<0){toast('\\u26A0\\uFE0F Enter a positive number','err');return}await postSteps(today,n,'manual')}
 async function postSteps(date,count,source){const r=await api('/steps',{method:'POST',body:JSON.stringify({date,count,source})});if(r?.ok){const i=S.steps.findIndex(s=>s.date===date);const rec={date,count,source};if(i>=0)S.steps[i]=rec;else S.steps.push(rec);toast('\\u2705 '+count.toLocaleString()+' steps saved');render()}else toast('\\u26A0\\uFE0F Save failed','err')}
-let _ped=null,_pedT=null,_wakeLock=null;
+let _ped=null,_pedT=null,_wakeLock=null,_pedFlushInt=null;
+setInterval(function(){if(S.stepLive&&S.stepLive.active&&S.stepLive.count>0)flushPedCount()},300000);
 async function acquireWake(){try{if('wakeLock' in navigator){_wakeLock=await navigator.wakeLock.request('screen');_wakeLock.addEventListener('release',()=>{_wakeLock=null})}}catch(e){}}
 async function releaseWake(){try{if(_wakeLock){await _wakeLock.release();_wakeLock=null}}catch(e){}}
 async function flushPedCount(){const added=S.stepLive.count||0;if(added>0){const today=new Date().toISOString().slice(0,10);const current=(S.steps.find(s=>s.date===today)?.count)||0;await postSteps(today,current+added,'device');S.stepLive.count=0}}
-async function startPed(){if(typeof DeviceMotionEvent==='undefined'){toast('\\u26A0\\uFE0F Motion sensor unavailable on this device','err');return}if(typeof DeviceMotionEvent.requestPermission==='function'){try{const p=await DeviceMotionEvent.requestPermission();if(p!=='granted'){toast('\\u26A0\\uFE0F Permission denied','err');return}}catch(e){toast('\\u26A0\\uFE0F '+e.message,'err');return}}S.stepLive={active:true,count:0,lastPeak:0,lastMag:9.8,_pending:false};_ped=function(e){if(!S.stepLive.active)return;const a=e.accelerationIncludingGravity||e.acceleration;if(!a)return;const mag=Math.sqrt((a.x||0)**2+(a.y||0)**2+(a.z||0)**2);const now=Date.now(),delta=mag-S.stepLive.lastMag;S.stepLive.lastMag=mag;if(delta>2.5&&(now-S.stepLive.lastPeak)>280){S.stepLive.count++;S.stepLive.lastPeak=now;if(!S.stepLive._pending){S.stepLive._pending=true;setTimeout(()=>{S.stepLive._pending=false;if(S.tab==='steps')render()},600)}}};window.addEventListener('devicemotion',_ped);await acquireWake();toast('\\u{1F6B6} Tracking \\u2014 screen will stay on');render()}
+async function startPed(){if(typeof DeviceMotionEvent==='undefined'){toast('\\u26A0\\uFE0F Motion sensor unavailable on this device','err');return}if(typeof DeviceMotionEvent.requestPermission==='function'){try{const p=await DeviceMotionEvent.requestPermission();if(p!=='granted'){toast('\\u26A0\\uFE0F Permission denied','err');return}}catch(e){toast('\\u26A0\\uFE0F '+e.message,'err');return}}S.stepLive={active:true,count:0,lastPeak:0,lastMag:9.8,_pending:false};_ped=function(e){if(!S.stepLive.active)return;const a=e.accelerationIncludingGravity||e.acceleration;if(!a)return;const mag=Math.sqrt((a.x||0)**2+(a.y||0)**2+(a.z||0)**2);const now=Date.now(),delta=mag-S.stepLive.lastMag;S.stepLive.lastMag=mag;if(delta>2.5&&(now-S.stepLive.lastPeak)>280){S.stepLive.count++;S.stepLive.lastPeak=now;if(!S.stepLive._pending){S.stepLive._pending=true;setTimeout(()=>{S.stepLive._pending=false;if(S.tab==='health')render()},600)}}};window.addEventListener('devicemotion',_ped);await acquireWake();toast('\\u{1F6B6} Tracking \\u2014 screen will stay on');render()}
 async function stopPed(){if(_ped){window.removeEventListener('devicemotion',_ped);_ped=null}await releaseWake();const added=S.stepLive.count||0;S.stepLive={active:false,count:0};if(added>0){const today=new Date().toISOString().slice(0,10);const current=(S.steps.find(s=>s.date===today)?.count)||0;await postSteps(today,current+added,'device')}else{toast('\\u23F8 Stopped \\u2014 no steps detected');render()}}
 /* When the tab is backgrounded, flush whatever we counted so we don't lose it, and re-acquire wake lock on return. */
 document.addEventListener('visibilitychange',async()=>{if(document.visibilityState==='hidden'){if(S.stepLive&&S.stepLive.active)await flushPedCount()}else if(document.visibilityState==='visible'){if(S.stepLive&&S.stepLive.active&&!_wakeLock)await acquireWake()}});
@@ -7906,7 +7914,8 @@ cal:"Your calendar view. Tap any date to see scheduled tasks or add new ones for
 dash:"Your productivity dashboard. See completed tasks, streaks, and your progress over time.",
 news:"Stay informed with daily curated news. Browse different categories like technology, sports, and entertainment.",
 books:"Free audiobook library from Libri Vox. Search, browse, and listen. Keep a streak by listening for two minutes a day.",
-meditation:"Take a mindful break. Pick a one, five, ten, twenty, or thirty minute guided meditation and let your breath settle."
+meditation:"Take a mindful break. Pick a one, five, ten, twenty, or thirty minute guided meditation and let your breath settle.",
+health:"Your health dashboard. Track your daily steps, set goals, stay hydrated, and monitor your activity over the week."
 };
 function pickBestVoice(){try{const vs=speechSynthesis.getVoices()||[];if(!vs.length)return null;const pref=['Samantha','Google UK English Female','Microsoft Aria Online (Natural) - English (United States)','Microsoft Jenny Online (Natural) - English (United States)','Google US English','Karen','Moira','Tessa','Veena','Fiona','Allison','Ava','Susan'];for(const name of pref){const v=vs.find(x=>x.name===name||x.name.indexOf(name)===0);if(v)return v}const en=vs.filter(v=>(v.lang||'').toLowerCase().startsWith('en'));const natural=en.find(v=>/natural|neural|premium|enhanced/i.test(v.name));if(natural)return natural;const female=en.find(v=>/female|samantha|karen|moira|tessa|veena|fiona|allison|ava|susan|aria|jenny/i.test(v.name));if(female)return female;return en[0]||vs[0]}catch(e){return null}}
 function speakIntro(){try{if(!('speechSynthesis' in window)){toast('\\u26A0\\uFE0F Voice not supported on this device','err');return}const t=TAB_INTROS[S.tab];if(!t)return;speechSynthesis.cancel();const go=()=>{const u=new SpeechSynthesisUtterance(t);const v=pickBestVoice();if(v){u.voice=v;u.lang=v.lang}u.rate=.92;u.pitch=1.05;u.volume=1;speechSynthesis.speak(u);toast('\\u{1F50A} Playing intro')};const vs=speechSynthesis.getVoices();if(!vs||!vs.length){speechSynthesis.onvoiceschanged=()=>{speechSynthesis.onvoiceschanged=null;go()};setTimeout(go,250)}else go()}catch(e){toast('\\u26A0\\uFE0F Voice error','err')}}
@@ -11067,7 +11076,7 @@ if(isMain){
   // mindgym→Train, meditation→Wisdom (daily verse + sit). Cal + Board still available
   // through modals/secondary surfaces. The "Today" tab is rendered into the existing
   // Tasks tab dashboard hero — clicking Today maps to tasks.
-  const tabsHtml=[{k:'tasks',l:'Tasks'},{k:'books',l:'Listen'},{k:'bro',l:'Bro'},{k:'mindgym',l:'Train'},{k:'meditation',l:'Wisdom'},{k:'cal',l:'Calendar'}].map(x=>'<button class="tab tab-'+x.k+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(ID[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
+  const tabsHtml=[{k:'tasks',l:'Tasks'},{k:'health',l:'Health'},{k:'books',l:'Listen'},{k:'bro',l:'Bro'},{k:'mindgym',l:'Train'},{k:'meditation',l:'Wisdom'},{k:'cal',l:'Calendar'}].map(x=>'<button class="tab tab-'+x.k+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(ID[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
   // "Bro, do it!" mascot — a character with a speech bubble that animates
   const climbScene='<div class="bro-mascot" aria-hidden="true">'
     +'<svg class="bro-svg" viewBox="0 0 340 130" xmlns="http://www.w3.org/2000/svg">'
@@ -11683,6 +11692,97 @@ else if(S.tab==='bro'){
     h+='</div></div></div>';
     h+='</div>';
   }
+}
+
+// HEALTH TAB — steps, hydration, activity tracking
+else if(S.tab==='health'){
+  const today=new Date().toISOString().slice(0,10);
+  const todayRec=S.steps.find(function(s){return s.date===today});
+  const todayCount=(todayRec?todayRec.count:0)+(S.stepLive&&S.stepLive.active?S.stepLive.count:0);
+  const goal=S.stepGoal||10000;
+  const pct=Math.min(Math.round(todayCount/goal*100),100);
+  const radius=62,circ=2*Math.PI*radius;
+  const offset=circ-(pct/100)*circ;
+  const cals=Math.round(todayCount*0.04);
+  const km=(todayCount*0.000762).toFixed(1);
+  const mins=Math.round(todayCount/100);
+
+  h+='<div class="steps-hero">';
+  h+='<div class="steps-ring">';
+  h+='<svg viewBox="0 0 150 150"><circle cx="75" cy="75" r="'+radius+'" stroke="rgba(61,174,92,.15)" stroke-width="10" fill="none"/>';
+  h+='<circle cx="75" cy="75" r="'+radius+'" stroke="'+(pct>=100?'#3DAE5C':'#C47A3A')+'" stroke-width="10" fill="none" stroke-linecap="round" stroke-dasharray="'+circ+'" stroke-dashoffset="'+offset+'" transform="rotate(-90 75 75)" style="transition:stroke-dashoffset .6s ease"/>';
+  h+='</svg>';
+  h+='<div class="ring-v"><b>'+todayCount.toLocaleString()+'</b><small>'+(pct>=100?'\\u{1F389} Goal hit!':pct+'% of '+goal.toLocaleString())+'</small></div>';
+  h+='</div>';
+  h+='<div class="steps-main">';
+  if(S.stepLive&&S.stepLive.active){
+    h+='<div class="live-ind"><span class="pulse-d"></span> Live tracking</div>';
+    h+='<h2>'+todayCount.toLocaleString()+' steps</h2>';
+    h+='<div class="pct-lbl">Session: +'+S.stepLive.count+' detected</div>';
+    h+='<button class="btn-tr stop" onclick="stopPed()">\\u23F9 Stop tracking</button>';
+  }else{
+    h+='<h2>Today\\u2019s Steps</h2>';
+    h+='<div class="pct-lbl">'+(todayCount>0?km+' km \\u2022 '+cals+' cal \\u2022 ~'+mins+' min':'Start walking or log your steps')+'</div>';
+    h+='<button class="btn-tr" onclick="startPed()">\\u{1F6B6} Start tracking</button>';
+    h+='<button class="btn-log" onclick="logSteps()">\\u270D\\uFE0F Log manually</button>';
+  }
+  h+='<div class="goal-row"><span>\\u{1F3AF} Daily goal:</span><input type="number" value="'+goal+'" min="500" max="100000" step="500" onchange="setStepGoal(this.value)"/><span>steps</span></div>';
+  h+='</div></div>';
+
+  // Weekly bar chart
+  var last7=[];
+  for(var di=6;di>=0;di--){
+    var dd=new Date(Date.now()-di*864e5);
+    var dk=dd.toISOString().slice(0,10);
+    var dayLabel=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][dd.getDay()];
+    var rec=S.steps.find(function(s){return s.date===dk});
+    var cnt=rec?rec.count:0;
+    if(dk===today)cnt=todayCount;
+    last7.push({d:dayLabel,c:cnt,k:dk,isToday:dk===today});
+  }
+  var maxC=Math.max.apply(null,last7.map(function(x){return x.c}))||goal;
+  h+='<div style="background:#fff;border:1px solid #E8E0D4;border-radius:16px;padding:18px;margin-bottom:16px">';
+  h+='<div style="font-family:Space Mono,monospace;font-size:14px;font-weight:700;margin-bottom:12px">This Week</div>';
+  h+='<div class="step-bars">';
+  last7.forEach(function(x){
+    var barH=Math.max(Math.round(x.c/maxC*100),3);
+    var cls='sb-fill'+(x.c>=goal?' met':'')+(x.isToday?' today':'');
+    h+='<div class="sb"><div class="sb-c">'+x.c.toLocaleString()+'</div><div class="sb-bar"><div class="'+cls+'" style="height:'+barH+'%"></div></div><div class="sb-d'+(x.isToday?' today':'')+'">'+x.d+'</div></div>';
+  });
+  h+='</div></div>';
+
+  // Stats cards
+  var weekTotal=last7.reduce(function(a,x){return a+x.c},0);
+  var avgSteps=Math.round(weekTotal/7);
+  var daysMetGoal=last7.filter(function(x){return x.c>=goal}).length;
+  h+='<div class="stats" style="grid-template-columns:repeat(3,1fr)">';
+  h+='<div class="st"><b>'+weekTotal.toLocaleString()+'</b><small>Week total</small></div>';
+  h+='<div class="st"><b>'+avgSteps.toLocaleString()+'</b><small>Daily avg</small></div>';
+  h+='<div class="st"><b>'+daysMetGoal+'/7</b><small>Goals met</small></div>';
+  h+='</div>';
+
+  // Hydration section
+  _hydrationToday();
+  h+='<div style="background:#fff;border:1px solid #E8E0D4;border-radius:16px;padding:18px;margin-bottom:16px">';
+  h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">';
+  h+='<div style="font-family:Space Mono,monospace;font-size:14px;font-weight:700">\\u{1F4A7} Hydration</div>';
+  h+='<button class="hydration-toggle'+(S.hydration.enabled?' on':'')+'" onclick="toggleHydration()">Reminders '+(S.hydration.enabled?'ON':'OFF')+'</button>';
+  h+='</div>';
+  h+='<div style="font-size:28px;font-family:Space Mono,monospace;font-weight:800;color:#0284C7;margin-bottom:8px">'+S.hydration.glass+' <span style="font-size:14px;font-weight:600;color:#9C8B7A">/ '+S.hydration.goal+' glasses</span></div>';
+  h+='<div class="hydration-glasses" style="margin-bottom:12px">';
+  for(var gi=0;gi<S.hydration.goal;gi++){
+    h+='<div class="hydration-glass'+(gi<S.hydration.glass?' filled':'')+'">'+( gi<S.hydration.glass?'\\u{1F4A7}':'')+'</div>';
+  }
+  h+='</div>';
+  h+='<div style="display:flex;gap:8px">';
+  h+='<button class="btn-tr" style="flex:1;justify-content:center" onclick="drinkWater()">+ Drink water</button>';
+  h+='<button class="btn-log" style="flex:0" onclick="undrinkWater()">\\u2212</button>';
+  h+='</div></div>';
+
+  // Health tips
+  var tips=['Walk 10,000 steps daily to maintain cardiovascular health','Drink 8 glasses of water to stay hydrated','Take a 5-minute walk break every hour of sitting','Morning walks boost mood and energy for the whole day','Consistency beats intensity \\u2014 walk daily, not just weekends'];
+  var tipIdx=Math.floor((Date.now()/86400000))%tips.length;
+  h+='<div class="health-note"><div class="lbl">\\u{1F4A1} Health tip</div><div style="font-size:14px;margin-top:6px;color:#3A2D22;line-height:1.5">'+tips[tipIdx]+'</div></div>';
 }
 
 // KNOWLEDGE TAB removed at user request (kept stub so saved state doesn't break)
@@ -13081,7 +13181,7 @@ app.get('/privacy',(_,res)=>{
 app.get('/terms',(_,res)=>{
   res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Terms of Service — Brodoit</title><meta name="description" content="The simple terms for using Brodoit. Plain English, no surprises."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Terms</div><h1>The simple rules.</h1><p class="lede">We've kept these terms short and human. Use Brodoit kindly, and we'll keep building it for you.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">The service</h2><p>Brodoit is a personal productivity app: it lets you manage tasks with optional WhatsApp and email reminders, listen to free public-domain audiobooks, sharpen your mind with brain games, and see a daily wisdom quote.</p><h2 data-n="02">Your account</h2><p>You register with your email address or phone number. Keep your one-time verification codes private — anyone with the code can sign in. You are responsible for activity on your account.</p><h2 data-n="03">Acceptable use</h2><p>Please don't abuse the service: no spam, no impersonation, no automated scraping, no attempts to disrupt other users or the service itself. We may suspend or remove accounts that do.</p><h2 data-n="04">Content</h2><p>You own your tasks, notes, and other content you create. We store them so we can show them back to you. Audiobook content belongs to the respective public-domain authors and is served from the Internet Archive's LibriVox collection.</p><h2 data-n="05">No warranty</h2><p>The service is provided "as is". We try hard to keep it running, but can't promise zero downtime or guarantee that every reminder is delivered (WhatsApp and email providers can fail). If something matters, please don't rely solely on Brodoit.</p><h2 data-n="06">Limitation of liability</h2><p>Brodoit is a personal tool. We're not liable for missed deadlines, lost data, or any consequential damages from using — or not using — the service.</p><h2 data-n="07">Changes</h2><p>We may update these terms. If we do, we'll update the date at the top. Continued use after a change means you accept the new terms.</p><h2 data-n="08">Contact</h2><p>Need anything? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });
-app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send('var CACHE_VER="v15";self.addEventListener("install",function(e){self.skipWaiting()});self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});self.addEventListener("fetch",function(e){});')});
+app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send('var CACHE_VER="v16";self.addEventListener("install",function(e){self.skipWaiting()});self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});self.addEventListener("fetch",function(e){});')});
 
 // ═══ MARKETING / PUBLIC PAGES ═══
 
