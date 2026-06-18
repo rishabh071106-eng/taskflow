@@ -1513,6 +1513,46 @@ app.post('/api/steps',auth,(req,res)=>{
   db.prepare("INSERT INTO steps(user_phone,date,count,source,updated_at)VALUES(?,?,?,?,datetime('now'))ON CONFLICT(user_phone,date)DO UPDATE SET count=excluded.count,source=excluded.source,updated_at=excluded.updated_at").run(req.user.phone,d,n,src);
   res.json({ok:true,date:d,count:n,source:src});
 });
+// Google Fit step sync — reads hardware step data from phone sensors
+app.post('/api/steps/sync-fit',auth,async(req,res)=>{
+  try{
+    const ga=await gAccessToken(req.user.phone);
+    if(!ga)return res.status(401).json({error:'Google account not connected. Connect Google in Calendar tab first.'});
+    const days=Math.min(Math.max(parseInt(req.body.days)||7,1),30);
+    const endMs=Date.now();
+    const startMs=endMs-days*864e5;
+    const fitRes=await fetch('https://www.googleapis.com/fitness/v1/users/me/dataset:aggregate',{
+      method:'POST',
+      headers:{Authorization:'Bearer '+ga.token,'Content-Type':'application/json'},
+      body:JSON.stringify({
+        aggregateBy:[{dataTypeName:'com.google.step_count.delta',dataSourceId:'derived:com.google.step_count.delta:com.google.android.gms:estimated_steps'}],
+        bucketByTime:{durationMillis:86400000},
+        startTimeMillis:startMs,
+        endTimeMillis:endMs
+      })
+    });
+    if(!fitRes.ok){
+      const errBody=await fitRes.text();
+      if(fitRes.status===403||fitRes.status===401)return res.status(403).json({error:'Fitness permission not granted. Please reconnect Google account to allow step tracking.',needReauth:true});
+      return res.status(fitRes.status).json({error:'Google Fit error: '+fitRes.status});
+    }
+    const fitData=await fitRes.json();
+    const synced=[];
+    for(const bucket of(fitData.bucket||[])){
+      const d=new Date(parseInt(bucket.startTimeMillis)).toISOString().slice(0,10);
+      let steps=0;
+      for(const ds of(bucket.dataset||[])){for(const pt of(ds.point||[])){for(const v of(pt.value||[])){steps+=(v.intVal||0)}}}
+      if(steps>0){
+        const existing=db.prepare('SELECT count,source FROM steps WHERE user_phone=? AND date=?').get(req.user.phone,d);
+        if(!existing||existing.source==='googlefit'||steps>existing.count){
+          db.prepare("INSERT INTO steps(user_phone,date,count,source,updated_at)VALUES(?,?,?,'googlefit',datetime('now'))ON CONFLICT(user_phone,date)DO UPDATE SET count=excluded.count,source='googlefit',updated_at=datetime('now')").run(req.user.phone,d,steps);
+          synced.push({date:d,count:steps});
+        }
+      }
+    }
+    res.json({ok:true,synced,days});
+  }catch(e){res.status(500).json({error:'Sync failed: '+e.message})}
+});
 // ═══ BOOK LISTENING STREAK ═══
 function calcStreak(rows){
   // rows: [{date}] sorted DESC
@@ -1550,7 +1590,7 @@ app.post('/api/book-streak',auth,(req,res)=>{
 const G_CLIENT_ID=process.env.GOOGLE_CLIENT_ID||'';
 const G_CLIENT_SECRET=process.env.GOOGLE_CLIENT_SECRET||'';
 const G_REDIRECT=process.env.GOOGLE_REDIRECT_URI||(process.env.PUBLIC_URL?process.env.PUBLIC_URL.replace(/\/$/,'')+'/api/google/callback':'https://brodoit.com/api/google/callback');
-const G_SCOPES=['https://www.googleapis.com/auth/calendar','https://www.googleapis.com/auth/userinfo.email','openid'].join(' ');
+const G_SCOPES=['https://www.googleapis.com/auth/calendar','https://www.googleapis.com/auth/userinfo.email','https://www.googleapis.com/auth/fitness.activity.read','openid'].join(' ');
 const googleConfigured=()=>!!(G_CLIENT_ID&&G_CLIENT_SECRET);
 app.get('/api/google/status',auth,(req,res)=>{
   const accounts=db.prepare('SELECT email,is_default,created_at FROM google_tokens WHERE user_phone=? ORDER BY is_default DESC,created_at ASC').all(req.user.phone);
@@ -7452,7 +7492,7 @@ ticker:{items:[],idx:0,loaded:false},
 waConnected:false,showWAOnboard:false,activeMeditation:null,
 google:{configured:false,accounts:[],loaded:false},gcalEvents:[],gcalLoading:false,showGcalAdd:false,gcalForm:{title:'',date:'',time:'',duration:30,notes:'',email:''},showCalSchedule:false,calSchedule:null,
 calMonth:new Date(),calSelectedDate:new Date().toISOString().slice(0,10),
-steps:[],stepGoal:parseInt(localStorage.getItem('step_goal')||'10000',10),stepLive:{active:false,count:0},healthLoaded:false,
+steps:[],stepGoal:parseInt(localStorage.getItem('step_goal')||'10000',10),stepLive:{active:false,count:0},healthLoaded:false,fitSyncing:false,fitNeedReauth:false,fitLastSync:parseInt(localStorage.getItem('fit_last_sync')||'0',10),
 theme:localStorage.getItem('theme')||'classic',
 themeColor:localStorage.getItem('themeColor')||'blue',
 news:{},newsCat:'world',newsLoading:false,
@@ -7829,7 +7869,7 @@ const KNOWLEDGE_TOPICS=[
 ];
 function getKnowledgeTopic(k){return KNOWLEDGE_TOPICS.find(t=>t.k===k)||KNOWLEDGE_TOPICS[0]}
 function getKnowledgeSec(topicK,secK){const t=getKnowledgeTopic(topicK);return t.sections.find(s=>s.k===secK)||t.sections[0]}
-function switchTab(t){if(t==='steps')t='health';if(t==='dash'||t==='history'||t==='geography'||t==='knowledge'||t==='ipl'||t==='games'||t==='news'||t==='voice')t=t==='games'?'mindgym':'tasks';_mgSound('tab');S.tab=t;if(t==='books'&&!S.books.length)loadBooks('all');if(t==='meditation'&&!S.meditations)loadMeditations();if(t==='cal'){if(!S.google.loaded)loadGoogleStatus();else if(S.google.accounts.length&&!S.gcalEvents.length&&!S.gcalLoading)loadGcalEvents()}if(t==='mindgym'&&!S.mg.loaded)loadMindGym();if(t==='health'&&!S.healthLoaded){S.healthLoaded=true;loadSteps()}if(t==='bro'&&!S.bro.agent){S.bro.agent='bro';S.bro.mode=S.bro.mode||'ask';var _bn=((S.user&&S.user.name)||'').split(' ')[0]||'';S.bro.messages=[{role:'bro',text:'Hey'+(_bn?' '+_bn:'')+', I\\'m Bro \\u2014 your AI assistant. Ask me anything \\u2014 science, coding, writing, advice, ideas, or plan your day.'}];_broLoadHistory()};S._suppressScrollRestore=true;render();S._suppressScrollRestore=false;try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}}
+function switchTab(t){if(t==='steps')t='health';if(t==='dash'||t==='history'||t==='geography'||t==='knowledge'||t==='ipl'||t==='games'||t==='news'||t==='voice')t=t==='games'?'mindgym':'tasks';_mgSound('tab');S.tab=t;if(t==='books'&&!S.books.length)loadBooks('all');if(t==='meditation'&&!S.meditations)loadMeditations();if(t==='cal'){if(!S.google.loaded)loadGoogleStatus();else if(S.google.accounts.length&&!S.gcalEvents.length&&!S.gcalLoading)loadGcalEvents()}if(t==='mindgym'&&!S.mg.loaded)loadMindGym();if(t==='health'&&!S.healthLoaded){S.healthLoaded=true;loadSteps();if(S.google&&S.google.accounts&&S.google.accounts.length&&(Date.now()-S.fitLastSync>3600000)){syncGoogleFit()}}if(t==='bro'&&!S.bro.agent){S.bro.agent='bro';S.bro.mode=S.bro.mode||'ask';var _bn=((S.user&&S.user.name)||'').split(' ')[0]||'';S.bro.messages=[{role:'bro',text:'Hey'+(_bn?' '+_bn:'')+', I\\'m Bro \\u2014 your AI assistant. Ask me anything \\u2014 science, coding, writing, advice, ideas, or plan your day.'}];_broLoadHistory()};S._suppressScrollRestore=true;render();S._suppressScrollRestore=false;try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}}
 async function loadKnowledge(topicK,secK){S.knowledge.topic=topicK;S.knowledge.sec=secK;S.knowledge.loading=true;render();const cacheKey=topicK+':'+secK;try{if(topicK==='history'&&secK==='today'){const r=await fetch('/api/history/today');const j=await r.json();S.knowledge.events=j.events||[]}else{const tObj=KNOWLEDGE_TOPICS.find(t=>t.k===topicK);const sObj=tObj&&tObj.sections.find(s=>s.k===secK);if(!sObj||!sObj.titles){S.knowledge.loaded[cacheKey]=true;S.knowledge.loading=false;render();return}const r=await fetch('/api/wiki/summaries?titles='+encodeURIComponent(sObj.titles.join(',')));const j=await r.json();S.knowledge.articles[cacheKey]=j.summaries||[]}}catch(e){}S.knowledge.loaded[cacheKey]=true;S.knowledge.loading=false;render()}
 function switchKnowledgeTopic(k){S.knowledge.topic=k;const tObj=KNOWLEDGE_TOPICS.find(t=>t.k===k);const sk=(tObj&&tObj.sections[0]&&tObj.sections[0].k)||'today';loadKnowledge(k,sk)}
 async function loadNews(cat){S.newsCat=cat;S.newsLoading=true;render();try{const r=await fetch('/api/news?cat='+encodeURIComponent(cat),{cache:'no-store'});const j=await r.json();S.news[cat]=j.items||[]}catch(e){S.news[cat]=[]}S.newsLoading=false;render()}
@@ -7839,6 +7879,19 @@ async function loadSteps(){const r=await api('/steps?days=30');if(Array.isArray(
 function setStepGoal(v){const n=parseInt(v,10);if(isFinite(n)&&n>=500&&n<=100000){S.stepGoal=n;localStorage.setItem('step_goal',String(n));render()}}
 async function logSteps(){const today=new Date().toISOString().slice(0,10);const current=(S.steps.find(s=>s.date===today)?.count)||0;const v=prompt('Enter today\\'s steps (from Samsung Health, Apple Health, or any tracker):',current||'');if(v===null)return;const n=parseInt(String(v).replace(/[^0-9]/g,''),10);if(!isFinite(n)||n<0){toast('\\u26A0\\uFE0F Enter a positive number','err');return}await postSteps(today,n,'manual')}
 async function postSteps(date,count,source){const r=await api('/steps',{method:'POST',body:JSON.stringify({date,count,source})});if(r?.ok){const i=S.steps.findIndex(s=>s.date===date);const rec={date,count,source};if(i>=0)S.steps[i]=rec;else S.steps.push(rec);toast('\\u2705 '+count.toLocaleString()+' steps saved');render()}else toast('\\u26A0\\uFE0F Save failed','err')}
+async function syncGoogleFit(){
+  S.fitSyncing=true;render();
+  var r=await api('/steps/sync-fit',{method:'POST',body:JSON.stringify({days:7})});
+  S.fitSyncing=false;
+  if(r&&r.needReauth){toast('\\u{1F504} Reconnect Google to allow step access','err');S.fitNeedReauth=true;render();return}
+  if(r&&r.ok){
+    var cnt=r.synced?r.synced.length:0;
+    if(cnt>0){await loadSteps();toast('\\u2705 Synced '+cnt+' day'+(cnt>1?'s':'')+' from Google Fit')}
+    else toast('\\u2705 Already up to date');
+    S.fitLastSync=Date.now();localStorage.setItem('fit_last_sync',String(S.fitLastSync));
+  }else{toast('\\u26A0\\uFE0F '+(r&&r.error?r.error:'Sync failed'),'err')}
+  render();
+}
 let _ped=null,_pedT=null,_wakeLock=null,_pedFlushInt=null;
 setInterval(function(){if(S.stepLive&&S.stepLive.active&&S.stepLive.count>0)flushPedCount()},300000);
 async function acquireWake(){try{if('wakeLock' in navigator){_wakeLock=await navigator.wakeLock.request('screen');_wakeLock.addEventListener('release',()=>{_wakeLock=null})}}catch(e){}}
@@ -11725,6 +11778,11 @@ else if(S.tab==='health'){
     h+='<div class="pct-lbl">'+(todayCount>0?km+' km \\u2022 '+cals+' cal \\u2022 ~'+mins+' min':'Start walking or log your steps')+'</div>';
     h+='<button class="btn-tr" onclick="startPed()">\\u{1F6B6} Start tracking</button>';
     h+='<button class="btn-log" onclick="logSteps()">\\u270D\\uFE0F Log manually</button>';
+    if(S.google&&S.google.accounts&&S.google.accounts.length){
+      h+='<button class="btn-log" style="margin-top:7px;width:100%;justify-content:center;gap:8px" onclick="syncGoogleFit()" '+(S.fitSyncing?'disabled':'')+'>'+( S.fitSyncing?'\\u{1F504} Syncing\\u2026':'\\u{1F4F1} Sync from Google Fit')+'</button>';
+    }else{
+      h+='<div style="margin-top:10px;font-size:12px;color:#9C8B7A">\\u{1F4A1} Connect Google in Calendar tab to auto-sync steps from your phone</div>';
+    }
   }
   h+='<div class="goal-row"><span>\\u{1F3AF} Daily goal:</span><input type="number" value="'+goal+'" min="500" max="100000" step="500" onchange="setStepGoal(this.value)"/><span>steps</span></div>';
   h+='</div></div>';
@@ -11760,6 +11818,19 @@ else if(S.tab==='health'){
   h+='<div class="st"><b>'+avgSteps.toLocaleString()+'</b><small>Daily avg</small></div>';
   h+='<div class="st"><b>'+daysMetGoal+'/7</b><small>Goals met</small></div>';
   h+='</div>';
+
+  // Google Fit status
+  if(S.fitNeedReauth){
+    h+='<div style="background:linear-gradient(135deg,#FEF2F2,#FEE2E2);border:1px solid rgba(239,68,68,.2);border-radius:14px;padding:14px 16px;margin-bottom:14px;display:flex;align-items:center;gap:12px">';
+    h+='<span style="font-size:24px">\\u26A0\\uFE0F</span>';
+    h+='<div style="flex:1"><div style="font-size:13px;font-weight:700;color:#DC2626">Google Fit access needed</div><div style="font-size:12px;color:#9C8B7A;margin-top:2px">Reconnect your Google account to sync steps from your phone</div></div>';
+    h+='<button class="btn-tr" style="font-size:12px;padding:8px 14px" onclick="switchTab(\\\'cal\\\')"">Reconnect</button>';
+    h+='</div>';
+  }else if(S.fitLastSync>0){
+    var syncAgo=Math.round((Date.now()-S.fitLastSync)/60000);
+    var syncLabel=syncAgo<1?'Just now':syncAgo<60?syncAgo+'m ago':Math.round(syncAgo/60)+'h ago';
+    h+='<div style="font-size:11px;color:#9C8B7A;text-align:center;margin-bottom:12px">\\u{1F4F1} Google Fit last synced: '+syncLabel+'</div>';
+  }
 
   // Hydration section
   _hydrationToday();
