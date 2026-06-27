@@ -3896,11 +3896,8 @@ body[data-theme=aurora] .tabs.page-t .tab.on .tl{color:#D4956A !important}
   body[data-theme=aurora] .app .tabs.page-t .side-now-date{color:#9999B5}
   .app>.main-col{grid-area:main;min-width:0}
   .fab{display:none}
-  /* Wider hero elements on desktop */
-  .steps-hero{padding:26px;gap:28px}
-  .steps-ring{width:170px;height:170px}
-  .ring-v b{font-size:30px}
-  .ring-v small{font-size:12px}
+  /* Health hero scales */
+  .hth-ring-num{font-size:42px}
   .dash-grid{grid-template-columns:repeat(4,1fr);gap:14px}
   .dash-card{padding:20px}
   .dash-card .v{font-size:34px}
@@ -3910,8 +3907,8 @@ body[data-theme=aurora] .tabs.page-t .tab.on .tl{color:#D4956A !important}
   .board{padding:0;margin:0 0 20px;gap:14px}
   .col{flex:1 1 0;max-width:none;padding:16px}
   .col-body{max-height:70vh}
-  .step-bars{height:180px;gap:10px}
-  .sb-c{font-size:11px}.sb-d{font-size:12px}
+  .hth-bars{height:160px;gap:10px}
+  .hth-bar-val{font-size:11px}.hth-bar-day{font-size:12px}
   .logo{font-size:28px}
   .moral{padding:18px 20px}
   .moral-txt{font-size:16px}
@@ -3935,9 +3932,7 @@ body[data-theme=aurora] .tabs.page-t .tab.on .tl{color:#D4956A !important}
   .dash-grid{grid-template-columns:repeat(4,1fr)}
   .dash-card{padding:18px}
   .dash-card .v{font-size:30px}
-  .steps-hero{padding:26px}
-  .steps-ring{width:170px;height:170px}
-  .ring-v b{font-size:30px}
+  .hth-ring-num{font-size:38px}
   .dash-hero{padding:28px}
   .dash-hero .big{font-size:60px}
   .logo{font-size:32px}
@@ -3945,7 +3940,7 @@ body[data-theme=aurora] .tabs.page-t .tab.on .tl{color:#D4956A !important}
   .tab .ti{font-size:18px}
   .tab .tl{font-size:13px}
   .st b{font-size:26px}
-  .step-bars{height:160px}
+  .hth-bars{height:140px}
 }
 /* Extra tactile feedback */
 button{transition:all .15s cubic-bezier(.2,.8,.2,1)}
@@ -4059,17 +4054,8 @@ body:not([data-theme=aurora]) .add-bar .txt small{color:var(--ink-3)}
 body:not([data-theme=aurora]) .add-bar .plus{background:linear-gradient(135deg,#C47A3A,#A0612E);color:#fff;box-shadow:0 3px 10px rgba(58,45,34,.35)}
 body:not([data-theme=aurora]) .fab{background:linear-gradient(135deg,#C47A3A,#A0612E);color:#fff;box-shadow:0 8px 24px rgba(58,45,34,.4),0 4px 12px rgba(0,0,0,.12)}
 body:not([data-theme=aurora]) .fab:hover{background:#3A2D22;transform:scale(1.05)}
-body:not([data-theme=aurora]) .steps-hero{background:linear-gradient(135deg,#FFFFFF 0%,#FDF8F3 60%,#FDF8F3 100%);border-color:rgba(58,45,34,.15);box-shadow:0 4px 16px rgba(58,45,34,.06)}
-body:not([data-theme=aurora]) .steps-hero::before{background:radial-gradient(circle,rgba(58,45,34,.12) 0%,transparent 70%)}
-body:not([data-theme=aurora]) .ring-v b{background:linear-gradient(135deg,#C47A3A,#A0612E);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-body:not([data-theme=aurora]) .sb-fill{background:linear-gradient(180deg,#A0612E,#C47A3A)}
-body:not([data-theme=aurora]) .sb-fill.met{background:linear-gradient(180deg,#D4956A,#A0612E);box-shadow:0 0 12px rgba(196,122,58,.35)}
-body:not([data-theme=aurora]) .sb-fill.today{background:linear-gradient(180deg,#FBBF24,#F59E0B);box-shadow:0 0 12px rgba(245,158,11,.35)}
-body:not([data-theme=aurora]) .sb-fill.today.met{background:linear-gradient(180deg,#D4956A,#A0612E)}
 body:not([data-theme=aurora]) .btn-tr{background:linear-gradient(135deg,#A0612E,#A0612E);box-shadow:0 4px 14px rgba(196,122,58,.3)}
 body:not([data-theme=aurora]) .btn-tr.stop{background:linear-gradient(135deg,#EF4444,#DC2626);box-shadow:0 4px 14px rgba(239,68,68,.3)}
-body:not([data-theme=aurora]) .health-note{background:linear-gradient(135deg,#FFFBEB 0%,#FEF3C7 100%);border:1px solid rgba(245,158,11,.2);border-radius:16px;padding:18px 20px;margin-bottom:14px;box-shadow:0 2px 8px rgba(245,158,11,.06)}
-body:not([data-theme=aurora]) .health-note .lbl{color:#B45309;font-size:12px;font-weight:700;letter-spacing:.4px}
 body:not([data-theme=aurora]) .fb{background:#fff;border-color:#E8E0D4;color:#9C8B7A;box-shadow:0 1px 2px rgba(0,0,0,.04)}
 body:not([data-theme=aurora]) .fb:hover{border-color:#C47A3A;color:#C47A3A}
 body:not([data-theme=aurora]) .fb.on{background:#C47A3A;border-color:transparent;color:#fff;box-shadow:0 4px 14px rgba(58,45,34,.3)}
@@ -4078,7 +4064,6 @@ body:not([data-theme=aurora]) .kc-mv{background:#F5EDE3;color:#6B5D4F}
 body:not([data-theme=aurora]) .kc-mv:active{background:#C47A3A;color:#fff}
 body:not([data-theme=aurora]) .col.over{background:#FDF8F3;border-color:#C47A3A}
 body:not([data-theme=aurora]) .live-ind{color:#A0612E}
-body:not([data-theme=aurora]) .pulse-d{background:#A0612E;box-shadow:0 0 10px rgba(196,122,58,.5)}
 body:not([data-theme=aurora]) .ai-badge{background:#C47A3A;color:#fff}
 body:not([data-theme=aurora]) .cal-day.today{background:#FDF8F3;color:#A0612E;border-color:rgba(196,122,58,.25)}
 body:not([data-theme=aurora]) .cal-day.sel{background:#C47A3A!important;color:#fff!important;border-color:transparent!important;box-shadow:0 2px 8px rgba(58,45,34,.3)}
@@ -4107,9 +4092,11 @@ body:not([data-theme=aurora]) .chk.on{background:#A0612E;border-color:#A0612E;bo
 }
 
 @media (max-width:600px){
-  .steps-hero{padding:18px;gap:16px}
-  .steps-ring{width:140px;height:140px}
-  .ring-v b{font-size:24px}
+  .hth-hero{padding:20px 16px 18px}
+  .hth-ring-wrap{width:150px;height:150px}
+  .hth-ring-num{font-size:28px}
+  .hth-pill{padding:5px 10px;font-size:11px}
+  .hth-metrics{gap:6px}
   .dash-hero .big{font-size:46px}
   .logo{font-size:28px}
   .hdr-sub{font-size:12px}
@@ -5025,29 +5012,7 @@ body[data-theme=aurora] input:focus,body[data-theme=aurora] textarea:focus,body[
 body[data-theme=aurora] .fb{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.1);color:#9999B5}
 body[data-theme=aurora] .fb:hover{border-color:#D4956A;color:#F5F5FA}
 body[data-theme=aurora] .fb.on{background:linear-gradient(135deg,#A0612E,#EC4899);border-color:transparent;color:#fff;box-shadow:0 4px 16px rgba(139,92,246,.4)}
-/* Steps ring + hero */
-body[data-theme=aurora] .steps-hero{background:linear-gradient(135deg,rgba(139,92,246,.15),rgba(6,182,212,.1));border-color:rgba(196,122,58,.25);box-shadow:0 8px 32px rgba(139,92,246,.15)}
-body[data-theme=aurora] .steps-hero::before{background:radial-gradient(circle,rgba(196,122,58,.2) 0%,transparent 70%)}
-body[data-theme=aurora] .steps-ring svg circle:first-child{stroke:rgba(255,255,255,.08)}
-body[data-theme=aurora] .ring-v b{color:#F5F5FA;background:linear-gradient(135deg,#D4956A,#F472B6);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-body[data-theme=aurora] .ring-v small{color:#9999B5}
-body[data-theme=aurora] .steps-main h2{color:#F5F5FA}
-body[data-theme=aurora] .pct-lbl{color:#9999B5}
-body[data-theme=aurora] .sb-bar{background:rgba(255,255,255,.05)}
-body[data-theme=aurora] .sb-fill{background:linear-gradient(180deg,#D4956A,#A0612E)}
-body[data-theme=aurora] .sb-fill.met{background:linear-gradient(180deg,#D4956A,#A0612E);box-shadow:0 0 12px rgba(196,122,58,.4)}
-body[data-theme=aurora] .sb-fill.today{background:linear-gradient(180deg,#FBBF24,#F59E0B);box-shadow:0 0 12px rgba(245,158,11,.4)}
-body[data-theme=aurora] .sb-fill.today.met{background:linear-gradient(180deg,#D4956A,#A0612E)}
-body[data-theme=aurora] .sb-c{color:#9999B5}
-body[data-theme=aurora] .sb-d{color:#7373A0}
-body[data-theme=aurora] .sb-d.today{color:#FBBF24}
-body[data-theme=aurora] .live-ind{color:#D4956A}
-body[data-theme=aurora] .pulse-d{background:#D4956A;box-shadow:0 0 12px rgba(52,211,153,.6)}
-body[data-theme=aurora] .health-note{background:linear-gradient(135deg,rgba(245,158,11,.12),rgba(217,119,6,.08));border:1px solid rgba(251,191,36,.2);border-radius:16px;padding:18px 20px;margin-bottom:14px}
-body[data-theme=aurora] .health-note .lbl{color:#FBBF24}
-body[data-theme=aurora] .health-note div{color:#E8E8F4}
-body[data-theme=aurora] .hydration-glass{border-color:rgba(14,165,233,.3)}
-body[data-theme=aurora] .hydration-glass.filled{background:linear-gradient(135deg,#0EA5E9,#06B6D4);border-color:transparent}
+/* (Health aurora overrides moved to inline with hth-* styles) */
 /* Calendar */
 body[data-theme=aurora] .cal-day{color:#E8E8F4}
 body[data-theme=aurora] .cal-day:hover{background:rgba(255,255,255,.05);border-color:rgba(196,122,58,.3)}
@@ -5102,7 +5067,8 @@ body[data-theme=aurora] .theme-tg:hover{background:rgba(196,122,58,.15);border-c
 body[data-theme=aurora] .al{background:rgba(196,122,58,.12)!important;border-color:rgba(196,122,58,.3)!important;color:#D4956A!important}
 /* AI badge */
 body[data-theme=aurora] .ai-badge{background:linear-gradient(135deg,#D4956A,#F472B6);color:#fff}
-body[data-theme=aurora] .goal-row input{background:rgba(255,255,255,.06);color:#F5F5FA;border-color:rgba(255,255,255,.15)}
+body[data-theme=aurora] .hth-goal-slider{background:rgba(255,255,255,.08)}
+body[data-theme=aurora] .hth-goal-display{color:#F5F5FA}
 body[data-theme=aurora] .srch input{background:rgba(255,255,255,.05);color:#F5F5FA;border:1px solid rgba(255,255,255,.1)}
 /* Entrance animations (both themes) */
 /* (removed) cardPop entrance \u2014 was replaying on every render */
@@ -5136,17 +5102,96 @@ body[data-theme=aurora] .dash-hero .big{background:linear-gradient(90deg,#fff,#F
 .kc-mv{font-size:10px;padding:3px 8px;border-radius:6px;background:#FBF7F1;color:#9C8B7A;font-weight:600;border:1px solid transparent;transition:all .1s}
 .kc-mv:active{background:#3A2D22;color:#fff}
 @media (min-width: 700px){.board{padding-left:0;padding-right:0;margin:0 0 14px}.col{flex:1 1 0;max-width:none}}
-/* Steps */
-.steps-hero{display:flex;gap:20px;background:linear-gradient(135deg,#FFFFFF 0%,#FFF8EE 100%);border:1px solid #F3D9A0;border-radius:18px;padding:22px;margin-bottom:16px;align-items:center;flex-wrap:wrap;box-shadow:0 4px 20px rgba(196,122,58,.08);position:relative;overflow:hidden}
-.steps-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:radial-gradient(circle,rgba(61,174,92,.12) 0%,transparent 70%);pointer-events:none}
-.steps-ring{position:relative;width:150px;height:150px;flex-shrink:0;filter:drop-shadow(0 6px 14px rgba(61,174,92,.15))}
-.steps-ring svg{width:100%;height:100%}
-.ring-v{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;pointer-events:none}
-.ring-v b{font-family:'Space Mono',monospace;font-size:26px;font-weight:700;color:#3A2D22;line-height:1}
-.ring-v small{font-size:11px;color:#A0AEC0;margin-top:4px;text-transform:uppercase;letter-spacing:.4px;font-weight:600}
-.steps-main{flex:1;min-width:200px;position:relative;z-index:1}
-.steps-main h2{font-family:'Space Mono',monospace;font-size:19px;margin-bottom:4px;font-weight:700}
-.pct-lbl{font-size:13px;color:#9C8B7A;margin-bottom:12px;font-weight:500}
+/* Health — next-gen */
+.hth-hero{position:relative;border-radius:24px;padding:28px 20px 22px;margin-bottom:16px;text-align:center;overflow:hidden;background:linear-gradient(160deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);color:#fff}
+.hth-hero-bg{position:absolute;inset:0;background:radial-gradient(circle at 30% 20%,rgba(249,115,22,.18) 0%,transparent 55%),radial-gradient(circle at 70% 80%,rgba(59,130,246,.12) 0%,transparent 50%);pointer-events:none}
+.hth-ring-wrap{position:relative;width:180px;height:180px;margin:0 auto 16px}
+.hth-ring-svg{width:100%;height:100%;filter:drop-shadow(0 0 20px rgba(249,115,22,.25))}
+.hth-ring-arc{transition:stroke-dashoffset .8s cubic-bezier(.4,0,.2,1)}
+.hth-ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.hth-ring-num{font-family:'Space Mono',monospace;font-size:36px;font-weight:800;letter-spacing:-1px;background:linear-gradient(135deg,#fff,#e2e8f0);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hth-ring-lbl{font-size:12px;color:rgba(255,255,255,.55);font-weight:500;margin-top:2px;letter-spacing:.3px}
+.hth-metrics{display:flex;justify-content:center;gap:10px;margin-bottom:18px}
+.hth-pill{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.08);backdrop-filter:blur(8px);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:700;border:1px solid rgba(255,255,255,.06)}
+.hth-pill small{font-size:10px;color:rgba(255,255,255,.45);font-weight:500}
+.hth-pill span{color:#fff}
+.hth-live-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(52,211,153,.15);border:1px solid rgba(52,211,153,.3);padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;color:#34D399;margin-bottom:12px}
+.hth-live-dot{width:8px;height:8px;border-radius:50%;background:#34D399;animation:pulse-dot 1.4s ease-in-out infinite;box-shadow:0 0 8px #34D399}
+@keyframes pulse-dot{0%,100%{transform:scale(.9);opacity:.6}50%{transform:scale(1.3);opacity:1}}
+.hth-actions{display:flex;gap:8px;justify-content:center}
+.hth-btn{display:inline-flex;align-items:center;gap:7px;padding:12px 22px;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s cubic-bezier(.2,.8,.2,1);border:none;letter-spacing:.2px}
+.hth-btn:active{transform:scale(.96)}
+.hth-btn-primary{background:linear-gradient(135deg,#F97316,#F59E0B);color:#fff;box-shadow:0 4px 16px rgba(249,115,22,.35)}
+.hth-btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(249,115,22,.45)}
+.hth-btn-stop{background:linear-gradient(135deg,#EF4444,#DC2626);color:#fff;box-shadow:0 4px 16px rgba(239,68,68,.35);width:100%;justify-content:center}
+.hth-btn-ghost{background:rgba(255,255,255,.08);color:rgba(255,255,255,.8);border:1px solid rgba(255,255,255,.12)}
+.hth-btn-ghost:hover{background:rgba(255,255,255,.14)}
+.hth-btn-sm{padding:8px 16px;font-size:12px;border-radius:10px}
+.hth-btn-accent{background:linear-gradient(135deg,#10B981,#059669);color:#fff;box-shadow:0 3px 12px rgba(16,185,129,.3)}
+.hth-btn-water{background:linear-gradient(135deg,#0EA5E9,#0284C7);color:#fff;box-shadow:0 4px 16px rgba(14,165,233,.3);flex:1;justify-content:center}
+.hth-btn-water:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(14,165,233,.4)}
+
+/* Connection cards */
+.hth-card{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:16px;margin-bottom:12px;backdrop-filter:blur(8px)}
+.hth-card-warn{background:linear-gradient(135deg,rgba(251,191,36,.08),rgba(245,158,11,.05));border:1px solid rgba(245,158,11,.2)}
+.hth-card-connect{background:linear-gradient(135deg,rgba(16,185,129,.06),rgba(52,211,153,.04));border:1px solid rgba(16,185,129,.15)}
+.hth-card-icon{font-size:24px;flex-shrink:0}
+.hth-card-body{flex:1;min-width:0}
+.hth-card-title{font-size:13px;font-weight:700;color:#3A2D22}
+.hth-card-sub{font-size:11px;color:#9C8B7A;margin-top:2px;line-height:1.4}
+.hth-sync-bar{height:3px;border-radius:3px;background:rgba(14,165,233,.1);overflow:hidden;margin-bottom:12px}
+.hth-sync-shimmer{width:40%;height:100%;background:linear-gradient(90deg,transparent,#0EA5E9,transparent);border-radius:3px;animation:shimmer 1.5s ease-in-out infinite}
+@keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(350%)}}
+
+/* Weekly chart */
+.hth-section{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:20px;padding:20px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.04),0 4px 16px rgba(0,0,0,.03)}
+.hth-section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.hth-section-title{font-size:15px;font-weight:800;color:#1a1a2e;letter-spacing:-.2px}
+.hth-section-badge{font-size:11px;font-weight:600;color:#6366F1;background:rgba(99,102,241,.08);padding:3px 10px;border-radius:8px}
+.hth-bars{display:flex;gap:6px;align-items:flex-end;height:120px;padding:0 2px}
+.hth-bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;min-width:0}
+.hth-bar-col.is-today .hth-bar-day{color:#F97316;font-weight:800}
+.hth-bar-col.is-today .hth-bar-fill{background:linear-gradient(180deg,#F97316,#EA580C)!important;box-shadow:0 0 12px rgba(249,115,22,.3)}
+.hth-bar-val{font-size:9px;color:#94A3B8;font-family:'Space Mono',monospace;font-weight:600}
+.hth-bar-track{flex:1;width:100%;background:rgba(0,0,0,.03);border-radius:6px;display:flex;align-items:flex-end;overflow:hidden;min-height:4px}
+.hth-bar-fill{width:100%;background:linear-gradient(180deg,#6366F1,#4F46E5);border-radius:6px;transition:height .5s cubic-bezier(.2,.8,.2,1);min-height:3px}
+.hth-bar-fill.met{background:linear-gradient(180deg,#34D399,#059669)!important;box-shadow:0 0 8px rgba(16,185,129,.25)}
+.hth-bar-day{font-size:10px;color:#94A3B8;font-weight:600}
+.hth-stats-row{display:flex;align-items:center;margin-top:16px;padding-top:14px;border-top:1px solid rgba(0,0,0,.04)}
+.hth-stat{flex:1;text-align:center}
+.hth-stat-val{font-family:'Space Mono',monospace;font-size:18px;font-weight:800;color:#1a1a2e;display:block}
+.hth-stat-val small{font-size:13px;font-weight:600;color:#94A3B8}
+.hth-stat-lbl{font-size:10px;color:#94A3B8;font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-top:2px;display:block}
+.hth-stat-div{width:1px;height:28px;background:rgba(0,0,0,.06)}
+
+/* Hydration */
+.hth-toggle{position:relative;width:44px;height:24px;border-radius:12px;background:#E2E8F0;border:none;cursor:pointer;transition:background .2s;flex-shrink:0}
+.hth-toggle.on{background:#0EA5E9}
+.hth-toggle-knob{position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .2s cubic-bezier(.2,.8,.2,1)}
+.hth-toggle.on .hth-toggle-knob{transform:translateX(20px)}
+.hth-water-wrap{margin-bottom:14px}
+.hth-water-bar{height:10px;background:rgba(14,165,233,.08);border-radius:10px;overflow:hidden}
+.hth-water-fill{height:100%;background:linear-gradient(90deg,#38BDF8,#0284C7);border-radius:10px;transition:width .4s cubic-bezier(.2,.8,.2,1);position:relative;min-width:2%}
+.hth-water-wave{position:absolute;right:-4px;top:-2px;width:14px;height:14px;background:#0284C7;border-radius:50%;opacity:.6;animation:wave-bob 2s ease-in-out infinite}
+@keyframes wave-bob{0%,100%{transform:scale(.8);opacity:.4}50%{transform:scale(1.1);opacity:.7}}
+.hth-water-count{font-family:'Space Mono',monospace;font-size:13px;color:#64748B;margin-top:8px;text-align:center}
+.hth-water-num{font-size:22px;font-weight:800;color:#0284C7}
+.hth-drops{display:flex;gap:3px;justify-content:center;margin-bottom:14px;flex-wrap:wrap}
+.hth-drop{width:22px;height:28px;transition:transform .2s}
+.hth-drop.filled{animation:drop-in .3s cubic-bezier(.2,.8,.2,1)}
+.hth-drop svg{width:100%;height:100%}
+@keyframes drop-in{0%{transform:scale(.5) translateY(-8px);opacity:0}100%{transform:scale(1) translateY(0);opacity:1}}
+.hth-water-actions{display:flex;gap:8px;align-items:center}
+.hth-remind-note{font-size:11px;color:#64748B;text-align:center;margin-top:10px;font-weight:500}
+.hth-goal-section{padding:16px 20px}
+.hth-goal-input-wrap{display:flex;flex-direction:column;gap:10px}
+.hth-goal-slider{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:6px;background:linear-gradient(90deg,#E2E8F0,#CBD5E1);outline:none;cursor:pointer}
+.hth-goal-slider::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#F97316,#EA580C);box-shadow:0 2px 8px rgba(249,115,22,.35);cursor:pointer;transition:transform .15s}
+.hth-goal-slider::-webkit-slider-thumb:hover{transform:scale(1.15)}
+.hth-goal-display{font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:#1a1a2e;text-align:center}
+.hth-sync-status{display:flex;align-items:center;gap:6px;justify-content:center;font-size:11px;color:#64748B;margin-bottom:12px;font-weight:500}
+
+/* Keep old btn-tr/btn-log for non-health usage */
 .btn-tr{background:linear-gradient(135deg,#3DAE5C,#2D8A4E);color:#fff;padding:12px 18px;border-radius:11px;font-size:14px;font-weight:700;margin-right:7px;margin-bottom:7px;display:inline-flex;align-items:center;gap:7px;box-shadow:0 4px 12px rgba(61,174,92,.3);transition:all .2s cubic-bezier(.2,.8,.2,1)}
 .btn-tr:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(61,174,92,.4)}
 .btn-tr:active{transform:translateY(0) scale(.97)}
@@ -5155,21 +5200,30 @@ body[data-theme=aurora] .dash-hero .big{background:linear-gradient(90deg,#fff,#F
 .btn-log{background:#FFFFFF;color:#3A2D22;padding:12px 18px;border-radius:11px;font-size:14px;font-weight:700;border:1.5px solid #D4C4B0;display:inline-flex;align-items:center;gap:7px;transition:all .18s}
 .btn-log:hover{background:#FBF7F1;border-color:#3A2D22;transform:translateY(-1px)}
 .btn-log:active{transform:scale(.97)}
-.live-ind{display:flex;align-items:center;gap:6px;font-size:12px;color:#3DAE5C;font-weight:700;margin-bottom:10px}
-.pulse-d{width:9px;height:9px;border-radius:50%;background:#3DAE5C;animation:pulse-dot 1.4s ease-in-out infinite}
-@keyframes pulse-dot{0%,100%{transform:scale(.9);opacity:.6}50%{transform:scale(1.25);opacity:1}}
-.step-bars{display:flex;gap:5px;align-items:flex-end;height:130px;margin-top:10px;padding:0 4px}
-.sb{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
-.sb-bar{flex:1;width:100%;background:#FDF8F3;border-radius:5px;display:flex;align-items:flex-end;overflow:hidden;min-height:4px}
-.sb-fill{width:100%;background:#3B82F6;border-radius:5px 5px 0 0;transition:height .4s cubic-bezier(.2,.8,.2,1);min-height:2px}
-.sb-fill.met{background:#3DAE5C}
-.sb-fill.today{background:#E8912C;box-shadow:0 0 0 2px rgba(196,122,58,.15)}
-.sb-fill.today.met{background:#3DAE5C}
-.sb-c{font-size:9px;color:#A0AEC0;font-weight:600;font-family:'Space Mono',monospace;line-height:1}
-.sb-d{font-size:10px;color:#9C8B7A;font-weight:700}
-.sb-d.today{color:#E8912C}
-.goal-row{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid #FDF8F3;font-size:12px;color:#9C8B7A}
-.goal-row input{width:90px;padding:5px 8px;border-radius:7px;border:1px solid #D4C4B0;font-size:12px;text-align:center;background:#fff}
+
+/* Aurora theme overrides for Health */
+body[data-theme=aurora] .hth-hero{background:linear-gradient(160deg,#0c0a1d 0%,#1a0e3e 50%,#1e1060 100%)}
+body[data-theme=aurora] .hth-section{background:rgba(26,26,46,.6);border-color:rgba(255,255,255,.06);backdrop-filter:blur(12px)}
+body[data-theme=aurora] .hth-section-title{color:#F5F5FA}
+body[data-theme=aurora] .hth-section-badge{color:#A78BFA;background:rgba(167,139,250,.1)}
+body[data-theme=aurora] .hth-bar-track{background:rgba(255,255,255,.04)}
+body[data-theme=aurora] .hth-bar-val{color:#7373A0}
+body[data-theme=aurora] .hth-bar-day{color:#7373A0}
+body[data-theme=aurora] .hth-stat-val{color:#F5F5FA}
+body[data-theme=aurora] .hth-stat-lbl{color:#7373A0}
+body[data-theme=aurora] .hth-stat-div{background:rgba(255,255,255,.06)}
+body[data-theme=aurora] .hth-stats-row{border-top-color:rgba(255,255,255,.06)}
+body[data-theme=aurora] .hth-card-title{color:#F5F5FA}
+body[data-theme=aurora] .hth-card-sub{color:#9999B5}
+body[data-theme=aurora] .hth-toggle{background:rgba(255,255,255,.1)}
+body[data-theme=aurora] .hth-toggle.on{background:#0EA5E9}
+body[data-theme=aurora] .hth-water-bar{background:rgba(255,255,255,.05)}
+body[data-theme=aurora] .hth-water-count{color:#9999B5}
+body[data-theme=aurora] .hth-goal-slider{background:rgba(255,255,255,.08)}
+body[data-theme=aurora] .hth-goal-display{color:#F5F5FA}
+body[data-theme=aurora] .hth-remind-note{color:#7373A0}
+body[data-theme=aurora] .hth-sync-status{color:#7373A0}
+body[data-theme=aurora] .hth-btn-ghost{background:rgba(255,255,255,.06);color:#e2e8f0;border-color:rgba(255,255,255,.1)}
 /* Calendar */
 .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding:0 4px}
 .cal-head h3{font-family:'Space Mono',monospace;font-size:17px;font-weight:700}
@@ -8099,9 +8153,9 @@ const MED_SLOTS=[
 {cat:'affirmations',mins:5,title:'5 minutes',desc:'A grounded reset \\u2014 build resilience, soften the day',color:'#5BBFB4',audioId:'aff-5min'},
 {cat:'affirmations',mins:10,title:'10 minutes',desc:'Deep practice \\u2014 letting go, gratitude, returning to centre',color:'#FF7A45',audioId:'aff-10min'},
 // Vipassana · S.N. Goenka original voice (VRI official + YouTube)
-{cat:'vipassana',mins:10,title:'Anapana \\u2022 Goenka',desc:'Original voice \\u2022 10 min group sitting',color:'#06B6D4',extUrl:'https://www.vridhamma.org/sites/default/files/node-uploads/2.%20MIni_Anapana_english_10_minute_GourpSitting.mp3',goenka:true},
-{cat:'vipassana',mins:12,title:'Anapana + Mett\\u0101',desc:'Original voice \\u2022 breath + loving-kindness',color:'#3B82F6',extUrl:'https://www.vridhamma.org/sites/default/files/node-uploads/3.%20Anapana_English_with_metta-12_min-new.mp3',goenka:true},
-{cat:'vipassana',mins:25,title:'Full Anapana \\u2022 Goenka',desc:'Original voice \\u2022 complete introductory session',color:'#8B5CF6',extUrl:'https://www.vridhamma.org/sites/default/files/node-uploads/1.%20Mini_Anapana_English_For_ALL_15min_10minGS_Audio%20%281%29.mp3',goenka:true},
+{cat:'vipassana',mins:10,title:'Anapana \\u2022 Goenka',desc:'Original voice \\u2022 10 min group sitting',color:'#06B6D4',extUrl:'https://www.vridhamma.org/sites/default/files/node-uploads/2.%20MIni_Anapana_english_10_minute_GourpSitting.mp3',goenka:true,skipSec:3},
+{cat:'vipassana',mins:12,title:'Anapana + Mett\\u0101',desc:'Original voice \\u2022 breath + loving-kindness',color:'#3B82F6',extUrl:'https://www.vridhamma.org/sites/default/files/node-uploads/3.%20Anapana_English_with_metta-12_min-new.mp3',goenka:true,skipSec:3},
+{cat:'vipassana',mins:25,title:'Full Anapana \\u2022 Goenka',desc:'Original voice \\u2022 complete introductory session',color:'#8B5CF6',extUrl:'https://www.vridhamma.org/sites/default/files/node-uploads/1.%20Mini_Anapana_English_For_ALL_15min_10minGS_Audio%20%281%29.mp3',goenka:true,skipSec:5},
 {cat:'vipassana',mins:10,title:'Mett\\u0101 Meditation',desc:'Original voice \\u2022 loving-kindness',color:'#EC4899',ytId:'irSSh_iLNNQ',goenka:true},
 {cat:'vipassana',mins:60,title:'1-Hour Guided Sitting',desc:'Original voice \\u2022 full vipassana practice',color:'#312E81',ytId:'ODTu5SE1EnM',goenka:true},
 {cat:'vipassana',mins:30,title:'Mett\\u0101 at Mahamuni',desc:'Original voice \\u2022 Mandalay, 2004',color:'#3DAE5C',ytId:'DKA83EQaPEs',goenka:true},
@@ -8173,12 +8227,14 @@ const MED_CATEGORIES=[
 async function loadMeditations(){if(S.medLoading)return;S.medLoading=true;S.meditations=S.meditations||{};MED_SLOTS.forEach(s=>{if(s.directId&&!S.meditations[s.directId])S.meditations[s.directId]={identifier:s.directId,title:s.title}});S.medLoading=false;render()}
 function setMedCat(k){S.medCat=k;render()}
 function playMedDirect(id,title,mins,file){playMeditation(id,title,mins,file)}
-function playMedExternal(url,title,mins){
+function playMedExternal(url,title,mins,skipSec){
   S.meditating={active:true,title,mins:mins||10,startedAt:Date.now()};
   S.playing={id:'ext-'+mins,title,author:'\u{1F9D8} S.N. Goenka • Original voice',url,external:null,loading:false};
   try{const last=parseInt(localStorage.getItem('med_last_count_ts')||'0',10);if(Date.now()-last>60000){const cur=parseInt(localStorage.getItem('med_count')||'0',10)||0;localStorage.setItem('med_count',String(cur+1));localStorage.setItem('med_last_count_ts',String(Date.now()));const today=new Date().toISOString().slice(0,10);const days=(localStorage.getItem('med_days')||'').split(',').filter(Boolean);if(days[days.length-1]!==today){days.push(today);localStorage.setItem('med_days',days.slice(-365).join(','))}}}catch(e){}
   render();
-  setTimeout(()=>{const a=document.getElementById('audioEl');if(!a)return;a.setAttribute('playsinline','');a.preload='auto';a.load();const p=a.play();if(p&&p.catch)p.catch(()=>toast('▶️ Tap play on the bar','err'))},250);
+  setTimeout(()=>{const a=document.getElementById('audioEl');if(!a)return;a.setAttribute('playsinline','');a.preload='auto';
+    if(skipSec>0)a.addEventListener('loadedmetadata',function(){a.currentTime=skipSec},{once:true});
+    a.load();const p=a.play();if(p&&p.catch)p.catch(()=>toast('▶️ Tap play on the bar','err'))},250);
 }
 function playMedYouTube(vid,title,mins){
   S.meditating={active:true,title,mins:mins||60,startedAt:Date.now()};
@@ -11709,7 +11765,7 @@ else if(S.tab==='meditation'){
     if(x.extUrl){
       ready=true;
       const safeUrl=esc(x.extUrl).replace(/'/g,"\\\\'");
-      onclick='playMedExternal(\\''+safeUrl+'\\',\\''+safeTitle+'\\','+x.mins+')';
+      onclick='playMedExternal(\\''+safeUrl+'\\',\\''+safeTitle+'\\','+x.mins+','+(x.skipSec||0)+')';
     } else if(x.ytId){
       ready=true;
       onclick='playMedYouTube(\\''+x.ytId+'\\',\\''+safeTitle+'\\','+x.mins+')';
@@ -11854,50 +11910,62 @@ else if(S.tab==='health'){
   const todayCount=(todayRec?todayRec.count:0)+(S.stepLive&&S.stepLive.active?S.stepLive.count:0);
   const goal=S.stepGoal||10000;
   const pct=Math.min(Math.round(todayCount/goal*100),100);
-  const radius=62,circ=2*Math.PI*radius;
+  const R=70,circ=2*Math.PI*R;
   const offset=circ-(pct/100)*circ;
   const cals=Math.round(todayCount*0.04);
   const km=(todayCount*0.000762).toFixed(1);
   const mins=Math.round(todayCount/100);
+  const _hGrad=pct>=100?'linear-gradient(135deg,#34D399,#10B981)':'linear-gradient(135deg,#F97316,#F59E0B)';
 
-  h+='<div class="steps-hero">';
-  h+='<div class="steps-ring">';
-  h+='<svg viewBox="0 0 150 150"><circle cx="75" cy="75" r="'+radius+'" stroke="rgba(61,174,92,.15)" stroke-width="10" fill="none"/>';
-  h+='<circle cx="75" cy="75" r="'+radius+'" stroke="'+(pct>=100?'#3DAE5C':'#C47A3A')+'" stroke-width="10" fill="none" stroke-linecap="round" stroke-dasharray="'+circ+'" stroke-dashoffset="'+offset+'" transform="rotate(-90 75 75)" style="transition:stroke-dashoffset .6s ease"/>';
+  // ── Hero ring card ──
+  h+='<div class="hth-hero">';
+  h+='<div class="hth-hero-bg"></div>';
+  h+='<div class="hth-ring-wrap">';
+  h+='<svg viewBox="0 0 180 180" class="hth-ring-svg">';
+  h+='<defs><linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="'+(pct>=100?'#34D399':'#F97316')+'"/><stop offset="100%" stop-color="'+(pct>=100?'#059669':'#EAB308')+'"/></linearGradient></defs>';
+  h+='<circle cx="90" cy="90" r="'+R+'" stroke="rgba(255,255,255,.08)" stroke-width="12" fill="none"/>';
+  h+='<circle cx="90" cy="90" r="'+R+'" stroke="url(#rg)" stroke-width="12" fill="none" stroke-linecap="round" stroke-dasharray="'+circ+'" stroke-dashoffset="'+offset+'" transform="rotate(-90 90 90)" class="hth-ring-arc"/>';
   h+='</svg>';
-  h+='<div class="ring-v"><b>'+todayCount.toLocaleString()+'</b><small>'+(pct>=100?'\\u{1F389} Goal hit!':pct+'% of '+goal.toLocaleString())+'</small></div>';
+  h+='<div class="hth-ring-center"><span class="hth-ring-num">'+todayCount.toLocaleString()+'</span><span class="hth-ring-lbl">'+(pct>=100?'Goal reached!':'of '+goal.toLocaleString())+'</span></div>';
   h+='</div>';
-  h+='<div class="steps-main">';
-  if(S.stepLive&&S.stepLive.active){
-    h+='<div class="live-ind"><span class="pulse-d"></span> Live tracking</div>';
-    h+='<h2>'+todayCount.toLocaleString()+' steps</h2>';
-    h+='<div class="pct-lbl">Session: +'+S.stepLive.count+' detected</div>';
-    h+='<button class="btn-tr stop" onclick="stopPed()">\\u23F9 Stop tracking</button>';
-  }else{
-    h+='<h2>Today\\u2019s Steps</h2>';
-    h+='<div class="pct-lbl">'+(todayCount>0?km+' km \\u2022 '+cals+' cal \\u2022 ~'+mins+' min':'Start walking or log your steps')+'</div>';
-    h+='<button class="btn-tr" onclick="startPed()">\\u{1F6B6} Start tracking</button>';
-    h+='<button class="btn-log" onclick="logSteps()">\\u270D\\uFE0F Log manually</button>';
-    if(S.fitNeedReauth){
-      h+='<div style="margin-top:12px;background:linear-gradient(135deg,#FEF3C7,#FDE68A);border:1px solid rgba(217,119,6,.25);border-radius:14px;padding:14px 16px">';
-      h+='<div style="font-size:13px;font-weight:700;color:#92400E">\\u{1F510} Allow step access</div>';
-      h+='<div style="font-size:12px;color:#78350F;margin:6px 0 10px">Brodoit needs permission to read your steps so it can show your daily count automatically \\u2014 even when the app is closed.</div>';
-      h+='<button class="btn-tr" style="width:100%;justify-content:center;background:#92400E;color:#fff;border:none;font-weight:700" onclick="connectGoogleFit()">Allow Step Tracking</button>';
-      h+='</div>';
-    }else if(S.google&&S.google.accounts&&S.google.accounts.length){
-      if(S.fitSyncing)h+='<div style="margin-top:8px;font-size:11px;color:#9C8B7A;text-align:center">\\u{1F504} Updating steps\\u2026</div>';
-    }else if(S.google&&S.google.configured){
-      h+='<div style="margin-top:12px;background:linear-gradient(135deg,#ECFDF5,#D1FAE5);border:1px solid rgba(16,185,129,.2);border-radius:14px;padding:16px">';
-      h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="font-size:22px">\\u{1F4F1}</span><div style="font-size:14px;font-weight:700;color:#065F46">Your phone already tracks your steps</div></div>';
-      h+='<div style="font-size:12px;color:#047857;margin-bottom:12px;line-height:1.5">Connect once and your steps will appear here automatically \\u2014 even when Brodoit is closed. No manual syncing needed.</div>';
-      h+='<button class="btn-tr" style="width:100%;justify-content:center;background:linear-gradient(135deg,#059669,#10B981);color:#fff;border:none;font-weight:700;gap:8px" onclick="connectGoogleFit()">Connect</button>';
-      h+='</div>';
-    }
-  }
-  h+='<div class="goal-row"><span>\\u{1F3AF} Daily goal:</span><input type="number" value="'+goal+'" min="500" max="100000" step="500" onchange="setStepGoal(this.value)"/><span>steps</span></div>';
-  h+='</div></div>';
 
-  // Weekly bar chart
+  // Metric pills row
+  h+='<div class="hth-metrics">';
+  h+='<div class="hth-pill"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F97316" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg><span>'+cals+'</span><small>cal</small></div>';
+  h+='<div class="hth-pill"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><span>'+mins+'</span><small>min</small></div>';
+  h+='<div class="hth-pill"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span>'+km+'</span><small>km</small></div>';
+  h+='</div>';
+
+  // Action area
+  if(S.stepLive&&S.stepLive.active){
+    h+='<div class="hth-live-badge"><span class="hth-live-dot"></span>Live \\u2022 +'+S.stepLive.count+' steps</div>';
+    h+='<button class="hth-btn hth-btn-stop" onclick="stopPed()"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>Stop Tracking</button>';
+  }else{
+    h+='<div class="hth-actions">';
+    h+='<button class="hth-btn hth-btn-primary" onclick="startPed()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Track Steps</button>';
+    h+='<button class="hth-btn hth-btn-ghost" onclick="logSteps()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Log</button>';
+    h+='</div>';
+  }
+  h+='</div>';
+
+  // Google Fit connection cards
+  if(S.fitNeedReauth){
+    h+='<div class="hth-card hth-card-warn">';
+    h+='<div class="hth-card-icon">\\u{1F510}</div>';
+    h+='<div class="hth-card-body"><div class="hth-card-title">Reconnect step access</div><div class="hth-card-sub">Brodoit needs permission to read your steps automatically.</div></div>';
+    h+='<button class="hth-btn hth-btn-sm" onclick="connectGoogleFit()">Allow</button>';
+    h+='</div>';
+  }else if(S.google&&S.google.configured&&!(S.google.accounts&&S.google.accounts.length)){
+    h+='<div class="hth-card hth-card-connect">';
+    h+='<div class="hth-card-icon">\\u{1F4F1}</div>';
+    h+='<div class="hth-card-body"><div class="hth-card-title">Auto-sync your steps</div><div class="hth-card-sub">Connect once. Steps appear automatically, even when Brodoit is closed.</div></div>';
+    h+='<button class="hth-btn hth-btn-sm hth-btn-accent" onclick="connectGoogleFit()">Connect</button>';
+    h+='</div>';
+  }else if(S.google&&S.google.accounts&&S.google.accounts.length&&!S.fitNeedReauth){
+    if(S.fitSyncing)h+='<div class="hth-sync-bar"><div class="hth-sync-shimmer"></div></div>';
+  }
+
+  // ── Weekly chart ──
   var last7=[];
   for(var di=6;di>=0;di--){
     var dd=new Date(Date.now()-di*864e5);
@@ -11909,53 +11977,73 @@ else if(S.tab==='health'){
     last7.push({d:dayLabel,c:cnt,k:dk,isToday:dk===today});
   }
   var maxC=Math.max.apply(null,last7.map(function(x){return x.c}))||goal;
-  h+='<div style="background:#fff;border:1px solid #E8E0D4;border-radius:16px;padding:18px;margin-bottom:16px">';
-  h+='<div style="font-family:Space Mono,monospace;font-size:14px;font-weight:700;margin-bottom:12px">This Week</div>';
-  h+='<div class="step-bars">';
-  last7.forEach(function(x){
-    var barH=Math.max(Math.round(x.c/maxC*100),3);
-    var cls='sb-fill'+(x.c>=goal?' met':'')+(x.isToday?' today':'');
-    h+='<div class="sb"><div class="sb-c">'+x.c.toLocaleString()+'</div><div class="sb-bar"><div class="'+cls+'" style="height:'+barH+'%"></div></div><div class="sb-d'+(x.isToday?' today':'')+'">'+x.d+'</div></div>';
-  });
-  h+='</div></div>';
-
-  // Stats cards
   var weekTotal=last7.reduce(function(a,x){return a+x.c},0);
   var avgSteps=Math.round(weekTotal/7);
   var daysMetGoal=last7.filter(function(x){return x.c>=goal}).length;
-  h+='<div class="stats" style="grid-template-columns:repeat(3,1fr)">';
-  h+='<div class="st"><b>'+weekTotal.toLocaleString()+'</b><small>Week total</small></div>';
-  h+='<div class="st"><b>'+avgSteps.toLocaleString()+'</b><small>Daily avg</small></div>';
-  h+='<div class="st"><b>'+daysMetGoal+'/7</b><small>Goals met</small></div>';
+
+  h+='<div class="hth-section">';
+  h+='<div class="hth-section-hdr"><span class="hth-section-title">This Week</span><span class="hth-section-badge">'+weekTotal.toLocaleString()+' total</span></div>';
+  h+='<div class="hth-bars">';
+  last7.forEach(function(x){
+    var barH=Math.max(Math.round(x.c/maxC*100),4);
+    var met=x.c>=goal;
+    h+='<div class="hth-bar-col'+(x.isToday?' is-today':'')+'">';
+    h+='<div class="hth-bar-val">'+(x.c>=1000?(x.c/1000).toFixed(1)+'k':x.c)+'</div>';
+    h+='<div class="hth-bar-track"><div class="hth-bar-fill'+(met?' met':'')+'" style="height:'+barH+'%"></div></div>';
+    h+='<div class="hth-bar-day">'+x.d+'</div>';
+    h+='</div>';
+  });
   h+='</div>';
 
-  // Google Fit status — subtle, no manual action needed
-  if(S.google&&S.google.accounts&&S.google.accounts.length&&!S.fitNeedReauth&&S.fitLastSync>0){
-    h+='<div style="font-size:11px;color:#9C8B7A;text-align:center;margin-bottom:12px">\\u2705 Steps sync automatically from your phone</div>';
-  }
-
-  // Hydration section
-  _hydrationToday();
-  h+='<div style="background:#fff;border:1px solid #E8E0D4;border-radius:16px;padding:18px;margin-bottom:16px">';
-  h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">';
-  h+='<div style="font-family:Space Mono,monospace;font-size:14px;font-weight:700">\\u{1F4A7} Hydration</div>';
-  h+='<button class="hydration-toggle'+(S.hydration.enabled?' on':'')+'" onclick="toggleHydration()">Reminders '+(S.hydration.enabled?'ON':'OFF')+'</button>';
-  h+='</div>';
-  h+='<div style="font-size:28px;font-family:Space Mono,monospace;font-weight:800;color:#0284C7;margin-bottom:8px">'+S.hydration.glass+' <span style="font-size:14px;font-weight:600;color:#9C8B7A">/ '+S.hydration.goal+' glasses</span></div>';
-  h+='<div class="hydration-glasses" style="margin-bottom:12px">';
-  for(var gi=0;gi<S.hydration.goal;gi++){
-    h+='<div class="hydration-glass'+(gi<S.hydration.glass?' filled':'')+'">'+( gi<S.hydration.glass?'\\u{1F4A7}':'')+'</div>';
-  }
-  h+='</div>';
-  h+='<div style="display:flex;gap:8px">';
-  h+='<button class="btn-tr" style="flex:1;justify-content:center" onclick="drinkWater()">+ Drink water</button>';
-  h+='<button class="btn-log" style="flex:0" onclick="undrinkWater()">\\u2212</button>';
+  // Inline stats row
+  h+='<div class="hth-stats-row">';
+  h+='<div class="hth-stat"><span class="hth-stat-val">'+avgSteps.toLocaleString()+'</span><span class="hth-stat-lbl">Daily avg</span></div>';
+  h+='<div class="hth-stat-div"></div>';
+  h+='<div class="hth-stat"><span class="hth-stat-val">'+daysMetGoal+'<small>/7</small></span><span class="hth-stat-lbl">Goals met</span></div>';
+  h+='<div class="hth-stat-div"></div>';
+  h+='<div class="hth-stat"><span class="hth-stat-val">'+(weekTotal*0.000762).toFixed(1)+'</span><span class="hth-stat-lbl">km walked</span></div>';
   h+='</div></div>';
 
-  // Health tips
-  var tips=['Walk 10,000 steps daily to maintain cardiovascular health','Drink 8 glasses of water to stay hydrated','Take a 5-minute walk break every hour of sitting','Morning walks boost mood and energy for the whole day','Consistency beats intensity \\u2014 walk daily, not just weekends'];
-  var tipIdx=Math.floor((Date.now()/86400000))%tips.length;
-  h+='<div class="health-note"><div class="lbl">\\u{1F4A1} Health tip</div><div style="font-size:14px;margin-top:6px;color:#3A2D22;line-height:1.5">'+tips[tipIdx]+'</div></div>';
+  // ── Hydration ──
+  _hydrationToday();
+  var hPct=Math.min(Math.round(S.hydration.glass/S.hydration.goal*100),100);
+  h+='<div class="hth-section">';
+  h+='<div class="hth-section-hdr"><span class="hth-section-title">\\u{1F4A7} Hydration</span>';
+  h+='<button class="hth-toggle'+(S.hydration.enabled?' on':'')+'" onclick="toggleHydration()"><span class="hth-toggle-knob"></span></button>';
+  h+='</div>';
+
+  // Water progress bar
+  h+='<div class="hth-water-wrap">';
+  h+='<div class="hth-water-bar"><div class="hth-water-fill" style="width:'+hPct+'%"><div class="hth-water-wave"></div></div></div>';
+  h+='<div class="hth-water-count"><span class="hth-water-num">'+S.hydration.glass+'</span> / '+S.hydration.goal+' glasses</div>';
+  h+='</div>';
+
+  // Water drops visual
+  h+='<div class="hth-drops">';
+  for(var gi=0;gi<S.hydration.goal;gi++){
+    h+='<div class="hth-drop'+(gi<S.hydration.glass?' filled':'')+'"><svg viewBox="0 0 24 32" fill="'+(gi<S.hydration.glass?'url(#wg)':'none')+'" stroke="'+(gi<S.hydration.glass?'none':'rgba(14,165,233,.3)')+'" stroke-width="1.5"><defs><linearGradient id="wg" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#38BDF8"/><stop offset="100%" stop-color="#0284C7"/></linearGradient></defs><path d="M12 2C12 2 4 12 4 19a8 8 0 1 0 16 0C20 12 12 2 12 2z"/></svg></div>';
+  }
+  h+='</div>';
+
+  h+='<div class="hth-water-actions">';
+  h+='<button class="hth-btn hth-btn-water" onclick="drinkWater()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Drink Water</button>';
+  h+='<button class="hth-btn hth-btn-ghost hth-btn-sm" onclick="undrinkWater()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>';
+  h+='</div>';
+  if(S.hydration.enabled)h+='<div class="hth-remind-note">Reminders active \\u2022 works even when app is closed</div>';
+  h+='</div>';
+
+  // Goal setting
+  h+='<div class="hth-section hth-goal-section">';
+  h+='<div class="hth-section-hdr"><span class="hth-section-title">\\u{1F3AF} Daily Goal</span></div>';
+  h+='<div class="hth-goal-input-wrap">';
+  h+='<input type="range" min="1000" max="30000" step="500" value="'+goal+'" class="hth-goal-slider" oninput="document.getElementById(\'goalDisp\').textContent=Number(this.value).toLocaleString()" onchange="setStepGoal(this.value)"/>';
+  h+='<div class="hth-goal-display"><span id="goalDisp">'+goal.toLocaleString()+'</span> steps</div>';
+  h+='</div></div>';
+
+  // Sync status
+  if(S.google&&S.google.accounts&&S.google.accounts.length&&!S.fitNeedReauth&&S.fitLastSync>0){
+    h+='<div class="hth-sync-status"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>Auto-syncing from your phone</div>';
+  }
 }
 
 // KNOWLEDGE TAB removed at user request (kept stub so saved state doesn't break)
