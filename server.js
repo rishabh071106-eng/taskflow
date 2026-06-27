@@ -1,5 +1,5 @@
 require('dotenv').config({path:require('path').join(__dirname,'.env'),override:true});
-const express=require('express'),cors=require('cors'),Database=require('better-sqlite3'),twilio=require('twilio'),path=require('path'),crypto=require('crypto');
+const express=require('express'),cors=require('cors'),Database=require('better-sqlite3'),twilio=require('twilio'),path=require('path'),crypto=require('crypto'),webpush=require('web-push');
 const app=express();app.use(cors());app.use(express.json());app.use(express.urlencoded({extended:true}));
 
 // DB path — explicit DB_PATH env var wins. Otherwise, if /data exists (Railway Volume convention),
@@ -64,6 +64,11 @@ try{db.exec("CREATE TABLE IF NOT EXISTS voice_lesson_progress(user_phone TEXT NO
 try{db.exec("CREATE TABLE IF NOT EXISTS articles(id TEXT PRIMARY KEY,author_phone TEXT NOT NULL,author_name TEXT DEFAULT'',title TEXT NOT NULL,body TEXT NOT NULL,image_url TEXT DEFAULT'',category TEXT DEFAULT'general',likes INTEGER DEFAULT 0,created_at TEXT DEFAULT(datetime('now')))")}catch(e){}
 try{db.exec("CREATE TABLE IF NOT EXISTS article_likes(article_id TEXT NOT NULL,user_phone TEXT NOT NULL,liked_at TEXT DEFAULT(datetime('now')),PRIMARY KEY(article_id,user_phone))")}catch(e){}
 try{db.exec("CREATE INDEX IF NOT EXISTS idx_articles_created ON articles(created_at DESC)")}catch(e){}
+try{db.exec("CREATE TABLE IF NOT EXISTS push_subs(id INTEGER PRIMARY KEY AUTOINCREMENT,user_phone TEXT NOT NULL,endpoint TEXT NOT NULL UNIQUE,keys_p256dh TEXT NOT NULL,keys_auth TEXT NOT NULL,hydration INTEGER DEFAULT 0,created_at TEXT DEFAULT(datetime('now')))")}catch(e){}
+
+const VAPID_PUBLIC='BPfvXAUnmSa0KZgsQ7jlqMULApFdrO6PRUMJRwXJQicnAUj5Yj2pCDxK8lZBwWQVhYCjDp_58cP5Te7J7yYRi8A';
+const VAPID_PRIVATE=process.env.VAPID_PRIVATE_KEY||'N7yZL_7GRwTXgw-ckT8A5SiRJz2gK1r9PGYMYBmmgpc';
+webpush.setVapidDetails('mailto:rishabh071106@gmail.com',VAPID_PUBLIC,VAPID_PRIVATE);
 
 let tw=null;const TW_FROM=process.env.TWILIO_WHATSAPP_FROM||'whatsapp:+14155238886';
 try{if(process.env.TWILIO_ACCOUNT_SID&&process.env.TWILIO_AUTH_TOKEN){tw=twilio(process.env.TWILIO_ACCOUNT_SID,process.env.TWILIO_AUTH_TOKEN);console.log('✅ Twilio connected')}}catch(e){console.log('⚠️',e.message)}
@@ -1553,6 +1558,39 @@ app.post('/api/steps/sync-fit',auth,async(req,res)=>{
     res.json({ok:true,synced,days});
   }catch(e){res.status(500).json({error:'Sync failed: '+e.message})}
 });
+// ═══ PUSH NOTIFICATIONS ═══
+app.get('/api/push/vapid-key',(_,res)=>res.json({key:VAPID_PUBLIC}));
+app.post('/api/push/subscribe',auth,async(req,res)=>{
+  try{
+    const{subscription,hydration}=req.body;
+    if(!subscription||!subscription.endpoint)return res.status(400).json({error:'Missing subscription'});
+    db.prepare("INSERT INTO push_subs(user_phone,endpoint,keys_p256dh,keys_auth,hydration)VALUES(?,?,?,?,?)ON CONFLICT(endpoint)DO UPDATE SET user_phone=excluded.user_phone,keys_p256dh=excluded.keys_p256dh,keys_auth=excluded.keys_auth,hydration=excluded.hydration").run(req.user.phone,subscription.endpoint,subscription.keys.p256dh,subscription.keys.auth,hydration?1:0);
+    res.json({ok:true});
+  }catch(e){res.status(500).json({error:e.message})}
+});
+app.post('/api/push/hydration-toggle',auth,(req,res)=>{
+  const{enabled}=req.body;
+  db.prepare("UPDATE push_subs SET hydration=? WHERE user_phone=?").run(enabled?1:0,req.user.phone);
+  res.json({ok:true});
+});
+app.post('/api/push/unsubscribe',auth,(req,res)=>{
+  const{endpoint}=req.body;
+  if(endpoint)db.prepare("DELETE FROM push_subs WHERE endpoint=?").run(endpoint);
+  else db.prepare("DELETE FROM push_subs WHERE user_phone=?").run(req.user.phone);
+  res.json({ok:true});
+});
+// Server-side hydration push — runs every hour, sends to users with hydration=1
+setInterval(()=>{
+  const subs=db.prepare("SELECT * FROM push_subs WHERE hydration=1").all();
+  const hour=new Date().getHours();
+  if(hour<7||hour>23)return;
+  for(const sub of subs){
+    const payload=JSON.stringify({type:'hydration',title:'\u{1F4A7} Time to drink water!',body:'Stay hydrated — your body will thank you.',tag:'hydration-'+Date.now()});
+    webpush.sendNotification({endpoint:sub.endpoint,keys:{p256dh:sub.keys_p256dh,auth:sub.keys_auth}},payload).catch(err=>{
+      if(err.statusCode===404||err.statusCode===410)db.prepare("DELETE FROM push_subs WHERE endpoint=?").run(sub.endpoint);
+    });
+  }
+},3600000);
 // ═══ BOOK LISTENING STREAK ═══
 function calcStreak(rows){
   // rows: [{date}] sorted DESC
@@ -8060,10 +8098,18 @@ const MED_SLOTS=[
 {cat:'affirmations',mins:2,title:'2 minutes',desc:'A quick centering \\u2014 ground yourself fast',color:'#FCB851',audioId:'aff-2min'},
 {cat:'affirmations',mins:5,title:'5 minutes',desc:'A grounded reset \\u2014 build resilience, soften the day',color:'#5BBFB4',audioId:'aff-5min'},
 {cat:'affirmations',mins:10,title:'10 minutes',desc:'Deep practice \\u2014 letting go, gratitude, returning to centre',color:'#FF7A45',audioId:'aff-10min'},
-// Vipassana · pre-rendered (no external loading)
-{cat:'vipassana',mins:5,title:'5-min Anapana',desc:'Breath awareness \\u2022 5 min',color:'#06B6D4',audioId:'vip-5min'},
-{cat:'vipassana',mins:10,title:'10-min Body Scan',desc:'Breath + body scan \\u2022 10 min',color:'#3B82F6',audioId:'vip-10min'},
-{cat:'vipassana',mins:15,title:'15-min Full Practice',desc:'Breath, body scan + metta \\u2022 15 min',color:'#8B5CF6',audioId:'vip-15min'},
+// Vipassana · S.N. Goenka original voice (VRI official + YouTube)
+{cat:'vipassana',mins:10,title:'Anapana \\u2022 Goenka',desc:'Original voice \\u2022 10 min group sitting',color:'#06B6D4',extUrl:'https://www.vridhamma.org/sites/default/files/node-uploads/2.%20MIni_Anapana_english_10_minute_GourpSitting.mp3',goenka:true},
+{cat:'vipassana',mins:12,title:'Anapana + Mett\\u0101',desc:'Original voice \\u2022 breath + loving-kindness',color:'#3B82F6',extUrl:'https://www.vridhamma.org/sites/default/files/node-uploads/3.%20Anapana_English_with_metta-12_min-new.mp3',goenka:true},
+{cat:'vipassana',mins:25,title:'Full Anapana \\u2022 Goenka',desc:'Original voice \\u2022 complete introductory session',color:'#8B5CF6',extUrl:'https://www.vridhamma.org/sites/default/files/node-uploads/1.%20Mini_Anapana_English_For_ALL_15min_10minGS_Audio%20%281%29.mp3',goenka:true},
+{cat:'vipassana',mins:10,title:'Mett\\u0101 Meditation',desc:'Original voice \\u2022 loving-kindness',color:'#EC4899',ytId:'irSSh_iLNNQ',goenka:true},
+{cat:'vipassana',mins:60,title:'1-Hour Guided Sitting',desc:'Original voice \\u2022 full vipassana practice',color:'#312E81',ytId:'ODTu5SE1EnM',goenka:true},
+{cat:'vipassana',mins:30,title:'Mett\\u0101 at Mahamuni',desc:'Original voice \\u2022 Mandalay, 2004',color:'#3DAE5C',ytId:'DKA83EQaPEs',goenka:true},
+{cat:'vipassana',mins:45,title:'Morning Chanting Day 1',desc:'Original voice \\u2022 Atanatiya Sutta',color:'#D97706',ytId:'M2Vnc1Sg2DA',goenka:true},
+{cat:'vipassana',mins:40,title:'Morning Chanting Day 3',desc:'Original voice \\u2022 Karaniya Metta Sutta',color:'#C47A3A',ytId:'23fUnDMKVt8',goenka:true},
+{cat:'vipassana',mins:90,title:'Full Sitting + Mett\\u0101',desc:'Original voice \\u2022 anapana, vipassana & mett\\u0101',color:'#1E3A5F',ytId:'z2WaGQAN2qo',goenka:true},
+{cat:'vipassana',mins:5,title:'5-min Anapana',desc:'Guided breath awareness \\u2022 TTS',color:'#67E8F9',audioId:'vip-5min'},
+{cat:'vipassana',mins:15,title:'15-min Full Practice',desc:'Guided body scan + mett\\u0101 \\u2022 TTS',color:'#A78BFA',audioId:'vip-15min'},
 // Music · pre-rendered ambient
 {cat:'music',mins:2,title:'2-min Calm',desc:'Ambient tones for a quick reset',color:'#EC4899',audioId:'music-2min'},
 {cat:'music',mins:5,title:'5-min Ambient',desc:'Layered healing frequencies',color:'#8B5CF6',audioId:'music-5min'},
@@ -8127,6 +8173,20 @@ const MED_CATEGORIES=[
 async function loadMeditations(){if(S.medLoading)return;S.medLoading=true;S.meditations=S.meditations||{};MED_SLOTS.forEach(s=>{if(s.directId&&!S.meditations[s.directId])S.meditations[s.directId]={identifier:s.directId,title:s.title}});S.medLoading=false;render()}
 function setMedCat(k){S.medCat=k;render()}
 function playMedDirect(id,title,mins,file){playMeditation(id,title,mins,file)}
+function playMedExternal(url,title,mins){
+  S.meditating={active:true,title,mins:mins||10,startedAt:Date.now()};
+  S.playing={id:'ext-'+mins,title,author:'\u{1F9D8} S.N. Goenka • Original voice',url,external:null,loading:false};
+  try{const last=parseInt(localStorage.getItem('med_last_count_ts')||'0',10);if(Date.now()-last>60000){const cur=parseInt(localStorage.getItem('med_count')||'0',10)||0;localStorage.setItem('med_count',String(cur+1));localStorage.setItem('med_last_count_ts',String(Date.now()));const today=new Date().toISOString().slice(0,10);const days=(localStorage.getItem('med_days')||'').split(',').filter(Boolean);if(days[days.length-1]!==today){days.push(today);localStorage.setItem('med_days',days.slice(-365).join(','))}}}catch(e){}
+  render();
+  setTimeout(()=>{const a=document.getElementById('audioEl');if(!a)return;a.setAttribute('playsinline','');a.preload='auto';a.load();const p=a.play();if(p&&p.catch)p.catch(()=>toast('▶️ Tap play on the bar','err'))},250);
+}
+function playMedYouTube(vid,title,mins){
+  S.meditating={active:true,title,mins:mins||60,startedAt:Date.now()};
+  S.ytEmbed=vid;
+  render();
+  try{const last=parseInt(localStorage.getItem('med_last_count_ts')||'0',10);if(Date.now()-last>60000){const cur=parseInt(localStorage.getItem('med_count')||'0',10)||0;localStorage.setItem('med_count',String(cur+1));localStorage.setItem('med_last_count_ts',String(Date.now()));const today=new Date().toISOString().slice(0,10);const days=(localStorage.getItem('med_days')||'').split(',').filter(Boolean);if(days[days.length-1]!==today){days.push(today);localStorage.setItem('med_days',days.slice(-365).join(','))}}}catch(e){}
+}
+function closeYtEmbed(){S.ytEmbed=null;S.meditating=null;render()}
 // Pre-rendered audio (affirmations + guided meditations).
 // First listen on a cold cache may take a few seconds while the server
 // synthesizes — we surface that as a loading toast so the user knows
@@ -10633,12 +10693,32 @@ function _broRetryLast(){
 
 // ═══ HYDRATION REMINDER ═══
 function _hydrationToday(){const d=new Date().toISOString().slice(0,10);if(S.hydration.todayDate!==d){S.hydration.todayDate=d;S.hydration.glass=0;localStorage.setItem('tf_hydration_glass','0')}}
-function toggleHydration(){
+async function toggleHydration(){
   _hydrationToday();S.hydration.enabled=!S.hydration.enabled;
   localStorage.setItem('tf_hydration',JSON.stringify(S.hydration.enabled));
-  if(S.hydration.enabled){startHydrationTimer();toast('\\u{1F4A7} Hydration reminders ON — every 1 hour')}
-  else{clearInterval(S.hydration.interval);S.hydration.interval=null;toast('Hydration reminders off')}
+  if(S.hydration.enabled){
+    startHydrationTimer();
+    await subscribePush(true);
+    toast('\\u{1F4A7} Hydration reminders ON \\u2014 even when app is closed')
+  }else{
+    clearInterval(S.hydration.interval);S.hydration.interval=null;
+    await api('/push/hydration-toggle',{method:'POST',body:JSON.stringify({enabled:false})});
+    toast('Hydration reminders off')
+  }
   render();
+}
+async function subscribePush(hydration){
+  try{
+    if(!('serviceWorker' in navigator)||!('PushManager' in window))return;
+    const reg=await navigator.serviceWorker.ready;
+    let sub=await reg.pushManager.getSubscription();
+    if(!sub){
+      const r=await api('/push/vapid-key');if(!r||!r.key)return;
+      const key=Uint8Array.from(atob(r.key.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));
+      sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:key});
+    }
+    await api('/push/subscribe',{method:'POST',body:JSON.stringify({subscription:sub.toJSON(),hydration:!!hydration})});
+  }catch(e){}
 }
 function _hydrationPatch(){var dots=document.querySelectorAll('.is-hyd-dot');dots.forEach(function(d,i){if(i<S.hydration.glass)d.classList.add('filled');else d.classList.remove('filled')});var tEl=document.querySelector('.is-hydration .is-row-title');if(tEl)tEl.textContent='Water \\u00B7 '+S.hydration.glass+'/'+S.hydration.goal+' glasses'}
 function drinkWater(){_hydrationToday();if(S.hydration.glass>=S.hydration.goal){toast('\\u{1F4A7} You already hit your goal! Great job!');return}S.hydration.glass++;localStorage.setItem('tf_hydration_glass',String(S.hydration.glass));_mgSound('water');toast('\\u{1F4A7} Nice! '+S.hydration.glass+'/'+S.hydration.goal+' glasses today');_hydrationPatch()}
@@ -10714,9 +10794,8 @@ function _showHydrationOverlay(){
 function startHydrationTimer(){
   if(S.hydration.interval)clearInterval(S.hydration.interval);
   if(!S.hydration.enabled)return;
-  // Request notification permission (prompt user)
   if('Notification' in window&&Notification.permission==='default'){
-    Notification.requestPermission().then(function(p){if(p==='granted')toast('\\u{1F514} Notifications enabled!')})
+    Notification.requestPermission().then(function(p){if(p==='granted'){toast('\\u{1F514} Notifications enabled!');subscribePush(true)}})
   }
   S.hydration.interval=setInterval(_showHydrationNotif,3600000);
   // Also check on visibility change — catches missed reminders when phone was sleeping
@@ -10834,6 +10913,15 @@ return;
 }
 
 // Immersive meditation overlay — full-screen calm scene with breathing circle, ocean waves, drifting stars
+if(S.ytEmbed){
+  let h='<div class="med-scene" style="background:#000">';
+  h+='<button class="med-close" onclick="closeYtEmbed()" aria-label="Close" style="z-index:99">\\u2715</button>';
+  h+='<div style="display:flex;align-items:center;justify-content:center;height:100%;width:100%;padding:20px">';
+  h+='<iframe width="100%" height="60%" style="max-width:800px;border-radius:12px;border:none" src="https://www.youtube.com/embed/'+esc(S.ytEmbed)+'?autoplay=1&rel=0" allow="autoplay;encrypted-media" allowfullscreen></iframe>';
+  h+='</div></div>';
+  document.getElementById('app').innerHTML=h;
+  return;
+}
 if(S.meditating&&S.meditating.active){
   const med=S.meditating;
   let h='<div class="med-scene">';
@@ -11618,7 +11706,14 @@ else if(S.tab==='meditation'){
   MED_SLOTS.filter(s=>s.cat===cat).forEach((x,i)=>{
     let ready,onclick;
     const safeTitle=esc(x.title).replace(/\\\\u/g,'\\\\\\\\u').replace(/'/g,"\\\\'");
-    if(x.audioId){
+    if(x.extUrl){
+      ready=true;
+      const safeUrl=esc(x.extUrl).replace(/'/g,"\\\\'");
+      onclick='playMedExternal(\\''+safeUrl+'\\',\\''+safeTitle+'\\','+x.mins+')';
+    } else if(x.ytId){
+      ready=true;
+      onclick='playMedYouTube(\\''+x.ytId+'\\',\\''+safeTitle+'\\','+x.mins+')';
+    } else if(x.audioId){
       ready=true;
       onclick='playMedAudio(\\''+x.audioId+'\\',\\''+safeTitle+'\\','+x.mins+')';
     } else {
@@ -11650,8 +11745,11 @@ else if(S.tab==='meditation'){
     // Decorative blob (the "headspace orb" feel)
     h+='<div class="hs-card-blob"></div>';
     h+='<div class="hs-card-blob hs-card-blob-2"></div>';
-    // Top row: duration pill
-    h+='<div class="hs-card-top"><span class="hs-card-dur">'+x.mins+'</span><span class="hs-card-durU">MIN</span></div>';
+    // Top row: duration pill + optional Goenka badge
+    h+='<div class="hs-card-top"><span class="hs-card-dur">'+x.mins+'</span><span class="hs-card-durU">MIN</span>';
+    if(x.goenka)h+='<span style="margin-left:auto;font-size:9px;letter-spacing:.5px;background:rgba(255,255,255,.25);padding:2px 7px;border-radius:8px;font-weight:600">GOENKA</span>';
+    if(x.ytId)h+='<span style="margin-left:'+(x.goenka?'4':'auto')+'px;font-size:9px;letter-spacing:.3px;opacity:.7">\\u25B6 YouTube</span>';
+    h+='</div>';
     // Title (serif italic, large)
     h+='<div class="hs-card-title">'+esc(x.title)+'</div>';
     h+='<div class="hs-card-desc">'+esc(x.desc)+'</div>';
@@ -13256,7 +13354,23 @@ app.get('/privacy',(_,res)=>{
 app.get('/terms',(_,res)=>{
   res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Terms of Service — Brodoit</title><meta name="description" content="The simple terms for using Brodoit. Plain English, no surprises."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Terms</div><h1>The simple rules.</h1><p class="lede">We've kept these terms short and human. Use Brodoit kindly, and we'll keep building it for you.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">The service</h2><p>Brodoit is a personal productivity app: it lets you manage tasks with optional WhatsApp and email reminders, listen to free public-domain audiobooks, sharpen your mind with brain games, and see a daily wisdom quote.</p><h2 data-n="02">Your account</h2><p>You register with your email address or phone number. Keep your one-time verification codes private — anyone with the code can sign in. You are responsible for activity on your account.</p><h2 data-n="03">Acceptable use</h2><p>Please don't abuse the service: no spam, no impersonation, no automated scraping, no attempts to disrupt other users or the service itself. We may suspend or remove accounts that do.</p><h2 data-n="04">Content</h2><p>You own your tasks, notes, and other content you create. We store them so we can show them back to you. Audiobook content belongs to the respective public-domain authors and is served from the Internet Archive's LibriVox collection.</p><h2 data-n="05">No warranty</h2><p>The service is provided "as is". We try hard to keep it running, but can't promise zero downtime or guarantee that every reminder is delivered (WhatsApp and email providers can fail). If something matters, please don't rely solely on Brodoit.</p><h2 data-n="06">Limitation of liability</h2><p>Brodoit is a personal tool. We're not liable for missed deadlines, lost data, or any consequential damages from using — or not using — the service.</p><h2 data-n="07">Changes</h2><p>We may update these terms. If we do, we'll update the date at the top. Continued use after a change means you accept the new terms.</p><h2 data-n="08">Contact</h2><p>Need anything? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });
-app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send('var CACHE_VER="v17";self.addEventListener("install",function(e){self.skipWaiting()});self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});self.addEventListener("fetch",function(e){});')});
+app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v18";
+self.addEventListener("install",function(e){self.skipWaiting()});
+self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});
+self.addEventListener("fetch",function(e){});
+self.addEventListener("push",function(e){
+  if(!e.data)return;
+  var d=e.data.json();
+  var opts={body:d.body||"",icon:"/icon-192.png",badge:"/icon-192.png",tag:d.tag||"push",vibrate:[200,100,200,100,300],requireInteraction:true,data:{type:d.type}};
+  e.waitUntil(self.registration.showNotification(d.title||"Brodoit",opts));
+});
+self.addEventListener("notificationclick",function(e){
+  e.notification.close();
+  e.waitUntil(clients.matchAll({type:"window"}).then(function(cl){
+    for(var c of cl){if(c.url.includes("brodoit.com")&&"focus"in c)return c.focus()}
+    return clients.openWindow("/");
+  }));
+});`)});
 
 // ═══ MARKETING / PUBLIC PAGES ═══
 
