@@ -7802,7 +7802,7 @@ body[data-theme=aurora] .bro-input-wrap{background:rgba(255,255,255,.04);border-
 .train-stat-v{font-size:24px;font-weight:800;letter-spacing:-.03em;color:var(--ink);line-height:1.2}
 .train-stat-l{font-size:11px;font-weight:600;color:var(--text-mute);text-transform:uppercase;letter-spacing:.06em;margin-top:4px}
 .train-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:20px}
-.train-card{background:#fff;border-radius:18px;padding:20px;border:1px solid var(--line);cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:12px;transition:all .25s cubic-bezier(.2,.8,.2,1);position:relative;overflow:hidden;opacity:1;animation:fadeUp .4s ease both}
+.train-card{background:#fff;border-radius:18px;padding:20px;border:1px solid var(--line);cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:12px;transition:all .25s cubic-bezier(.2,.8,.2,1);position:relative;overflow:hidden}
 .train-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--card-accent),var(--card-accent2));border-radius:18px 18px 0 0;opacity:.8}
 .train-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-3);border-color:transparent}
 .train-card:active{transform:scale(.98) !important}
@@ -11812,7 +11812,7 @@ else if(S.tab==='mindgym'){
     const xp=p.xp||0;
     const nextXp=lvl*100;
     const xpPct=Math.min(100,Math.round(xp/nextXp*100));
-    h+='<button class="train-card" style="--card-accent:'+g.accent+';--card-accent2:'+g.accent2+';animation-delay:'+(i*0.08)+'s" onclick="mgDetailOpen(\\''+g.k+'\\')">'
+    h+='<button class="train-card" style="--card-accent:'+g.accent+';--card-accent2:'+g.accent2+'" onclick="mgDetailOpen(\\''+g.k+'\\')">'
       +'<div class="train-card-top">'
         +'<div class="train-card-emoji">'+g.e+'</div>'
         +'<div class="train-card-lvl">Lv '+lvl+'</div>'
