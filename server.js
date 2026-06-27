@@ -3973,7 +3973,7 @@ body[data-theme=aurora] .streak-n,body[data-theme=aurora] .streak-tot b{color:#F
 body[data-theme=aurora] .streak-n span,body[data-theme=aurora] .streak-lbl,body[data-theme=aurora] .streak-tot small{color:#FB923C}
 body[data-theme=aurora] .streak-tot{border-left-color:rgba(251,146,60,.3)}
 /* Section header (uniform across Books/Steps/Board/News tabs) */
-.tab-hero{position:relative;height:96px;border-radius:14px;overflow:hidden;background-size:cover;background-position:center;margin-bottom:12px;display:flex;align-items:flex-end;padding:12px 18px;box-shadow:0 6px 20px rgba(58,45,34,.12);transition:transform .3s ease}
+.tab-hero{position:relative;height:96px;border-radius:16px;overflow:hidden;background-size:cover;background-position:center;margin-bottom:16px;display:flex;align-items:flex-end;padding:14px 20px;box-shadow:var(--shadow-3);transition:transform .3s ease}
 .tab-hero:hover{transform:translateY(-2px)}
 .tab-hero-body{color:#fff;position:relative;z-index:1;max-width:80%}
 .tab-hero-h{font-family:'Instrument Serif',Georgia,serif;font-size:22px;font-weight:400;letter-spacing:-.02em;color:#fff;line-height:1.1;margin-bottom:2px;text-shadow:0 2px 14px rgba(0,0,0,.4)}
@@ -11692,7 +11692,7 @@ h+='<main class="main-col">';
 h+=moralBlock;
 // User-bar + section-div removed; Profile lives in the header top-right.
 // Scenic tab hero — rendered at top of every tab EXCEPT Tasks (where it moves to the bottom of the list)
-const _tabHeroHtml=(()=>{const hero=TAB_HERO[S.tab];if(!hero)return '';const url='https://images.unsplash.com/photo-'+hero.img+'?w=1400&q=80&auto=format&fit=crop';return '<div class="tab-hero" style="background-image:linear-gradient(135deg,rgba(58,45,34,.62) 0%,rgba(58,45,34,.32) 55%,rgba(58,45,34,.18) 100%),url(&quot;'+url+'&quot;)"><div class="tab-hero-particles"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><div class="tab-hero-body"><h2 class="tab-hero-h">'+hero.h+'</h2><p class="tab-hero-s">'+hero.s+'</p></div></div>'})();
+const _tabHeroHtml=(()=>{const hero=TAB_HERO[S.tab];if(!hero)return '';const url='https://images.unsplash.com/photo-'+hero.img+'?w=1400&q=80&auto=format&fit=crop';return '<div class="tab-hero" style="background-image:linear-gradient(135deg,rgba(15,15,25,.7) 0%,rgba(15,15,25,.4) 55%,rgba(15,15,25,.2) 100%),url(&quot;'+url+'&quot;)"><div class="tab-hero-body"><h2 class="tab-hero-h">'+hero.h+'</h2><p class="tab-hero-s">'+hero.s+'</p></div></div>'})();
 if(S.tab!=='tasks')h+=_tabHeroHtml;
 
 // TASKS TAB
