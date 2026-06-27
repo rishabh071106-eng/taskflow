@@ -7802,7 +7802,7 @@ body[data-theme=aurora] .bro-input-wrap{background:rgba(255,255,255,.04);border-
 .train-stat-v{font-size:24px;font-weight:800;letter-spacing:-.03em;color:var(--ink);line-height:1.2}
 .train-stat-l{font-size:11px;font-weight:600;color:var(--text-mute);text-transform:uppercase;letter-spacing:.06em;margin-top:4px}
 .train-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:20px}
-.train-card{background:#fff;border-radius:18px;padding:20px;border:1px solid var(--line);cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:12px;transition:all .25s cubic-bezier(.2,.8,.2,1);position:relative;overflow:hidden;animation:fadeUp .4s ease both}
+.train-card{background:#fff;border-radius:18px;padding:20px;border:1px solid var(--line);cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:12px;transition:all .25s cubic-bezier(.2,.8,.2,1);position:relative;overflow:hidden;opacity:1;animation:fadeUp .4s ease both}
 .train-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--card-accent),var(--card-accent2));border-radius:18px 18px 0 0;opacity:.8}
 .train-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-3);border-color:transparent}
 .train-card:active{transform:scale(.98) !important}
@@ -7813,7 +7813,7 @@ body[data-theme=aurora] .bro-input-wrap{background:rgba(255,255,255,.04);border-
 .train-card-name{font-size:16px;font-weight:700;color:var(--ink);letter-spacing:-.02em;margin-bottom:2px}
 .train-card-desc{font-size:12px;color:var(--text-mute);line-height:1.4}
 .train-card-bar{height:6px;background:var(--bg-sunken);border-radius:99px;overflow:hidden}
-.train-card-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--card-accent),var(--card-accent2));animation:progressFill .8s ease both;transition:width .3s ease}
+.train-card-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--card-accent),var(--card-accent2));transition:width .3s ease}
 .train-card-xp{font-size:11px;font-weight:600;color:var(--text-dim);letter-spacing:.02em}
 .train-card-play{font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--card-accent),var(--card-accent2));padding:8px 16px;border-radius:10px;text-align:center;letter-spacing:.01em;box-shadow:0 4px 12px -4px var(--card-accent);transition:transform .15s ease,box-shadow .15s ease}
 .train-card:hover .train-card-play{transform:scale(1.03);box-shadow:0 6px 16px -4px var(--card-accent)}
