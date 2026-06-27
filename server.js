@@ -5747,11 +5747,11 @@ body[data-theme=aurora] .inshort-share{background:rgba(196,122,58,.18);color:#D4
 /* Meditation tab */
 .med-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:14px}
 /* ── Headspace/Elevate-style affirmation cards ── */
-.hs-cats{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}
+.hs-cats{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:4px;background:var(--bg-sunken);border-radius:14px;margin-bottom:18px}
 .hs-cats::-webkit-scrollbar{display:none}
-.hs-cat{background:rgba(58,45,34,.04)!important;border:1px solid rgba(58,45,34,.06)!important;color:#3A2D22!important;padding:10px 18px!important;border-radius:24px!important;font-size:13px!important;font-weight:600!important;white-space:nowrap!important;transition:all .2s ease}
-.hs-cat.on{background:#3A2D22!important;color:#fff!important;border-color:#3A2D22!important;box-shadow:0 6px 16px -4px rgba(58,45,34,.3)}
-.hs-cat:not(.on):hover{background:rgba(58,45,34,.08)!important}
+.hs-cat{background:transparent !important;border:none !important;color:var(--ink-3) !important;padding:10px 16px !important;border-radius:10px !important;font-size:13px !important;font-weight:600 !important;white-space:nowrap !important;transition:all .15s ease;flex-shrink:0}
+.hs-cat.on{background:#fff !important;color:var(--ink) !important;border:none !important;box-shadow:0 1px 3px rgba(0,0,0,.08) !important}
+.hs-cat:not(.on):hover{background:rgba(255,255,255,.5) !important;color:var(--ink) !important}
 .hs-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:14px}
 @media (min-width:600px){.hs-grid{grid-template-columns:1fr 1fr}}
 .hs-card{position:relative;overflow:hidden;border:none;cursor:pointer;border-radius:28px;padding:28px 24px 24px;min-height:200px;display:flex;flex-direction:column;justify-content:space-between;text-align:left;color:#fff;background:var(--g,linear-gradient(135deg,#FCB851,#F59E0B));box-shadow:0 12px 32px -10px rgba(58,45,34,.2);transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s ease;font-family:inherit;animation:hsCardIn .5s cubic-bezier(.2,.8,.2,1) backwards;isolation:isolate}
@@ -5955,7 +5955,7 @@ body[data-theme=aurora] .ipl-ttl-bar{background:rgba(255,255,255,.08)}
 @media (max-width:600px){.ipl-ttl-row{grid-template-columns:120px 1fr 30px;gap:10px}.ipl-ttl-name{font-size:12px}.ipl-ttl-n{font-size:18px}}
 
 /* Magazine layout — shared by History & Geography */
-.mag-pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;padding:4px 0}
+.mag-pills{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:4px;background:var(--bg-sunken);border-radius:14px;margin-bottom:18px}.mag-pills::-webkit-scrollbar{display:none}
 .know-topics{margin-bottom:8px}
 .know-topic{font-size:14px;padding:11px 18px}
 .know-topic.on{background:linear-gradient(135deg,#B45309,#7C2D12);box-shadow:0 6px 18px rgba(196,122,58,.3)}
@@ -5963,16 +5963,16 @@ body[data-theme=aurora] .ipl-ttl-bar{background:rgba(255,255,255,.08)}
 .mag-pill-sub{font-size:12px;padding:7px 12px;font-weight:600}
 .mag-pill-sub.on{background:linear-gradient(135deg,#C47A3A,#A0612E);box-shadow:0 4px 12px rgba(58,45,34,.25)}
 body[data-theme=aurora] .know-subs{border-bottom-color:rgba(196,122,58,.2)}
-.mag-pill{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:700;padding:9px 14px;border-radius:99px;background:#fff;border:1.5px solid #E8E0D4;color:#9C8B7A;cursor:pointer;transition:all .2s ease}
-.mag-pill:hover{border-color:#C47A3A;color:#3A2D22;transform:translateY(-1px)}
-.mag-pill.on{background:linear-gradient(135deg,#C47A3A,#EC4899);color:#fff;border-color:transparent;box-shadow:0 6px 18px rgba(58,45,34,.3)}
+.mag-pill{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;padding:10px 16px;border-radius:10px;background:transparent;border:none;color:var(--ink-3);cursor:pointer;transition:all .15s ease;white-space:nowrap;flex-shrink:0}
+.mag-pill:hover{background:rgba(255,255,255,.5);color:var(--ink)}
+.mag-pill.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
 .mag-pill-e{font-size:15px;line-height:1}
 .mag-section-ttl{font-family:'Instrument Serif',Georgia,serif;font-size:24px;font-weight:400;letter-spacing:-.01em;color:#3A2D22;margin:6px 0 18px;display:flex;align-items:center;gap:14px}
 .mag-section-ttl::before{content:'';flex:0 0 24px;height:1px;background:linear-gradient(90deg,transparent,rgba(58,45,34,.6))}
 .mag-section-ttl::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(58,45,34,.6),transparent)}
 .mag-section-ttl span{flex:0 0 auto}
 .mag-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:18px;margin-bottom:18px}
-.mag-card{display:flex;flex-direction:column;background:#fff;border:1px solid #E8E0D4;border-radius:18px;overflow:hidden;box-shadow:0 1px 3px rgba(58,45,34,.04),0 6px 18px rgba(58,45,34,.06);opacity:0;transform:translateY(12px);animation:magCardIn .55s cubic-bezier(.2,.8,.2,1) forwards;transition:transform .25s ease,box-shadow .25s ease}
+.mag-card{display:flex;flex-direction:column;background:#fff;border:1px solid #E8E0D4;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(58,45,34,.04);opacity:1;transform:none;animation:none;transition:transform .25s ease,box-shadow .25s ease}
 .mag-card:hover{transform:translateY(-3px);box-shadow:0 14px 32px rgba(58,45,34,.1)}
 @keyframes magCardIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 .mag-card-img{position:relative;width:100%;height:180px;background:linear-gradient(135deg,#FDF8F3,#FCE7F3);overflow:hidden}
@@ -5986,8 +5986,9 @@ body[data-theme=aurora] .know-subs{border-bottom-color:rgba(196,122,58,.2)}
 .mag-card-x{font-size:14px;line-height:1.55;color:#9C8B7A;margin-bottom:14px;flex:1;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
 .mag-card-cta{display:inline-block;font-size:13px;font-weight:700;color:#C47A3A;text-decoration:none;align-self:flex-start;border-bottom:1.5px solid currentColor;padding-bottom:1px;transition:color .15s ease}
 .mag-card-cta:hover{color:#EC4899}
-body[data-theme=aurora] .mag-pill{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1);color:#9999B5}
-body[data-theme=aurora] .mag-pill:hover{border-color:#D4956A;color:#F5F5FA}
+body[data-theme=aurora] .mag-pill{background:transparent;border:none;color:rgba(255,255,255,.5)}
+body[data-theme=aurora] .mag-pill:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.8)}
+body[data-theme=aurora] .mag-pill.on{background:rgba(255,255,255,.08);color:#F5F5FA;box-shadow:0 1px 3px rgba(0,0,0,.3)}
 body[data-theme=aurora] .mag-section-ttl{color:#F5F5FA}
 body[data-theme=aurora] .mag-card{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08)}
 body[data-theme=aurora] .mag-card-img{background:linear-gradient(135deg,rgba(58,45,34,.18),rgba(236,72,153,.12))}
@@ -13720,7 +13721,7 @@ app.get('/privacy',(_,res)=>{
 app.get('/terms',(_,res)=>{
   res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Terms of Service — Brodoit</title><meta name="description" content="The simple terms for using Brodoit. Plain English, no surprises."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Terms</div><h1>The simple rules.</h1><p class="lede">We've kept these terms short and human. Use Brodoit kindly, and we'll keep building it for you.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">The service</h2><p>Brodoit is a personal productivity app: it lets you manage tasks with optional WhatsApp and email reminders, listen to free public-domain audiobooks, sharpen your mind with brain games, and see a daily wisdom quote.</p><h2 data-n="02">Your account</h2><p>You register with your email address or phone number. Keep your one-time verification codes private — anyone with the code can sign in. You are responsible for activity on your account.</p><h2 data-n="03">Acceptable use</h2><p>Please don't abuse the service: no spam, no impersonation, no automated scraping, no attempts to disrupt other users or the service itself. We may suspend or remove accounts that do.</p><h2 data-n="04">Content</h2><p>You own your tasks, notes, and other content you create. We store them so we can show them back to you. Audiobook content belongs to the respective public-domain authors and is served from the Internet Archive's LibriVox collection.</p><h2 data-n="05">No warranty</h2><p>The service is provided "as is". We try hard to keep it running, but can't promise zero downtime or guarantee that every reminder is delivered (WhatsApp and email providers can fail). If something matters, please don't rely solely on Brodoit.</p><h2 data-n="06">Limitation of liability</h2><p>Brodoit is a personal tool. We're not liable for missed deadlines, lost data, or any consequential damages from using — or not using — the service.</p><h2 data-n="07">Changes</h2><p>We may update these terms. If we do, we'll update the date at the top. Continued use after a change means you accept the new terms.</p><h2 data-n="08">Contact</h2><p>Need anything? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });
-app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v20";
+app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v21";
 self.addEventListener("install",function(e){self.skipWaiting()});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener("fetch",function(e){});
