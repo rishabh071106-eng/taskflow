@@ -4879,7 +4879,7 @@ body:not([data-theme=aurora]) .lvl-link{background:#E8E6E0}
 .home-hero{position:relative;border-radius:24px;padding:30px 28px 24px;margin:0 0 18px;overflow:hidden;color:#fff;isolation:isolate;background:linear-gradient(135deg,#3A2D22 0%,#2C3E6B 50%,#4A5568 100%);box-shadow:0 22px 50px -16px rgba(58,45,34,.45)}
 /* Low-light hero — matte cream surface with hairline border, no gradient.
    Adds quiet visual hierarchy without screaming for attention. */
-.home-hero.home-hero-light{background:var(--surface);color:var(--ink);border:1px solid var(--border);box-shadow:var(--shadow-1)}
+.home-hero.home-hero-light{background:var(--bg-sunken);color:var(--ink);border:1px solid var(--border);box-shadow:none;border-radius:16px}
 .home-hero-light .hh-bg{display:none}
 .home-hero-light .hh-greet{color:var(--ink);font-family:var(--serif)}
 .home-hero-light .hh-greet em{color:var(--accent);font-style:normal;background:none;-webkit-text-fill-color:var(--accent)}
@@ -4895,8 +4895,8 @@ body:not([data-theme=aurora]) .lvl-link{background:#E8E6E0}
 .home-hero-light .hh-pc-t{color:var(--ink)}
 .home-hero-light .hh-pc-mini{color:var(--text-mute);font-family:var(--mono)}
 .home-hero-light .hh-pc-arrow{color:var(--text-dim)}
-.home-hero-light .qa-stat-tile{background:var(--bg-2);border:1px solid var(--border)}
-.home-hero-light .qa-stat-tile:hover{background:#fff;border-color:var(--border-2)}
+.home-hero-light .qa-stat-tile{background:#fff !important;border:1px solid var(--border) !important;box-shadow:var(--shadow-1);opacity:1 !important}
+.home-hero-light .qa-stat-tile:hover{background:#fff !important;border-color:var(--accent) !important;box-shadow:var(--shadow-2);transform:translateY(-2px)}
 .home-hero-light .qa-stat-tile small{color:var(--ink) !important;font-family:var(--sans);font-weight:500}
 .home-hero-light .qa-stat-bdg{background:var(--accent-soft);color:var(--accent);border:1px solid var(--border-2)}
 .home-hero .hh-bg{position:absolute;inset:0;background:radial-gradient(900px 500px at 0% 0%,rgba(196,122,58,.35) 0%,transparent 55%),radial-gradient(700px 500px at 100% 100%,rgba(196,122,58,.3) 0%,transparent 55%);z-index:-1;animation:hhBgDrift 18s ease-in-out infinite alternate}
@@ -4930,7 +4930,7 @@ body:not([data-theme=aurora]) .mg-prog-chip .hh-pc-arrow{color:#999}
 @media (min-width:760px){.hh-stats{grid-template-columns:repeat(6,1fr)}}
 /* Mind Gym tab: 6 games as a rich grid of LARGE chips with gradient shimmer + lift */
 .qa-hero .hh-stats{grid-template-columns:repeat(2,1fr) !important;gap:14px}
-.qa-hero .qa-stat-tile{padding:24px 18px !important;min-height:170px !important;border-radius:20px !important;transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s ease,border-color .2s ease;display:flex !important;flex-direction:column !important;align-items:flex-start !important;justify-content:space-between !important;position:relative;overflow:hidden;text-align:left !important;animation:gameTileIn .5s cubic-bezier(.2,.8,.2,1) backwards}
+.qa-hero .qa-stat-tile{padding:24px 18px !important;min-height:170px !important;border-radius:16px !important;transition:transform .25s ease,box-shadow .25s ease,border-color .2s ease;display:flex !important;flex-direction:column !important;align-items:flex-start !important;justify-content:space-between !important;position:relative;overflow:hidden;text-align:left !important;opacity:1 !important;animation:none !important}
 @keyframes gameTileIn{from{opacity:0;transform:translateY(20px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
 .qa-hero .qa-stat-tile:nth-child(1){animation-delay:0s}
 .qa-hero .qa-stat-tile:nth-child(2){animation-delay:.06s}
@@ -7120,9 +7120,9 @@ body[data-theme=aurora] .bro-bubble .bro-inline-code{background:rgba(255,255,255
 .bro-bubble .bro-table tr:first-child td{font-weight:600;background:rgba(58,45,34,.04)}
 body[data-theme=aurora] .bro-bubble .bro-table td{border-color:rgba(255,255,255,.1)}
 body[data-theme=aurora] .bro-bubble .bro-table tr:first-child td{background:rgba(255,255,255,.05)}
-.bro-msg-ai .bro-bubble{background:transparent;color:#3A2D22;border-radius:0;padding:4px 0}
-body[data-theme=aurora] .bro-msg-ai .bro-bubble{color:rgba(255,255,255,.9)}
-.bro-msg-user .bro-bubble{border-radius:20px 20px 4px 20px;color:#fff}
+.bro-msg-ai .bro-bubble{background:#fff;color:#3A2D22;border-radius:18px 18px 18px 4px;padding:12px 16px;border:1px solid #E8E0D4;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+body[data-theme=aurora] .bro-msg-ai .bro-bubble{background:rgba(255,255,255,.06);color:rgba(255,255,255,.9);border-color:rgba(255,255,255,.08)}
+.bro-msg-user .bro-bubble{border-radius:18px 18px 4px 18px;color:#fff;padding:12px 16px}
 .bro-bubble-bro{background:linear-gradient(135deg,#C47A3A,#D4956A)}
 .bro-bubble-bri{background:linear-gradient(135deg,#EC4899,#F472B6)}
 .bro-msg-meta{font-size:11px;color:#C4B9AB;padding:0 4px}
