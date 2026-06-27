@@ -4070,7 +4070,7 @@ body:not([data-theme=aurora]) .btn-tr.stop{background:linear-gradient(135deg,#EF
 body:not([data-theme=aurora]) .fb{background:#fff;border-color:var(--line);color:var(--text-mute);box-shadow:none}
 body:not([data-theme=aurora]) .fb:hover{border-color:var(--accent);color:var(--accent)}
 body:not([data-theme=aurora]) .fb.on{background:var(--accent);border-color:transparent;color:#fff;box-shadow:0 4px 14px rgba(249,115,22,.25)}
-body:not([data-theme=aurora]) .dash-hero{background:linear-gradient(135deg,#C47A3A 0%,#A0612E 50%,#A855F7 100%);box-shadow:0 8px 32px rgba(58,45,34,.25)}
+body:not([data-theme=aurora]) .dash-hero{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);box-shadow:var(--shadow-3)}
 body:not([data-theme=aurora]) .kc-mv{background:#F5EDE3;color:#6B5D4F}
 body:not([data-theme=aurora]) .kc-mv:active{background:#C47A3A;color:#fff}
 body:not([data-theme=aurora]) .col.over{background:#FDF8F3;border-color:#C47A3A}
@@ -11771,9 +11771,9 @@ else if(S.tab==='mindgym'){
       +'<h1 class="hh-greet">Train your mind, <em>daily</em>.</h1>'
       +'<div class="hh-stats">'
         +'<div class="hh-stat"><b style="color:#86EFAC">'+overall+'%</b><small>Overall</small></div>'
-        +'<div class="hh-stat"><b style="color:#D4956A">L'+totalLevel+'</b><small>Total levels</small></div>'
-        +'<div class="hh-stat"><b style="color:#F0DFC8">\\u{1F525} '+streak.current+'</b><small>Day streak</small></div>'
-        +'<div class="hh-stat"><b style="color:#D4956A">'+totalXp+'</b><small>XP earned</small></div>'
+        +'<div class="hh-stat"><b style="color:#F97316">L'+totalLevel+'</b><small>Total levels</small></div>'
+        +'<div class="hh-stat"><b style="color:#FBBF24">\\u{1F525} '+streak.current+'</b><small>Day streak</small></div>'
+        +'<div class="hh-stat"><b style="color:#F97316">'+totalXp+'</b><small>XP earned</small></div>'
       +'</div>'
     +'</section>';
   }
