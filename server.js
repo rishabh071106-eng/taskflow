@@ -2419,20 +2419,31 @@ const HTML=`<!DOCTYPE html><html lang="en"><head>
    Tighter geometry, modest radii (14px), hairline borders only.
 ─────────────────────────────────────────────────────────────── */
 :root{
---bg:#F5EDE3;--bg-2:#EDE4D8;--bg-elev:#FBF7F1;--bg-sunken:#E8E0D4;
---surface:#FBF7F1;--surface-2:#F5EDE3;
---ink:#3A2D22;--text:#3A2D22;--text-mute:#6B5D4F;--text-dim:#9C8B7A;
---ink-2:#4A3828;--ink-3:#6B5D4F;--ink-4:#9C8B7A;--ink-5:#B5A898;
---line:#E8E0D4;--line-2:#D4C4B0;--border:#E8E0D4;--border-2:#D4C4B0;
---accent:#C47A3A;--accent-soft:rgba(196,122,58,.06);--accent-ink:#FFFFFF;
---accent-2:#A0612E;--warm:#C47A3A;--paper:#F5EDE3;
+--bg:#F5F6F8;--bg-2:#EDEEF2;--bg-elev:#FFFFFF;--bg-sunken:#ECEDF1;
+--surface:#FFFFFF;--surface-2:#F5F6F8;
+--ink:#111827;--text:#111827;--text-mute:#6B7280;--text-dim:#9CA3AF;
+--ink-2:#1F2937;--ink-3:#6B7280;--ink-4:#9CA3AF;--ink-5:#D1D5DB;
+--line:#E5E7EB;--line-2:#D1D5DB;--border:#E5E7EB;--border-2:#D1D5DB;
+--accent:#F97316;--accent-soft:rgba(249,115,22,.06);--accent-ink:#FFFFFF;
+--accent-2:#EA580C;--warm:#F97316;--paper:#FFFFFF;
 --serif:'Newsreader','Iowan Old Style',Georgia,serif;
 --sans:'Inter','IBM Plex Sans','SF Pro Text',-apple-system,BlinkMacSystemFont,sans-serif;
 --mono:'JetBrains Mono',ui-monospace,monospace;
---shadow-1:0 1px 3px rgba(0,0,0,.04),0 1px 2px rgba(0,0,0,.06);
---shadow-2:0 4px 16px -4px rgba(0,0,0,.08),0 2px 6px -2px rgba(0,0,0,.05);
---radius:14px}
+--shadow-1:0 1px 2px rgba(0,0,0,.04),0 2px 4px rgba(0,0,0,.04);
+--shadow-2:0 4px 16px -2px rgba(0,0,0,.06),0 8px 24px -4px rgba(0,0,0,.08);
+--shadow-3:0 12px 40px -8px rgba(0,0,0,.12),0 4px 12px -2px rgba(0,0,0,.06);
+--radius:16px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+@keyframes pulseRing{0%{box-shadow:0 0 0 0 rgba(249,115,22,.4)}70%{box-shadow:0 0 0 10px rgba(249,115,22,0)}100%{box-shadow:0 0 0 0 rgba(249,115,22,0)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes countUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes progressFill{from{width:0}}
 body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;letter-spacing:-.011em;font-weight:400}
+button,a{-webkit-tap-highlight-color:transparent}
+button:not(.chk):not(.tab):active{transform:scale(.97) !important;transition:transform .1s !important}
+::selection{background:rgba(249,115,22,.15);color:var(--ink)}
 /* Suppress entrance animations during passive (background-poll) renders.
    This stops the screen from flickering every 10s when load() refreshes
    tasks but the user hasn't done anything. Only user-driven renders
@@ -2452,7 +2463,7 @@ body[data-theme=aurora] .beta-pill{background:linear-gradient(135deg,rgba(251,19
 body[data-theme=aurora] .beta-pill-t b{color:#FCD34D}
 body[data-theme=aurora] .beta-pill-t small{color:rgba(252,211,77,.75)}
 body[data-theme=aurora] .beta-pill-x{color:#FCD34D}
-::selection{background:rgba(255,122,69,.20);color:var(--ink)}
+::selection{background:rgba(249,115,22,.15);color:var(--ink)}
 button{cursor:pointer;font-family:inherit;-webkit-font-smoothing:inherit;color:inherit}
 input,textarea,select{font-family:inherit;-webkit-font-smoothing:inherit;color:inherit}
 h1,h2,h3,h4{font-family:var(--serif);font-weight:500;letter-spacing:-.018em;color:var(--ink)}
@@ -3647,23 +3658,23 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
 .moral-ref:hover{background:#B57B00;color:#fff;transform:rotate(180deg) scale(1.1)}
 .moral-ref:hover{transform:rotate(180deg);background:#3A2D22;color:#FBF7F1}
 @keyframes slideIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
-.tabs{display:flex;gap:5px;background:#FBF7F1;border:none;border-radius:14px;padding:5px;margin-bottom:14px;overflow-x:auto;scrollbar-width:none;box-shadow:0 2px 8px rgba(45,42,38,.04)}
+.tabs{display:flex;gap:4px;background:var(--bg-sunken);border:none;border-radius:16px;padding:4px;margin-bottom:14px;overflow-x:auto;scrollbar-width:none;box-shadow:none}
 .tabs::-webkit-scrollbar{display:none}
-.tab{flex:0 0 auto;padding:12px 14px;border-radius:11px;font-size:13px;font-weight:600;color:#9C8B7A;transition:all .18s cubic-bezier(.2,.8,.2,1);white-space:nowrap;display:inline-flex;align-items:center;gap:6px;position:relative}
+.tab{flex:0 0 auto;padding:12px 14px;border-radius:12px;font-size:13px;font-weight:600;color:var(--text-mute);transition:all .18s cubic-bezier(.2,.8,.2,1);white-space:nowrap;display:inline-flex;align-items:center;gap:6px;position:relative}
 .tab .ti{font-size:16px;line-height:1}
 .tab .tl{font-weight:700;letter-spacing:.1px}
 .tab:active{transform:scale(.95)}
-.tab:hover:not(.on){background:#FBF7F1;color:#3A2D22}
-.tab.on{background:linear-gradient(135deg,#3A2D22,#5A3D22);color:#FBF7F1;box-shadow:0 4px 14px rgba(45,42,38,.28);transform:translateY(-1px)}
+.tab:hover:not(.on){background:rgba(0,0,0,.03);color:var(--ink)}
+.tab.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08),0 2px 8px rgba(0,0,0,.04)}
 .tab.on .ti{transform:scale(1.08)}
 /* Mobile tab nav — substantially bigger, sticky at top, per-tab scenic photo backgrounds */
 @media (max-width:1023px){
-  .tabs.page-t{padding:8px;gap:8px;border-radius:18px;position:sticky;top:6px;z-index:30;backdrop-filter:saturate(140%) blur(10px);-webkit-backdrop-filter:saturate(140%) blur(10px);background:rgba(58,45,34,.92);border:1px solid rgba(255,255,255,.1);box-shadow:0 4px 18px rgba(0,0,0,.25)}
-  .tabs.page-t .tab{padding:16px 16px;font-size:15px;border-radius:14px;gap:10px;min-height:56px;letter-spacing:-.01em;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:rgba(255,255,255,.55)}
+  .tabs.page-t{padding:6px;gap:6px;border-radius:16px;position:sticky;top:6px;z-index:30;backdrop-filter:saturate(140%) blur(12px);-webkit-backdrop-filter:saturate(140%) blur(12px);background:rgba(15,15,25,.88);border:1px solid rgba(255,255,255,.08);box-shadow:0 4px 20px rgba(0,0,0,.3)}
+  .tabs.page-t .tab{padding:14px 14px;font-size:15px;border-radius:12px;gap:8px;min-height:52px;letter-spacing:-.01em;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:rgba(255,255,255,.45)}
   .tabs.page-t .tab .ti{font-size:22px;width:32px;height:32px;display:flex;align-items:center;justify-content:center}
   .tabs.page-t .tab .ti svg{width:24px!important;height:24px!important}
   .tabs.page-t .tab .tl{font-size:13.5px;font-weight:700;letter-spacing:.005em}
-  .tabs.page-t .tab.on{transform:translateY(-2px);box-shadow:0 8px 22px rgba(45,42,38,.36),0 0 0 2px rgba(58,45,34,.5);color:#D4956A}
+  .tabs.page-t .tab.on{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.25);color:var(--accent);background:rgba(255,255,255,.08)}
 }
 /* ═══════════════ MOBILE BOTTOM TAB BAR — international grade ═══════════════
    Fixed bottom bar like Instagram/Spotify/Headspace — but generously sized,
@@ -4042,34 +4053,34 @@ body:not([data-theme=aurora]) .moral{background:linear-gradient(135deg,#FDF8F3 0
 body:not([data-theme=aurora]) .moral-lbl{color:#C47A3A}
 body:not([data-theme=aurora]) .moral-ref{background:#fff;color:#C47A3A;border-color:rgba(58,45,34,.25)}
 body:not([data-theme=aurora]) .moral-ref:hover{background:#C47A3A;color:#fff}
-body:not([data-theme=aurora]) .tabs{background:#fff;border-color:#E8E0D4;box-shadow:0 1px 2px rgba(0,0,0,.04)}
-body:not([data-theme=aurora]) .tab{color:#9C8B7A}
-body:not([data-theme=aurora]) .tab:hover:not(.on){background:#F5EDE3;color:#3A2D22}
-body:not([data-theme=aurora]) .tab.on{background:#3A2D22;color:#fff;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+body:not([data-theme=aurora]) .tabs{background:var(--bg-sunken);box-shadow:none}
+body:not([data-theme=aurora]) .tab{color:var(--text-mute)}
+body:not([data-theme=aurora]) .tab:hover:not(.on){background:rgba(0,0,0,.03);color:var(--ink)}
+body:not([data-theme=aurora]) .tab.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
 body:not([data-theme=aurora]) .qc-bar{background:var(--bg-elev);border-color:var(--line);color:var(--ink)}
 body:not([data-theme=aurora]) .qc-input{color:var(--ink)}
 body:not([data-theme=aurora]) .add-bar{background:var(--bg-elev);border:1px solid var(--line);color:var(--ink);box-shadow:var(--shadow-1)}
 body:not([data-theme=aurora]) .add-bar:hover{border-color:var(--line-2);box-shadow:var(--shadow-2)}
 body:not([data-theme=aurora]) .add-bar .txt small{color:var(--ink-3)}
-body:not([data-theme=aurora]) .add-bar .plus{background:linear-gradient(135deg,#C47A3A,#A0612E);color:#fff;box-shadow:0 3px 10px rgba(58,45,34,.35)}
-body:not([data-theme=aurora]) .fab{background:linear-gradient(135deg,#C47A3A,#A0612E);color:#fff;box-shadow:0 8px 24px rgba(58,45,34,.4),0 4px 12px rgba(0,0,0,.12)}
-body:not([data-theme=aurora]) .fab:hover{background:#3A2D22;transform:scale(1.05)}
-body:not([data-theme=aurora]) .btn-tr{background:linear-gradient(135deg,#A0612E,#A0612E);box-shadow:0 4px 14px rgba(196,122,58,.3)}
+body:not([data-theme=aurora]) .add-bar .plus{background:var(--accent);color:#fff;box-shadow:0 4px 12px rgba(249,115,22,.3)}
+body:not([data-theme=aurora]) .fab{background:var(--accent);color:#fff;box-shadow:0 8px 24px rgba(249,115,22,.35),0 4px 8px rgba(0,0,0,.1);border-radius:16px}
+body:not([data-theme=aurora]) .fab:hover{background:var(--accent-2);transform:scale(1.05)}
+body:not([data-theme=aurora]) .btn-tr{background:var(--accent);box-shadow:0 4px 14px rgba(249,115,22,.3)}
 body:not([data-theme=aurora]) .btn-tr.stop{background:linear-gradient(135deg,#EF4444,#DC2626);box-shadow:0 4px 14px rgba(239,68,68,.3)}
-body:not([data-theme=aurora]) .fb{background:#fff;border-color:#E8E0D4;color:#9C8B7A;box-shadow:0 1px 2px rgba(0,0,0,.04)}
-body:not([data-theme=aurora]) .fb:hover{border-color:#C47A3A;color:#C47A3A}
-body:not([data-theme=aurora]) .fb.on{background:#C47A3A;border-color:transparent;color:#fff;box-shadow:0 4px 14px rgba(58,45,34,.3)}
+body:not([data-theme=aurora]) .fb{background:#fff;border-color:var(--line);color:var(--text-mute);box-shadow:none}
+body:not([data-theme=aurora]) .fb:hover{border-color:var(--accent);color:var(--accent)}
+body:not([data-theme=aurora]) .fb.on{background:var(--accent);border-color:transparent;color:#fff;box-shadow:0 4px 14px rgba(249,115,22,.25)}
 body:not([data-theme=aurora]) .dash-hero{background:linear-gradient(135deg,#C47A3A 0%,#A0612E 50%,#A855F7 100%);box-shadow:0 8px 32px rgba(58,45,34,.25)}
 body:not([data-theme=aurora]) .kc-mv{background:#F5EDE3;color:#6B5D4F}
 body:not([data-theme=aurora]) .kc-mv:active{background:#C47A3A;color:#fff}
 body:not([data-theme=aurora]) .col.over{background:#FDF8F3;border-color:#C47A3A}
 body:not([data-theme=aurora]) .live-ind{color:#A0612E}
 body:not([data-theme=aurora]) .ai-badge{background:#C47A3A;color:#fff}
-body:not([data-theme=aurora]) .cal-day.today{background:#FDF8F3;color:#A0612E;border-color:rgba(196,122,58,.25)}
-body:not([data-theme=aurora]) .cal-day.sel{background:#C47A3A!important;color:#fff!important;border-color:transparent!important;box-shadow:0 2px 8px rgba(58,45,34,.3)}
-body:not([data-theme=aurora]) .cal-nav:hover{background:#C47A3A;color:#fff;border-color:#C47A3A}
-body:not([data-theme=aurora]) input:focus,body:not([data-theme=aurora]) textarea:focus,body:not([data-theme=aurora]) select:focus{border-color:#C47A3A;box-shadow:0 0 0 4px rgba(58,45,34,.1)}
-body:not([data-theme=aurora]) .book-play{background:#C47A3A;color:#fff;box-shadow:0 4px 12px rgba(58,45,34,.25)}
+body:not([data-theme=aurora]) .cal-day.today{background:rgba(249,115,22,.06);color:var(--accent);border-color:rgba(249,115,22,.2)}
+body:not([data-theme=aurora]) .cal-day.sel{background:var(--accent)!important;color:#fff!important;border-color:transparent!important;box-shadow:0 2px 8px rgba(249,115,22,.3)}
+body:not([data-theme=aurora]) .cal-nav:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+body:not([data-theme=aurora]) input:focus,body:not([data-theme=aurora]) textarea:focus,body:not([data-theme=aurora]) select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(249,115,22,.1)}
+body:not([data-theme=aurora]) .book-play{background:var(--accent);color:#fff;box-shadow:0 4px 12px rgba(249,115,22,.25)}
 body:not([data-theme=aurora]) .ck.op{background:#FDF8F3;color:#C47A3A}
 body:not([data-theme=aurora]) .ck.eq{background:#C47A3A;color:#fff;box-shadow:0 3px 10px rgba(58,45,34,.25)}
 body:not([data-theme=aurora]) .ck.sci{background:#FBF7F1;color:#0891B2}
@@ -4876,7 +4887,7 @@ body:not([data-theme=aurora]) .lvl-link{background:#E8E6E0}
 .lvl-step.lvl-done + .lvl-link{background:var(--accent,#D4956A);opacity:.6}
 @media (max-width:560px){.lvl-step{width:26px;height:26px;font-size:10.5px}.lvl-link{min-width:4px;max-width:14px}.lvl-path-t{font-size:20px}.lvl-path-overall b{font-size:22px}}
 /* ─── Home hero greeting (Tasks tab) ─── */
-.home-hero{position:relative;border-radius:24px;padding:30px 28px 24px;margin:0 0 18px;overflow:hidden;color:#fff;isolation:isolate;background:linear-gradient(135deg,#3A2D22 0%,#2C3E6B 50%,#4A5568 100%);box-shadow:0 22px 50px -16px rgba(58,45,34,.45)}
+.home-hero{position:relative;border-radius:20px;padding:28px 24px 22px;margin:0 0 18px;overflow:hidden;color:#fff;isolation:isolate;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);box-shadow:var(--shadow-3)}
 /* Low-light hero — matte cream surface with hairline border, no gradient.
    Adds quiet visual hierarchy without screaming for attention. */
 .home-hero.home-hero-light{background:var(--bg-sunken);color:var(--ink);border:1px solid var(--border);box-shadow:none;border-radius:16px}
@@ -4899,7 +4910,7 @@ body:not([data-theme=aurora]) .lvl-link{background:#E8E6E0}
 .home-hero-light .qa-stat-tile:hover{background:#fff !important;border-color:var(--accent) !important;box-shadow:var(--shadow-2);transform:translateY(-2px)}
 .home-hero-light .qa-stat-tile small{color:var(--ink) !important;font-family:var(--sans);font-weight:500}
 .home-hero-light .qa-stat-bdg{background:var(--accent-soft);color:var(--accent);border:1px solid var(--border-2)}
-.home-hero .hh-bg{position:absolute;inset:0;background:radial-gradient(900px 500px at 0% 0%,rgba(196,122,58,.35) 0%,transparent 55%),radial-gradient(700px 500px at 100% 100%,rgba(196,122,58,.3) 0%,transparent 55%);z-index:-1;animation:hhBgDrift 18s ease-in-out infinite alternate}
+.home-hero .hh-bg{position:absolute;inset:0;background:radial-gradient(800px 400px at 0% 0%,rgba(249,115,22,.2) 0%,transparent 55%),radial-gradient(600px 400px at 100% 100%,rgba(59,130,246,.15) 0%,transparent 55%);z-index:-1;animation:hhBgDrift 18s ease-in-out infinite alternate}
 @keyframes hhBgDrift{0%{transform:scale(1) translate(0,0)}100%{transform:scale(1.08) translate(-20px,15px)}}
 .hh-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 .hh-eyebrow{font-family:'JetBrains Mono','Space Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.6);font-weight:500}
@@ -7784,7 +7795,50 @@ body[data-theme=aurora] .book-card{background:rgba(255,255,255,.04);border-color
 body[data-theme=aurora] .bro-header{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.06)}
 body[data-theme=aurora] .bro-input-wrap{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.06)}
 
-/* ═══ END PROFESSIONAL UI OVERHAUL v2 ═══ */
+/* ═══ TRAIN PAGE REDESIGN ═══ */
+.train-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.train-stat{background:#fff;border-radius:14px;padding:16px 12px;text-align:center;border:1px solid var(--line);transition:transform .2s ease,box-shadow .2s ease}
+.train-stat:hover{transform:translateY(-2px);box-shadow:var(--shadow-2)}
+.train-stat-v{font-size:24px;font-weight:800;letter-spacing:-.03em;color:var(--ink);line-height:1.2}
+.train-stat-l{font-size:11px;font-weight:600;color:var(--text-mute);text-transform:uppercase;letter-spacing:.06em;margin-top:4px}
+.train-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:20px}
+.train-card{background:#fff;border-radius:18px;padding:20px;border:1px solid var(--line);cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:12px;transition:all .25s cubic-bezier(.2,.8,.2,1);position:relative;overflow:hidden;animation:fadeUp .4s ease both}
+.train-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--card-accent),var(--card-accent2));border-radius:18px 18px 0 0;opacity:.8}
+.train-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-3);border-color:transparent}
+.train-card:active{transform:scale(.98) !important}
+.train-card-top{display:flex;align-items:center;justify-content:space-between}
+.train-card-emoji{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;background:linear-gradient(135deg,var(--card-accent),var(--card-accent2));box-shadow:0 4px 12px -2px var(--card-accent)}
+.train-card-lvl{font-size:12px;font-weight:700;color:var(--card-accent);background:linear-gradient(135deg,var(--card-accent),var(--card-accent2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;padding:4px 10px;border-radius:8px;border:1px solid color-mix(in srgb,var(--card-accent) 20%,transparent)}
+.train-card-info{flex:1}
+.train-card-name{font-size:16px;font-weight:700;color:var(--ink);letter-spacing:-.02em;margin-bottom:2px}
+.train-card-desc{font-size:12px;color:var(--text-mute);line-height:1.4}
+.train-card-bar{height:6px;background:var(--bg-sunken);border-radius:99px;overflow:hidden}
+.train-card-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--card-accent),var(--card-accent2));animation:progressFill .8s ease both;transition:width .3s ease}
+.train-card-xp{font-size:11px;font-weight:600;color:var(--text-dim);letter-spacing:.02em}
+.train-card-play{font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--card-accent),var(--card-accent2));padding:8px 16px;border-radius:10px;text-align:center;letter-spacing:.01em;box-shadow:0 4px 12px -4px var(--card-accent);transition:transform .15s ease,box-shadow .15s ease}
+.train-card:hover .train-card-play{transform:scale(1.03);box-shadow:0 6px 16px -4px var(--card-accent)}
+.train-badges{background:#fff;border-radius:16px;padding:20px;border:1px solid var(--line)}
+.train-badges-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.train-badges-t{font-size:16px;font-weight:700;color:var(--ink)}
+.train-badges-ct{font-size:13px;font-weight:600;color:var(--text-mute)}
+.train-badges-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.train-badge{text-align:center;padding:14px 8px;border-radius:14px;background:var(--bg-sunken);border:1px solid transparent;transition:all .25s ease}
+.train-badge.unlocked{background:linear-gradient(135deg,rgba(249,115,22,.04),rgba(249,115,22,.08));border-color:rgba(249,115,22,.15)}
+.train-badge-icon{font-size:28px;margin-bottom:6px;filter:grayscale(1) opacity(.3);transition:all .3s ease}
+.train-badge.unlocked .train-badge-icon{filter:none;animation:scaleIn .4s ease both}
+.train-badge-name{font-size:11px;font-weight:700;color:var(--text-dim);letter-spacing:.02em}
+.train-badge.unlocked .train-badge-name{color:var(--ink)}
+.train-badge-desc{font-size:10px;color:var(--text-dim);margin-top:2px}
+@media(max-width:560px){.train-stats{grid-template-columns:repeat(2,1fr)}.train-grid{grid-template-columns:1fr}.train-badges-row{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:900px){.train-grid{grid-template-columns:repeat(4,1fr)}}
+body[data-theme=aurora] .train-stat{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.06)}
+body[data-theme=aurora] .train-card{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.06)}
+body[data-theme=aurora] .train-card:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.1)}
+body[data-theme=aurora] .train-card-name{color:#F5F5FA}
+body[data-theme=aurora] .train-card-bar{background:rgba(255,255,255,.06)}
+body[data-theme=aurora] .train-badges{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.06)}
+body[data-theme=aurora] .train-badge{background:rgba(255,255,255,.03)}
+/* ═══ END PROFESSIONAL UI OVERHAUL v3 ═══ */
 </style></head><body data-theme="classic">
 <div class="bg-blob a"></div><div class="bg-blob b"></div><div class="bg-blob c"></div><div class="bg-blob d"></div>
 <div class="ocean" aria-hidden="true">
@@ -11737,39 +11791,57 @@ else if(S.tab==='mindgym'){
     {k:'schulte',e:'\\u{1F3AF}',n:'Schulte Grid',d:'Find 1\\u219225 in order.',accent:'#F472B6',accent2:'#D4956A',pData:(mg.progress.schulte||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((mg.progress.schulte||{}).xp||0)/(5*100))*100)),bestL:'Best time',bestSuffix:' s'},
     {k:'spatial',e:'\\u{1F9E0}',n:'Pattern Recall',d:'Remember & recreate the pattern.',accent:'#A855F7',accent2:'#7C3AED',pData:_spatP,pct:Math.min(100,Math.round(((_spatP.xp||0)/(5*100))*100)),bestL:'Best score',bestSuffix:' pts'}
   ];
-  // ─── Mind Games chip — same hero Actions pattern as the home tab (light) ───
-  h+='<section class="home-hero home-hero-light qa-hero">'
-    +'<div class="hh-bg"></div>'
-    +'<div class="hh-stats">';
-  _games.forEach(g=>{
-    const p=g.pData;
-    h+='<button class="hh-stat qa-stat-tile" onclick="mgDetailOpen(\\''+g.k+'\\')">'
-      +'<span class="qa-stat-emoji" style="background:linear-gradient(135deg,'+g.accent+','+g.accent2+')">'+g.e+'</span>'
-      +'<span class="qa-stat-bdg">L'+(p.level||1)+'</span>'
-      +'<small>'+g.n+'</small>'
-    +'</button>';
-  });
-  h+='</div></section>';
+  // ─── Train page: modern game cards with stats ───
   const totalUnlocked=_games.reduce((s,g)=>s+(g.pData.level||1),0);
   const _maxLvl=_games.length*10;
-  h+='<div class="mg-overall">'
-    +'<div><b>'+totalUnlocked+'</b> / '+_maxLvl+' levels reached</div>'
-    +'<div class="mg-overall-bar"><i style="width:'+Math.round(totalUnlocked/_maxLvl*100)+'%"></i></div>'
-    +'<div>'+Math.round(totalUnlocked/_maxLvl*100)+'%</div>'
-  +'</div>';
-  // Compact achievements strip — small inline pills, only show unlocked count.
-  // The full 4-card grid + 3 explainer cards were pure clutter.
+  const _pctTotal=Math.round(totalUnlocked/_maxLvl*100);
+
+  // Stats row
+  h+='<div class="train-stats">';
+  h+='<div class="train-stat"><div class="train-stat-v">'+totalXp+'</div><div class="train-stat-l">XP earned</div></div>';
+  h+='<div class="train-stat"><div class="train-stat-v">L'+totalLevel+'</div><div class="train-stat-l">Total level</div></div>';
+  h+='<div class="train-stat"><div class="train-stat-v" style="color:var(--accent)">'+streak.current+'</div><div class="train-stat-l">Day streak</div></div>';
+  h+='<div class="train-stat"><div class="train-stat-v">'+_pctTotal+'%</div><div class="train-stat-l">Mastery</div></div>';
+  h+='</div>';
+
+  // Game cards grid
+  h+='<div class="train-grid">';
+  _games.forEach((g,i)=>{
+    const p=g.pData;
+    const lvl=p.level||1;
+    const xp=p.xp||0;
+    const nextXp=lvl*100;
+    const xpPct=Math.min(100,Math.round(xp/nextXp*100));
+    h+='<button class="train-card" style="--card-accent:'+g.accent+';--card-accent2:'+g.accent2+';animation-delay:'+(i*0.08)+'s" onclick="mgDetailOpen(\\''+g.k+'\\')">'
+      +'<div class="train-card-top">'
+        +'<div class="train-card-emoji">'+g.e+'</div>'
+        +'<div class="train-card-lvl">Lv '+lvl+'</div>'
+      +'</div>'
+      +'<div class="train-card-info">'
+        +'<div class="train-card-name">'+g.n+'</div>'
+        +'<div class="train-card-desc">'+g.d+'</div>'
+      +'</div>'
+      +'<div class="train-card-bar"><div class="train-card-fill" style="width:'+xpPct+'%"></div></div>'
+      +'<div class="train-card-xp">'+xp+' / '+nextXp+' XP</div>'
+      +'<div class="train-card-play">\\u25B6 Play</div>'
+    +'</button>';
+  });
+  h+='</div>';
+
+  // Achievements
   {
     const totalLvl=(mg.progress.math.level||1)+(_wordP.level||1)+(_schP.level||1);
     const ach=[
-      {e:'\\u2728',n:'First step',u:totalLvl>3},
-      {e:'\\u{1F525}',n:'Week warrior',u:streak.current>=7},
-      {e:'\\u26A1',n:'Sharp mind',u:Math.max(mg.progress.math.level||1,_wordP.level||1,_schP.level||1)>=5},
-      {e:'\\u{1F4AB}',n:'In the flow',u:totalXp>=500}
+      {e:'\\u2728',n:'First step',d:'Reach total level 4',u:totalLvl>3},
+      {e:'\\u{1F525}',n:'Week warrior',d:'7-day streak',u:streak.current>=7},
+      {e:'\\u26A1',n:'Sharp mind',d:'Any game level 5+',u:Math.max(mg.progress.math.level||1,_wordP.level||1,_schP.level||1)>=5},
+      {e:'\\u{1F4AB}',n:'In the flow',d:'Earn 500 XP total',u:totalXp>=500}
     ];
     const unlocked=ach.filter(a=>a.u).length;
-    h+='<div class="mg-ach-strip"><div class="mg-ach-strip-l"><b>'+unlocked+'</b><small>/ '+ach.length+' badges</small></div><div class="mg-ach-strip-r">';
-    ach.forEach(a=>{h+='<span class="mg-ach-mini'+(a.u?' on':'')+'" title="'+a.n+'">'+(a.u?a.e:'\\u{1F512}')+'</span>'});
+    h+='<div class="train-badges">';
+    h+='<div class="train-badges-hd"><span class="train-badges-t">Badges</span><span class="train-badges-ct">'+unlocked+' / '+ach.length+'</span></div>';
+    h+='<div class="train-badges-row">';
+    ach.forEach(a=>{h+='<div class="train-badge'+(a.u?' unlocked':'')+'" title="'+a.n+'"><div class="train-badge-icon">'+(a.u?a.e:'\\u{1F512}')+'</div><div class="train-badge-name">'+a.n+'</div><div class="train-badge-desc">'+a.d+'</div></div>'});
     h+='</div></div>';
   }
 }
@@ -13721,7 +13793,7 @@ app.get('/privacy',(_,res)=>{
 app.get('/terms',(_,res)=>{
   res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Terms of Service — Brodoit</title><meta name="description" content="The simple terms for using Brodoit. Plain English, no surprises."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Terms</div><h1>The simple rules.</h1><p class="lede">We've kept these terms short and human. Use Brodoit kindly, and we'll keep building it for you.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">The service</h2><p>Brodoit is a personal productivity app: it lets you manage tasks with optional WhatsApp and email reminders, listen to free public-domain audiobooks, sharpen your mind with brain games, and see a daily wisdom quote.</p><h2 data-n="02">Your account</h2><p>You register with your email address or phone number. Keep your one-time verification codes private — anyone with the code can sign in. You are responsible for activity on your account.</p><h2 data-n="03">Acceptable use</h2><p>Please don't abuse the service: no spam, no impersonation, no automated scraping, no attempts to disrupt other users or the service itself. We may suspend or remove accounts that do.</p><h2 data-n="04">Content</h2><p>You own your tasks, notes, and other content you create. We store them so we can show them back to you. Audiobook content belongs to the respective public-domain authors and is served from the Internet Archive's LibriVox collection.</p><h2 data-n="05">No warranty</h2><p>The service is provided "as is". We try hard to keep it running, but can't promise zero downtime or guarantee that every reminder is delivered (WhatsApp and email providers can fail). If something matters, please don't rely solely on Brodoit.</p><h2 data-n="06">Limitation of liability</h2><p>Brodoit is a personal tool. We're not liable for missed deadlines, lost data, or any consequential damages from using — or not using — the service.</p><h2 data-n="07">Changes</h2><p>We may update these terms. If we do, we'll update the date at the top. Continued use after a change means you accept the new terms.</p><h2 data-n="08">Contact</h2><p>Need anything? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });
-app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v21";
+app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v22";
 self.addEventListener("install",function(e){self.skipWaiting()});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener("fetch",function(e){});
