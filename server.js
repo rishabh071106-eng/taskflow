@@ -12036,7 +12036,7 @@ else if(S.tab==='health'){
   h+='<div class="hth-section hth-goal-section">';
   h+='<div class="hth-section-hdr"><span class="hth-section-title">\\u{1F3AF} Daily Goal</span></div>';
   h+='<div class="hth-goal-input-wrap">';
-  h+='<input type="range" min="1000" max="30000" step="500" value="'+goal+'" class="hth-goal-slider" oninput="document.getElementById(\'goalDisp\').textContent=Number(this.value).toLocaleString()" onchange="setStepGoal(this.value)"/>';
+  h+='<input type="range" min="1000" max="30000" step="500" value="'+goal+'" class="hth-goal-slider" oninput="document.getElementById(&quot;goalDisp&quot;).textContent=Number(this.value).toLocaleString()" onchange="setStepGoal(this.value)"/>';
   h+='<div class="hth-goal-display"><span id="goalDisp">'+goal.toLocaleString()+'</span> steps</div>';
   h+='</div></div>';
 
