@@ -7506,6 +7506,284 @@ body[data-theme=aurora] .theme-chip.on .tc-name{color:#fff}
 .email-tasks-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:10px;margin-top:8px;border:1.5px solid #E8E0D4;border-radius:12px;background:#fff;color:#9C8B7A;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s}
 .email-tasks-btn:hover{border-color:#C47A3A;color:#C47A3A}
 .email-tasks-btn:active{transform:scale(.97)}
+
+/* ═══════════════════════════════════════════════════════════════
+   PROFESSIONAL UI OVERHAUL v2 — 2026-06-28
+   Unified design system: tighter spacing, refined shadows,
+   consistent radii, better typography, polished interactions.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Global refinements ── */
+.srch input{width:100%;border:1.5px solid var(--line);background:var(--surface);border-radius:14px;padding:14px 18px;font-size:14px;font-weight:500;color:var(--ink);transition:all .2s ease;box-shadow:none}
+.srch input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(196,122,58,.1);outline:none}
+.srch input::placeholder{color:var(--ink-4);font-weight:400}
+
+/* Filter pills — refined segmented control */
+.flt{gap:6px;margin-bottom:18px;padding:4px;background:var(--bg-sunken);border-radius:14px;display:inline-flex;width:100%}
+.fb{padding:10px 18px;border-radius:10px;border:none;background:transparent;font-size:13px;font-weight:600;color:var(--ink-3);white-space:nowrap;transition:all .2s ease;letter-spacing:-.01em;flex:1;text-align:center}
+.fb:hover{background:rgba(255,255,255,.6);color:var(--ink)}
+.fb:active{transform:scale(.97)}
+.fb.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);border:none}
+
+/* Task cards — cleaner, more structured */
+.tc{background:#fff;border-radius:14px;padding:16px 18px;border:1px solid var(--line);border-left:3px solid;margin-bottom:10px;transition:all .2s ease;box-shadow:var(--shadow-1)}
+.tc:hover{box-shadow:var(--shadow-2);transform:translateY(-1px)}
+.tc-top{gap:12px}
+.tc-t{font-size:15px;font-weight:600;line-height:1.45;letter-spacing:-.015em}
+.tc-n{font-size:13px;color:var(--ink-3);line-height:1.4;margin-top:3px}
+.tc-m{gap:6px;margin-top:8px}
+.tc-pri{font-size:11px;font-weight:600;padding:3px 10px;border-radius:6px;text-transform:capitalize;letter-spacing:0}
+.badge{padding:3px 10px;border-radius:6px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em}
+.chk{width:24px;height:24px;min-width:24px;border:2px solid var(--line-2);border-radius:50%;transition:all .15s ease}
+.chk:hover{border-color:var(--accent);background:rgba(196,122,58,.06)}
+.chk.on{background:var(--accent);border-color:var(--accent)}
+.tc-acts{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);gap:6px}
+.ib{width:34px;height:34px;border-radius:8px;color:var(--ink-4)}
+.ib:hover{background:var(--bg-sunken);color:var(--ink-2)}
+
+/* Compose bar — cleaner, no border on desktop */
+.qc-bar{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:16px;box-shadow:var(--shadow-1)}
+.qc-input{border:none !important;outline:none !important;background:transparent !important;font-size:15px !important;font-weight:400 !important;color:var(--ink) !important;font-family:var(--sans) !important;line-height:1.5 !important}
+.qc-input::placeholder{color:var(--ink-4) !important;font-weight:400 !important}
+.qc-send{width:44px !important;height:44px !important;border-radius:12px !important;background:var(--accent) !important;color:#fff !important;font-size:22px !important;font-weight:700 !important;border:none !important;box-shadow:0 2px 8px rgba(196,122,58,.3) !important;transition:all .15s ease !important;display:flex !important;align-items:center !important;justify-content:center !important}
+.qc-send:hover{background:var(--accent-2) !important;transform:scale(1.05) !important}
+.qc-chips{display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.qc-chip{padding:8px 16px;border-radius:8px;border:1.5px solid var(--line);background:transparent;font-size:12.5px;font-weight:600;color:var(--ink-3);cursor:pointer;transition:all .15s ease;display:inline-flex;align-items:center;gap:6px}
+.qc-chip:hover{border-color:var(--ink-3);color:var(--ink)}
+.qc-chip.on{border-color:var(--accent);color:var(--accent);background:rgba(196,122,58,.06)}
+.qc-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.qc-expand{font-size:12.5px !important;font-weight:600 !important;color:var(--accent) !important;cursor:pointer;padding:8px 16px;border-radius:8px;transition:all .15s}
+.qc-expand:hover{background:rgba(196,122,58,.06)}
+
+/* Email tasks button */
+.email-tasks-btn{border-radius:10px;padding:11px;font-size:13px;border:1px solid var(--line);background:var(--surface);color:var(--ink-3);transition:all .15s}
+.email-tasks-btn:hover{background:var(--bg-sunken);color:var(--ink)}
+
+/* Empty state */
+.empty{padding:48px 24px;color:var(--ink-4);border-radius:16px;background:var(--surface);border:1px dashed var(--line-2)}
+
+/* ── Calendar — refined grid ── */
+.cal-head{margin-bottom:14px;padding:0}
+.cal-head h3{font-family:var(--sans);font-size:18px;font-weight:700;letter-spacing:-.02em}
+.cal-nav{width:36px;height:36px;border-radius:10px;background:var(--surface);border:1px solid var(--line);color:var(--ink);font-size:18px;font-weight:600;transition:all .15s}
+.cal-nav:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+.cal-grid{gap:3px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:16px;box-shadow:var(--shadow-1)}
+.cal-dow{font-size:11px;color:var(--ink-4);font-weight:600;text-transform:uppercase;letter-spacing:.06em;padding:6px 0}
+.cal-day{border-radius:10px;font-family:var(--sans);font-size:13.5px;font-weight:500;border:1.5px solid transparent;color:var(--ink)}
+.cal-day:hover{background:var(--bg-sunken);border-color:transparent}
+.cal-day.other{color:var(--ink-5)}
+.cal-day.today{background:rgba(196,122,58,.08);color:var(--accent);border-color:rgba(196,122,58,.2);font-weight:700}
+.cal-day.sel{background:var(--ink) !important;color:#fff !important;border-color:var(--ink) !important;box-shadow:0 2px 8px rgba(58,45,34,.2)}
+.cal-day .ind{gap:3px;margin-top:3px;height:4px}
+.cal-day .ind i{width:5px;height:5px;border-radius:50%}
+.cal-selected-box{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:var(--shadow-1)}
+.cal-selected-box h4{font-family:var(--sans);font-size:16px;font-weight:700;margin-bottom:10px;letter-spacing:-.01em}
+
+/* Google Calendar cards */
+.gcal-card{border-radius:16px;padding:18px;margin-bottom:16px;border:1px solid var(--line);background:#fff;box-shadow:var(--shadow-1)}
+.gcal-connected{border-radius:16px}
+.gcal-acc-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.gcal-acc-l{display:flex;align-items:center;gap:10px}
+.gcal-acc-foot{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.gcal-link{font-size:12.5px;font-weight:600;color:var(--ink-3);background:none;border:none;cursor:pointer;padding:0;transition:color .15s}
+.gcal-link:hover{color:var(--accent)}
+.gcal-link-d{color:#E8453C}
+.gcal-link-d:hover{color:#C53030}
+.gcal-chip{padding:8px 14px;border-radius:8px;border:1px solid var(--line);background:var(--surface);font-size:12px;font-weight:600;color:var(--ink-3);cursor:pointer;transition:all .15s}
+.gcal-chip.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.gcal-chip-add{border-style:dashed}
+.gcal-upcoming{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;margin-top:16px;box-shadow:var(--shadow-1)}
+.gcal-upcoming h4{font-size:15px;font-weight:700;margin-bottom:14px;letter-spacing:-.01em}
+.gcal-evt{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.gcal-evt:last-child{border-bottom:none;padding-bottom:0}
+.gcal-evt-time{font-size:12px;font-weight:600;color:var(--ink-3);min-width:60px;padding-top:2px}
+.gcal-evt-body{flex:1;min-width:0}
+.gcal-evt-title{font-size:14px;font-weight:600;color:var(--ink)}
+.gcal-evt-loc{font-size:12px;color:var(--ink-4);margin-top:2px}
+.gcal-evt-open{font-size:12px;font-weight:600;color:var(--accent);text-decoration:none;white-space:nowrap;padding-top:2px}
+
+/* ── Train / Mind Gym — game tiles ── */
+.home-hero-light.qa-hero{background:#fff !important;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow-1);margin-bottom:16px;padding:6px !important}
+.home-hero-light.qa-hero .hh-bg{display:none}
+.home-hero-light.qa-hero .hh-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;padding:0}
+.qa-stat-tile{background:var(--surface) !important;border:1px solid var(--line) !important;border-radius:14px !important;padding:20px 16px 16px !important;transition:all .2s ease !important;position:relative}
+.qa-stat-tile:hover{background:#fff !important;box-shadow:var(--shadow-2) !important;transform:translateY(-2px) !important}
+.qa-stat-emoji{width:42px;height:42px;border-radius:12px;font-size:20px;margin-bottom:12px}
+.qa-stat-bdg{font-size:11px;padding:4px 10px;border-radius:8px}
+.qa-stat-tile small{font-size:12px !important;font-weight:600 !important;letter-spacing:0 !important;text-transform:none !important;font-family:var(--sans) !important;color:var(--ink) !important}
+.mg-overall{padding:16px 18px;border-radius:14px;background:#fff;border:1px solid var(--line);font-size:13px;color:var(--ink);box-shadow:var(--shadow-1);margin-bottom:14px}
+body:not([data-theme=aurora]) .mg-overall{background:#fff;border-color:var(--line);color:var(--ink)}
+.mg-overall b{font-size:16px;font-weight:700;background:none;-webkit-text-fill-color:var(--accent);margin-right:4px}
+.mg-overall-bar{height:8px;border-radius:99px;background:var(--bg-sunken);overflow:hidden}
+body:not([data-theme=aurora]) .mg-overall-bar{background:var(--bg-sunken)}
+.mg-overall-bar i{background:linear-gradient(90deg,var(--accent),#D4956A);border-radius:99px}
+.mg-ach-strip{padding:16px 18px;background:#fff;border:1px solid var(--line);border-radius:14px;margin-top:12px;box-shadow:var(--shadow-1)}
+.mg-ach-strip-l{font-family:var(--sans);font-size:20px;font-weight:700;letter-spacing:-.02em}
+.mg-ach-mini{width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;border-radius:10px;background:var(--bg-sunken);font-size:18px;transition:all .2s}
+.mg-ach-mini.on{background:linear-gradient(135deg,#FFF8F0,#FFE8D0);box-shadow:0 2px 8px rgba(196,122,58,.15)}
+.hh-progress-chip.mg-prog-chip{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 18px;margin-bottom:14px;box-shadow:var(--shadow-1);display:flex;align-items:center;gap:10px;width:100%;transition:all .15s}
+.hh-progress-chip.mg-prog-chip:hover{box-shadow:var(--shadow-2)}
+.hh-pc-mini{font-size:12px;color:var(--ink-3);font-weight:500}
+
+/* ── Bro / Chat — polished chat UI ── */
+.bro-container{background:var(--bg) !important;border-radius:0}
+body[data-theme=aurora] .bro-container{background:#1a1a1a !important}
+.bro-header{padding:16px 20px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px}
+body[data-theme=aurora] .bro-header{background:#212121;border-color:rgba(255,255,255,.06)}
+.bro-header-avatar{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.bro-header-name{font-size:16px;font-weight:700;letter-spacing:-.01em}
+.bro-header-sub{font-size:12px;color:var(--ink-4);font-weight:500}
+.bro-online{width:8px;height:8px;border-radius:50%;background:#22C55E;display:inline-block;margin-left:6px;box-shadow:0 0 0 2px #fff}
+.bro-chat{flex:1;overflow-y:auto;padding:20px;scroll-behavior:smooth}
+.bro-msg{display:flex;gap:10px;margin-bottom:16px;max-width:85%}
+.bro-msg-user{margin-left:auto;flex-direction:row-reverse}
+.bro-avatar{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.bro-bubble{padding:12px 16px;border-radius:16px;font-size:14px;line-height:1.55;font-weight:400;letter-spacing:-.005em;word-break:break-word}
+.bro-msg-ai .bro-bubble{background:#fff;color:var(--ink);border:1px solid var(--line);border-bottom-left-radius:4px}
+body[data-theme=aurora] .bro-msg-ai .bro-bubble{background:rgba(255,255,255,.06);color:#E8E8F4;border-color:rgba(255,255,255,.08)}
+.bro-bubble-bro,.bro-msg-user .bro-bubble{background:var(--accent);color:#fff;border:none;border-bottom-right-radius:4px}
+.bro-input-wrap{padding:12px 16px;background:#fff;border-top:1px solid var(--line)}
+body[data-theme=aurora] .bro-input-wrap{background:#212121;border-color:rgba(255,255,255,.06)}
+.bro-input-bar{display:flex;align-items:flex-end;gap:10px;background:var(--bg-sunken);border-radius:16px;padding:4px 4px 4px 16px;border:1px solid var(--line);transition:border-color .15s}
+body[data-theme=aurora] .bro-input-bar{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08)}
+.bro-input-bar:focus-within{border-color:var(--accent)}
+.bro-input{border:none !important;outline:none !important;background:transparent !important;font-size:14px !important;padding:10px 0 !important;color:var(--ink) !important;resize:none !important;font-family:var(--sans) !important;line-height:1.5 !important}
+.bro-send-btn{width:40px;height:40px;border-radius:12px;border:none;display:flex;align-items:center;justify-content:center;transition:all .15s;cursor:pointer;flex-shrink:0}
+.bro-send-bro{background:var(--accent);color:#fff;box-shadow:0 2px 6px rgba(196,122,58,.25)}
+.bro-send-bro:hover{background:var(--accent-2);transform:scale(1.05)}
+.bro-attach-btn{width:40px;height:40px;border-radius:12px;border:none;background:transparent;color:var(--ink-4);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
+.bro-attach-btn:hover{background:rgba(196,122,58,.08);color:var(--accent)}
+
+/* Mode buttons */
+.bro-mode-btn{padding:12px 20px;border-radius:12px;border:1.5px solid var(--line);background:#fff;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer;transition:all .15s}
+.bro-mode-btn:hover{border-color:var(--accent);color:var(--accent)}
+.bro-mode-btn.on{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 2px 8px rgba(196,122,58,.25)}
+.bro-suggest-btn{padding:10px 18px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:13px;font-weight:500;color:var(--ink-2);cursor:pointer;transition:all .15s}
+.bro-suggest-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(196,122,58,.04)}
+
+/* Typing indicator */
+.bro-typing{display:flex;gap:4px;align-items:center;padding:12px 16px;background:#fff;border-radius:16px;border:1px solid var(--line);border-bottom-left-radius:4px}
+.bro-typing-dot{width:7px;height:7px;border-radius:50%;background:var(--ink-4);animation:broTyping 1.4s ease-in-out infinite}
+.bro-typing-dot:nth-child(2){animation-delay:.2s}
+.bro-typing-dot:nth-child(3){animation-delay:.4s}
+@keyframes broTyping{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-4px);opacity:1}}
+
+/* Welcome screen polish */
+.bro-welcome{text-align:center;padding:32px 20px}
+.bro-welcome-avatar{width:56px;height:56px;border-radius:16px;display:inline-flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:16px}
+.bro-welcome-title{font-size:22px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px}
+.bro-welcome-text{font-size:14px;color:var(--ink-3);line-height:1.5;max-width:360px;margin:0 auto 20px}
+.bro-modes{display:flex;gap:10px;justify-content:center;margin-bottom:24px;flex-wrap:wrap}
+.bro-suggestions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:20px}
+
+/* Ticker */
+.bro-ticker{padding:0 16px;margin-bottom:8px}
+.bro-ticker-inner{display:flex;align-items:center;gap:14px;padding:12px 16px;background:#fff;border-radius:14px;border:1px solid var(--line);box-shadow:var(--shadow-1)}
+body[data-theme=aurora] .bro-ticker-inner{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.06)}
+.bro-ticker-figure{width:40px;height:40px;flex-shrink:0}
+.bro-ticker-bubble{flex:1;min-width:0}
+.bro-ticker-head{display:flex;align-items:center;gap:6px;margin-bottom:2px}
+.bro-ticker-icon{font-size:14px}
+.bro-ticker-label{font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.04em}
+.bro-ticker-text{font-size:13px;color:var(--ink-2);line-height:1.4;font-weight:400}
+
+/* ── Listen — card refinements ── */
+.book-card{border-radius:14px;border:1px solid var(--line);overflow:hidden;transition:all .2s ease;background:#fff;box-shadow:var(--shadow-1)}
+.book-card:hover{box-shadow:var(--shadow-2);transform:translateY(-2px)}
+.streak-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow-1);margin-bottom:16px}
+
+/* ── Wisdom / Meditation ── */
+.med-card{border-radius:16px;overflow:hidden;transition:all .2s ease;box-shadow:var(--shadow-1)}
+.med-card:hover{box-shadow:var(--shadow-2);transform:translateY(-2px)}
+
+/* ── Sidebar refinements ── */
+.top-strip{border-radius:16px;overflow:hidden}
+
+/* ── Tab hero banners — consistent treatment ── */
+.tab-hero{border-radius:16px;overflow:hidden;margin-bottom:18px;position:relative;min-height:100px;display:flex;flex-direction:column;justify-content:flex-end;padding:20px 22px;background-size:cover;background-position:center}
+.tab-hero::before{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.55),rgba(0,0,0,.15));border-radius:16px}
+.tab-hero>*{position:relative;z-index:1}
+.tab-hero h2{font-family:var(--serif);font-size:22px;font-weight:400;color:#fff;margin:0;letter-spacing:-.01em}
+.tab-hero p{font-size:13px;color:rgba(255,255,255,.8);margin:4px 0 0;font-weight:400}
+
+/* ── Category pill strip — shared across Listen, Wisdom ── */
+.cat-pills{display:flex;gap:6px;overflow-x:auto;padding:4px;background:var(--bg-sunken);border-radius:14px;margin-bottom:18px;scrollbar-width:none}
+.cat-pills::-webkit-scrollbar{display:none}
+.cat-pill{padding:10px 18px;border-radius:10px;border:none;background:transparent;font-size:13px;font-weight:600;color:var(--ink-3);white-space:nowrap;cursor:pointer;transition:all .15s;flex-shrink:0}
+.cat-pill:hover{background:rgba(255,255,255,.5);color:var(--ink)}
+.cat-pill.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+
+/* ── Home hero greeting — refinement ── */
+.home-hero{border-radius:16px;overflow:hidden}
+.hh-greet{font-size:24px;letter-spacing:-.025em}
+
+/* ── Modals — cleaner ── */
+.ov{background:rgba(0,0,0,.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.mdl{border-radius:20px 20px 0 0;padding:24px 22px 36px;box-shadow:0 -12px 40px rgba(0,0,0,.15)}
+.mdl h2{font-family:var(--sans);font-size:18px;font-weight:700;letter-spacing:-.02em}
+
+/* ── FAB ── */
+.fab{width:56px;height:56px;border-radius:16px;box-shadow:0 4px 16px rgba(196,122,58,.35);font-size:28px}
+.fab:hover{transform:scale(1.08);box-shadow:0 6px 20px rgba(196,122,58,.45)}
+
+/* ── Overdue alert ── */
+.al{border-radius:10px;padding:10px 14px;font-size:13px;font-weight:600}
+
+/* ── Animations — make walking scene less distracting ── */
+.qc-scene{max-height:80px;opacity:.6;transition:opacity .3s}
+.qc-scene:hover{opacity:1}
+.bp{opacity:.5;transform:scale(.85)}
+
+/* ── Mobile refinements ── */
+@media(max-width:1023px){
+  .qc-bar{border-radius:16px !important;padding:16px !important;border:1px solid var(--line) !important;box-shadow:var(--shadow-1) !important;background:#fff !important}
+  .qc-input{font-size:16px !important;padding:10px 0 !important;min-height:44px !important}
+  .qc-send{width:48px !important;height:48px !important;border-radius:14px !important;font-size:24px !important}
+  .qc-chips{gap:8px !important;margin-top:14px !important}
+  .qc-chip{padding:10px 18px !important;font-size:13px !important;border-radius:10px !important}
+  .fb{padding:10px 16px !important;font-size:13px !important;min-height:auto !important;border-radius:10px !important}
+  .flt{border-radius:14px !important;padding:4px !important}
+  .tc{padding:14px 16px}
+  .cal-grid{padding:12px;border-radius:14px}
+  .cal-day{font-size:13px}
+}
+
+/* ── Aurora theme overrides for new styles ── */
+body[data-theme=aurora] .flt{background:rgba(255,255,255,.04)}
+body[data-theme=aurora] .fb{color:#9999B5}
+body[data-theme=aurora] .fb:hover{color:#E8E8F4;background:rgba(255,255,255,.06)}
+body[data-theme=aurora] .fb.on{background:rgba(255,255,255,.1);color:#F5F5FA;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+body[data-theme=aurora] .tc{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.06)}
+body[data-theme=aurora] .tc:hover{box-shadow:0 4px 16px rgba(0,0,0,.2)}
+body[data-theme=aurora] .qc-bar{background:rgba(255,255,255,.04) !important;border-color:rgba(255,255,255,.06) !important}
+body[data-theme=aurora] .qc-input{color:#E8E8F4 !important}
+body[data-theme=aurora] .qc-chip{border-color:rgba(255,255,255,.1);color:#9999B5}
+body[data-theme=aurora] .qc-chip.on{border-color:var(--accent);color:var(--accent)}
+body[data-theme=aurora] .empty{background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.08)}
+body[data-theme=aurora] .cal-grid{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.06)}
+body[data-theme=aurora] .cal-day{color:#E8E8F4}
+body[data-theme=aurora] .cal-day.other{color:#4A4A6A}
+body[data-theme=aurora] .cal-day:hover{background:rgba(255,255,255,.06)}
+body[data-theme=aurora] .cal-day.today{background:rgba(196,122,58,.12);color:#D4956A;border-color:rgba(196,122,58,.25)}
+body[data-theme=aurora] .cal-nav{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.08);color:#E8E8F4}
+body[data-theme=aurora] .cal-selected-box{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.06)}
+body[data-theme=aurora] .gcal-card{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.06)}
+body[data-theme=aurora] .gcal-upcoming{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.06)}
+body[data-theme=aurora] .bro-mode-btn{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.08);color:#E8E8F4}
+body[data-theme=aurora] .bro-suggest-btn{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.06);color:#9999B5}
+body[data-theme=aurora] .bro-typing{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.08)}
+body[data-theme=aurora] .mg-ach-strip{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.06)}
+body[data-theme=aurora] .mg-ach-mini{background:rgba(255,255,255,.06)}
+body[data-theme=aurora] .mg-ach-mini.on{background:rgba(196,122,58,.15)}
+body[data-theme=aurora] .home-hero-light.qa-hero{background:rgba(255,255,255,.03) !important;border-color:rgba(255,255,255,.06)}
+body[data-theme=aurora] .qa-stat-tile{background:rgba(255,255,255,.04) !important;border-color:rgba(255,255,255,.06) !important}
+body[data-theme=aurora] .qa-stat-tile:hover{background:rgba(255,255,255,.08) !important}
+body[data-theme=aurora] .streak-card{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.06)}
+body[data-theme=aurora] .book-card{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.06)}
+body[data-theme=aurora] .bro-header{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.06)}
+body[data-theme=aurora] .bro-input-wrap{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.06)}
+
+/* ═══ END PROFESSIONAL UI OVERHAUL v2 ═══ */
 </style></head><body data-theme="classic">
 <div class="bg-blob a"></div><div class="bg-blob b"></div><div class="bg-blob c"></div><div class="bg-blob d"></div>
 <div class="ocean" aria-hidden="true">
@@ -13442,7 +13720,7 @@ app.get('/privacy',(_,res)=>{
 app.get('/terms',(_,res)=>{
   res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Terms of Service — Brodoit</title><meta name="description" content="The simple terms for using Brodoit. Plain English, no surprises."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Terms</div><h1>The simple rules.</h1><p class="lede">We've kept these terms short and human. Use Brodoit kindly, and we'll keep building it for you.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">The service</h2><p>Brodoit is a personal productivity app: it lets you manage tasks with optional WhatsApp and email reminders, listen to free public-domain audiobooks, sharpen your mind with brain games, and see a daily wisdom quote.</p><h2 data-n="02">Your account</h2><p>You register with your email address or phone number. Keep your one-time verification codes private — anyone with the code can sign in. You are responsible for activity on your account.</p><h2 data-n="03">Acceptable use</h2><p>Please don't abuse the service: no spam, no impersonation, no automated scraping, no attempts to disrupt other users or the service itself. We may suspend or remove accounts that do.</p><h2 data-n="04">Content</h2><p>You own your tasks, notes, and other content you create. We store them so we can show them back to you. Audiobook content belongs to the respective public-domain authors and is served from the Internet Archive's LibriVox collection.</p><h2 data-n="05">No warranty</h2><p>The service is provided "as is". We try hard to keep it running, but can't promise zero downtime or guarantee that every reminder is delivered (WhatsApp and email providers can fail). If something matters, please don't rely solely on Brodoit.</p><h2 data-n="06">Limitation of liability</h2><p>Brodoit is a personal tool. We're not liable for missed deadlines, lost data, or any consequential damages from using — or not using — the service.</p><h2 data-n="07">Changes</h2><p>We may update these terms. If we do, we'll update the date at the top. Continued use after a change means you accept the new terms.</p><h2 data-n="08">Contact</h2><p>Need anything? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });
-app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v19";
+app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v20";
 self.addEventListener("install",function(e){self.skipWaiting()});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener("fetch",function(e){});
