@@ -7534,15 +7534,15 @@ body[data-theme=aurora] .theme-chip.on .tc-name{color:#fff}
 .srch input::placeholder{color:var(--ink-4);font-weight:400}
 
 /* Filter pills — refined segmented control */
-.flt{gap:6px;margin-bottom:18px;padding:4px;background:var(--bg-sunken);border-radius:14px;display:inline-flex;width:100%}
-.fb{padding:10px 18px;border-radius:10px;border:none;background:transparent;font-size:13px;font-weight:600;color:var(--ink-3);white-space:nowrap;transition:all .2s ease;letter-spacing:-.01em;flex:1;text-align:center}
+.flt{gap:4px;margin-bottom:18px;padding:4px;background:var(--bg-sunken);border-radius:16px;display:inline-flex;width:100%;box-shadow:inset 0 1px 3px rgba(0,0,0,.04)}
+.fb{padding:11px 18px;border-radius:12px;border:none;background:transparent;font-size:13px;font-weight:600;color:var(--ink-3);white-space:nowrap;transition:all .2s cubic-bezier(.2,.8,.2,1);letter-spacing:-.01em;flex:1;text-align:center}
 .fb:hover{background:rgba(255,255,255,.6);color:var(--ink)}
 .fb:active{transform:scale(.97)}
-.fb.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);border:none}
+.fb.on{background:#fff;color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.06),0 1px 3px rgba(0,0,0,.04);border:none}
 
 /* Task cards — cleaner, more structured */
-.tc{background:#fff;border-radius:16px;padding:18px 20px;border:1px solid rgba(0,0,0,.05);border-left:4px solid;margin-bottom:12px;transition:all .25s cubic-bezier(.2,.8,.2,1);box-shadow:0 1px 4px rgba(0,0,0,.04),0 2px 8px -2px rgba(0,0,0,.03);position:relative}
-.tc:hover{box-shadow:0 8px 28px -6px rgba(0,0,0,.1),0 2px 8px -2px rgba(0,0,0,.04);transform:translateY(-2px)}
+.tc{background:#fff;border-radius:18px;padding:18px 20px;border:none;border-left:4px solid;margin-bottom:12px;transition:all .25s cubic-bezier(.2,.8,.2,1);box-shadow:0 2px 8px rgba(0,0,0,.04),0 4px 16px -4px rgba(0,0,0,.06);position:relative}
+.tc:hover{box-shadow:0 12px 32px -8px rgba(0,0,0,.12),0 4px 12px -2px rgba(0,0,0,.06);transform:translateY(-3px)}
 .tc.dn{opacity:.5}
 .tc-top{gap:14px}
 .tc-t{font-size:15px;font-weight:700;line-height:1.45;letter-spacing:-.018em}
@@ -7650,24 +7650,24 @@ body[data-theme=aurora] .bro-header{background:linear-gradient(180deg,#252525,#2
 .bro-header-name{font-size:16px;font-weight:700;letter-spacing:-.01em}
 .bro-header-sub{font-size:12px;color:var(--ink-4);font-weight:500}
 .bro-online{width:8px;height:8px;border-radius:50%;background:#22C55E;display:inline-block;margin-left:6px;box-shadow:0 0 0 2px #fff,0 0 8px rgba(34,197,94,.4)}
-.bro-chat{flex:1;overflow-y:auto;padding:20px;scroll-behavior:smooth;background:linear-gradient(180deg,#F8F9FB 0%,#F2F3F7 100%)}
+.bro-chat{flex:1;overflow-y:auto;padding:20px;scroll-behavior:smooth;background:linear-gradient(180deg,#F1F2F6 0%,#E8EAF0 100%)}
 body[data-theme=aurora] .bro-chat{background:linear-gradient(180deg,#1a1a1a 0%,#181818 100%)}
 .bro-msg{display:flex;gap:10px;margin-bottom:16px;max-width:85%}
 .bro-msg-user{margin-left:auto;flex-direction:row-reverse}
 .bro-avatar{width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;background:linear-gradient(135deg,#F97316,#FB923C);color:#fff;box-shadow:0 2px 8px rgba(249,115,22,.2)}
 .bro-bubble{padding:12px 16px;border-radius:18px;font-size:14px;line-height:1.55;font-weight:400;letter-spacing:-.005em;word-break:break-word}
-.bro-msg-ai .bro-bubble{background:linear-gradient(135deg,#FFFFFF,#F8F9FB);color:var(--ink);border:1px solid rgba(0,0,0,.06);border-bottom-left-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,.04),0 1px 2px rgba(0,0,0,.02)}
+.bro-msg-ai .bro-bubble{background:#FFFFFF;color:var(--ink);border:1px solid rgba(0,0,0,.08);border-bottom-left-radius:4px;box-shadow:0 4px 16px rgba(0,0,0,.06),0 1px 3px rgba(0,0,0,.04)}
 body[data-theme=aurora] .bro-msg-ai .bro-bubble{background:linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.04));color:#E8E8F4;border-color:rgba(255,255,255,.08)}
-.bro-bubble-bro,.bro-msg-user .bro-bubble{background:var(--accent);color:#fff;border:none;border-bottom-right-radius:4px}
-.bro-input-wrap{padding:12px 16px;background:#fff;border-top:1px solid var(--line)}
+.bro-bubble-bro,.bro-msg-user .bro-bubble{background:linear-gradient(135deg,#F97316,#EA580C);color:#fff;border:none;border-bottom-right-radius:4px;box-shadow:0 4px 14px rgba(249,115,22,.25)}
+.bro-input-wrap{padding:12px 16px;background:#FFFFFF;border-top:1px solid rgba(0,0,0,.06)}
 body[data-theme=aurora] .bro-input-wrap{background:#212121;border-color:rgba(255,255,255,.06)}
-.bro-input-bar{display:flex;align-items:flex-end;gap:10px;background:var(--bg-sunken);border-radius:16px;padding:4px 4px 4px 16px;border:1px solid var(--line);transition:border-color .15s}
-body[data-theme=aurora] .bro-input-bar{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08)}
-.bro-input-bar:focus-within{border-color:var(--accent)}
+.bro-input-bar{display:block;padding:14px 16px;background:#fff;border:1.5px solid rgba(0,0,0,.08);border-radius:20px;box-shadow:0 2px 12px rgba(0,0,0,.04),0 1px 3px rgba(0,0,0,.02);transition:all .2s;overflow:hidden;width:100%;box-sizing:border-box}
+body[data-theme=aurora] .bro-input-bar{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12);box-shadow:none}
+.bro-input-bar:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(249,115,22,.1),0 4px 16px rgba(249,115,22,.06)}
 .bro-input{border:none !important;outline:none !important;background:transparent !important;font-size:14px !important;padding:10px 0 !important;color:var(--ink) !important;resize:none !important;font-family:var(--sans) !important;line-height:1.5 !important}
-.bro-send-btn{width:40px;height:40px;border-radius:12px;border:none;display:flex;align-items:center;justify-content:center;transition:all .15s;cursor:pointer;flex-shrink:0}
-.bro-send-bro{background:var(--accent);color:#fff;box-shadow:0 2px 6px rgba(249,115,22,.25)}
-.bro-send-bro:hover{background:var(--accent-2);transform:scale(1.05)}
+.bro-send-btn{width:38px;height:38px;border-radius:14px;border:none;display:flex;align-items:center;justify-content:center;transition:all .2s cubic-bezier(.2,.8,.2,1);cursor:pointer;flex-shrink:0}
+.bro-send-bro{background:linear-gradient(135deg,#F97316,#EA580C);color:#fff;box-shadow:0 4px 14px rgba(249,115,22,.3)}
+.bro-send-bro:hover{transform:scale(1.08);box-shadow:0 6px 20px rgba(249,115,22,.4)}
 .bro-attach-btn{width:40px;height:40px;border-radius:12px;border:none;background:transparent;color:var(--ink-4);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
 .bro-attach-btn:hover{background:rgba(249,115,22,.08);color:var(--accent)}
 
@@ -7679,7 +7679,7 @@ body[data-theme=aurora] .bro-input-bar{background:rgba(255,255,255,.04);border-c
 .bro-suggest-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(249,115,22,.04)}
 
 /* Typing indicator */
-.bro-typing{display:flex;gap:4px;align-items:center;padding:12px 16px;background:#fff;border-radius:16px;border:1px solid var(--line);border-bottom-left-radius:4px}
+.bro-typing{display:flex;gap:4px;align-items:center;padding:12px 16px;background:#FFFFFF;border-radius:16px;border:1px solid rgba(0,0,0,.08);border-bottom-left-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
 .bro-typing-dot{width:7px;height:7px;border-radius:50%;background:var(--ink-4);animation:broTyping 1.4s ease-in-out infinite}
 .bro-typing-dot:nth-child(2){animation-delay:.2s}
 .bro-typing-dot:nth-child(3){animation-delay:.4s}
@@ -7735,8 +7735,8 @@ body[data-theme=aurora] .bro-ticker-inner{background:rgba(255,255,255,.04);borde
 .hh-greet{font-size:24px;letter-spacing:-.025em}
 
 /* ── Modals — cleaner ── */
-.ov{background:rgba(0,0,0,.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-.mdl{border-radius:20px 20px 0 0;padding:24px 22px 36px;box-shadow:0 -12px 40px rgba(0,0,0,.15)}
+.ov{background:rgba(0,0,0,.55);backdrop-filter:blur(12px) saturate(180%);-webkit-backdrop-filter:blur(12px) saturate(180%)}
+.mdl{border-radius:24px 24px 0 0;padding:28px 24px 40px;box-shadow:0 -20px 60px rgba(0,0,0,.18),0 -4px 20px rgba(0,0,0,.08);border-top:1px solid rgba(255,255,255,.15)}
 .mdl h2{font-family:var(--sans);font-size:18px;font-weight:700;letter-spacing:-.02em}
 
 /* ── FAB ── */
@@ -13813,7 +13813,7 @@ app.get('/privacy',(_,res)=>{
 app.get('/terms',(_,res)=>{
   res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Terms of Service — Brodoit</title><meta name="description" content="The simple terms for using Brodoit. Plain English, no surprises."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Terms</div><h1>The simple rules.</h1><p class="lede">We've kept these terms short and human. Use Brodoit kindly, and we'll keep building it for you.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">The service</h2><p>Brodoit is a personal productivity app: it lets you manage tasks with optional WhatsApp and email reminders, listen to free public-domain audiobooks, sharpen your mind with brain games, and see a daily wisdom quote.</p><h2 data-n="02">Your account</h2><p>You register with your email address or phone number. Keep your one-time verification codes private — anyone with the code can sign in. You are responsible for activity on your account.</p><h2 data-n="03">Acceptable use</h2><p>Please don't abuse the service: no spam, no impersonation, no automated scraping, no attempts to disrupt other users or the service itself. We may suspend or remove accounts that do.</p><h2 data-n="04">Content</h2><p>You own your tasks, notes, and other content you create. We store them so we can show them back to you. Audiobook content belongs to the respective public-domain authors and is served from the Internet Archive's LibriVox collection.</p><h2 data-n="05">No warranty</h2><p>The service is provided "as is". We try hard to keep it running, but can't promise zero downtime or guarantee that every reminder is delivered (WhatsApp and email providers can fail). If something matters, please don't rely solely on Brodoit.</p><h2 data-n="06">Limitation of liability</h2><p>Brodoit is a personal tool. We're not liable for missed deadlines, lost data, or any consequential damages from using — or not using — the service.</p><h2 data-n="07">Changes</h2><p>We may update these terms. If we do, we'll update the date at the top. Continued use after a change means you accept the new terms.</p><h2 data-n="08">Contact</h2><p>Need anything? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });
-app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v25";
+app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v26";
 self.addEventListener("install",function(e){self.skipWaiting()});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener("fetch",function(e){});
