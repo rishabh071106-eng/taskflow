@@ -2424,8 +2424,8 @@ const HTML=`<!DOCTYPE html><html lang="en"><head>
 --ink:#111827;--text:#111827;--text-mute:#6B7280;--text-dim:#9CA3AF;
 --ink-2:#1F2937;--ink-3:#6B7280;--ink-4:#9CA3AF;--ink-5:#D1D5DB;
 --line:#E5E7EB;--line-2:#D1D5DB;--border:#E5E7EB;--border-2:#D1D5DB;
---accent:#E8913A;--accent-soft:rgba(232,145,58,.06);--accent-ink:#FFFFFF;
---accent-2:#D4822F;--warm:#E8913A;--paper:#FFFFFF;
+--accent:#4F6DF5;--accent-soft:rgba(79,109,245,.06);--accent-ink:#FFFFFF;
+--accent-2:#3B5CE0;--warm:#4F6DF5;--paper:#FFFFFF;
 --serif:'Newsreader','Iowan Old Style',Georgia,serif;
 --sans:'Inter','IBM Plex Sans','SF Pro Text',-apple-system,BlinkMacSystemFont,sans-serif;
 --mono:'JetBrains Mono',ui-monospace,monospace;
@@ -2436,7 +2436,7 @@ const HTML=`<!DOCTYPE html><html lang="en"><head>
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 @keyframes scaleIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
 @keyframes slideIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
-@keyframes pulseRing{0%{box-shadow:0 0 0 0 rgba(232,145,58,.4)}70%{box-shadow:0 0 0 10px rgba(232,145,58,0)}100%{box-shadow:0 0 0 0 rgba(232,145,58,0)}}
+@keyframes pulseRing{0%{box-shadow:0 0 0 0 rgba(79,109,245,.4)}70%{box-shadow:0 0 0 10px rgba(79,109,245,0)}100%{box-shadow:0 0 0 0 rgba(79,109,245,0)}}
 @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
 @keyframes countUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @keyframes progressFill{from{width:0}}
@@ -4065,7 +4065,7 @@ body:not([data-theme=aurora]) .add-bar{background:var(--bg-elev);border:1px soli
 body:not([data-theme=aurora]) .add-bar:hover{border-color:var(--line-2);box-shadow:var(--shadow-2)}
 body:not([data-theme=aurora]) .add-bar .txt small{color:var(--ink-3)}
 body:not([data-theme=aurora]) .add-bar .plus{background:var(--accent);color:#fff;box-shadow:0 4px 12px rgba(232,145,58,.3)}
-body:not([data-theme=aurora]) .fab{background:linear-gradient(135deg,#E8913A,#F0B45A);color:#fff;box-shadow:0 8px 28px rgba(232,145,58,.4),0 4px 12px rgba(0,0,0,.1);border-radius:18px}
+body:not([data-theme=aurora]) .fab{background:linear-gradient(135deg,#4F6DF5,#7B93F8);color:#fff;box-shadow:0 8px 28px rgba(79,109,245,.35),0 4px 12px rgba(0,0,0,.1);border-radius:18px}
 body:not([data-theme=aurora]) .fab:hover{background:linear-gradient(135deg,#D4822F,#E8913A);transform:scale(1.08);box-shadow:0 12px 36px rgba(232,145,58,.5),0 4px 12px rgba(0,0,0,.12)}
 body:not([data-theme=aurora]) .btn-tr{background:var(--accent);box-shadow:0 4px 14px rgba(232,145,58,.3)}
 body:not([data-theme=aurora]) .btn-tr.stop{background:linear-gradient(135deg,#EF4444,#DC2626);box-shadow:0 4px 14px rgba(239,68,68,.3)}
@@ -5544,14 +5544,14 @@ body.audio-on .fab-global{bottom:calc(96px + env(safe-area-inset-bottom,0px))!im
 .qc-chip.qc-high.on{background:#DC2626;color:#fff;border-color:#DC2626;box-shadow:0 2px 8px rgba(220,38,38,.3)}
 .qc-chip.qc-med{border-color:#FED7AA;background:#FFF7ED;color:#D4822F}
 .qc-chip.qc-med.on{background:#D4822F;color:#fff;border-color:#D4822F;box-shadow:0 2px 8px rgba(212,130,47,.3)}
-.qc-chip.qc-low{border-color:#BBF7D0;background:#F7F8FF;color:#E8913A}
-.qc-chip.qc-low.on{background:#E8913A;color:#fff;border-color:#E8913A;box-shadow:0 2px 8px rgba(22,163,74,.3)}
+.qc-chip.qc-low{border-color:#BBF7D0;background:#F7FFF9;color:#16A34A}
+.qc-chip.qc-low.on{background:#16A34A;color:#fff;border-color:#16A34A;box-shadow:0 2px 8px rgba(22,163,74,.3)}
 .qc-chip .qc-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .qc-expand{font-size:12px;color:var(--ink-3,#A0AEC0);cursor:pointer;margin-left:auto;white-space:nowrap}
 /* ─── ANIMATED TASK CTA — two people + notebook ─── */
 .qc-scene{display:none}
 @media(max-width:1023px){
-.qc-scene{display:block;position:relative;height:160px;margin-bottom:10px;overflow:visible;border-radius:16px;background:linear-gradient(135deg,#FFF8F0,#FFF3E5,#FFEEDD);border:1.5px solid rgba(232,145,58,.12)}
+.qc-scene{display:block;position:relative;height:160px;margin-bottom:10px;overflow:visible;border-radius:16px;background:linear-gradient(135deg,#F8F9FF,#F0F3FF,#EDF0FF);border:1.5px solid rgba(79,109,245,.1)}
 /* — shared person styles — */
 .qc-p{position:absolute;bottom:20px;z-index:2}
 .qc-p-head{width:18px;height:18px;border-radius:50%;position:absolute;top:0;left:50%;transform:translateX(-50%)}
@@ -5576,12 +5576,12 @@ body.audio-on .fab-global{bottom:calc(96px + env(safe-area-inset-bottom,0px))!im
 /* speech bubbles */
 .qc-bubble{position:absolute;top:-6px;left:50%;transform:translateX(-50%);color:#fff;font-size:13px;font-weight:700;padding:7px 16px;border-radius:14px;white-space:nowrap;opacity:0;letter-spacing:.02em;text-shadow:0 1px 2px rgba(0,0,0,.15);z-index:6;box-shadow:0 4px 14px rgba(0,0,0,.12)}
 .qc-bubble::after{content:'';position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);border-left:4px solid transparent;border-right:4px solid transparent}
-.qc-b1{background:#2C3E6B;animation:qcB1 8s ease-in-out infinite}
-.qc-b1::after{border-top:5px solid #2C3E6B}
-.qc-b2{background:#E8913A;animation:qcB2 8s ease-in-out infinite}
-.qc-b2::after{border-top:5px solid #E8913A}
-.qc-b3{background:#2C3E6B;animation:qcB3 8s ease-in-out infinite}
-.qc-b3::after{border-top:5px solid #2C3E6B}
+.qc-b1{background:#3B5CE0;animation:qcB1 8s ease-in-out infinite}
+.qc-b1::after{border-top:5px solid #3B5CE0}
+.qc-b2{background:#4F6DF5;animation:qcB2 8s ease-in-out infinite}
+.qc-b2::after{border-top:5px solid #4F6DF5}
+.qc-b3{background:#3B5CE0;animation:qcB3 8s ease-in-out infinite}
+.qc-b3::after{border-top:5px solid #3B5CE0}
 @keyframes qcB1{0%,18%{opacity:0;transform:translateX(-50%) translateY(4px)}24%{opacity:1;transform:translateX(-50%) translateY(0)}38%{opacity:1}42%,100%{opacity:0}}
 @keyframes qcB2{0%,40%{opacity:0;transform:translateX(-50%) translateY(4px)}46%{opacity:1;transform:translateX(-50%) translateY(0)}58%{opacity:1}62%,100%{opacity:0}}
 @keyframes qcB3{0%,64%{opacity:0;transform:translateX(-50%) translateY(4px)}70%{opacity:1;transform:translateX(-50%) translateY(0)}88%{opacity:1}92%,100%{opacity:0}}
@@ -5589,9 +5589,9 @@ body.audio-on .fab-global{bottom:calc(96px + env(safe-area-inset-bottom,0px))!im
 @keyframes qcGuidePoint{0%,25%{transform:rotate(15deg)}35%{transform:rotate(-60deg)}45%,55%{transform:rotate(-60deg)}65%,100%{transform:rotate(15deg)}}
 /* — Writer (person 2) — follows guide, sits at notebook — */
 .qc-writer{animation:qcWriterWalk 8s ease-in-out infinite}
-.qc-writer .qc-p-head{background:linear-gradient(135deg,#F0B45A,#D4822F);box-shadow:0 2px 6px rgba(232,145,58,.3)}
-.qc-writer .qc-p-torso{background:linear-gradient(180deg,#FED7AA,#F0B45A)}
-.qc-writer .qc-p-arm{background:#FED7AA}
+.qc-writer .qc-p-head{background:linear-gradient(135deg,#7B93F8,#4F6DF5);box-shadow:0 2px 6px rgba(79,109,245,.3)}
+.qc-writer .qc-p-torso{background:linear-gradient(180deg,#B4C2FB,#7B93F8)}
+.qc-writer .qc-p-arm{background:#B4C2FB}
 .qc-writer .qc-p-leg{background:#374151}
 .qc-writer .qc-p-arm.r{animation:qcWriteArm 8s ease-in-out infinite}
 .qc-writer .qc-p-arm.l{animation:qcArmSwing .6s ease-in-out infinite .3s}
@@ -5603,14 +5603,14 @@ body.audio-on .fab-global{bottom:calc(96px + env(safe-area-inset-bottom,0px))!im
 @keyframes qcLeg{0%,100%{transform:rotate(-10deg)}50%{transform:rotate(10deg)}}
 /* — Notebook at the right end — */
 .qc-notebook{position:absolute;right:8%;bottom:16px;width:48px;height:58px;z-index:1}
-.qc-nb-cover{width:48px;height:58px;background:linear-gradient(145deg,#F7F8FF,#F5F6F8);border:2px solid #F0B45A;border-radius:3px 10px 10px 3px;position:relative;box-shadow:0 4px 16px rgba(17,24,39,.2)}
+.qc-nb-cover{width:48px;height:58px;background:linear-gradient(145deg,#F7F8FF,#F5F6F8);border:2px solid #7B93F8;border-radius:3px 10px 10px 3px;position:relative;box-shadow:0 4px 16px rgba(17,24,39,.2)}
 .qc-nb-spine{position:absolute;left:0;top:4px;bottom:4px;width:5px;background:linear-gradient(180deg,#E8913A,#1F2937);border-radius:3px 0 0 3px}
-.qc-nb-ring{position:absolute;left:2px;width:8px;height:4px;border:1.5px solid #E8913A;border-radius:2px;background:transparent}
+.qc-nb-ring{position:absolute;left:2px;width:8px;height:4px;border:1.5px solid #7B93F8;border-radius:2px;background:transparent}
 .qc-nb-ring:nth-child(2){top:10px}.qc-nb-ring:nth-child(3){top:22px}.qc-nb-ring:nth-child(4){top:34px}.qc-nb-ring:nth-child(5){top:46px}
 .qc-nb-line{position:absolute;left:14px;right:6px;height:1.5px;background:rgba(17,24,39,.15);border-radius:1px}
 .qc-nb-line:nth-child(6){top:14px}.qc-nb-line:nth-child(7){top:22px}.qc-nb-line:nth-child(8){top:30px}.qc-nb-line:nth-child(9){top:38px}
 /* writing stroke animates across lines */
-.qc-nb-ink{position:absolute;left:14px;height:2px;background:#E8913A;border-radius:1px;width:0;animation:qcInk 8s ease-in-out infinite}
+.qc-nb-ink{position:absolute;left:14px;height:2px;background:#4F6DF5;border-radius:1px;width:0;animation:qcInk 8s ease-in-out infinite}
 .qc-nb-ink:nth-child(10){top:13px;animation-delay:4s}
 .qc-nb-ink:nth-child(11){top:21px;animation-delay:4.4s}
 .qc-nb-ink:nth-child(12){top:29px;animation-delay:4.8s}
@@ -7153,7 +7153,7 @@ body[data-theme=aurora] .bro-typing-dot{background:rgba(255,255,255,.4)}
 body[data-theme=aurora] .bro-input-wrap{background:#212121}
 .bro-input-bar{display:block;padding:14px 16px;background:#fff;border:1.5px solid rgba(0,0,0,.08);border-radius:20px;box-shadow:0 2px 12px rgba(0,0,0,.04),0 1px 3px rgba(0,0,0,.02);transition:all .2s;overflow:hidden;width:100%;box-sizing:border-box}
 .bro-input-actions{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
-.bro-input-bar:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(232,145,58,.1),0 4px 16px rgba(232,145,58,.06)}
+.bro-input-bar:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,109,245,.1),0 4px 16px rgba(79,109,245,.06)}
 body[data-theme=aurora] .bro-input-bar{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12);box-shadow:none}
 body[data-theme=aurora] .bro-input-bar:focus-within{background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.25);box-shadow:0 2px 12px rgba(255,255,255,.05)}
 body[data-theme=aurora] .bro-input-actions{border-top-color:rgba(255,255,255,.08)}
@@ -7275,16 +7275,16 @@ body[data-theme=aurora] .bro-img-err{background:rgba(239,68,68,.12)}
   body.bro-tab .bro-header{padding:8px 14px;flex-shrink:0}
   body.bro-tab .bro-chat{flex:1 !important;min-height:0 !important;padding:12px 14px 12px !important;gap:12px}
   body.bro-tab .bro-input-wrap{flex-shrink:0 !important;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px)) !important;padding-bottom:calc(78px + env(safe-area-inset-bottom,0px)) !important;border-top:1px solid rgba(17,24,39,.08) !important;background:#F5F6F8 !important}
-  body.bro-tab .bro-input{display:block !important;width:100% !important;font-size:16px !important;-webkit-text-size-adjust:none !important;caret-color:#E8913A;line-height:1.6 !important;min-height:80px !important;max-height:220px !important;padding:10px 0 !important;-webkit-appearance:none !important;word-wrap:break-word !important;word-break:break-word !important;overflow-wrap:break-word !important;white-space:pre-wrap !important;overflow-x:hidden !important;box-sizing:border-box !important}
+  body.bro-tab .bro-input{display:block !important;width:100% !important;font-size:16px !important;-webkit-text-size-adjust:none !important;caret-color:var(--accent);line-height:1.6 !important;min-height:80px !important;max-height:220px !important;padding:10px 0 !important;-webkit-appearance:none !important;word-wrap:break-word !important;word-break:break-word !important;overflow-wrap:break-word !important;white-space:pre-wrap !important;overflow-x:hidden !important;box-sizing:border-box !important}
   body.bro-tab .bro-input-bar{display:block !important;padding:14px 16px !important;border-radius:20px !important;background:#fff !important;box-shadow:0 2px 8px rgba(17,24,39,.08) !important;border:1.5px solid rgba(17,24,39,.12) !important;overflow:hidden !important}
   body.bro-tab.kb-open .bro-container{height:var(--vv-h,100%) !important;top:var(--vv-top,0px) !important;bottom:auto !important}
   body.bro-tab.kb-open .bro-header{display:none !important}
   body.bro-tab.kb-open .bro-welcome{display:none !important}
   body.bro-tab.kb-open .bro-suggestions{display:none !important}
-  body.bro-tab.kb-open .bro-input-wrap{padding:10px 12px 10px !important;flex:1 !important}
+  body.bro-tab.kb-open .bro-input-wrap{padding:10px 12px 10px !important;flex-shrink:0 !important}
   body.bro-tab.kb-open .tabs.page-t{display:none !important}
-  body.bro-tab.kb-open .bro-input{min-height:100px !important;max-height:50vh !important;font-size:17px !important;display:block !important;width:100% !important}
-  body.bro-tab.kb-open .bro-chat{flex:0 0 auto !important;max-height:80px !important;overflow-y:auto !important;padding:6px 14px !important}
+  body.bro-tab.kb-open .bro-input{min-height:60px !important;max-height:120px !important;font-size:16px !important;display:block !important;width:100% !important}
+  body.bro-tab.kb-open .bro-chat{flex:1 !important;min-height:0 !important;overflow-y:auto !important;padding:8px 14px !important}
   body.bro-tab .bro-send-btn{width:38px;height:38px}
   body.bro-tab .tabs.page-t{z-index:61 !important}
   body.bro-tab .bro-welcome{padding:24px 16px 16px;gap:12px}
@@ -7662,7 +7662,7 @@ body[data-theme=aurora] .bro-msg-ai .bro-bubble{background:linear-gradient(135de
 body[data-theme=aurora] .bro-input-wrap{background:#212121;border-color:rgba(255,255,255,.06)}
 .bro-input-bar{display:block;padding:14px 16px;background:#fff;border:1.5px solid rgba(0,0,0,.08);border-radius:20px;box-shadow:0 2px 12px rgba(0,0,0,.04),0 1px 3px rgba(0,0,0,.02);transition:all .2s;overflow:hidden;width:100%;box-sizing:border-box}
 body[data-theme=aurora] .bro-input-bar{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12);box-shadow:none}
-.bro-input-bar:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(232,145,58,.1),0 4px 16px rgba(232,145,58,.06)}
+.bro-input-bar:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,109,245,.1),0 4px 16px rgba(79,109,245,.06)}
 .bro-input{border:none !important;outline:none !important;background:transparent !important;font-size:14px !important;padding:10px 0 !important;color:var(--ink) !important;resize:none !important;font-family:var(--sans) !important;line-height:1.5 !important}
 .bro-send-btn{width:38px;height:38px;border-radius:14px;border:none;display:flex;align-items:center;justify-content:center;transition:all .2s cubic-bezier(.2,.8,.2,1);cursor:pointer;flex-shrink:0}
 .bro-send-bro{background:linear-gradient(135deg,#E8913A,#D4822F);color:#fff;box-shadow:0 4px 14px rgba(232,145,58,.3)}
@@ -7818,9 +7818,9 @@ body[data-theme=aurora] .bro-input-wrap{background:rgba(255,255,255,.04);border-
 .tg-games-title{font-size:16px;font-weight:700;color:var(--ink);margin:0 0 12px;display:flex;align-items:center;gap:8px}
 .tg-games-title button{background:none;border:none;font-size:13px;color:var(--text-mute);cursor:pointer;font-weight:600;font-family:inherit}
 .tg-games{display:flex;flex-direction:column;gap:12px;border-radius:14px;overflow:visible}
-.tg-game{display:flex;align-items:center;gap:14px;padding:18px;background:linear-gradient(135deg,#FFFBF5 0%,#FFFFFF 100%);border:1.5px solid rgba(232,145,58,.15);border-radius:18px;cursor:pointer;text-align:left;transition:all .25s cubic-bezier(.2,.8,.2,1);font-family:inherit;width:100%;box-sizing:border-box;box-shadow:0 2px 12px rgba(232,145,58,.06),0 1px 3px rgba(0,0,0,.04);position:relative;overflow:hidden}
-.tg-game::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--gfill,#E8913A);border-radius:18px 0 0 18px}
-.tg-game:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(232,145,58,.12),0 2px 6px rgba(0,0,0,.06);border-color:rgba(232,145,58,.3)}
+.tg-game{display:flex;align-items:center;gap:14px;padding:18px;background:#FFFFFF;border:1.5px solid var(--line);border-radius:18px;cursor:pointer;text-align:left;transition:all .25s cubic-bezier(.2,.8,.2,1);font-family:inherit;width:100%;box-sizing:border-box;box-shadow:0 2px 8px rgba(0,0,0,.04);position:relative;overflow:hidden}
+.tg-game::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--gfill,var(--accent));border-radius:18px 0 0 18px}
+.tg-game:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.08);border-color:var(--accent)}
 .tg-game:active{transform:scale(.98)}
 .tg-game-visual{flex-shrink:0}
 .tg-game-ic{width:56px;height:56px;border-radius:16px;display:grid;place-items:center;flex-shrink:0;font-size:22px;box-shadow:0 3px 12px rgba(0,0,0,.06)}
@@ -7831,7 +7831,7 @@ body[data-theme=aurora] .bro-input-wrap{background:rgba(255,255,255,.04);border-
 .tg-game-bar{height:5px;background:rgba(0,0,0,.05);border-radius:99px;overflow:hidden;margin-top:10px}
 .tg-game-fill{height:100%;border-radius:99px;transition:width .4s ease}
 .tg-game-meta{font-size:11.5px;color:var(--text-dim);margin-top:5px;font-weight:600}
-.tg-game-arrow{width:32px;height:32px;border-radius:10px;background:rgba(232,145,58,.08);display:grid;place-items:center;color:var(--accent);flex-shrink:0;transition:all .2s}
+.tg-game-arrow{width:32px;height:32px;border-radius:10px;background:var(--accent-soft);display:grid;place-items:center;color:var(--accent);flex-shrink:0;transition:all .2s}
 .tg-game:hover .tg-game-arrow{background:var(--accent);color:#fff;transform:translateX(2px)}
 body[data-theme=aurora] .tg-title{color:#F5F5FA}
 body[data-theme=aurora] .tg-game{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.08)}
@@ -8332,7 +8332,7 @@ document.addEventListener('visibilitychange',async()=>{if(document.visibilitySta
 function toggleTheme(){S.theme=S.theme==='aurora'?'classic':'aurora';localStorage.setItem('theme',S.theme);document.body.setAttribute('data-theme',S.theme);toast(S.theme==='aurora'?'\\u{1F30C} Aurora theme on':'\\u2728 Classic theme on');render()}
 function applyTheme(){document.body.setAttribute('data-theme',S.theme||'classic');applyColorThemeCSS(S.themeColor||'blue')}
 const _COLOR_THEMES={
-  blue:{c1:'#8099FA',c2:'#A3B8FC',c3:'#C4D2FD',c4:'#111827',c5:'#F0B45A',bg:'#F4F6FF',bg2:'#F9FAFF',border:'#E8ECF5',rgba1:'128,153,250',rgba2:'163,184,252'},
+  blue:{c1:'#4F6DF5',c2:'#7B93F8',c3:'#B4C2FB',c4:'#1E2A5E',c5:'#3B5CE0',bg:'#F4F6FF',bg2:'#F9FAFF',border:'#E0E5F6',rgba1:'79,109,245',rgba2:'123,147,248'},
   emerald:{c1:'#10B981',c2:'#34D399',c3:'#6EE7B7',c4:'#064E3B',c5:'#059669',bg:'#ECFDF5',bg2:'#F0FDF4',border:'#D1FAE5',rgba1:'16,185,129',rgba2:'52,211,153'},
   violet:{c1:'#8B5CF6',c2:'#A78BFA',c3:'#C4B5FD',c4:'#2E1065',c5:'#7C3AED',bg:'#F5F3FF',bg2:'#FAF5FF',border:'#E9D5FF',rgba1:'139,92,246',rgba2:'167,139,250'},
   rose:{c1:'#F43F5E',c2:'#FB7185',c3:'#FDA4AF',c4:'#4C0519',c5:'#E11D48',bg:'#FFF1F2',bg2:'#FFF5F6',border:'#FECDD3',rgba1:'244,63,94',rgba2:'251,113,133'},
@@ -8363,7 +8363,7 @@ function applyColorThemeCSS(key){
     +'.tab.on .ti{background:'+t.c1+'}'
     +'.tab.on .tl{color:'+t.c1+'}'
     +'.qc-send,.pmd-add-btn{background:'+t.c1+'}'
-    +'.qc-scene{background:linear-gradient(135deg,#FFF8F0,#FFF3E5,#FFEEDD)}'
+    +'.qc-scene{background:linear-gradient(135deg,rgba('+t.rgba1+',.06),rgba('+t.rgba2+',.04))}'
     +''
     +'.fab{background:linear-gradient(135deg,'+t.c1+','+t.c2+')}'
     +'.hdr-help{border-color:'+t.c3+'}'
@@ -11606,21 +11606,21 @@ if(isMain){
     +'<svg class="bro-svg" viewBox="0 0 340 130" xmlns="http://www.w3.org/2000/svg">'
     +  '<defs><filter id="broShadow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur in="SourceGraphic" stdDeviation="2"/></filter></defs>'
     +  '<g class="bro-figure">'
-    +    '<circle cx="48" cy="44" r="16" fill="#E8913A"/>'
+    +    '<circle cx="48" cy="44" r="16" fill="#4F6DF5"/>'
     +    '<circle cx="42" cy="42" r="2.2" fill="#fff"/><circle cx="54" cy="42" r="2.2" fill="#fff"/>'
     +    '<path d="M 42 50 Q 48 54 54 50" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/>'
-    +    '<line x1="48" y1="60" x2="48" y2="92" stroke="#E8913A" stroke-width="3.4" stroke-linecap="round"/>'
-    +    '<g class="bro-arm-r"><line x1="48" y1="72" x2="76" y2="58" stroke="#E8913A" stroke-width="3.2" stroke-linecap="round"/></g>'
-    +    '<line x1="48" y1="72" x2="28" y2="84" stroke="#E8913A" stroke-width="3.2" stroke-linecap="round"/>'
-    +    '<line x1="48" y1="92" x2="36" y2="118" stroke="#E8913A" stroke-width="3.2" stroke-linecap="round"/>'
-    +    '<line x1="48" y1="92" x2="60" y2="118" stroke="#E8913A" stroke-width="3.2" stroke-linecap="round"/>'
+    +    '<line x1="48" y1="60" x2="48" y2="92" stroke="#4F6DF5" stroke-width="3.4" stroke-linecap="round"/>'
+    +    '<g class="bro-arm-r"><line x1="48" y1="72" x2="76" y2="58" stroke="#4F6DF5" stroke-width="3.2" stroke-linecap="round"/></g>'
+    +    '<line x1="48" y1="72" x2="28" y2="84" stroke="#4F6DF5" stroke-width="3.2" stroke-linecap="round"/>'
+    +    '<line x1="48" y1="92" x2="36" y2="118" stroke="#4F6DF5" stroke-width="3.2" stroke-linecap="round"/>'
+    +    '<line x1="48" y1="92" x2="60" y2="118" stroke="#4F6DF5" stroke-width="3.2" stroke-linecap="round"/>'
     +  '</g>'
     +  '<g class="bro-bubble">'
-    +    '<path d="M 100 18 Q 100 4 116 4 L 316 4 Q 332 4 332 18 L 332 78 Q 332 92 316 92 L 130 92 L 110 110 L 116 92 L 116 92 Q 100 92 100 78 Z" fill="#FFFFFF" stroke="#E8913A" stroke-width="2.2" filter="drop-shadow(0 4px 10px rgba(17,24,39,0.18))"/>'
+    +    '<path d="M 100 18 Q 100 4 116 4 L 316 4 Q 332 4 332 18 L 332 78 Q 332 92 316 92 L 130 92 L 110 110 L 116 92 L 116 92 Q 100 92 100 78 Z" fill="#FFFFFF" stroke="#4F6DF5" stroke-width="2.2" filter="drop-shadow(0 4px 10px rgba(17,24,39,0.18))"/>'
     +    '<text x="216" y="42" text-anchor="middle" font-family="Instrument Serif, Georgia, serif" font-size="26" fill="#111827">Bro,</text>'
-    +    '<text x="216" y="74" text-anchor="middle" font-family="Instrument Serif, Georgia, serif" font-size="32" font-weight="400" fill="#E8913A">do it!</text>'
+    +    '<text x="216" y="74" text-anchor="middle" font-family="Instrument Serif, Georgia, serif" font-size="32" font-weight="400" fill="#4F6DF5">do it!</text>'
     +  '</g>'
-    +  '<g class="bro-spark"><path d="M 320 38 l 1.5 -4 1.5 4 4 0 -3 2.5 1.2 4 -3.7 -2.4 -3.7 2.4 1.2 -4 -3 -2.5 z" fill="#E8912C"/></g>'
+    +  '<g class="bro-spark"><path d="M 320 38 l 1.5 -4 1.5 4 4 0 -3 2.5 1.2 4 -3.7 -2.4 -3.7 2.4 1.2 -4 -3 -2.5 z" fill="#4F6DF5"/></g>'
     +  '<g class="bro-spark2"><circle cx="86" cy="14" r="2.4" fill="#3DAE5C"/></g>'
     +'</svg>'
     +'</div>';
@@ -11712,8 +11712,8 @@ if(S.tab==='tasks'){
   h+='<div class="qc-send-row"><button class="qc-send" onclick="composeSubmit()" title="Add task">+</button></div></div>';
   h+='<div class="qc-chips">';
   h+='<span class="qc-chip qc-high'+(_cp==='high'?' on':'')+'" onclick="composeSetPriority(\\'high\\')"><span class="qc-dot" style="background:#DC2626"></span>High</span>';
-  h+='<span class="qc-chip qc-med'+(_cp==='medium'?' on':'')+'" onclick="composeSetPriority(\\'medium\\')"><span class="qc-dot" style="background:#D4822F"></span>Med</span>';
-  h+='<span class="qc-chip qc-low'+(_cp==='low'?' on':'')+'" onclick="composeSetPriority(\\'low\\')"><span class="qc-dot" style="background:#E8913A"></span>Low</span>';
+  h+='<span class="qc-chip qc-med'+(_cp==='medium'?' on':'')+'" onclick="composeSetPriority(\\'medium\\')"><span class="qc-dot" style="background:#F59E0B"></span>Med</span>';
+  h+='<span class="qc-chip qc-low'+(_cp==='low'?' on':'')+'" onclick="composeSetPriority(\\'low\\')"><span class="qc-dot" style="background:#16A34A"></span>Low</span>';
   h+='<span class="qc-expand" onclick="opA()">+ More options</span>';
   h+='</div></div>';
   h+='<div class="is-row is-hydration" style="margin-bottom:12px">'
@@ -11763,22 +11763,22 @@ else if(S.tab==='mindgym'){
 
   // Category cards with SVG illustrations
   const _cats=[
-    {id:'maths',title:'Maths',desc:'Arithmetic & logic puzzles',grad:'linear-gradient(135deg,#F0A855 0%,#E8913A 50%,#D4822F 100%)',
+    {id:'maths',title:'Maths',desc:'Arithmetic & logic puzzles',grad:'linear-gradient(135deg,#6B8AF9 0%,#4F6DF5 50%,#3B5CE0 100%)',
      ic:'<svg width="80" height="80" viewBox="0 0 80 80" fill="none"><text x="10" y="32" font-size="28" font-weight="900" fill="white" opacity=".35" font-family="monospace">12</text><text x="30" y="58" font-size="22" font-weight="900" fill="white" opacity=".3" font-family="monospace">+47</text><text x="8" y="72" font-size="18" font-weight="900" fill="white" opacity=".25" font-family="monospace">=59</text><circle cx="65" cy="20" r="12" stroke="white" stroke-width="2" opacity=".2"/><line x1="58" y1="20" x2="72" y2="20" stroke="white" stroke-width="2" opacity=".3"/><line x1="65" y1="13" x2="65" y2="27" stroke="white" stroke-width="2" opacity=".3"/></svg>',
      games:[
-      {k:'math',n:'Math Sprint',d:'Mental arithmetic against the clock',em:'\\u26A1',bg:'#FFF7ED',fill:'#E8913A',pData:mg.progress.math},
-      {k:'sudoku',n:'Sudoku',d:'4\\u00D74 logic puzzle',em:'\\u{1F9E9}',bg:'#FEF3C7',fill:'#C8922A',pData:_sudP}
+      {k:'math',n:'Math Sprint',d:'Mental arithmetic against the clock',em:'\\u26A1',bg:'#EEF2FF',fill:'#4F6DF5',pData:mg.progress.math},
+      {k:'sudoku',n:'Sudoku',d:'4\\u00D74 logic puzzle',em:'\\u{1F9E9}',bg:'#EEF2FF',fill:'#3B5CE0',pData:_sudP}
     ]},
-    {id:'english',title:'English',desc:'Vocabulary & word skills',grad:'linear-gradient(135deg,#8B7D6B 0%,#A39282 50%,#BFB1A0 100%)',
+    {id:'english',title:'English',desc:'Vocabulary & word skills',grad:'linear-gradient(135deg,#64748B 0%,#7C8DA3 50%,#94A3B8 100%)',
      ic:'<svg width="80" height="80" viewBox="0 0 80 80" fill="none"><text x="6" y="35" font-size="32" font-weight="900" fill="white" opacity=".3" font-family="serif" letter-spacing="2">Abc</text><text x="20" y="62" font-size="18" font-weight="700" fill="white" opacity=".2" font-family="serif">words</text><rect x="55" y="10" width="18" height="24" rx="3" stroke="white" stroke-width="1.5" opacity=".2"/><line x1="59" y1="17" x2="69" y2="17" stroke="white" stroke-width="1" opacity=".2"/><line x1="59" y1="22" x2="69" y2="22" stroke="white" stroke-width="1" opacity=".2"/><line x1="59" y1="27" x2="66" y2="27" stroke="white" stroke-width="1" opacity=".2"/></svg>',
      games:[
-      {k:'word',n:'Word Sprint',d:'Unscramble letters into words',em:'\\u{1F524}',bg:'#F5F5F4',fill:'#57534E',pData:_wordP}
+      {k:'word',n:'Word Sprint',d:'Unscramble letters into words',em:'\\u{1F524}',bg:'#F1F5F9',fill:'#64748B',pData:_wordP}
     ]},
-    {id:'memory',title:'Memory',desc:'Focus & recall training',grad:'linear-gradient(135deg,#C48A5A 0%,#D4976A 50%,#E5A97C 100%)',
+    {id:'memory',title:'Memory',desc:'Focus & recall training',grad:'linear-gradient(135deg,#7C3AED 0%,#8B5CF6 50%,#A78BFA 100%)',
      ic:'<svg width="80" height="80" viewBox="0 0 80 80" fill="none"><circle cx="25" cy="30" r="14" stroke="white" stroke-width="2" opacity=".25"/><circle cx="25" cy="30" r="6" fill="white" opacity=".15"/><rect x="48" y="16" width="22" height="22" rx="4" stroke="white" stroke-width="2" opacity=".2"/><rect x="52" y="20" width="14" height="14" rx="2" fill="white" opacity=".1"/><path d="M20 55 Q40 45 60 55 Q50 65 30 65 Z" stroke="white" stroke-width="1.5" opacity=".15" fill="white" fill-opacity=".05"/></svg>',
      games:[
-      {k:'schulte',n:'Schulte Grid',d:'Find numbers 1\\u219225 in order',em:'\\u{1F522}',bg:'#FFF7ED',fill:'#C48A5A',pData:_schP},
-      {k:'spatial',n:'Pattern Recall',d:'Memorize and recreate patterns',em:'\\u{1F4A1}',bg:'#FEF3C7',fill:'#B07848',pData:_spatP}
+      {k:'schulte',n:'Schulte Grid',d:'Find numbers 1\\u219225 in order',em:'\\u{1F522}',bg:'#EEF2FF',fill:'#4F6DF5',pData:_schP},
+      {k:'spatial',n:'Pattern Recall',d:'Memorize and recreate patterns',em:'\\u{1F4A1}',bg:'#E0E7FF',fill:'#3B5CE0',pData:_spatP}
     ]}
   ];
 
@@ -11795,7 +11795,7 @@ else if(S.tab==='mindgym'){
       +'</div>'
     +'</button>';
     if(_openCat===cat.id){
-      const _gameSvgs={math:'<svg viewBox="0 0 48 48" width="48" height="48" fill="none"><rect x="4" y="8" width="40" height="32" rx="6" fill="#FFF7ED" stroke="#E8913A" stroke-width="1.5"/><text x="12" y="24" font-size="11" font-weight="700" fill="#E8913A">7+5</text><text x="28" y="24" font-size="11" font-weight="700" fill="#D4822F">=12</text><circle cx="37" cy="32" r="5" fill="#FDE68A"/><path d="M35 32h4M37 30v4" stroke="#E8913A" stroke-width="1.2" stroke-linecap="round"/></svg>',sudoku:'<svg viewBox="0 0 48 48" width="48" height="48" fill="none"><rect x="6" y="6" width="36" height="36" rx="4" fill="#FEF9C3" stroke="#C8922A" stroke-width="1.5"/><line x1="18" y1="6" x2="18" y2="42" stroke="#C8922A" stroke-width=".8"/><line x1="30" y1="6" x2="30" y2="42" stroke="#C8922A" stroke-width=".8"/><line x1="6" y1="18" x2="42" y2="18" stroke="#C8922A" stroke-width=".8"/><line x1="6" y1="30" x2="42" y2="30" stroke="#C8922A" stroke-width=".8"/><text x="10" y="16" font-size="9" font-weight="600" fill="#92400E">3</text><text x="22" y="16" font-size="9" font-weight="600" fill="#92400E">1</text><text x="34" y="28" font-size="9" font-weight="600" fill="#92400E">4</text><text x="10" y="40" font-size="9" font-weight="600" fill="#92400E">2</text></svg>',word:'<svg viewBox="0 0 48 48" width="48" height="48" fill="none"><rect x="3" y="14" width="14" height="14" rx="3" fill="#F5F5F4" stroke="#78716C" stroke-width="1.2"/><rect x="19" y="14" width="14" height="14" rx="3" fill="#F5F5F4" stroke="#78716C" stroke-width="1.2"/><rect x="35" y="14" width="10" height="14" rx="3" fill="#F5F5F4" stroke="#78716C" stroke-width="1.2"/><text x="7" y="24" font-size="10" font-weight="700" fill="#57534E">W</text><text x="23" y="24" font-size="10" font-weight="700" fill="#57534E">O</text><text x="37" y="24" font-size="10" font-weight="700" fill="#57534E">R</text><path d="M10 34l4-4M26 34l-4-4" stroke="#A8A29E" stroke-width="1" stroke-dasharray="2 2"/></svg>',schulte:'<svg viewBox="0 0 48 48" width="48" height="48" fill="none"><rect x="4" y="4" width="40" height="40" rx="5" fill="#FFF7ED" stroke="#C48A5A" stroke-width="1.5"/><g font-size="8" font-weight="600" fill="#92400E"><text x="9" y="16">1</text><text x="21" y="16">8</text><text x="33" y="16">3</text><text x="9" y="28">5</text><text x="20" y="28">12</text><text x="33" y="28">7</text><text x="9" y="40">9</text><text x="21" y="40">4</text><text x="32" y="40">11</text></g><circle cx="24" cy="24" r="6" fill="rgba(196,138,90,.15)" stroke="#C48A5A" stroke-width="1"/></svg>',spatial:'<svg viewBox="0 0 48 48" width="48" height="48" fill="none"><rect x="6" y="6" width="14" height="14" rx="3" fill="#FDE68A"/><rect x="28" y="6" width="14" height="14" rx="3" fill="#E5A97C"/><rect x="6" y="28" width="14" height="14" rx="3" fill="#E5A97C"/><rect x="28" y="28" width="14" height="14" rx="3" fill="#FDE68A"/><circle cx="24" cy="24" r="4" fill="#C48A5A" opacity=".3"/><path d="M13 13l22 22M35 13L13 35" stroke="#B07848" stroke-width="1" stroke-dasharray="2 2" opacity=".4"/></svg>'};
+      const _gameSvgs={math:'<svg viewBox="0 0 40 40" width="40" height="40" fill="none"><rect x="2" y="2" width="36" height="36" rx="8" fill="#EEF2FF"/><path d="M13 14h14M20 7v14" stroke="#4F6DF5" stroke-width="2.5" stroke-linecap="round"/><path d="M13 28h14" stroke="#7B93F8" stroke-width="2.5" stroke-linecap="round"/><circle cx="15" cy="33" r="1.5" fill="#7B93F8"/><circle cx="25" cy="33" r="1.5" fill="#7B93F8"/></svg>',sudoku:'<svg viewBox="0 0 40 40" width="40" height="40" fill="none"><rect x="4" y="4" width="32" height="32" rx="4" fill="#EEF2FF" stroke="#B4C2FB" stroke-width="1.2"/><line x1="16" y1="4" x2="16" y2="36" stroke="#B4C2FB" stroke-width=".8"/><line x1="27" y1="4" x2="27" y2="36" stroke="#B4C2FB" stroke-width=".8"/><line x1="4" y1="16" x2="36" y2="16" stroke="#B4C2FB" stroke-width=".8"/><line x1="4" y1="27" x2="36" y2="27" stroke="#B4C2FB" stroke-width=".8"/><text x="8" y="13" font-size="8" font-weight="700" fill="#4F6DF5">3</text><text x="20" y="13" font-size="8" font-weight="700" fill="#4F6DF5">1</text><text x="30" y="24" font-size="8" font-weight="700" fill="#4F6DF5">4</text><text x="8" y="35" font-size="8" font-weight="700" fill="#4F6DF5">2</text></svg>',word:'<svg viewBox="0 0 40 40" width="40" height="40" fill="none"><rect x="2" y="10" width="11" height="14" rx="3" fill="#EEF2FF" stroke="#B4C2FB" stroke-width="1"/><rect x="15" y="10" width="11" height="14" rx="3" fill="#EEF2FF" stroke="#B4C2FB" stroke-width="1"/><rect x="28" y="10" width="10" height="14" rx="3" fill="#EEF2FF" stroke="#B4C2FB" stroke-width="1"/><text x="5" y="20" font-size="9" font-weight="700" fill="#4F6DF5">A</text><text x="18" y="20" font-size="9" font-weight="700" fill="#4F6DF5">B</text><text x="31" y="20" font-size="9" font-weight="700" fill="#4F6DF5">C</text><path d="M8 30l6-4M26 30l-6-4" stroke="#B4C2FB" stroke-width="1" stroke-dasharray="2 2"/></svg>',schulte:'<svg viewBox="0 0 40 40" width="40" height="40" fill="none"><rect x="3" y="3" width="34" height="34" rx="5" fill="#EEF2FF" stroke="#B4C2FB" stroke-width="1.2"/><g font-size="7" font-weight="700" fill="#4F6DF5"><text x="8" y="14">1</text><text x="19" y="14">8</text><text x="29" y="14">3</text><text x="8" y="24">5</text><text x="17" y="24">12</text><text x="29" y="24">7</text><text x="8" y="34">9</text><text x="19" y="34">4</text></g><circle cx="20" cy="20" r="5" fill="rgba(79,109,245,.1)" stroke="#7B93F8" stroke-width=".8"/></svg>',spatial:'<svg viewBox="0 0 40 40" width="40" height="40" fill="none"><rect x="4" y="4" width="13" height="13" rx="3" fill="#C7D2FE"/><rect x="23" y="4" width="13" height="13" rx="3" fill="#EEF2FF"/><rect x="4" y="23" width="13" height="13" rx="3" fill="#EEF2FF"/><rect x="23" y="23" width="13" height="13" rx="3" fill="#C7D2FE"/><circle cx="20" cy="20" r="3" fill="#4F6DF5" opacity=".2"/></svg>'};
       h+='<div class="tg-games-wrap"><div class="tg-games">';
       cat.games.forEach(g=>{
         const p=g.pData;
@@ -13392,7 +13392,7 @@ h+='<div style="text-align:center;margin-bottom:10px"><button class="voice-lg'+(
 h+='<div style="height:1px;background:#E5E7EB;margin:10px 0 14px"></div>';
 h+='<label class="lbl">Task</label><input id="ft" value="'+esc(S.form.title)+'" placeholder="What needs to be done?" oninput="S.form.title=this.value">';
 h+='<label class="lbl">Notes</label><textarea oninput="S.form.notes=this.value" placeholder="Details...">'+esc(S.form.notes)+'</textarea>';
-h+='<div class="row"><div><label class="lbl">Priority</label><div class="qc-chips" style="margin-top:4px"><span class="qc-chip qc-high'+(S.form.priority==='high'?' on':'')+'" onclick="S.form.priority=\\'high\\';render()"><span class="qc-dot" style="background:#DC2626"></span>High</span><span class="qc-chip qc-med'+(S.form.priority==='medium'?' on':'')+'" onclick="S.form.priority=\\'medium\\';render()"><span class="qc-dot" style="background:#D4822F"></span>Med</span><span class="qc-chip qc-low'+(S.form.priority==='low'?' on':'')+'" onclick="S.form.priority=\\'low\\';render()"><span class="qc-dot" style="background:#E8913A"></span>Low</span></div></div>';
+h+='<div class="row"><div><label class="lbl">Priority</label><div class="qc-chips" style="margin-top:4px"><span class="qc-chip qc-high'+(S.form.priority==='high'?' on':'')+'" onclick="S.form.priority=\\'high\\';render()"><span class="qc-dot" style="background:#DC2626"></span>High</span><span class="qc-chip qc-med'+(S.form.priority==='medium'?' on':'')+'" onclick="S.form.priority=\\'medium\\';render()"><span class="qc-dot" style="background:#F59E0B"></span>Med</span><span class="qc-chip qc-low'+(S.form.priority==='low'?' on':'')+'" onclick="S.form.priority=\\'low\\';render()"><span class="qc-dot" style="background:#16A34A"></span>Low</span></div></div>';
 h+='<div><label class="lbl">Due Date</label><input type="date" value="'+S.form.dueDate+'" onchange="S.form.dueDate=this.value"></div></div>';
 h+='<label class="lbl">Reminder</label><input type="time" value="'+S.form.reminderTime+'" onchange="S.form.reminderTime=this.value">';
 // Board picker in form removed — single unified task list. Server defaults new tasks to 'home'.
@@ -13766,7 +13766,7 @@ app.get('/privacy',(_,res)=>{
 app.get('/terms',(_,res)=>{
   res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Terms of Service — Brodoit</title><meta name="description" content="The simple terms for using Brodoit. Plain English, no surprises."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Terms</div><h1>The simple rules.</h1><p class="lede">We've kept these terms short and human. Use Brodoit kindly, and we'll keep building it for you.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">The service</h2><p>Brodoit is a personal productivity app: it lets you manage tasks with optional WhatsApp and email reminders, listen to free public-domain audiobooks, sharpen your mind with brain games, and see a daily wisdom quote.</p><h2 data-n="02">Your account</h2><p>You register with your email address or phone number. Keep your one-time verification codes private — anyone with the code can sign in. You are responsible for activity on your account.</p><h2 data-n="03">Acceptable use</h2><p>Please don't abuse the service: no spam, no impersonation, no automated scraping, no attempts to disrupt other users or the service itself. We may suspend or remove accounts that do.</p><h2 data-n="04">Content</h2><p>You own your tasks, notes, and other content you create. We store them so we can show them back to you. Audiobook content belongs to the respective public-domain authors and is served from the Internet Archive's LibriVox collection.</p><h2 data-n="05">No warranty</h2><p>The service is provided "as is". We try hard to keep it running, but can't promise zero downtime or guarantee that every reminder is delivered (WhatsApp and email providers can fail). If something matters, please don't rely solely on Brodoit.</p><h2 data-n="06">Limitation of liability</h2><p>Brodoit is a personal tool. We're not liable for missed deadlines, lost data, or any consequential damages from using — or not using — the service.</p><h2 data-n="07">Changes</h2><p>We may update these terms. If we do, we'll update the date at the top. Continued use after a change means you accept the new terms.</p><h2 data-n="08">Contact</h2><p>Need anything? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });
-app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v33";
+app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v34";
 self.addEventListener("install",function(e){self.skipWaiting()});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener("fetch",function(e){});
