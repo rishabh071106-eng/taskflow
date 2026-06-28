@@ -585,7 +585,7 @@ Begin.`,
   'aff-5min': {
     title: '5-minute Affirmation',
     desc: 'A grounded reset — build resilience, soften the day',
-    mins: 5, color: '#5BBFB4', kind: 'affirmation',
+    mins: 5, color: '#E8985A', kind: 'affirmation',
     script: `Welcome. Find a place where you can sit comfortably.
 
 Let your shoulders drop. Soften your jaw. Unclench your hands. Let your face be at rest. If your eyes are open, let them soften. If you feel like closing them, close them.
@@ -715,7 +715,7 @@ Thank you for taking this time. Be well.`,
   'med-grounding-3min': {
     title: 'Three-minute Grounding',
     desc: 'A short reset for any moment',
-    mins: 3, color: '#5BBFB4', kind: 'guided',
+    mins: 3, color: '#E8985A', kind: 'guided',
     script: `Welcome. We will take three minutes together. That is all. Three minutes of quiet.
 
 Find a comfortable seat. Feet on the floor if you can. Hands resting where they want to rest. Let your shoulders drop. Let your jaw soften. Let the muscles around your eyes go easy.
@@ -787,7 +787,7 @@ Stay here, in this softness, for as long as you have. And when you are ready to 
   'med-sleep-winddown-5min': {
     title: 'Sleep Wind-Down',
     desc: 'Slow the mind for rest',
-    mins: 5, color: '#5BBFB4', kind: 'guided',
+    mins: 5, color: '#D97706', kind: 'guided',
     script: `Lie back. Or sit, if that's where you are. Either way, let your body be supported. We're going to slow everything down. There is nothing left to do today. Nothing that cannot wait until tomorrow.
 
 Take a long breath in through the nose. Feel the air fill your chest, your belly. And let it leave through the mouth, like a long, soft sigh. Good.
@@ -835,7 +835,7 @@ Goodnight.`,
   'vip-5min': {
     title: '5-minute Vipassana',
     desc: 'Breath awareness — Anapana',
-    mins: 5, color: '#06B6D4', kind: 'vipassana',
+    mins: 5, color: '#B45309', kind: 'vipassana',
     script: `Find a comfortable seat. Keep your back straight but not rigid. Close your eyes gently.
 
 Take a deep breath in through your nose... and slowly release it.
@@ -873,7 +873,7 @@ When you are ready, slowly open your eyes.`,
   'vip-10min': {
     title: '10-minute Vipassana',
     desc: 'Breath awareness + body scan',
-    mins: 10, color: '#3B82F6', kind: 'vipassana',
+    mins: 10, color: '#92400E', kind: 'vipassana',
     script: `Sit comfortably. Spine straight. Hands resting on your knees or in your lap. Close your eyes.
 
 Take three deep breaths to settle the mind. Breathe in deeply through your nose... and out through your mouth. Again... in... and out. One more time... in... and out.
@@ -933,7 +933,7 @@ When you are ready, gently open your eyes. Carry this awareness with you.`,
   'vip-15min': {
     title: '15-minute Vipassana',
     desc: 'Full practice — breath, body scan, metta',
-    mins: 15, color: '#8B5CF6', kind: 'vipassana',
+    mins: 15, color: '#D97706', kind: 'vipassana',
     script: `Welcome to this fifteen-minute vipassana practice. Find your seat. Let the spine be straight and dignified, like a mountain. Let the shoulders be soft, like water flowing over rocks. Close your eyes.
 
 Take three settling breaths. A deep breath in through the nose... hold it gently... and release slowly through the mouth. Again... in... hold... and release. One final time... in... hold... and out. Let the breath return to normal now.
@@ -1017,17 +1017,17 @@ When you are ready, open your eyes gently. Carry this peace with you through the
   'music-2min': {
     title: '2-minute Calm',
     desc: 'Ambient tones for a quick reset',
-    mins: 2, color: '#EC4899', kind: 'music', script: '',
+    mins: 2, color: '#F59E0B', kind: 'music', script: '',
   },
   'music-5min': {
     title: '5-minute Ambient',
     desc: 'Layered healing frequencies',
-    mins: 5, color: '#8B5CF6', kind: 'music', script: '',
+    mins: 5, color: '#D97706', kind: 'music', script: '',
   },
   'music-10min': {
     title: '10-minute Soundscape',
     desc: 'Deep ambient for extended calm',
-    mins: 10, color: '#06B6D4', kind: 'music', script: '',
+    mins: 10, color: '#C2410C', kind: 'music', script: '',
   },
 
   // ─── Sleep Music (ambient for drifting off) ───────────────────────────
@@ -1082,12 +1082,12 @@ When you are ready, open your eyes gently. Carry this peace with you through the
   'work-3min': {
     title: '3-min Deep Focus',
     desc: 'Steady concentration tones',
-    mins: 3, color: '#3B82F6', kind: 'music', script: '',
+    mins: 3, color: '#B45309', kind: 'music', script: '',
   },
   'work-5min': {
     title: '5-min Deep Focus',
     desc: 'Extended focus frequencies for work',
-    mins: 5, color: '#3B82F6', kind: 'music', script: '',
+    mins: 5, color: '#92400E', kind: 'music', script: '',
   },
 
   // ─── Guided Sleep Whispers ───────────────────────────────────────────
@@ -1114,25 +1114,25 @@ When you are ready, open your eyes gently. Carry this peace with you through the
 
   // ─── Wisdom Stories (5 min each) ──────────────────────────────────────
   'story-01': { title: 'The Two Wolves', desc: 'Which wolf wins? The one you feed.', mins: 5, color: '#F97316', kind: 'story', script: '' },
-  'story-02': { title: 'The Bamboo Tree', desc: 'Five years underground, then unstoppable.', mins: 5, color: '#3DAE5C', kind: 'story', script: '' },
-  'story-03': { title: 'The Cracked Pot', desc: 'Beauty grows from imperfection.', mins: 5, color: '#5BBFB4', kind: 'story', script: '' },
+  'story-02': { title: 'The Bamboo Tree', desc: 'Five years underground, then unstoppable.', mins: 5, color: '#FF7A45', kind: 'story', script: '' },
+  'story-03': { title: 'The Cracked Pot', desc: 'Beauty grows from imperfection.', mins: 5, color: '#E8985A', kind: 'story', script: '' },
   'story-04': { title: 'The Stonecutter', desc: 'Power is never what you think it is.', mins: 5, color: '#D97706', kind: 'story', script: '' },
-  'story-05': { title: 'The Empty Cup', desc: 'You cannot fill what is already full.', mins: 5, color: '#06B6D4', kind: 'story', script: '' },
-  'story-06': { title: "The Farmer's Horse", desc: 'Good luck, bad luck — who can say?', mins: 5, color: '#8B5CF6', kind: 'story', script: '' },
+  'story-05': { title: 'The Empty Cup', desc: 'You cannot fill what is already full.', mins: 5, color: '#B45309', kind: 'story', script: '' },
+  'story-06': { title: "The Farmer's Horse", desc: 'Good luck, bad luck — who can say?', mins: 5, color: '#F59E0B', kind: 'story', script: '' },
   'story-07': { title: 'The Golden Buddha', desc: 'Your true nature is hidden, not lost.', mins: 5, color: '#FCB851', kind: 'story', script: '' },
-  'story-08': { title: 'The Starfish Story', desc: 'It mattered to that one.', mins: 5, color: '#EC4899', kind: 'story', script: '' },
-  'story-09': { title: 'The Elephant and the Rope', desc: 'Beliefs can become invisible chains.', mins: 5, color: '#EA580C', kind: 'story', script: '' },
-  'story-10': { title: 'The Oak and the Reed', desc: 'Flexibility outlasts rigidity.', mins: 5, color: '#3B82F6', kind: 'story', script: '' },
-  'story-11': { title: "The King's Painting", desc: 'Only one saw the full picture.', mins: 5, color: '#DC2626', kind: 'story', script: '' },
-  'story-12': { title: 'The Jar of Life', desc: 'Put the big rocks in first.', mins: 5, color: '#FF7A45', kind: 'story', script: '' },
-  'story-13': { title: 'The Eagle Who Forgot', desc: 'You were born to fly.', mins: 5, color: '#06B6D4', kind: 'story', script: '' },
-  'story-14': { title: 'The Lighthouse', desc: 'Some things do not move for you.', mins: 5, color: '#5BBFB4', kind: 'story', script: '' },
+  'story-08': { title: 'The Starfish Story', desc: 'It mattered to that one.', mins: 5, color: '#EA580C', kind: 'story', script: '' },
+  'story-09': { title: 'The Elephant and the Rope', desc: 'Beliefs can become invisible chains.', mins: 5, color: '#FF7A45', kind: 'story', script: '' },
+  'story-10': { title: 'The Oak and the Reed', desc: 'Flexibility outlasts rigidity.', mins: 5, color: '#C2410C', kind: 'story', script: '' },
+  'story-11': { title: "The King's Painting", desc: 'Only one saw the full picture.', mins: 5, color: '#92400E', kind: 'story', script: '' },
+  'story-12': { title: 'The Jar of Life', desc: 'Put the big rocks in first.', mins: 5, color: '#FB923C', kind: 'story', script: '' },
+  'story-13': { title: 'The Eagle Who Forgot', desc: 'You were born to fly.', mins: 5, color: '#D97706', kind: 'story', script: '' },
+  'story-14': { title: 'The Lighthouse', desc: 'Some things do not move for you.', mins: 5, color: '#E8985A', kind: 'story', script: '' },
   'story-15': { title: "The Carpenter's House", desc: 'Build every day like it matters.', mins: 5, color: '#F97316', kind: 'story', script: '' },
-  'story-16': { title: "The Butterfly's Struggle", desc: 'The struggle is the gift.', mins: 5, color: '#3DAE5C', kind: 'story', script: '' },
-  'story-17': { title: "The Wise Woman's Stone", desc: 'True wealth cannot be held.', mins: 5, color: '#8B5CF6', kind: 'story', script: '' },
-  'story-18': { title: 'The Fisherman', desc: 'You already have what you seek.', mins: 5, color: '#3B82F6', kind: 'story', script: '' },
+  'story-16': { title: "The Butterfly's Struggle", desc: 'The struggle is the gift.', mins: 5, color: '#B45309', kind: 'story', script: '' },
+  'story-17': { title: "The Wise Woman's Stone", desc: 'True wealth cannot be held.', mins: 5, color: '#FCB851', kind: 'story', script: '' },
+  'story-18': { title: 'The Fisherman', desc: 'You already have what you seek.', mins: 5, color: '#EA580C', kind: 'story', script: '' },
   'story-19': { title: 'The Bridge Builder', desc: 'The greatest work is for those who follow.', mins: 5, color: '#D97706', kind: 'story', script: '' },
-  'story-20': { title: 'The Samurai and the Tea Master', desc: 'Courage is doing what you know.', mins: 5, color: '#DC2626', kind: 'story', script: '' },
+  'story-20': { title: 'The Samurai and the Tea Master', desc: 'Courage is doing what you know.', mins: 5, color: '#C2410C', kind: 'story', script: '' },
 };
 
 // Used by <audio src> for affirmations + guided meditations (static MP3s).
@@ -2817,7 +2817,7 @@ body[data-theme=aurora] .cc-quick-btn{background:rgba(255,255,255,.04);border-co
 .ms-streak-hot{background:linear-gradient(135deg,#FCD34D,#FB923C);animation:msHotPulse 1s ease-in-out infinite alternate}
 .ms-streak-hot b,.ms-streak-hot small{color:#7C2D12!important}
 @keyframes msHotPulse{from{box-shadow:0 0 0 0 rgba(252,211,77,.6)}to{box-shadow:0 0 0 8px rgba(252,211,77,0)}}
-.ms-combo{margin-left:auto;font-family:'Space Mono',monospace;font-weight:900;font-size:22px;color:#A855F7;letter-spacing:-.02em;animation:msPop .35s cubic-bezier(.2,1.5,.5,1)}
+.ms-combo{margin-left:auto;font-family:'Space Mono',monospace;font-weight:900;font-size:22px;color:#EA580C;letter-spacing:-.02em;animation:msPop .35s cubic-bezier(.2,1.5,.5,1)}
 @keyframes msPop{from{transform:scale(.5) rotate(-8deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
 .ms-time-track{height:6px;background:rgba(17,24,39,.06);border-radius:99px;overflow:hidden}
 .ms-time-fill{height:100%;background:linear-gradient(90deg,#FB923C,#FB923C);border-radius:99px;transition:width .1s linear,background .3s ease}
@@ -2888,16 +2888,16 @@ body[data-theme=aurora] .mt-end-s{color:#9999B5}body[data-theme=aurora] .mt-star
 .mg-confetti i{position:absolute;width:9px;height:14px;background:#FCD34D;top:-10px;animation:mgFall 1.5s ease-in forwards;opacity:0}
 .mg-confetti i:nth-child(1){left:8%;background:#FCD34D;animation-delay:0s}
 .mg-confetti i:nth-child(2){left:16%;background:#FB923C;animation-delay:.05s}
-.mg-confetti i:nth-child(3){left:24%;background:#A855F7;animation-delay:.1s}
+.mg-confetti i:nth-child(3){left:24%;background:#F59E0B;animation-delay:.1s}
 .mg-confetti i:nth-child(4){left:32%;background:#FB923C;animation-delay:.04s}
 .mg-confetti i:nth-child(5){left:40%;background:#FB923C;animation-delay:.12s}
-.mg-confetti i:nth-child(6){left:48%;background:#F472B6;animation-delay:.07s}
+.mg-confetti i:nth-child(6){left:48%;background:#FCD34D;animation-delay:.07s}
 .mg-confetti i:nth-child(7){left:56%;background:#FCD34D;animation-delay:.15s}
 .mg-confetti i:nth-child(8){left:64%;background:#FB923C;animation-delay:.02s}
-.mg-confetti i:nth-child(9){left:72%;background:#A855F7;animation-delay:.18s}
+.mg-confetti i:nth-child(9){left:72%;background:#F59E0B;animation-delay:.18s}
 .mg-confetti i:nth-child(10){left:80%;background:#FB923C;animation-delay:.06s}
 .mg-confetti i:nth-child(11){left:88%;background:#FB923C;animation-delay:.13s}
-.mg-confetti i:nth-child(12){left:92%;background:#F472B6;animation-delay:.09s}
+.mg-confetti i:nth-child(12){left:92%;background:#D97706;animation-delay:.09s}
 @keyframes mgFall{0%{opacity:0;transform:translateY(0) rotate(0)}10%{opacity:1}100%{opacity:0;transform:translateY(110vh) rotate(720deg)}}
 /* MIND GYM dedicated tab — hero + cards + value strip */
 .mg-hero{position:relative;border-radius:20px;overflow:hidden;margin-bottom:18px;background:linear-gradient(135deg,#111827 0%,#1F2937 50%,#374151 100%);color:#fff;box-shadow:0 16px 40px rgba(17,24,39,.22)}
@@ -2937,8 +2937,8 @@ body[data-theme=aurora] .mg-why-card{background:rgba(255,255,255,.04);border-col
 body[data-theme=aurora] .mg-why-t{color:#F5F5FA}
 body[data-theme=aurora] .mg-why-d{color:#9999B5}
 /* VOICE TRAINER */
-.vc-hero{position:relative;border-radius:20px;overflow:hidden;margin-bottom:18px;background:linear-gradient(135deg,#111827 0%,#1E3A8A 50%,#0E7490 100%);color:#fff;box-shadow:0 16px 40px rgba(17,24,39,.22)}
-.vc-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 78% 100%,rgba(34,211,238,.28),transparent 55%),radial-gradient(circle at 10% 0%,rgba(252,211,77,.15),transparent 50%);pointer-events:none}
+.vc-hero{position:relative;border-radius:20px;overflow:hidden;margin-bottom:18px;background:linear-gradient(135deg,#111827 0%,#292524 50%,#7C2D12 100%);color:#fff;box-shadow:0 16px 40px rgba(17,24,39,.22)}
+.vc-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 78% 100%,rgba(251,146,60,.28),transparent 55%),radial-gradient(circle at 10% 0%,rgba(252,211,77,.15),transparent 50%);pointer-events:none}
 .vc-hero-inner{position:relative;padding:24px 22px;display:flex;flex-direction:column;gap:18px}
 .vc-hero-eyebrow{font-size:10.5px;font-weight:800;letter-spacing:2px;color:rgba(255,255,255,.74);margin-bottom:6px}
 .vc-hero-t{margin:0;font-size:30px;font-weight:900;line-height:1.05;letter-spacing:-.025em;color:#fff}
@@ -2946,8 +2946,8 @@ body[data-theme=aurora] .mg-why-d{color:#9999B5}
 .vc-hero-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 @media (min-width:600px){.vc-hero-inner{flex-direction:row;align-items:flex-end;gap:24px}.vc-hero-l{flex:1;min-width:0}.vc-hero-stats{flex:0 0 auto;grid-template-columns:repeat(4,minmax(74px,1fr));gap:12px}.vc-hero-t{font-size:38px}}
 .vc-stat{padding:10px 12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:12px}
-.vc-stat b{display:block;font-family:'Space Mono',monospace;font-size:24px;font-weight:900;color:#67E8F9;letter-spacing:-.02em;line-height:1}
-.vc-stat b small{font-size:14px;color:rgba(103,232,249,.65)}
+.vc-stat b{display:block;font-family:'Space Mono',monospace;font-size:24px;font-weight:900;color:#FCD34D;letter-spacing:-.02em;line-height:1}
+.vc-stat b small{font-size:14px;color:rgba(252,211,77,.65)}
 .vc-stat small{display:block;font-size:9.5px;font-weight:700;letter-spacing:.7px;color:rgba(255,255,255,.65);text-transform:uppercase;margin-top:5px}
 .vc-phase{margin-bottom:18px}
 .vc-phase-hd{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;padding:0 4px}
@@ -2956,30 +2956,30 @@ body[data-theme=aurora] .mg-why-d{color:#9999B5}
 .vc-day-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
 @media (min-width:600px){.vc-day-grid{grid-template-columns:repeat(10,minmax(0,1fr));gap:8px}}
 .vc-day{aspect-ratio:1;background:#fff;border:1.5px solid #E5E7EB;border-radius:10px;cursor:pointer;font-family:'Space Mono',monospace;font-weight:800;font-size:13px;color:#6B7280;transition:transform .12s ease,border-color .12s ease,background .12s ease;position:relative;display:flex;align-items:center;justify-content:center}
-.vc-day:hover{border-color:#0E7490;background:#F5F6F8;transform:translateY(-2px)}
+.vc-day:hover{border-color:#F97316;background:#FFF7ED;transform:translateY(-2px)}
 .vc-day:active{transform:scale(.95)}
-.vc-day-done{background:linear-gradient(135deg,#0E7490,#0891B2);border-color:#0891B2;color:#fff}
+.vc-day-done{background:linear-gradient(135deg,#F97316,#EA580C);border-color:#EA580C;color:#fff}
 .vc-day-check{position:absolute;top:2px;right:3px;font-size:10px;color:#FCD34D}
 .vc-day-num{position:relative;z-index:1}
 body[data-theme=aurora] .vc-phase-t{color:#F5F5FA}
 body[data-theme=aurora] .vc-day{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12);color:#9999B5}
-body[data-theme=aurora] .vc-day:hover{background:rgba(14,116,144,.2);border-color:#0E7490}
+body[data-theme=aurora] .vc-day:hover{background:rgba(249,115,22,.2);border-color:#F97316}
 /* Voice lesson modal */
 .vc-mdl{max-width:540px;padding:0;overflow:hidden;display:flex;flex-direction:column;max-height:92vh}
-.vc-mdl-hd{display:flex;align-items:center;gap:12px;padding:18px 18px 14px;background:linear-gradient(135deg,#111827,#0E7490);color:#fff;position:relative;flex-shrink:0}
+.vc-mdl-hd{display:flex;align-items:center;gap:12px;padding:18px 18px 14px;background:linear-gradient(135deg,#111827,#7C2D12);color:#fff;position:relative;flex-shrink:0}
 .vc-mdl-hd > div:first-child{flex:1;min-width:0}
 .vc-mdl-eyebrow{font-size:10px;font-weight:800;letter-spacing:1.6px;color:rgba(255,255,255,.7)}
 .vc-mdl-t{margin:6px 0 0;font-size:18px;font-weight:900;color:#fff;letter-spacing:-.01em;line-height:1.2}
 .vc-mdl-progress{height:3px;background:rgba(0,0,0,.05)}
-.vc-mdl-progress-bar{height:100%;background:linear-gradient(90deg,#FB923C,#0E7490);transition:width .35s cubic-bezier(.2,.8,.2,1)}
+.vc-mdl-progress-bar{height:100%;background:linear-gradient(90deg,#FCD34D,#F97316);transition:width .35s cubic-bezier(.2,.8,.2,1)}
 .vc-mdl-body{padding:18px;background:#fff;flex:1;overflow-y:auto}
-.vc-coach{background:linear-gradient(135deg,#F5F6F8,#F5F6F8);border:1px solid #A5F3FC;border-radius:14px;padding:14px;margin-bottom:14px}
+.vc-coach{background:linear-gradient(135deg,#F5F6F8,#F5F6F8);border:1px solid #FED7AA;border-radius:14px;padding:14px;margin-bottom:14px}
 .vc-coach-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
 .vc-coach-emoji{font-size:24px;line-height:1}
 .vc-coach-name{flex:1;font-weight:800;color:#111827;font-size:13.5px}
-.vc-coach-name small{display:block;font-size:11px;font-weight:600;color:#0E7490;margin-top:1px}
-.vc-coach-btn{background:#0E7490;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-weight:800;font-size:12.5px;cursor:pointer;font-family:inherit;flex-shrink:0}
-.vc-coach-btn:hover{background:#0891B2}
+.vc-coach-name small{display:block;font-size:11px;font-weight:600;color:#C2410C;margin-top:1px}
+.vc-coach-btn{background:#EA580C;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-weight:800;font-size:12.5px;cursor:pointer;font-family:inherit;flex-shrink:0}
+.vc-coach-btn:hover{background:#F97316}
 .vc-coach-text{font-size:13.5px;line-height:1.55;color:#111827}
 .vc-drill-card{background:#fff;border:1.5px solid #E5E7EB;border-radius:14px;padding:16px}
 .vc-drill-meta{font-size:10.5px;font-weight:800;letter-spacing:1.5px;color:#A0AEC0;text-transform:uppercase;margin-bottom:8px}
@@ -3047,7 +3047,7 @@ body[data-theme=aurora] .vc-mdl-nav{background:rgba(255,255,255,.02);border-colo
 .mg-s{font-size:12px;color:rgba(255,255,255,.78);margin-top:2px}
 .mg-body{padding:24px 22px;background:transparent;flex:1;overflow-y:auto;max-width:760px;width:100%;margin:0 auto}
 .mg-progress{height:6px;background:#F5F6F8;border-radius:99px;overflow:hidden;margin-bottom:18px}
-.mg-progress-bar{height:100%;background:linear-gradient(90deg,#F97316,#A855F7);border-radius:99px;transition:width .35s cubic-bezier(.2,.8,.2,1)}
+.mg-progress-bar{height:100%;background:linear-gradient(90deg,#FB923C,#EA580C);border-radius:99px;transition:width .35s cubic-bezier(.2,.8,.2,1)}
 .mg-math-q{text-align:center;font-size:42px;font-weight:900;color:#111827;letter-spacing:-.02em;margin:18px 0 22px;font-family:'Space Mono',monospace}
 .mg-math-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .mg-choice{padding:18px;font-size:22px;font-weight:800;font-family:'Space Mono',monospace;background:#F5F6F8;border:2px solid #E5E7EB;border-radius:14px;color:#111827;cursor:pointer;font-family:inherit;font-weight:800;transition:transform .12s ease,border-color .12s ease,background .12s ease}
@@ -3071,7 +3071,7 @@ body[data-theme=aurora] .vc-mdl-nav{background:rgba(255,255,255,.02);border-colo
 .mg-mem-tile{aspect-ratio:1;background:#F5F6F8;border:2px solid #E5E7EB;border-radius:14px;cursor:pointer;font-family:inherit;transition:background .12s ease,transform .1s ease,border-color .12s ease}
 .mg-mem-tile:hover:not(:disabled){background:#E5E7EB}
 .mg-mem-tile:active{transform:scale(.95)}
-.mg-mem-lit{background:linear-gradient(135deg,#A855F7,#EC4899)!important;border-color:#A855F7!important;box-shadow:0 0 24px rgba(168,85,247,.55);animation:mgFlash .3s ease}
+.mg-mem-lit{background:linear-gradient(135deg,#FB923C,#F97316)!important;border-color:#FB923C!important;box-shadow:0 0 24px rgba(249,115,22,.55);animation:mgFlash .3s ease}
 @keyframes mgFlash{0%{transform:scale(.95)}50%{transform:scale(1.04)}100%{transform:scale(1)}}
 /* ─── Game detail / journey roadway ─── */
 .mg-detail{max-width:none;width:100%;padding:0;overflow:hidden;display:flex;flex-direction:column;background:radial-gradient(1200px 600px at 50% 0%,color-mix(in srgb,var(--accent2,#374151) 30%,#0A0815) 0%,#080612 70%) !important;color:#F5F5FA !important;border:0;height:100vh;max-height:100vh;border-radius:0;align-self:stretch;animation:schSlideUp .3s cubic-bezier(.16,1,.3,1)}
@@ -3263,12 +3263,12 @@ body[data-theme=aurora] .sch-target{color:rgba(255,255,255,.7)}
 .spat-body{display:flex;flex-direction:column;align-items:center;gap:18px}
 .spat-grid{display:grid;gap:6px;width:100%;max-width:360px;margin:0 auto}
 .spat-cell{aspect-ratio:1;border:2px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);border-radius:12px;cursor:pointer;transition:all .2s ease;display:grid;place-items:center}
-.spat-cell:hover:not(:disabled){border-color:rgba(168,85,247,.4)}
-.spat-cell.spat-lit{background:linear-gradient(135deg,#A855F7,#7C3AED);border-color:#A855F7;box-shadow:0 0 20px rgba(168,85,247,.5);animation:spatPulse .6s ease-in-out infinite alternate}
+.spat-cell:hover:not(:disabled){border-color:rgba(249,115,22,.4)}
+.spat-cell.spat-lit{background:linear-gradient(135deg,#FB923C,#EA580C);border-color:#FB923C;box-shadow:0 0 20px rgba(249,115,22,.5);animation:spatPulse .6s ease-in-out infinite alternate}
 .spat-cell.spat-correct{background:linear-gradient(135deg,#22C55E,#16A34A);border-color:#22C55E;box-shadow:0 0 12px rgba(34,197,94,.4)}
 .spat-cell.spat-wrong{background:linear-gradient(135deg,#EF4444,#DC2626);border-color:#EF4444;animation:schShake .25s ease}
-body:not([data-theme=aurora]) .spat-cell{background:#F3F0FF;border-color:rgba(168,85,247,.15)}
-body:not([data-theme=aurora]) .spat-cell.spat-lit{background:linear-gradient(135deg,#A855F7,#7C3AED);border-color:#A855F7;box-shadow:0 0 16px rgba(168,85,247,.3)}
+body:not([data-theme=aurora]) .spat-cell{background:#FFF7ED;border-color:rgba(249,115,22,.15)}
+body:not([data-theme=aurora]) .spat-cell.spat-lit{background:linear-gradient(135deg,#FB923C,#EA580C);border-color:#FB923C;box-shadow:0 0 16px rgba(249,115,22,.3)}
 body:not([data-theme=aurora]) .spat-cell.spat-correct{background:linear-gradient(135deg,#22C55E,#16A34A);border-color:#22C55E}
 body:not([data-theme=aurora]) .spat-cell.spat-wrong{background:linear-gradient(135deg,#EF4444,#DC2626);border-color:#EF4444}
 @keyframes spatPulse{from{box-shadow:0 0 12px rgba(168,85,247,.3)}to{box-shadow:0 0 24px rgba(168,85,247,.6)}}
@@ -3370,7 +3370,7 @@ body[data-theme=aurora] .game-overlay .game-prompt{color:#9999B5}
 .game-best b{color:#F97316;font-family:'Space Mono',monospace;font-weight:700;margin-left:4px;font-size:13px}
 .game-cta{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
 .game-prompt{font-size:13px;color:#6B7280;line-height:1.4;flex:1;min-width:200px}
-.game-btn{font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,#F97316,#EC4899);border:none;padding:10px 20px;border-radius:11px;cursor:pointer;box-shadow:0 6px 18px rgba(17,24,39,.3);transition:transform .15s ease,box-shadow .15s ease}
+.game-btn{font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,#F97316,#EA580C);border:none;padding:10px 20px;border-radius:11px;cursor:pointer;box-shadow:0 6px 18px rgba(17,24,39,.3);transition:transform .15s ease,box-shadow .15s ease}
 .game-btn:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(17,24,39,.4)}
 .game-btn:active{transform:scale(.96)}
 .game-grid{display:grid;grid-template-columns:repeat(3,96px);grid-template-rows:repeat(3,96px);gap:10px;width:max-content;margin:14px auto;justify-content:center}
@@ -3381,14 +3381,14 @@ body[data-theme=aurora] .game-overlay .game-prompt{color:#9999B5}
 .game-cell:hover:not(.ttt-filled){border-color:rgba(17,24,39,.5);background:#fff}
 .game-cell:active:not(.ttt-filled){transform:scale(.96)}
 .game-cell.ttt-x{color:#E8453C;border-color:rgba(232,69,60,.4);background:linear-gradient(135deg,#fff,#FFE4E1);cursor:default}
-.game-cell.ttt-o{color:#3B82F6;border-color:rgba(59,130,246,.4);background:linear-gradient(135deg,#fff,#F5F6F8);cursor:default}
+.game-cell.ttt-o{color:#6B7280;border-color:rgba(107,114,128,.4);background:linear-gradient(135deg,#fff,#F5F6F8);cursor:default}
 .game-cell.ttt-filled{cursor:default}
 .game-cell.ttt-win{animation:tttWinPulse 1s ease-in-out infinite;border-width:3px}
 @keyframes tttWinPulse{0%,100%{box-shadow:0 0 0 0 rgba(249,115,22,.45),0 6px 18px rgba(17,24,39,.12);transform:scale(1)}50%{box-shadow:0 0 0 8px rgba(249,115,22,0),0 8px 22px rgba(17,24,39,.18);transform:scale(1.05)}}
 .game-status-line{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px;font-size:13px}
 .game-status{font-weight:700;letter-spacing:-.01em;transition:color .2s ease}
 .status-you{color:#E8453C}
-.status-bot{color:#3B82F6}
+.status-bot{color:#6B7280}
 .game-best b{color:#111827;font-family:'Space Mono',monospace;font-weight:700;margin:0 1px;font-size:13px}
 .ttt-grid{}
 .game-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12.5px;font-weight:700;margin-top:2px}
@@ -3451,11 +3451,11 @@ body[data-theme=aurora] .top-strip .side-now-walker svg circle,body[data-theme=a
 .top-strip .side-now-stat b{font-family:'Instrument Serif',Georgia,serif;font-size:12px;font-weight:400;color:#E8453C;letter-spacing:-.02em;line-height:1}
 .top-strip .side-now-date{font-size:10.5px}
 .top-strip .side-now-bar{height:4px;border-radius:99px;background:rgba(17,24,39,.14);overflow:visible;margin:4px 0 2px;position:relative}
-.top-strip .side-now-fill{height:100%;background:linear-gradient(90deg,#F97316,#EA580C,#EC4899,#E8912C);background-size:200% 100%;border-radius:99px;position:relative;overflow:hidden;animation:gradientShift 4s ease-in-out infinite}
+.top-strip .side-now-fill{height:100%;background:linear-gradient(90deg,#FCD34D,#F97316,#EA580C,#FB923C);background-size:200% 100%;border-radius:99px;position:relative;overflow:hidden;animation:gradientShift 4s ease-in-out infinite}
 @keyframes gradientShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
 .top-strip .side-now-fill::after{content:'';position:absolute;top:0;left:-30%;width:30%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);animation:fillShine 2.6s ease-in-out infinite}
 body[data-theme=aurora] .top-strip .side-now-days{color:#9999B5}
-body[data-theme=aurora] .top-strip .side-now-days b{color:#F472B6}
+body[data-theme=aurora] .top-strip .side-now-days b{color:#FB923C}
 body[data-theme=aurora] .top-strip .side-now-date{color:#9999B5}
 .top-strip .side-now-foot{font-size:10px;color:#A0AEC0;font-weight:700;letter-spacing:.5px;display:flex;justify-content:space-between;margin-top:0}
 /* World clocks row inside the side-now panel */
@@ -3536,7 +3536,7 @@ body[data-theme=aurora] .world-clocks .wc-temp{color:#FCD34D}
 .life-goal .lg-edit-btn{display:inline-flex;align-items:center;gap:4px;background:rgba(17,24,39,.15);color:#F97316;border:1px solid rgba(17,24,39,.3);border-radius:99px;padding:3px 9px 3px 7px;font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;transition:background .15s ease,transform .15s ease;line-height:1}
 .life-goal:hover .lg-edit-btn{background:#F97316;color:#fff;border-color:#F97316;transform:scale(1.04)}
 .life-goal .lg-pencil{width:11px;height:11px;flex-shrink:0}
-.life-goal-empty .lg-edit-btn{background:linear-gradient(135deg,#F97316,#EC4899);color:#fff;border-color:transparent;animation:lgEditNudge 2.2s ease-in-out infinite;box-shadow:0 4px 12px rgba(17,24,39,.3)}
+.life-goal-empty .lg-edit-btn{background:linear-gradient(135deg,#F97316,#EA580C);color:#fff;border-color:transparent;animation:lgEditNudge 2.2s ease-in-out infinite;box-shadow:0 4px 12px rgba(17,24,39,.3)}
 @keyframes lgEditNudge{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
 .life-goal .lg-text{font-family:'Instrument Serif',Georgia,serif;font-size:15.5px;font-weight:400;color:#111827;line-height:1.4;letter-spacing:-.005em;font-style:normal;margin-top:6px;flex:1;overflow:hidden;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;text-overflow:ellipsis}
 .life-goal .lg-text.lg-empty{color:#6B7280;font-style:normal}
@@ -3581,8 +3581,7 @@ body[data-theme=aurora] .top-strip .weather-aqi{color:#9999B5}
 .top-strip .side-now-wave{position:absolute;bottom:0;left:0;right:0;height:30px;opacity:.15;pointer-events:none}
 @media (max-width:900px){.top-strip{flex-direction:column;min-height:auto}.top-strip .bro-mascot{min-height:120px;padding:4px 8px}.top-strip .side-now{flex:0 0 auto;border-left:none;border-top:1px dashed rgba(17,24,39,.25)}.top-strip .side-now-time{font-size:30px}.top-strip .side-now-time .sec{font-size:18px}}
 @media (max-width:600px){
-  /* Hide the bro-mascot on phones — the masthead photo banner above already gives the visual hook */
-  .top-strip .bro-mascot{display:none}
+  .top-strip .bro-mascot{min-height:100px;padding:4px 8px}
   .top-strip{border-radius:14px;min-height:auto}
   .top-strip .side-now{padding:14px 16px;border-top:none}
   .top-strip .side-now-time{font-size:28px}
@@ -3629,7 +3628,7 @@ body[data-theme=aurora] .section-div::before{background:#111827;border-color:rgb
 @keyframes rise{0%{transform:translateY(0);opacity:0}10%{opacity:.95}80%{opacity:.55}100%{transform:translateY(-260px) translateX(var(--drift,8px));opacity:0}}
 @media (prefers-reduced-motion:reduce){.hdr-orbit *,.tab-hero-particles *,.section-div::before,.moral-comet{animation:none!important}}
 .moral{display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#FFFBF1 0%,#FEF3E0 50%,#EAF6EE 100%);border:1px solid #F3D9A0;border-radius:12px;padding:6px 12px;margin-bottom:0;position:relative;overflow:hidden;min-height:auto;box-shadow:0 2px 8px rgba(249,115,22,.05)}
-.moral::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:linear-gradient(180deg,#E8912C,#3DAE5C);z-index:2}
+.moral::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:linear-gradient(180deg,#FB923C,#EA580C);z-index:2}
 .moral-doodle{position:absolute;top:0;right:0;bottom:0;width:42%;max-width:480px;height:100%;pointer-events:none;z-index:0;opacity:.95;filter:drop-shadow(0 1px 2px rgba(17,24,39,.05))}
 .moral::after{content:'';position:absolute;top:0;left:0;bottom:0;width:58%;background:linear-gradient(90deg,rgba(255,251,241,.97) 0%,rgba(254,243,224,.75) 80%,rgba(254,243,224,0) 100%);pointer-events:none;z-index:0}
 @media (max-width:700px){.moral-doodle{width:36%;opacity:.8}.moral::after{width:64%}.moral{min-height:auto;padding:8px 12px;gap:8px}.moral-txt{font-size:13px;line-height:1.35}.moral-by{font-size:11px;margin-top:1px}.moral-emoji{font-size:16px}.moral-lbl{font-size:9px}}
@@ -3988,10 +3987,10 @@ body[data-theme=aurora] .tab-hero{box-shadow:0 12px 32px rgba(0,0,0,.4)}
 .section-ic{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:12px;background:#F97316;color:#fff;flex-shrink:0}
 .section-hd h3{font-size:22px;font-weight:700;letter-spacing:-.5px;color:#111827;margin-bottom:2px}
 .section-hd p{font-size:13px;color:#6B7280}
-body[data-theme=aurora] .section-ic{background:linear-gradient(135deg,#EA580C,#EC4899)}
+body[data-theme=aurora] .section-ic{background:linear-gradient(135deg,#F97316,#EA580C)}
 body[data-theme=aurora] .section-hd h3{color:#F5F5FA}
 body[data-theme=aurora] .section-hd p{color:#9999B5}
-body[data-theme=aurora] .news-hero-ic{background:linear-gradient(135deg,#EA580C,#EC4899)}
+body[data-theme=aurora] .news-hero-ic{background:linear-gradient(135deg,#F97316,#EA580C)}
 body[data-theme=aurora] .news-hero h2{color:#F5F5FA}
 .news-hero{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
 .news-hero-l{display:flex;align-items:center;gap:14px}
@@ -7655,8 +7654,8 @@ body[data-theme=aurora] .bro-chat{background:linear-gradient(180deg,#1a1a1a 0%,#
 .bro-msg{display:flex;gap:10px;margin-bottom:16px;max-width:85%}
 .bro-msg-user{margin-left:auto;flex-direction:row-reverse}
 .bro-avatar{width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;background:linear-gradient(135deg,#F97316,#FB923C);color:#fff;box-shadow:0 2px 8px rgba(249,115,22,.2)}
-.bro-bubble{padding:12px 16px;border-radius:18px;font-size:14px;line-height:1.55;font-weight:400;letter-spacing:-.005em;word-break:break-word}
-.bro-msg-ai .bro-bubble{background:#FFFFFF;color:var(--ink);border:1px solid rgba(0,0,0,.08);border-bottom-left-radius:4px;box-shadow:0 4px 16px rgba(0,0,0,.06),0 1px 3px rgba(0,0,0,.04)}
+.bro-bubble{padding:12px 16px;border-radius:18px;font-size:14px;line-height:1.55;font-weight:400;letter-spacing:-.005em;word-break:break-word;color:var(--ink)}
+.bro-msg-ai .bro-bubble{background:#FFFFFF;color:#1a1a1a;border:1px solid rgba(0,0,0,.08);border-bottom-left-radius:4px;box-shadow:0 4px 16px rgba(0,0,0,.06),0 1px 3px rgba(0,0,0,.04)}
 body[data-theme=aurora] .bro-msg-ai .bro-bubble{background:linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.04));color:#E8E8F4;border-color:rgba(255,255,255,.08)}
 .bro-bubble-bro,.bro-msg-user .bro-bubble{background:linear-gradient(135deg,#F97316,#EA580C);color:#fff;border:none;border-bottom-right-radius:4px;box-shadow:0 4px 14px rgba(249,115,22,.25)}
 .bro-input-wrap{padding:12px 16px;background:#FFFFFF;border-top:1px solid rgba(0,0,0,.06)}
@@ -7800,64 +7799,35 @@ body[data-theme=aurora] .book-card{background:rgba(255,255,255,.04);border-color
 body[data-theme=aurora] .bro-header{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.06)}
 body[data-theme=aurora] .bro-input-wrap{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.06)}
 
-/* ═══ TRAIN PAGE REDESIGN ═══ */
-.train-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}
-.train-stat{background:linear-gradient(145deg,#fff,#F8F9FB);border-radius:16px;padding:20px 14px;text-align:center;border:1px solid rgba(0,0,0,.06);transition:all .3s cubic-bezier(.2,.8,.2,1);position:relative;overflow:hidden;box-shadow:0 2px 8px -2px rgba(0,0,0,.06)}
-.train-stat::after{content:'';position:absolute;inset:0;border-radius:16px;background:linear-gradient(135deg,var(--card-accent,#F97316),var(--card-accent2,#FB923C));opacity:0;transition:opacity .3s ease}
-.train-stat:hover{transform:translateY(-3px);box-shadow:0 8px 24px -6px rgba(0,0,0,.12)}
-.train-stat-v{font-size:28px;font-weight:900;letter-spacing:-.04em;line-height:1.1;position:relative;z-index:1}
-.train-stat:nth-child(1) .train-stat-v{background:linear-gradient(135deg,#F97316,#FB923C);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-.train-stat:nth-child(2) .train-stat-v{background:linear-gradient(135deg,#8B5CF6,#A78BFA);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-.train-stat:nth-child(3) .train-stat-v{background:linear-gradient(135deg,#EF4444,#F87171);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-.train-stat:nth-child(4) .train-stat-v{background:linear-gradient(135deg,#10B981,#34D399);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-.train-stat-l{font-size:10px;font-weight:700;color:var(--text-mute);text-transform:uppercase;letter-spacing:.08em;margin-top:6px;position:relative;z-index:1}
-.train-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:24px}
-.train-card{background:#fff;border-radius:20px;padding:0;border:none;cursor:pointer;text-align:left;display:flex;flex-direction:column;transition:all .35s cubic-bezier(.2,.8,.2,1);position:relative;overflow:hidden;box-shadow:0 2px 12px -4px rgba(0,0,0,.08),0 1px 3px rgba(0,0,0,.04)}
-.train-card::before{content:'';position:absolute;top:0;left:0;right:0;height:100%;background:linear-gradient(180deg,color-mix(in srgb,var(--card-accent) 8%,transparent) 0%,transparent 50%);pointer-events:none;z-index:0}
-.train-card::after{content:'';position:absolute;top:-1px;left:-1px;right:-1px;bottom:-1px;border-radius:21px;background:linear-gradient(135deg,color-mix(in srgb,var(--card-accent) 30%,transparent),transparent 50%,color-mix(in srgb,var(--card-accent2) 20%,transparent));z-index:-1;opacity:.6;transition:opacity .3s ease}
-.train-card:hover{transform:translateY(-6px) scale(1.01);box-shadow:0 20px 40px -12px color-mix(in srgb,var(--card-accent) 25%,rgba(0,0,0,.15)),0 4px 12px -2px rgba(0,0,0,.06)}
-.train-card:hover::after{opacity:1}
-.train-card:active{transform:translateY(-2px) scale(.98) !important}
-.train-card-top{display:flex;align-items:center;justify-content:space-between;padding:20px 20px 0;position:relative;z-index:1}
-.train-card-emoji{width:56px;height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;background:linear-gradient(135deg,var(--card-accent),var(--card-accent2));box-shadow:0 6px 20px -4px color-mix(in srgb,var(--card-accent) 50%,transparent);transition:transform .3s ease}
-.train-card:hover .train-card-emoji{transform:scale(1.08) rotate(-3deg)}
-.train-card-lvl{font-size:11px;font-weight:800;letter-spacing:.03em;color:#fff;padding:5px 12px;border-radius:20px;background:linear-gradient(135deg,var(--card-accent),var(--card-accent2));box-shadow:0 2px 8px -2px color-mix(in srgb,var(--card-accent) 40%,transparent)}
-.train-card-info{flex:1;padding:14px 20px 0;position:relative;z-index:1}
-.train-card-name{font-size:17px;font-weight:800;color:var(--ink);letter-spacing:-.025em;margin-bottom:3px}
-.train-card-desc{font-size:12px;color:var(--text-mute);line-height:1.45}
-.train-card-bar{height:5px;background:rgba(0,0,0,.06);border-radius:99px;overflow:hidden;margin:0 20px;position:relative;z-index:1}
-.train-card-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--card-accent),var(--card-accent2));transition:width .5s cubic-bezier(.4,0,.2,1);position:relative}
-.train-card-fill::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent);background-size:200% 100%;animation:shimmer 2s linear infinite}
-.train-card-xp{font-size:11px;font-weight:600;color:var(--text-dim);letter-spacing:.02em;padding:6px 20px 0;position:relative;z-index:1}
-.train-card-play{font-size:14px;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--card-accent),var(--card-accent2));padding:12px 20px;text-align:center;letter-spacing:.01em;margin:14px 0 0;border-radius:0 0 20px 20px;transition:all .2s ease;position:relative;overflow:hidden}
-.train-card-play::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.15),transparent);opacity:0;transition:opacity .2s ease}
-.train-card:hover .train-card-play::before{opacity:1}
-.train-badges{background:linear-gradient(145deg,#fff,#FAFBFC);border-radius:20px;padding:24px;border:1px solid rgba(0,0,0,.06);box-shadow:0 2px 12px -4px rgba(0,0,0,.06)}
-.train-badges-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
-.train-badges-t{font-size:18px;font-weight:800;color:var(--ink);letter-spacing:-.02em}
-.train-badges-ct{font-size:13px;font-weight:700;color:var(--text-mute)}
-.train-badges-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-.train-badge{text-align:center;padding:18px 10px 14px;border-radius:16px;background:linear-gradient(145deg,#F3F4F6,#E5E7EB);border:1px solid rgba(0,0,0,.04);transition:all .35s cubic-bezier(.2,.8,.2,1);position:relative;overflow:hidden}
-.train-badge.unlocked{background:linear-gradient(145deg,#FFF7ED,#FFEDD5);border-color:rgba(249,115,22,.2);box-shadow:0 4px 16px -4px rgba(249,115,22,.15)}
-.train-badge.unlocked::after{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(249,115,22,.08) 0%,transparent 60%);animation:glowPulse 3s ease-in-out infinite}
-.train-badge-icon{font-size:32px;margin-bottom:8px;filter:grayscale(1) opacity(.25);transition:all .4s cubic-bezier(.2,.8,.2,1);position:relative;z-index:1}
-.train-badge.unlocked .train-badge-icon{filter:none;transform:scale(1)}
-.train-badge:hover .train-badge-icon{transform:scale(1.15)}
-.train-badge-name{font-size:11px;font-weight:800;color:var(--text-dim);letter-spacing:.02em;position:relative;z-index:1}
-.train-badge.unlocked .train-badge-name{color:var(--ink)}
-.train-badge-desc{font-size:10px;color:var(--text-dim);margin-top:3px;position:relative;z-index:1}
-@media(max-width:560px){.train-stats{grid-template-columns:repeat(2,1fr)}.train-grid{grid-template-columns:1fr}.train-badges-row{grid-template-columns:repeat(2,1fr)}}
-@media(min-width:900px){.train-grid{grid-template-columns:repeat(4,1fr)}}
-body[data-theme=aurora] .train-stat{background:linear-gradient(145deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border-color:rgba(255,255,255,.08)}
-body[data-theme=aurora] .train-card{background:rgba(255,255,255,.04);box-shadow:0 2px 12px -4px rgba(0,0,0,.3)}
-body[data-theme=aurora] .train-card::before{background:linear-gradient(180deg,color-mix(in srgb,var(--card-accent) 12%,transparent) 0%,transparent 50%)}
-body[data-theme=aurora] .train-card:hover{background:rgba(255,255,255,.08)}
-body[data-theme=aurora] .train-card-name{color:#F5F5FA}
-body[data-theme=aurora] .train-card-bar{background:rgba(255,255,255,.08)}
-body[data-theme=aurora] .train-badges{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.06)}
-body[data-theme=aurora] .train-badge{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.06)}
-body[data-theme=aurora] .train-badges{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.06)}
-body[data-theme=aurora] .train-badge{background:rgba(255,255,255,.03)}
+/* ═══ TRAIN PAGE — Minimal section-based design ═══ */
+.tg-header{margin-bottom:24px}
+.tg-title{font-size:28px;font-weight:800;color:var(--ink);letter-spacing:-.03em;margin:0}
+.tg-meta{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:13px;color:var(--text-mute);font-weight:500}
+.tg-dot{width:3px;height:3px;border-radius:50%;background:var(--text-dim)}
+.tg-section{margin-bottom:28px}
+.tg-sec-hd{display:flex;align-items:baseline;gap:10px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.tg-sec-title{font-size:16px;font-weight:700;color:var(--ink);letter-spacing:-.01em;margin:0}
+.tg-sec-desc{font-size:12px;color:var(--text-dim);font-weight:400}
+.tg-games{display:flex;flex-direction:column;gap:1px;background:var(--line);border-radius:14px;overflow:hidden;border:1px solid var(--line)}
+.tg-game{display:flex;align-items:center;gap:14px;padding:16px 18px;background:#fff;border:none;cursor:pointer;text-align:left;transition:background .15s;font-family:inherit;width:100%}
+.tg-game:hover{background:#F8F9FB}
+.tg-game:active{background:#F1F2F6}
+.tg-game-info{flex:1;min-width:0}
+.tg-game-name{font-size:15px;font-weight:600;color:var(--ink);letter-spacing:-.01em}
+.tg-game-desc{font-size:12px;color:var(--text-mute);margin-top:2px;line-height:1.4}
+.tg-game-bar{height:3px;background:rgba(0,0,0,.06);border-radius:99px;overflow:hidden;margin-top:10px}
+.tg-game-fill{height:100%;border-radius:99px;background:var(--ink);transition:width .4s ease}
+.tg-game-meta{font-size:11px;color:var(--text-dim);margin-top:4px;font-weight:500}
+.tg-game-arrow{color:var(--text-dim);flex-shrink:0;transition:transform .15s}
+.tg-game:hover .tg-game-arrow{transform:translateX(2px);color:var(--ink)}
+body[data-theme=aurora] .tg-title{color:#F5F5FA}
+body[data-theme=aurora] .tg-sec-hd{border-color:rgba(255,255,255,.08)}
+body[data-theme=aurora] .tg-games{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.06)}
+body[data-theme=aurora] .tg-game{background:rgba(255,255,255,.03)}
+body[data-theme=aurora] .tg-game:hover{background:rgba(255,255,255,.06)}
+body[data-theme=aurora] .tg-game-name{color:#E8E8F4}
+body[data-theme=aurora] .tg-game-bar{background:rgba(255,255,255,.08)}
+body[data-theme=aurora] .tg-game-fill{background:rgba(255,255,255,.5)}
 /* ═══ END PROFESSIONAL UI OVERHAUL v3 ═══ */
 </style></head><body data-theme="classic">
 <div class="bg-blob a"></div><div class="bg-blob b"></div><div class="bg-blob c"></div><div class="bg-blob d"></div>
@@ -8503,27 +8473,27 @@ function waOpenJoin(){const code=window.__TWILIO_SANDBOX_CODE||'along-wool';wind
 const MED_SLOTS=[
 // Affirmations · 3 pre-rendered audio sessions (2 / 5 / 10 min)
 {cat:'affirmations',mins:2,title:'2 minutes',desc:'A quick centering \\u2014 ground yourself fast',color:'#FCB851',audioId:'aff-2min'},
-{cat:'affirmations',mins:5,title:'5 minutes',desc:'A grounded reset \\u2014 build resilience, soften the day',color:'#5BBFB4',audioId:'aff-5min'},
+{cat:'affirmations',mins:5,title:'5 minutes',desc:'A grounded reset \\u2014 build resilience, soften the day',color:'#E8985A',audioId:'aff-5min'},
 {cat:'affirmations',mins:10,title:'10 minutes',desc:'Deep practice \\u2014 letting go, gratitude, returning to centre',color:'#FF7A45',audioId:'aff-10min'},
 // Vipassana · S.N. Goenka original voice (VRI official + YouTube)
-{cat:'vipassana',mins:10,title:'Anapana \\u2022 Goenka',desc:'Original voice \\u2022 10 min group sitting',color:'#06B6D4',extUrl:'https://www.vridhamma.org/sites/default/files/node-uploads/2.%20MIni_Anapana_english_10_minute_GourpSitting.mp3',goenka:true,skipSec:3},
-{cat:'vipassana',mins:12,title:'Anapana + Mett\\u0101',desc:'Original voice \\u2022 breath + loving-kindness',color:'#3B82F6',extUrl:'https://www.vridhamma.org/sites/default/files/node-uploads/3.%20Anapana_English_with_metta-12_min-new.mp3',goenka:true,skipSec:3},
-{cat:'vipassana',mins:25,title:'Full Anapana \\u2022 Goenka',desc:'Original voice \\u2022 complete introductory session',color:'#8B5CF6',extUrl:'https://www.vridhamma.org/sites/default/files/node-uploads/1.%20Mini_Anapana_English_For_ALL_15min_10minGS_Audio%20%281%29.mp3',goenka:true,skipSec:5},
-{cat:'vipassana',mins:10,title:'Mett\\u0101 Meditation',desc:'Original voice \\u2022 loving-kindness',color:'#EC4899',ytId:'irSSh_iLNNQ',goenka:true},
-{cat:'vipassana',mins:60,title:'1-Hour Guided Sitting',desc:'Original voice \\u2022 full vipassana practice',color:'#312E81',ytId:'ODTu5SE1EnM',goenka:true},
-{cat:'vipassana',mins:30,title:'Mett\\u0101 at Mahamuni',desc:'Original voice \\u2022 Mandalay, 2004',color:'#3DAE5C',ytId:'DKA83EQaPEs',goenka:true},
+{cat:'vipassana',mins:10,title:'Anapana \\u2022 Goenka',desc:'Original voice \\u2022 10 min group sitting',color:'#C2410C',extUrl:'https://www.vridhamma.org/sites/default/files/node-uploads/2.%20MIni_Anapana_english_10_minute_GourpSitting.mp3',goenka:true,skipSec:3},
+{cat:'vipassana',mins:12,title:'Anapana + Mett\\u0101',desc:'Original voice \\u2022 breath + loving-kindness',color:'#B45309',extUrl:'https://www.vridhamma.org/sites/default/files/node-uploads/3.%20Anapana_English_with_metta-12_min-new.mp3',goenka:true,skipSec:3},
+{cat:'vipassana',mins:25,title:'Full Anapana \\u2022 Goenka',desc:'Original voice \\u2022 complete introductory session',color:'#D97706',extUrl:'https://www.vridhamma.org/sites/default/files/node-uploads/1.%20Mini_Anapana_English_For_ALL_15min_10minGS_Audio%20%281%29.mp3',goenka:true,skipSec:5},
+{cat:'vipassana',mins:10,title:'Mett\\u0101 Meditation',desc:'Original voice \\u2022 loving-kindness',color:'#EA580C',ytId:'irSSh_iLNNQ',goenka:true},
+{cat:'vipassana',mins:60,title:'1-Hour Guided Sitting',desc:'Original voice \\u2022 full vipassana practice',color:'#451A03',ytId:'ODTu5SE1EnM',goenka:true},
+{cat:'vipassana',mins:30,title:'Mett\\u0101 at Mahamuni',desc:'Original voice \\u2022 Mandalay, 2004',color:'#FF7A45',ytId:'DKA83EQaPEs',goenka:true},
 {cat:'vipassana',mins:45,title:'Morning Chanting Day 1',desc:'Original voice \\u2022 Atanatiya Sutta',color:'#D97706',ytId:'M2Vnc1Sg2DA',goenka:true},
 {cat:'vipassana',mins:40,title:'Morning Chanting Day 3',desc:'Original voice \\u2022 Karaniya Metta Sutta',color:'#F97316',ytId:'23fUnDMKVt8',goenka:true},
-{cat:'vipassana',mins:90,title:'Full Sitting + Mett\\u0101',desc:'Original voice \\u2022 anapana, vipassana & mett\\u0101',color:'#1E3A5F',ytId:'z2WaGQAN2qo',goenka:true},
-{cat:'vipassana',mins:5,title:'5-min Anapana',desc:'Guided breath awareness \\u2022 TTS',color:'#67E8F9',audioId:'vip-5min'},
-{cat:'vipassana',mins:15,title:'15-min Full Practice',desc:'Guided body scan + mett\\u0101 \\u2022 TTS',color:'#A78BFA',audioId:'vip-15min'},
+{cat:'vipassana',mins:90,title:'Full Sitting + Mett\\u0101',desc:'Original voice \\u2022 anapana, vipassana & mett\\u0101',color:'#92400E',ytId:'z2WaGQAN2qo',goenka:true},
+{cat:'vipassana',mins:5,title:'5-min Anapana',desc:'Guided breath awareness \\u2022 TTS',color:'#FB923C',audioId:'vip-5min'},
+{cat:'vipassana',mins:15,title:'15-min Full Practice',desc:'Guided body scan + mett\\u0101 \\u2022 TTS',color:'#D97706',audioId:'vip-15min'},
 // Music · pre-rendered ambient
-{cat:'music',mins:2,title:'2-min Calm',desc:'Ambient tones for a quick reset',color:'#EC4899',audioId:'music-2min'},
-{cat:'music',mins:5,title:'5-min Ambient',desc:'Layered healing frequencies',color:'#8B5CF6',audioId:'music-5min'},
-{cat:'music',mins:10,title:'10-min Soundscape',desc:'Deep ambient for extended calm',color:'#06B6D4',audioId:'music-10min'},
+{cat:'music',mins:2,title:'2-min Calm',desc:'Ambient tones for a quick reset',color:'#EA580C',audioId:'music-2min'},
+{cat:'music',mins:5,title:'5-min Ambient',desc:'Layered healing frequencies',color:'#D97706',audioId:'music-5min'},
+{cat:'music',mins:10,title:'10-min Soundscape',desc:'Deep ambient for extended calm',color:'#C2410C',audioId:'music-10min'},
 // Sleep Music
-{cat:'music',mins:3,title:'Sleep Drift',desc:'Deep earth tones for drifting off \\u2022 3 min',color:'#1E3A5F',audioId:'sleep-music-3min'},
-{cat:'music',mins:5,title:'Sleep Drift',desc:'Extended deep tones for sleep \\u2022 5 min',color:'#1E3A5F',audioId:'sleep-music-5min'},
+{cat:'music',mins:3,title:'Sleep Drift',desc:'Deep earth tones for drifting off \\u2022 3 min',color:'#92400E',audioId:'sleep-music-3min'},
+{cat:'music',mins:5,title:'Sleep Drift',desc:'Extended deep tones for sleep \\u2022 5 min',color:'#92400E',audioId:'sleep-music-5min'},
 // Jazz
 {cat:'music',mins:3,title:'Jazz Calm',desc:'Warm jazz harmonics \\u2022 3 min',color:'#D97706',audioId:'jazz-3min'},
 {cat:'music',mins:5,title:'Jazz Calm',desc:'Extended warm jazz tones \\u2022 5 min',color:'#D97706',audioId:'jazz-5min'},
@@ -8534,40 +8504,40 @@ const MED_SLOTS=[
 {cat:'music',mins:3,title:'Whiskey Lounge',desc:'Warm mellow lounge vibes \\u2022 3 min',color:'#EA580C',audioId:'whiskey-3min'},
 {cat:'music',mins:5,title:'Whiskey Lounge',desc:'Extended lounge atmosphere \\u2022 5 min',color:'#EA580C',audioId:'whiskey-5min'},
 // Work / Focus
-{cat:'music',mins:3,title:'Deep Focus',desc:'Concentration tones \\u2022 3 min',color:'#3B82F6',audioId:'work-3min'},
-{cat:'music',mins:5,title:'Deep Focus',desc:'Extended focus frequencies \\u2022 5 min',color:'#3B82F6',audioId:'work-5min'},
+{cat:'music',mins:3,title:'Deep Focus',desc:'Concentration tones \\u2022 3 min',color:'#B45309',audioId:'work-3min'},
+{cat:'music',mins:5,title:'Deep Focus',desc:'Extended focus frequencies \\u2022 5 min',color:'#B45309',audioId:'work-5min'},
 // Guided · 3 pre-rendered short sessions
-{cat:'guided',mins:3,title:'Three-minute Grounding',desc:'A short reset for any moment \\u2022 3 min',color:'#5BBFB4',audioId:'med-grounding-3min'},
+{cat:'guided',mins:3,title:'Three-minute Grounding',desc:'A short reset for any moment \\u2022 3 min',color:'#E8985A',audioId:'med-grounding-3min'},
 {cat:'guided',mins:5,title:'Stress Release',desc:'Soften the body, release the day \\u2022 5 min',color:'#FF7A45',audioId:'med-stress-release-5min'},
-{cat:'guided',mins:5,title:'Sleep Wind-Down',desc:'Slow the mind for rest \\u2022 5 min',color:'#5BBFB4',audioId:'med-sleep-winddown-5min'},
+{cat:'guided',mins:5,title:'Sleep Wind-Down',desc:'Slow the mind for rest \\u2022 5 min',color:'#E8985A',audioId:'med-sleep-winddown-5min'},
 // Sleep · guided sleep whispers + sleep music
-{cat:'sleep',mins:5,title:'Letting Go',desc:'A gentle whisper into sleep \\u2022 5 min',color:'#312E81',audioId:'sleep-5min'},
-{cat:'sleep',mins:10,title:'Moonlit Garden',desc:'A peaceful garden visualization \\u2022 10 min',color:'#312E81',audioId:'sleep-10min'},
-{cat:'sleep',mins:15,title:'Ocean of Calm',desc:'Waves and breath carry you to sleep \\u2022 15 min',color:'#312E81',audioId:'sleep-15min'},
-{cat:'sleep',mins:20,title:'Journey to Stillness',desc:'The complete sleep journey \\u2022 20 min',color:'#312E81',audioId:'sleep-20min'},
-{cat:'sleep',mins:3,title:'Sleep Drift',desc:'Deep earth tones \\u2022 3 min',color:'#1E3A5F',audioId:'sleep-music-3min'},
-{cat:'sleep',mins:5,title:'Sleep Drift',desc:'Extended deep tones \\u2022 5 min',color:'#1E3A5F',audioId:'sleep-music-5min'},
+{cat:'sleep',mins:5,title:'Letting Go',desc:'A gentle whisper into sleep \\u2022 5 min',color:'#451A03',audioId:'sleep-5min'},
+{cat:'sleep',mins:10,title:'Moonlit Garden',desc:'A peaceful garden visualization \\u2022 10 min',color:'#451A03',audioId:'sleep-10min'},
+{cat:'sleep',mins:15,title:'Ocean of Calm',desc:'Waves and breath carry you to sleep \\u2022 15 min',color:'#451A03',audioId:'sleep-15min'},
+{cat:'sleep',mins:20,title:'Journey to Stillness',desc:'The complete sleep journey \\u2022 20 min',color:'#451A03',audioId:'sleep-20min'},
+{cat:'sleep',mins:3,title:'Sleep Drift',desc:'Deep earth tones \\u2022 3 min',color:'#92400E',audioId:'sleep-music-3min'},
+{cat:'sleep',mins:5,title:'Sleep Drift',desc:'Extended deep tones \\u2022 5 min',color:'#92400E',audioId:'sleep-music-5min'},
 // Stories · 5-min wisdom tales
 {cat:'stories',mins:5,title:'The Two Wolves',desc:'Which wolf wins? The one you feed.',color:'#F97316',audioId:'story-01'},
-{cat:'stories',mins:5,title:'The Bamboo Tree',desc:'Five years underground, then unstoppable.',color:'#3DAE5C',audioId:'story-02'},
-{cat:'stories',mins:5,title:'The Cracked Pot',desc:'Beauty grows from imperfection.',color:'#5BBFB4',audioId:'story-03'},
+{cat:'stories',mins:5,title:'The Bamboo Tree',desc:'Five years underground, then unstoppable.',color:'#FF7A45',audioId:'story-02'},
+{cat:'stories',mins:5,title:'The Cracked Pot',desc:'Beauty grows from imperfection.',color:'#E8985A',audioId:'story-03'},
 {cat:'stories',mins:5,title:'The Stonecutter',desc:'Power is never what you think.',color:'#D97706',audioId:'story-04'},
-{cat:'stories',mins:5,title:'The Empty Cup',desc:'You cannot fill what is already full.',color:'#06B6D4',audioId:'story-05'},
-{cat:'stories',mins:5,title:'The Farmer\\'s Horse',desc:'Good luck, bad luck \\u2014 who can say?',color:'#8B5CF6',audioId:'story-06'},
+{cat:'stories',mins:5,title:'The Empty Cup',desc:'You cannot fill what is already full.',color:'#C2410C',audioId:'story-05'},
+{cat:'stories',mins:5,title:'The Farmer\\'s Horse',desc:'Good luck, bad luck \\u2014 who can say?',color:'#D97706',audioId:'story-06'},
 {cat:'stories',mins:5,title:'The Golden Buddha',desc:'Your true nature is hidden, not lost.',color:'#FCB851',audioId:'story-07'},
-{cat:'stories',mins:5,title:'The Starfish Story',desc:'It mattered to that one.',color:'#EC4899',audioId:'story-08'},
+{cat:'stories',mins:5,title:'The Starfish Story',desc:'It mattered to that one.',color:'#EA580C',audioId:'story-08'},
 {cat:'stories',mins:5,title:'The Elephant and the Rope',desc:'Beliefs can become invisible chains.',color:'#EA580C',audioId:'story-09'},
-{cat:'stories',mins:5,title:'The Oak and the Reed',desc:'Flexibility outlasts rigidity.',color:'#3B82F6',audioId:'story-10'},
-{cat:'stories',mins:5,title:'The King\\'s Painting',desc:'Only one saw the full picture.',color:'#DC2626',audioId:'story-11'},
+{cat:'stories',mins:5,title:'The Oak and the Reed',desc:'Flexibility outlasts rigidity.',color:'#B45309',audioId:'story-10'},
+{cat:'stories',mins:5,title:'The King\\'s Painting',desc:'Only one saw the full picture.',color:'#92400E',audioId:'story-11'},
 {cat:'stories',mins:5,title:'The Jar of Life',desc:'Put the big rocks in first.',color:'#FF7A45',audioId:'story-12'},
-{cat:'stories',mins:5,title:'The Eagle Who Forgot',desc:'You were born to fly.',color:'#06B6D4',audioId:'story-13'},
-{cat:'stories',mins:5,title:'The Lighthouse',desc:'Some things do not move for you.',color:'#5BBFB4',audioId:'story-14'},
+{cat:'stories',mins:5,title:'The Eagle Who Forgot',desc:'You were born to fly.',color:'#C2410C',audioId:'story-13'},
+{cat:'stories',mins:5,title:'The Lighthouse',desc:'Some things do not move for you.',color:'#E8985A',audioId:'story-14'},
 {cat:'stories',mins:5,title:'The Carpenter\\'s House',desc:'Build every day like it matters.',color:'#F97316',audioId:'story-15'},
-{cat:'stories',mins:5,title:'The Butterfly\\'s Struggle',desc:'The struggle is the gift.',color:'#3DAE5C',audioId:'story-16'},
-{cat:'stories',mins:5,title:'The Wise Woman\\'s Stone',desc:'True wealth cannot be held.',color:'#8B5CF6',audioId:'story-17'},
-{cat:'stories',mins:5,title:'The Fisherman',desc:'You already have what you seek.',color:'#3B82F6',audioId:'story-18'},
+{cat:'stories',mins:5,title:'The Butterfly\\'s Struggle',desc:'The struggle is the gift.',color:'#FF7A45',audioId:'story-16'},
+{cat:'stories',mins:5,title:'The Wise Woman\\'s Stone',desc:'True wealth cannot be held.',color:'#D97706',audioId:'story-17'},
+{cat:'stories',mins:5,title:'The Fisherman',desc:'You already have what you seek.',color:'#B45309',audioId:'story-18'},
 {cat:'stories',mins:5,title:'The Bridge Builder',desc:'The greatest work is for those who follow.',color:'#D97706',audioId:'story-19'},
-{cat:'stories',mins:5,title:'The Samurai and the Tea Master',desc:'Courage is doing what you know.',color:'#DC2626',audioId:'story-20'}
+{cat:'stories',mins:5,title:'The Samurai and the Tea Master',desc:'Courage is doing what you know.',color:'#92400E',audioId:'story-20'}
 ];
 const MED_CATEGORIES=[
   {k:'affirmations',l:'Affirmations',e:'\\u{2728}'},
@@ -11628,7 +11598,7 @@ if(isMain){
   // mindgym→Train, meditation→Wisdom (daily verse + sit). Cal + Board still available
   // through modals/secondary surfaces. The "Today" tab is rendered into the existing
   // Tasks tab dashboard hero — clicking Today maps to tasks.
-  const tabsHtml=[{k:'tasks',l:'Tasks'},{k:'health',l:'Health'},{k:'books',l:'Listen'},{k:'bro',l:'Bro'},{k:'mindgym',l:'Train'},{k:'meditation',l:'Wisdom'},{k:'cal',l:'Calendar'}].map(x=>'<button class="tab tab-'+x.k+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(ID[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
+  const tabsHtml=[{k:'tasks',l:'Tasks'},{k:'books',l:'Listen'},{k:'bro',l:'Bro'},{k:'mindgym',l:'Train'},{k:'meditation',l:'Wisdom'},{k:'cal',l:'Calendar'}].map(x=>'<button class="tab tab-'+x.k+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(ID[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
   // "Bro, do it!" mascot — a character with a speech bubble that animates
   const climbScene='<div class="bro-mascot" aria-hidden="true">'
     +'<svg class="bro-svg" viewBox="0 0 340 130" xmlns="http://www.w3.org/2000/svg">'
@@ -11711,12 +11681,12 @@ h+='<main class="main-col">';
 // Moral chip + 3-headline top news at the top of the main column (Tasks tab only).
 h+=moralBlock;
 // User-bar + section-div removed; Profile lives in the header top-right.
-// Scenic tab hero — rendered at top of every tab EXCEPT Tasks (where it moves to the bottom of the list)
-const _tabHeroHtml=(()=>{const hero=TAB_HERO[S.tab];if(!hero)return '';const url='https://images.unsplash.com/photo-'+hero.img+'?w=1400&q=80&auto=format&fit=crop';return '<div class="tab-hero" style="background-image:linear-gradient(135deg,rgba(15,15,25,.7) 0%,rgba(15,15,25,.4) 55%,rgba(15,15,25,.2) 100%),url(&quot;'+url+'&quot;)"><div class="tab-hero-body"><h2 class="tab-hero-h">'+hero.h+'</h2><p class="tab-hero-s">'+hero.s+'</p></div></div>'})();
-if(S.tab!=='tasks')h+=_tabHeroHtml;
+// Hero banners removed — cleaner, more minimal look
+const _tabHeroHtml='';
 
 // TASKS TAB
 if(S.tab==='dash')S.tab='tasks'; // Stats tab removed; redirect any stale state to Tasks
+if(S.tab==='health')S.tab='tasks'; // Health tab removed; step tracking needs app open
 const _firstName=((S.user&&S.user.name)||'').split(' ')[0]||'';
 if(S.tab==='tasks'){
   // Restore-from-backup banner — surfaces only if the server returned 0 tasks but a local snapshot exists.
@@ -11764,106 +11734,59 @@ if(S.tab==='tasks'){
   // Mind Gym moved to its own dedicated tab.
 }
 
-// MIND GYM TAB — dedicated brain-training section, treated as its own product
+// MIND GYM TAB — section-based brain training (Maths, English, Memory)
 else if(S.tab==='mindgym'){
   const mg=S.mg;
-  // Sum only the 3 keeper games (math, word, schulte). Reaction & Memory were retired —
-  // their progress rows may still exist server-side for old users, but we no longer
-  // include them in aggregate stats so the percentages match what the UI actually shows.
   const _wordP=mg.progress.word||{level:1,xp:0,best:0};
   const _schP=mg.progress.schulte||{level:1,xp:0,best:0};
-  const overall=Math.round((mgPercent('math')+Math.min(100,Math.round(((_wordP.xp||0)/500)*100))+Math.min(100,Math.round(((_schP.xp||0)/500)*100)))/3);
-  const totalLevel=(mg.progress.math.level||1)+(_wordP.level||1)+(_schP.level||1);
-  const totalXp=(mg.progress.math.xp||0)+(_wordP.xp||0)+(_schP.xp||0);
+  const totalXp=(mg.progress.math.xp||0)+(_wordP.xp||0)+(_schP.xp||0)+(mg.progress.sudoku||{xp:0}).xp+(mg.progress.spatial||{xp:0}).xp;
   const streak=mg.streak||{current:0,longest:0,total:0};
-  // ─── Collapsible Progress chip (saves vertical space — tap to expand stats) ───
-  const _mgPOpen=!!S.mgProgressOpen;
-  h+='<button class="hh-progress-chip mg-prog-chip'+(_mgPOpen?' is-open':'')+'" onclick="S.mgProgressOpen=!S.mgProgressOpen;render()" aria-expanded="'+_mgPOpen+'">'
-    +'<span class="hh-pc-ic" style="background:linear-gradient(135deg,#FB923C,#374151)">\\u{1F9E0}</span>'
-    +'<span class="hh-pc-t">Progress</span>'
-    +'<span class="hh-pc-mini">'+overall+'% \\u00B7 L'+totalLevel+' \\u00B7 \\u{1F525}'+streak.current+' \\u00B7 '+totalXp+' XP</span>'
-    +'<svg class="hh-pc-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>'
-  +'</button>';
-  if(_mgPOpen){
-    h+='<section class="home-hero" style="background:linear-gradient(135deg,#1B0E2E 0%,#2C3E6B 50%,#374151 100%);margin-bottom:14px">'
-      +'<div class="hh-bg"></div>'
-      +'<div class="hh-row"><div class="hh-eyebrow">\\u{1F9E0} Mind Gym</div></div>'
-      +'<h1 class="hh-greet">Train your mind, <em>daily</em>.</h1>'
-      +'<div class="hh-stats">'
-        +'<div class="hh-stat"><b style="color:#86EFAC">'+overall+'%</b><small>Overall</small></div>'
-        +'<div class="hh-stat"><b style="color:#F97316">L'+totalLevel+'</b><small>Total levels</small></div>'
-        +'<div class="hh-stat"><b style="color:#FBBF24">\\u{1F525} '+streak.current+'</b><small>Day streak</small></div>'
-        +'<div class="hh-stat"><b style="color:#F97316">'+totalXp+'</b><small>XP earned</small></div>'
-      +'</div>'
-    +'</section>';
-  }
-  // ─── The keeper games. Reaction (single-tap, gets boring after 2 plays) and
-  // Memory Tap (janky Simon clone, canvas issues) were cut. These three each
-  // have replayable depth: math scales arithmetic difficulty, word builds
-  // vocabulary, schulte trains peripheral vision. ───
   const _sudP=(mg.progress.sudoku||{level:1,xp:0,best:0});
-  const _reactP=(mg.progress.reaction||{level:1,xp:0,best:0});
-  const _memP=(mg.progress.memory||{level:1,xp:0,best:0});
   const _spatP=(mg.progress.spatial||{level:1,xp:0,best:0});
-  const _games=[
-    {k:'math',e:'\\u{1F522}',n:'Math Sprint',d:'Beat the clock with mental math.',accent:'#FB923C',accent2:'#3B82F6',pData:mg.progress.math,pct:mgPercent('math'),bestL:'Best streak'},
-    {k:'sudoku',e:'\\u{1F9E9}',n:'Sudoku',d:'4\\u00D74 logic puzzle.',accent:'#FBBF24',accent2:'#F59E0B',pData:_sudP,pct:Math.min(100,Math.round(((_sudP.xp||0)/(5*100))*100)),bestL:'Best time',bestSuffix:' s'},
-    {k:'schulte',e:'\\u{1F3AF}',n:'Schulte Grid',d:'Find 1\\u219225 in order.',accent:'#F472B6',accent2:'#FB923C',pData:(mg.progress.schulte||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((mg.progress.schulte||{}).xp||0)/(5*100))*100)),bestL:'Best time',bestSuffix:' s'},
-    {k:'spatial',e:'\\u{1F9E0}',n:'Pattern Recall',d:'Remember & recreate the pattern.',accent:'#A855F7',accent2:'#7C3AED',pData:_spatP,pct:Math.min(100,Math.round(((_spatP.xp||0)/(5*100))*100)),bestL:'Best score',bestSuffix:' pts'}
+
+  // Minimal header
+  h+='<div class="tg-header">'
+    +'<h2 class="tg-title">Train</h2>'
+    +'<div class="tg-meta"><span>'+totalXp+' XP</span><span class="tg-dot"></span><span>'+streak.current+' day streak</span></div>'
+  +'</div>';
+
+  // Section definitions
+  const _sections=[
+    {id:'maths',title:'Maths',desc:'Arithmetic & logic',games:[
+      {k:'math',n:'Math Sprint',d:'Mental arithmetic against the clock',pData:mg.progress.math},
+      {k:'sudoku',n:'Sudoku',d:'4×4 logic puzzle',pData:_sudP}
+    ]},
+    {id:'english',title:'English',desc:'Vocabulary & word skills',games:[
+      {k:'word',n:'Word Sprint',d:'Unscramble letters into words',pData:_wordP}
+    ]},
+    {id:'memory',title:'Memory',desc:'Focus & recall',games:[
+      {k:'schulte',n:'Schulte Grid',d:'Find numbers 1→25 in order',pData:_schP},
+      {k:'spatial',n:'Pattern Recall',d:'Memorize and recreate patterns',pData:_spatP}
+    ]}
   ];
-  // ─── Train page: modern game cards with stats ───
-  const totalUnlocked=_games.reduce((s,g)=>s+(g.pData.level||1),0);
-  const _maxLvl=_games.length*10;
-  const _pctTotal=Math.round(totalUnlocked/_maxLvl*100);
 
-  // Stats row
-  h+='<div class="train-stats">';
-  h+='<div class="train-stat"><div class="train-stat-v">'+totalXp+'</div><div class="train-stat-l">XP earned</div></div>';
-  h+='<div class="train-stat"><div class="train-stat-v">L'+totalLevel+'</div><div class="train-stat-l">Total level</div></div>';
-  h+='<div class="train-stat"><div class="train-stat-v" style="color:var(--accent)">'+streak.current+'</div><div class="train-stat-l">Day streak</div></div>';
-  h+='<div class="train-stat"><div class="train-stat-v">'+_pctTotal+'%</div><div class="train-stat-l">Mastery</div></div>';
-  h+='</div>';
-
-  // Game cards grid
-  h+='<div class="train-grid">';
-  _games.forEach((g,i)=>{
-    const p=g.pData;
-    const lvl=p.level||1;
-    const xp=p.xp||0;
-    const nextXp=lvl*100;
-    const xpPct=Math.min(100,Math.round(xp/nextXp*100));
-    h+='<button class="train-card" style="--card-accent:'+g.accent+';--card-accent2:'+g.accent2+'" onclick="mgDetailOpen(\\''+g.k+'\\')">'
-      +'<div class="train-card-top">'
-        +'<div class="train-card-emoji">'+g.e+'</div>'
-        +'<div class="train-card-lvl">Lv '+lvl+'</div>'
-      +'</div>'
-      +'<div class="train-card-info">'
-        +'<div class="train-card-name">'+g.n+'</div>'
-        +'<div class="train-card-desc">'+g.d+'</div>'
-      +'</div>'
-      +'<div class="train-card-bar"><div class="train-card-fill" style="width:'+xpPct+'%"></div></div>'
-      +'<div class="train-card-xp">'+xp+' / '+nextXp+' XP</div>'
-      +'<div class="train-card-play">\\u25B6 Play</div>'
-    +'</button>';
-  });
-  h+='</div>';
-
-  // Achievements
-  {
-    const totalLvl=(mg.progress.math.level||1)+(_wordP.level||1)+(_schP.level||1);
-    const ach=[
-      {e:'\\u2728',n:'First step',d:'Reach total level 4',u:totalLvl>3},
-      {e:'\\u{1F525}',n:'Week warrior',d:'7-day streak',u:streak.current>=7},
-      {e:'\\u26A1',n:'Sharp mind',d:'Any game level 5+',u:Math.max(mg.progress.math.level||1,_wordP.level||1,_schP.level||1)>=5},
-      {e:'\\u{1F4AB}',n:'In the flow',d:'Earn 500 XP total',u:totalXp>=500}
-    ];
-    const unlocked=ach.filter(a=>a.u).length;
-    h+='<div class="train-badges">';
-    h+='<div class="train-badges-hd"><span class="train-badges-t">Badges</span><span class="train-badges-ct">'+unlocked+' / '+ach.length+'</span></div>';
-    h+='<div class="train-badges-row">';
-    ach.forEach(a=>{h+='<div class="train-badge'+(a.u?' unlocked':'')+'" title="'+a.n+'"><div class="train-badge-icon">'+(a.u?a.e:'\\u{1F512}')+'</div><div class="train-badge-name">'+a.n+'</div><div class="train-badge-desc">'+a.d+'</div></div>'});
+  _sections.forEach(sec=>{
+    h+='<div class="tg-section">';
+    h+='<div class="tg-sec-hd"><h3 class="tg-sec-title">'+sec.title+'</h3><span class="tg-sec-desc">'+sec.desc+'</span></div>';
+    h+='<div class="tg-games">';
+    sec.games.forEach(g=>{
+      const p=g.pData;
+      const lvl=p.level||1;
+      const xp=p.xp||0;
+      const nextXp=lvl*100;
+      const xpPct=Math.min(100,Math.round(xp/nextXp*100));
+      h+='<button class="tg-game" onclick="mgDetailOpen(\\''+g.k+'\\')">'
+        +'<div class="tg-game-info">'
+          +'<div class="tg-game-name">'+g.n+'</div>'
+          +'<div class="tg-game-desc">'+g.d+'</div>'
+          +'<div class="tg-game-bar"><div class="tg-game-fill" style="width:'+xpPct+'%"></div></div>'
+          +'<div class="tg-game-meta">Level '+lvl+' · '+xp+'/'+nextXp+' XP</div>'
+        +'</div>'
+        +'<div class="tg-game-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>'
+      +'</button>';
+    });
     h+='</div></div>';
-  }
+  });
 }
 
 
@@ -12152,20 +12075,18 @@ else if(S.tab==='meditation'){
     // Map color to a soft warm/cool gradient pair, Headspace style
     const grads={
       '#FCB851':'linear-gradient(135deg,#FFD27A 0%,#F59E0B 60%,#B45309 100%)',
-      '#5BBFB4':'linear-gradient(135deg,#7DD3C0 0%,#0F766E 100%)',
+      '#FCB851':'linear-gradient(135deg,#FCD34D 0%,#D97706 100%)',
       '#FF7A45':'linear-gradient(135deg,#FB923C 0%,#C2410C 100%)',
-      '#06B6D4':'linear-gradient(135deg,#67E8F9 0%,#0E7490 100%)',
-      '#3B82F6':'linear-gradient(135deg,#93C5FD 0%,#1D4ED8 100%)',
-      '#EA580C':'linear-gradient(135deg,#E5E7EB 0%,#374151 100%)',
-      '#EC4899':'linear-gradient(135deg,#F9A8D4 0%,#9D174D 100%)',
+      '#E8985A':'linear-gradient(135deg,#FCD9B0 0%,#C2410C 100%)',
+      '#EA580C':'linear-gradient(135deg,#FB923C 0%,#7C2D12 100%)',
       '#F59E0B':'linear-gradient(135deg,#FCD34D 0%,#92400E 100%)',
-      '#8B5CF6':'linear-gradient(135deg,#C4B5FD 0%,#6D28D9 100%)',
       '#F97316':'linear-gradient(135deg,#FB923C 0%,#8B4513 100%)',
-      '#3DAE5C':'linear-gradient(135deg,#86EFAC 0%,#166534 100%)',
+      '#FB923C':'linear-gradient(135deg,#FCD34D 0%,#EA580C 100%)',
       '#D97706':'linear-gradient(135deg,#FCD34D 0%,#92400E 100%)',
-      '#DC2626':'linear-gradient(135deg,#FCA5A5 0%,#991B1B 100%)',
-      '#312E81':'linear-gradient(135deg,#818CF8 0%,#1E1B4B 100%)',
-      '#1E3A5F':'linear-gradient(135deg,#60A5FA 0%,#0F172A 100%)'
+      '#B45309':'linear-gradient(135deg,#F59E0B 0%,#78350F 100%)',
+      '#C2410C':'linear-gradient(135deg,#FB923C 0%,#7C2D12 100%)',
+      '#92400E':'linear-gradient(135deg,#D97706 0%,#451A03 100%)',
+      '#451A03':'linear-gradient(135deg,#78350F 0%,#1C0A00 100%)'
     };
     const grad=grads[x.color]||('linear-gradient(135deg,'+x.color+',rgba(0,0,0,.6))');
     h+='<button class="hs-card'+(ready?'':' is-loading')+'" onclick="'+onclick+'" style="--g:'+grad+'">';
@@ -13813,7 +13734,7 @@ app.get('/privacy',(_,res)=>{
 app.get('/terms',(_,res)=>{
   res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Terms of Service — Brodoit</title><meta name="description" content="The simple terms for using Brodoit. Plain English, no surprises."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Terms</div><h1>The simple rules.</h1><p class="lede">We've kept these terms short and human. Use Brodoit kindly, and we'll keep building it for you.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">The service</h2><p>Brodoit is a personal productivity app: it lets you manage tasks with optional WhatsApp and email reminders, listen to free public-domain audiobooks, sharpen your mind with brain games, and see a daily wisdom quote.</p><h2 data-n="02">Your account</h2><p>You register with your email address or phone number. Keep your one-time verification codes private — anyone with the code can sign in. You are responsible for activity on your account.</p><h2 data-n="03">Acceptable use</h2><p>Please don't abuse the service: no spam, no impersonation, no automated scraping, no attempts to disrupt other users or the service itself. We may suspend or remove accounts that do.</p><h2 data-n="04">Content</h2><p>You own your tasks, notes, and other content you create. We store them so we can show them back to you. Audiobook content belongs to the respective public-domain authors and is served from the Internet Archive's LibriVox collection.</p><h2 data-n="05">No warranty</h2><p>The service is provided "as is". We try hard to keep it running, but can't promise zero downtime or guarantee that every reminder is delivered (WhatsApp and email providers can fail). If something matters, please don't rely solely on Brodoit.</p><h2 data-n="06">Limitation of liability</h2><p>Brodoit is a personal tool. We're not liable for missed deadlines, lost data, or any consequential damages from using — or not using — the service.</p><h2 data-n="07">Changes</h2><p>We may update these terms. If we do, we'll update the date at the top. Continued use after a change means you accept the new terms.</p><h2 data-n="08">Contact</h2><p>Need anything? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });
-app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v26";
+app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v28";
 self.addEventListener("install",function(e){self.skipWaiting()});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener("fetch",function(e){});
