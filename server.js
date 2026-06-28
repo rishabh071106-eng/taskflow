@@ -5551,7 +5551,7 @@ body.audio-on .fab-global{bottom:calc(96px + env(safe-area-inset-bottom,0px))!im
 /* ─── ANIMATED TASK CTA — two people + notebook ─── */
 .qc-scene{display:none}
 @media(max-width:1023px){
-.qc-scene{display:block;position:relative;height:110px;margin-bottom:8px;overflow:hidden;border-radius:16px;background:linear-gradient(135deg,#F5F6F8,#F5F6F8,#F5F6F8);border-bottom:1.5px dashed rgba(17,24,39,.15)}
+.qc-scene{display:block;position:relative;height:130px;margin-bottom:8px;overflow:visible;border-radius:16px;background:linear-gradient(135deg,#F5F6F8,#F5F6F8,#F5F6F8);border-bottom:1.5px dashed rgba(17,24,39,.15)}
 /* — shared person styles — */
 .qc-p{position:absolute;bottom:16px;z-index:2}
 .qc-p-head{width:18px;height:18px;border-radius:50%;position:absolute;top:0;left:50%;transform:translateX(-50%)}
@@ -5574,7 +5574,7 @@ body.audio-on .fab-global{bottom:calc(96px + env(safe-area-inset-bottom,0px))!im
 .qc-guide .qc-p-leg.l{animation:qcLeg .5s ease-in-out infinite}
 .qc-guide .qc-p-leg.r{animation:qcLeg .5s ease-in-out infinite .25s}
 /* speech bubbles */
-.qc-bubble{position:absolute;top:-16px;left:50%;transform:translateX(-50%);color:#fff;font-size:11px;font-weight:800;padding:5px 12px;border-radius:10px;white-space:nowrap;opacity:0;letter-spacing:.02em;text-shadow:0 1px 2px rgba(0,0,0,.3);z-index:6;box-shadow:0 3px 10px rgba(17,24,39,.3)}
+.qc-bubble{position:absolute;top:-22px;left:50%;transform:translateX(-50%);color:#fff;font-size:12px;font-weight:700;padding:6px 14px;border-radius:12px;white-space:nowrap;opacity:0;letter-spacing:.02em;text-shadow:0 1px 2px rgba(0,0,0,.2);z-index:6;box-shadow:0 4px 14px rgba(0,0,0,.15)}
 .qc-bubble::after{content:'';position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);border-left:4px solid transparent;border-right:4px solid transparent}
 .qc-b1{background:#2C3E6B;animation:qcB1 8s ease-in-out infinite}
 .qc-b1::after{border-top:5px solid #2C3E6B}
@@ -7818,23 +7818,22 @@ body[data-theme=aurora] .bro-input-wrap{background:rgba(255,255,255,.04);border-
 .tg-games-wrap{margin-bottom:24px}
 .tg-games-title{font-size:16px;font-weight:700;color:var(--ink);margin:0 0 12px;display:flex;align-items:center;gap:8px}
 .tg-games-title button{background:none;border:none;font-size:13px;color:var(--text-mute);cursor:pointer;font-weight:600;font-family:inherit}
-.tg-games{display:flex;flex-direction:column;gap:1px;background:var(--line);border-radius:14px;overflow:hidden;border:1px solid var(--line)}
-.tg-game{display:flex;align-items:center;gap:14px;padding:16px 18px;background:#fff;border:none;cursor:pointer;text-align:left;transition:background .15s;font-family:inherit;width:100%}
-.tg-game:hover{background:#F8F9FB}
-.tg-game:active{background:#F1F2F6}
-.tg-game-ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex-shrink:0;font-size:18px}
+.tg-games{display:flex;flex-direction:column;gap:10px;border-radius:14px;overflow:visible}
+.tg-game{display:flex;align-items:center;gap:14px;padding:16px 18px;background:var(--bg-elev);border:1.5px solid var(--line);border-radius:16px;cursor:pointer;text-align:left;transition:all .25s cubic-bezier(.2,.8,.2,1);font-family:inherit;width:100%;box-sizing:border-box;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.tg-game:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.08);border-color:rgba(232,145,58,.3)}
+.tg-game:active{transform:scale(.98)}
+.tg-game-ic{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;flex-shrink:0;font-size:22px;box-shadow:0 3px 10px rgba(0,0,0,.08)}
 .tg-game-info{flex:1;min-width:0}
-.tg-game-name{font-size:15px;font-weight:600;color:var(--ink);letter-spacing:-.01em}
-.tg-game-desc{font-size:12px;color:var(--text-mute);margin-top:2px;line-height:1.4}
-.tg-game-bar{height:3px;background:rgba(0,0,0,.06);border-radius:99px;overflow:hidden;margin-top:10px}
+.tg-game-name{font-size:15px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
+.tg-game-desc{font-size:12px;color:var(--text-mute);margin-top:3px;line-height:1.4}
+.tg-game-bar{height:4px;background:rgba(0,0,0,.06);border-radius:99px;overflow:hidden;margin-top:10px}
 .tg-game-fill{height:100%;border-radius:99px;transition:width .4s ease}
-.tg-game-meta{font-size:11px;color:var(--text-dim);margin-top:4px;font-weight:500}
-.tg-game-arrow{color:var(--text-dim);flex-shrink:0;transition:transform .15s}
-.tg-game:hover .tg-game-arrow{transform:translateX(2px);color:var(--ink)}
+.tg-game-meta{font-size:11px;color:var(--text-dim);margin-top:4px;font-weight:600}
+.tg-game-arrow{width:28px;height:28px;border-radius:8px;background:rgba(232,145,58,.08);display:grid;place-items:center;color:var(--accent);flex-shrink:0;transition:all .2s}
+.tg-game:hover .tg-game-arrow{background:var(--accent);color:#fff;transform:translateX(2px)}
 body[data-theme=aurora] .tg-title{color:#F5F5FA}
-body[data-theme=aurora] .tg-games{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.06)}
-body[data-theme=aurora] .tg-game{background:rgba(255,255,255,.03)}
-body[data-theme=aurora] .tg-game:hover{background:rgba(255,255,255,.06)}
+body[data-theme=aurora] .tg-game{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.08)}
+body[data-theme=aurora] .tg-game:hover{background:rgba(255,255,255,.08);border-color:rgba(240,180,90,.3)}
 body[data-theme=aurora] .tg-game-name{color:#E8E8F4}
 body[data-theme=aurora] .tg-game-bar{background:rgba(255,255,255,.08)}
 body[data-theme=aurora] .tg-game-fill{background:rgba(255,255,255,.5)}
@@ -13762,7 +13761,7 @@ app.get('/privacy',(_,res)=>{
 app.get('/terms',(_,res)=>{
   res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Terms of Service — Brodoit</title><meta name="description" content="The simple terms for using Brodoit. Plain English, no surprises."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Terms</div><h1>The simple rules.</h1><p class="lede">We've kept these terms short and human. Use Brodoit kindly, and we'll keep building it for you.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">The service</h2><p>Brodoit is a personal productivity app: it lets you manage tasks with optional WhatsApp and email reminders, listen to free public-domain audiobooks, sharpen your mind with brain games, and see a daily wisdom quote.</p><h2 data-n="02">Your account</h2><p>You register with your email address or phone number. Keep your one-time verification codes private — anyone with the code can sign in. You are responsible for activity on your account.</p><h2 data-n="03">Acceptable use</h2><p>Please don't abuse the service: no spam, no impersonation, no automated scraping, no attempts to disrupt other users or the service itself. We may suspend or remove accounts that do.</p><h2 data-n="04">Content</h2><p>You own your tasks, notes, and other content you create. We store them so we can show them back to you. Audiobook content belongs to the respective public-domain authors and is served from the Internet Archive's LibriVox collection.</p><h2 data-n="05">No warranty</h2><p>The service is provided "as is". We try hard to keep it running, but can't promise zero downtime or guarantee that every reminder is delivered (WhatsApp and email providers can fail). If something matters, please don't rely solely on Brodoit.</p><h2 data-n="06">Limitation of liability</h2><p>Brodoit is a personal tool. We're not liable for missed deadlines, lost data, or any consequential damages from using — or not using — the service.</p><h2 data-n="07">Changes</h2><p>We may update these terms. If we do, we'll update the date at the top. Continued use after a change means you accept the new terms.</p><h2 data-n="08">Contact</h2><p>Need anything? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });
-app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v31";
+app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v32";
 self.addEventListener("install",function(e){self.skipWaiting()});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener("fetch",function(e){});
