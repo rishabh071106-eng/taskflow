@@ -7334,18 +7334,18 @@ body[data-theme=aurora] .card-bro .coach-card-tag{background:rgba(17,24,39,.2);c
 .coach-back:hover{color:var(--ink)}
 
 /* ─── HYDRATION WIDGET ─── */
-.hydration-bar{display:flex;align-items:center;gap:10px;padding:12px 16px;margin:10px 0;background:linear-gradient(135deg,rgba(14,165,233,.08),rgba(6,182,212,.08));border:1px solid rgba(14,165,233,.15);border-radius:14px;cursor:pointer;transition:transform .2s}
+.hydration-bar{display:flex;align-items:center;gap:10px;padding:12px 16px;margin:10px 0;background:linear-gradient(135deg,rgba(249,115,22,.08),rgba(234,88,12,.08));border:1px solid rgba(249,115,22,.15);border-radius:14px;cursor:pointer;transition:transform .2s}
 .hydration-bar:active{transform:scale(.98)}
 .hydration-drop{font-size:24px;animation:hydDrop 2s ease-in-out infinite}
 .hydration-info{flex:1}
-.hydration-info b{font-size:14px;color:#0284C7}
-body[data-theme=aurora] .hydration-info b{color:#7DD3FC}
+.hydration-info b{font-size:14px;color:#C2410C}
+body[data-theme=aurora] .hydration-info b{color:#FB923C}
 .hydration-info small{display:block;font-size:11px;color:#6B7280;margin-top:2px}
-.hydration-toggle{padding:6px 14px;border-radius:10px;border:1px solid #0EA5E9;background:transparent;color:#0EA5E9;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
-.hydration-toggle.on{background:#0EA5E9;color:#fff}
+.hydration-toggle{padding:6px 14px;border-radius:10px;border:1px solid #F97316;background:transparent;color:#F97316;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
+.hydration-toggle.on{background:#F97316;color:#fff}
 .hydration-glasses{display:flex;gap:4px;margin-top:6px}
-.hydration-glass{width:20px;height:20px;border-radius:6px;border:1.5px solid rgba(14,165,233,.3);display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .2s}
-.hydration-glass.filled{background:linear-gradient(135deg,#0EA5E9,#06B6D4);border-color:transparent}
+.hydration-glass{width:20px;height:20px;border-radius:6px;border:1.5px solid rgba(249,115,22,.3);display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .2s}
+.hydration-glass.filled{background:linear-gradient(135deg,#F97316,#EA580C);border-color:transparent}
 @keyframes hydDrop{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 #hydration-overlay{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;padding:24px;animation:hydOvIn .3s ease}
 @keyframes hydOvIn{from{opacity:0}to{opacity:1}}
@@ -7800,28 +7800,38 @@ body[data-theme=aurora] .bro-header{background:rgba(255,255,255,.04);border-colo
 body[data-theme=aurora] .bro-input-wrap{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.06)}
 
 /* ═══ TRAIN PAGE — Minimal section-based design ═══ */
-.tg-header{margin-bottom:24px}
+.tg-header{margin-bottom:20px}
 .tg-title{font-size:28px;font-weight:800;color:var(--ink);letter-spacing:-.03em;margin:0}
 .tg-meta{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:13px;color:var(--text-mute);font-weight:500}
 .tg-dot{width:3px;height:3px;border-radius:50%;background:var(--text-dim)}
-.tg-section{margin-bottom:28px}
-.tg-sec-hd{display:flex;align-items:baseline;gap:10px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--line)}
-.tg-sec-title{font-size:16px;font-weight:700;color:var(--ink);letter-spacing:-.01em;margin:0}
-.tg-sec-desc{font-size:12px;color:var(--text-dim);font-weight:400}
+.tg-cats{display:flex;flex-direction:column;gap:14px;margin-bottom:24px}
+.tg-cat{position:relative;border-radius:22px;overflow:hidden;cursor:pointer;border:none;text-align:left;font-family:inherit;color:#fff;min-height:160px;display:flex;flex-direction:column;justify-content:flex-end;padding:20px 22px;box-shadow:0 8px 28px -6px rgba(0,0,0,.18);transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s}
+.tg-cat:hover{transform:translateY(-3px);box-shadow:0 14px 36px -8px rgba(0,0,0,.25)}
+.tg-cat:active{transform:scale(.98)}
+.tg-cat-bg{position:absolute;inset:0;z-index:0}
+.tg-cat-illus{position:absolute;right:12px;top:50%;transform:translateY(-50%);opacity:.22;z-index:0;pointer-events:none}
+.tg-cat-content{position:relative;z-index:1}
+.tg-cat-title{font-size:22px;font-weight:800;letter-spacing:-.02em;margin:0;text-shadow:0 2px 8px rgba(0,0,0,.15)}
+.tg-cat-desc{font-size:13px;opacity:.85;margin-top:4px;line-height:1.4;font-weight:500}
+.tg-cat-badge{display:inline-flex;align-items:center;gap:5px;margin-top:10px;padding:5px 10px;background:rgba(255,255,255,.2);backdrop-filter:blur(8px);border-radius:8px;font-size:11px;font-weight:700;letter-spacing:.3px}
+.tg-cat-badge svg{opacity:.7}
+.tg-games-wrap{margin-bottom:24px}
+.tg-games-title{font-size:16px;font-weight:700;color:var(--ink);margin:0 0 12px;display:flex;align-items:center;gap:8px}
+.tg-games-title button{background:none;border:none;font-size:13px;color:var(--text-mute);cursor:pointer;font-weight:600;font-family:inherit}
 .tg-games{display:flex;flex-direction:column;gap:1px;background:var(--line);border-radius:14px;overflow:hidden;border:1px solid var(--line)}
 .tg-game{display:flex;align-items:center;gap:14px;padding:16px 18px;background:#fff;border:none;cursor:pointer;text-align:left;transition:background .15s;font-family:inherit;width:100%}
 .tg-game:hover{background:#F8F9FB}
 .tg-game:active{background:#F1F2F6}
+.tg-game-ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex-shrink:0;font-size:18px}
 .tg-game-info{flex:1;min-width:0}
 .tg-game-name{font-size:15px;font-weight:600;color:var(--ink);letter-spacing:-.01em}
 .tg-game-desc{font-size:12px;color:var(--text-mute);margin-top:2px;line-height:1.4}
 .tg-game-bar{height:3px;background:rgba(0,0,0,.06);border-radius:99px;overflow:hidden;margin-top:10px}
-.tg-game-fill{height:100%;border-radius:99px;background:var(--ink);transition:width .4s ease}
+.tg-game-fill{height:100%;border-radius:99px;transition:width .4s ease}
 .tg-game-meta{font-size:11px;color:var(--text-dim);margin-top:4px;font-weight:500}
 .tg-game-arrow{color:var(--text-dim);flex-shrink:0;transition:transform .15s}
 .tg-game:hover .tg-game-arrow{transform:translateX(2px);color:var(--ink)}
 body[data-theme=aurora] .tg-title{color:#F5F5FA}
-body[data-theme=aurora] .tg-sec-hd{border-color:rgba(255,255,255,.08)}
 body[data-theme=aurora] .tg-games{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.06)}
 body[data-theme=aurora] .tg-game{background:rgba(255,255,255,.03)}
 body[data-theme=aurora] .tg-game:hover{background:rgba(255,255,255,.06)}
@@ -11555,23 +11565,7 @@ if(isMain){
     infoStrip+='</div>';
   }
   infoStrip+='</div>';
-  // Hydration row
-  infoStrip+='<div class="is-row is-hydration">'
-    +'<div class="is-row-icon">\\u{1F4A7}</div>'
-    +'<div class="is-row-body" style="flex:1">'
-      +'<div class="is-row-title">Water \\u00B7 '+_hyd.glass+'/'+_hyd.goal+' glasses</div>'
-      +'<div class="is-hyd-glasses">';
-  for(let _gi=0;_gi<_hyd.goal;_gi++){
-    infoStrip+='<span class="is-hyd-dot'+(_gi<_hyd.glass?' filled':'')+'"></span>';
-  }
-  infoStrip+='</div>'
-    +'</div>'
-    +'<div class="is-hyd-actions">'
-      +'<button class="is-hyd-minus" onclick="event.stopPropagation();undrinkWater()" title="Undo">&minus;</button>'
-      +'<button class="is-hyd-drink" onclick="event.stopPropagation();drinkWater()">+ Drink</button>'
-      +'<button class="is-hyd-toggle'+(_hyd.enabled?' on':'')+'" onclick="event.stopPropagation();toggleHydration()" title="'+(_hyd.enabled?'Reminders ON':'Turn on reminders')+'">\\u{1F514}</button>'
-    +'</div>'
-  +'</div>';
+  // Hydration moved below task input
   moralBlock=hero+infoStrip;
   // Bottom strip — keep moral + news ticker + clocks but tucked away as a subtle footer.
   const items=S.ticker.items||[];const baseIdx=S.ticker.idx||0;
@@ -11721,6 +11715,22 @@ if(S.tab==='tasks'){
   h+='<span class="qc-chip qc-low'+(_cp==='low'?' on':'')+'" onclick="composeSetPriority(\\'low\\')"><span class="qc-dot" style="background:#F97316"></span>Low</span>';
   h+='<span class="qc-expand" onclick="opA()">+ More options</span>';
   h+='</div></div>';
+  h+='<div class="is-row is-hydration" style="margin-bottom:12px">'
+    +'<div class="is-row-icon">\\u{1F4A7}</div>'
+    +'<div class="is-row-body" style="flex:1">'
+      +'<div class="is-row-title">Water \\u00B7 '+_hyd.glass+'/'+_hyd.goal+' glasses</div>'
+      +'<div class="is-hyd-glasses">';
+  for(let _gi=0;_gi<_hyd.goal;_gi++){
+    h+='<span class="is-hyd-dot'+(_gi<_hyd.glass?' filled':'')+'"></span>';
+  }
+  h+='</div>'
+    +'</div>'
+    +'<div class="is-hyd-actions">'
+      +'<button class="is-hyd-minus" onclick="event.stopPropagation();undrinkWater()" title="Undo">&minus;</button>'
+      +'<button class="is-hyd-drink" onclick="event.stopPropagation();drinkWater()">+ Drink</button>'
+      +'<button class="is-hyd-toggle'+(_hyd.enabled?' on':'')+'" onclick="event.stopPropagation();toggleHydration()" title="'+(_hyd.enabled?'Reminders ON':'Turn on reminders')+'">\\u{1F514}</button>'
+    +'</div>'
+  +'</div>';
   h+='<div class="srch"><input placeholder="Search tasks..." value="'+esc(S.search)+'" oninput="S.search=this.value;render()"></div>';
   h+='<div class="flt">'+[{k:'all',l:'All'},{k:'pending',l:'To Do'},{k:'in-progress',l:'Doing'},{k:'done',l:'Done'},{k:'today',l:'Today'}].map(x=>'<button class="fb'+(S.view===x.k?' on':'')+'" onclick="S.view=\\''+x.k+'\\';render()">'+x.l+'</button>').join('')+'</div>';
   h+='<button class="email-tasks-btn" onclick="emailMyTasks()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> Email my tasks</button>';
@@ -11744,49 +11754,68 @@ else if(S.tab==='mindgym'){
   const _sudP=(mg.progress.sudoku||{level:1,xp:0,best:0});
   const _spatP=(mg.progress.spatial||{level:1,xp:0,best:0});
 
-  // Minimal header
+  // Header
   h+='<div class="tg-header">'
     +'<h2 class="tg-title">Train</h2>'
     +'<div class="tg-meta"><span>'+totalXp+' XP</span><span class="tg-dot"></span><span>'+streak.current+' day streak</span></div>'
   +'</div>';
 
-  // Section definitions
-  const _sections=[
-    {id:'maths',title:'Maths',desc:'Arithmetic & logic',games:[
-      {k:'math',n:'Math Sprint',d:'Mental arithmetic against the clock',pData:mg.progress.math},
-      {k:'sudoku',n:'Sudoku',d:'4×4 logic puzzle',pData:_sudP}
+  // Category cards with SVG illustrations
+  const _cats=[
+    {id:'maths',title:'Maths',desc:'Arithmetic & logic puzzles',grad:'linear-gradient(135deg,#F97316 0%,#EA580C 50%,#B45309 100%)',
+     ic:'<svg width="80" height="80" viewBox="0 0 80 80" fill="none"><text x="10" y="32" font-size="28" font-weight="900" fill="white" opacity=".35" font-family="monospace">12</text><text x="30" y="58" font-size="22" font-weight="900" fill="white" opacity=".3" font-family="monospace">+47</text><text x="8" y="72" font-size="18" font-weight="900" fill="white" opacity=".25" font-family="monospace">=59</text><circle cx="65" cy="20" r="12" stroke="white" stroke-width="2" opacity=".2"/><line x1="58" y1="20" x2="72" y2="20" stroke="white" stroke-width="2" opacity=".3"/><line x1="65" y1="13" x2="65" y2="27" stroke="white" stroke-width="2" opacity=".3"/></svg>',
+     games:[
+      {k:'math',n:'Math Sprint',d:'Mental arithmetic against the clock',em:'\\u26A1',bg:'#FFF7ED',fill:'#F97316',pData:mg.progress.math},
+      {k:'sudoku',n:'Sudoku',d:'4\\u00D74 logic puzzle',em:'\\u{1F9E9}',bg:'#FEF3C7',fill:'#D97706',pData:_sudP}
     ]},
-    {id:'english',title:'English',desc:'Vocabulary & word skills',games:[
-      {k:'word',n:'Word Sprint',d:'Unscramble letters into words',pData:_wordP}
+    {id:'english',title:'English',desc:'Vocabulary & word skills',grad:'linear-gradient(135deg,#292524 0%,#44403C 50%,#78716C 100%)',
+     ic:'<svg width="80" height="80" viewBox="0 0 80 80" fill="none"><text x="6" y="35" font-size="32" font-weight="900" fill="white" opacity=".3" font-family="serif" letter-spacing="2">Abc</text><text x="20" y="62" font-size="18" font-weight="700" fill="white" opacity=".2" font-family="serif">words</text><rect x="55" y="10" width="18" height="24" rx="3" stroke="white" stroke-width="1.5" opacity=".2"/><line x1="59" y1="17" x2="69" y2="17" stroke="white" stroke-width="1" opacity=".2"/><line x1="59" y1="22" x2="69" y2="22" stroke="white" stroke-width="1" opacity=".2"/><line x1="59" y1="27" x2="66" y2="27" stroke="white" stroke-width="1" opacity=".2"/></svg>',
+     games:[
+      {k:'word',n:'Word Sprint',d:'Unscramble letters into words',em:'\\u{1F524}',bg:'#F5F5F4',fill:'#57534E',pData:_wordP}
     ]},
-    {id:'memory',title:'Memory',desc:'Focus & recall',games:[
-      {k:'schulte',n:'Schulte Grid',d:'Find numbers 1→25 in order',pData:_schP},
-      {k:'spatial',n:'Pattern Recall',d:'Memorize and recreate patterns',pData:_spatP}
+    {id:'memory',title:'Memory',desc:'Focus & recall training',grad:'linear-gradient(135deg,#7C2D12 0%,#9A3412 50%,#C2410C 100%)',
+     ic:'<svg width="80" height="80" viewBox="0 0 80 80" fill="none"><circle cx="25" cy="30" r="14" stroke="white" stroke-width="2" opacity=".25"/><circle cx="25" cy="30" r="6" fill="white" opacity=".15"/><rect x="48" y="16" width="22" height="22" rx="4" stroke="white" stroke-width="2" opacity=".2"/><rect x="52" y="20" width="14" height="14" rx="2" fill="white" opacity=".1"/><path d="M20 55 Q40 45 60 55 Q50 65 30 65 Z" stroke="white" stroke-width="1.5" opacity=".15" fill="white" fill-opacity=".05"/></svg>',
+     games:[
+      {k:'schulte',n:'Schulte Grid',d:'Find numbers 1\\u219225 in order',em:'\\u{1F522}',bg:'#FFF7ED',fill:'#C2410C',pData:_schP},
+      {k:'spatial',n:'Pattern Recall',d:'Memorize and recreate patterns',em:'\\u{1F4A1}',bg:'#FEF3C7',fill:'#9A3412',pData:_spatP}
     ]}
   ];
 
-  _sections.forEach(sec=>{
-    h+='<div class="tg-section">';
-    h+='<div class="tg-sec-hd"><h3 class="tg-sec-title">'+sec.title+'</h3><span class="tg-sec-desc">'+sec.desc+'</span></div>';
-    h+='<div class="tg-games">';
-    sec.games.forEach(g=>{
-      const p=g.pData;
-      const lvl=p.level||1;
-      const xp=p.xp||0;
-      const nextXp=lvl*100;
-      const xpPct=Math.min(100,Math.round(xp/nextXp*100));
-      h+='<button class="tg-game" onclick="mgDetailOpen(\\''+g.k+'\\')">'
-        +'<div class="tg-game-info">'
-          +'<div class="tg-game-name">'+g.n+'</div>'
-          +'<div class="tg-game-desc">'+g.d+'</div>'
-          +'<div class="tg-game-bar"><div class="tg-game-fill" style="width:'+xpPct+'%"></div></div>'
-          +'<div class="tg-game-meta">Level '+lvl+' · '+xp+'/'+nextXp+' XP</div>'
-        +'</div>'
-        +'<div class="tg-game-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>'
-      +'</button>';
-    });
-    h+='</div></div>';
+  // Render category cards
+  const _openCat=S.trainCat||'';
+  h+='<div class="tg-cats">';
+  _cats.forEach(cat=>{
+    h+='<button class="tg-cat" onclick="S.trainCat=(S.trainCat===\\''+cat.id+'\\')?\\'\\':\\''+cat.id+'\\';render()" style="background:'+cat.grad+'">'
+      +'<div class="tg-cat-illus">'+cat.ic+'</div>'
+      +'<div class="tg-cat-content">'
+        +'<h3 class="tg-cat-title">'+cat.title+'</h3>'
+        +'<div class="tg-cat-desc">'+cat.desc+'</div>'
+        +'<div class="tg-cat-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>'+cat.games.length+' game'+(cat.games.length>1?'s':'')+'</div>'
+      +'</div>'
+    +'</button>';
+    if(_openCat===cat.id){
+      h+='<div class="tg-games-wrap"><div class="tg-games">';
+      cat.games.forEach(g=>{
+        const p=g.pData;
+        const lvl=p.level||1;
+        const xp=p.xp||0;
+        const nextXp=lvl*100;
+        const xpPct=Math.min(100,Math.round(xp/nextXp*100));
+        h+='<button class="tg-game" onclick="event.stopPropagation();mgDetailOpen(\\''+g.k+'\\')">'
+          +'<div class="tg-game-ic" style="background:'+g.bg+'">'+g.em+'</div>'
+          +'<div class="tg-game-info">'
+            +'<div class="tg-game-name">'+g.n+'</div>'
+            +'<div class="tg-game-desc">'+g.d+'</div>'
+            +'<div class="tg-game-bar"><div class="tg-game-fill" style="width:'+xpPct+'%;background:'+g.fill+'"></div></div>'
+            +'<div class="tg-game-meta">Level '+lvl+' \\u00B7 '+xp+'/'+nextXp+' XP</div>'
+          +'</div>'
+          +'<div class="tg-game-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>'
+        +'</button>';
+      });
+      h+='</div></div>';
+    }
   });
+  h+='</div>';
 }
 
 
@@ -13734,7 +13763,7 @@ app.get('/privacy',(_,res)=>{
 app.get('/terms',(_,res)=>{
   res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Terms of Service — Brodoit</title><meta name="description" content="The simple terms for using Brodoit. Plain English, no surprises."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Terms</div><h1>The simple rules.</h1><p class="lede">We've kept these terms short and human. Use Brodoit kindly, and we'll keep building it for you.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">The service</h2><p>Brodoit is a personal productivity app: it lets you manage tasks with optional WhatsApp and email reminders, listen to free public-domain audiobooks, sharpen your mind with brain games, and see a daily wisdom quote.</p><h2 data-n="02">Your account</h2><p>You register with your email address or phone number. Keep your one-time verification codes private — anyone with the code can sign in. You are responsible for activity on your account.</p><h2 data-n="03">Acceptable use</h2><p>Please don't abuse the service: no spam, no impersonation, no automated scraping, no attempts to disrupt other users or the service itself. We may suspend or remove accounts that do.</p><h2 data-n="04">Content</h2><p>You own your tasks, notes, and other content you create. We store them so we can show them back to you. Audiobook content belongs to the respective public-domain authors and is served from the Internet Archive's LibriVox collection.</p><h2 data-n="05">No warranty</h2><p>The service is provided "as is". We try hard to keep it running, but can't promise zero downtime or guarantee that every reminder is delivered (WhatsApp and email providers can fail). If something matters, please don't rely solely on Brodoit.</p><h2 data-n="06">Limitation of liability</h2><p>Brodoit is a personal tool. We're not liable for missed deadlines, lost data, or any consequential damages from using — or not using — the service.</p><h2 data-n="07">Changes</h2><p>We may update these terms. If we do, we'll update the date at the top. Continued use after a change means you accept the new terms.</p><h2 data-n="08">Contact</h2><p>Need anything? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });
-app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v28";
+app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v30";
 self.addEventListener("install",function(e){self.skipWaiting()});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener("fetch",function(e){});
