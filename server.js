@@ -11402,6 +11402,8 @@ if(S.remember&&S.remember.person){
 }
 // Tasks tab is the "main page" — moral, news, person-of-day, world-clocks render only here.
 const isMain=(S.tab==='tasks'||!S.tab);
+_hydrationToday();
+const _hyd=S.hydration;
 const HELP_BTN='<button class="hdr-help" onclick="openHelp()" aria-label="Help" title="How to use Brodoit">?</button>';
 const LOGO_MARK='<div class="logo" aria-label="Brodoit"><span class="logo-fist">\\u{1F91C}\\u{1F91B}</span><span class="b1">Bro</span><span class="b2">do</span><span class="b3">it</span><span class="dot"></span></div>';
 let h='<div class="hdr"><div class="hdr-l">'+LOGO_MARK+'</div><div class="hdr-actions">'+HELP_BTN+PROFILE_BTN+'<button class="theme-tg" onclick="toggleTheme()" title="Switch theme">'+(S.theme==='aurora'?ic('sun',18):ic('moon',18))+'</button></div></div>';
@@ -11499,8 +11501,6 @@ if(isMain){
   }
   hero+='</div>';
   // --- Stacked info rows: weather, hydration ---
-  _hydrationToday();
-  const _hyd=S.hydration;
   let infoStrip='';
   // Weather chip — tap to expand forecast + city search
   const _wxExpanded=!!S.weatherExpanded;
