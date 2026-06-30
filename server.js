@@ -2376,7 +2376,7 @@ const HTML=`<!DOCTYPE html><html lang="en"><head>
 <title>Brodoit — Tasks, audiobooks &amp; daily wisdom</title>
 <meta name="description" content="Brodoit is your calm productivity companion. Manage tasks with email reminders, listen to free public-domain audiobooks, sharpen your mind, and build a daily ritual that sticks.">
 <link rel="canonical" href="https://brodoit.com/">
-<meta name="theme-color" content="#0F1115">
+<meta name="theme-color" content="#F4EEE3">
 <meta name="format-detection" content="telephone=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -2403,36 +2403,31 @@ const HTML=`<!DOCTYPE html><html lang="en"><head>
 <!-- Structured data for Google rich results -->
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://brodoit.com/#org","name":"Brodoit","url":"https://brodoit.com/","logo":"https://brodoit.com/icon-512.png","email":"hello@brodoit.com","sameAs":["https://github.com/rishabh071106-eng/taskflow"]},{"@type":"WebSite","@id":"https://brodoit.com/#site","url":"https://brodoit.com/","name":"Brodoit","description":"Tasks, audiobooks and daily wisdom — your calm productivity companion.","publisher":{"@id":"https://brodoit.com/#org"},"inLanguage":"en"},{"@type":"WebApplication","@id":"https://brodoit.com/#app","name":"Brodoit","url":"https://brodoit.com/","description":"A calm productivity app: manage tasks with WhatsApp reminders, listen to free public-domain audiobooks, sharpen your mind with daily drills, and build a streak that sticks.","applicationCategory":"ProductivityApplication","operatingSystem":"Web, Android, iOS","browserRequirements":"Requires JavaScript. Requires HTML5.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD","availability":"https://schema.org/InStock"},"featureList":["Task management","WhatsApp reminders","Email reminders","Free public-domain audiobooks","Daily wisdom quotes","Mind Gym brain games","Voice training","Step tracking","Google Calendar sync"],"publisher":{"@id":"https://brodoit.com/#org"},"inLanguage":"en"}]}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,500;1,6..72,600&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,500;1,6..72,600&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-#splash{position:fixed;inset:0;z-index:99999;background:#0F1115;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity .4s ease-out}
+#splash{position:fixed;inset:0;z-index:99999;background:#F4EEE3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity .4s ease-out}
 #splash.hide{opacity:0;pointer-events:none}
 #splash .sp-fist{font-size:56px;animation:spPulse 1.5s ease-in-out infinite}
-#splash .sp-name{font-family:'Instrument Serif',Georgia,serif;font-size:36px;color:#FFD27A;letter-spacing:-.02em}
-#splash .sp-sub{font-size:13px;color:rgba(255,255,255,.35);font-family:'JetBrains Mono',monospace;letter-spacing:.1em;text-transform:uppercase;margin-top:-4px}
+#splash .sp-name{font-family:'Newsreader',Georgia,serif;font-size:36px;color:#2B2722;letter-spacing:-.02em;font-weight:500}
+#splash .sp-sub{font-size:13px;color:#8C8073;font-family:'Hanken Grotesk',system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;margin-top:-4px}
 @keyframes spPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
-/* ─────────────────────────────────────────────────────────────
-   Formal productivity palette — Linear / Notion territory.
-   Neutral light grey-cream surfaces (not peach), graphite ink,
-   restrained slate accent. Soft sage as a single warm note.
-   Tighter geometry, modest radii (14px), hairline borders only.
-─────────────────────────────────────────────────────────────── */
 :root{
---bg:#F5F6F8;--bg-2:#EDEEF2;--bg-elev:#FFFFFF;--bg-sunken:#ECEDF1;
---surface:#FFFFFF;--surface-2:#F5F6F8;
---ink:#111827;--text:#111827;--text-mute:#6B7280;--text-dim:#9CA3AF;
---ink-2:#1F2937;--ink-3:#6B7280;--ink-4:#9CA3AF;--ink-5:#D1D5DB;
---line:#E5E7EB;--line-2:#D1D5DB;--border:#E5E7EB;--border-2:#D1D5DB;
---accent:#E27D60;--accent-soft:rgba(226,125,96,.05);--accent-ink:#FFFFFF;
---accent-2:#CC6E52;--warm:#E27D60;--paper:#FFFFFF;
---serif:'Newsreader','Iowan Old Style',Georgia,serif;
---sans:'Inter','IBM Plex Sans','SF Pro Text',-apple-system,BlinkMacSystemFont,sans-serif;
+--bg:#E9E0D0;--bg-2:#E0D7C7;--bg-elev:#F4EEE3;--bg-sunken:#DDD4C4;
+--surface:color-mix(in srgb,#F4EEE3 35%,#fff);--surface-2:#F4EEE3;
+--ink:#2B2722;--text:#2B2722;--text-mute:#8C8073;--text-dim:#A89E93;
+--ink-2:#3D3832;--ink-3:#8C8073;--ink-4:#A89E93;--ink-5:#C4BBB0;
+--line:rgba(43,39,34,.09);--line-2:rgba(43,39,34,.15);--border:rgba(43,39,34,.09);--border-2:rgba(43,39,34,.15);
+--accent:#D9734A;--accent-soft:color-mix(in srgb,#D9734A 14%,#FBF6EE);--accent-ink:#FFFFFF;
+--accent-2:#C4663E;--accent-strong:color-mix(in srgb,#D9734A 82%,#23150b);--warm:#D9734A;--paper:#F4EEE3;
+--gold:#BE8C36;--sage:#5C6F52;
+--serif:'Newsreader',Georgia,serif;
+--sans:'Hanken Grotesk',system-ui,-apple-system,sans-serif;
 --mono:'JetBrains Mono',ui-monospace,monospace;
---shadow-1:0 1px 2px rgba(0,0,0,.04),0 2px 4px rgba(0,0,0,.04);
---shadow-2:0 4px 16px -2px rgba(0,0,0,.06),0 8px 24px -4px rgba(0,0,0,.08);
---shadow-3:0 12px 40px -8px rgba(0,0,0,.12),0 4px 12px -2px rgba(0,0,0,.06);
---radius:16px}
+--shadow-1:0 8px 22px -16px rgba(43,39,34,.5);
+--shadow-2:0 12px 26px -12px rgba(43,39,34,.5);
+--shadow-3:0 14px 30px -12px rgba(43,39,34,.5);
+--radius:18px}
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 @keyframes scaleIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
 @keyframes slideIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
@@ -2443,10 +2438,10 @@ const HTML=`<!DOCTYPE html><html lang="en"><head>
 @keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 @keyframes glowPulse{0%,100%{opacity:.6}50%{opacity:1}}
 @keyframes borderRotate{0%{--angle:0deg}100%{--angle:360deg}}
-body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;letter-spacing:-.011em;font-weight:400}
+body{font-family:var(--sans);background:#E9E0D0;color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;letter-spacing:-.011em;font-weight:400}
 button,a{-webkit-tap-highlight-color:transparent}
 button:not(.chk):not(.tab):active{transform:scale(.97) !important;transition:transform .1s !important}
-::selection{background:rgba(226,125,96,.15);color:var(--ink)}
+::selection{background:rgba(217,115,74,.18);color:var(--ink)}
 /* Suppress entrance animations during passive (background-poll) renders.
    This stops the screen from flickering every 10s when load() refreshes
    tasks but the user hasn't done anything. Only user-driven renders
@@ -2466,16 +2461,71 @@ body[data-theme=aurora] .beta-pill{background:linear-gradient(135deg,rgba(251,19
 body[data-theme=aurora] .beta-pill-t b{color:#FCD34D}
 body[data-theme=aurora] .beta-pill-t small{color:rgba(252,211,77,.75)}
 body[data-theme=aurora] .beta-pill-x{color:#FCD34D}
-::selection{background:rgba(226,125,96,.15);color:var(--ink)}
+::selection{background:rgba(217,115,74,.18);color:var(--ink)}
 button{cursor:pointer;font-family:inherit;-webkit-font-smoothing:inherit;color:inherit}
 input,textarea,select{font-family:inherit;-webkit-font-smoothing:inherit;color:inherit}
-h1,h2,h3,h4{font-family:var(--serif);font-weight:500;letter-spacing:-.018em;color:var(--ink)}
-/* No body gradients — keep the page calm and matte. Surfaces carry the
-   warmth via cream fill + hairline borders. */
+h1,h2,h3,h4{font-family:var(--serif);font-weight:500;letter-spacing:-.015em;color:var(--ink)}
+/* ─── Redesign: Warm editorial component styles ─── */
+.rd-card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:17px;box-shadow:var(--shadow-1)}
+.rd-eyebrow{font:700 10.5px var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--text-mute)}
+.rd-serif-title{font:500 28px/1.1 var(--serif);color:var(--ink);letter-spacing:-.015em;margin:0}
+.rd-btn-primary{width:100%;height:56px;border:none;border-radius:16px;background:var(--accent);color:#fff;font:600 16px var(--sans);cursor:pointer;box-shadow:0 12px 26px -12px var(--accent)}
+.rd-btn-outline{height:52px;border-radius:15px;border:1.5px solid rgba(43,39,34,.16);background:transparent;color:var(--ink);font:600 15px var(--sans);display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;flex:1}
+.rd-check-filled{width:23px;height:23px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;flex:none}
+.rd-check-empty{width:23px;height:23px;border-radius:7px;border:2px solid rgba(43,39,34,.22);flex:none}
+.rd-check-done{width:23px;height:23px;border-radius:7px;background:var(--accent);flex:none;display:flex;align-items:center;justify-content:center}
+.rd-pill{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:20px;font:600 12.5px var(--sans)}
+.rd-pill-accent{background:var(--accent-soft);color:var(--accent-strong)}
+.rd-pill-sage{background:color-mix(in srgb,var(--sage) 14%,#FBF6EE);color:color-mix(in srgb,var(--sage) 80%,#1c2417)}
+.rd-email-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:7px;background:var(--accent-soft);color:var(--accent-strong);font:600 11px var(--sans)}
+.rd-segmented{display:flex;gap:5px;padding:4px;background:rgba(43,39,34,.05);border-radius:13px}
+.rd-segmented button{flex:1;text-align:center;padding:9px 0;border-radius:10px;font:600 13px var(--sans);color:var(--text-mute);border:none;background:none;cursor:pointer}
+.rd-segmented button.on{background:#fff;color:var(--ink);box-shadow:0 2px 6px -3px rgba(43,39,34,.3)}
+.rd-fab{width:42px;height:42px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;box-shadow:0 10px 22px -10px var(--accent)}
+.rd-progress-bar{height:6px;border-radius:4px;background:rgba(43,39,34,.08);overflow:hidden}
+.rd-progress-fill{height:100%;border-radius:4px;background:var(--accent);transition:width .6s ease}
+.rd-ritual-circle{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.rd-ritual-done{background:var(--accent)}
+.rd-ritual-pending{border:2px dashed rgba(43,39,34,.22)}
+.rd-wisdom-card{border-radius:20px;padding:17px;background:color-mix(in srgb,var(--gold) 13%,#FBF6EE);border:1px solid color-mix(in srgb,var(--gold) 24%,transparent)}
+.rd-listen-card{display:flex;align-items:center;gap:14px;border-radius:20px;padding:14px;background:var(--surface);border:1px solid var(--line)}
+.rd-listen-cover{width:58px;height:58px;border-radius:13px;flex:none;background:repeating-linear-gradient(135deg,#d8ccb7,#d8ccb7 6px,#ccbda6 6px,#ccbda6 12px);box-shadow:0 4px 10px -4px rgba(43,39,34,.5)}
+.rd-play-btn{width:42px;height:42px;border-radius:50%;background:var(--accent);flex:none;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;box-shadow:0 8px 18px -8px var(--accent)}
+.rd-session-card{border-radius:22px;padding:20px;background:var(--sage);color:#fff;box-shadow:0 16px 30px -18px var(--sage);position:relative;overflow:hidden}
+.rd-skill-bar{display:flex;flex-direction:column;gap:13px}
+.rd-drill-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.rd-drill-card{border:1px solid var(--line);border-radius:16px;padding:14px;background:var(--surface);cursor:pointer}
+.rd-drill-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.rd-wisdom-full{position:fixed;inset:0;z-index:9998;background:radial-gradient(125% 75% at 50% 0%,color-mix(in srgb,var(--gold) 20%,var(--paper)) 0%,var(--paper) 58%);display:flex;flex-direction:column;animation:fadeUp .3s ease}
+.rd-wisdom-full .rd-wf-close{width:38px;height:38px;border-radius:50%;background:rgba(43,39,34,.06);display:flex;align-items:center;justify-content:center;color:var(--ink);border:none;cursor:pointer}
+.rd-wisdom-full .rd-wf-quote{font:500 33px/1.28 var(--serif);color:var(--ink);letter-spacing:-.01em;text-align:center;text-wrap:pretty}
+.rd-wisdom-full .rd-wf-divider{width:34px;height:2px;background:rgba(43,39,34,.22);margin:26px auto}
+.rd-paywall{position:fixed;inset:0;z-index:9998;background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 10%,var(--paper)) 0%,var(--paper) 42%);display:flex;flex-direction:column;animation:fadeUp .3s ease;overflow-y:auto}
+.rd-paywall .rd-pw-price{position:relative;border:2px solid var(--accent);border-radius:20px;padding:18px 18px 16px;background:color-mix(in srgb,var(--accent) 7%,#fff)}
+.rd-paywall .rd-pw-badge{position:absolute;top:-11px;left:18px;background:var(--accent);color:#fff;font:700 10px var(--sans);letter-spacing:.14em;text-transform:uppercase;padding:4px 10px;border-radius:7px}
+.rd-task-row{display:flex;align-items:flex-start;gap:13px;padding:14px 2px;border-bottom:1px solid var(--line)}
+.rd-task-row .rd-task-title{font:600 15.5px var(--sans);color:var(--ink)}
+.rd-task-row.done .rd-task-title{color:var(--text-mute);text-decoration:line-through}
+.rd-task-meta{display:flex;align-items:center;gap:8px;margin-top:6px}
+.rd-section-label{font:700 10.5px var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--text-mute);margin:22px 0 2px}
+/* Bottom tab bar — redesign */
+.rd-tabbar{position:fixed;bottom:0;left:0;right:0;height:82px;padding:12px 14px 0;background:color-mix(in srgb,var(--paper) 78%,#fff);border-top:1px solid var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:flex;align-items:flex-start;z-index:100}
+.rd-tabbar .rd-tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--text-mute);background:none;border:none;cursor:pointer;font-family:var(--sans);padding:0}
+.rd-tabbar .rd-tab.on{color:var(--accent)}
+.rd-tabbar .rd-tab.on svg{stroke-width:1.9}
+.rd-tabbar .rd-tab svg{stroke-width:1.7}
+.rd-tabbar .rd-tab-label{font:600 10px var(--sans)}
+/* Onboarding */
+.rd-onboard-option{display:flex;align-items:center;gap:13px;padding:15px;border-radius:18px;cursor:pointer;transition:background .2s,border-color .2s}
+.rd-onboard-option.selected{background:var(--accent-soft);border:1.5px solid var(--accent)}
+.rd-onboard-option:not(.selected){background:color-mix(in srgb,var(--paper) 40%,#fff);border:1.5px solid var(--line)}
+.rd-onboard-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:none}
+.rd-onboard-icon.on{background:var(--accent)}
+.rd-onboard-icon:not(.on){background:rgba(43,39,34,.06)}
 button{cursor:pointer;border:none;background:none;font-family:inherit;color:inherit}
 input,textarea,select{font-family:inherit;border:1px solid rgba(17,24,39,.12);border-radius:14px;padding:13px 14px;font-size:15px;background:var(--surface);width:100%;color:var(--text);box-sizing:border-box;max-width:100%}
-input:focus,textarea:focus{outline:none;border-color:#E27D60;box-shadow:0 0 0 4px rgba(226,125,96,.1)}textarea{resize:vertical;min-height:56px}select{-webkit-appearance:none;appearance:none}
-.app{max-width:520px;margin:0 auto;padding:18px 18px 120px;position:relative;z-index:1;overflow-x:hidden}
+input:focus,textarea:focus{outline:none;border-color:#D9734A;box-shadow:0 0 0 4px rgba(217,115,74,.12)}textarea{resize:vertical;min-height:56px}select{-webkit-appearance:none;appearance:none}
+.app{max-width:520px;margin:0 auto;padding:18px 22px 120px;position:relative;z-index:1;overflow-x:hidden}
 .main-col{display:block}
 .hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;padding:0 2px}
 /* ─── Brand mark ─── */
@@ -3684,10 +3734,6 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
    springy active state, smooth motion. Tab names always visible, never abbreviated. */
 @media (max-width:1023px){
   body{padding-left:0 !important;padding-bottom:100px !important}
-  /* Hide all desktop-only side-col contents on mobile EXCEPT the bottom nav (.tabs.page-t),
-     which is repositioned as the fixed bottom bar. The life-goal card, side-now widget,
-     etc. would otherwise render in normal flow ABOVE the bottom nav and either overlap
-     or peek through, making the nav look like it has a second row. */
   .app>.side-col>:not(.tabs.page-t){display:none !important}
   .app>.side-col{display:contents}
   .tabs.page-t{
@@ -3696,18 +3742,19 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
     width:100% !important;
     flex-direction:row !important;
     justify-content:space-evenly !important;
-    overflow-x:auto !important;overflow-y:visible !important;
-    background:linear-gradient(180deg,#F5F6F8,#EDEEF2) !important;
-    backdrop-filter:none !important;
-    -webkit-backdrop-filter:none !important;
+    overflow-x:hidden !important;overflow-y:visible !important;
+    background:color-mix(in srgb,var(--paper) 78%,#fff) !important;
+    backdrop-filter:blur(14px) !important;
+    -webkit-backdrop-filter:blur(14px) !important;
     border:none !important;
-    border-top:1px solid rgba(17,24,39,.08) !important;
-    border-radius:24px 24px 0 0 !important;
-    padding:10px 6px calc(8px + env(safe-area-inset-bottom,0px)) !important;
+    border-top:1px solid var(--line) !important;
+    border-radius:0 !important;
+    padding:12px 14px calc(8px + env(safe-area-inset-bottom,0px)) !important;
     gap:0 !important;
     z-index:60 !important;
-    box-shadow:0 -8px 40px rgba(17,24,39,.12),0 -2px 8px rgba(0,0,0,.04) !important;
+    box-shadow:none !important;
     margin:0 !important;
+    height:82px !important;
   }
   .tabs.page-t::after{display:none !important}
   .tabs.page-t > div.tabs-inner,.tabs.page-t > .tabs-inner{display:none}
@@ -3715,17 +3762,17 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
   .tabs.page-t .tab{
     flex:1 1 0 !important;
     min-width:0 !important;
-    padding:6px 2px 4px !important;
+    padding:0 !important;
     flex-direction:column !important;
     align-items:center !important;
-    justify-content:center !important;
+    justify-content:flex-start !important;
     text-align:center !important;
-    min-height:60px !important;
-    border-radius:16px !important;
+    min-height:auto !important;
+    border-radius:0 !important;
     gap:4px !important;
-    transition:all .3s cubic-bezier(.34,1.56,.64,1) !important;
+    transition:color .2s ease !important;
     background:transparent !important;
-    color:#6B7280 !important;
+    color:var(--text-mute) !important;
     box-shadow:none !important;
     position:relative;
     overflow:visible;
@@ -3733,21 +3780,22 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
   .tabs.page-t .tab::before{display:none !important}
   .tabs.page-t .tab .ti{
     font-size:22px !important;
-    width:42px !important;height:42px !important;
+    width:auto !important;height:auto !important;
     display:flex !important;align-items:center !important;justify-content:center !important;
-    transition:all .3s cubic-bezier(.34,1.56,.64,1) !important;
+    transition:color .2s ease !important;
     color:inherit !important;
-    background:rgba(226,125,96,.08) !important;border-radius:14px !important;border:none !important;box-shadow:none !important;
+    background:none !important;border-radius:0 !important;border:none !important;box-shadow:none !important;
     overflow:visible !important;
+    transform:none !important;
   }
   .tabs.page-t .tab .ti::after{display:none !important}
   .tabs.page-t .tab .ti::before{display:none !important}
-  .tabs.page-t .tab .ti svg{width:22px !important;height:22px !important;filter:none !important;stroke-width:2.4 !important;color:#6B7280 !important}
+  .tabs.page-t .tab .ti svg{width:23px !important;height:23px !important;filter:none !important;stroke-width:1.7 !important;color:inherit !important}
   .tabs.page-t .tab .tl{
     font-family:var(--sans) !important;
-    font-size:11px !important;
-    font-weight:700 !important;
-    letter-spacing:.02em !important;
+    font-size:10px !important;
+    font-weight:600 !important;
+    letter-spacing:0 !important;
     text-transform:none !important;
     white-space:nowrap !important;
     color:inherit !important;
@@ -3755,40 +3803,31 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
     overflow:hidden;text-overflow:ellipsis;max-width:100%;
     margin-top:0 !important;
   }
-  .tabs.page-t .tab.tab-cal .tl{font-size:10px !important;letter-spacing:0 !important}
-  .tabs.page-t .tab:active{transform:scale(.88) !important}
+  .tabs.page-t .tab:active{transform:scale(.95) !important}
   .tabs.page-t .tab.on{
-    color:#E27D60 !important;
-    transform:translateY(-2px) !important;
+    color:var(--accent) !important;
+    transform:none !important;
     background:transparent !important;
   }
   .tabs.page-t .tab.on .ti{
-    background:linear-gradient(135deg,#E27D60,#EDA68E) !important;
-    color:#fff !important;
-    box-shadow:0 4px 14px rgba(226,125,96,.25) !important;
-    transform:scale(1.08) !important;
+    background:none !important;
+    color:var(--accent) !important;
+    box-shadow:none !important;
+    transform:none !important;
   }
-  .tabs.page-t .tab.on .ti svg{color:#fff !important;stroke:#fff !important}
-  .tabs.page-t .tab.on .tl{color:#E27D60 !important;font-weight:800 !important;opacity:1 !important;font-size:11.5px !important}
+  .tabs.page-t .tab.on .ti svg{color:var(--accent) !important;stroke:var(--accent) !important;stroke-width:1.9 !important}
+  .tabs.page-t .tab.on .tl{color:var(--accent) !important;font-weight:600 !important;opacity:1 !important;font-size:10px !important}
   .tabs.page-t .tab.on::after{display:none !important}
-  /* Float other UI above the new bottom bar */
   .bk-mini{bottom:110px !important;right:14px !important}
   .player{bottom:110px !important;left:12px !important;right:96px !important}
   .fab{bottom:108px !important;right:18px !important}
-  /* Other surfaces stay readable — not bloated */
   .flt button.fb,.fb{padding:10px 16px !important;font-size:13px !important;min-height:auto !important;border-radius:10px !important}
-  .add-bar .plus{font-size:30px !important;width:46px !important;height:46px !important}
-  .add-bar .txt b{font-size:15.5px !important}
-  .add-bar .txt small{font-size:12.5px !important}
-  .section-hd h3{font-size:19px !important}
-  .stats .st b{font-size:22px !important}
 }
-body[data-theme=aurora] .tabs.page-t{background:linear-gradient(180deg,rgba(25,22,42,.98),rgba(18,16,32,.99)) !important;box-shadow:0 -8px 40px rgba(0,0,0,.4) !important;border-radius:24px 24px 0 0 !important}
-body[data-theme=aurora] .tabs.page-t .tab{color:rgba(255,255,255,.3) !important}
-body[data-theme=aurora] .tabs.page-t .tab .ti{background:rgba(255,255,255,.06) !important;box-shadow:none !important}
-body[data-theme=aurora] .tabs.page-t .tab.on{color:#EDA68E !important}
-body[data-theme=aurora] .tabs.page-t .tab.on .ti{background:linear-gradient(135deg,#EDA68E,#CC6E52) !important;color:#fff !important;box-shadow:0 4px 14px rgba(226,125,96,.3) !important}
-body[data-theme=aurora] .tabs.page-t .tab.on .tl{color:#EDA68E !important}
+body[data-theme=aurora] .tabs.page-t{background:rgba(18,16,32,.95) !important;backdrop-filter:blur(14px) !important;border-top:1px solid rgba(255,255,255,.08) !important}
+body[data-theme=aurora] .tabs.page-t .tab{color:rgba(255,255,255,.35) !important}
+body[data-theme=aurora] .tabs.page-t .tab.on{color:#D9734A !important}
+body[data-theme=aurora] .tabs.page-t .tab.on .ti svg{color:#D9734A !important;stroke:#D9734A !important}
+body[data-theme=aurora] .tabs.page-t .tab.on .tl{color:#D9734A !important}
 /* Desktop sidebar layout */
 @media (min-width:1024px){
   .app{max-width:1440px;padding:12px 24px 40px;display:grid;grid-template-columns:220px 1fr;grid-template-areas:"hdr hdr" "side main";column-gap:22px;row-gap:6px;align-items:start}
@@ -8438,6 +8477,63 @@ function showThemePicker(){
   ov.innerHTML=pk;document.body.appendChild(ov);
 }
 function hideThemePicker(){var el=document.getElementById('themePicker');if(el)el.remove()}
+function openDailyWisdom(){
+  if(document.getElementById('wisdomFull'))return;
+  var _wq=[{q:'Discipline is choosing between what you want now and what you want most.',a:'Abraham Lincoln'},{q:'The secret of getting ahead is getting started.',a:'Mark Twain'},{q:'It does not matter how slowly you go as long as you do not stop.',a:'Confucius'},{q:'Well done is better than well said.',a:'Benjamin Franklin'},{q:'Action is the foundational key to all success.',a:'Pablo Picasso'}];
+  var _idx=Math.floor(new Date().getTime()/(864e5))%_wq.length;
+  var q=_wq[_idx];
+  var ov=document.createElement('div');ov.id='wisdomFull';ov.className='rd-wisdom-full';
+  var html='<div style="padding:16px 20px;display:flex;justify-content:flex-end"><button class="rd-wf-close" onclick="document.getElementById(\'wisdomFull\').remove()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>';
+  html+='<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 32px">';
+  html+='<div style="width:40px;height:40px;border-radius:50%;background:color-mix(in srgb,var(--gold) 18%,transparent);display:flex;align-items:center;justify-content:center;margin-bottom:22px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></div>';
+  html+='<p class="rd-wf-quote">“'+q.q+'”</p>';
+  html+='<div class="rd-wf-divider"></div>';
+  html+='<p style="font:500 15px var(--sans);color:var(--text-mute);margin:0">— '+q.a+'</p>';
+  html+='</div>';
+  html+='<div style="padding:0 24px 22px;display:flex;flex-direction:column;gap:10px">';
+  html+='<div style="border-radius:16px;padding:16px;background:rgba(43,39,34,.04)">';
+  html+='<div style="font:700 10.5px var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--text-mute)">REFLECT</div>';
+  html+='<p style="font:400 15px/1.45 var(--serif);color:var(--ink);margin:8px 0 0">How does this wisdom apply to your life today?</p>';
+  html+='</div>';
+  html+='<div style="display:flex;gap:10px">';
+  html+='<button style="flex:1;padding:13px;border-radius:13px;background:var(--accent-soft);color:var(--accent-strong);font:600 14px var(--sans);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px" onclick="toast(\'Saved to your journal\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>Save</button>';
+  html+='<button style="flex:1;padding:13px;border-radius:13px;background:rgba(43,39,34,.06);color:var(--ink);font:600 14px var(--sans);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px" onclick="if(navigator.share)navigator.share({text:\'\\u201C\'+document.querySelector(\'.rd-wf-quote\').textContent+\'\\u201D\'}).catch(function(){});else toast(\'Copied!\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Share</button>';
+  html+='</div></div>';
+  ov.innerHTML=html;document.body.appendChild(ov);
+}
+function openPaywall(){
+  if(document.getElementById('paywallOv'))return;
+  var ov=document.createElement('div');ov.id='paywallOv';ov.className='rd-paywall';
+  var h='<div style="padding:16px 20px;display:flex;justify-content:space-between;align-items:center">';
+  h+='<button style="width:36px;height:36px;border-radius:50%;background:rgba(43,39,34,.06);display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;color:var(--ink)" onclick="document.getElementById(\'paywallOv\').remove()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>';
+  h+='<button style="font:600 13px var(--sans);color:var(--text-mute);background:none;border:none;cursor:pointer" onclick="toast(\'Restoring...\');document.getElementById(\'paywallOv\').remove()">Restore purchase</button>';
+  h+='</div>';
+  h+='<div style="flex:1;display:flex;flex-direction:column;padding:0 24px">';
+  h+='<div style="text-align:center;margin:20px 0 24px">';
+  h+='<div style="font-size:36px;margin-bottom:8px">\u{1F91C}\u{1F91B}</div>';
+  h+='<div style="font:700 14px var(--sans);letter-spacing:.06em;color:var(--text-mute)">BRODOIT LIFETIME</div>';
+  h+='</div>';
+  h+='<h2 style="font:500 30px/1.18 var(--serif);color:var(--ink);margin:0;text-align:center;text-wrap:balance">Yours for life.<br>One payment, that\\\'s it.</h2>';
+  h+='<p style="font:400 14px/1.5 var(--sans);color:var(--text-mute);margin:10px 0 0;text-align:center">Pay once and unlock every feature, forever — including everything we build next.</p>';
+  h+='<div style="display:flex;flex-direction:column;gap:13px;margin-top:26px">';
+  var benefits=['Unlimited tasks & email reminders','The full public-domain audiobook library','Every Mind-Gym drill & daily session','Daily wisdom, reflections & saved quotes'];
+  benefits.forEach(function(b){
+    h+='<div style="display:flex;align-items:center;gap:12px"><div style="width:23px;height:23px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;flex:none"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 10 17.5 19 6.5"/></svg></div><span style="font:500 15px var(--sans);color:var(--ink)">'+b+'</span></div>';
+  });
+  h+='</div></div>';
+  h+='<div style="padding:20px 24px 28px;margin-top:auto">';
+  h+='<div class="rd-pw-price" style="margin-bottom:16px"><div class="rd-pw-badge">BEST VALUE</div>';
+  h+='<div style="display:flex;align-items:baseline;gap:8px;margin-top:4px"><span style="font:600 34px var(--serif);color:var(--ink)">$49</span><span style="font:500 14px var(--sans);color:var(--text-mute)">once</span><span style="font:500 14px var(--sans);color:var(--text-dim);text-decoration:line-through;margin-left:4px">$120</span></div>';
+  h+='<p style="font:500 13px var(--sans);color:var(--accent-strong);margin:8px 0 0">Pay once. Yours forever — no recurring fees.</p>';
+  h+='</div>';
+  h+='<button style="width:100%;height:58px;border:none;border-radius:16px;background:var(--accent);color:#fff;font:700 16px var(--sans);cursor:pointer;box-shadow:0 12px 26px -12px var(--accent)" onclick="toast(\'Coming soon!\');document.getElementById(\'paywallOv\').remove()">Unlock lifetime access</button>';
+  h+='<div style="display:flex;align-items:center;justify-content:center;gap:18px;margin-top:14px">';
+  h+='<span style="display:flex;align-items:center;gap:5px;font:500 11.5px var(--sans);color:var(--text-mute)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Secure</span>';
+  h+='<span style="display:flex;align-items:center;gap:5px;font:500 11.5px var(--sans);color:var(--text-mute)">30-day refund</span>';
+  h+='<span style="display:flex;align-items:center;gap:5px;font:500 11.5px var(--sans);color:var(--text-mute)">One-time</span>';
+  h+='</div></div>';
+  ov.innerHTML=h;document.body.appendChild(ov);
+}
 function applyColorThemeCSS(key){
   const t=_COLOR_THEMES[key];if(!t)return;
   let el=document.getElementById('colorThemeVars');
@@ -11490,86 +11586,73 @@ if(S.remember&&S.remember.person){
   +'</a>';
 }
 // Tasks tab is the "main page" — moral, news, person-of-day, world-clocks render only here.
-const isMain=(S.tab==='tasks'||!S.tab);
+const isMain=(S.tab==='home'||!S.tab);
 _hydrationToday();
 const _hyd=S.hydration;
 const HELP_BTN='<button class="hdr-help" onclick="openHelp()" aria-label="Help" title="How to use Brodoit">?</button>';
-const LOGO_MARK='<div class="logo" aria-label="Brodoit"><span class="logo-fist">\\u{1F91C}\\u{1F91B}</span><span class="b1">Bro</span><span class="b2">do</span><span class="b3">it</span><span class="dot"></span></div>';
-let h='<div class="hdr"><div class="hdr-l">'+LOGO_MARK+'</div><div class="hdr-actions">'+HELP_BTN+PROFILE_BTN+'<button class="theme-tg" onclick="showThemePicker()" title="Change color theme" style="font-size:18px">\\u{1F3A8}</button><button class="theme-tg" onclick="toggleTheme()" title="Switch theme">'+(S.theme==='aurora'?ic('sun',18):ic('moon',18))+'</button></div></div>';
+const LOGO_MARK='<div class="logo" aria-label="Brodoit"><span class="logo-fist">\\u{1F91C}\\u{1F91B}</span><span class="b1">Bro</span><span class="b2">do</span><span class="b3">it</span></div>';
+let _hdrStreak=0;for(let _si=0;_si<60;_si++){const _sd=new Date(Date.now()-_si*864e5).toISOString().slice(0,10);const _sok=ts.some(x=>x.status==='done'&&(x.updated_at||'').slice(0,10)===_sd);if(_sok)_hdrStreak++;else if(_si>0)break}
+let h='<div class="hdr"><div class="hdr-l">'+LOGO_MARK+'</div><div class="hdr-actions">'
+  +(_hdrStreak>0?'<div class="rd-pill rd-pill-accent">\\u{1F525} '+_hdrStreak+'-day streak</div>':'')
+  +HELP_BTN
+  +'<button class="rd-pill" style="background:linear-gradient(135deg,var(--accent),var(--gold));color:#fff;font-size:11px;padding:5px 10px;border:none;cursor:pointer" onclick="openPaywall()">PRO</button>'
+  +'<button class="theme-tg" onclick="showThemePicker()" title="Change color theme" style="font-size:18px">\\u{1F3A8}</button>'
+  +'<button class="theme-tg" onclick="toggleTheme()" title="Switch theme">'+(S.theme==='aurora'?ic('sun',18):ic('moon',18))+'</button>'
+  +'</div></div>';
 
 const m=MORALS[S.moralIdx];
 let moralBlock='';
 let bottomBlock='';
 if(isMain){
-  // Modern hero greeting — replaces the cluttered moral/news/clocks block
   const _h=new Date().getHours();
   const _greet=_h<5?'Good night':_h<12?'Good morning':_h<17?'Good afternoon':_h<21?'Good evening':'Good night';
   const _firstName=((S.user&&S.user.name)||'').split(' ')[0]||'';
   const _today=new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
   const _todayISO=new Date().toISOString().slice(0,10);
   const _dueToday=ts.filter(t=>t.status!=='done'&&(t.due_date||'').slice(0,10)===_todayISO).length;
-  const _overdue=ts.filter(t=>isOD(t.due_date,t.status)).length;
   const _doneToday=ts.filter(t=>t.status==='done'&&(t.updated_at||'').slice(0,10)===_todayISO).length;
-  // Streak (consecutive days with at least 1 done task)
-  let _streak=0;for(let i=0;i<60;i++){const d=new Date(Date.now()-i*864e5).toISOString().slice(0,10);const ok=ts.some(x=>x.status==='done'&&(x.updated_at||'').slice(0,10)===d);if(ok)_streak++;else if(i>0)break}
   const _bkStreak=(S.bookStreak&&S.bookStreak.streak)||0;
   const _medCount=parseInt(localStorage.getItem('med_count')||'0',10)||0;
   const _mindLvl=((S.mg&&S.mg.progress&&S.mg.progress.math&&S.mg.progress.math.level)||0)+((S.mg&&S.mg.progress&&S.mg.progress.word&&S.mg.progress.word.level)||0)+((S.mg&&S.mg.progress&&S.mg.progress.schulte&&S.mg.progress.schulte.level)||0);
-  const _statsExpanded=!!S.statsExpanded;
-  const _nowDC=new Date();const _yStartDC=new Date(_nowDC.getFullYear(),0,0);
-  const _dayOfYear=Math.floor((_nowDC-_yStartDC)/86400000);
-  const _yearPct=Math.round(_dayOfYear/365*100);
-  const _daysLeft=365-_dayOfYear;
-  // Compact greeting chip with progress inside
-  const _w=S.weather||{};
-  const _wxRainHint=_w.daily?_w.daily.rain.filter(function(r){return r>=30}).length:0;
-  const _statusLine=_dueToday>0?_dueToday+' due today':_overdue>0?_overdue+' overdue':'All clear';
-  let hero='<div class="home-greeting-chip" onclick="S.statsExpanded=!S.statsExpanded;render()">'
-    +'<div class="hgc-left">'
-      +'<div class="hgc-greet">'+esc(_greet)+(_firstName?', <em>'+esc(_firstName)+'</em>':'')+'</div>'
-      +'<div class="hgc-sub">'+esc(_today)+' \\u00B7 '+esc(_statusLine)+'</div>'
-      +'<div class="hgc-day">Day '+_dayOfYear+' of 365 \\u00B7 '+_daysLeft+' left in year \\u00B7 '+_yearPct+'%<span class="hgc-day-bar"><i style="width:'+_yearPct+'%"></i></span></div>'
-      +'<div class="hgc-wx" onclick="event.stopPropagation();S.weatherExpanded=!S.weatherExpanded;render()">'+(_w.temp!=null?(_w.temp>30?'\\u2600\\uFE0F':_w.temp>20?'\\u26C5':'\\u2601\\uFE0F')+' '+_w.temp+'\\u00B0C \\u00B7 '+esc(_w.city||'')+(_wxRainHint>0?' \\u00B7 \\u{1F327}\\uFE0F'+_wxRainHint+'d rain':'')+'  \\u25BE':'')+'</div>'
-    +'</div>'
-    +'<div class="hgc-right">'
-      +'<span class="hgc-stat"><b>'+s.act+'</b> active</span>'
-      +'<span class="hgc-stat"><b>'+_streak+'</b> streak</span>'
-      +'<span class="hgc-arrow'+(_statsExpanded?' open':'')+'"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>'
-    +'</div>'
-  +'</div>'
-  +(_statsExpanded?'<div class="hgc-expand">'
-    +'<button class="hh-stat" onclick="event.stopPropagation();switchTab(\\'tasks\\');S.view=\\'in-progress\\';render()"><b>'+s.act+'</b><small>Active</small></button>'
-    +'<div class="hh-stat"><b>'+_doneToday+'</b><small>Done today</small></div>'
-    +'<div class="hh-stat"><b>'+_streak+'</b><small>Streak</small></div>'
-  +'</div>':'');
-  // Daily progress ring
-  const _todayISOp=new Date().toISOString().slice(0,10);
-  const _totalTasks=ts.filter(t=>t.status!=='done').length+_doneToday;
-  const _pctDone=_totalTasks>0?Math.round(_doneToday/_totalTasks*100):0;
-  const _ringR=28;const _ringC=2*Math.PI*_ringR;const _ringOff=_ringC-((_pctDone/100)*_ringC);
-  hero+='<div class="daily-progress">';
-  hero+='<div class="dp-ring"><svg width="72" height="72" viewBox="0 0 72 72"><circle cx="36" cy="36" r="'+_ringR+'" fill="none" stroke="rgba(0,0,0,.06)" stroke-width="5"/><circle cx="36" cy="36" r="'+_ringR+'" fill="none" stroke="'+(_pctDone>=100?'#22C55E':'#E27D60')+'" stroke-width="5" stroke-linecap="round" stroke-dasharray="'+_ringC+'" stroke-dashoffset="'+_ringOff+'" transform="rotate(-90 36 36)" style="transition:stroke-dashoffset .6s ease"/><text x="36" y="40" text-anchor="middle" font-size="16" font-weight="700" fill="#111827">'+_pctDone+'%</text></svg></div>';
-  hero+='<div class="dp-info"><div class="dp-label">Today\\'s Progress</div><div class="dp-stat">'+_doneToday+' of '+_totalTasks+' tasks done</div></div>';
+  const _ritualDone={tasks:_doneToday>0,listen:_bkStreak>0,mind:_mindLvl>0,wisdom:_medCount>0};
+  const _ritualCount=Object.values(_ritualDone).filter(Boolean).length;
+  const _ritualTotal=4;
+  const _ritualPct=Math.round(_ritualCount/_ritualTotal*100);
+  const _statusLine=_dueToday>0?_dueToday+' due today':'Let\\'s make it count.';
+  let hero='<h2 style="font:500 27px/1.1 var(--serif);color:var(--ink);letter-spacing:-.015em;margin:18px 0 0">'+esc(_greet)+(_firstName?', <em>'+esc(_firstName)+'</em>':'')+'</h2>';
+  hero+='<p style="font:400 14px var(--sans);color:var(--text-mute);margin:4px 0 0">'+esc(_today)+' \\u00B7 '+_statusLine+'</p>';
+  hero+='<div class="rd-card" style="margin-top:18px">';
+  hero+='<div style="display:flex;align-items:center;justify-content:space-between"><span style="font:600 15px var(--sans);color:var(--ink)">Today\\'s ritual</span><span style="font:600 13px var(--sans);color:var(--text-mute)">'+_ritualCount+' of '+_ritualTotal+' done</span></div>';
+  hero+='<div class="rd-progress-bar" style="margin-top:13px"><div class="rd-progress-fill" style="width:'+_ritualPct+'%"></div></div>';
+  hero+='<div style="display:flex;justify-content:space-between;margin-top:15px">';
+  var _ritualSteps=[{k:'tasks',l:'Tasks'},{k:'listen',l:'Listen'},{k:'mind',l:'Mind'},{k:'wisdom',l:'Wisdom'}];
+  _ritualSteps.forEach(function(rs){
+    var done=_ritualDone[rs.k];
+    hero+='<div style="display:flex;flex-direction:column;align-items:center;gap:7px">';
+    if(done)hero+='<div class="rd-ritual-circle rd-ritual-done"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 10 17.5 19 6.5"/></svg></div>';
+    else hero+='<div class="rd-ritual-circle rd-ritual-pending"></div>';
+    hero+='<span style="font:600 11px var(--sans);color:'+(done?'var(--ink)':'var(--text-mute)')+'">'+rs.l+'</span>';
+    hero+='</div>';
+  });
+  hero+='</div></div>';
+  var _wisdomQuotes=[{q:'Discipline is choosing between what you want now and what you want most.',a:'Abraham Lincoln'},{q:'The secret of getting ahead is getting started.',a:'Mark Twain'},{q:'It does not matter how slowly you go as long as you do not stop.',a:'Confucius'},{q:'Well done is better than well said.',a:'Benjamin Franklin'},{q:'Action is the foundational key to all success.',a:'Pablo Picasso'}];
+  var _wqIdx=Math.floor(new Date().getTime()/(864e5))%_wisdomQuotes.length;
+  var _wq=_wisdomQuotes[_wqIdx];
+  hero+='<div class="rd-wisdom-card" style="margin-top:13px">';
+  hero+='<div class="rd-eyebrow" style="color:color-mix(in srgb,var(--gold) 86%,#3a2a08)">DAILY WISDOM</div>';
+  hero+='<p style="font:400 18px/1.36 var(--serif);font-style:italic;color:var(--ink);margin:9px 0 0">\\u201C'+esc(_wq.q)+'\\u201D</p>';
+  hero+='<div style="display:flex;align-items:center;justify-content:space-between;margin-top:11px"><span style="font:500 12.5px var(--sans);color:var(--text-mute)">\\u2014 '+esc(_wq.a)+'</span><span style="font:600 13px var(--sans);color:var(--accent);cursor:pointer" onclick="openDailyWisdom()">Read today\\'s \\u2192</span></div>';
   hero+='</div>';
-  // Quick-add task bar
-  hero+='<div class="quick-add-section">';
-  hero+='<div class="qa-input-row"><input class="qa-input" id="qaInput" placeholder="What do you need to do?" autocomplete="off" onkeydown="if(event.key===\\'Enter\\')opA()"><button class="qa-btn" onclick="opA()">+</button></div>';
-  hero+='<div class="qa-templates">';
-  var _tpls=[{e:'\\u{1F4AA}',l:'Workout'},{e:'\\u{1F4DA}',l:'Study 1hr'},{e:'\\u{1F6D2}',l:'Groceries'},{e:'\\u2709\\uFE0F',l:'Email follow-up'},{e:'\\u{1F4B0}',l:'Pay bills'},{e:'\\u{1F9F9}',l:'Clean house'}];
-  _tpls.forEach(function(tp){hero+='<button class="qa-tpl" onclick="qaQuickAdd(\\''+tp.l+'\\')">'+tp.e+'<span>'+tp.l+'</span></button>';});
-  hero+='</div></div>';
-  // Mascot animation scene
-  hero+='<div class="qc-scene" ontouchstart="this.classList.add(\\'slow\\')" ontouchend="this.classList.remove(\\'slow\\')">';
-  hero+='<div class="qc-quotes"><div class="qc-quotes-track">';
-  var _quotes=['Stop waiting for Monday','Your future self will thank you','Write it down, make it real','Done is better than perfect','Procrastination is the thief of time','A task written is a task half done','Small steps beat big plans','Laziness is nothing but resting before you get tired','The best time to start was yesterday','Action cures fear','Don\\'t put off till tomorrow what you can do today','Discipline is choosing what you want most over what you want now','You don\\'t have to be great to start','Writing tasks gives your brain permission to relax','Clarity comes from action, not thought','Every expert was once a beginner who started'];
-  for(var qi=0;qi<2;qi++)_quotes.forEach(function(q){hero+='<span class="qc-quote">'+q+'</span>';});
-  hero+='</div></div>';
-  hero+='<div class="qc-p qc-guide"><div class="qc-bubble qc-b1">Hey, task done?</div><div class="qc-bubble qc-b3">Hold to slow us down!</div><div class="qc-p-body"><div class="qc-p-head"></div><div class="qc-p-torso"></div><div class="qc-p-arm l"></div><div class="qc-p-arm r"></div><div class="qc-p-leg l"></div><div class="qc-p-leg r"></div></div></div>';
-  hero+='<div class="qc-p qc-writer"><div class="qc-bubble qc-b2">Let me write it!</div><div class="qc-p-body"><div class="qc-p-head"></div><div class="qc-p-torso"></div><div class="qc-p-arm l"></div><div class="qc-p-arm r"></div><div class="qc-p-leg l"></div><div class="qc-p-leg r"></div></div></div>';
-  hero+='<div class="qc-p qc-dropper"><div class="qc-bubble qc-drop-bubble">Let\\'s Kill Procrastination!</div><div class="qc-p-body"><div class="qc-p-head"></div><div class="qc-p-torso"></div><div class="qc-p-arm l"></div><div class="qc-p-arm r"></div><div class="qc-p-leg l"></div><div class="qc-p-leg r"></div></div></div>';
-  hero+='<div class="qc-notebook"><div class="qc-nb-cover"><div class="qc-nb-ring"></div><div class="qc-nb-ring"></div><div class="qc-nb-ring"></div><div class="qc-nb-ring"></div><div class="qc-nb-line"></div><div class="qc-nb-line"></div><div class="qc-nb-line"></div><div class="qc-nb-line"></div><div class="qc-nb-ink"></div><div class="qc-nb-ink"></div><div class="qc-nb-ink"></div></div><div class="qc-nb-check"></div></div>';
-  hero+='<div class="qc-pencil"></div>';
-  hero+='<div class="qc-sparkles"><div class="qc-sparkle"></div><div class="qc-sparkle"></div><div class="qc-sparkle"></div><div class="qc-sparkle"></div></div>';
+  var _curBook=S.currentBook||{};
+  hero+='<div class="rd-listen-card" style="margin-top:13px">';
+  hero+='<div class="rd-listen-cover"></div>';
+  hero+='<div style="flex:1;min-width:0">';
+  hero+='<div class="rd-eyebrow" style="color:var(--text-mute)">CONTINUE LISTENING</div>';
+  hero+='<div style="font:600 15px var(--sans);color:var(--ink);margin-top:2px">'+esc(_curBook.title||'Meditations')+'</div>';
+  hero+='<div style="font:400 12px var(--sans);color:var(--text-mute)">'+esc(_curBook.author||'Marcus Aurelius')+' \\u00B7 '+esc(_curBook.remaining||'2h 14m left')+'</div>';
+  hero+='<div class="rd-progress-bar" style="margin-top:8px;height:4px"><div class="rd-progress-fill" style="width:'+(_curBook.pct||42)+'%"></div></div>';
+  hero+='</div>';
+  hero+='<button class="rd-play-btn" onclick="switchTab(\\'books\\');render()"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M8 5.5v13l11-6.5z"/></svg></button>';
   hero+='</div>';
   // --- Stacked info rows: weather, hydration ---
   let infoStrip='';
@@ -11658,12 +11741,14 @@ if(isMain){
   const dayOfYear=Math.floor((now-yStart)/86400000);
   const yearPct=Math.round(dayOfYear/365*100);
   const dateStr=now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-  // Warm Reading Room tab structure: Today / Tasks / Listen / Train / Wisdom
-  // Existing tabs preserved underneath: tasks→Tasks, books→Listen (audiobooks/Briefs),
-  // mindgym→Train, meditation→Wisdom (daily verse + sit). Cal + Board still available
-  // through modals/secondary surfaces. The "Today" tab is rendered into the existing
-  // Tasks tab dashboard hero — clicking Today maps to tasks.
-  const tabsHtml=[{k:'tasks',l:'Tasks'},{k:'books',l:'Listen'},{k:'bro',l:'Bro'},{k:'mindgym',l:'Train'},{k:'meditation',l:'Wisdom'},{k:'cal',l:'Calendar'}].map(x=>'<button class="tab tab-'+x.k+(S.tab===x.k?' on':'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(ID[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
+  const _rdTabIcons={
+    home:'<svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 4.5l8 7"/><path d="M6 10.5V19a1 1 0 0 0 1 1h3.5v-5h3V20H17a1 1 0 0 0 1-1v-8.5"/></svg>',
+    tasks:'<svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="16" height="16" rx="4.5"/><path d="M8 12l2.5 2.5L16 9"/></svg>',
+    books:'<svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13v-1a8 8 0 0 1 16 0v1"/><rect x="3" y="13" width="4.2" height="6.4" rx="2.1"/><rect x="16.8" y="13" width="4.2" height="6.4" rx="2.1"/></svg>',
+    mindgym:'<svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linejoin="round"><path d="M12 4l1.7 4.6L18 10l-4.3 1.4L12 16l-1.7-4.6L6 10l4.3-1.4z"/></svg>',
+    profile:'<svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.5" r="3.5"/><path d="M5.5 19a6.5 6.5 0 0 1 13 0"/></svg>'
+  };
+  const tabsHtml=[{k:'home',l:'Home'},{k:'tasks',l:'Tasks'},{k:'books',l:'Listen'},{k:'mindgym',l:'Mind'},{k:'profile',l:'You'}].map(x=>'<button class="tab tab-'+x.k+((S.tab===x.k||(x.k==='home'&&(!S.tab||S.tab==='home')))?(' on'):'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(_rdTabIcons[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
   // "Bro, do it!" mascot — a character with a speech bubble that animates
   const climbScene='<div class="bro-mascot" aria-hidden="true">'
     +'<svg class="bro-svg" viewBox="0 0 340 130" xmlns="http://www.w3.org/2000/svg">'
@@ -11754,58 +11839,51 @@ if(S.tab==='dash')S.tab='tasks'; // Stats tab removed; redirect any stale state 
 if(S.tab==='health')S.tab='tasks'; // Health tab removed; step tracking needs app open
 const _firstName=((S.user&&S.user.name)||'').split(' ')[0]||'';
 if(S.tab==='tasks'){
-  // Restore-from-backup banner — surfaces only if the server returned 0 tasks but a local snapshot exists.
   if(S.restoreOffer&&S.restoreOffer.count){
     const when=S.restoreOffer.savedAt?new Date(S.restoreOffer.savedAt).toLocaleString():'';
-    h+='<div class="restore-banner">'
-      +'<span class="restore-emoji">\\u{1F4BE}</span>'
-      +'<div class="restore-body"><div class="restore-t">Restore your tasks?</div><div class="restore-s">We have a local backup of <b>'+S.restoreOffer.count+'</b> task'+(S.restoreOffer.count===1?'':'s')+(when?' (saved '+esc(when)+')':'')+'. The server\\u2019s task list is empty.</div></div>'
-      +'<button class="restore-go" onclick="restoreFromBackup()">Restore</button>'
-      +'<button class="restore-x" onclick="dismissRestoreOffer()" aria-label="Dismiss">\\u2715</button>'
-    +'</div>';
+    h+='<div class="restore-banner"><span class="restore-emoji">\\u{1F4BE}</span><div class="restore-body"><div class="restore-t">Restore your tasks?</div><div class="restore-s">We have a local backup of <b>'+S.restoreOffer.count+'</b> task'+(S.restoreOffer.count===1?'':'s')+(when?' (saved '+esc(when)+')':'')+'. The server\\u2019s task list is empty.</div></div><button class="restore-go" onclick="restoreFromBackup()">Restore</button><button class="restore-x" onclick="dismissRestoreOffer()" aria-label="Dismiss">\\u2715</button></div>';
   }
-  // (WhatsApp integration was removed — banner deleted)
-  // Hydrate highlight in the background — chip badge needs the count
   if(!S.dailyHl&&!S._hlFetched){S._hlFetched=true;const _c=_hlLocalCache();if(_c)S.dailyHl=_c;hlLoad()}
-  if(s.od>0)h+='<div class="al" style="background:#FEF1F0;border:1px solid #F5C6C2;color:#E8453C;cursor:pointer" onclick="S.view=\\'overdue\\';render()">\\u26A0\\uFE0F '+s.od+' overdue</div>';
-  // Quick-compose bar with priority chips
-  const _cp=S.compose.priority;
-  h+='<div class="qc-bar">';
-  h+='<div class="qc-row"><textarea class="qc-input" rows="2" wrap="soft" style="display:block;width:100%;box-sizing:border-box;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;overflow-x:hidden;resize:none" placeholder="Add a task... (try: Buy milk tomorrow !high)" oninput="composeUpdate(this.value);this.style.height=\\'auto\\';this.style.height=Math.min(this.scrollHeight,120)+\\'px\\'" onkeydown="if(event.key===\\'Enter\\'&&!event.shiftKey){event.preventDefault();composeSubmit()}">'+esc(S.compose.value||'')+'</textarea>';
-  h+='<div class="qc-send-row"><button class="qc-send" onclick="composeSubmit()" title="Add task">+</button></div></div>';
-  h+='<div class="qc-chips">';
-  h+='<span class="qc-chip qc-high'+(_cp==='high'?' on':'')+'" onclick="composeSetPriority(\\'high\\')"><span class="qc-dot" style="background:#DC2626"></span>High</span>';
-  h+='<span class="qc-chip qc-med'+(_cp==='medium'?' on':'')+'" onclick="composeSetPriority(\\'medium\\')"><span class="qc-dot" style="background:#F59E0B"></span>Med</span>';
-  h+='<span class="qc-chip qc-low'+(_cp==='low'?' on':'')+'" onclick="composeSetPriority(\\'low\\')"><span class="qc-dot" style="background:#16A34A"></span>Low</span>';
-  h+='<span class="qc-expand" onclick="opA()">+ More options</span>';
-  h+='</div></div>';
-  h+='<div class="is-row is-hydration" style="margin-bottom:12px">'
-    +'<div class="is-row-icon">\\u{1F4A7}</div>'
-    +'<div class="is-row-body" style="flex:1">'
-      +'<div class="is-row-title">Water \\u00B7 '+_hyd.glass+'/'+_hyd.goal+' glasses</div>'
-      +'<div class="is-hyd-glasses">';
-  for(let _gi=0;_gi<_hyd.goal;_gi++){
-    h+='<span class="is-hyd-dot'+(_gi<_hyd.glass?' filled':'')+'"></span>';
-  }
-  h+='</div>'
-    +'</div>'
-    +'<div class="is-hyd-actions">'
-      +'<button class="is-hyd-minus" onclick="event.stopPropagation();undrinkWater()" title="Undo">&minus;</button>'
-      +'<button class="is-hyd-drink" onclick="event.stopPropagation();drinkWater()">+ Drink</button>'
-      +'<button class="is-hyd-toggle'+(_hyd.enabled?' on':'')+'" onclick="event.stopPropagation();toggleHydration()" title="'+(_hyd.enabled?'Reminders ON':'Turn on reminders')+'">\\u{1F514}</button>'
-    +'</div>'
-  +'</div>';
-  h+='<div class="srch"><input placeholder="Search tasks..." value="'+esc(S.search)+'" oninput="S.search=this.value;render()"></div>';
-  h+='<div class="flt">'+[{k:'all',l:'All'},{k:'pending',l:'To Do'},{k:'in-progress',l:'Doing'},{k:'done',l:'Done'},{k:'today',l:'Today'}].map(x=>'<button class="fb'+(S.view===x.k?' on':'')+'" onclick="S.view=\\''+x.k+'\\';render()">'+x.l+'</button>').join('')+'</div>';
-  h+='<button class="email-tasks-btn" onclick="emailMyTasks()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> Email my tasks</button>';
-  h+='<div>';
-  if(!f.length)h+='<div class="empty"><div style="font-size:36px;margin-bottom:8px">\\u2728</div><div style="font-size:15px;font-weight:600">No tasks yet</div><div style="font-size:13px;margin-top:4px">Tap + to add your first task</div></div>';
-  else f.forEach(t=>{const p=P[t.priority]||P.medium,st=ST[t.status]||ST.pending,d=t.status==='done';
-    const addedTxt=t.created_at?timeAgo((t.created_at||'').replace(' ','T')+'Z'):'';
-    h+='<div class="tc'+(d?' dn':'')+'" style="border-left-color:'+p.c+'"><div class="tc-top"><button class="chk'+(d?' on':'')+'" onclick="tog(\\''+t.id+'\\')">'+(d?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>':'')+'</button><div style="flex:1;min-width:0"><div class="tc-t'+(d?' dn':'')+'">'+esc(t.title)+'</div>'+(t.notes?'<div class="tc-n">'+esc(t.notes)+'</div>':'')+'<div class="tc-m"><button class="badge" style="background:'+st.bg+';color:'+st.c+'" onclick="cyc(\\''+t.id+'\\')">'+st.l+'</button><span class="tc-pri" style="background:'+p.c+'20;color:'+p.c+'">'+p.d+' '+t.priority+'</span>'+(t.due_date?'<span style="font-size:12px;font-weight:500;color:'+(isOD(t.due_date,t.status)?'#E8453C':isTd(t.due_date)?'#E8912C':'#A0AEC0')+'">\\u{1F4C5} '+fD(t.due_date)+(isOD(t.due_date,t.status)?' overdue':'')+'</span>':'')+(t.reminder_time&&!d?'<span style="font-size:11px;color:#3B82F6;font-weight:600">\\u{1F514} '+fT(t.reminder_time)+'</span>':'')+(addedTxt?'<span class="tc-added" title="Added '+esc(t.created_at||'')+'">\\u2795 '+esc(addedTxt)+'</span>':'')+'</div></div></div>';
-    h+='<div class="tc-acts"><button class="ib" onclick="opE(\\''+t.id+'\\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="ib" style="color:#E8453C" onclick="del(\\''+t.id+'\\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button></div></div>'});
+  const _todayStr=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric'});
+  h+='<div style="display:flex;align-items:flex-end;justify-content:space-between;margin-top:6px">';
+  h+='<div><h2 class="rd-serif-title">Tasks</h2><p style="font:400 13.5px var(--sans);color:var(--text-mute);margin:6px 0 0">Today \\u00B7 '+esc(_todayStr)+'</p></div>';
+  h+='<button class="rd-fab" onclick="opA()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>';
   h+='</div>';
-  // Mind Gym moved to its own dedicated tab.
+  if(!S.taskSegment)S.taskSegment='today';
+  h+='<div class="rd-segmented" style="margin-top:18px">';
+  h+='<button class="'+(S.taskSegment==='today'?'on':'')+'" onclick="S.taskSegment=\\'today\\';render()">Today</button>';
+  h+='<button class="'+(S.taskSegment==='upcoming'?'on':'')+'" onclick="S.taskSegment=\\'upcoming\\';render()">Upcoming</button>';
+  h+='<button class="'+(S.taskSegment==='done'?'on':'')+'" onclick="S.taskSegment=\\'done\\';render()">Done</button>';
+  h+='</div>';
+  const _tISO=new Date().toISOString().slice(0,10);
+  let _segTasks=f;
+  if(S.taskSegment==='today')_segTasks=f.filter(t=>t.status!=='done'&&(!t.due_date||(t.due_date||'').slice(0,10)<=_tISO));
+  else if(S.taskSegment==='upcoming')_segTasks=f.filter(t=>t.status!=='done'&&t.due_date&&(t.due_date||'').slice(0,10)>_tISO);
+  else if(S.taskSegment==='done')_segTasks=f.filter(t=>t.status==='done');
+  if(S.taskSegment==='today'){
+    const _mornTasks=_segTasks.filter(t=>{const h=t.reminder_time?parseInt(t.reminder_time.split(':')[0],10):9;return h<12});
+    const _aftTasks=_segTasks.filter(t=>{const h=t.reminder_time?parseInt(t.reminder_time.split(':')[0],10):9;return h>=12});
+    if(_mornTasks.length){h+='<div class="rd-section-label">Morning</div>';_mornTasks.forEach(t=>_rdTaskRow(t))}
+    if(_aftTasks.length){h+='<div class="rd-section-label">Afternoon</div>';_aftTasks.forEach(t=>_rdTaskRow(t))}
+    if(!_mornTasks.length&&!_aftTasks.length){_segTasks.forEach(t=>_rdTaskRow(t))}
+  }else{
+    _segTasks.forEach(t=>_rdTaskRow(t));
+  }
+  function _rdTaskRow(t){
+    const d=t.status==='done';
+    const _tTime=t.reminder_time?fT(t.reminder_time):'';
+    const _doneAt=d&&t.updated_at?'Done \\u00B7 '+new Date(t.updated_at).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}):'';
+    h+='<div class="rd-task-row'+(d?' done':'')+'">';
+    if(d)h+='<div class="rd-check-done" onclick="tog(\\''+t.id+'\\')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 10 17.5 19 6.5"/></svg></div>';
+    else h+='<div class="rd-check-empty" onclick="tog(\\''+t.id+'\\')" style="margin-top:1px;cursor:pointer"></div>';
+    h+='<div style="flex:1;min-width:0" onclick="opE(\\''+t.id+'\\')" style="cursor:pointer"><div class="rd-task-title">'+esc(t.title)+'</div>';
+    h+='<div class="rd-task-meta">';
+    if(d&&_doneAt)h+='<span style="font:500 12.5px var(--sans);color:var(--text-mute)">'+_doneAt+'</span>';
+    else if(_tTime)h+='<span style="font:500 12.5px var(--sans);color:var(--text-mute)">'+_tTime+'</span>';
+    if(t.reminder_time&&!d)h+='<span class="rd-email-pill"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m3.5 7 8.5 6 8.5-6"/></svg>Email reminder</span>';
+    h+='</div></div></div>';
+  }
+  if(!_segTasks.length&&!f.length)h+='<div style="text-align:center;padding:40px 0"><div style="font-size:36px;margin-bottom:8px">\\u2728</div><div style="font:600 15px var(--sans);color:var(--ink)">No tasks yet</div><div style="font:400 13px var(--sans);color:var(--text-mute);margin-top:4px">Tap + to add your first task</div></div>';
 }
 
 // MIND GYM TAB — section-based brain training (Maths, English, Memory)
@@ -11818,69 +11896,45 @@ else if(S.tab==='mindgym'){
   const _sudP=(mg.progress.sudoku||{level:1,xp:0,best:0});
   const _spatP=(mg.progress.spatial||{level:1,xp:0,best:0});
 
-  // Header
-  h+='<div class="tg-header">'
-    +'<h2 class="tg-title">Train</h2>'
-    +'<div class="tg-meta"><span>'+totalXp+' XP</span><span class="tg-dot"></span><span>'+streak.current+' day streak</span></div>'
-  +'</div>';
-
-  // Category cards with SVG illustrations
-  const _cats=[
-    {id:'maths',title:'Maths',desc:'Arithmetic & logic puzzles',grad:'linear-gradient(135deg,#EDA68E 0%,#E27D60 50%,#CC6E52 100%)',
-     ic:'<svg width="80" height="80" viewBox="0 0 80 80" fill="none"><text x="10" y="32" font-size="28" font-weight="900" fill="white" opacity=".35" font-family="monospace">12</text><text x="30" y="58" font-size="22" font-weight="900" fill="white" opacity=".3" font-family="monospace">+47</text><text x="8" y="72" font-size="18" font-weight="900" fill="white" opacity=".25" font-family="monospace">=59</text><circle cx="65" cy="20" r="12" stroke="white" stroke-width="2" opacity=".2"/><line x1="58" y1="20" x2="72" y2="20" stroke="white" stroke-width="2" opacity=".3"/><line x1="65" y1="13" x2="65" y2="27" stroke="white" stroke-width="2" opacity=".3"/></svg>',
-     games:[
-      {k:'math',n:'Math Sprint',d:'Mental arithmetic against the clock',em:'\\u26A1',bg:'#FFF9F6',fill:'#E27D60',pData:mg.progress.math},
-      {k:'sudoku',n:'Sudoku',d:'4\\u00D74 logic puzzle',em:'\\u{1F9E9}',bg:'#FFF9F6',fill:'#CC6E52',pData:_sudP}
-    ]},
-    {id:'english',title:'English',desc:'Vocabulary & word skills',grad:'linear-gradient(135deg,#64748B 0%,#7C8DA3 50%,#94A3B8 100%)',
-     ic:'<svg width="80" height="80" viewBox="0 0 80 80" fill="none"><text x="6" y="35" font-size="32" font-weight="900" fill="white" opacity=".3" font-family="serif" letter-spacing="2">Abc</text><text x="20" y="62" font-size="18" font-weight="700" fill="white" opacity=".2" font-family="serif">words</text><rect x="55" y="10" width="18" height="24" rx="3" stroke="white" stroke-width="1.5" opacity=".2"/><line x1="59" y1="17" x2="69" y2="17" stroke="white" stroke-width="1" opacity=".2"/><line x1="59" y1="22" x2="69" y2="22" stroke="white" stroke-width="1" opacity=".2"/><line x1="59" y1="27" x2="66" y2="27" stroke="white" stroke-width="1" opacity=".2"/></svg>',
-     games:[
-      {k:'word',n:'Word Sprint',d:'Unscramble letters into words',em:'\\u{1F524}',bg:'#F1F5F9',fill:'#64748B',pData:_wordP}
-    ]},
-    {id:'memory',title:'Memory',desc:'Focus & recall training',grad:'linear-gradient(135deg,#9F8AC7 0%,#8B7BB5 50%,#7B6BA5 100%)',
-     ic:'<svg width="80" height="80" viewBox="0 0 80 80" fill="none"><circle cx="25" cy="30" r="14" stroke="white" stroke-width="2" opacity=".25"/><circle cx="25" cy="30" r="6" fill="white" opacity=".15"/><rect x="48" y="16" width="22" height="22" rx="4" stroke="white" stroke-width="2" opacity=".2"/><rect x="52" y="20" width="14" height="14" rx="2" fill="white" opacity=".1"/><path d="M20 55 Q40 45 60 55 Q50 65 30 65 Z" stroke="white" stroke-width="1.5" opacity=".15" fill="white" fill-opacity=".05"/></svg>',
-     games:[
-      {k:'schulte',n:'Schulte Grid',d:'Find numbers 1\\u219225 in order',em:'\\u{1F522}',bg:'#FFF9F6',fill:'#E27D60',pData:_schP},
-      {k:'spatial',n:'Pattern Recall',d:'Memorize and recreate patterns',em:'\\u{1F4A1}',bg:'#FFF5F0',fill:'#CC6E52',pData:_spatP}
-    ]}
+  const _mgLevel=Math.floor(totalXp/500)+1;
+  const _focusXp=(mg.progress.math.xp||0)+(mg.progress.sudoku||{xp:0}).xp;
+  const _memXp=(_schP.xp||0)+(_spatP.xp||0);
+  const _logicXp=(_wordP.xp||0);
+  const _maxSkill=1000;
+  h+='<div style="display:flex;align-items:flex-end;justify-content:space-between;margin-top:6px">';
+  h+='<h2 class="rd-serif-title">Mind Gym</h2>';
+  h+='<div class="rd-pill rd-pill-sage">Level '+_mgLevel+'</div>';
+  h+='</div>';
+  h+='<div class="rd-session-card" style="margin-top:18px">';
+  h+='<div class="rd-eyebrow" style="color:rgba(255,255,255,.8)">TODAY\\u2019S SESSION</div>';
+  h+='<div style="font:500 23px/1.15 var(--serif);margin:7px 0 0">3 quick drills \\u00B7 5 minutes</div>';
+  h+='<div style="display:flex;align-items:center;gap:14px;margin-top:18px">';
+  h+='<button style="height:46px;padding:0 24px;border:none;border-radius:13px;background:#fff;color:color-mix(in srgb,var(--sage) 78%,#16200f);font:600 15px var(--sans);cursor:pointer;display:flex;align-items:center;gap:8px" onclick="mgDetailOpen(\\'math\\')"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg>Start</button>';
+  h+='<div style="display:flex;gap:7px"><div style="width:9px;height:9px;border-radius:50%;background:#fff"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.45)"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.45)"></div></div>';
+  h+='</div></div>';
+  h+='<div class="rd-eyebrow" style="margin:22px 0 0">YOUR SKILLS</div>';
+  h+='<div class="rd-skill-bar" style="margin-top:13px">';
+  var _skills=[{n:'Focus',v:_focusXp,max:_maxSkill,c:'var(--accent)'},{n:'Memory',v:_memXp,max:_maxSkill,c:'var(--gold)'},{n:'Logic',v:_logicXp,max:_maxSkill,c:'var(--sage)'}];
+  _skills.forEach(function(sk){
+    var pct=Math.min(100,Math.round(sk.v/sk.max*100));
+    h+='<div><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font:600 13.5px var(--sans);color:var(--ink)">'+sk.n+'</span><span style="font:600 13px var(--sans);color:var(--text-mute)">'+sk.v+'</span></div>';
+    h+='<div class="rd-progress-bar"><div class="rd-progress-fill" style="width:'+pct+'%;background:'+sk.c+'"></div></div></div>';
+  });
+  h+='</div>';
+  h+='<div class="rd-eyebrow" style="margin:22px 0 0">PRACTICE</div>';
+  h+='<div class="rd-drill-grid" style="margin-top:13px">';
+  var _drills=[
+    {k:'schulte',n:'Tile Recall',cat:'Memory',bg:'var(--accent-soft)',ic:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-strong)" stroke-width="1.9"><rect x="4" y="4" width="7" height="7" rx="1.6"/><rect x="13" y="4" width="7" height="7" rx="1.6"/><rect x="4" y="13" width="7" height="7" rx="1.6"/></svg>'},
+    {k:'word',n:'Word Sprint',cat:'Vocabulary',bg:'color-mix(in srgb,var(--gold) 16%,#FBF6EE)',ic:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="color-mix(in srgb,var(--gold) 82%,#2a1f06)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h10M4 17h7"/></svg>'},
+    {k:'spatial',n:'Pattern Path',cat:'Logic',bg:'color-mix(in srgb,var(--sage) 16%,#FBF6EE)',ic:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="color-mix(in srgb,var(--sage) 80%,#16200f)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.3"/><circle cx="18" cy="6" r="2.3"/><circle cx="12" cy="18" r="2.3"/><path d="M7.6 7.6 11 15M16.4 7.6 13 15"/></svg>'},
+    {k:'math',n:'Quick Math',cat:'Focus',bg:'var(--accent-soft)',ic:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-strong)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5v6M3 8h6M16 6h4M14 17h6M17 14v6"/></svg>'}
   ];
-
-  // Render category cards
-  const _openCat=S.trainCat||'';
-  h+='<div class="tg-cats">';
-  _cats.forEach(cat=>{
-    h+='<button class="tg-cat" onclick="S.trainCat=(S.trainCat===\\''+cat.id+'\\')?\\'\\':\\''+cat.id+'\\';render()" style="background:'+cat.grad+'">'
-      +'<div class="tg-cat-illus">'+cat.ic+'</div>'
-      +'<div class="tg-cat-content">'
-        +'<h3 class="tg-cat-title">'+cat.title+'</h3>'
-        +'<div class="tg-cat-desc">'+cat.desc+'</div>'
-        +'<div class="tg-cat-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>'+cat.games.length+' game'+(cat.games.length>1?'s':'')+'</div>'
-      +'</div>'
-    +'</button>';
-    if(_openCat===cat.id){
-      const _gameSvgs={math:'<svg viewBox="0 0 40 40" width="40" height="40" fill="none"><rect x="2" y="2" width="36" height="36" rx="8" fill="#FFF5F0"/><path d="M13 14h14M20 7v14" stroke="#E27D60" stroke-width="2.5" stroke-linecap="round"/><path d="M13 28h14" stroke="#EDA68E" stroke-width="2.5" stroke-linecap="round"/><circle cx="15" cy="33" r="1.5" fill="#EDA68E"/><circle cx="25" cy="33" r="1.5" fill="#EDA68E"/></svg>',sudoku:'<svg viewBox="0 0 40 40" width="40" height="40" fill="none"><rect x="4" y="4" width="32" height="32" rx="4" fill="#FFF5F0" stroke="#F5CAB8" stroke-width="1.2"/><line x1="16" y1="4" x2="16" y2="36" stroke="#F5CAB8" stroke-width=".8"/><line x1="27" y1="4" x2="27" y2="36" stroke="#F5CAB8" stroke-width=".8"/><line x1="4" y1="16" x2="36" y2="16" stroke="#F5CAB8" stroke-width=".8"/><line x1="4" y1="27" x2="36" y2="27" stroke="#F5CAB8" stroke-width=".8"/><text x="8" y="13" font-size="8" font-weight="700" fill="#CC6E52">3</text><text x="20" y="13" font-size="8" font-weight="700" fill="#CC6E52">1</text><text x="30" y="24" font-size="8" font-weight="700" fill="#CC6E52">4</text><text x="8" y="35" font-size="8" font-weight="700" fill="#CC6E52">2</text></svg>',word:'<svg viewBox="0 0 40 40" width="40" height="40" fill="none"><rect x="2" y="10" width="11" height="14" rx="3" fill="#FFF5F0" stroke="#F5CAB8" stroke-width="1"/><rect x="15" y="10" width="11" height="14" rx="3" fill="#FFF5F0" stroke="#F5CAB8" stroke-width="1"/><rect x="28" y="10" width="10" height="14" rx="3" fill="#FFF5F0" stroke="#F5CAB8" stroke-width="1"/><text x="5" y="20" font-size="9" font-weight="700" fill="#CC6E52">A</text><text x="18" y="20" font-size="9" font-weight="700" fill="#CC6E52">B</text><text x="31" y="20" font-size="9" font-weight="700" fill="#CC6E52">C</text><path d="M8 30l6-4M26 30l-6-4" stroke="#F5CAB8" stroke-width="1" stroke-dasharray="2 2"/></svg>',schulte:'<svg viewBox="0 0 40 40" width="40" height="40" fill="none"><rect x="3" y="3" width="34" height="34" rx="5" fill="#FFF5F0" stroke="#F5CAB8" stroke-width="1.2"/><g font-size="7" font-weight="700" fill="#CC6E52"><text x="8" y="14">1</text><text x="19" y="14">8</text><text x="29" y="14">3</text><text x="8" y="24">5</text><text x="17" y="24">12</text><text x="29" y="24">7</text><text x="8" y="34">9</text><text x="19" y="34">4</text></g><circle cx="20" cy="20" r="5" fill="rgba(226,125,96,.08)" stroke="#EDA68E" stroke-width=".8"/></svg>',spatial:'<svg viewBox="0 0 40 40" width="40" height="40" fill="none"><rect x="4" y="4" width="13" height="13" rx="3" fill="#F5CAB8"/><rect x="23" y="4" width="13" height="13" rx="3" fill="#FFF5F0"/><rect x="4" y="23" width="13" height="13" rx="3" fill="#FFF5F0"/><rect x="23" y="23" width="13" height="13" rx="3" fill="#F5CAB8"/><circle cx="20" cy="20" r="3" fill="#E27D60" opacity=".15"/></svg>'};
-      h+='<div class="tg-games-wrap"><div class="tg-games">';
-      cat.games.forEach(g=>{
-        const p=g.pData;
-        const lvl=p.level||1;
-        const xp=p.xp||0;
-        const nextXp=lvl*100;
-        const xpPct=Math.min(100,Math.round(xp/nextXp*100));
-        h+='<button class="tg-game" onclick="event.stopPropagation();mgDetailOpen(\\''+g.k+'\\')" style="--gfill:'+g.fill+'">'
-          +'<div class="tg-game-visual">'
-            +'<div class="tg-game-ic" style="background:'+g.bg+'">'+(_gameSvgs[g.k]||g.em)+'</div>'
-          +'</div>'
-          +'<div class="tg-game-info">'
-            +'<div class="tg-game-name">'+g.n+'</div>'
-            +'<div class="tg-game-desc">'+g.d+'</div>'
-            +'<div class="tg-game-bar"><div class="tg-game-fill" style="width:'+xpPct+'%;background:'+g.fill+'"></div></div>'
-            +'<div class="tg-game-meta">Level '+lvl+' \\u00B7 '+xp+'/'+nextXp+' XP</div>'
-          +'</div>'
-          +'<div class="tg-game-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>'
-        +'</button>';
-      });
-      h+='</div></div>';
-    }
+  _drills.forEach(function(dr){
+    h+='<div class="rd-drill-card" onclick="mgDetailOpen(\\''+dr.k+'\\')">';
+    h+='<div class="rd-drill-icon" style="background:'+dr.bg+'">'+dr.ic+'</div>';
+    h+='<div style="font:600 14px var(--sans);color:var(--ink);margin-top:10px">'+dr.n+'</div>';
+    h+='<div style="font:500 11.5px var(--sans);color:var(--text-mute);margin-top:1px">'+dr.cat+'</div>';
+    h+='</div>';
   });
   h+='</div>';
 }
@@ -13777,7 +13831,7 @@ app.post('/api/beta-mark-added',adminAuth,(req,res)=>{
 // Public landing page — the "/beta" URL you share with friends
 app.get('/beta',(req,res)=>{
   const src=String(req.query.src||'').replace(/[^a-zA-Z0-9_-]/g,'').slice(0,20);
-  res.type('html').send(`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0F1115"><title>Become a Brodoit beta tester</title><meta name="description" content="Help test Brodoit before public launch. 30 seconds to install."><meta property="og:title" content="Test Brodoit before launch"><meta property="og:description" content="30 seconds to join the closed beta"><meta property="og:image" content="https://brodoit.com/icon-512.png"><link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet"><style>
+  res.type('html').send(`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#F4EEE3"><title>Become a Brodoit beta tester</title><meta name="description" content="Help test Brodoit before public launch. 30 seconds to install."><meta property="og:title" content="Test Brodoit before launch"><meta property="og:description" content="30 seconds to join the closed beta"><meta property="og:image" content="https://brodoit.com/icon-512.png"><link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet"><style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Inter','SF Pro Text',-apple-system,BlinkMacSystemFont,sans-serif;background:#EDECE8;color:#0F1115;min-height:100vh;-webkit-font-smoothing:antialiased;letter-spacing:-.011em;font-weight:450;background-image:radial-gradient(circle at 1px 1px,rgba(15,17,21,.05) 1px,transparent 0);background-size:24px 24px}
 .wrap{max-width:520px;margin:0 auto;padding:48px 24px 64px}
@@ -13877,7 +13931,7 @@ app.get('/privacy',(_,res)=>{
 app.get('/terms',(_,res)=>{
   res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Terms of Service — Brodoit</title><meta name="description" content="The simple terms for using Brodoit. Plain English, no surprises."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Terms</div><h1>The simple rules.</h1><p class="lede">We've kept these terms short and human. Use Brodoit kindly, and we'll keep building it for you.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">The service</h2><p>Brodoit is a personal productivity app: it lets you manage tasks with optional WhatsApp and email reminders, listen to free public-domain audiobooks, sharpen your mind with brain games, and see a daily wisdom quote.</p><h2 data-n="02">Your account</h2><p>You register with your email address or phone number. Keep your one-time verification codes private — anyone with the code can sign in. You are responsible for activity on your account.</p><h2 data-n="03">Acceptable use</h2><p>Please don't abuse the service: no spam, no impersonation, no automated scraping, no attempts to disrupt other users or the service itself. We may suspend or remove accounts that do.</p><h2 data-n="04">Content</h2><p>You own your tasks, notes, and other content you create. We store them so we can show them back to you. Audiobook content belongs to the respective public-domain authors and is served from the Internet Archive's LibriVox collection.</p><h2 data-n="05">No warranty</h2><p>The service is provided "as is". We try hard to keep it running, but can't promise zero downtime or guarantee that every reminder is delivered (WhatsApp and email providers can fail). If something matters, please don't rely solely on Brodoit.</p><h2 data-n="06">Limitation of liability</h2><p>Brodoit is a personal tool. We're not liable for missed deadlines, lost data, or any consequential damages from using — or not using — the service.</p><h2 data-n="07">Changes</h2><p>We may update these terms. If we do, we'll update the date at the top. Continued use after a change means you accept the new terms.</p><h2 data-n="08">Contact</h2><p>Need anything? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });
-app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v38";
+app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v39";
 self.addEventListener("install",function(e){self.skipWaiting()});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener("fetch",function(e){});
