@@ -2473,6 +2473,30 @@ h1,h2,h3,h4{font-family:var(--serif);font-weight:500;letter-spacing:-.015em;colo
 @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 @keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+@keyframes ladderBounce{0%{transform:translateY(0) scale(1)}30%{transform:translateY(-18px) scale(1.1)}50%{transform:translateY(-22px) scale(1.05)}70%{transform:translateY(-8px) scale(1.02)}100%{transform:translateY(0) scale(1)}}
+@keyframes ladderGlow{0%,100%{filter:drop-shadow(0 0 4px rgba(217,115,74,.4))}50%{filter:drop-shadow(0 0 14px rgba(217,115,74,.8))}}
+@keyframes ladderPopIn{from{opacity:0;transform:scale(.5) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes ladderShine{0%{background-position:-100% 0}100%{background-position:200% 0}}
+.ll-wrap{margin-top:16px;border-radius:20px;background:linear-gradient(135deg,rgba(226,125,96,.08),rgba(190,140,54,.06));border:1.5px solid rgba(226,125,96,.15);padding:20px 16px 16px;position:relative;overflow:hidden;animation:fadeSlideUp .4s cubic-bezier(.2,.8,.2,1) both}
+.ll-title{font:600 17px var(--sans);color:var(--ink);margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.ll-sub{font:400 13px var(--sans);color:var(--text-mute);margin-bottom:16px}
+.ll-ladder{position:relative;display:flex;flex-direction:column;gap:0;padding:0 12px}
+.ll-rung{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:14px;cursor:pointer;transition:all .2s ease;position:relative;border:1.5px solid transparent;-webkit-tap-highlight-color:transparent}
+.ll-rung:active{transform:scale(.97)}
+.ll-rung.ll-current{background:linear-gradient(135deg,var(--accent-soft),rgba(190,140,54,.12));border-color:var(--accent);animation:pulseGlow 2s ease-in-out infinite}
+.ll-rung.ll-past{opacity:.7}
+.ll-rung.ll-future{opacity:.45}
+.ll-rung-yr{font:700 15px var(--sans);color:var(--accent);min-width:36px;text-align:center}
+.ll-rung-bar{flex:1;height:8px;border-radius:8px;background:var(--line);overflow:hidden;position:relative}
+.ll-rung-fill{height:100%;border-radius:8px;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width .4s ease}
+.ll-rung-label{font:500 13px var(--sans);color:var(--ink);min-width:0;flex-shrink:1}
+.ll-rung-emoji{font-size:20px;flex:none}
+.ll-figure{position:absolute;left:0;transition:top .5s cubic-bezier(.2,.8,.2,1);z-index:2;pointer-events:none}
+.ll-figure.ll-jumping{animation:ladderBounce .5s cubic-bezier(.2,.8,.2,1)}
+.ll-figure svg{filter:drop-shadow(0 2px 6px rgba(0,0,0,.15))}
+.ll-achieve{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:var(--accent);color:#fff;font:600 12px var(--sans);padding:5px 12px;border-radius:12px;animation:ladderPopIn .3s cubic-bezier(.2,.8,.2,1) both;white-space:nowrap;z-index:5;pointer-events:none}
+.ll-connector{position:absolute;left:30px;top:0;bottom:0;width:3px;background:linear-gradient(to bottom,var(--accent),var(--gold));border-radius:3px;opacity:.2;z-index:0}
+body[data-theme=aurora] .ll-wrap{background:linear-gradient(135deg,rgba(226,125,96,.06),rgba(190,140,54,.04));border-color:rgba(226,125,96,.1)}
 .rd-card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:17px;box-shadow:var(--shadow-1);animation:fadeSlideUp .4s cubic-bezier(.2,.8,.2,1) both}
 .rd-session-card{animation:scaleIn .45s cubic-bezier(.2,.8,.2,1) both;animation-delay:.1s}
 .rd-mg-cat{animation:fadeSlideUp .4s cubic-bezier(.2,.8,.2,1) both;transition:transform .2s ease}
@@ -11331,6 +11355,23 @@ async function subscribePush(hydration){
 function _hydrationPatch(){var dots=document.querySelectorAll('.is-hyd-dot');dots.forEach(function(d,i){if(i<S.hydration.glass)d.classList.add('filled');else d.classList.remove('filled')});var tEl=document.querySelector('.is-hydration .is-row-title');if(tEl)tEl.textContent='Water \\u00B7 '+S.hydration.glass+'/'+S.hydration.goal+' glasses'}
 function drinkWater(){_hydrationToday();if(S.hydration.glass>=S.hydration.goal){toast('\\u{1F4A7} You already hit your goal! Great job!');return}S.hydration.glass++;localStorage.setItem('tf_hydration_glass',String(S.hydration.glass));_mgSound('water');toast('\\u{1F4A7} Nice! '+S.hydration.glass+'/'+S.hydration.goal+' glasses today');_hydrationPatch()}
 function undrinkWater(){_hydrationToday();if(S.hydration.glass<=0)return;S.hydration.glass--;localStorage.setItem('tf_hydration_glass',String(S.hydration.glass));toast('\\u{1F4A7} Adjusted to '+S.hydration.glass+'/'+S.hydration.goal);_hydrationPatch()}
+function llJump(targetIdx){
+  var fig=document.getElementById('llFigure');if(!fig)return;
+  var rungs=document.querySelectorAll('.ll-rung');if(!rungs.length)return;
+  var totalRungs=rungs.length;
+  var reversedIdx=totalRungs-1-targetIdx;
+  fig.style.top=reversedIdx*52+'px';
+  fig.classList.remove('ll-jumping');void fig.offsetWidth;fig.classList.add('ll-jumping');
+  setTimeout(function(){fig.classList.remove('ll-jumping')},550);
+  var cheers=['Keep climbing! \\u{1F4AA}','You got this! \\u{1F525}','Legend! \\u{1F3C6}','Unstoppable! \\u{1F680}','Amazing! \\u2B50','Dream big! \\u2728','Level up! \\u26A1','Go higher! \\u{1FA9C}','On fire! \\u{1F525}','Crushing it! \\u{1F4A5}','Boss move! \\u{1F451}','Epic! \\u{1F3AF}'];
+  var rung=rungs[reversedIdx];if(!rung)return;
+  var old=rung.querySelector('.ll-achieve');if(old)old.remove();
+  var badge=document.createElement('div');badge.className='ll-achieve';
+  badge.textContent=cheers[Math.floor(Math.random()*cheers.length)];
+  rung.appendChild(badge);
+  setTimeout(function(){if(badge.parentNode)badge.remove()},1800);
+  _mgSound('tab');
+}
 function _playWaterSound(){
   try{
     const ac=new(window.AudioContext||window.webkitAudioContext)();
@@ -11654,10 +11695,10 @@ if(isMain){
   const _ritualTotal=4;
   const _ritualPct=Math.round(_ritualCount/_ritualTotal*100);
   const _statusLine=_dueToday>0?_dueToday+' due today':'Let\\'s make it count.';
-  let hero='<h2 style="font:500 27px/1.1 var(--serif);color:var(--ink);letter-spacing:-.015em;margin:18px 0 0">'+esc(_greet)+(_firstName?', <em>'+esc(_firstName)+'</em>':'')+'</h2>';
-  hero+='<p style="font:400 14px var(--sans);color:var(--text-mute);margin:4px 0 0">'+esc(_today)+' \\u00B7 '+_statusLine+'</p>';
+  let hero='<h2 style="font:500 32px/1.1 var(--serif);color:var(--ink);letter-spacing:-.015em;margin:18px 0 0">'+esc(_greet)+(_firstName?', <em>'+esc(_firstName)+'</em>':'')+'</h2>';
+  hero+='<p style="font:400 15.5px var(--sans);color:var(--text-mute);margin:6px 0 0">'+esc(_today)+' \\u00B7 '+_statusLine+'</p>';
   hero+='<div class="rd-card" style="margin-top:18px">';
-  hero+='<div style="display:flex;align-items:center;justify-content:space-between"><span style="font:600 15px var(--sans);color:var(--ink)">Today\\'s ritual</span><span style="font:600 13px var(--sans);color:var(--text-mute)">'+_ritualCount+' of '+_ritualTotal+' done</span></div>';
+  hero+='<div style="display:flex;align-items:center;justify-content:space-between"><span style="font:600 16.5px var(--sans);color:var(--ink)">Today\\'s ritual</span><span style="font:600 14px var(--sans);color:var(--text-mute)">'+_ritualCount+' of '+_ritualTotal+' done</span></div>';
   hero+='<div class="rd-progress-bar" style="margin-top:13px"><div class="rd-progress-fill" style="width:'+_ritualPct+'%"></div></div>';
   hero+='<div style="display:flex;justify-content:space-between;margin-top:15px">';
   var _ritualSteps=[{k:'tasks',l:'Tasks'},{k:'listen',l:'Listen'},{k:'mind',l:'Mind'},{k:'wisdom',l:'Wisdom'}];
@@ -11666,7 +11707,7 @@ if(isMain){
     hero+='<div style="display:flex;flex-direction:column;align-items:center;gap:7px">';
     if(done)hero+='<div class="rd-ritual-circle rd-ritual-done"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 10 17.5 19 6.5"/></svg></div>';
     else hero+='<div class="rd-ritual-circle rd-ritual-pending"></div>';
-    hero+='<span style="font:600 11px var(--sans);color:'+(done?'var(--ink)':'var(--text-mute)')+'">'+rs.l+'</span>';
+    hero+='<span style="font:600 12.5px var(--sans);color:'+(done?'var(--ink)':'var(--text-mute)')+'">'+rs.l+'</span>';
     hero+='</div>';
   });
   hero+='</div></div>';
@@ -11674,20 +11715,65 @@ if(isMain){
   var _wqIdx=Math.floor(new Date().getTime()/(864e5))%_wisdomQuotes.length;
   var _wq=_wisdomQuotes[_wqIdx];
   hero+='<div class="rd-wisdom-card" style="margin-top:13px">';
-  hero+='<div class="rd-eyebrow" style="color:color-mix(in srgb,var(--gold) 86%,#3a2a08)">DAILY WISDOM</div>';
-  hero+='<p style="font:400 18px/1.36 var(--serif);font-style:italic;color:var(--ink);margin:9px 0 0">\\u201C'+esc(_wq.q)+'\\u201D</p>';
-  hero+='<div style="display:flex;align-items:center;justify-content:space-between;margin-top:11px"><span style="font:500 12.5px var(--sans);color:var(--text-mute)">\\u2014 '+esc(_wq.a)+'</span><span style="font:600 13px var(--sans);color:var(--accent);cursor:pointer" onclick="openDailyWisdom()">Read today\\'s \\u2192</span></div>';
+  hero+='<div class="rd-eyebrow" style="color:color-mix(in srgb,var(--gold) 86%,#3a2a08);font-size:13.5px">DAILY WISDOM</div>';
+  hero+='<p style="font:400 21px/1.36 var(--serif);font-style:italic;color:var(--ink);margin:9px 0 0">\\u201C'+esc(_wq.q)+'\\u201D</p>';
+  hero+='<div style="display:flex;align-items:center;justify-content:space-between;margin-top:11px"><span style="font:500 14px var(--sans);color:var(--text-mute)">\\u2014 '+esc(_wq.a)+'</span><span style="font:600 14.5px var(--sans);color:var(--accent);cursor:pointer" onclick="openDailyWisdom()">Read today\\'s \\u2192</span></div>';
   hero+='</div>';
   var _curBook=S.currentBook||{};
   hero+='<div class="rd-listen-card" style="margin-top:13px">';
   hero+='<div class="rd-listen-cover"></div>';
   hero+='<div style="flex:1;min-width:0">';
   hero+='<div class="rd-eyebrow" style="color:var(--text-mute)">CONTINUE LISTENING</div>';
-  hero+='<div style="font:600 15px var(--sans);color:var(--ink);margin-top:2px">'+esc(_curBook.title||'Meditations')+'</div>';
-  hero+='<div style="font:400 12px var(--sans);color:var(--text-mute)">'+esc(_curBook.author||'Marcus Aurelius')+' \\u00B7 '+esc(_curBook.remaining||'2h 14m left')+'</div>';
+  hero+='<div style="font:600 17px var(--sans);color:var(--ink);margin-top:2px">'+esc(_curBook.title||'Meditations')+'</div>';
+  hero+='<div style="font:400 13.5px var(--sans);color:var(--text-mute)">'+esc(_curBook.author||'Marcus Aurelius')+' \\u00B7 '+esc(_curBook.remaining||'2h 14m left')+'</div>';
   hero+='<div class="rd-progress-bar" style="margin-top:8px;height:4px"><div class="rd-progress-fill" style="width:'+(_curBook.pct||42)+'%"></div></div>';
   hero+='</div>';
   hero+='<button class="rd-play-btn" onclick="switchTab(\\'books\\');render()"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M8 5.5v13l11-6.5z"/></svg></button>';
+  hero+='</div>';
+  // --- Life Ladder — animated year-by-year journey ---
+  var _llAge=S.user.age||22;
+  var _llRungs=[
+    {yr:0,emoji:'\\u{1F476}',label:'Born into the world',pct:100},
+    {yr:5,emoji:'\\u{1F3EB}',label:'Started school',pct:100},
+    {yr:10,emoji:'\\u{1F4DA}',label:'Found curiosity',pct:100},
+    {yr:15,emoji:'\\u{1F680}',label:'Dreamed big',pct:100},
+    {yr:18,emoji:'\\u{1F393}',label:'Became an adult',pct:100},
+    {yr:20,emoji:'\\u26A1',label:'Building yourself',pct:100},
+    {yr:25,emoji:'\\u{1F4BC}',label:'Career launch',pct:0},
+    {yr:30,emoji:'\\u{1F3AF}',label:'Hit your stride',pct:0},
+    {yr:40,emoji:'\\u{1F451}',label:'Peak mastery',pct:0},
+    {yr:50,emoji:'\\u{1F30D}',label:'World impact',pct:0},
+    {yr:60,emoji:'\\u{1F333}',label:'Wisdom years',pct:0},
+    {yr:70,emoji:'\\u2B50',label:'Legacy mode',pct:0},
+    {yr:80,emoji:'\\u{1F3C6}',label:'Legendary',pct:0}
+  ];
+  var _llCurrentIdx=0;
+  _llRungs.forEach(function(r,i){
+    if(_llAge>=r.yr)_llCurrentIdx=i;
+    if(_llAge>=r.yr)r.pct=100;
+    else if(i>0&&_llAge>=_llRungs[i-1].yr)r.pct=Math.round((_llAge-_llRungs[i-1].yr)/(_llRungs[i].yr-_llRungs[i-1].yr)*100);
+    else r.pct=0;
+  });
+  hero+='<div class="ll-wrap" id="lifeLadder">';
+  hero+='<div class="ll-title">\\u{1FA9C} Life Ladder</div>';
+  hero+='<div class="ll-sub">Tap any rung to see your character jump! You\\'re at age '+_llAge+'.</div>';
+  hero+='<div class="ll-ladder" style="position:relative">';
+  hero+='<div class="ll-connector"></div>';
+  _llRungs.slice().reverse().forEach(function(r,ri){
+    var origIdx=_llRungs.length-1-ri;
+    var cls=origIdx===_llCurrentIdx?'ll-current':(origIdx<_llCurrentIdx?'ll-past':'ll-future');
+    hero+='<div class="ll-rung '+cls+'" data-rung="'+origIdx+'" onclick="llJump('+origIdx+')" style="animation-delay:'+(ri*0.04)+'s">';
+    hero+='<span class="ll-rung-emoji">'+r.emoji+'</span>';
+    hero+='<div style="flex:1;min-width:0">';
+    hero+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px"><span class="ll-rung-label">'+r.label+'</span><span class="ll-rung-yr">'+r.yr+'</span></div>';
+    hero+='<div class="ll-rung-bar"><div class="ll-rung-fill" style="width:'+r.pct+'%"></div></div>';
+    hero+='</div>';
+    hero+='</div>';
+  });
+  hero+='<div class="ll-figure" id="llFigure" style="top:'+((_llRungs.length-1-_llCurrentIdx)*52)+'px">';
+  hero+='<svg width="28" height="28" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="6" r="4" fill="var(--accent)"/><line x1="12" y1="10" x2="12" y2="17" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"/><line x1="12" y1="12" x2="7" y2="15" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="12" x2="17" y2="14" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="17" x2="8" y2="23" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="17" x2="16" y2="23" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/></svg>';
+  hero+='</div>';
+  hero+='</div>';
   hero+='</div>';
   // --- Stacked info rows: weather, hydration ---
   let infoStrip='';
@@ -12497,9 +12583,8 @@ else if(S.tab==='bro'){
     h+='<div class="bro-container">';
     // Header bar
     h+='<div class="bro-header" style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line)">';
-    h+='<div class="bro-header-avatar" style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--gold));display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;flex:none">\\u26A1</div>';
-    h+='<div style="flex:1;min-width:0"><div style="font:600 17px var(--sans);color:var(--ink)">Bro AI<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#34D399;margin-left:8px;vertical-align:middle"></span></div>';
-    h+='<div style="font:400 12px var(--sans);color:var(--text-mute)">Can manage tasks, calendar & more</div></div>';
+    h+='<div style="flex:1;min-width:0"><div style="font:600 19px var(--sans);color:var(--ink)">\\u26A1 Bro AI<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#34D399;margin-left:8px;vertical-align:middle"></span></div>';
+    h+='<div style="font:400 13px var(--sans);color:var(--text-mute)">Can manage tasks, calendar & more</div></div>';
     h+='<div style="display:flex;gap:6px">';
     h+='<button style="padding:6px 12px;border-radius:20px;border:1.5px solid '+(_bm==='ask'?'var(--accent)':'var(--line)')+';background:'+(_bm==='ask'?'var(--accent-soft)':'transparent')+';font:500 12px var(--sans);color:'+(_bm==='ask'?'var(--accent)':'var(--text-mute)')+';cursor:pointer" onclick="S.bro.mode=\\'ask\\';S.bro.messages=[];switchTab(\\'bro\\')">\\u26A1 Assistant</button>';
     h+='<button style="padding:6px 12px;border-radius:20px;border:1.5px solid '+(_bm==='friend'?'#EC4899':'var(--line)')+';background:'+(_bm==='friend'?'rgba(236,72,153,.1)':'transparent')+';font:500 12px var(--sans);color:'+(_bm==='friend'?'#EC4899':'var(--text-mute)')+';cursor:pointer" onclick="S.bro.mode=\\'friend\\';S.bro.messages=[];switchTab(\\'bro\\')">\\u{1F49C} Friend</button>';
@@ -12508,9 +12593,8 @@ else if(S.tab==='bro'){
     h+='<div class="bro-chat" id="broChat">';
     if(S.bro.messages.length<=1){
       h+='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;text-align:center">';
-      h+='<div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--gold));display:flex;align-items:center;justify-content:center;font-size:28px;color:#fff;margin-bottom:16px">\\u26A1</div>';
-      h+='<div style="font:600 22px var(--serif);color:var(--ink);margin-bottom:6px">'+(_bm==='friend'?'Hey bestie!':'How can I help?')+'</div>';
-      h+='<div style="font:400 14px var(--sans);color:var(--text-mute);max-width:280px;line-height:1.5;margin-bottom:24px">'+(_bm==='friend'?'I\\'m your ride-or-die. Talk to me about anything.':'I can create tasks, schedule events, plan your day, brainstorm ideas, and more.')+'</div>';
+      h+='<div style="font:600 26px var(--serif);color:var(--ink);margin-bottom:6px">'+(_bm==='friend'?'\\u{1F49C} Hey bestie!':'\\u26A1 How can I help?')+'</div>';
+      h+='<div style="font:400 15px var(--sans);color:var(--text-mute);max-width:300px;line-height:1.5;margin-bottom:24px">'+(_bm==='friend'?'I\\'m your ride-or-die. Talk to me about anything.':'I can create tasks, schedule events, plan your day, brainstorm ideas, and more.')+'</div>';
       // Capability chips
       if(_bm==='ask'){
         h+='<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:20px">';
@@ -12538,12 +12622,11 @@ else if(S.tab==='bro'){
       if(_broSkipWelcome&&m.role==='bro')return;
       const isAgent=m.role==='bro';
       h+='<div class="bro-msg '+(isAgent?'bro-msg-ai':'bro-msg-user')+'">';
-      if(isAgent)h+='<div class="bro-avatar" style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--gold));display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;flex:none">\\u26A1</div>';
       h+='<div class="bro-msg-content">';
-      h+='<div class="bro-bubble '+(isAgent?'':'bro-bubble-bro')+'" style="font-size:15px;line-height:1.55">'+broMd(m.text)+'</div>';
+      h+='<div class="bro-bubble '+(isAgent?'':'bro-bubble-bro')+'" style="font-size:15.5px;line-height:1.55">'+broMd(m.text)+'</div>';
       h+='</div></div>';
     });
-    if(S.bro.sending)h+='<div class="bro-typing-wrap"><div class="bro-avatar" style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--gold));display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;flex:none">\\u26A1</div><div class="bro-typing"><span class="bro-typing-dot"></span><span class="bro-typing-dot"></span><span class="bro-typing-dot"></span></div></div>';
+    if(S.bro.sending)h+='<div class="bro-typing-wrap"><div class="bro-typing"><span class="bro-typing-dot"></span><span class="bro-typing-dot"></span><span class="bro-typing-dot"></span></div></div>';
     h+='</div>';
     // Input bar — ChatGPT style
     h+='<div class="bro-input-wrap" style="padding:10px 14px;border-top:1px solid var(--line);background:var(--bg)">';
@@ -14095,7 +14178,7 @@ app.get('/privacy',(_,res)=>{
 app.get('/terms',(_,res)=>{
   res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Terms of Service — Brodoit</title><meta name="description" content="The simple terms for using Brodoit. Plain English, no surprises."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Terms</div><h1>The simple rules.</h1><p class="lede">We've kept these terms short and human. Use Brodoit kindly, and we'll keep building it for you.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">The service</h2><p>Brodoit is a personal productivity app: it lets you manage tasks with optional WhatsApp and email reminders, listen to free public-domain audiobooks, sharpen your mind with brain games, and see a daily wisdom quote.</p><h2 data-n="02">Your account</h2><p>You register with your email address or phone number. Keep your one-time verification codes private — anyone with the code can sign in. You are responsible for activity on your account.</p><h2 data-n="03">Acceptable use</h2><p>Please don't abuse the service: no spam, no impersonation, no automated scraping, no attempts to disrupt other users or the service itself. We may suspend or remove accounts that do.</p><h2 data-n="04">Content</h2><p>You own your tasks, notes, and other content you create. We store them so we can show them back to you. Audiobook content belongs to the respective public-domain authors and is served from the Internet Archive's LibriVox collection.</p><h2 data-n="05">No warranty</h2><p>The service is provided "as is". We try hard to keep it running, but can't promise zero downtime or guarantee that every reminder is delivered (WhatsApp and email providers can fail). If something matters, please don't rely solely on Brodoit.</p><h2 data-n="06">Limitation of liability</h2><p>Brodoit is a personal tool. We're not liable for missed deadlines, lost data, or any consequential damages from using — or not using — the service.</p><h2 data-n="07">Changes</h2><p>We may update these terms. If we do, we'll update the date at the top. Continued use after a change means you accept the new terms.</p><h2 data-n="08">Contact</h2><p>Need anything? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });
-app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v44";
+app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v45";
 self.addEventListener("install",function(e){self.skipWaiting()});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener("fetch",function(e){});
