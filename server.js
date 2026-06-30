@@ -5551,7 +5551,7 @@ body.audio-on .fab-global{bottom:calc(96px + env(safe-area-inset-bottom,0px))!im
 /* ─── ANIMATED TASK CTA — two people + notebook ─── */
 .qc-scene{display:none}
 @media(max-width:1023px){
-.qc-scene{display:block;position:relative;height:220px;margin-bottom:10px;overflow:visible;border-radius:16px;background:linear-gradient(135deg,#FAFAFA,#F7F7F8,#F5F5F6);border:1px solid rgba(0,0,0,.06)}
+.qc-scene{display:block;position:relative;height:160px;margin-bottom:10px;overflow:visible;border-radius:16px;background:linear-gradient(135deg,#FAFAFA,#F7F7F8,#F5F5F6);border:1px solid rgba(0,0,0,.06)}
 /* — shared person styles — */
 .qc-p{position:absolute;bottom:20px;z-index:2}
 .qc-p-head{width:18px;height:18px;border-radius:50%;position:absolute;top:0;left:50%;transform:translateX(-50%)}
@@ -5655,13 +5655,6 @@ body.audio-on .fab-global{bottom:calc(96px + env(safe-area-inset-bottom,0px))!im
 /* — Touch-to-slow interaction — */
 .qc-scene.slow *{animation-duration:16s !important;transition:animation-duration .3s}
 .qc-scene.slow .qc-quotes-track{animation-duration:80s !important}
-.qc-scene.fast *{animation-duration:1s !important}
-.qc-scene.fast .qc-guide{animation-duration:1.2s !important}
-.qc-scene.fast .qc-writer{animation-duration:1.2s !important}
-.qc-scene.fast .qc-bubble{animation-duration:1.2s !important}
-.qc-scene.fast .qc-nb-ink{animation-duration:1.2s !important}
-.qc-scene.fast .qc-pencil{animation-duration:1.2s !important}
-.qc-scene.fast .qc-sparkle{animation-duration:1.2s !important}
 .qc-scene.fast .qc-nb-check{animation-duration:1.2s !important}
 .qc-scene.fast .qc-quotes-track{animation-duration:10s !important}
 }
@@ -7529,6 +7522,29 @@ body[data-theme=aurora] .theme-chip.on .tc-name{color:#fff}
 @keyframes fadeSlideDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
 
 .pmd-sub{font-size:12px;color:#6B7280;margin-bottom:12px}
+/* — Quick-add popup — */
+.qa-popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:9999;display:grid;place-items:center;padding:24px;animation:fadeIn .2s ease}
+.qa-popup{background:#fff;border-radius:20px;padding:28px 24px;width:100%;max-width:340px;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:fadeSlideDown .25s ease}
+.qa-popup-title{font-size:20px;font-weight:700;color:#111827;margin-bottom:4px}
+.qa-popup-label{font-size:13px;color:#6B7280;margin-bottom:16px}
+.qa-popup-input{width:100%;padding:12px 14px;border:1.5px solid #E5E7EB;border-radius:12px;font-size:15px;font-family:inherit;color:#111827;background:#F9FAFB;outline:none;margin-bottom:10px;box-sizing:border-box;transition:border-color .2s}
+.qa-popup-input:focus{border-color:#E27D60;background:#fff;box-shadow:0 0 0 3px rgba(226,125,96,.08)}
+.qa-popup-btns{display:flex;gap:10px;margin-top:8px}
+.qa-popup-skip{flex:1;padding:12px;border:1.5px solid #E5E7EB;border-radius:12px;background:#fff;color:#6B7280;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
+.qa-popup-skip:hover{border-color:#9CA3AF;color:#374151}
+.qa-popup-save{flex:1;padding:12px;border:none;border-radius:12px;background:#E27D60;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 4px 12px rgba(226,125,96,.3);transition:all .15s}
+.qa-popup-save:hover{background:#CC6E52;transform:translateY(-1px)}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+/* — Theme selector — */
+.theme-picker-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:9999;display:grid;place-items:center;padding:24px;animation:fadeIn .2s ease}
+.theme-picker{background:#fff;border-radius:20px;padding:28px 24px;width:100%;max-width:360px;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:fadeSlideDown .25s ease}
+.theme-picker-title{font-size:18px;font-weight:700;color:#111827;margin-bottom:16px}
+.theme-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.theme-swatch{aspect-ratio:1;border-radius:16px;cursor:pointer;border:3px solid transparent;transition:all .2s;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.theme-swatch.active{border-color:#111827;box-shadow:0 0 0 2px #fff,0 0 0 4px #111827}
+.theme-swatch:hover{transform:scale(1.05)}
+.theme-swatch-label{font-size:11px;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.4);letter-spacing:.02em}
+.theme-swatch-icon{font-size:22px}
 /* — Full-frame section background illustrations — */
 .sec-bg{position:relative;overflow:hidden}
 .sec-bg::before{content:'';position:absolute;top:0;right:0;width:120px;height:120px;opacity:.04;background-size:contain;background-repeat:no-repeat;pointer-events:none;z-index:0}
@@ -8283,7 +8299,27 @@ async function sAll(){
   else toast('\\u26A0\\uFE0F '+((r&&r.error)||'Send failed'),'err');
   render();
 }
-function qaQuickAdd(title){S.form={title:title,notes:'',priority:'medium',dueDate:'',reminderTime:'',status:'pending',board:'home'};S.editing=null;addT()}
+function qaQuickAdd(title){
+  if(document.getElementById('qaPopup'))return;
+  var ov=document.createElement('div');ov.id='qaPopup';ov.className='qa-popup-overlay';
+  ov.onclick=function(){ov.remove()};
+  var pk='<div class="qa-popup" onclick="event.stopPropagation()">';
+  pk+='<div class="qa-popup-title">\\u{1F4CB} '+title+'</div>';
+  pk+='<div class="qa-popup-label">When do you need to do this?</div>';
+  pk+='<input type="date" class="qa-popup-input" id="qaPopupDate">';
+  pk+='<input type="time" class="qa-popup-input" id="qaPopupTime">';
+  pk+='<div class="qa-popup-btns">';
+  pk+='<button class="qa-popup-skip" onclick="qaPopupSave(\\''+title.replace(/'/g,"\\\\'")+'\\')">'+'Skip, just add</button>';
+  pk+='<button class="qa-popup-save" onclick="qaPopupSave(\\''+title.replace(/'/g,"\\\\'")+'\\')">'+'\\u2705 Add Task</button>';
+  pk+='</div></div>';
+  ov.innerHTML=pk;document.body.appendChild(ov);
+  setTimeout(function(){var el=document.getElementById('qaPopupDate');if(el)el.focus()},120);
+}
+function qaPopupSave(title){
+  var dd=document.getElementById('qaPopupDate');var dt=document.getElementById('qaPopupTime');
+  S.form={title:title,notes:'',priority:'medium',dueDate:dd?dd.value:'',reminderTime:dt?dt.value:'',status:'pending',board:'home'};
+  S.editing=null;var el=document.getElementById('qaPopup');if(el)el.remove();addT();
+}
 function opA(){var qi=document.getElementById('qaInput');if(qi&&qi.value.trim()){S.form={title:qi.value.trim(),notes:'',priority:'medium',dueDate:'',reminderTime:'',status:'pending',board:'home'};S.editing=null;qi.value='';addT();return}S.form={title:'',notes:'',priority:'medium',dueDate:'',reminderTime:'',status:'pending',board:S.board==='combined'?'home':S.board};S.editing=null;S.showAdd=true;render();}
 function opE(id){const t=S.tasks.find(x=>x.id===id);if(!t)return;S.form={title:t.title,notes:t.notes||'',priority:t.priority,dueDate:t.due_date||'',reminderTime:t.reminder_time||'',status:t.status,board:t.board||'home'};S.editing=id;S.showAdd=true;render()}
 function setBoard(b){S.board=b;localStorage.setItem('tf_board',b);render()}
@@ -8371,11 +8407,37 @@ const _COLOR_THEMES={
   slate:{c1:'#64748B',c2:'#94A3B8',c3:'#CBD5E1',c4:'#0F172A',c5:'#475569',bg:'#F8FAFC',bg2:'#F1F5F9',border:'#E2E8F0',rgba1:'100,116,139',rgba2:'148,163,184'}
 };
 function applyColorTheme(key){
-  if(!_COLOR_THEMES[key])return;
-  S.themeColor=key;localStorage.setItem('themeColor',key);
-  applyColorThemeCSS(key);
-  render();
+  if(key==='mixed'){var keys=Object.keys(_COLOR_THEMES);key=keys[Math.floor(Math.random()*keys.length)];S.themeColorActual=key;S.themeColor='mixed';localStorage.setItem('themeColor','mixed')}
+  else{S.themeColorActual=key;if(!_COLOR_THEMES[key])return;S.themeColor=key;localStorage.setItem('themeColor',key)}
+  applyColorThemeCSS(key);render();
 }
+function showThemePicker(){
+  if(document.getElementById('themePicker'))return;
+  var _swatches=[
+    {k:'coral',l:'Coral',bg:'linear-gradient(135deg,#E27D60,#EDA68E)',e:'\\u{1F3B5}'},
+    {k:'blue',l:'Ocean',bg:'linear-gradient(135deg,#4F6DF5,#7B93F8)',e:'\\u{1F30A}'},
+    {k:'emerald',l:'Forest',bg:'linear-gradient(135deg,#10B981,#34D399)',e:'\\u{1F332}'},
+    {k:'violet',l:'Grape',bg:'linear-gradient(135deg,#8B5CF6,#A78BFA)',e:'\\u{1F347}'},
+    {k:'rose',l:'Rose',bg:'linear-gradient(135deg,#F43F5E,#FB7185)',e:'\\u{1F339}'},
+    {k:'amber',l:'Sunset',bg:'linear-gradient(135deg,#F59E0B,#FBBF24)',e:'\\u{1F305}'},
+    {k:'teal',l:'Mint',bg:'linear-gradient(135deg,#14B8A6,#2DD4BF)',e:'\\u{1F33F}'},
+    {k:'mixed',l:'Surprise',bg:'linear-gradient(135deg,#E27D60,#8B5CF6,#10B981,#F59E0B)',e:'\\u{1F3B2}'}
+  ];
+  var ov=document.createElement('div');ov.id='themePicker';ov.className='qa-popup-overlay';
+  ov.onclick=function(){ov.remove()};
+  var pk='<div class="theme-picker" onclick="event.stopPropagation()">';
+  pk+='<div class="theme-picker-title">\\u{1F3A8} Choose Your Theme</div>';
+  pk+='<div class="theme-grid">';
+  _swatches.forEach(function(sw){
+    pk+='<div class="theme-swatch'+(S.themeColor===sw.k?' active':'')+'" style="background:'+sw.bg+'" onclick="applyColorTheme(\\''+sw.k+'\\');document.getElementById(\\'themePicker\\').remove()">';
+    pk+='<span class="theme-swatch-icon">'+sw.e+'</span>';
+    pk+='<span class="theme-swatch-label">'+sw.l+'</span>';
+    pk+='</div>';
+  });
+  pk+='</div></div>';
+  ov.innerHTML=pk;document.body.appendChild(ov);
+}
+function hideThemePicker(){var el=document.getElementById('themePicker');if(el)el.remove()}
 function applyColorThemeCSS(key){
   const t=_COLOR_THEMES[key];if(!t)return;
   let el=document.getElementById('colorThemeVars');
@@ -11433,7 +11495,7 @@ _hydrationToday();
 const _hyd=S.hydration;
 const HELP_BTN='<button class="hdr-help" onclick="openHelp()" aria-label="Help" title="How to use Brodoit">?</button>';
 const LOGO_MARK='<div class="logo" aria-label="Brodoit"><span class="logo-fist">\\u{1F91C}\\u{1F91B}</span><span class="b1">Bro</span><span class="b2">do</span><span class="b3">it</span><span class="dot"></span></div>';
-let h='<div class="hdr"><div class="hdr-l">'+LOGO_MARK+'</div><div class="hdr-actions">'+HELP_BTN+PROFILE_BTN+'<button class="theme-tg" onclick="toggleTheme()" title="Switch theme">'+(S.theme==='aurora'?ic('sun',18):ic('moon',18))+'</button></div></div>';
+let h='<div class="hdr"><div class="hdr-l">'+LOGO_MARK+'</div><div class="hdr-actions">'+HELP_BTN+PROFILE_BTN+'<button class="theme-tg" onclick="showThemePicker()" title="Change color theme" style="font-size:18px">\\u{1F3A8}</button><button class="theme-tg" onclick="toggleTheme()" title="Switch theme">'+(S.theme==='aurora'?ic('sun',18):ic('moon',18))+'</button></div></div>';
 
 const m=MORALS[S.moralIdx];
 let moralBlock='';
@@ -11497,7 +11559,7 @@ if(isMain){
   _tpls.forEach(function(tp){hero+='<button class="qa-tpl" onclick="qaQuickAdd(\\''+tp.l+'\\')">'+tp.e+'<span>'+tp.l+'</span></button>';});
   hero+='</div></div>';
   // Mascot animation scene
-  hero+='<div class="qc-scene" ontouchstart="this.classList.add(\\'slow\\');this.classList.remove(\\'fast\\')" ontouchend="this.classList.remove(\\'slow\\')" onclick="this.classList.toggle(\\'fast\\')">';
+  hero+='<div class="qc-scene" ontouchstart="this.classList.add(\\'slow\\')" ontouchend="this.classList.remove(\\'slow\\')">';
   hero+='<div class="qc-quotes"><div class="qc-quotes-track">';
   var _quotes=['Stop waiting for Monday','Your future self will thank you','Write it down, make it real','Done is better than perfect','Procrastination is the thief of time','A task written is a task half done','Small steps beat big plans','Laziness is nothing but resting before you get tired','The best time to start was yesterday','Action cures fear','Don\\'t put off till tomorrow what you can do today','Discipline is choosing what you want most over what you want now','You don\\'t have to be great to start','Writing tasks gives your brain permission to relax','Clarity comes from action, not thought','Every expert was once a beginner who started'];
   for(var qi=0;qi<2;qi++)_quotes.forEach(function(q){hero+='<span class="qc-quote">'+q+'</span>';});
@@ -13471,6 +13533,54 @@ applyTheme();
       ctx.beginPath();ctx.arc(c.x,c.y,2,0,6.283);
       ctx.fillStyle='hsla('+c.hue+',90%,95%,'+a+')';ctx.fill();
     }
+    // Earth — bottom-right, slow orbit
+    const eAngle=t*0.00004;
+    const eX=W*0.82+Math.sin(eAngle)*8;
+    const eY=H*0.72+Math.cos(eAngle)*6;
+    const eR=Math.min(W,H)*0.08;
+    const eGr=ctx.createRadialGradient(eX-eR*0.3,eY-eR*0.3,eR*0.1,eX,eY,eR);
+    eGr.addColorStop(0,'rgba(100,180,255,.25)');
+    eGr.addColorStop(0.4,'rgba(50,120,200,.2)');
+    eGr.addColorStop(0.6,'rgba(30,100,60,.18)');
+    eGr.addColorStop(1,'rgba(10,40,80,.08)');
+    ctx.beginPath();ctx.arc(eX,eY,eR,0,6.283);ctx.fillStyle=eGr;ctx.fill();
+    // Earth glow
+    const eGl=ctx.createRadialGradient(eX,eY,eR*0.8,eX,eY,eR*1.6);
+    eGl.addColorStop(0,'rgba(80,160,255,.06)');eGl.addColorStop(1,'rgba(80,160,255,0)');
+    ctx.beginPath();ctx.arc(eX,eY,eR*1.6,0,6.283);ctx.fillStyle=eGl;ctx.fill();
+    // Earth continents (subtle shapes)
+    ctx.save();ctx.beginPath();ctx.arc(eX,eY,eR,0,6.283);ctx.clip();
+    const cRot=t*0.00006;
+    for(let ci=0;ci<4;ci++){
+      const cx2=eX+Math.cos(cRot+ci*1.6)*eR*0.5;
+      const cy2=eY+Math.sin(cRot+ci*1.3)*eR*0.4;
+      const cr2=eR*(0.2+ci*0.08);
+      ctx.beginPath();ctx.ellipse(cx2,cy2,cr2,cr2*0.7,cRot+ci,0,6.283);
+      ctx.fillStyle='rgba(40,120,50,.12)';ctx.fill();
+    }
+    ctx.restore();
+    // Moon — smaller, orbits Earth
+    const mAngle=t*0.00015;
+    const mDist=eR*2.2;
+    const mX=eX+Math.cos(mAngle)*mDist;
+    const mY=eY+Math.sin(mAngle)*mDist*0.4;
+    const mR=eR*0.27;
+    const mGr=ctx.createRadialGradient(mX-mR*0.3,mY-mR*0.3,mR*0.05,mX,mY,mR);
+    mGr.addColorStop(0,'rgba(220,220,230,.3)');
+    mGr.addColorStop(0.6,'rgba(180,180,195,.2)');
+    mGr.addColorStop(1,'rgba(120,120,140,.1)');
+    ctx.beginPath();ctx.arc(mX,mY,mR,0,6.283);ctx.fillStyle=mGr;ctx.fill();
+    // Moon craters
+    ctx.save();ctx.beginPath();ctx.arc(mX,mY,mR,0,6.283);ctx.clip();
+    [[0.3,-0.2,0.15],[-.2,0.3,0.12],[0.1,0.1,0.08]].forEach(function(cr){
+      ctx.beginPath();ctx.arc(mX+cr[0]*mR,mY+cr[1]*mR,cr[2]*mR,0,6.283);
+      ctx.fillStyle='rgba(100,100,120,.15)';ctx.fill();
+    });
+    ctx.restore();
+    // Moon glow
+    const mGl=ctx.createRadialGradient(mX,mY,mR*0.5,mX,mY,mR*2);
+    mGl.addColorStop(0,'rgba(200,200,220,.05)');mGl.addColorStop(1,'rgba(200,200,220,0)');
+    ctx.beginPath();ctx.arc(mX,mY,mR*2,0,6.283);ctx.fillStyle=mGl;ctx.fill();
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
@@ -13767,7 +13877,7 @@ app.get('/privacy',(_,res)=>{
 app.get('/terms',(_,res)=>{
   res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Terms of Service — Brodoit</title><meta name="description" content="The simple terms for using Brodoit. Plain English, no surprises."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Terms</div><h1>The simple rules.</h1><p class="lede">We've kept these terms short and human. Use Brodoit kindly, and we'll keep building it for you.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">The service</h2><p>Brodoit is a personal productivity app: it lets you manage tasks with optional WhatsApp and email reminders, listen to free public-domain audiobooks, sharpen your mind with brain games, and see a daily wisdom quote.</p><h2 data-n="02">Your account</h2><p>You register with your email address or phone number. Keep your one-time verification codes private — anyone with the code can sign in. You are responsible for activity on your account.</p><h2 data-n="03">Acceptable use</h2><p>Please don't abuse the service: no spam, no impersonation, no automated scraping, no attempts to disrupt other users or the service itself. We may suspend or remove accounts that do.</p><h2 data-n="04">Content</h2><p>You own your tasks, notes, and other content you create. We store them so we can show them back to you. Audiobook content belongs to the respective public-domain authors and is served from the Internet Archive's LibriVox collection.</p><h2 data-n="05">No warranty</h2><p>The service is provided "as is". We try hard to keep it running, but can't promise zero downtime or guarantee that every reminder is delivered (WhatsApp and email providers can fail). If something matters, please don't rely solely on Brodoit.</p><h2 data-n="06">Limitation of liability</h2><p>Brodoit is a personal tool. We're not liable for missed deadlines, lost data, or any consequential damages from using — or not using — the service.</p><h2 data-n="07">Changes</h2><p>We may update these terms. If we do, we'll update the date at the top. Continued use after a change means you accept the new terms.</p><h2 data-n="08">Contact</h2><p>Need anything? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });
-app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v37";
+app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v38";
 self.addEventListener("install",function(e){self.skipWaiting()});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener("fetch",function(e){});
