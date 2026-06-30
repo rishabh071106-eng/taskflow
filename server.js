@@ -7311,7 +7311,7 @@ body[data-theme=aurora] .bro-scene{background:linear-gradient(135deg,rgba(40,35,
 body[data-theme=aurora] .bro-mode-btn{background:rgba(255,255,255,.08);color:rgba(255,255,255,.45)}
 body[data-theme=aurora] .bro-mode-btn.on{background:#fff;color:#000}
 .bro-suggestions{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:8px;padding:0 12px;animation:broWelcomeIn .6s cubic-bezier(.16,1,.3,1) .35s both}
-.bro-suggest-btn{background:rgba(226,125,96,.08);border:none;border-radius:20px;padding:8px 16px;font-size:13px;color:#CC6E52;cursor:pointer;transition:all .2s;font-family:inherit;font-weight:600}
+.bro-suggest-btn{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:12px 16px;font-size:14px;color:var(--ink);cursor:pointer;transition:all .2s;font-family:inherit;font-weight:500;text-align:left;width:100%}
 .bro-suggest-btn:active{background:rgba(226,125,96,.18);transform:scale(.96)}
 body[data-theme=aurora] .bro-suggest-btn{background:rgba(255,255,255,.08);border:none;color:rgba(255,255,255,.65)}
 body[data-theme=aurora] .bro-suggest-btn:active{background:rgba(255,255,255,.15)}
@@ -11757,11 +11757,11 @@ if(isMain){
   const _rdTabIcons={
     home:'<svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 4.5l8 7"/><path d="M6 10.5V19a1 1 0 0 0 1 1h3.5v-5h3V20H17a1 1 0 0 0 1-1v-8.5"/></svg>',
     tasks:'<svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="16" height="16" rx="4.5"/><path d="M8 12l2.5 2.5L16 9"/></svg>',
-    books:'<svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13v-1a8 8 0 0 1 16 0v1"/><rect x="3" y="13" width="4.2" height="6.4" rx="2.1"/><rect x="16.8" y="13" width="4.2" height="6.4" rx="2.1"/></svg>',
+    bro:'<svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>',
     mindgym:'<svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linejoin="round"><path d="M12 4l1.7 4.6L18 10l-4.3 1.4L12 16l-1.7-4.6L6 10l4.3-1.4z"/></svg>',
     profile:'<svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.5" r="3.5"/><path d="M5.5 19a6.5 6.5 0 0 1 13 0"/></svg>'
   };
-  const tabsHtml=[{k:'home',l:'Home'},{k:'tasks',l:'Tasks'},{k:'books',l:'Listen'},{k:'mindgym',l:'Mind'},{k:'profile',l:'You'}].map(x=>'<button class="tab tab-'+x.k+((S.tab===x.k||(x.k==='home'&&(!S.tab||S.tab==='home')))?(' on'):'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(_rdTabIcons[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
+  const tabsHtml=[{k:'home',l:'Home'},{k:'tasks',l:'Tasks'},{k:'bro',l:'Chat'},{k:'mindgym',l:'Mind'},{k:'profile',l:'You'}].map(x=>'<button class="tab tab-'+x.k+((S.tab===x.k||(x.k==='home'&&(!S.tab||S.tab==='home')))?(' on'):'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(_rdTabIcons[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
   // "Bro, do it!" mascot — a character with a speech bubble that animates
   const climbScene='<div class="bro-mascot" aria-hidden="true">'
     +'<svg class="bro-svg" viewBox="0 0 340 130" xmlns="http://www.w3.org/2000/svg">'
@@ -12365,61 +12365,43 @@ else if(S.tab==='meditation'){
 // BRO TAB — AI assistant (direct chat)
 else if(S.tab==='bro'){
   {
-    // Chat with Bro — modern iMessage-style UI
+    var _bm=S.bro.mode||'ask';
     h+='<div class="bro-container">';
-    // Header
-    h+='<div class="bro-header">';
-    h+='<div class="bro-header-avatar" style="background:linear-gradient(135deg,#E27D60,#EDA68E)">\\u26A1</div>';
-    h+='<div class="bro-header-info"><div class="bro-header-name">Bro<span class="bro-online"></span></div><div class="bro-header-sub">'+(S.bro.mode==='friend'?'Your bestie \\u{1F49C}':'Ask me anything')+'</div></div>';
-    h+='</div>';
-    // Knowledge ticker — teaching figure with speech bubble
-    var _bf=BRO_FACTS[_broFactIdx];
-    h+='<div class="bro-ticker"><div class="bro-ticker-inner" id="broTicker">';
-    h+='<div class="bro-ticker-figure"><svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">'
-      +'<circle cx="24" cy="11" r="7" fill="#E27D60"/>'
-      +'<ellipse cx="24" cy="11" rx="7" ry="7" fill="#E27D60"/>'
-      +'<circle cx="22" cy="10" r="1.2" fill="#fff"/>'
-      +'<circle cx="26" cy="10" r="1.2" fill="#fff"/>'
-      +'<path d="M22 13.5q2 1.5 4 0" stroke="#fff" stroke-width="1" stroke-linecap="round" fill="none"/>'
-      +'<path d="M17 20c0-4 3.5-6 7-6s7 2 7 6v7c0 1-1 2-2 2H19c-1 0-2-1-2-2z" fill="#EDA68E"/>'
-      +'<rect x="19" y="22" width="10" height="2" rx="1" fill="#E27D60" opacity=".3"/>'
-      +'<line x1="24" y1="29" x2="22" y2="38" stroke="#6B7280" stroke-width="2.5" stroke-linecap="round"/>'
-      +'<line x1="24" y1="29" x2="26" y2="38" stroke="#6B7280" stroke-width="2.5" stroke-linecap="round"/>'
-      +'<g class="btf-pointer"><line x1="17" y1="22" x2="8" y2="17" stroke="#6B7280" stroke-width="2.5" stroke-linecap="round"/><circle cx="7" cy="16" r="2" fill="#E27D60"/></g>'
-      +'<line x1="31" y1="22" x2="38" y2="26" stroke="#6B7280" stroke-width="2.5" stroke-linecap="round"/>'
-      +'<circle cx="39" cy="27" r="2" fill="#E27D60"/>'
-      +'</svg></div>';
-    h+='<div class="bro-ticker-bubble"><div class="bro-ticker-head"><span class="bro-ticker-icon">'+_bf.e+'</span><span class="bro-ticker-label">'+esc(_bf.c)+'</span></div><div class="bro-ticker-text">'+esc(_bf.t)+'</div></div>';
+    // Header bar
+    h+='<div class="bro-header" style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line)">';
+    h+='<div class="bro-header-avatar" style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--gold));display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;flex:none">\\u26A1</div>';
+    h+='<div style="flex:1;min-width:0"><div style="font:600 17px var(--sans);color:var(--ink)">Bro AI<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#34D399;margin-left:8px;vertical-align:middle"></span></div>';
+    h+='<div style="font:400 12px var(--sans);color:var(--text-mute)">Can manage tasks, calendar & more</div></div>';
+    h+='<div style="display:flex;gap:6px">';
+    h+='<button style="padding:6px 12px;border-radius:20px;border:1.5px solid '+(_bm==='ask'?'var(--accent)':'var(--line)')+';background:'+(_bm==='ask'?'var(--accent-soft)':'transparent')+';font:500 12px var(--sans);color:'+(_bm==='ask'?'var(--accent)':'var(--text-mute)')+';cursor:pointer" onclick="S.bro.mode=\\'ask\\';S.bro.messages=[];switchTab(\\'bro\\')">\\u26A1 Assistant</button>';
+    h+='<button style="padding:6px 12px;border-radius:20px;border:1.5px solid '+(_bm==='friend'?'#EC4899':'var(--line)')+';background:'+(_bm==='friend'?'rgba(236,72,153,.1)':'transparent')+';font:500 12px var(--sans);color:'+(_bm==='friend'?'#EC4899':'var(--text-mute)')+';cursor:pointer" onclick="S.bro.mode=\\'friend\\';S.bro.messages=[];switchTab(\\'bro\\')">\\u{1F49C} Friend</button>';
     h+='</div></div>';
     // Chat messages
     h+='<div class="bro-chat" id="broChat">';
     if(S.bro.messages.length<=1){
-      var _bm=S.bro.mode||'ask';
-      h+='<div class="bro-welcome">';
-      h+='<div class="bro-welcome-avatar" style="background:linear-gradient(135deg,'+(_bm==='friend'?'#EC4899,#F472B6':'#E27D60,#EDA68E')+')">'+ (_bm==='friend'?'\\u{1F49C}':'\\u26A1')+'</div>';
-      h+='<div class="bro-welcome-title">'+(_bm==='friend'?'Hey bestie':'Yo, I\\'m Bro')+'</div>';
-      h+='<div class="bro-welcome-text">'+(_bm==='friend'?'I\\'m your ride-or-die. Talk to me about anything \\u2014 how\\'s your day going?':'I\\'m here to solve your problems. Ask me anything \\u2014 brainstorm, write, explain, plan.')+'</div>';
-      h+='<div class="bro-modes">';
-      h+='<button class="bro-mode-btn'+(_bm==='ask'?' on':'')+'" onclick="S.bro.mode=\\'ask\\';S.bro.messages=[];switchTab(\\'bro\\')">\\u26A1 Ask anything</button>';
-      h+='<button class="bro-mode-btn'+(_bm==='friend'?' on':'')+'" onclick="S.bro.mode=\\'friend\\';S.bro.messages=[];switchTab(\\'bro\\')">\\u{1F49C} Talk like friend</button>';
-      h+='</div>';
-      h+='<div class="bro-scene">';
-      h+='<div class="bp bp-ask"><div class="bp-chat bp-ask-b">Don\\'t laugh too loud around others</div><div class="bp-chat bp-ask-b">Speak less, observe more</div><div class="bp-chat bp-ask-b">Never reveal your next move</div><div class="bp-bod"><div class="bp-head"></div><div class="bp-torso"></div><div class="bp-arm al"></div><div class="bp-arm ar"></div><div class="bp-leg ll"></div><div class="bp-leg lr"></div></div></div>';
-      h+='<div class="bp bp-bro"><div class="bp-chat bp-bro-b">Work in silence, let results talk</div><div class="bp-chat bp-bro-b">Stay hungry, stay focused</div><div class="bp-chat bp-bro-b">Discipline beats motivation</div><div class="bp-bod"><div class="bp-head"></div><div class="bp-torso"></div><div class="bp-arm al"></div><div class="bp-arm ar"></div><div class="bp-leg ll"></div><div class="bp-leg lr"></div></div></div>';
-      h+='<div class="bp-emoji">\\u{1F9E0}</div><div class="bp-emoji">\\u{1F451}</div><div class="bp-emoji">\\u{1F525}</div>';
-      h+='<div class="bp-floor"></div>';
-      h+='</div>';
-      h+='<div class="bro-suggestions">';
+      h+='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;text-align:center">';
+      h+='<div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--gold));display:flex;align-items:center;justify-content:center;font-size:28px;color:#fff;margin-bottom:16px">\\u26A1</div>';
+      h+='<div style="font:600 22px var(--serif);color:var(--ink);margin-bottom:6px">'+(_bm==='friend'?'Hey bestie!':'How can I help?')+'</div>';
+      h+='<div style="font:400 14px var(--sans);color:var(--text-mute);max-width:280px;line-height:1.5;margin-bottom:24px">'+(_bm==='friend'?'I\\'m your ride-or-die. Talk to me about anything.':'I can create tasks, schedule events, plan your day, brainstorm ideas, and more.')+'</div>';
+      // Capability chips
+      if(_bm==='ask'){
+        h+='<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:20px">';
+        var _caps=[{ic:'\\u2705',t:'Create tasks'},{ic:'\\u{1F4C5}',t:'Schedule events'},{ic:'\\u{1F4CB}',t:'Plan your day'},{ic:'\\u{1F4A1}',t:'Brainstorm'},{ic:'\\u270D\\uFE0F',t:'Write content'}];
+        _caps.forEach(function(c){h+='<div style="display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:20px;background:var(--surface);border:1px solid var(--line);font:500 12px var(--sans);color:var(--text-mute)">'+c.ic+' '+c.t+'</div>'});
+        h+='</div>';
+      }
+      // Suggestions
+      h+='<div style="display:flex;flex-direction:column;gap:8px;width:100%;max-width:320px">';
       if(_bm==='friend'){
         h+='<button class="bro-suggest-btn" onclick="_broFill(\\'How\\'s my vibe today?\\')">\\u2728 Check my vibe</button>';
         h+='<button class="bro-suggest-btn" onclick="_broFill(\\'I\\'m feeling low because \\')">\\u{1F614} Feeling low</button>';
-        h+='<button class="bro-suggest-btn" onclick="_broFill(\\'Tell me something fun about \\')">\\u{1F389} Something fun</button>';
+        h+='<button class="bro-suggest-btn" onclick="_broFill(\\'Tell me something fun\\')">\\u{1F389} Something fun</button>';
         h+='<button class="bro-suggest-btn" onclick="_broFill(\\'Roast me to motivate me\\')">\\u{1F525} Roast me</button>';
       }else{
-        h+='<button class="bro-suggest-btn" onclick="_broFill(\\'Help me write \\')">\\u270D\\uFE0F Help me write</button>';
-        h+='<button class="bro-suggest-btn" onclick="_broFill(\\'Explain \\')">\\u{1F9E0} Explain something</button>';
+        h+='<button class="bro-suggest-btn" onclick="_broFill(\\'Add a task: \\')">\\u2705 Add a task</button>';
+        h+='<button class="bro-suggest-btn" onclick="_broFill(\\'What\\'s on my schedule today?\\')">\\u{1F4C5} Today\\'s schedule</button>';
+        h+='<button class="bro-suggest-btn" onclick="_broFill(\\'Help me plan my day\\')">\\u{1F9E0} Plan my day</button>';
         h+='<button class="bro-suggest-btn" onclick="_broFill(\\'Give me ideas for \\')">\\u{1F4A1} Brainstorm ideas</button>';
-        h+='<button class="bro-suggest-btn" onclick="_broFill(\\'Plan my day: \\')">\\u{1F4C5} Plan my day</button>';
       }
       h+='</div></div>';
     }
@@ -12428,23 +12410,22 @@ else if(S.tab==='bro'){
       if(_broSkipWelcome&&m.role==='bro')return;
       const isAgent=m.role==='bro';
       h+='<div class="bro-msg '+(isAgent?'bro-msg-ai':'bro-msg-user')+'">';
-      if(isAgent)h+='<div class="bro-avatar" style="background:linear-gradient(135deg,#E27D60,#EDA68E)">\\u26A1</div>';
+      if(isAgent)h+='<div class="bro-avatar" style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--gold));display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;flex:none">\\u26A1</div>';
       h+='<div class="bro-msg-content">';
-      h+='<div class="bro-bubble '+(isAgent?'':'bro-bubble-bro')+'">'+broMd(m.text)+'</div>';
+      h+='<div class="bro-bubble '+(isAgent?'':'bro-bubble-bro')+'" style="font-size:15px;line-height:1.55">'+broMd(m.text)+'</div>';
       h+='</div></div>';
     });
-    if(S.bro.sending)h+='<div class="bro-typing-wrap"><div class="bro-avatar" style="background:linear-gradient(135deg,#E27D60,#EDA68E)">\\u26A1</div><div class="bro-typing"><span class="bro-typing-dot"></span><span class="bro-typing-dot"></span><span class="bro-typing-dot"></span></div></div>';
+    if(S.bro.sending)h+='<div class="bro-typing-wrap"><div class="bro-avatar" style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--gold));display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;flex:none">\\u26A1</div><div class="bro-typing"><span class="bro-typing-dot"></span><span class="bro-typing-dot"></span><span class="bro-typing-dot"></span></div></div>';
     h+='</div>';
-    // Input bar
-    h+='<div class="bro-input-wrap">';
+    // Input bar — ChatGPT style
+    h+='<div class="bro-input-wrap" style="padding:10px 14px;border-top:1px solid var(--line);background:var(--bg)">';
     if(S.bro._file){h+='<div class="bro-file-badge" onclick="S.bro._file=null;S.bro._fileText=null;render()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> '+esc(S.bro._file)+' <span class="bro-file-x">\\u2715</span></div>'}
-    h+='<div class="bro-input-bar">';
-    h+='<textarea class="bro-input" id="broInput" rows="3" wrap="soft" placeholder="'+(S.bro._file?'Ask about this file\\u2026':S.bro.mode==='friend'?'Talk to me...':'Type your message here...')+'" autocomplete="off" autocorrect="off" spellcheck="false" style="display:block;width:100%;box-sizing:border-box;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;overflow-x:hidden;resize:none" oninput="S.bro.input=this.value;this.style.height=\\'auto\\';this.style.height=Math.min(this.scrollHeight,200)+\\'px\\'" onfocus="setTimeout(function(){var c=document.getElementById(\\'broChat\\');if(c)c.scrollTop=c.scrollHeight},300)" onkeydown="if(event.key===\\'Enter\\'&&!event.shiftKey){event.preventDefault();broSend()}">'+esc(S.bro.input)+'</textarea>';
-    h+='<div class="bro-input-actions">';
-    h+='<button class="bro-attach-btn" onclick="document.getElementById(\\'broFileInput\\').click()" title="Attach a file"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></button>';
+    h+='<div style="display:flex;align-items:flex-end;gap:8px;background:var(--surface);border:1.5px solid var(--line);border-radius:22px;padding:6px 6px 6px 16px">';
+    h+='<textarea class="bro-input" id="broInput" rows="1" wrap="soft" placeholder="'+(_bm==='friend'?'Talk to me...':'Message Bro AI...')+'" autocomplete="off" autocorrect="off" spellcheck="false" style="display:block;width:100%;box-sizing:border-box;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;overflow-x:hidden;resize:none;border:none;background:transparent;font:400 15px var(--sans);color:var(--ink);padding:8px 0;max-height:120px;outline:none" oninput="S.bro.input=this.value;this.style.height=\\'auto\\';this.style.height=Math.min(this.scrollHeight,120)+\\'px\\'" onfocus="setTimeout(function(){var c=document.getElementById(\\'broChat\\');if(c)c.scrollTop=c.scrollHeight},300)" onkeydown="if(event.key===\\'Enter\\'&&!event.shiftKey){event.preventDefault();broSend()}">'+esc(S.bro.input)+'</textarea>';
+    h+='<button onclick="document.getElementById(\\'broFileInput\\').click()" title="Attach" style="width:36px;height:36px;border-radius:50%;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-mute);flex:none"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></button>';
     h+='<input type="file" id="broFileInput" style="display:none" accept=".txt,.md,.csv,.json,.js,.py,.html,.css,.xml,.log,.pdf,.doc,.docx" onchange="broAttachFile(this)">';
-    h+='<button class="bro-send-btn bro-send-bro" onclick="broSend()" '+(S.bro.sending?'disabled':'')+'><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>';
-    h+='</div></div></div>';
+    h+='<button onclick="broSend()" '+(S.bro.sending?'disabled':'')+' style="width:36px;height:36px;border-radius:50%;border:none;background:var(--accent);cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;flex:none;opacity:'+(S.bro.sending?'.5':'1')+'"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>';
+    h+='</div></div>';
     h+='</div>';
   }
 }
@@ -14031,7 +14012,7 @@ app.get('/privacy',(_,res)=>{
 app.get('/terms',(_,res)=>{
   res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Terms of Service — Brodoit</title><meta name="description" content="The simple terms for using Brodoit. Plain English, no surprises."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Terms</div><h1>The simple rules.</h1><p class="lede">We've kept these terms short and human. Use Brodoit kindly, and we'll keep building it for you.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">The service</h2><p>Brodoit is a personal productivity app: it lets you manage tasks with optional WhatsApp and email reminders, listen to free public-domain audiobooks, sharpen your mind with brain games, and see a daily wisdom quote.</p><h2 data-n="02">Your account</h2><p>You register with your email address or phone number. Keep your one-time verification codes private — anyone with the code can sign in. You are responsible for activity on your account.</p><h2 data-n="03">Acceptable use</h2><p>Please don't abuse the service: no spam, no impersonation, no automated scraping, no attempts to disrupt other users or the service itself. We may suspend or remove accounts that do.</p><h2 data-n="04">Content</h2><p>You own your tasks, notes, and other content you create. We store them so we can show them back to you. Audiobook content belongs to the respective public-domain authors and is served from the Internet Archive's LibriVox collection.</p><h2 data-n="05">No warranty</h2><p>The service is provided "as is". We try hard to keep it running, but can't promise zero downtime or guarantee that every reminder is delivered (WhatsApp and email providers can fail). If something matters, please don't rely solely on Brodoit.</p><h2 data-n="06">Limitation of liability</h2><p>Brodoit is a personal tool. We're not liable for missed deadlines, lost data, or any consequential damages from using — or not using — the service.</p><h2 data-n="07">Changes</h2><p>We may update these terms. If we do, we'll update the date at the top. Continued use after a change means you accept the new terms.</p><h2 data-n="08">Contact</h2><p>Need anything? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });
-app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v42";
+app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v43";
 self.addEventListener("install",function(e){self.skipWaiting()});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener("fetch",function(e){});
