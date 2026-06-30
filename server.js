@@ -8483,21 +8483,21 @@ function openDailyWisdom(){
   var _idx=Math.floor(new Date().getTime()/(864e5))%_wq.length;
   var q=_wq[_idx];
   var ov=document.createElement('div');ov.id='wisdomFull';ov.className='rd-wisdom-full';
-  var html='<div style="padding:16px 20px;display:flex;justify-content:flex-end"><button class="rd-wf-close" onclick="document.getElementById(\'wisdomFull\').remove()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>';
-  html+='<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 32px">';
-  html+='<div style="width:40px;height:40px;border-radius:50%;background:color-mix(in srgb,var(--gold) 18%,transparent);display:flex;align-items:center;justify-content:center;margin-bottom:22px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></div>';
-  html+='<p class="rd-wf-quote">“'+q.q+'”</p>';
-  html+='<div class="rd-wf-divider"></div>';
-  html+='<p style="font:500 15px var(--sans);color:var(--text-mute);margin:0">— '+q.a+'</p>';
+  var html='<div style=”padding:16px 20px;display:flex;justify-content:flex-end”><button class=”rd-wf-close” onclick=”document.getElementById(\\'wisdomFull\\').remove()”><svg width=”16” height=”16” viewBox=”0 0 24 24” fill=”none” stroke=”currentColor” stroke-width=”2.2” stroke-linecap=”round”><path d=”M18 6 6 18M6 6l12 12”/></svg></button></div>';
+  html+='<div style=”flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 32px”>';
+  html+='<div style=”width:40px;height:40px;border-radius:50%;background:color-mix(in srgb,var(--gold) 18%,transparent);display:flex;align-items:center;justify-content:center;margin-bottom:22px”><svg width=”18” height=”18” viewBox=”0 0 24 24” fill=”none” stroke=”var(--gold)” stroke-width=”1.8” stroke-linecap=”round” stroke-linejoin=”round”><circle cx=”12” cy=”12” r=”5”/><path d=”M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42”/></svg></div>';
+  html+='<p class=”rd-wf-quote”>”'+q.q+'”</p>';
+  html+='<div class=”rd-wf-divider”></div>';
+  html+='<p style=”font:500 15px var(--sans);color:var(--text-mute);margin:0”>\\u2014 '+q.a+'</p>';
   html+='</div>';
-  html+='<div style="padding:0 24px 22px;display:flex;flex-direction:column;gap:10px">';
-  html+='<div style="border-radius:16px;padding:16px;background:rgba(43,39,34,.04)">';
-  html+='<div style="font:700 10.5px var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--text-mute)">REFLECT</div>';
-  html+='<p style="font:400 15px/1.45 var(--serif);color:var(--ink);margin:8px 0 0">How does this wisdom apply to your life today?</p>';
+  html+='<div style=”padding:0 24px 22px;display:flex;flex-direction:column;gap:10px”>';
+  html+='<div style=”border-radius:16px;padding:16px;background:rgba(43,39,34,.04)”>';
+  html+='<div style=”font:700 10.5px var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--text-mute)”>REFLECT</div>';
+  html+='<p style=”font:400 15px/1.45 var(--serif);color:var(--ink);margin:8px 0 0”>How does this wisdom apply to your life today?</p>';
   html+='</div>';
-  html+='<div style="display:flex;gap:10px">';
-  html+='<button style="flex:1;padding:13px;border-radius:13px;background:var(--accent-soft);color:var(--accent-strong);font:600 14px var(--sans);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px" onclick="toast(\'Saved to your journal\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>Save</button>';
-  html+='<button style="flex:1;padding:13px;border-radius:13px;background:rgba(43,39,34,.06);color:var(--ink);font:600 14px var(--sans);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px" onclick="if(navigator.share)navigator.share({text:\'\\u201C\'+document.querySelector(\'.rd-wf-quote\').textContent+\'\\u201D\'}).catch(function(){});else toast(\'Copied!\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Share</button>';
+  html+='<div style=”display:flex;gap:10px”>';
+  html+='<button style=”flex:1;padding:13px;border-radius:13px;background:var(--accent-soft);color:var(--accent-strong);font:600 14px var(--sans);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px” onclick=”toast(\\'Saved to your journal\\')”><svg width=”14” height=”14” viewBox=”0 0 24 24” fill=”none” stroke=”currentColor” stroke-width=”2” stroke-linecap=”round” stroke-linejoin=”round”><path d=”M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z”/><polyline points=”17 21 17 13 7 13 7 21”/></svg>Save</button>';
+  html+='<button style=”flex:1;padding:13px;border-radius:13px;background:rgba(43,39,34,.06);color:var(--ink);font:600 14px var(--sans);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px” onclick=”if(navigator.share)navigator.share({text:\\'\\\\u201C\\'+document.querySelector(\\'.rd-wf-quote\\').textContent+\\'\\\\u201D\\'}).catch(function(){});else toast(\\'Copied!\\')”><svg width=”14” height=”14” viewBox=”0 0 24 24” fill=”none” stroke=”currentColor” stroke-width=”2” stroke-linecap=”round” stroke-linejoin=”round”><circle cx=”18” cy=”5” r=”3”/><circle cx=”6” cy=”12” r=”3”/><circle cx=”18” cy=”19” r=”3”/><line x1=”8.59” y1=”13.51” x2=”15.42” y2=”17.49”/><line x1=”15.41” y1=”6.51” x2=”8.59” y2=”10.49”/></svg>Share</button>';
   html+='</div></div>';
   ov.innerHTML=html;document.body.appendChild(ov);
 }
@@ -8505,15 +8505,15 @@ function openPaywall(){
   if(document.getElementById('paywallOv'))return;
   var ov=document.createElement('div');ov.id='paywallOv';ov.className='rd-paywall';
   var h='<div style="padding:16px 20px;display:flex;justify-content:space-between;align-items:center">';
-  h+='<button style="width:36px;height:36px;border-radius:50%;background:rgba(43,39,34,.06);display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;color:var(--ink)" onclick="document.getElementById(\'paywallOv\').remove()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>';
-  h+='<button style="font:600 13px var(--sans);color:var(--text-mute);background:none;border:none;cursor:pointer" onclick="toast(\'Restoring...\');document.getElementById(\'paywallOv\').remove()">Restore purchase</button>';
+  h+='<button style="width:36px;height:36px;border-radius:50%;background:rgba(43,39,34,.06);display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;color:var(--ink)" onclick="document.getElementById(\\'paywallOv\\').remove()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>';
+  h+='<button style="font:600 13px var(--sans);color:var(--text-mute);background:none;border:none;cursor:pointer" onclick="toast(\\'Restoring...\\');document.getElementById(\\'paywallOv\\').remove()">Restore purchase</button>';
   h+='</div>';
   h+='<div style="flex:1;display:flex;flex-direction:column;padding:0 24px">';
   h+='<div style="text-align:center;margin:20px 0 24px">';
-  h+='<div style="font-size:36px;margin-bottom:8px">\u{1F91C}\u{1F91B}</div>';
+  h+='<div style="font-size:36px;margin-bottom:8px">\\u{1F91C}\\u{1F91B}</div>';
   h+='<div style="font:700 14px var(--sans);letter-spacing:.06em;color:var(--text-mute)">BRODOIT LIFETIME</div>';
   h+='</div>';
-  h+='<h2 style="font:500 30px/1.18 var(--serif);color:var(--ink);margin:0;text-align:center;text-wrap:balance">Yours for life.<br>One payment, that\\\'s it.</h2>';
+  h+='<h2 style="font:500 30px/1.18 var(--serif);color:var(--ink);margin:0;text-align:center;text-wrap:balance">Yours for life.<br>One payment, that\\u2019s it.</h2>';
   h+='<p style="font:400 14px/1.5 var(--sans);color:var(--text-mute);margin:10px 0 0;text-align:center">Pay once and unlock every feature, forever — including everything we build next.</p>';
   h+='<div style="display:flex;flex-direction:column;gap:13px;margin-top:26px">';
   var benefits=['Unlimited tasks & email reminders','The full public-domain audiobook library','Every Mind-Gym drill & daily session','Daily wisdom, reflections & saved quotes'];
@@ -8526,7 +8526,7 @@ function openPaywall(){
   h+='<div style="display:flex;align-items:baseline;gap:8px;margin-top:4px"><span style="font:600 34px var(--serif);color:var(--ink)">$49</span><span style="font:500 14px var(--sans);color:var(--text-mute)">once</span><span style="font:500 14px var(--sans);color:var(--text-dim);text-decoration:line-through;margin-left:4px">$120</span></div>';
   h+='<p style="font:500 13px var(--sans);color:var(--accent-strong);margin:8px 0 0">Pay once. Yours forever — no recurring fees.</p>';
   h+='</div>';
-  h+='<button style="width:100%;height:58px;border:none;border-radius:16px;background:var(--accent);color:#fff;font:700 16px var(--sans);cursor:pointer;box-shadow:0 12px 26px -12px var(--accent)" onclick="toast(\'Coming soon!\');document.getElementById(\'paywallOv\').remove()">Unlock lifetime access</button>';
+  h+='<button style="width:100%;height:58px;border:none;border-radius:16px;background:var(--accent);color:#fff;font:700 16px var(--sans);cursor:pointer;box-shadow:0 12px 26px -12px var(--accent)" onclick="toast(\\'Coming soon!\\');document.getElementById(\\'paywallOv\\').remove()">Unlock lifetime access</button>';
   h+='<div style="display:flex;align-items:center;justify-content:center;gap:18px;margin-top:14px">';
   h+='<span style="display:flex;align-items:center;gap:5px;font:500 11.5px var(--sans);color:var(--text-mute)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Secure</span>';
   h+='<span style="display:flex;align-items:center;gap:5px;font:500 11.5px var(--sans);color:var(--text-mute)">30-day refund</span>';
@@ -11839,22 +11839,61 @@ if(S.tab==='dash')S.tab='tasks'; // Stats tab removed; redirect any stale state 
 if(S.tab==='health')S.tab='tasks'; // Health tab removed; step tracking needs app open
 const _firstName=((S.user&&S.user.name)||'').split(' ')[0]||'';
 if(S.tab==='tasks'){
+  // Restore-from-backup banner
   if(S.restoreOffer&&S.restoreOffer.count){
     const when=S.restoreOffer.savedAt?new Date(S.restoreOffer.savedAt).toLocaleString():'';
     h+='<div class="restore-banner"><span class="restore-emoji">\\u{1F4BE}</span><div class="restore-body"><div class="restore-t">Restore your tasks?</div><div class="restore-s">We have a local backup of <b>'+S.restoreOffer.count+'</b> task'+(S.restoreOffer.count===1?'':'s')+(when?' (saved '+esc(when)+')':'')+'. The server\\u2019s task list is empty.</div></div><button class="restore-go" onclick="restoreFromBackup()">Restore</button><button class="restore-x" onclick="dismissRestoreOffer()" aria-label="Dismiss">\\u2715</button></div>';
   }
   if(!S.dailyHl&&!S._hlFetched){S._hlFetched=true;const _c=_hlLocalCache();if(_c)S.dailyHl=_c;hlLoad()}
+  // Overdue alert
+  if(s.od>0)h+='<div class="al" style="background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);color:var(--accent-strong);cursor:pointer;border-radius:14px;padding:12px 16px;font:600 13.5px var(--sans);margin-bottom:10px" onclick="S.view=\\'overdue\\';render()">\\u26A0\\uFE0F '+s.od+' overdue</div>';
+  // Header row: serif title + date + FAB
   const _todayStr=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric'});
   h+='<div style="display:flex;align-items:flex-end;justify-content:space-between;margin-top:6px">';
   h+='<div><h2 class="rd-serif-title">Tasks</h2><p style="font:400 13.5px var(--sans);color:var(--text-mute);margin:6px 0 0">Today \\u00B7 '+esc(_todayStr)+'</p></div>';
   h+='<button class="rd-fab" onclick="opA()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>';
   h+='</div>';
+  // Quick-compose bar
+  const _cp=S.compose.priority;
+  h+='<div class="qc-bar" style="margin-top:14px">';
+  h+='<div class="qc-row"><textarea class="qc-input" rows="2" wrap="soft" style="display:block;width:100%;box-sizing:border-box;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;overflow-x:hidden;resize:none;border-radius:14px;font-family:var(--sans)" placeholder="Add a task... (try: Buy milk tomorrow !high)" oninput="composeUpdate(this.value);this.style.height=\\'auto\\';this.style.height=Math.min(this.scrollHeight,120)+\\'px\\'" onkeydown="if(event.key===\\'Enter\\'&&!event.shiftKey){event.preventDefault();composeSubmit()}">'+esc(S.compose.value||'')+'</textarea>';
+  h+='<div class="qc-send-row"><button class="qc-send" onclick="composeSubmit()" title="Add task" style="border-radius:12px;background:var(--accent)">+</button></div></div>';
+  h+='<div class="qc-chips">';
+  h+='<span class="qc-chip qc-high'+(_cp==='high'?' on':'')+'" onclick="composeSetPriority(\\'high\\')"><span class="qc-dot" style="background:#DC2626"></span>High</span>';
+  h+='<span class="qc-chip qc-med'+(_cp==='medium'?' on':'')+'" onclick="composeSetPriority(\\'medium\\')"><span class="qc-dot" style="background:#F59E0B"></span>Med</span>';
+  h+='<span class="qc-chip qc-low'+(_cp==='low'?' on':'')+'" onclick="composeSetPriority(\\'low\\')"><span class="qc-dot" style="background:#16A34A"></span>Low</span>';
+  h+='<span class="qc-expand" onclick="opA()">+ More options</span>';
+  h+='</div></div>';
+  // Hydration tracker
+  h+='<div class="is-row is-hydration" style="margin:14px 0;border-radius:16px;border:1px solid var(--line);padding:12px 14px">'
+    +'<div class="is-row-icon">\\u{1F4A7}</div>'
+    +'<div class="is-row-body" style="flex:1">'
+      +'<div class="is-row-title" style="font:600 14px var(--sans);color:var(--ink)">Water \\u00B7 '+_hyd.glass+'/'+_hyd.goal+' glasses</div>'
+      +'<div class="is-hyd-glasses">';
+  for(let _gi=0;_gi<_hyd.goal;_gi++){
+    h+='<span class="is-hyd-dot'+(_gi<_hyd.glass?' filled':'')+'"></span>';
+  }
+  h+='</div>'
+    +'</div>'
+    +'<div class="is-hyd-actions">'
+      +'<button class="is-hyd-minus" onclick="event.stopPropagation();undrinkWater()" title="Undo">&minus;</button>'
+      +'<button class="is-hyd-drink" onclick="event.stopPropagation();drinkWater()" style="border-radius:10px;background:var(--accent);font-family:var(--sans)">+ Drink</button>'
+      +'<button class="is-hyd-toggle'+(_hyd.enabled?' on':'')+'" onclick="event.stopPropagation();toggleHydration()" title="'+(_hyd.enabled?'Reminders ON':'Turn on reminders')+'">\\u{1F514}</button>'
+    +'</div>'
+  +'</div>';
+  // Segmented control
   if(!S.taskSegment)S.taskSegment='today';
-  h+='<div class="rd-segmented" style="margin-top:18px">';
+  h+='<div class="rd-segmented" style="margin-top:4px">';
   h+='<button class="'+(S.taskSegment==='today'?'on':'')+'" onclick="S.taskSegment=\\'today\\';render()">Today</button>';
   h+='<button class="'+(S.taskSegment==='upcoming'?'on':'')+'" onclick="S.taskSegment=\\'upcoming\\';render()">Upcoming</button>';
   h+='<button class="'+(S.taskSegment==='done'?'on':'')+'" onclick="S.taskSegment=\\'done\\';render()">Done</button>';
   h+='</div>';
+  // Search + filter
+  h+='<div class="srch" style="margin-top:10px"><input style="border-radius:12px;font-family:var(--sans)" placeholder="Search tasks..." value="'+esc(S.search)+'" oninput="S.search=this.value;render()"></div>';
+  h+='<div class="flt" style="margin-top:8px;gap:6px">'+[{k:'all',l:'All'},{k:'pending',l:'To Do'},{k:'in-progress',l:'Doing'},{k:'done',l:'Done'},{k:'today',l:'Today'}].map(x=>'<button class="fb'+(S.view===x.k?' on':'')+'" style="border-radius:10px;font-family:var(--sans)" onclick="S.view=\\''+x.k+'\\';render()">'+x.l+'</button>').join('')+'</div>';
+  // Email tasks button
+  h+='<button class="email-tasks-btn" style="border-radius:12px;font-family:var(--sans);margin-top:8px" onclick="emailMyTasks()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> Email my tasks</button>';
+  // Task list with segmented filtering
   const _tISO=new Date().toISOString().slice(0,10);
   let _segTasks=f;
   if(S.taskSegment==='today')_segTasks=f.filter(t=>t.status!=='done'&&(!t.due_date||(t.due_date||'').slice(0,10)<=_tISO));
@@ -11863,27 +11902,36 @@ if(S.tab==='tasks'){
   if(S.taskSegment==='today'){
     const _mornTasks=_segTasks.filter(t=>{const h=t.reminder_time?parseInt(t.reminder_time.split(':')[0],10):9;return h<12});
     const _aftTasks=_segTasks.filter(t=>{const h=t.reminder_time?parseInt(t.reminder_time.split(':')[0],10):9;return h>=12});
-    if(_mornTasks.length){h+='<div class="rd-section-label">Morning</div>';_mornTasks.forEach(t=>_rdTaskRow(t))}
-    if(_aftTasks.length){h+='<div class="rd-section-label">Afternoon</div>';_aftTasks.forEach(t=>_rdTaskRow(t))}
+    if(_mornTasks.length){h+='<div class="rd-section-label">MORNING</div>';_mornTasks.forEach(t=>_rdTaskRow(t))}
+    if(_aftTasks.length){h+='<div class="rd-section-label">AFTERNOON</div>';_aftTasks.forEach(t=>_rdTaskRow(t))}
     if(!_mornTasks.length&&!_aftTasks.length){_segTasks.forEach(t=>_rdTaskRow(t))}
   }else{
     _segTasks.forEach(t=>_rdTaskRow(t));
   }
   function _rdTaskRow(t){
-    const d=t.status==='done';
+    const d=t.status==='done';const p=P[t.priority]||P.medium;const st=ST[t.status]||ST.pending;
     const _tTime=t.reminder_time?fT(t.reminder_time):'';
     const _doneAt=d&&t.updated_at?'Done \\u00B7 '+new Date(t.updated_at).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}):'';
-    h+='<div class="rd-task-row'+(d?' done':'')+'">';
+    const addedTxt=t.created_at?timeAgo((t.created_at||'').replace(' ','T')+'Z'):'';
+    h+='<div class="rd-task-row'+(d?' done':'')+'" style="border-left:3px solid '+p.c+'">';
     if(d)h+='<div class="rd-check-done" onclick="tog(\\''+t.id+'\\')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 10 17.5 19 6.5"/></svg></div>';
-    else h+='<div class="rd-check-empty" onclick="tog(\\''+t.id+'\\')" style="margin-top:1px;cursor:pointer"></div>';
-    h+='<div style="flex:1;min-width:0" onclick="opE(\\''+t.id+'\\')" style="cursor:pointer"><div class="rd-task-title">'+esc(t.title)+'</div>';
+    else h+='<div class="rd-check-empty" onclick="tog(\\''+t.id+'\\')" style="cursor:pointer"></div>';
+    h+='<div style="flex:1;min-width:0"><div class="rd-task-title">'+esc(t.title)+'</div>';
+    if(t.notes)h+='<div style="font:400 13px var(--sans);color:var(--text-mute);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(t.notes)+'</div>';
     h+='<div class="rd-task-meta">';
-    if(d&&_doneAt)h+='<span style="font:500 12.5px var(--sans);color:var(--text-mute)">'+_doneAt+'</span>';
-    else if(_tTime)h+='<span style="font:500 12.5px var(--sans);color:var(--text-mute)">'+_tTime+'</span>';
+    h+='<button class="badge" style="background:'+st.bg+';color:'+st.c+';border-radius:8px;font-family:var(--sans);font-size:11px" onclick="cyc(\\''+t.id+'\\')">'+st.l+'</button>';
+    h+='<span style="font:600 11px var(--sans);background:'+p.c+'20;color:'+p.c+';padding:2px 7px;border-radius:7px">'+p.d+' '+t.priority+'</span>';
+    if(t.due_date)h+='<span style="font:500 12px var(--sans);color:'+(isOD(t.due_date,t.status)?'#E8453C':isTd(t.due_date)?'var(--accent)':'var(--text-mute)')+'">\\u{1F4C5} '+fD(t.due_date)+(isOD(t.due_date,t.status)?' overdue':'')+'</span>';
     if(t.reminder_time&&!d)h+='<span class="rd-email-pill"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m3.5 7 8.5 6 8.5-6"/></svg>Email reminder</span>';
-    h+='</div></div></div>';
+    if(d&&_doneAt)h+='<span style="font:500 12px var(--sans);color:var(--text-mute)">'+_doneAt+'</span>';
+    else if(_tTime&&!t.reminder_time)h+='<span style="font:500 12px var(--sans);color:var(--text-mute)">'+_tTime+'</span>';
+    if(addedTxt)h+='<span style="font:400 11px var(--sans);color:var(--text-dim)">\\u2795 '+esc(addedTxt)+'</span>';
+    h+='</div></div>';
+    h+='<div class="tc-acts" style="display:flex;gap:4px;align-items:flex-start;margin-left:6px"><button class="ib" onclick="opE(\\''+t.id+'\\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="ib" style="color:#E8453C" onclick="del(\\''+t.id+'\\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button></div>';
+    h+='</div>';
   }
   if(!_segTasks.length&&!f.length)h+='<div style="text-align:center;padding:40px 0"><div style="font-size:36px;margin-bottom:8px">\\u2728</div><div style="font:600 15px var(--sans);color:var(--ink)">No tasks yet</div><div style="font:400 13px var(--sans);color:var(--text-mute);margin-top:4px">Tap + to add your first task</div></div>';
+  else if(!_segTasks.length)h+='<div style="text-align:center;padding:30px 0"><div style="font:500 14px var(--sans);color:var(--text-mute)">No tasks in this view</div></div>';
 }
 
 // MIND GYM TAB — section-based brain training (Maths, English, Memory)
@@ -11901,10 +11949,13 @@ else if(S.tab==='mindgym'){
   const _memXp=(_schP.xp||0)+(_spatP.xp||0);
   const _logicXp=(_wordP.xp||0);
   const _maxSkill=1000;
+  // Header with serif title + level pill + XP/streak meta
   h+='<div style="display:flex;align-items:flex-end;justify-content:space-between;margin-top:6px">';
-  h+='<h2 class="rd-serif-title">Mind Gym</h2>';
+  h+='<div><h2 class="rd-serif-title">Mind Gym</h2>';
+  h+='<div style="font:500 13px var(--sans);color:var(--text-mute);margin-top:5px"><span>'+totalXp+' XP</span> \\u00B7 <span>'+streak.current+' day streak</span></div></div>';
   h+='<div class="rd-pill rd-pill-sage">Level '+_mgLevel+'</div>';
   h+='</div>';
+  // Today's session card
   h+='<div class="rd-session-card" style="margin-top:18px">';
   h+='<div class="rd-eyebrow" style="color:rgba(255,255,255,.8)">TODAY\\u2019S SESSION</div>';
   h+='<div style="font:500 23px/1.15 var(--serif);margin:7px 0 0">3 quick drills \\u00B7 5 minutes</div>';
@@ -11912,6 +11963,7 @@ else if(S.tab==='mindgym'){
   h+='<button style="height:46px;padding:0 24px;border:none;border-radius:13px;background:#fff;color:color-mix(in srgb,var(--sage) 78%,#16200f);font:600 15px var(--sans);cursor:pointer;display:flex;align-items:center;gap:8px" onclick="mgDetailOpen(\\'math\\')"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg>Start</button>';
   h+='<div style="display:flex;gap:7px"><div style="width:9px;height:9px;border-radius:50%;background:#fff"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.45)"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.45)"></div></div>';
   h+='</div></div>';
+  // Skill bars
   h+='<div class="rd-eyebrow" style="margin:22px 0 0">YOUR SKILLS</div>';
   h+='<div class="rd-skill-bar" style="margin-top:13px">';
   var _skills=[{n:'Focus',v:_focusXp,max:_maxSkill,c:'var(--accent)'},{n:'Memory',v:_memXp,max:_maxSkill,c:'var(--gold)'},{n:'Logic',v:_logicXp,max:_maxSkill,c:'var(--sage)'}];
@@ -11921,20 +11973,55 @@ else if(S.tab==='mindgym'){
     h+='<div class="rd-progress-bar"><div class="rd-progress-fill" style="width:'+pct+'%;background:'+sk.c+'"></div></div></div>';
   });
   h+='</div>';
-  h+='<div class="rd-eyebrow" style="margin:22px 0 0">PRACTICE</div>';
-  h+='<div class="rd-drill-grid" style="margin-top:13px">';
-  var _drills=[
-    {k:'schulte',n:'Tile Recall',cat:'Memory',bg:'var(--accent-soft)',ic:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-strong)" stroke-width="1.9"><rect x="4" y="4" width="7" height="7" rx="1.6"/><rect x="13" y="4" width="7" height="7" rx="1.6"/><rect x="4" y="13" width="7" height="7" rx="1.6"/></svg>'},
-    {k:'word',n:'Word Sprint',cat:'Vocabulary',bg:'color-mix(in srgb,var(--gold) 16%,#FBF6EE)',ic:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="color-mix(in srgb,var(--gold) 82%,#2a1f06)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h10M4 17h7"/></svg>'},
-    {k:'spatial',n:'Pattern Path',cat:'Logic',bg:'color-mix(in srgb,var(--sage) 16%,#FBF6EE)',ic:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="color-mix(in srgb,var(--sage) 80%,#16200f)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.3"/><circle cx="18" cy="6" r="2.3"/><circle cx="12" cy="18" r="2.3"/><path d="M7.6 7.6 11 15M16.4 7.6 13 15"/></svg>'},
-    {k:'math',n:'Quick Math',cat:'Focus',bg:'var(--accent-soft)',ic:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-strong)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5v6M3 8h6M16 6h4M14 17h6M17 14v6"/></svg>'}
+  // Category cards — full game details with expandable accordion (original functionality preserved)
+  const _cats=[
+    {id:'maths',title:'Maths',desc:'Arithmetic & logic puzzles',grad:'linear-gradient(135deg,#D9734A 0%,#BE8C36 100%)',
+     games:[
+      {k:'math',n:'Math Sprint',d:'Mental arithmetic against the clock',em:'\\u26A1',fill:'var(--accent)',pData:mg.progress.math},
+      {k:'sudoku',n:'Sudoku',d:'4\\u00D74 logic puzzle',em:'\\u{1F9E9}',fill:'var(--gold)',pData:_sudP}
+    ]},
+    {id:'english',title:'English',desc:'Vocabulary & word skills',grad:'linear-gradient(135deg,#5C6F52 0%,#7C8E72 100%)',
+     games:[
+      {k:'word',n:'Word Sprint',d:'Unscramble letters into words',em:'\\u{1F524}',fill:'var(--sage)',pData:_wordP}
+    ]},
+    {id:'memory',title:'Memory',desc:'Focus & recall training',grad:'linear-gradient(135deg,#BE8C36 0%,#D4A64A 100%)',
+     games:[
+      {k:'schulte',n:'Schulte Grid',d:'Find numbers 1\\u219225 in order',em:'\\u{1F522}',fill:'var(--accent)',pData:_schP},
+      {k:'spatial',n:'Pattern Recall',d:'Memorize and recreate patterns',em:'\\u{1F4A1}',fill:'var(--gold)',pData:_spatP}
+    ]}
   ];
-  _drills.forEach(function(dr){
-    h+='<div class="rd-drill-card" onclick="mgDetailOpen(\\''+dr.k+'\\')">';
-    h+='<div class="rd-drill-icon" style="background:'+dr.bg+'">'+dr.ic+'</div>';
-    h+='<div style="font:600 14px var(--sans);color:var(--ink);margin-top:10px">'+dr.n+'</div>';
-    h+='<div style="font:500 11.5px var(--sans);color:var(--text-mute);margin-top:1px">'+dr.cat+'</div>';
-    h+='</div>';
+  h+='<div class="rd-eyebrow" style="margin:22px 0 0">CATEGORIES</div>';
+  const _openCat=S.trainCat||'';
+  h+='<div class="tg-cats" style="margin-top:13px;display:flex;flex-direction:column;gap:10px">';
+  _cats.forEach(cat=>{
+    h+='<button class="tg-cat" onclick="S.trainCat=(S.trainCat===\\''+cat.id+'\\')?\\'\\':\\''+cat.id+'\\';render()" style="background:'+cat.grad+';border-radius:18px;border:none;padding:18px;display:flex;align-items:center;gap:14px;width:100%;text-align:left;cursor:pointer;color:#fff">'
+      +'<div style="flex:1;min-width:0">'
+        +'<h3 style="font:600 17px var(--sans);margin:0;color:#fff">'+cat.title+'</h3>'
+        +'<div style="font:400 13px var(--sans);opacity:.8;margin-top:3px">'+cat.desc+'</div>'
+      +'</div>'
+      +'<div style="font:600 12px var(--sans);background:rgba(255,255,255,.2);padding:5px 10px;border-radius:10px">'+cat.games.length+' game'+(cat.games.length>1?'s':'')+'</div>'
+    +'</button>';
+    if(_openCat===cat.id){
+      h+='<div style="display:flex;flex-direction:column;gap:8px;padding:0 4px">';
+      cat.games.forEach(g=>{
+        const p=g.pData;
+        const lvl=p.level||1;
+        const xp=p.xp||0;
+        const nextXp=lvl*100;
+        const xpPct=Math.min(100,Math.round(xp/nextXp*100));
+        h+='<button style="display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:16px;border:1px solid var(--line);background:var(--surface);width:100%;text-align:left;cursor:pointer" onclick="event.stopPropagation();mgDetailOpen(\\''+g.k+'\\')">'
+          +'<div style="width:42px;height:42px;border-radius:12px;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-size:20px;flex:none">'+g.em+'</div>'
+          +'<div style="flex:1;min-width:0">'
+            +'<div style="font:600 14.5px var(--sans);color:var(--ink)">'+g.n+'</div>'
+            +'<div style="font:400 12.5px var(--sans);color:var(--text-mute);margin-top:2px">'+g.d+'</div>'
+            +'<div class="rd-progress-bar" style="margin-top:8px;height:5px"><div class="rd-progress-fill" style="width:'+xpPct+'%;background:'+g.fill+'"></div></div>'
+            +'<div style="font:500 11px var(--sans);color:var(--text-dim);margin-top:4px">Level '+lvl+' \\u00B7 '+xp+'/'+nextXp+' XP</div>'
+          +'</div>'
+          +'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-mute)" stroke-width="2.5" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>'
+        +'</button>';
+      });
+      h+='</div>';
+    }
   });
   h+='</div>';
 }
@@ -13931,7 +14018,7 @@ app.get('/privacy',(_,res)=>{
 app.get('/terms',(_,res)=>{
   res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Terms of Service — Brodoit</title><meta name="description" content="The simple terms for using Brodoit. Plain English, no surprises."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Terms</div><h1>The simple rules.</h1><p class="lede">We've kept these terms short and human. Use Brodoit kindly, and we'll keep building it for you.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">The service</h2><p>Brodoit is a personal productivity app: it lets you manage tasks with optional WhatsApp and email reminders, listen to free public-domain audiobooks, sharpen your mind with brain games, and see a daily wisdom quote.</p><h2 data-n="02">Your account</h2><p>You register with your email address or phone number. Keep your one-time verification codes private — anyone with the code can sign in. You are responsible for activity on your account.</p><h2 data-n="03">Acceptable use</h2><p>Please don't abuse the service: no spam, no impersonation, no automated scraping, no attempts to disrupt other users or the service itself. We may suspend or remove accounts that do.</p><h2 data-n="04">Content</h2><p>You own your tasks, notes, and other content you create. We store them so we can show them back to you. Audiobook content belongs to the respective public-domain authors and is served from the Internet Archive's LibriVox collection.</p><h2 data-n="05">No warranty</h2><p>The service is provided "as is". We try hard to keep it running, but can't promise zero downtime or guarantee that every reminder is delivered (WhatsApp and email providers can fail). If something matters, please don't rely solely on Brodoit.</p><h2 data-n="06">Limitation of liability</h2><p>Brodoit is a personal tool. We're not liable for missed deadlines, lost data, or any consequential damages from using — or not using — the service.</p><h2 data-n="07">Changes</h2><p>We may update these terms. If we do, we'll update the date at the top. Continued use after a change means you accept the new terms.</p><h2 data-n="08">Contact</h2><p>Need anything? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });
-app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v39";
+app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v40";
 self.addEventListener("install",function(e){self.skipWaiting()});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener("fetch",function(e){});
