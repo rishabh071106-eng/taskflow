@@ -3875,7 +3875,7 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
   .tabs.page-t .tab .ti svg{width:26px !important;height:26px !important;filter:none !important;stroke-width:1.8 !important;color:inherit !important}
   .tabs.page-t .tab .tl{
     font-family:var(--sans) !important;
-    font-size:11.5px !important;
+    font-size:10px !important;
     font-weight:600 !important;
     letter-spacing:0 !important;
     text-transform:none !important;
@@ -7290,6 +7290,21 @@ body[data-theme=aurora] .bro-msg-meta{color:rgba(255,255,255,.25)}
 .bro-typing-dot:nth-child(3){animation-delay:.4s}
 body[data-theme=aurora] .bro-typing-dot{background:rgba(255,255,255,.4)}
 @keyframes broTypeDot{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-5px);opacity:1}}
+.bro-layout{display:flex;height:calc(100vh - 120px);overflow:hidden}
+.bro-sidebar{width:0;overflow:hidden;background:var(--paper);border-right:1px solid var(--line);transition:width .25s ease;flex:none}
+.bro-sidebar.open{width:260px}
+.bro-sidebar-inner{width:260px;padding:14px;display:flex;flex-direction:column;height:100%}
+.bro-sidebar-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.bro-sidebar-hdr h3{font:600 15px var(--sans);color:var(--ink);margin:0}
+.bro-new-chat{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:6px 12px;font:600 12px var(--sans);cursor:pointer}
+.bro-hist-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:4px}
+.bro-hist-item{padding:10px 12px;border-radius:12px;cursor:pointer;font:400 13px var(--sans);color:var(--ink);border:none;background:transparent;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:background .15s;display:flex;align-items:center}
+.bro-hist-item:hover{background:var(--line)}
+.bro-hist-item.active{background:var(--accent-soft);font-weight:600}
+.bro-hist-date{font:600 11px var(--sans);color:var(--text-mute);text-transform:uppercase;letter-spacing:.4px;padding:8px 12px 4px}
+.bro-hist-del{opacity:0;margin-left:auto;background:none;border:none;color:var(--text-mute);cursor:pointer;font-size:14px;padding:2px 6px}
+.bro-hist-item:hover .bro-hist-del{opacity:1}
+.bro-main{flex:1;display:flex;flex-direction:column;min-width:0}
 .bro-input-wrap{flex-shrink:0;padding:8px 14px 10px;background:var(--bg);border-top:1px solid var(--line);z-index:20;transition:padding .15s ease;overflow:hidden;width:100%;box-sizing:border-box}
 body[data-theme=aurora] .bro-input-wrap{background:#212121}
 .bro-input-bar{display:block;padding:14px 16px;background:#fff;border:1.5px solid rgba(0,0,0,.08);border-radius:20px;box-shadow:0 2px 12px rgba(0,0,0,.04),0 1px 3px rgba(0,0,0,.02);transition:all .2s;overflow:hidden;width:100%;box-sizing:border-box}
@@ -8072,7 +8087,7 @@ voice:{loaded:false,curriculum:{days:[]},progress:{completed:0,totalPoints:0,pct
 voicePlay:null,
 // AI Coach (Phase 2)
 coach:{status:null,history:[],input:'',sending:false,recording:false,recAudio:null,playing:false,scenario:null},
-bro:{messages:[],input:'',sending:false,listening:false,speaking:false,agent:null},
+bro:{messages:[],input:'',sending:false,listening:false,speaking:false,agent:null,showSidebar:false,chatId:null},
 hydration:{enabled:JSON.parse(localStorage.getItem('tf_hydration')||'false'),interval:null,lastReminder:0,glass:parseInt(localStorage.getItem('tf_hydration_glass')||'0',10),goal:8,todayDate:new Date().toISOString().slice(0,10)},
 weather:{city:localStorage.getItem('tf_city')||'Bangalore',temp:null,aqi:null,country:'',loaded:false,loading:false,error:null,daily:null},weatherExpanded:false,
 cityTemps:{},remember:{person:null,loaded:false},lifeGoal:localStorage.getItem('tf_life_goal')||'',meditating:{active:false,title:'',mins:0,startedAt:0},
@@ -11287,6 +11302,48 @@ function _broFill(txt){
   if(inp){inp.value=txt;inp.style.height='auto';inp.style.height=Math.min(inp.scrollHeight,140)+'px';inp.focus();inp.setSelectionRange(txt.length,txt.length)}
   else{render();setTimeout(function(){var el=document.getElementById('broInput');if(el){el.value=txt;el.style.height='auto';el.style.height=Math.min(el.scrollHeight,140)+'px';el.focus();el.setSelectionRange(txt.length,txt.length)}},100)}
 }
+function _broGetChats(){try{var raw=localStorage.getItem('bro_chats');return raw?JSON.parse(raw):[]}catch(e){return[]}}
+function _broSaveChat(){
+  if(S.bro.messages.length<=1)return;
+  var chats=_broGetChats();
+  var id=S.bro.chatId||('chat_'+Date.now());
+  S.bro.chatId=id;
+  var title=S.bro.messages.find(function(m){return m.role==='user'});
+  title=title?title.text.slice(0,50):'New chat';
+  var existing=chats.findIndex(function(c){return c.id===id});
+  var entry={id:id,title:title,ts:Date.now(),msgs:S.bro.messages.map(function(m){return{role:m.role,text:m.text}})};
+  if(existing>=0)chats[existing]=entry;else chats.unshift(entry);
+  var monthAgo=Date.now()-30*864e5;
+  chats=chats.filter(function(c){return c.ts>monthAgo});
+  try{localStorage.setItem('bro_chats',JSON.stringify(chats.slice(0,50)))}catch(e){}
+}
+function _broLoadChat(id){
+  var chats=_broGetChats();
+  var chat=chats.find(function(c){return c.id===id});
+  if(!chat)return;
+  S.bro.chatId=id;
+  S.bro.messages=chat.msgs;
+  S.bro.showSidebar=false;
+  render();
+  setTimeout(function(){var c=document.getElementById('broChat');if(c)c.scrollTop=c.scrollHeight},100);
+}
+function _broNewChat(){
+  _broSaveChat();
+  S.bro.chatId='chat_'+Date.now();
+  var name=((S.user&&S.user.name)||'').split(' ')[0]||'';
+  S.bro.messages=[{role:'bro',text:'Hey'+(name?' '+name:'')+', what can I help you with?'}];
+  S.bro.showSidebar=false;
+  render();
+}
+function _broDeleteChat(id,ev){
+  if(ev)ev.stopPropagation();
+  var chats=_broGetChats();
+  chats=chats.filter(function(c){return c.id!==id});
+  try{localStorage.setItem('bro_chats',JSON.stringify(chats))}catch(e){}
+  if(S.bro.chatId===id)_broNewChat();
+  else render();
+}
+function _broToggleSidebar(){S.bro.showSidebar=!S.bro.showSidebar;render()}
 async function _broLoadHistory(){
   try{
     var r=await api('/bro/history');
@@ -11325,6 +11382,7 @@ async function broSend(){
     if(r&&r.reply){
       var reply={role:'bro',text:r.reply};S.bro.messages.push(reply);
       _broShowTyping(false);_broAppendMsg(reply);
+      _broSaveChat();
       if(r.actions)_broActionToast(r.actions);
     }else{
       var errText=r&&r.error?r.error:'Network issue — check your connection and try again.';
@@ -11687,11 +11745,8 @@ let _hdrStreak=0;for(let _si=0;_si<60;_si++){const _sd=new Date(Date.now()-_si*8
 let h='<div class="hdr"><div class="hdr-l">'+LOGO_MARK+'</div><div class="hdr-actions">'
   +(_hdrStreak>0?'<div class="rd-pill rd-pill-accent">\\u{1F525} '+_hdrStreak+'-day streak</div>':'')
   +HELP_BTN
-  +'<button class="hdr-help" onclick="stopSpeak();switchTab(\\\'bro\\\')" aria-label="Chat" title="Chat with Bro" style="font-size:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></button>'
   +'<button class="rd-pill" style="background:linear-gradient(135deg,var(--accent),var(--gold));color:#fff;font-size:11px;padding:5px 10px;border:none;cursor:pointer" onclick="openPaywall()">PRO</button>'
-  +'<div style="position:relative;display:inline-block"><button class="theme-tg" onclick="S._themeOpen=!S._themeOpen;render()" title="Theme" style="font-size:18px">\\u{1F3A8}</button>'
-  +(S._themeOpen?(function(){var _atc=S.themeColor||'coral';var _tcs=[{k:'coral',n:'Coral',c1:'#E27D60',c2:'#EDA68E'},{k:'emerald',n:'Emerald',c1:'#10B981',c2:'#34D399'},{k:'violet',n:'Violet',c1:'#8B5CF6',c2:'#A78BFA'},{k:'rose',n:'Rose',c1:'#F43F5E',c2:'#FB7185'},{k:'amber',n:'Amber',c1:'#F59E0B',c2:'#FBBF24'},{k:'teal',n:'Teal',c1:'#14B8A6',c2:'#2DD4BF'},{k:'indigo',n:'Indigo',c1:'#6366F1',c2:'#818CF8'},{k:'sky',n:'Sky',c1:'#0EA5E9',c2:'#38BDF8'}];var _th='<div class="rd-theme-dropdown open" onclick="event.stopPropagation()"><div style="font:600 14px var(--sans);color:var(--ink);margin-bottom:10px">Accent Color</div><div style="display:flex;flex-wrap:wrap;gap:8px">';_tcs.forEach(function(tc){_th+='<button style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,'+tc.c1+','+tc.c2+');border:'+(tc.k===_atc?'2.5px solid var(--ink)':'2px solid transparent')+';cursor:pointer" onclick="applyColorTheme(\\''+tc.k+'\\');S._themeOpen=false;render()" title="'+tc.n+'"></button>'});_th+='</div><div style="border-top:1px solid var(--line);margin-top:10px;padding-top:10px"><button style="width:100%;padding:10px;border-radius:10px;background:rgba(43,39,34,.06);font:500 14px var(--sans);color:var(--ink);cursor:pointer;border:none;display:flex;align-items:center;justify-content:center;gap:6px" onclick="toggleTheme();S._themeOpen=false">'+(S.theme==='aurora'?'\\u2600\\uFE0F Light mode':'\\u{1F319} Dark mode')+'</button></div></div>';return _th})():'')
-  +'</div>'
+  +'<button class="hdr-help" onclick="toggleTheme()" title="Dark mode" style="font-size:16px">'+(S.theme==='aurora'?'\\u2600\\uFE0F':'\\u{1F319}')+'</button>'
   +'</div></div>';
 
 const m=MORALS[S.moralIdx];
@@ -11891,9 +11946,10 @@ if(isMain){
     tasks:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="16" height="16" rx="4.5"/><path d="M8 12l2.5 2.5L16 9"/></svg>',
     books:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>',
     meditation:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="6" r="3"/><path d="M12 9v4"/><path d="M8 17c0-2.2 1.8-4 4-4s4 1.8 4 4"/><path d="M6 20c1-1.5 3-2.5 6-2.5s5 1 6 2.5"/><path d="M4.5 14.5c1.5-1 3-1.5 4.5-1.5"/><path d="M19.5 14.5c-1.5-1-3-1.5-4.5-1.5"/></svg>',
+    bro:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>',
     cal:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><circle cx="8" cy="15" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="15" r="1.5" fill="currentColor" stroke="none"/><circle cx="16" cy="15" r="1.5" fill="currentColor" stroke="none"/></svg>'
   };
-  const tabsHtml=[{k:'home',l:'Home'},{k:'tasks',l:'Tasks'},{k:'books',l:'Listen'},{k:'meditation',l:'Wisdom'},{k:'cal',l:'Calendar'}].map(x=>'<button class="tab tab-'+x.k+((S.tab===x.k||(x.k==='home'&&(!S.tab||S.tab==='home')))?(' on'):'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(_rdTabIcons[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
+  const tabsHtml=[{k:'home',l:'Home'},{k:'tasks',l:'Tasks'},{k:'books',l:'Listen'},{k:'meditation',l:'Wisdom'},{k:'bro',l:'Chat'},{k:'cal',l:'Calendar'}].map(x=>'<button class="tab tab-'+x.k+((S.tab===x.k||(x.k==='home'&&(!S.tab||S.tab==='home')))?(' on'):'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(_rdTabIcons[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
   // "Bro, do it!" mascot — a character with a speech bubble that animates
   const climbScene='<div class="bro-mascot" aria-hidden="true">'
     +'<svg class="bro-svg" viewBox="0 0 340 130" xmlns="http://www.w3.org/2000/svg">'
@@ -12603,28 +12659,53 @@ else if(S.tab==='bro'){
   {
     var _bm=S.bro.mode||'ask';
     h+='<div class="bro-container">';
-    // Header bar
+    // Header bar with hamburger + new chat
     h+='<div class="bro-header" style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line)">';
-    h+='<div style="flex:1;min-width:0"><div style="font:600 19px var(--sans);color:var(--ink)">\\u26A1 Bro AI<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#34D399;margin-left:8px;vertical-align:middle"></span></div>';
+    h+='<button onclick="_broToggleSidebar()" style="background:none;border:none;cursor:pointer;padding:4px;color:var(--ink)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>';
+    h+='<div style="flex:1;min-width:0"><div style="font:600 19px var(--sans);color:var(--ink)">\\u26A1 Bro AI<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#22C55E;margin-left:8px;vertical-align:middle"></span></div>';
     h+='<div style="font:400 13px var(--sans);color:var(--text-mute)">Can manage tasks, calendar & more</div></div>';
-    h+='<div style="display:flex;gap:6px">';
+    h+='<button class="bro-new-chat" onclick="_broNewChat()">+ New</button>';
+    h+='</div>';
+    // Layout: sidebar + main
+    h+='<div class="bro-layout">';
+    // Sidebar — conversation history
+    h+='<div class="bro-sidebar'+(S.bro.showSidebar?' open':'')+'">';
+    h+='<div class="bro-sidebar-inner">';
+    h+='<div class="bro-sidebar-hdr"><h3>Chats</h3><button onclick="_broToggleSidebar()" style="background:none;border:none;cursor:pointer;color:var(--text-mute);font-size:18px">\\u2715</button></div>';
+    var _broChats=_broGetChats();
+    h+='<div class="bro-hist-list">';
+    if(_broChats.length===0){
+      h+='<div style="text-align:center;padding:30px 10px;color:var(--text-mute);font:400 13px var(--sans)">No previous chats yet</div>';
+    }else{
+      var _bnow=Date.now();var _btoday=new Date();_btoday.setHours(0,0,0,0);var _todayMs=_btoday.getTime();
+      var _yest=_todayMs-864e5;var _weekAgo=_todayMs-7*864e5;
+      var _grouped={today:[],yesterday:[],week:[],older:[]};
+      _broChats.forEach(function(c){if(c.ts>=_todayMs)_grouped.today.push(c);else if(c.ts>=_yest)_grouped.yesterday.push(c);else if(c.ts>=_weekAgo)_grouped.week.push(c);else _grouped.older.push(c)});
+      if(_grouped.today.length){h+='<div class="bro-hist-date">Today</div>';_grouped.today.forEach(function(c){h+='<button class="bro-hist-item'+(S.bro.chatId===c.id?' active':'')+'" onclick="_broLoadChat(\\''+c.id+'\\')"><span style="flex:1;overflow:hidden;text-overflow:ellipsis">'+esc(c.title)+'</span><button class="bro-hist-del" onclick="_broDeleteChat(\\''+c.id+'\\',event)">\\u{1F5D1}</button></button>'})}
+      if(_grouped.yesterday.length){h+='<div class="bro-hist-date">Yesterday</div>';_grouped.yesterday.forEach(function(c){h+='<button class="bro-hist-item'+(S.bro.chatId===c.id?' active':'')+'" onclick="_broLoadChat(\\''+c.id+'\\')"><span style="flex:1;overflow:hidden;text-overflow:ellipsis">'+esc(c.title)+'</span><button class="bro-hist-del" onclick="_broDeleteChat(\\''+c.id+'\\',event)">\\u{1F5D1}</button></button>'})}
+      if(_grouped.week.length){h+='<div class="bro-hist-date">This week</div>';_grouped.week.forEach(function(c){h+='<button class="bro-hist-item'+(S.bro.chatId===c.id?' active':'')+'" onclick="_broLoadChat(\\''+c.id+'\\')"><span style="flex:1;overflow:hidden;text-overflow:ellipsis">'+esc(c.title)+'</span><button class="bro-hist-del" onclick="_broDeleteChat(\\''+c.id+'\\',event)">\\u{1F5D1}</button></button>'})}
+      if(_grouped.older.length){h+='<div class="bro-hist-date">Older</div>';_grouped.older.forEach(function(c){h+='<button class="bro-hist-item'+(S.bro.chatId===c.id?' active':'')+'" onclick="_broLoadChat(\\''+c.id+'\\')"><span style="flex:1;overflow:hidden;text-overflow:ellipsis">'+esc(c.title)+'</span><button class="bro-hist-del" onclick="_broDeleteChat(\\''+c.id+'\\',event)">\\u{1F5D1}</button></button>'})}
+    }
+    h+='</div></div></div>';
+    // Main chat area
+    h+='<div class="bro-main">';
+    // Mode toggle
+    h+='<div style="display:flex;gap:6px;padding:10px 16px;border-bottom:1px solid var(--line)">';
     h+='<button style="padding:6px 12px;border-radius:20px;border:1.5px solid '+(_bm==='ask'?'var(--accent)':'var(--line)')+';background:'+(_bm==='ask'?'var(--accent-soft)':'transparent')+';font:500 12px var(--sans);color:'+(_bm==='ask'?'var(--accent)':'var(--text-mute)')+';cursor:pointer" onclick="S.bro.mode=\\'ask\\';S.bro.messages=[];switchTab(\\'bro\\')">\\u26A1 Assistant</button>';
     h+='<button style="padding:6px 12px;border-radius:20px;border:1.5px solid '+(_bm==='friend'?'#EC4899':'var(--line)')+';background:'+(_bm==='friend'?'rgba(236,72,153,.1)':'transparent')+';font:500 12px var(--sans);color:'+(_bm==='friend'?'#EC4899':'var(--text-mute)')+';cursor:pointer" onclick="S.bro.mode=\\'friend\\';S.bro.messages=[];switchTab(\\'bro\\')">\\u{1F49C} Friend</button>';
-    h+='</div></div>';
+    h+='</div>';
     // Chat messages
     h+='<div class="bro-chat" id="broChat">';
     if(S.bro.messages.length<=1){
       h+='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;text-align:center">';
       h+='<div style="font:600 26px var(--serif);color:var(--ink);margin-bottom:6px">'+(_bm==='friend'?'\\u{1F49C} Hey bestie!':'\\u26A1 How can I help?')+'</div>';
       h+='<div style="font:400 15px var(--sans);color:var(--text-mute);max-width:300px;line-height:1.5;margin-bottom:24px">'+(_bm==='friend'?'I\\'m your ride-or-die. Talk to me about anything.':'I can create tasks, schedule events, plan your day, brainstorm ideas, and more.')+'</div>';
-      // Capability chips
       if(_bm==='ask'){
         h+='<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:20px">';
         var _caps=[{ic:'\\u2705',t:'Create tasks'},{ic:'\\u{1F4C5}',t:'Schedule events'},{ic:'\\u{1F4CB}',t:'Plan your day'},{ic:'\\u{1F4A1}',t:'Brainstorm'},{ic:'\\u270D\\uFE0F',t:'Write content'}];
         _caps.forEach(function(c){h+='<div style="display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:20px;background:var(--surface);border:1px solid var(--line);font:500 12px var(--sans);color:var(--text-mute)">'+c.ic+' '+c.t+'</div>'});
         h+='</div>';
       }
-      // Suggestions
       h+='<div style="display:flex;flex-direction:column;gap:8px;width:100%;max-width:320px">';
       if(_bm==='friend'){
         h+='<button class="bro-suggest-btn" onclick="_broFill(\\'How\\'s my vibe today?\\')">\\u2728 Check my vibe</button>';
@@ -12650,7 +12731,7 @@ else if(S.tab==='bro'){
     });
     if(S.bro.sending)h+='<div class="bro-typing-wrap"><div class="bro-typing"><span class="bro-typing-dot"></span><span class="bro-typing-dot"></span><span class="bro-typing-dot"></span></div></div>';
     h+='</div>';
-    // Input bar — ChatGPT style
+    // Input bar
     h+='<div class="bro-input-wrap" style="padding:10px 14px;border-top:1px solid var(--line);background:var(--bg)">';
     if(S.bro._file){h+='<div class="bro-file-badge" onclick="S.bro._file=null;S.bro._fileText=null;render()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> '+esc(S.bro._file)+' <span class="bro-file-x">\\u2715</span></div>'}
     h+='<div style="display:flex;align-items:flex-end;gap:8px;background:var(--surface);border:1.5px solid var(--line);border-radius:22px;padding:6px 6px 6px 16px">';
@@ -12659,6 +12740,8 @@ else if(S.tab==='bro'){
     h+='<input type="file" id="broFileInput" style="display:none" accept=".txt,.md,.csv,.json,.js,.py,.html,.css,.xml,.log,.pdf,.doc,.docx" onchange="broAttachFile(this)">';
     h+='<button onclick="broSend()" '+(S.bro.sending?'disabled':'')+' style="width:36px;height:36px;border-radius:50%;border:none;background:var(--accent);cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;flex:none;opacity:'+(S.bro.sending?'.5':'1')+'"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>';
     h+='</div></div>';
+    h+='</div>';
+    h+='</div>';
     h+='</div>';
   }
 }
@@ -14200,7 +14283,7 @@ app.get('/privacy',(_,res)=>{
 app.get('/terms',(_,res)=>{
   res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Terms of Service — Brodoit</title><meta name="description" content="The simple terms for using Brodoit. Plain English, no surprises."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Terms</div><h1>The simple rules.</h1><p class="lede">We've kept these terms short and human. Use Brodoit kindly, and we'll keep building it for you.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">The service</h2><p>Brodoit is a personal productivity app: it lets you manage tasks with optional WhatsApp and email reminders, listen to free public-domain audiobooks, sharpen your mind with brain games, and see a daily wisdom quote.</p><h2 data-n="02">Your account</h2><p>You register with your email address or phone number. Keep your one-time verification codes private — anyone with the code can sign in. You are responsible for activity on your account.</p><h2 data-n="03">Acceptable use</h2><p>Please don't abuse the service: no spam, no impersonation, no automated scraping, no attempts to disrupt other users or the service itself. We may suspend or remove accounts that do.</p><h2 data-n="04">Content</h2><p>You own your tasks, notes, and other content you create. We store them so we can show them back to you. Audiobook content belongs to the respective public-domain authors and is served from the Internet Archive's LibriVox collection.</p><h2 data-n="05">No warranty</h2><p>The service is provided "as is". We try hard to keep it running, but can't promise zero downtime or guarantee that every reminder is delivered (WhatsApp and email providers can fail). If something matters, please don't rely solely on Brodoit.</p><h2 data-n="06">Limitation of liability</h2><p>Brodoit is a personal tool. We're not liable for missed deadlines, lost data, or any consequential damages from using — or not using — the service.</p><h2 data-n="07">Changes</h2><p>We may update these terms. If we do, we'll update the date at the top. Continued use after a change means you accept the new terms.</p><h2 data-n="08">Contact</h2><p>Need anything? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });
-app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v48";
+app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v49";
 self.addEventListener("install",function(e){self.skipWaiting()});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener("fetch",function(e){});
