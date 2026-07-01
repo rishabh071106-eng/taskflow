@@ -2477,26 +2477,29 @@ h1,h2,h3,h4{font-family:var(--serif);font-weight:500;letter-spacing:-.015em;colo
 @keyframes ladderGlow{0%,100%{filter:drop-shadow(0 0 4px rgba(217,115,74,.4))}50%{filter:drop-shadow(0 0 14px rgba(217,115,74,.8))}}
 @keyframes ladderPopIn{from{opacity:0;transform:scale(.5) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
 @keyframes ladderShine{0%{background-position:-100% 0}100%{background-position:200% 0}}
-.ll-wrap{margin-top:16px;border-radius:20px;background:linear-gradient(135deg,rgba(226,125,96,.08),rgba(190,140,54,.06));border:1.5px solid rgba(226,125,96,.15);padding:20px 16px 16px;position:relative;overflow:hidden;animation:fadeSlideUp .4s cubic-bezier(.2,.8,.2,1) both}
-.ll-title{font:600 17px var(--sans);color:var(--ink);margin-bottom:4px;display:flex;align-items:center;gap:8px}
-.ll-sub{font:400 13px var(--sans);color:var(--text-mute);margin-bottom:16px}
-.ll-ladder{position:relative;display:flex;flex-direction:column;gap:0;padding:0 12px}
-.ll-rung{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:14px;cursor:pointer;transition:all .2s ease;position:relative;border:1.5px solid transparent;-webkit-tap-highlight-color:transparent}
-.ll-rung:active{transform:scale(.97)}
-.ll-rung.ll-current{background:linear-gradient(135deg,var(--accent-soft),rgba(190,140,54,.12));border-color:var(--accent);animation:pulseGlow 2s ease-in-out infinite}
-.ll-rung.ll-past{opacity:.7}
-.ll-rung.ll-future{opacity:.45}
-.ll-rung-yr{font:700 15px var(--sans);color:var(--accent);min-width:36px;text-align:center}
-.ll-rung-bar{flex:1;height:8px;border-radius:8px;background:var(--line);overflow:hidden;position:relative}
-.ll-rung-fill{height:100%;border-radius:8px;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width .4s ease}
-.ll-rung-label{font:500 13px var(--sans);color:var(--ink);min-width:0;flex-shrink:1}
-.ll-rung-emoji{font-size:20px;flex:none}
-.ll-figure{position:absolute;left:0;transition:top .5s cubic-bezier(.2,.8,.2,1);z-index:2;pointer-events:none}
-.ll-figure.ll-jumping{animation:ladderBounce .5s cubic-bezier(.2,.8,.2,1)}
-.ll-figure svg{filter:drop-shadow(0 2px 6px rgba(0,0,0,.15))}
-.ll-achieve{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:var(--accent);color:#fff;font:600 12px var(--sans);padding:5px 12px;border-radius:12px;animation:ladderPopIn .3s cubic-bezier(.2,.8,.2,1) both;white-space:nowrap;z-index:5;pointer-events:none}
-.ll-connector{position:absolute;left:30px;top:0;bottom:0;width:3px;background:linear-gradient(to bottom,var(--accent),var(--gold));border-radius:3px;opacity:.2;z-index:0}
-body[data-theme=aurora] .ll-wrap{background:linear-gradient(135deg,rgba(226,125,96,.06),rgba(190,140,54,.04));border-color:rgba(226,125,96,.1)}
+.yp-wrap{margin-top:16px;border-radius:20px;background:linear-gradient(135deg,rgba(226,125,96,.08),rgba(190,140,54,.06));border:1.5px solid rgba(226,125,96,.15);padding:20px 16px 16px;position:relative;overflow:hidden;animation:fadeSlideUp .4s cubic-bezier(.2,.8,.2,1) both}
+.yp-ring-box{display:flex;align-items:center;gap:18px}
+.yp-ring{width:100px;height:100px;position:relative;flex:none}
+.yp-ring svg{transform:rotate(-90deg)}
+.yp-ring-num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.yp-ring-big{font:800 28px var(--sans);color:var(--ink);line-height:1}
+.yp-ring-unit{font:600 10px var(--sans);color:var(--text-mute);text-transform:uppercase;letter-spacing:.5px}
+.yp-stats{flex:1}
+.yp-stat-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line)}
+.yp-stat-row:last-child{border-bottom:none}
+.yp-stat-l{font:500 13px var(--sans);color:var(--text-mute)}
+.yp-stat-v{font:700 13px var(--sans);color:var(--ink)}
+@keyframes ypPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+.pb-wrap{margin-top:14px;border-radius:20px;background:var(--surface);border:1px solid var(--line);padding:18px 16px;animation:fadeSlideUp .4s cubic-bezier(.2,.8,.2,1) both;animation-delay:.1s}
+.pb-q{font:500 16px var(--serif);color:var(--ink);margin-bottom:14px;line-height:1.35}
+.pb-opts{display:flex;flex-direction:column;gap:8px}
+.pb-opt{background:var(--paper);border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;cursor:pointer;font:500 14px var(--sans);color:var(--ink);text-align:left;transition:all .2s;-webkit-tap-highlight-color:transparent}
+.pb-opt:active{transform:scale(.97)}
+.pb-opt.pb-sel{border-color:var(--accent);background:var(--accent-soft)}
+.pb-result{margin-top:14px;padding:14px;border-radius:14px;background:linear-gradient(135deg,var(--accent-soft),rgba(190,140,54,.08));border:1px solid rgba(226,125,96,.2);animation:fadeSlideUp .3s ease}
+.pb-tip{font:400 14px var(--serif);color:var(--ink);line-height:1.45;font-style:italic}
+.pb-action{display:inline-block;margin-top:10px;font:600 13px var(--sans);color:var(--accent);cursor:pointer}
+.pb-emoji{font-size:32px;margin-bottom:8px}
 .rd-card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:17px;box-shadow:var(--shadow-1);animation:fadeSlideUp .4s cubic-bezier(.2,.8,.2,1) both}
 .rd-session-card{animation:scaleIn .45s cubic-bezier(.2,.8,.2,1) both;animation-delay:.1s}
 .rd-mg-cat{animation:fadeSlideUp .4s cubic-bezier(.2,.8,.2,1) both;transition:transform .2s ease}
@@ -11381,23 +11384,16 @@ async function subscribePush(hydration){
 function _hydrationPatch(){var dots=document.querySelectorAll('.is-hyd-dot');dots.forEach(function(d,i){if(i<S.hydration.glass)d.classList.add('filled');else d.classList.remove('filled')});var tEl=document.querySelector('.is-hydration .is-row-title');if(tEl)tEl.textContent='Water \\u00B7 '+S.hydration.glass+'/'+S.hydration.goal+' glasses'}
 function drinkWater(){_hydrationToday();if(S.hydration.glass>=S.hydration.goal){toast('\\u{1F4A7} You already hit your goal! Great job!');return}S.hydration.glass++;localStorage.setItem('tf_hydration_glass',String(S.hydration.glass));_mgSound('water');toast('\\u{1F4A7} Nice! '+S.hydration.glass+'/'+S.hydration.goal+' glasses today');_hydrationPatch()}
 function undrinkWater(){_hydrationToday();if(S.hydration.glass<=0)return;S.hydration.glass--;localStorage.setItem('tf_hydration_glass',String(S.hydration.glass));toast('\\u{1F4A7} Adjusted to '+S.hydration.glass+'/'+S.hydration.goal);_hydrationPatch()}
-function llJump(targetIdx){
-  var fig=document.getElementById('llFigure');if(!fig)return;
-  var rungs=document.querySelectorAll('.ll-rung');if(!rungs.length)return;
-  var totalRungs=rungs.length;
-  var reversedIdx=totalRungs-1-targetIdx;
-  fig.style.top=reversedIdx*52+'px';
-  fig.classList.remove('ll-jumping');void fig.offsetWidth;fig.classList.add('ll-jumping');
-  setTimeout(function(){fig.classList.remove('ll-jumping')},550);
-  var cheers=['Keep climbing! \\u{1F4AA}','You got this! \\u{1F525}','Legend! \\u{1F3C6}','Unstoppable! \\u{1F680}','Amazing! \\u2B50','Dream big! \\u2728','Level up! \\u26A1','Go higher! \\u{1FA9C}','On fire! \\u{1F525}','Crushing it! \\u{1F4A5}','Boss move! \\u{1F451}','Epic! \\u{1F3AF}'];
-  var rung=rungs[reversedIdx];if(!rung)return;
-  var old=rung.querySelector('.ll-achieve');if(old)old.remove();
-  var badge=document.createElement('div');badge.className='ll-achieve';
-  badge.textContent=cheers[Math.floor(Math.random()*cheers.length)];
-  rung.appendChild(badge);
-  setTimeout(function(){if(badge.parentNode)badge.remove()},1800);
-  _mgSound('tab');
-}
+var _pbState={q:0,ans:null};
+var _pbQuestions=[
+  {q:'What are you avoiding right now?',emoji:'\\u{1F648}',opts:['A big task I keep postponing','Replying to messages/emails','Exercise or health stuff','Something I don\\'t know how to start'],tips:['Break it into 3 tiny steps. Do just step 1 right now \\u2014 it takes 2 minutes.','Set a timer for 5 minutes. Reply to just ONE. The rest gets easier.','Put on shoes. That\\'s it. Just shoes. Your brain will do the rest.','Google "how to start [thing]" and read for 3 minutes. Starting is 90% of finishing.']},
+  {q:'How long have you been scrolling?',emoji:'\\u{1F4F1}',opts:['Just opened my phone','10-20 minutes','30+ minutes','I lost track of time'],tips:['Great timing! Set one intention before you continue.','The dopamine trap is real. Close this app, do ONE thing, then reward yourself.','Your future self is watching. Stand up, stretch, drink water. Then pick ONE task.','Time blindness is a sign you need a pattern break. Walk to another room right now.']},
+  {q:'What\\'s your energy level?',emoji:'\\u26A1',opts:['High \\u2014 I\\'m just avoiding','Medium \\u2014 kinda tired','Low \\u2014 drained','I just woke up'],tips:['You have the fuel! Your brain is protecting you from discomfort. Start the hardest thing NOW.','Do a "medium mode" task \\u2014 something useful but not exhausting. Build momentum.','Rest is productive too. Take a 20-min nap or go for a slow walk, then tackle one small win.','Morning is your superpower. Don\\'t check social media. Write down 3 things to do today first.']},
+  {q:'What would make today feel like a win?',emoji:'\\u{1F3C6}',opts:['Finishing that one thing','Being active for 30 min','Having a real conversation','Going to bed on time'],tips:['Write it down. Put it where you\\'ll see it. Tell someone. Now it\\'s a commitment, not a wish.','Schedule it like a meeting. "3 PM \\u2014 Walk." Your calendar doesn\\'t care if it\\'s a workout or a call.','Text someone right now. Say "Hey, can we talk for 10 min today?" Connection beats isolation.','Set a "screens off" alarm for 1 hour before bed. Read, stretch, breathe. Tomorrow-you will be grateful.']}
+];
+function pbAnswer(qi,ai){_pbState={q:qi,ans:ai};render()}
+function pbNext(){_pbState={q:(_pbState.q+1)%_pbQuestions.length,ans:null};render()}
+function pbReset(){_pbState={q:0,ans:null};render()}
 function _playWaterSound(){
   try{
     const ac=new(window.AudioContext||window.webkitAudioContext)();
@@ -11691,6 +11687,7 @@ let _hdrStreak=0;for(let _si=0;_si<60;_si++){const _sd=new Date(Date.now()-_si*8
 let h='<div class="hdr"><div class="hdr-l">'+LOGO_MARK+'</div><div class="hdr-actions">'
   +(_hdrStreak>0?'<div class="rd-pill rd-pill-accent">\\u{1F525} '+_hdrStreak+'-day streak</div>':'')
   +HELP_BTN
+  +'<button class="hdr-help" onclick="stopSpeak();switchTab(\\\'bro\\\')" aria-label="Chat" title="Chat with Bro" style="font-size:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></button>'
   +'<button class="rd-pill" style="background:linear-gradient(135deg,var(--accent),var(--gold));color:#fff;font-size:11px;padding:5px 10px;border:none;cursor:pointer" onclick="openPaywall()">PRO</button>'
   +'<div style="position:relative;display:inline-block"><button class="theme-tg" onclick="S._themeOpen=!S._themeOpen;render()" title="Theme" style="font-size:18px">\\u{1F3A8}</button>'
   +(S._themeOpen?(function(){var _atc=S.themeColor||'coral';var _tcs=[{k:'coral',n:'Coral',c1:'#E27D60',c2:'#EDA68E'},{k:'emerald',n:'Emerald',c1:'#10B981',c2:'#34D399'},{k:'violet',n:'Violet',c1:'#8B5CF6',c2:'#A78BFA'},{k:'rose',n:'Rose',c1:'#F43F5E',c2:'#FB7185'},{k:'amber',n:'Amber',c1:'#F59E0B',c2:'#FBBF24'},{k:'teal',n:'Teal',c1:'#14B8A6',c2:'#2DD4BF'},{k:'indigo',n:'Indigo',c1:'#6366F1',c2:'#818CF8'},{k:'sky',n:'Sky',c1:'#0EA5E9',c2:'#38BDF8'}];var _th='<div class="rd-theme-dropdown open" onclick="event.stopPropagation()"><div style="font:600 14px var(--sans);color:var(--ink);margin-bottom:10px">Accent Color</div><div style="display:flex;flex-wrap:wrap;gap:8px">';_tcs.forEach(function(tc){_th+='<button style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,'+tc.c1+','+tc.c2+');border:'+(tc.k===_atc?'2.5px solid var(--ink)':'2px solid transparent')+';cursor:pointer" onclick="applyColorTheme(\\''+tc.k+'\\');S._themeOpen=false;render()" title="'+tc.n+'"></button>'});_th+='</div><div style="border-top:1px solid var(--line);margin-top:10px;padding-top:10px"><button style="width:100%;padding:10px;border-radius:10px;background:rgba(43,39,34,.06);font:500 14px var(--sans);color:var(--ink);cursor:pointer;border:none;display:flex;align-items:center;justify-content:center;gap:6px" onclick="toggleTheme();S._themeOpen=false">'+(S.theme==='aurora'?'\\u2600\\uFE0F Light mode':'\\u{1F319} Dark mode')+'</button></div></div>';return _th})():'')
@@ -11751,50 +11748,54 @@ if(isMain){
   hero+='</div>';
   hero+='<button class="rd-play-btn" onclick="switchTab(\\'books\\');render()"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M8 5.5v13l11-6.5z"/></svg></button>';
   hero+='</div>';
-  // --- Life Ladder — animated year-by-year journey ---
-  var _llAge=S.user.age||22;
-  var _llRungs=[
-    {yr:0,emoji:'\\u{1F476}',label:'Born into the world',pct:100},
-    {yr:5,emoji:'\\u{1F3EB}',label:'Started school',pct:100},
-    {yr:10,emoji:'\\u{1F4DA}',label:'Found curiosity',pct:100},
-    {yr:15,emoji:'\\u{1F680}',label:'Dreamed big',pct:100},
-    {yr:18,emoji:'\\u{1F393}',label:'Became an adult',pct:100},
-    {yr:20,emoji:'\\u26A1',label:'Building yourself',pct:100},
-    {yr:25,emoji:'\\u{1F4BC}',label:'Career launch',pct:0},
-    {yr:30,emoji:'\\u{1F3AF}',label:'Hit your stride',pct:0},
-    {yr:40,emoji:'\\u{1F451}',label:'Peak mastery',pct:0},
-    {yr:50,emoji:'\\u{1F30D}',label:'World impact',pct:0},
-    {yr:60,emoji:'\\u{1F333}',label:'Wisdom years',pct:0},
-    {yr:70,emoji:'\\u2B50',label:'Legacy mode',pct:0},
-    {yr:80,emoji:'\\u{1F3C6}',label:'Legendary',pct:0}
-  ];
-  var _llCurrentIdx=0;
-  _llRungs.forEach(function(r,i){
-    if(_llAge>=r.yr)_llCurrentIdx=i;
-    if(_llAge>=r.yr)r.pct=100;
-    else if(i>0&&_llAge>=_llRungs[i-1].yr)r.pct=Math.round((_llAge-_llRungs[i-1].yr)/(_llRungs[i].yr-_llRungs[i-1].yr)*100);
-    else r.pct=0;
-  });
-  hero+='<div class="ll-wrap" id="lifeLadder">';
-  hero+='<div class="ll-title">\\u{1FA9C} Life Ladder</div>';
-  hero+='<div class="ll-sub">Tap any rung to see your character jump! You\\'re at age '+_llAge+'.</div>';
-  hero+='<div class="ll-ladder" style="position:relative">';
-  hero+='<div class="ll-connector"></div>';
-  _llRungs.slice().reverse().forEach(function(r,ri){
-    var origIdx=_llRungs.length-1-ri;
-    var cls=origIdx===_llCurrentIdx?'ll-current':(origIdx<_llCurrentIdx?'ll-past':'ll-future');
-    hero+='<div class="ll-rung '+cls+'" data-rung="'+origIdx+'" onclick="llJump('+origIdx+')" style="animation-delay:'+(ri*0.04)+'s">';
-    hero+='<span class="ll-rung-emoji">'+r.emoji+'</span>';
-    hero+='<div style="flex:1;min-width:0">';
-    hero+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px"><span class="ll-rung-label">'+r.label+'</span><span class="ll-rung-yr">'+r.yr+'</span></div>';
-    hero+='<div class="ll-rung-bar"><div class="ll-rung-fill" style="width:'+r.pct+'%"></div></div>';
-    hero+='</div>';
-    hero+='</div>';
-  });
-  hero+='<div class="ll-figure" id="llFigure" style="top:'+((_llRungs.length-1-_llCurrentIdx)*52)+'px">';
-  hero+='<svg width="28" height="28" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="6" r="4" fill="var(--accent)"/><line x1="12" y1="10" x2="12" y2="17" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"/><line x1="12" y1="12" x2="7" y2="15" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="12" x2="17" y2="14" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="17" x2="8" y2="23" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="17" x2="16" y2="23" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/></svg>';
+  // --- Year Progress — animated countdown ---
+  var _ypNow=new Date();
+  var _ypYear=_ypNow.getFullYear();
+  var _ypStart=new Date(_ypYear,0,1);
+  var _ypEnd=new Date(_ypYear+1,0,1);
+  var _ypTotal=Math.ceil((_ypEnd-_ypStart)/(864e5));
+  var _ypElapsed=Math.ceil((_ypNow-_ypStart)/(864e5));
+  var _ypLeft=_ypTotal-_ypElapsed;
+  var _ypPct=Math.round(_ypElapsed/_ypTotal*100);
+  var _ypWeeksLeft=Math.ceil(_ypLeft/7);
+  var _ypMonthsLeft=11-_ypNow.getMonth()+((_ypNow.getDate()<=15)?1:0);
+  var _ypCircum=2*Math.PI*42;
+  var _ypDash=(_ypPct/100)*_ypCircum;
+  var _ypMsgs=['Fresh start \\u2014 the whole year is ahead!','Getting warmed up!','Building momentum!','Quarter done \\u2014 keep pushing!','Almost halfway!','Halfway mark \\u2014 make it count!','Second half energy!','Strong finish territory!','Final stretch \\u2014 sprint!','Year\\'s almost done!'];
+  var _ypMsg=_ypMsgs[Math.min(Math.floor(_ypPct/10),_ypMsgs.length-1)];
+  hero+='<div class="yp-wrap">';
+  hero+='<div style="font:600 16px var(--sans);color:var(--ink);margin-bottom:12px">\\u23F3 Year Progress '+_ypYear+'</div>';
+  hero+='<div class="yp-ring-box">';
+  hero+='<div class="yp-ring"><svg width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="var(--line)" stroke-width="8"/><circle cx="50" cy="50" r="42" fill="none" stroke="var(--accent)" stroke-width="8" stroke-linecap="round" stroke-dasharray="'+_ypDash+' '+_ypCircum+'" style="transition:stroke-dasharray 1s ease"/></svg><div class="yp-ring-num"><span class="yp-ring-big">'+_ypPct+'%</span><span class="yp-ring-unit">complete</span></div></div>';
+  hero+='<div class="yp-stats">';
+  hero+='<div class="yp-stat-row"><span class="yp-stat-l">Days left</span><span class="yp-stat-v">'+_ypLeft+'</span></div>';
+  hero+='<div class="yp-stat-row"><span class="yp-stat-l">Weeks left</span><span class="yp-stat-v">'+_ypWeeksLeft+'</span></div>';
+  hero+='<div class="yp-stat-row"><span class="yp-stat-l">Months left</span><span class="yp-stat-v">'+Math.max(0,_ypMonthsLeft)+'</span></div>';
+  hero+='<div class="yp-stat-row"><span class="yp-stat-l">Day of year</span><span class="yp-stat-v">'+_ypElapsed+' / '+_ypTotal+'</span></div>';
+  hero+='</div></div>';
+  hero+='<div style="font:400 13px var(--serif);font-style:italic;color:var(--text-mute);margin-top:10px">'+_ypMsg+'</div>';
   hero+='</div>';
-  hero+='</div>';
+  // --- Procrastination Buster — interactive game ---
+  var _pbQ=_pbQuestions[_pbState.q];
+  hero+='<div class="pb-wrap">';
+  hero+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font:600 16px var(--sans);color:var(--ink)">\\u{1F3AE} Are You Procrastinating?</span><span style="font:400 12px var(--sans);color:var(--text-mute)">'+((_pbState.q+1)+'/'+_pbQuestions.length)+'</span></div>';
+  hero+='<div class="pb-emoji">'+_pbQ.emoji+'</div>';
+  hero+='<div class="pb-q">'+_pbQ.q+'</div>';
+  if(_pbState.ans===null){
+    hero+='<div class="pb-opts">';
+    _pbQ.opts.forEach(function(o,oi){hero+='<button class="pb-opt" onclick="pbAnswer('+_pbState.q+','+oi+')">'+esc(o)+'</button>'});
+    hero+='</div>';
+  } else {
+    hero+='<div class="pb-opts">';
+    _pbQ.opts.forEach(function(o,oi){hero+='<button class="pb-opt'+(_pbState.ans===oi?' pb-sel':'')+'">'+esc(o)+'</button>'});
+    hero+='</div>';
+    hero+='<div class="pb-result">';
+    hero+='<div class="pb-tip">'+_pbQ.tips[_pbState.ans]+'</div>';
+    hero+='<div style="display:flex;gap:10px;margin-top:10px">';
+    if(_pbState.q<_pbQuestions.length-1)hero+='<span class="pb-action" onclick="pbNext()">Next question \\u2192</span>';
+    else hero+='<span class="pb-action" onclick="pbReset()">\\u21BB Start over</span>';
+    hero+='</div></div>';
+  }
   hero+='</div>';
   // --- Stacked info rows: weather, hydration ---
   let infoStrip='';
@@ -11890,9 +11891,9 @@ if(isMain){
     tasks:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="16" height="16" rx="4.5"/><path d="M8 12l2.5 2.5L16 9"/></svg>',
     books:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>',
     meditation:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="6" r="3"/><path d="M12 9v4"/><path d="M8 17c0-2.2 1.8-4 4-4s4 1.8 4 4"/><path d="M6 20c1-1.5 3-2.5 6-2.5s5 1 6 2.5"/><path d="M4.5 14.5c1.5-1 3-1.5 4.5-1.5"/><path d="M19.5 14.5c-1.5-1-3-1.5-4.5-1.5"/></svg>',
-    bro:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>'
+    cal:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><circle cx="8" cy="15" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="15" r="1.5" fill="currentColor" stroke="none"/><circle cx="16" cy="15" r="1.5" fill="currentColor" stroke="none"/></svg>'
   };
-  const tabsHtml=[{k:'home',l:'Home'},{k:'tasks',l:'Tasks'},{k:'books',l:'Listen'},{k:'meditation',l:'Wisdom'},{k:'bro',l:'Chat'}].map(x=>'<button class="tab tab-'+x.k+((S.tab===x.k||(x.k==='home'&&(!S.tab||S.tab==='home')))?(' on'):'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(_rdTabIcons[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
+  const tabsHtml=[{k:'home',l:'Home'},{k:'tasks',l:'Tasks'},{k:'books',l:'Listen'},{k:'meditation',l:'Wisdom'},{k:'cal',l:'Calendar'}].map(x=>'<button class="tab tab-'+x.k+((S.tab===x.k||(x.k==='home'&&(!S.tab||S.tab==='home')))?(' on'):'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(_rdTabIcons[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
   // "Bro, do it!" mascot — a character with a speech bubble that animates
   const climbScene='<div class="bro-mascot" aria-hidden="true">'
     +'<svg class="bro-svg" viewBox="0 0 340 130" xmlns="http://www.w3.org/2000/svg">'
@@ -12536,48 +12537,6 @@ else if(S.tab==='books'){
 // WISDOM TAB — Headspace/Elevate-styled affirmations + meditations
 else if(S.tab==='meditation'){
   const cat=S.medCat||'affirmations';
-  // ── Meditation Streak Calendar ──
-  var _mDays=_wsGetMedDays();
-  var _mStreak=_wsCalcStreak();
-  var _mTotal=_mDays.length;
-  var _mToday=new Date().toISOString().slice(0,10);
-  var _mDoneToday=_mDays.indexOf(_mToday)!==-1;
-  var _streakMsgs=['Start your first session','Keep showing up','Building momentum','You\\'re on fire','Unstoppable','Master meditator','True discipline','Legendary streak'];
-  var _streakMsg=_streakMsgs[Math.min(_mStreak,_streakMsgs.length-1)];
-  h+='<div class="ws-streak">';
-  h+='<div class="ws-streak-top">';
-  h+='<div><div style="display:flex;align-items:center;gap:6px"><span class="ws-streak-fire">'+(_mStreak>=3?'\\u{1F525}':_mStreak>=1?'\\u2728':'\\u{1F9D8}')+'</span><span class="ws-streak-num">'+_mStreak+'</span></div><div class="ws-streak-label">day streak</div></div>';
-  h+='<div style="text-align:right"><div class="ws-streak-msg">'+_streakMsg+'</div>';
-  if(!_mDoneToday)h+='<div style="font:600 12px var(--sans);color:var(--accent);margin-top:4px">\\u{1F4A1} Meditate today to keep it!</div>';
-  else h+='<div style="font:600 12px var(--sans);color:var(--sage);margin-top:4px">\\u2705 Done for today</div>';
-  h+='</div></div>';
-  // Calendar grid
-  var _calMn=['January','February','March','April','May','June','July','August','September','October','November','December'];
-  var _calNow=new Date();var _calIsCurrentMonth=_wsCalMonth===_calNow.getMonth()&&_wsCalYear===_calNow.getFullYear();
-  h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
-  h+='<div class="ws-cal-nav"><button onclick="_wsNavCal(-1)">\\u2039</button><span class="ws-cal-month">'+_calMn[_wsCalMonth]+' '+_wsCalYear+'</span><button onclick="_wsNavCal(1)"'+((_wsCalYear>_calNow.getFullYear()||(_wsCalYear===_calNow.getFullYear()&&_wsCalMonth>=_calNow.getMonth()))?' disabled style="opacity:.3"':'')+'>\\u203A</button></div>';
-  h+='</div>';
-  h+='<div class="ws-cal">';
-  ['S','M','T','W','T','F','S'].forEach(function(d){h+='<div class="ws-cal-hdr">'+d+'</div>'});
-  var _fd=new Date(_wsCalYear,_wsCalMonth,1).getDay();
-  var _dim=new Date(_wsCalYear,_wsCalMonth+1,0).getDate();
-  var _todayD=_calNow.getDate(),_todayM=_calNow.getMonth(),_todayY=_calNow.getFullYear();
-  for(var _ei=0;_ei<_fd;_ei++)h+='<div class="ws-cal-day ws-empty"></div>';
-  for(var _di=1;_di<=_dim;_di++){
-    var _iso=_wsCalYear+'-'+String(_wsCalMonth+1).padStart(2,'0')+'-'+String(_di).padStart(2,'0');
-    var _isToday=_di===_todayD&&_wsCalMonth===_todayM&&_wsCalYear===_todayY;
-    var _isDone=_mDays.indexOf(_iso)!==-1;
-    var _isFuture=new Date(_wsCalYear,_wsCalMonth,_di)>_calNow;
-    h+='<div class="ws-cal-day'+(_isDone?' ws-done':'')+(_isToday?' ws-today':'')+(_isFuture?' ws-future':'')+'">'+_di+'</div>';
-  }
-  h+='</div>';
-  // Stats row
-  h+='<div class="ws-stats">';
-  h+='<div class="ws-stat"><div class="ws-stat-n">'+_mTotal+'</div><div class="ws-stat-l">Sessions</div></div>';
-  h+='<div class="ws-stat"><div class="ws-stat-n">'+_mStreak+'</div><div class="ws-stat-l">Streak</div></div>';
-  var _mThisMonth=_mDays.filter(function(d){return d.slice(0,7)===_wsCalYear+'-'+String(_wsCalMonth+1).padStart(2,'0')}).length;
-  h+='<div class="ws-stat"><div class="ws-stat-n">'+_mThisMonth+'</div><div class="ws-stat-l">This month</div></div>';
-  h+='</div></div>';
   // Category pills
   h+='<div class="mag-pills hs-cats" style="margin-bottom:18px">';
   MED_CATEGORIES.forEach(c=>{h+='<button class="mag-pill hs-cat'+(cat===c.k?' on':'')+'" onclick="setMedCat(\\''+c.k+'\\')"><span class="mag-pill-e">'+c.e+'</span>'+esc(c.l)+'</button>'});
@@ -14241,7 +14200,7 @@ app.get('/privacy',(_,res)=>{
 app.get('/terms',(_,res)=>{
   res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Terms of Service — Brodoit</title><meta name="description" content="The simple terms for using Brodoit. Plain English, no surprises."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Terms</div><h1>The simple rules.</h1><p class="lede">We've kept these terms short and human. Use Brodoit kindly, and we'll keep building it for you.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">The service</h2><p>Brodoit is a personal productivity app: it lets you manage tasks with optional WhatsApp and email reminders, listen to free public-domain audiobooks, sharpen your mind with brain games, and see a daily wisdom quote.</p><h2 data-n="02">Your account</h2><p>You register with your email address or phone number. Keep your one-time verification codes private — anyone with the code can sign in. You are responsible for activity on your account.</p><h2 data-n="03">Acceptable use</h2><p>Please don't abuse the service: no spam, no impersonation, no automated scraping, no attempts to disrupt other users or the service itself. We may suspend or remove accounts that do.</p><h2 data-n="04">Content</h2><p>You own your tasks, notes, and other content you create. We store them so we can show them back to you. Audiobook content belongs to the respective public-domain authors and is served from the Internet Archive's LibriVox collection.</p><h2 data-n="05">No warranty</h2><p>The service is provided "as is". We try hard to keep it running, but can't promise zero downtime or guarantee that every reminder is delivered (WhatsApp and email providers can fail). If something matters, please don't rely solely on Brodoit.</p><h2 data-n="06">Limitation of liability</h2><p>Brodoit is a personal tool. We're not liable for missed deadlines, lost data, or any consequential damages from using — or not using — the service.</p><h2 data-n="07">Changes</h2><p>We may update these terms. If we do, we'll update the date at the top. Continued use after a change means you accept the new terms.</p><h2 data-n="08">Contact</h2><p>Need anything? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });
-app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v47";
+app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v48";
 self.addEventListener("install",function(e){self.skipWaiting()});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener("fetch",function(e){});
