@@ -2535,6 +2535,27 @@ body[data-theme=aurora] .ll-wrap{background:linear-gradient(135deg,rgba(226,125,
 .rd-ritual-circle{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center}
 .rd-ritual-done{background:var(--accent)}
 .rd-ritual-pending{border:2px dashed rgba(43,39,34,.22)}
+.ws-streak{border-radius:20px;padding:18px;background:var(--surface);border:1px solid var(--line);margin-bottom:18px;animation:fadeSlideUp .35s ease}
+.ws-streak-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.ws-streak-num{font:700 36px var(--sans);color:var(--accent);line-height:1}
+.ws-streak-fire{font-size:28px;margin-right:4px}
+.ws-streak-label{font:600 13px var(--sans);color:var(--text-mute);text-transform:uppercase;letter-spacing:.5px}
+.ws-streak-msg{font:400 14px var(--serif);font-style:italic;color:var(--text-mute)}
+.ws-cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:10px}
+.ws-cal-hdr{font:600 10px var(--sans);color:var(--text-mute);text-align:center;text-transform:uppercase;letter-spacing:.3px;padding:2px 0}
+.ws-cal-day{aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;font:500 12px var(--sans);color:var(--ink);position:relative;transition:all .2s}
+.ws-cal-day.ws-empty{visibility:hidden}
+.ws-cal-day.ws-done{background:var(--accent);color:#fff;font-weight:700;box-shadow:0 2px 8px -3px var(--accent)}
+.ws-cal-day.ws-today{border:2px solid var(--accent);font-weight:700}
+.ws-cal-day.ws-today.ws-done{border-color:transparent}
+.ws-cal-day.ws-future{opacity:.3}
+.ws-cal-nav{display:flex;align-items:center;gap:12px}
+.ws-cal-nav button{background:none;border:1px solid var(--line);border-radius:10px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink);font-size:14px}
+.ws-cal-month{font:600 14px var(--sans);color:var(--ink)}
+.ws-stats{display:flex;gap:12px;margin-top:14px}
+.ws-stat{flex:1;text-align:center;padding:10px 6px;border-radius:14px;background:color-mix(in srgb,var(--accent) 8%,var(--paper))}
+.ws-stat-n{font:700 20px var(--sans);color:var(--ink)}
+.ws-stat-l{font:500 10px var(--sans);color:var(--text-mute);text-transform:uppercase;letter-spacing:.4px;margin-top:2px}
 .rd-wisdom-card{border-radius:20px;padding:17px;background:color-mix(in srgb,var(--gold) 13%,#FBF6EE);border:1px solid color-mix(in srgb,var(--gold) 24%,transparent)}
 .rd-listen-card{display:flex;align-items:center;gap:14px;border-radius:20px;padding:14px;background:var(--surface);border:1px solid var(--line)}
 .rd-listen-cover{width:58px;height:58px;border-radius:13px;flex:none;background:repeating-linear-gradient(135deg,#d8ccb7,#d8ccb7 6px,#ccbda6 6px,#ccbda6 12px);box-shadow:0 4px 10px -4px rgba(43,39,34,.5)}
@@ -5882,21 +5903,21 @@ body[data-theme=aurora] .inshort-share{background:rgba(226,125,96,.18);color:#ED
 .hs-cat{background:transparent !important;border:none !important;color:var(--ink-3) !important;padding:10px 16px !important;border-radius:10px !important;font-size:13px !important;font-weight:600 !important;white-space:nowrap !important;transition:all .15s ease;flex-shrink:0}
 .hs-cat.on{background:#fff !important;color:var(--ink) !important;border:none !important;box-shadow:0 1px 3px rgba(0,0,0,.08) !important}
 .hs-cat:not(.on):hover{background:rgba(255,255,255,.5) !important;color:var(--ink) !important}
-.hs-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:14px}
-@media (min-width:600px){.hs-grid{grid-template-columns:1fr 1fr}}
-.hs-card{position:relative;overflow:hidden;border:none;cursor:pointer;border-radius:28px;padding:28px 24px 24px;min-height:200px;display:flex;flex-direction:column;justify-content:space-between;text-align:left;color:#fff;background:var(--g,linear-gradient(135deg,#FCB851,#F59E0B));box-shadow:0 12px 32px -10px rgba(17,24,39,.25),0 4px 12px -4px rgba(0,0,0,.1);transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s ease;font-family:inherit;isolation:isolate}
+.hs-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+@media (min-width:600px){.hs-grid{grid-template-columns:1fr 1fr 1fr}}
+.hs-card{position:relative;overflow:hidden;border:none;cursor:pointer;border-radius:20px;padding:18px 16px 16px;min-height:110px;display:flex;flex-direction:column;justify-content:space-between;text-align:left;color:#fff;background:var(--g,linear-gradient(135deg,#FCB851,#F59E0B));box-shadow:0 6px 18px -6px rgba(17,24,39,.2),0 2px 8px -3px rgba(0,0,0,.08);transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s ease;font-family:inherit;isolation:isolate;animation:fadeSlideUp .35s cubic-bezier(.2,.8,.2,1) both}
 @keyframes hsCardIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 .hs-card:hover{transform:translateY(-4px) scale(1.01);box-shadow:0 20px 48px -12px rgba(17,24,39,.35),0 8px 16px -4px rgba(0,0,0,.1)}
 .hs-card:active{transform:scale(.98)}
-.hs-card-blob{position:absolute;top:-40%;right:-30%;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.18);filter:blur(20px);z-index:-1;animation:hsBlob 12s ease-in-out infinite alternate}
-.hs-card-blob-2{top:auto;bottom:-50%;left:-30%;right:auto;width:280px;height:280px;background:rgba(255,255,255,.1);animation-duration:16s;animation-delay:-3s}
+.hs-card-blob{position:absolute;top:-40%;right:-30%;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.15);filter:blur(16px);z-index:-1;animation:hsBlob 12s ease-in-out infinite alternate}
+.hs-card-blob-2{top:auto;bottom:-50%;left:-30%;right:auto;width:160px;height:160px;background:rgba(255,255,255,.08);animation-duration:16s;animation-delay:-3s}
 @keyframes hsBlob{from{transform:translate(0,0) scale(1)}to{transform:translate(20px,-20px) scale(1.15)}}
 .hs-card-top{display:flex;align-items:baseline;gap:6px}
-.hs-card-dur{font-family:'Instrument Serif',Georgia,serif;font-size:64px;line-height:.85;font-weight:400;letter-spacing:-.04em;text-shadow:0 4px 24px rgba(0,0,0,.18)}
-.hs-card-durU{font-family:'JetBrains Mono','Space Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.18em;opacity:.85;align-self:flex-end;padding-bottom:8px}
-.hs-card-title{font-family:'Instrument Serif',Georgia,serif;font-size:22px;font-weight:400;letter-spacing:-.01em;margin-top:auto;line-height:1.15;font-style:italic;text-shadow:0 2px 12px rgba(0,0,0,.12)}
-.hs-card-desc{font-size:13px;line-height:1.45;opacity:.92;margin-top:6px;font-weight:450;max-width:90%}
-.hs-card-play{position:absolute;bottom:20px;right:20px;width:52px;height:52px;border-radius:16px;background:rgba(255,255,255,.95);color:#111827;display:grid;place-items:center;box-shadow:0 8px 24px -4px rgba(0,0,0,.3);transition:all .25s cubic-bezier(.2,.8,.2,1);backdrop-filter:blur(8px)}
+.hs-card-dur{font-family:'Instrument Serif',Georgia,serif;font-size:36px;line-height:.85;font-weight:400;letter-spacing:-.03em;text-shadow:0 2px 12px rgba(0,0,0,.15)}
+.hs-card-durU{font-family:'JetBrains Mono','Space Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.15em;opacity:.85;align-self:flex-end;padding-bottom:4px}
+.hs-card-title{font-family:var(--serif);font-size:16px;font-weight:500;letter-spacing:-.01em;margin-top:auto;line-height:1.2;font-style:italic;text-shadow:0 1px 6px rgba(0,0,0,.1)}
+.hs-card-desc{font-size:12px;line-height:1.4;opacity:.9;margin-top:4px;font-weight:450;max-width:95%}
+.hs-card-play{position:absolute;bottom:14px;right:14px;width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.95);color:#111827;display:grid;place-items:center;box-shadow:0 4px 14px -3px rgba(0,0,0,.25);transition:all .25s cubic-bezier(.2,.8,.2,1);backdrop-filter:blur(8px)}
 .hs-card:hover .hs-card-play{transform:scale(1.12);background:#fff;box-shadow:0 12px 32px -4px rgba(0,0,0,.35)}
 .hs-card.is-loading .hs-card-play{background:rgba(255,255,255,.4)}
 body[data-theme=aurora] .hs-cat{background:rgba(255,255,255,.06)!important;color:#F5F5FA!important;border-color:rgba(255,255,255,.08)!important}
@@ -8801,6 +8822,11 @@ const MED_CATEGORIES=[
   {k:'music',l:'Music',e:'\\u{1F3B5}'},
   {k:'stories',l:'Stories',e:'\\u{1F4D6}'}
 ];
+var _wsCalMonth=new Date().getMonth(),_wsCalYear=new Date().getFullYear();
+function _wsGetMedDays(){try{return(localStorage.getItem('med_days')||'').split(',').filter(Boolean)}catch(e){return[]}}
+function _wsLocalISO(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function _wsCalcStreak(){var days=_wsGetMedDays();if(!days.length)return 0;var streak=0;var d=new Date();d.setHours(12,0,0,0);for(var i=0;i<365;i++){var iso=_wsLocalISO(d);if(days.indexOf(iso)!==-1)streak++;else if(i>0)break;d.setDate(d.getDate()-1)}return streak}
+function _wsNavCal(dir){_wsCalMonth+=dir;if(_wsCalMonth>11){_wsCalMonth=0;_wsCalYear++}else if(_wsCalMonth<0){_wsCalMonth=11;_wsCalYear--}render()}
 async function loadMeditations(){if(S.medLoading)return;S.medLoading=true;S.meditations=S.meditations||{};MED_SLOTS.forEach(s=>{if(s.directId&&!S.meditations[s.directId])S.meditations[s.directId]={identifier:s.directId,title:s.title}});S.medLoading=false;render()}
 function setMedCat(k){S.medCat=k;render()}
 function playMedDirect(id,title,mins,file){playMeditation(id,title,mins,file)}
@@ -11375,39 +11401,34 @@ function llJump(targetIdx){
 function _playWaterSound(){
   try{
     const ac=new(window.AudioContext||window.webkitAudioContext)();
-    const sr=ac.sampleRate;const dur=2.5;
+    const sr=ac.sampleRate;const dur=1.8;
     const buf=ac.createBuffer(2,sr*dur,sr);
     const L=buf.getChannelData(0);const R=buf.getChannelData(1);
     for(let i=0;i<L.length;i++){
       const t=i/sr;
-      // Pour envelope: ramps up, sustains, fades
-      const pourEnv=Math.min(1,t/0.3)*Math.max(0,1-(t-1.8)/0.7);
-      // Filtered noise simulates water turbulence
-      const noise=(Math.random()*2-1);
-      // Bubble oscillations at varying rates
-      const bubbleRate=8+6*Math.sin(t*2.1);
-      const bubble=Math.sin(2*Math.PI*bubbleRate*t)*0.4;
-      // Water resonance: low rumble + mid splash
-      const lowRumble=Math.sin(2*Math.PI*85*t+3*Math.sin(2*Math.PI*1.2*t))*0.2;
-      const midSplash=Math.sin(2*Math.PI*(350+150*Math.sin(2*Math.PI*4.5*t))*t)*0.12;
-      // Random drip pings
-      const dripPhase=t*7.3;const dripPing=Math.sin(dripPhase*60)*Math.exp(-((dripPhase%1)*8))*0.15;
-      // Glass filling: rising pitch
-      const fillTone=Math.sin(2*Math.PI*(200+t*80)*t)*0.06*pourEnv;
-      // Combine
-      const sample=pourEnv*(noise*0.18*(0.5+bubble*0.5)+lowRumble+midSplash+dripPing+fillTone);
-      L[i]=sample;R[i]=sample*(0.85+0.15*Math.sin(t*3));
+      // Single water droplet: a clean sine ping that decays quickly
+      const dropFreq=1200-400*t;
+      const dropEnv=Math.exp(-t*8)*Math.max(0,1-t*1.5);
+      const drop=Math.sin(2*Math.PI*dropFreq*t)*dropEnv*0.35;
+      // Second smaller drip echo at 0.3s
+      const t2=Math.max(0,t-0.3);
+      const drop2=t>0.3?Math.sin(2*Math.PI*(900-300*t2)*t2)*Math.exp(-t2*10)*0.18:0;
+      // Third tiny ripple at 0.55s
+      const t3=Math.max(0,t-0.55);
+      const drop3=t>0.55?Math.sin(2*Math.PI*(700-200*t3)*t3)*Math.exp(-t3*12)*0.1:0;
+      // Soft rain ambience: gentle filtered noise that fades in and out
+      const rainEnv=Math.sin(Math.PI*t/dur)*0.06;
+      const rain=(Math.random()*2-1)*rainEnv;
+      // Gentle low ripple resonance
+      const ripple=Math.sin(2*Math.PI*180*t)*Math.exp(-t*3)*0.08;
+      const sample=drop+drop2+drop3+rain+ripple;
+      L[i]=sample;R[i]=sample*(0.9+0.1*Math.sin(t*5));
     }
     const src=ac.createBufferSource();src.buffer=buf;
-    // Low-pass filter for warmth
-    const lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.value=2800;lp.Q.value=0.7;
-    // Slight reverb via delay
-    const delay=ac.createDelay();delay.delayTime.value=0.08;
-    const dGain=ac.createGain();dGain.gain.value=0.25;
-    const master=ac.createGain();master.gain.value=0.65;
+    const lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.value=2200;lp.Q.value=0.5;
+    const master=ac.createGain();master.gain.value=0.55;
     src.connect(lp);lp.connect(master);master.connect(ac.destination);
-    lp.connect(delay);delay.connect(dGain);dGain.connect(master);
-    src.start();src.onended=()=>setTimeout(()=>ac.close(),500);
+    src.start();src.onended=()=>setTimeout(()=>ac.close(),300);
   }catch(e){}
 }
 function _showHydrationNotif(){
@@ -11867,11 +11888,11 @@ if(isMain){
   const _rdTabIcons={
     home:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 4.5l8 7"/><path d="M6 10.5V19a1 1 0 0 0 1 1h3.5v-5h3V20H17a1 1 0 0 0 1-1v-8.5"/></svg>',
     tasks:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="16" height="16" rx="4.5"/><path d="M8 12l2.5 2.5L16 9"/></svg>',
-    bro:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>',
-    mindgym:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linejoin="round"><path d="M12 4l1.7 4.6L18 10l-4.3 1.4L12 16l-1.7-4.6L6 10l4.3-1.4z"/></svg>',
-    profile:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><path d="M8 10h8M8 14h4"/><circle cx="17" cy="17" r="0" fill="none"/></svg>'
+    books:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>',
+    meditation:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="6" r="3"/><path d="M12 9v4"/><path d="M8 17c0-2.2 1.8-4 4-4s4 1.8 4 4"/><path d="M6 20c1-1.5 3-2.5 6-2.5s5 1 6 2.5"/><path d="M4.5 14.5c1.5-1 3-1.5 4.5-1.5"/><path d="M19.5 14.5c-1.5-1-3-1.5-4.5-1.5"/></svg>',
+    bro:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>'
   };
-  const tabsHtml=[{k:'home',l:'Home'},{k:'tasks',l:'Tasks'},{k:'bro',l:'Chat'},{k:'mindgym',l:'Mind'},{k:'profile',l:'Plan'}].map(x=>'<button class="tab tab-'+x.k+((S.tab===x.k||(x.k==='home'&&(!S.tab||S.tab==='home')))?(' on'):'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(_rdTabIcons[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
+  const tabsHtml=[{k:'home',l:'Home'},{k:'tasks',l:'Tasks'},{k:'books',l:'Listen'},{k:'meditation',l:'Wisdom'},{k:'bro',l:'Chat'}].map(x=>'<button class="tab tab-'+x.k+((S.tab===x.k||(x.k==='home'&&(!S.tab||S.tab==='home')))?(' on'):'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(_rdTabIcons[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
   // "Bro, do it!" mascot — a character with a speech bubble that animates
   const climbScene='<div class="bro-mascot" aria-hidden="true">'
     +'<svg class="bro-svg" viewBox="0 0 340 130" xmlns="http://www.w3.org/2000/svg">'
@@ -12515,6 +12536,48 @@ else if(S.tab==='books'){
 // WISDOM TAB — Headspace/Elevate-styled affirmations + meditations
 else if(S.tab==='meditation'){
   const cat=S.medCat||'affirmations';
+  // ── Meditation Streak Calendar ──
+  var _mDays=_wsGetMedDays();
+  var _mStreak=_wsCalcStreak();
+  var _mTotal=_mDays.length;
+  var _mToday=new Date().toISOString().slice(0,10);
+  var _mDoneToday=_mDays.indexOf(_mToday)!==-1;
+  var _streakMsgs=['Start your first session','Keep showing up','Building momentum','You\\'re on fire','Unstoppable','Master meditator','True discipline','Legendary streak'];
+  var _streakMsg=_streakMsgs[Math.min(_mStreak,_streakMsgs.length-1)];
+  h+='<div class="ws-streak">';
+  h+='<div class="ws-streak-top">';
+  h+='<div><div style="display:flex;align-items:center;gap:6px"><span class="ws-streak-fire">'+(_mStreak>=3?'\\u{1F525}':_mStreak>=1?'\\u2728':'\\u{1F9D8}')+'</span><span class="ws-streak-num">'+_mStreak+'</span></div><div class="ws-streak-label">day streak</div></div>';
+  h+='<div style="text-align:right"><div class="ws-streak-msg">'+_streakMsg+'</div>';
+  if(!_mDoneToday)h+='<div style="font:600 12px var(--sans);color:var(--accent);margin-top:4px">\\u{1F4A1} Meditate today to keep it!</div>';
+  else h+='<div style="font:600 12px var(--sans);color:var(--sage);margin-top:4px">\\u2705 Done for today</div>';
+  h+='</div></div>';
+  // Calendar grid
+  var _calMn=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var _calNow=new Date();var _calIsCurrentMonth=_wsCalMonth===_calNow.getMonth()&&_wsCalYear===_calNow.getFullYear();
+  h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
+  h+='<div class="ws-cal-nav"><button onclick="_wsNavCal(-1)">\\u2039</button><span class="ws-cal-month">'+_calMn[_wsCalMonth]+' '+_wsCalYear+'</span><button onclick="_wsNavCal(1)"'+((_wsCalYear>_calNow.getFullYear()||(_wsCalYear===_calNow.getFullYear()&&_wsCalMonth>=_calNow.getMonth()))?' disabled style="opacity:.3"':'')+'>\\u203A</button></div>';
+  h+='</div>';
+  h+='<div class="ws-cal">';
+  ['S','M','T','W','T','F','S'].forEach(function(d){h+='<div class="ws-cal-hdr">'+d+'</div>'});
+  var _fd=new Date(_wsCalYear,_wsCalMonth,1).getDay();
+  var _dim=new Date(_wsCalYear,_wsCalMonth+1,0).getDate();
+  var _todayD=_calNow.getDate(),_todayM=_calNow.getMonth(),_todayY=_calNow.getFullYear();
+  for(var _ei=0;_ei<_fd;_ei++)h+='<div class="ws-cal-day ws-empty"></div>';
+  for(var _di=1;_di<=_dim;_di++){
+    var _iso=_wsCalYear+'-'+String(_wsCalMonth+1).padStart(2,'0')+'-'+String(_di).padStart(2,'0');
+    var _isToday=_di===_todayD&&_wsCalMonth===_todayM&&_wsCalYear===_todayY;
+    var _isDone=_mDays.indexOf(_iso)!==-1;
+    var _isFuture=new Date(_wsCalYear,_wsCalMonth,_di)>_calNow;
+    h+='<div class="ws-cal-day'+(_isDone?' ws-done':'')+(_isToday?' ws-today':'')+(_isFuture?' ws-future':'')+'">'+_di+'</div>';
+  }
+  h+='</div>';
+  // Stats row
+  h+='<div class="ws-stats">';
+  h+='<div class="ws-stat"><div class="ws-stat-n">'+_mTotal+'</div><div class="ws-stat-l">Sessions</div></div>';
+  h+='<div class="ws-stat"><div class="ws-stat-n">'+_mStreak+'</div><div class="ws-stat-l">Streak</div></div>';
+  var _mThisMonth=_mDays.filter(function(d){return d.slice(0,7)===_wsCalYear+'-'+String(_wsCalMonth+1).padStart(2,'0')}).length;
+  h+='<div class="ws-stat"><div class="ws-stat-n">'+_mThisMonth+'</div><div class="ws-stat-l">This month</div></div>';
+  h+='</div></div>';
   // Category pills
   h+='<div class="mag-pills hs-cats" style="margin-bottom:18px">';
   MED_CATEGORIES.forEach(c=>{h+='<button class="mag-pill hs-cat'+(cat===c.k?' on':'')+'" onclick="setMedCat(\\''+c.k+'\\')"><span class="mag-pill-e">'+c.e+'</span>'+esc(c.l)+'</button>'});
@@ -14178,7 +14241,7 @@ app.get('/privacy',(_,res)=>{
 app.get('/terms',(_,res)=>{
   res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Terms of Service — Brodoit</title><meta name="description" content="The simple terms for using Brodoit. Plain English, no surprises."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Terms</div><h1>The simple rules.</h1><p class="lede">We've kept these terms short and human. Use Brodoit kindly, and we'll keep building it for you.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">The service</h2><p>Brodoit is a personal productivity app: it lets you manage tasks with optional WhatsApp and email reminders, listen to free public-domain audiobooks, sharpen your mind with brain games, and see a daily wisdom quote.</p><h2 data-n="02">Your account</h2><p>You register with your email address or phone number. Keep your one-time verification codes private — anyone with the code can sign in. You are responsible for activity on your account.</p><h2 data-n="03">Acceptable use</h2><p>Please don't abuse the service: no spam, no impersonation, no automated scraping, no attempts to disrupt other users or the service itself. We may suspend or remove accounts that do.</p><h2 data-n="04">Content</h2><p>You own your tasks, notes, and other content you create. We store them so we can show them back to you. Audiobook content belongs to the respective public-domain authors and is served from the Internet Archive's LibriVox collection.</p><h2 data-n="05">No warranty</h2><p>The service is provided "as is". We try hard to keep it running, but can't promise zero downtime or guarantee that every reminder is delivered (WhatsApp and email providers can fail). If something matters, please don't rely solely on Brodoit.</p><h2 data-n="06">Limitation of liability</h2><p>Brodoit is a personal tool. We're not liable for missed deadlines, lost data, or any consequential damages from using — or not using — the service.</p><h2 data-n="07">Changes</h2><p>We may update these terms. If we do, we'll update the date at the top. Continued use after a change means you accept the new terms.</p><h2 data-n="08">Contact</h2><p>Need anything? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });
-app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v45";
+app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v47";
 self.addEventListener("install",function(e){self.skipWaiting()});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener("fetch",function(e){});
