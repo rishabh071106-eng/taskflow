@@ -2505,8 +2505,11 @@ h1,h2,h3,h4{font-family:var(--serif);font-weight:500;letter-spacing:-.015em;colo
 .mv-card-info{padding:8px 10px}
 .mv-card-title{font:500 12px var(--sans);color:var(--ink);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .mv-card-dur{font:400 11px var(--sans);color:var(--text-mute);margin-top:3px}
-.mv-player{grid-column:1/-1;border-radius:14px;overflow:hidden;background:#000;aspect-ratio:16/9}
-.mv-player iframe{width:100%;height:100%;border:none}
+.mv-player{grid-column:1/-1;border-radius:14px;overflow:hidden;background:#000;aspect-ratio:16/9;position:relative}
+.mv-player video{width:100%;height:100%;object-fit:cover;display:block}
+.mv-quote-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(0,0,0,.1) 0%,rgba(0,0,0,.55) 100%);pointer-events:none;padding:20px;text-align:center}
+.mv-quote-text{font:700 18px/1.4 var(--serif);color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.7);max-width:90%}
+.mv-quote-close{position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.5);border:none;color:#fff;font-size:18px;cursor:pointer;pointer-events:auto;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
 body[data-theme=aurora] .mv-card{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1)}
 body[data-theme=aurora] .mv-thumb{background:rgba(0,0,0,.3)}
 .rd-card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:17px;box-shadow:var(--shadow-1);animation:fadeSlideUp .4s cubic-bezier(.2,.8,.2,1) both}
@@ -8920,8 +8923,9 @@ function _speakScriptFallback(id,onEnd){
     // Speak as one long utterance for natural prosody. Strip extra whitespace
     // but keep paragraph breaks (turned into commas) so the engine pauses.
     const cleaned=String(script).replace(/\\n\\n+/g,'… ').replace(/\\n+/g,', ').replace(/\\s+/g,' ').trim();
-    const u=new SpeechSynthesisUtterance(cleaned);
-    u.rate=.92;u.pitch=1.0;u.volume=1.0;
+    const cleaned2=cleaned.replace(/\.\s/g,'. ... ').replace(/,\s/g,', ... ');
+    const u=new SpeechSynthesisUtterance(cleaned2);
+    u.rate=.68;u.pitch=.92;u.volume=1.0;
     if(voice)u.voice=voice;
     u.onend=function(){if(onEnd)onEnd()};
     u.onerror=function(){};
@@ -11133,7 +11137,7 @@ function voicePronRecord(){
   try{r.start();S._pronRec=r}catch(e){toast('\\u26A0\\uFE0F '+e.message,'err');S._pronRec=null;S.pron={...(S.pron||{}),recording:false};render()}
 }
 function closePlayer(){stopBookListenTimer();_killAllBookAudio();S.playing=null;S.meditating={active:false,title:'',mins:0,startedAt:0};S._renderForce=true;render();setTimeout(()=>{S._renderForce=false},100)}
-function closeMeditation(){const a=document.getElementById('audioEl');if(a){try{a.pause()}catch(e){}}closePlayer()}
+function closeMeditation(){const a=document.getElementById('audioEl');if(a){try{a.pause()}catch(e){}}try{_stopRain()}catch(e){}try{speechSynthesis.cancel()}catch(e){}closePlayer()}
 let _bkTimer=null;
 function startBookListenTimer(){if(_bkTimer)return;S._bkSec=0;_bkTimer=setInterval(async()=>{const a=document.getElementById('audioEl');if(!a||a.paused||a.ended)return;S._bkSec+=5;if(S._bkSec===120&&S.user&&!S.bookStreak.today){const r=await api('/book-streak',{method:'POST',body:JSON.stringify({date:new Date().toISOString().slice(0,10),seconds:120})});if(r?.ok){S.bookStreak={streak:r.streak,total:r.total,today:true,days:S.bookStreak.days};toast('\\u{1F389} '+r.streak+'-day listening streak!');render()}}},5000)}
 function stopBookListenTimer(){if(_bkTimer){clearInterval(_bkTimer);_bkTimer=null}}
@@ -11464,70 +11468,128 @@ function drinkWater(){_hydrationToday();if(S.hydration.glass>=S.hydration.goal){
 function undrinkWater(){_hydrationToday();if(S.hydration.glass<=0)return;S.hydration.glass--;localStorage.setItem('tf_hydration_glass',String(S.hydration.glass));toast('\\u{1F4A7} Adjusted to '+S.hydration.glass+'/'+S.hydration.goal);_hydrationPatch()}
 var _mvCat='all';var _mvPlaying=null;
 var _mvVideos=[
-  {id:'jPsLQXbRTk4',t:'Morning Motivation - Start Strong',c:'morning',m:5},
-  {id:'mgmVOPgRKCA',t:'Discipline Equals Freedom',c:'discipline',m:4},
-  {id:'ZXsQAXx_ao0',t:'Do It Now - Stop Procrastinating',c:'quick',m:3},
-  {id:'g-jwWYX7Jlo',t:'Believe In Yourself',c:'confidence',m:5},
-  {id:'26U_seo0a1g',t:'Grind Now, Shine Later',c:'grind',m:4},
-  {id:'hbkKHHLdV5E',t:'Wake Up and Work Hard',c:'morning',m:6},
-  {id:'TLKxdTmk-zc',t:'Champions Never Quit',c:'sports',m:5},
-  {id:'nfjg8aBb7wI',t:'Rise Above Doubt',c:'confidence',m:4},
-  {id:'0BVq6FEQihs',t:'Outwork Everyone',c:'grind',m:3},
-  {id:'4q1dgn_C0AU',t:'Take Action Today',c:'quick',m:5},
-  {id:'7Oxz060iedY',t:'Success Requires Sacrifice',c:'discipline',m:7},
-  {id:'1VXrdmMVN1Y',t:'Keep Moving Forward',c:'confidence',m:4},
-  {id:'tbnzAVRZ9Xc',t:'5 Minutes to Change Your Life',c:'quick',m:5},
-  {id:'2KKdY-Z4AvE',t:'You Are Unstoppable',c:'confidence',m:6},
-  {id:'5fsm-QbN9r8',t:'The Power of Focus',c:'discipline',m:8},
-  {id:'WmhGnRMLHfs',t:'Push Through Pain',c:'grind',m:4},
-  {id:'H14bBuluwB8',t:'Denzel Washington Motivational Speech',c:'speech',m:10},
-  {id:'8Qn_spdM5Zg',t:'Steve Jobs Stanford Speech',c:'speech',m:15},
-  {id:'IdTMDpizis8',t:'Rocky Balboa Inspirational Speech',c:'speech',m:3},
-  {id:'mgmVOPgRKCA',t:'Jocko Willink - Good',c:'discipline',m:2},
-  {id:'V80-gPkpH6M',t:'Elon Musk Work Ethic',c:'grind',m:8},
-  {id:'D_Vg4uyYwEk',t:'Navy SEAL Mental Toughness',c:'discipline',m:10},
-  {id:'k6_QUhUPrF4',t:'Les Brown - Its Possible',c:'speech',m:12},
-  {id:'pxBQLFLei70',t:'Morning Energy Boost',c:'morning',m:3},
-  {id:'cZGghmwUcbQ',t:'Never Give Up',c:'grind',m:6},
-  {id:'_Z5OookwOoY',t:'Matthew McConaughey - Life Lessons',c:'speech',m:7},
-  {id:'E71jjKGfMFE',t:'Arnold Schwarzenegger Rules of Success',c:'speech',m:10},
-  {id:'dQw4w9WgXcQ',t:'10 Habits of Successful People',c:'discipline',m:8},
-  {id:'KxGRhd_iWuE',t:'The 5 Second Rule',c:'quick',m:5},
-  {id:'Lp7E973zozc',t:'Jim Rohn - Work On Yourself',c:'discipline',m:12},
-  {id:'_kGqkxQo-Tw',t:'Stop Making Excuses',c:'quick',m:4},
-  {id:'IroCi2BwH8s',t:'Get Comfortable Being Uncomfortable',c:'grind',m:6},
-  {id:'y_ZmM7zPLyI',t:'The Winner Mindset',c:'confidence',m:5},
-  {id:'JA7F7VvqJks',t:'3 Minute Morning Power',c:'morning',m:3},
-  {id:'1k5WBcMFVbE',t:'Your Time Is Now',c:'quick',m:4},
-  {id:'t-1FEwOE8SY',t:'Why Consistency Beats Talent',c:'discipline',m:7},
-  {id:'IzFObkVRSV0',t:'Admiral McRaven - Make Your Bed',c:'speech',m:6},
-  {id:'Oy0Xj2FxlxU',t:'Tony Robbins Morning Routine',c:'morning',m:8},
-  {id:'_HEBKD0y3TI',t:'Prove Them Wrong',c:'grind',m:5},
-  {id:'y2X7c9SBER0',t:'Oprah Winfrey - The Journey',c:'speech',m:9},
-  {id:'HaWY_pUAkgk',t:'Early Bird Gets the Worm',c:'morning',m:4},
-  {id:'hV63DbQ_qSc',t:'Be Obsessed Or Be Average',c:'grind',m:6},
-  {id:'YTuElM6T50w',t:'Kobe Bryant Mamba Mentality',c:'sports',m:7},
-  {id:'nHLl_FYkuJA',t:'Michael Jordan Never Settle',c:'sports',m:5},
-  {id:'Kb6RLqjVVGA',t:'Ali - Float Like a Butterfly',c:'sports',m:4},
-  {id:'FhzNSPiqO0M',t:'Usain Bolt Speed of Greatness',c:'sports',m:3},
-  {id:'WTr12dK2Se0',t:'Build Unshakable Confidence',c:'confidence',m:8},
-  {id:'3PDMfMYqgHI',t:'Transform Your Morning Routine',c:'morning',m:10},
-  {id:'QijH4UAqGD8',t:'Eric Thomas - When You Want Success',c:'speech',m:6},
-  {id:'Js7CQkYjKwM',t:'Gary Vee - Stop Complaining',c:'grind',m:5}
+  {id:'mv1',src:'https://cdn.pixabay.com/video/2022/06/15/120450-720880556_medium.mp4',t:'Keep Moving Forward',q:'The only way out is through',c:'grind'},
+  {id:'mv2',src:'https://cdn.pixabay.com/video/2020/07/13/44639-439413049_medium.mp4',t:'Victory Is Yours',q:'Success is not given, it is earned',c:'confidence'},
+  {id:'mv3',src:'https://cdn.pixabay.com/video/2022/08/28/129424-744370601_medium.mp4',t:'Unleash Your Power',q:'You are stronger than you think',c:'confidence'},
+  {id:'mv4',src:'https://cdn.pixabay.com/video/2022/06/18/120683-721759770_medium.mp4',t:'Run Your Race',q:'Don\\'t stop when you\\'re tired, stop when you\\'re done',c:'grind'},
+  {id:'mv5',src:'https://cdn.pixabay.com/video/2022/06/15/120449-720880553_medium.mp4',t:'Outwork Everyone',q:'Hard work beats talent when talent doesn\\'t work hard',c:'grind'},
+  {id:'mv6',src:'https://cdn.pixabay.com/video/2022/06/01/118891-716614154_medium.mp4',t:'Rise and Grind',q:'Every morning is a chance to start again',c:'morning'},
+  {id:'mv7',src:'https://cdn.pixabay.com/video/2020/08/12/46989-449623829_medium.mp4',t:'Push Your Limits',q:'Growth begins at the edge of your comfort zone',c:'discipline'},
+  {id:'mv8',src:'https://cdn.pixabay.com/video/2022/06/18/120679-721759754_medium.mp4',t:'Sprint to Greatness',q:'Champions train, losers complain',c:'grind'},
+  {id:'mv9',src:'https://cdn.pixabay.com/video/2018/09/26/18438-292228576_medium.mp4',t:'Stay Positive',q:'Your attitude determines your altitude',c:'confidence'},
+  {id:'mv10',src:'https://cdn.pixabay.com/video/2018/09/24/18390-291585321_medium.mp4',t:'Golden Hour Awakening',q:'Wake up with determination, go to bed with satisfaction',c:'morning'},
+  {id:'mv11',src:'https://cdn.pixabay.com/video/2025/02/17/258799_medium.mp4',t:'New Dawn, New Goals',q:'Today is the day you change your life',c:'morning'},
+  {id:'mv12',src:'https://cdn.pixabay.com/video/2023/11/19/189813-887078786_medium.mp4',t:'Sunrise Strength',q:'Every sunrise brings a new opportunity',c:'morning'},
+  {id:'mv13',src:'https://cdn.pixabay.com/video/2024/12/12/246391_medium.mp4',t:'Chase the Light',q:'Be the energy you want to attract',c:'morning'},
+  {id:'mv14',src:'https://cdn.pixabay.com/video/2023/03/13/154586-808119408_medium.mp4',t:'Morning Momentum',q:'Start before you\\'re ready',c:'morning'},
+  {id:'mv15',src:'https://cdn.pixabay.com/video/2019/11/11/28975-372617944_medium.mp4',t:'Break of Dawn',q:'Discipline is choosing what you want most over what you want now',c:'morning'},
+  {id:'mv16',src:'https://cdn.pixabay.com/video/2020/11/28/57647-486227472_medium.mp4',t:'First Light Focus',q:'Win the morning, win the day',c:'morning'},
+  {id:'mv17',src:'https://cdn.pixabay.com/video/2020/12/15/59291-492700392_medium.mp4',t:'Peaceful Power',q:'Stillness is where creativity and solutions are found',c:'nature'},
+  {id:'mv18',src:'https://cdn.pixabay.com/video/2022/11/11/138588-770315514_medium.mp4',t:'Ocean of Calm',q:'Be like water — flexible yet unstoppable',c:'nature'},
+  {id:'mv19',src:'https://cdn.pixabay.com/video/2024/06/29/218714_medium.mp4',t:'Waves of Determination',q:'Persistence breaks down all resistance',c:'nature'},
+  {id:'mv20',src:'https://cdn.pixabay.com/video/2020/03/03/33194-396036988_medium.mp4',t:'Endless Horizon',q:'Think big, start small, act now',c:'nature'},
+  {id:'mv21',src:'https://cdn.pixabay.com/video/2019/03/21/22183-712840599_medium.mp4',t:'Tides of Change',q:'Embrace change, it is your greatest teacher',c:'nature'},
+  {id:'mv22',src:'https://cdn.pixabay.com/video/2023/01/30/148597-794221559_medium.mp4',t:'Deep Breath',q:'In the middle of difficulty lies opportunity',c:'nature'},
+  {id:'mv23',src:'https://cdn.pixabay.com/video/2021/04/15/71122-537102350_medium.mp4',t:'Tranquil Strength',q:'Calmness is a superpower',c:'nature'},
+  {id:'mv24',src:'https://cdn.pixabay.com/video/2021/02/18/65560-515098344_medium.mp4',t:'Shore of Serenity',q:'Peace is the foundation of productivity',c:'nature'},
+  {id:'mv25',src:'https://cdn.pixabay.com/video/2023/01/27/148208-793717949_medium.mp4',t:'Iron Will',q:'The pain you feel today is the strength you feel tomorrow',c:'discipline'},
+  {id:'mv26',src:'https://cdn.pixabay.com/video/2023/01/27/148212-793717957_medium.mp4',t:'No Shortcuts',q:'Discipline is the bridge between goals and accomplishment',c:'discipline'},
+  {id:'mv27',src:'https://cdn.pixabay.com/video/2021/06/07/76737-560201133_medium.mp4',t:'Build Your Body',q:'Take care of your body, it\\'s the only place you have to live',c:'discipline'},
+  {id:'mv28',src:'https://cdn.pixabay.com/video/2022/10/16/135162-761273567_medium.mp4',t:'Relentless Training',q:'Sweat now, shine later',c:'discipline'},
+  {id:'mv29',src:'https://cdn.pixabay.com/video/2024/07/08/220150_medium.mp4',t:'Forge Ahead',q:'Every rep counts, every set matters',c:'discipline'},
+  {id:'mv30',src:'https://cdn.pixabay.com/video/2023/01/27/148196-793717922_medium.mp4',t:'Strength Within',q:'You don\\'t find willpower, you create it',c:'discipline'},
+  {id:'mv31',src:'https://cdn.pixabay.com/video/2023/01/27/148204-793717940_medium.mp4',t:'Power Hour',q:'One hour of focused effort changes everything',c:'discipline'},
+  {id:'mv32',src:'https://cdn.pixabay.com/video/2024/02/15/200657-913478674_medium.mp4',t:'Mind Over Matter',q:'Your body achieves what your mind believes',c:'discipline'},
+  {id:'mv33',src:'https://cdn.pixabay.com/video/2023/01/27/148211-793717955_medium.mp4',t:'Daily Grind',q:'Success is the sum of small efforts repeated daily',c:'grind'},
+  {id:'mv34',src:'https://cdn.pixabay.com/video/2021/06/16/77903-563974343_medium.mp4',t:'Never Quit',q:'It does not matter how slowly you go, just don\\'t stop',c:'grind'},
+  {id:'mv35',src:'https://cdn.pixabay.com/video/2018/12/18/20112-307163913_medium.mp4',t:'Sweat Equity',q:'The harder you work, the luckier you get',c:'grind'},
+  {id:'mv36',src:'https://cdn.pixabay.com/video/2023/06/05/165867-833532201_medium.mp4',t:'All In',q:'Go all in or don\\'t go at all',c:'grind'},
+  {id:'mv37',src:'https://cdn.pixabay.com/video/2022/10/16/135160-761273559_medium.mp4',t:'Beast Mode',q:'Excuses don\\'t burn calories',c:'discipline'},
+  {id:'mv38',src:'https://cdn.pixabay.com/video/2024/09/29/233867_medium.mp4',t:'Flow State',q:'When you are in the zone, nothing can stop you',c:'focus'},
+  {id:'mv39',src:'https://cdn.pixabay.com/video/2024/03/18/204565-924698132_medium.mp4',t:'Crystal Clear',q:'Clarity comes from action, not thought',c:'focus'},
+  {id:'mv40',src:'https://cdn.pixabay.com/video/2022/10/14/134822-760690982_medium.mp4',t:'Still Waters Run Deep',q:'Focus on progress, not perfection',c:'focus'},
+  {id:'mv41',src:'https://cdn.pixabay.com/video/2024/07/27/223459_medium.mp4',t:'Inner Peace',q:'A calm mind is an unstoppable mind',c:'focus'},
+  {id:'mv42',src:'https://cdn.pixabay.com/video/2023/08/16/176303-855196335_medium.mp4',t:'Breathe and Believe',q:'Believe you can and you\\'re halfway there',c:'focus'},
+  {id:'mv43',src:'https://cdn.pixabay.com/video/2025/07/23/293085_medium.mp4',t:'Cardio Queen',q:'Strong is the new beautiful',c:'quick'},
+  {id:'mv44',src:'https://cdn.pixabay.com/video/2018/09/26/18439-292228582_medium.mp4',t:'Choose Happiness',q:'Happiness is a choice, not a result',c:'quick'},
+  {id:'mv45',src:'https://cdn.pixabay.com/video/2024/02/02/199001-909564581_medium.mp4',t:'Rise With The Sun',q:'Be so good they can\\'t ignore you',c:'confidence'},
+  {id:'mv46',src:'https://cdn.pixabay.com/video/2023/11/10/188595-883402169_medium.mp4',t:'Sky Is The Limit',q:'Dream bigger than your fears',c:'confidence'},
+  {id:'mv47',src:'https://cdn.pixabay.com/video/2023/08/22/177223-857013274_medium.mp4',t:'Golden Glow',q:'Shine so bright they need sunglasses',c:'confidence'},
+  {id:'mv48',src:'https://cdn.pixabay.com/video/2024/02/08/199788-911378451_medium.mp4',t:'Radiant Energy',q:'Your energy introduces you before you speak',c:'confidence'},
+  {id:'mv49',src:'https://cdn.pixabay.com/video/2022/12/18/143431-782373969_medium.mp4',t:'5 Minute Fire',q:'You are one decision away from a different life',c:'quick'},
+  {id:'mv50',src:'https://cdn.pixabay.com/video/2025/09/14/304019_medium.mp4',t:'Deep Blue Calm',q:'The secret of getting ahead is getting started',c:'quick'}
 ];
 var _mvCats=[
   {k:'all',l:'All',e:'\\u{1F525}'},
   {k:'quick',l:'Quick Boost',e:'\\u26A1'},
   {k:'morning',l:'Morning',e:'\\u{1F305}'},
-  {k:'speech',l:'Speeches',e:'\\u{1F399}\\uFE0F'},
   {k:'discipline',l:'Discipline',e:'\\u{1F3AF}'},
   {k:'grind',l:'Grind',e:'\\u{1F4AA}'},
   {k:'confidence',l:'Confidence',e:'\\u{2B50}'},
-  {k:'sports',l:'Athletes',e:'\\u{1F3C6}'}
+  {k:'nature',l:'Nature',e:'\\u{1F30A}'},
+  {k:'focus',l:'Focus',e:'\\u{1F9D8}'}
 ];
 function _mvFilter(){return _mvCat==='all'?_mvVideos:_mvVideos.filter(function(v){return v.c===_mvCat})}
 function _mvSetCat(k){_mvCat=k;_mvPlaying=null;render()}
-function _mvPlay(id){_mvPlaying=(_mvPlaying===id)?null:id;render();if(_mvPlaying){setTimeout(function(){var el=document.getElementById('mv-frame-'+id);if(el)el.scrollIntoView({behavior:'smooth',block:'center'})},100)}}
+function _mvPlay(id){
+  try{speechSynthesis.cancel()}catch(e){}
+  if(window._mvRainCtx){try{window._mvRainCtx.close()}catch(e){}window._mvRainCtx=null}
+  _mvPlaying=(_mvPlaying===id)?null:id;render();
+  if(_mvPlaying){setTimeout(function(){
+    var el=document.getElementById('mv-frame-'+id);
+    if(el){el.scrollIntoView({behavior:'smooth',block:'center'});var vid=el.querySelector('video');if(vid){vid.play()}}
+    var v=_mvVideos.find(function(x){return x.id===id});
+    if(v&&window.speechSynthesis){_mvSpeak(v)}
+  },100)}
+}
+function _mvSpeak(v){
+  var cats={grind:{r:1.05,p:0.8},discipline:{r:1.0,p:0.85},quick:{r:1.0,p:0.9},morning:{r:0.92,p:1.0},confidence:{r:0.95,p:0.95},nature:{r:0.82,p:1.05},focus:{r:0.8,p:1.08}};
+  var cfg=cats[v.c]||{r:0.92,p:1.0};
+  var speeches={
+    grind:[
+      'Every single day you have a choice. You can stay in bed, stay comfortable, stay average. Or you can get up, push through the pain, and become someone extraordinary. The grind never stops. The hustle never sleeps. And neither should your ambition.',
+      'Pain is temporary. Quitting lasts forever. When your muscles ache, when your mind screams stop, that is when champions are made. Push through. One more rep. One more step. One more hour. You are built for this.',
+      'Nobody is coming to save you. No one is going to do the work for you. Success is not handed out, it is earned with blood, sweat, and tears. So stop waiting for permission and start grinding.'
+    ],
+    discipline:[
+      'Discipline is choosing between what you want now and what you want most. Every time you resist temptation, every time you show up when you do not feel like it, you are building the foundation of greatness.',
+      'Motivation gets you started. Discipline keeps you going. You do not need to feel inspired to work. You just need to work. Day after day, brick by brick, until the ordinary becomes extraordinary.',
+      'The body achieves what the mind believes. Train your mind first. Control your thoughts. Master your emotions. When you conquer yourself, the world has no choice but to follow.'
+    ],
+    quick:[
+      'Stop overthinking. Stop waiting for the perfect moment. The perfect moment is now. Take that first step. Make that call. Send that message. Your future self will thank you.',
+      'Five minutes. That is all it takes to change the trajectory of your entire life. Five minutes of courage. Five minutes of action. Five minutes of being brave enough to try.'
+    ],
+    morning:[
+      'Good morning, champion. The sun is rising, and so are you. Today is a gift. A brand new chance to chase your dreams, to be better than yesterday, to prove to yourself that you are capable of incredible things.',
+      'The way you start your morning determines the quality of your day. Rise with purpose. Move with intention. Breathe with gratitude. Today, you choose greatness.'
+    ],
+    confidence:[
+      'You are stronger than you know. Braver than you believe. And more capable than you can imagine. Stop shrinking to fit into spaces that were never meant for you. Expand. Grow. Shine.',
+      'Confidence is not about being perfect. It is about knowing your worth even when the world tells you otherwise. Walk tall. Speak boldly. Dream bigger than your fears.'
+    ],
+    nature:[
+      'In the stillness of nature, you find your truest self. The ocean does not rush. The mountains do not hurry. Yet everything is accomplished. Be like water. Flow with life. Trust the process.',
+      'Take a deep breath. Feel the peace that surrounds you. You are part of something vast and beautiful. Let go of what you cannot control. Embrace the calm. You are exactly where you need to be.'
+    ],
+    focus:[
+      'In a world full of distractions, your ability to focus is your superpower. Close your eyes. Clear your mind. When you are truly present, anything becomes possible.',
+      'Silence the noise. Filter out the chaos. Your mind is a powerful instrument. When you learn to focus it like a laser, there is nothing you cannot achieve. Stay present. Stay powerful.'
+    ]
+  };
+  var pool=speeches[v.c]||speeches.quick;
+  var idx=parseInt(v.id.replace('mv',''),10)%pool.length;
+  var text=v.t+'. '+pool[idx];
+  try{speechSynthesis.cancel()}catch(e){}
+  var go=function(){
+    var u=new SpeechSynthesisUtterance(text);
+    var best=pickBestVoice();if(best){u.voice=best;u.lang=best.lang}
+    u.rate=cfg.r;u.pitch=cfg.p;u.volume=1.0;
+    speechSynthesis.speak(u);
+  };
+  var vs=speechSynthesis.getVoices();
+  if(vs&&vs.length)go();else{speechSynthesis.onvoiceschanged=function(){speechSynthesis.onvoiceschanged=null;go()};setTimeout(go,300)}
+}
 function _playWaterSound(){
   try{
     const ac=new(window.AudioContext||window.webkitAudioContext)();
@@ -11560,6 +11622,51 @@ function _playWaterSound(){
     src.connect(lp);lp.connect(master);master.connect(ac.destination);
     src.start();src.onended=()=>setTimeout(()=>ac.close(),300);
   }catch(e){}
+}
+function _playRainSound(mins){
+  if(window._rainCtx){try{window._rainCtx.close()}catch(e){}window._rainCtx=null}
+  var ac=new(window.AudioContext||window.webkitAudioContext)();
+  window._rainCtx=ac;
+  var dur=mins*60;
+  var bufSize=4096;
+  var b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+  var noise=ac.createScriptProcessor(bufSize,1,2);
+  noise.onaudioprocess=function(e){
+    var outL=e.outputBuffer.getChannelData(0);
+    var outR=e.outputBuffer.getChannelData(1);
+    for(var i=0;i<bufSize;i++){
+      var w=Math.random()*2-1;
+      b0=0.99886*b0+w*0.0555179;
+      b1=0.99332*b1+w*0.0750759;
+      b2=0.96900*b2+w*0.1538520;
+      b3=0.86650*b3+w*0.3104856;
+      b4=0.55000*b4+w*0.5329522;
+      b5=-0.7616*b5-w*0.0168980;
+      var pink=(b0+b1+b2+b3+b4+b5+b6+w*0.5362)*0.04;
+      b6=w*0.115926;
+      var variance=(Math.random()*2-1)*0.003;
+      outL[i]=pink*(0.35+variance);
+      outR[i]=pink*(0.35-variance);
+    }
+  };
+  var lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.value=800;lp.Q.value=0.7;
+  var hp=ac.createBiquadFilter();hp.type='highpass';hp.frequency.value=80;hp.Q.value=0.5;
+  var gain=ac.createGain();gain.gain.value=0.7;
+  noise.connect(lp);lp.connect(hp);hp.connect(gain);gain.connect(ac.destination);
+  S.meditating={active:true,title:'Rain for Sleep',mins:mins,startedAt:Date.now(),isRain:true};
+  S.playing={id:'rain-'+mins,title:'Rain for Sleep ('+mins+' min)',author:'\\u{1F327}\\uFE0F Ambient rain sounds',loading:false};
+  render();
+  toast('\\u{1F327}\\uFE0F Rain sounds playing for '+mins+' min');
+  setTimeout(function(){
+    if(window._rainCtx===ac){
+      try{ac.close()}catch(e){}
+      window._rainCtx=null;
+      if(S.meditating&&S.meditating.isRain){closeMeditation()}
+    }
+  },dur*1000);
+}
+function _stopRain(){
+  if(window._rainCtx){try{window._rainCtx.close()}catch(e){}window._rainCtx=null}
 }
 function _showHydrationNotif(){
   _hydrationToday();
@@ -11916,13 +12023,18 @@ if(isMain){
   hero+='</div>';
   hero+='<div class="mv-grid">';
   _mvFilter().forEach(function(v){
+    var thumbUrl=v.src.replace('_medium.mp4','_tiny.jpg');
     if(_mvPlaying===v.id){
-      hero+='<div class="mv-player" id="mv-frame-'+v.id+'"><iframe src="https://www.youtube.com/embed/'+v.id+'?autoplay=1&rel=0&modestbranding=1" allow="autoplay;encrypted-media" allowfullscreen></iframe></div>';
+      hero+='<div class="mv-player" id="mv-frame-'+v.id+'">';
+      hero+='<video src="'+v.src+'" autoplay playsinline loop poster="'+thumbUrl+'"></video>';
+      hero+='<div class="mv-quote-overlay"><div class="mv-quote-text">&ldquo;'+esc(v.q)+'&rdquo;</div></div>';
+      hero+='<button class="mv-quote-close" onclick="_mvPlay(\\''+v.id+'\\')">\\u2715</button>';
+      hero+='</div>';
     }
     hero+='<div class="mv-card" onclick="_mvPlay(\\''+v.id+'\\')">';
-    hero+='<div class="mv-thumb"><img src="https://img.youtube.com/vi/'+v.id+'/mqdefault.jpg" alt="" loading="lazy"><div class="mv-play-icon"><svg viewBox="0 0 24 24"><polygon points="8 5 19 12 8 19"/></svg></div></div>';
+    hero+='<div class="mv-thumb"><img src="'+thumbUrl+'" alt="" loading="lazy"><div class="mv-play-icon"><svg viewBox="0 0 24 24"><polygon points="8 5 19 12 8 19"/></svg></div></div>';
     hero+='<div class="mv-card-info"><div class="mv-card-title">'+esc(v.t)+'</div>';
-    hero+='<div class="mv-card-dur">'+v.m+' min</div></div>';
+    hero+='<div class="mv-card-dur">'+esc(v.q.substring(0,40))+'</div></div>';
     hero+='</div>';
   });
   hero+='</div></div>';
@@ -12686,6 +12798,20 @@ else if(S.tab==='meditation'){
     h+='<div class="ws-hero-info"><div class="ws-hero-title">Vipassana</div>';
     h+='<div class="ws-hero-desc">Ancient meditation from S.N. Goenka tradition</div></div>';
     h+='<div class="ws-hero-arrow">\\u2192</div></button>';
+    // Rain for Sleep card
+    h+='<button class="ws-hero-card" onclick="S.showRainPicker=!S.showRainPicker;render()" style="--wg:linear-gradient(135deg,#6B7FA3 0%,#3D4F6F 100%)">';
+    h+='<div class="ws-hero-emoji">\\u{1F327}\\uFE0F</div>';
+    h+='<div class="ws-hero-info"><div class="ws-hero-title" style="color:#fff">Rain for Sleep</div>';
+    h+='<div class="ws-hero-desc" style="color:rgba(255,255,255,.8)">Soothing rain sounds to fall asleep</div></div>';
+    h+='<div class="ws-hero-arrow" style="color:rgba(255,255,255,.7)">\\u2192</div></button>';
+    if(S.showRainPicker){
+      h+='<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:-4px;padding:12px 14px;background:var(--surface);border:1px solid var(--line);border-radius:14px">';
+      [5,10,20,30,60].forEach(function(m){
+        h+='<button onclick="_playRainSound('+m+')" style="flex:1;min-width:55px;padding:10px 8px;border-radius:12px;border:1px solid var(--line);background:var(--paper);cursor:pointer;font:600 13px var(--sans);color:var(--ink);transition:transform .2s">';
+        h+=m+' min</button>';
+      });
+      h+='</div>';
+    }
     h+='</div>';
     // Other categories — smaller grid
     h+='<div style="font:600 15px var(--sans);color:var(--ink);margin-bottom:10px">More practices</div>';
@@ -14596,7 +14722,7 @@ app.get('/privacy',(_,res)=>{
 app.get('/terms',(_,res)=>{
   res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Terms of Service — Brodoit</title><meta name="description" content="The simple terms for using Brodoit. Plain English, no surprises."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Terms</div><h1>The simple rules.</h1><p class="lede">We've kept these terms short and human. Use Brodoit kindly, and we'll keep building it for you.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">The service</h2><p>Brodoit is a personal productivity app: it lets you manage tasks with optional WhatsApp and email reminders, listen to free public-domain audiobooks, sharpen your mind with brain games, and see a daily wisdom quote.</p><h2 data-n="02">Your account</h2><p>You register with your email address or phone number. Keep your one-time verification codes private — anyone with the code can sign in. You are responsible for activity on your account.</p><h2 data-n="03">Acceptable use</h2><p>Please don't abuse the service: no spam, no impersonation, no automated scraping, no attempts to disrupt other users or the service itself. We may suspend or remove accounts that do.</p><h2 data-n="04">Content</h2><p>You own your tasks, notes, and other content you create. We store them so we can show them back to you. Audiobook content belongs to the respective public-domain authors and is served from the Internet Archive's LibriVox collection.</p><h2 data-n="05">No warranty</h2><p>The service is provided "as is". We try hard to keep it running, but can't promise zero downtime or guarantee that every reminder is delivered (WhatsApp and email providers can fail). If something matters, please don't rely solely on Brodoit.</p><h2 data-n="06">Limitation of liability</h2><p>Brodoit is a personal tool. We're not liable for missed deadlines, lost data, or any consequential damages from using — or not using — the service.</p><h2 data-n="07">Changes</h2><p>We may update these terms. If we do, we'll update the date at the top. Continued use after a change means you accept the new terms.</p><h2 data-n="08">Contact</h2><p>Need anything? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });
-app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v51";
+app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v52";
 self.addEventListener("install",function(e){self.skipWaiting()});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener("fetch",function(e){});
