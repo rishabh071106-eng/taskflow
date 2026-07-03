@@ -2577,12 +2577,13 @@ body[data-theme=aurora] .mv-hero{background:linear-gradient(135deg,#0d0d1a 0%,#1
 .mv-thumb .mv-play-icon svg{width:32px;height:32px;fill:#fff;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4))}
 .mv-card-info{padding:8px 10px}
 .mv-card-title{font:500 12px var(--sans);color:var(--ink);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.mv-card-dur{font:400 11px var(--sans);color:var(--text-mute);margin-top:3px}
+.mv-card-cat{font:400 10px var(--sans);color:var(--text-mute);margin-top:3px;text-transform:uppercase;letter-spacing:.05em}
 .mv-player{grid-column:1/-1;border-radius:14px;overflow:hidden;background:#000;aspect-ratio:16/9;position:relative}
-.mv-player video{width:100%;height:100%;object-fit:cover;display:block}
-.mv-quote-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(0,0,0,.1) 0%,rgba(0,0,0,.55) 100%);pointer-events:none;padding:20px;text-align:center}
-.mv-quote-text{font:700 18px/1.4 var(--serif);color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.7);max-width:90%}
-.mv-quote-close{position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.5);border:none;color:#fff;font-size:18px;cursor:pointer;pointer-events:auto;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.mv-player video{width:100%;height:100%;object-fit:contain;display:block;background:#000}
+.mv-player-bar{position:absolute;bottom:0;left:0;right:0;display:flex;align-items:center;gap:10px;padding:10px 14px;background:linear-gradient(transparent,rgba(0,0,0,.7))}
+.mv-player-title{font:500 13px var(--sans);color:#fff;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mv-player-close{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.2);border:none;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);flex:none}
+.mv-card-playing{opacity:.5;pointer-events:none}
 body[data-theme=aurora] .mv-card{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1)}
 body[data-theme=aurora] .mv-thumb{background:rgba(0,0,0,.3)}
 .rd-card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:17px;box-shadow:var(--shadow-1);animation:fadeSlideUp .4s cubic-bezier(.2,.8,.2,1) both}
@@ -4006,41 +4007,12 @@ body[data-theme=aurora] .tabs.page-t .tab.on .tl{color:#D9734A !important}
   .moral-wrap .moral{margin-bottom:0}
   .app .tabs.page-t{flex-direction:column;padding:8px;gap:4px;overflow:visible;margin-bottom:0;justify-content:flex-start}
   .app .tabs.page-t .tab{width:100%;flex:0 0 auto;min-height:50px;padding:8px 10px;font-size:13.5px;font-weight:600;justify-content:flex-start;border-radius:10px;gap:10px;align-items:center;border:none}
-  .app .tabs.page-t .tab .ti{width:36px;height:36px;border-radius:9px;background-size:cover;background-position:center;background-color:#111827;background-repeat:no-repeat;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:0;transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s ease;position:relative;overflow:hidden;box-shadow:0 2px 6px rgba(17,24,39,.14)}
-  .app .tabs.page-t .tab .ti::after{content:'';position:absolute;inset:0;background:var(--tab-tint,linear-gradient(135deg,rgba(17,24,39,.55),rgba(17,24,39,.35)));z-index:0;transition:opacity .2s ease}
-  .app .tabs.page-t .tab .ti svg{width:18px!important;height:18px!important;position:relative;z-index:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4));stroke-width:1.7!important}
+  .app .tabs.page-t .tab .ti{width:36px;height:36px;border-radius:10px;background:var(--surface);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text-mute);transition:transform .2s ease,background .2s ease}
+  .app .tabs.page-t .tab .ti svg{width:20px!important;height:20px!important;stroke-width:1.8!important}
   .app .tabs.page-t .tab .tl{font-size:13.5px;letter-spacing:-.01em}
-  /* Each tab gets a distinct scenic background image */
-  .app .tabs.page-t .tab.tab-tasks .ti{background-image:url("https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?w=200&q=70&auto=format&fit=crop")}
-  .app .tabs.page-t .tab.tab-tasks{--tab-tint:linear-gradient(135deg,rgba(17,24,39,.55),rgba(17,24,39,.45))}
-  .app .tabs.page-t .tab.tab-board .ti{background-image:url("https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=200&q=70&auto=format&fit=crop")}
-  .app .tabs.page-t .tab.tab-board{--tab-tint:linear-gradient(135deg,rgba(217,119,6,.55),rgba(17,24,39,.45))}
-  .app .tabs.page-t .tab.tab-cal .ti{background-image:url("https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&q=70&auto=format&fit=crop")}
-  .app .tabs.page-t .tab.tab-cal{--tab-tint:linear-gradient(135deg,rgba(219,39,119,.5),rgba(17,24,39,.45))}
-  .app .tabs.page-t .tab.tab-news .ti{background-image:url("https://images.unsplash.com/photo-1495020689067-958852a7765e?w=200&q=70&auto=format&fit=crop")}
-  .app .tabs.page-t .tab.tab-news{--tab-tint:linear-gradient(135deg,rgba(13,148,136,.55),rgba(17,24,39,.45))}
-  .app .tabs.page-t .tab.tab-books .ti{background-image:url("https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=200&q=70&auto=format&fit=crop")}
-  .app .tabs.page-t .tab.tab-books{--tab-tint:linear-gradient(135deg,rgba(226,125,96,.55),rgba(17,24,39,.45))}
-  .app .tabs.page-t .tab.tab-meditation .ti{background-image:url("https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=200&q=70&auto=format&fit=crop")}
-  .app .tabs.page-t .tab.tab-meditation{--tab-tint:linear-gradient(135deg,rgba(226,125,96,.55),rgba(17,24,39,.45))}
-  .app .tabs.page-t .tab.tab-knowledge .ti{background-image:url("https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=200&q=70&auto=format&fit=crop")}
-  .app .tabs.page-t .tab.tab-knowledge{--tab-tint:linear-gradient(135deg,rgba(226,125,96,.55),rgba(17,24,39,.45))}
-  .app .tabs.page-t .tab:hover:not(.on) .ti{transform:scale(1.06);box-shadow:0 8px 22px rgba(17,24,39,.24)}
-  .app .tabs.page-t .tab.on .ti{box-shadow:0 8px 24px rgba(17,24,39,.32),0 0 0 3px var(--ring,rgba(255,255,255,.7))}
-  .app .tabs.page-t .tab.on .ti::after{opacity:.45}
-  .app .tabs.page-t .tab.tab-tasks.on{--ring:rgba(17,24,39,.85)}
-  .app .tabs.page-t .tab.tab-board.on{--ring:rgba(226,125,96,.85)}
-  .app .tabs.page-t .tab.tab-cal.on{--ring:rgba(236,72,153,.85)}
-  .app .tabs.page-t .tab.tab-news.on{--ring:rgba(13,148,136,.85)}
-  .app .tabs.page-t .tab.tab-books.on{--ring:rgba(226,125,96,.85)}
-  .app .tabs.page-t .tab.tab-meditation.on{--ring:rgba(139,92,246,.85)}
-  .app .tabs.page-t .tab.tab-knowledge.on{--ring:rgba(226,125,96,.85)}
-  /* Active tab tile pulses softly */
-  .app .tabs.page-t .tab.on .ti{animation:tilePulse 2.4s ease-in-out infinite}
-  @keyframes tilePulse{0%,100%{box-shadow:0 8px 24px rgba(17,24,39,.32),0 0 0 3px var(--ring,rgba(255,255,255,.7))}50%{box-shadow:0 12px 30px rgba(17,24,39,.36),0 0 0 6px var(--ring,rgba(255,255,255,.4))}}
-  /* Hover shimmer across tile */
-  .app .tabs.page-t .tab .ti::before{content:'';position:absolute;top:0;left:-60%;width:50%;height:100%;background:linear-gradient(120deg,transparent 0%,rgba(255,255,255,.45) 50%,transparent 100%);transform:skewX(-20deg);z-index:2;transition:left .6s ease;pointer-events:none}
-  .app .tabs.page-t .tab:hover .ti::before{left:120%}
+  .app .tabs.page-t .tab:hover:not(.on) .ti{transform:scale(1.05);background:var(--accent-soft)}
+  .app .tabs.page-t .tab.on .ti{background:var(--accent-soft);color:var(--accent)}
+  .app .tabs.page-t .tab.on .ti svg{color:var(--accent)!important;stroke:var(--accent)!important}
   /* Sidebar footer "now" panel — fills the bottom blank space */
   .app .tabs.page-t .side-now{margin-top:auto;background:linear-gradient(135deg,rgba(17,24,39,.08),rgba(226,125,96,.08));border:1px solid rgba(17,24,39,.18);border-radius:16px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;position:relative;overflow:hidden}
   .app .tabs.page-t .side-now-lbl{font-size:10px;font-weight:800;color:#E27D60;letter-spacing:1.4px;text-transform:uppercase}
@@ -11583,11 +11555,21 @@ function _mvStopAudio(){
 function _mvPlay(id){
   _mvStopAudio();
   if(window._mvRainCtx){try{window._mvRainCtx.close()}catch(e){}window._mvRainCtx=null}
-  _mvPlaying=(_mvPlaying===id)?null:id;render();
-  if(_mvPlaying){setTimeout(function(){
-    var el=document.getElementById('mv-frame-'+id);
-    if(el){el.scrollIntoView({behavior:'smooth',block:'center'});var vid=el.querySelector('video');if(vid){vid.play()}}
-  },100)}
+  var prev=_mvPlaying;
+  if(prev===id){_mvPlaying=null;var oldP=document.getElementById('mv-frame-'+id);if(oldP){oldP.querySelector('video').pause();oldP.remove()}document.querySelectorAll('.mv-card-playing').forEach(function(c){c.classList.remove('mv-card-playing');c.style.opacity='';c.style.pointerEvents=''});return}
+  if(prev){var oldP2=document.getElementById('mv-frame-'+prev);if(oldP2){oldP2.querySelector('video').pause();oldP2.remove()}document.querySelectorAll('.mv-card-playing').forEach(function(c){c.classList.remove('mv-card-playing');c.style.opacity='';c.style.pointerEvents=''})}
+  _mvPlaying=id;
+  var v=_mvVideos.find(function(x){return x.id===id});if(!v)return;
+  var thumbUrl='/api/mv-thumb/'+v.src.split('/').pop()+'.jpg';
+  var grid=document.querySelector('.mv-grid');if(!grid)return;
+  var cards=grid.querySelectorAll('.mv-card');
+  var targetCard=null;
+  cards.forEach(function(c){if(c.getAttribute('onclick')&&c.getAttribute('onclick').indexOf(id)!==-1){targetCard=c}});
+  var player=document.createElement('div');player.className='mv-player';player.id='mv-frame-'+id;
+  player.innerHTML='<video src="'+v.src+'" autoplay playsinline poster="'+thumbUrl+'"></video><div class="mv-player-bar"><span class="mv-player-title">'+esc(v.t)+'</span><button class="mv-player-close" onclick="_mvPlay(\\''+id+'\\')">\\u2715</button></div>';
+  if(targetCard){grid.insertBefore(player,targetCard);targetCard.classList.add('mv-card-playing');targetCard.style.opacity='.5';targetCard.style.pointerEvents='none'}else{grid.prepend(player)}
+  player.scrollIntoView({behavior:'smooth',block:'center'});
+  var vid=player.querySelector('video');if(vid)vid.play();
 }
 function _playWaterSound(){
   try{
@@ -12035,15 +12017,16 @@ if(isMain){
     var thumbUrl='/api/mv-thumb/'+v.src.split('/').pop()+'.jpg';
     if(_mvPlaying===v.id){
       hero+='<div class="mv-player" id="mv-frame-'+v.id+'">';
-      hero+='<video src="'+v.src+'" autoplay playsinline loop poster="'+thumbUrl+'"></video>';
-      hero+='<div class="mv-quote-overlay"><div class="mv-quote-text">&ldquo;'+esc(v.q)+'&rdquo;</div></div>';
-      hero+='<button class="mv-quote-close" onclick="_mvPlay(\\''+v.id+'\\')">\\u2715</button>';
+      hero+='<video src="'+v.src+'" autoplay playsinline poster="'+thumbUrl+'"></video>';
+      hero+='<div class="mv-player-bar"><span class="mv-player-title">'+esc(v.t)+'</span>';
+      hero+='<button class="mv-player-close" onclick="_mvPlay(\\''+v.id+'\\')">\\u2715</button></div>';
       hero+='</div>';
     }
-    hero+='<div class="mv-card" onclick="_mvPlay(\\''+v.id+'\\')">';
+    var catLabel=_mvCats.find(function(c){return c.k===v.c});
+    hero+='<div class="mv-card'+((_mvPlaying===v.id)?' mv-card-playing':'')+'" onclick="_mvPlay(\\''+v.id+'\\')">';
     hero+='<div class="mv-thumb"><img src="'+thumbUrl+'" alt="" loading="lazy"><div class="mv-play-icon"><svg viewBox="0 0 24 24"><polygon points="8 5 19 12 8 19"/></svg></div></div>';
     hero+='<div class="mv-card-info"><div class="mv-card-title">'+esc(v.t)+'</div>';
-    hero+='<div class="mv-card-dur">'+esc(v.q.substring(0,40))+'</div></div>';
+    hero+='<div class="mv-card-cat">'+(catLabel?catLabel.e+' '+catLabel.l:'')+'</div></div>';
     hero+='</div>';
   });
   hero+='</div></div>';
@@ -14731,7 +14714,7 @@ app.get('/privacy',(_,res)=>{
 app.get('/terms',(_,res)=>{
   res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Terms of Service — Brodoit</title><meta name="description" content="The simple terms for using Brodoit. Plain English, no surprises."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Terms</div><h1>The simple rules.</h1><p class="lede">We've kept these terms short and human. Use Brodoit kindly, and we'll keep building it for you.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">The service</h2><p>Brodoit is a personal productivity app: it lets you manage tasks with optional WhatsApp and email reminders, listen to free public-domain audiobooks, sharpen your mind with brain games, and see a daily wisdom quote.</p><h2 data-n="02">Your account</h2><p>You register with your email address or phone number. Keep your one-time verification codes private — anyone with the code can sign in. You are responsible for activity on your account.</p><h2 data-n="03">Acceptable use</h2><p>Please don't abuse the service: no spam, no impersonation, no automated scraping, no attempts to disrupt other users or the service itself. We may suspend or remove accounts that do.</p><h2 data-n="04">Content</h2><p>You own your tasks, notes, and other content you create. We store them so we can show them back to you. Audiobook content belongs to the respective public-domain authors and is served from the Internet Archive's LibriVox collection.</p><h2 data-n="05">No warranty</h2><p>The service is provided "as is". We try hard to keep it running, but can't promise zero downtime or guarantee that every reminder is delivered (WhatsApp and email providers can fail). If something matters, please don't rely solely on Brodoit.</p><h2 data-n="06">Limitation of liability</h2><p>Brodoit is a personal tool. We're not liable for missed deadlines, lost data, or any consequential damages from using — or not using — the service.</p><h2 data-n="07">Changes</h2><p>We may update these terms. If we do, we'll update the date at the top. Continued use after a change means you accept the new terms.</p><h2 data-n="08">Contact</h2><p>Need anything? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });
-app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v55";
+app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v56";
 self.addEventListener("install",function(e){self.skipWaiting()});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener("fetch",function(e){});
