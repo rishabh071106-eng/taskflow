@@ -2490,16 +2490,25 @@ h1,h2,h3,h4{font-family:var(--serif);font-weight:500;letter-spacing:-.015em;colo
 .yp-stat-l{font:500 13px var(--sans);color:var(--text-mute)}
 .yp-stat-v{font:700 13px var(--sans);color:var(--ink)}
 @keyframes ypPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
-.pb-wrap{margin-top:14px;border-radius:20px;background:var(--surface);border:1px solid var(--line);padding:18px 16px;animation:fadeSlideUp .4s cubic-bezier(.2,.8,.2,1) both;animation-delay:.1s}
-.pb-q{font:500 16px var(--serif);color:var(--ink);margin-bottom:14px;line-height:1.35}
-.pb-opts{display:flex;flex-direction:column;gap:8px}
-.pb-opt{background:var(--paper);border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;cursor:pointer;font:500 14px var(--sans);color:var(--ink);text-align:left;transition:all .2s;-webkit-tap-highlight-color:transparent}
-.pb-opt:active{transform:scale(.97)}
-.pb-opt.pb-sel{border-color:var(--accent);background:var(--accent-soft)}
-.pb-result{margin-top:14px;padding:14px;border-radius:14px;background:linear-gradient(135deg,var(--accent-soft),rgba(190,140,54,.08));border:1px solid rgba(226,125,96,.2);animation:fadeSlideUp .3s ease}
-.pb-tip{font:400 14px var(--serif);color:var(--ink);line-height:1.45;font-style:italic}
-.pb-action{display:inline-block;margin-top:10px;font:600 13px var(--sans);color:var(--accent);cursor:pointer}
-.pb-emoji{font-size:32px;margin-bottom:8px}
+.mv-wrap{margin-top:14px;border-radius:20px;background:var(--surface);border:1px solid var(--line);padding:16px;animation:fadeSlideUp .4s cubic-bezier(.2,.8,.2,1) both;animation-delay:.1s}
+.mv-cats{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.mv-cats::-webkit-scrollbar{display:none}
+.mv-cat{flex:none;padding:6px 12px;border-radius:10px;background:var(--paper);border:1px solid var(--line);font:500 12px var(--sans);color:var(--ink);cursor:pointer;white-space:nowrap;transition:all .2s}
+.mv-cat.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.mv-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.mv-card{border-radius:14px;overflow:hidden;background:var(--paper);border:1px solid var(--line);cursor:pointer;transition:transform .2s}
+.mv-card:active{transform:scale(.97)}
+.mv-thumb{position:relative;width:100%;aspect-ratio:16/9;background:#111;overflow:hidden}
+.mv-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.mv-thumb .mv-play-icon{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.3);transition:background .2s}
+.mv-thumb .mv-play-icon svg{width:32px;height:32px;fill:#fff;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4))}
+.mv-card-info{padding:8px 10px}
+.mv-card-title{font:500 12px var(--sans);color:var(--ink);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mv-card-dur{font:400 11px var(--sans);color:var(--text-mute);margin-top:3px}
+.mv-player{grid-column:1/-1;border-radius:14px;overflow:hidden;background:#000;aspect-ratio:16/9}
+.mv-player iframe{width:100%;height:100%;border:none}
+body[data-theme=aurora] .mv-card{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1)}
+body[data-theme=aurora] .mv-thumb{background:rgba(0,0,0,.3)}
 .rd-card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:17px;box-shadow:var(--shadow-1);animation:fadeSlideUp .4s cubic-bezier(.2,.8,.2,1) both}
 .rd-session-card{animation:scaleIn .45s cubic-bezier(.2,.8,.2,1) both;animation-delay:.1s}
 .rd-mg-cat{animation:fadeSlideUp .4s cubic-bezier(.2,.8,.2,1) both;transition:transform .2s ease}
@@ -7889,6 +7898,17 @@ body[data-theme=aurora] .bro-ticker-inner{background:rgba(255,255,255,.04);borde
 /* ── Wisdom / Meditation ── */
 .med-card{border-radius:16px;overflow:hidden;transition:all .2s ease;box-shadow:var(--shadow-1)}
 .med-card:hover{box-shadow:var(--shadow-2);transform:translateY(-2px)}
+.ws-hero-card{display:flex;align-items:center;gap:14px;width:100%;padding:20px;border-radius:18px;background:var(--wg);border:none;cursor:pointer;text-align:left;transition:transform .2s,box-shadow .2s;box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.ws-hero-card:active{transform:scale(.97)}
+.ws-hero-emoji{font-size:40px;flex:none}
+.ws-hero-info{flex:1;min-width:0}
+.ws-hero-title{font:700 19px var(--sans);color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.2)}
+.ws-hero-desc{font:400 13px var(--sans);color:rgba(255,255,255,.85);margin-top:3px}
+.ws-hero-arrow{font-size:22px;color:rgba(255,255,255,.7);flex:none}
+.ws-mini-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 14px;cursor:pointer;text-align:center;transition:transform .2s,box-shadow .2s}
+.ws-mini-card:active{transform:scale(.97)}
+body[data-theme=aurora] .ws-hero-card{box-shadow:0 4px 20px rgba(0,0,0,.3)}
+body[data-theme=aurora] .ws-mini-card{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1)}
 
 /* ── Sidebar refinements ── */
 .top-strip{border-radius:16px;overflow:hidden}
@@ -8846,7 +8866,7 @@ function _wsLocalISO(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padSta
 function _wsCalcStreak(){var days=_wsGetMedDays();if(!days.length)return 0;var streak=0;var d=new Date();d.setHours(12,0,0,0);for(var i=0;i<365;i++){var iso=_wsLocalISO(d);if(days.indexOf(iso)!==-1)streak++;else if(i>0)break;d.setDate(d.getDate()-1)}return streak}
 function _wsNavCal(dir){_wsCalMonth+=dir;if(_wsCalMonth>11){_wsCalMonth=0;_wsCalYear++}else if(_wsCalMonth<0){_wsCalMonth=11;_wsCalYear--}render()}
 async function loadMeditations(){if(S.medLoading)return;S.medLoading=true;S.meditations=S.meditations||{};MED_SLOTS.forEach(s=>{if(s.directId&&!S.meditations[s.directId])S.meditations[s.directId]={identifier:s.directId,title:s.title}});S.medLoading=false;render()}
-function setMedCat(k){S.medCat=k;render()}
+function setMedCat(k){S.medCat=k;window.scrollTo(0,0);render()}
 function playMedDirect(id,title,mins,file){playMeditation(id,title,mins,file)}
 function playMedExternal(url,title,mins,skipSec){
   S.meditating={active:true,title,mins:mins||10,startedAt:Date.now()};
@@ -11442,16 +11462,72 @@ async function subscribePush(hydration){
 function _hydrationPatch(){var dots=document.querySelectorAll('.is-hyd-dot');dots.forEach(function(d,i){if(i<S.hydration.glass)d.classList.add('filled');else d.classList.remove('filled')});var tEl=document.querySelector('.is-hydration .is-row-title');if(tEl)tEl.textContent='Water \\u00B7 '+S.hydration.glass+'/'+S.hydration.goal+' glasses'}
 function drinkWater(){_hydrationToday();if(S.hydration.glass>=S.hydration.goal){toast('\\u{1F4A7} You already hit your goal! Great job!');return}S.hydration.glass++;localStorage.setItem('tf_hydration_glass',String(S.hydration.glass));_mgSound('water');toast('\\u{1F4A7} Nice! '+S.hydration.glass+'/'+S.hydration.goal+' glasses today');_hydrationPatch()}
 function undrinkWater(){_hydrationToday();if(S.hydration.glass<=0)return;S.hydration.glass--;localStorage.setItem('tf_hydration_glass',String(S.hydration.glass));toast('\\u{1F4A7} Adjusted to '+S.hydration.glass+'/'+S.hydration.goal);_hydrationPatch()}
-var _pbState={q:0,ans:null};
-var _pbQuestions=[
-  {q:'What are you avoiding right now?',emoji:'\\u{1F648}',opts:['A big task I keep postponing','Replying to messages/emails','Exercise or health stuff','Something I don\\'t know how to start'],tips:['Break it into 3 tiny steps. Do just step 1 right now \\u2014 it takes 2 minutes.','Set a timer for 5 minutes. Reply to just ONE. The rest gets easier.','Put on shoes. That\\'s it. Just shoes. Your brain will do the rest.','Google "how to start [thing]" and read for 3 minutes. Starting is 90% of finishing.']},
-  {q:'How long have you been scrolling?',emoji:'\\u{1F4F1}',opts:['Just opened my phone','10-20 minutes','30+ minutes','I lost track of time'],tips:['Great timing! Set one intention before you continue.','The dopamine trap is real. Close this app, do ONE thing, then reward yourself.','Your future self is watching. Stand up, stretch, drink water. Then pick ONE task.','Time blindness is a sign you need a pattern break. Walk to another room right now.']},
-  {q:'What\\'s your energy level?',emoji:'\\u26A1',opts:['High \\u2014 I\\'m just avoiding','Medium \\u2014 kinda tired','Low \\u2014 drained','I just woke up'],tips:['You have the fuel! Your brain is protecting you from discomfort. Start the hardest thing NOW.','Do a "medium mode" task \\u2014 something useful but not exhausting. Build momentum.','Rest is productive too. Take a 20-min nap or go for a slow walk, then tackle one small win.','Morning is your superpower. Don\\'t check social media. Write down 3 things to do today first.']},
-  {q:'What would make today feel like a win?',emoji:'\\u{1F3C6}',opts:['Finishing that one thing','Being active for 30 min','Having a real conversation','Going to bed on time'],tips:['Write it down. Put it where you\\'ll see it. Tell someone. Now it\\'s a commitment, not a wish.','Schedule it like a meeting. "3 PM \\u2014 Walk." Your calendar doesn\\'t care if it\\'s a workout or a call.','Text someone right now. Say "Hey, can we talk for 10 min today?" Connection beats isolation.','Set a "screens off" alarm for 1 hour before bed. Read, stretch, breathe. Tomorrow-you will be grateful.']}
+var _mvCat='all';var _mvPlaying=null;
+var _mvVideos=[
+  {id:'jPsLQXbRTk4',t:'Morning Motivation - Start Strong',c:'morning',m:5},
+  {id:'mgmVOPgRKCA',t:'Discipline Equals Freedom',c:'discipline',m:4},
+  {id:'ZXsQAXx_ao0',t:'Do It Now - Stop Procrastinating',c:'quick',m:3},
+  {id:'g-jwWYX7Jlo',t:'Believe In Yourself',c:'confidence',m:5},
+  {id:'26U_seo0a1g',t:'Grind Now, Shine Later',c:'grind',m:4},
+  {id:'hbkKHHLdV5E',t:'Wake Up and Work Hard',c:'morning',m:6},
+  {id:'TLKxdTmk-zc',t:'Champions Never Quit',c:'sports',m:5},
+  {id:'nfjg8aBb7wI',t:'Rise Above Doubt',c:'confidence',m:4},
+  {id:'0BVq6FEQihs',t:'Outwork Everyone',c:'grind',m:3},
+  {id:'4q1dgn_C0AU',t:'Take Action Today',c:'quick',m:5},
+  {id:'7Oxz060iedY',t:'Success Requires Sacrifice',c:'discipline',m:7},
+  {id:'1VXrdmMVN1Y',t:'Keep Moving Forward',c:'confidence',m:4},
+  {id:'tbnzAVRZ9Xc',t:'5 Minutes to Change Your Life',c:'quick',m:5},
+  {id:'2KKdY-Z4AvE',t:'You Are Unstoppable',c:'confidence',m:6},
+  {id:'5fsm-QbN9r8',t:'The Power of Focus',c:'discipline',m:8},
+  {id:'WmhGnRMLHfs',t:'Push Through Pain',c:'grind',m:4},
+  {id:'H14bBuluwB8',t:'Denzel Washington Motivational Speech',c:'speech',m:10},
+  {id:'8Qn_spdM5Zg',t:'Steve Jobs Stanford Speech',c:'speech',m:15},
+  {id:'IdTMDpizis8',t:'Rocky Balboa Inspirational Speech',c:'speech',m:3},
+  {id:'mgmVOPgRKCA',t:'Jocko Willink - Good',c:'discipline',m:2},
+  {id:'V80-gPkpH6M',t:'Elon Musk Work Ethic',c:'grind',m:8},
+  {id:'D_Vg4uyYwEk',t:'Navy SEAL Mental Toughness',c:'discipline',m:10},
+  {id:'k6_QUhUPrF4',t:'Les Brown - Its Possible',c:'speech',m:12},
+  {id:'pxBQLFLei70',t:'Morning Energy Boost',c:'morning',m:3},
+  {id:'cZGghmwUcbQ',t:'Never Give Up',c:'grind',m:6},
+  {id:'_Z5OookwOoY',t:'Matthew McConaughey - Life Lessons',c:'speech',m:7},
+  {id:'E71jjKGfMFE',t:'Arnold Schwarzenegger Rules of Success',c:'speech',m:10},
+  {id:'dQw4w9WgXcQ',t:'10 Habits of Successful People',c:'discipline',m:8},
+  {id:'KxGRhd_iWuE',t:'The 5 Second Rule',c:'quick',m:5},
+  {id:'Lp7E973zozc',t:'Jim Rohn - Work On Yourself',c:'discipline',m:12},
+  {id:'_kGqkxQo-Tw',t:'Stop Making Excuses',c:'quick',m:4},
+  {id:'IroCi2BwH8s',t:'Get Comfortable Being Uncomfortable',c:'grind',m:6},
+  {id:'y_ZmM7zPLyI',t:'The Winner Mindset',c:'confidence',m:5},
+  {id:'JA7F7VvqJks',t:'3 Minute Morning Power',c:'morning',m:3},
+  {id:'1k5WBcMFVbE',t:'Your Time Is Now',c:'quick',m:4},
+  {id:'t-1FEwOE8SY',t:'Why Consistency Beats Talent',c:'discipline',m:7},
+  {id:'IzFObkVRSV0',t:'Admiral McRaven - Make Your Bed',c:'speech',m:6},
+  {id:'Oy0Xj2FxlxU',t:'Tony Robbins Morning Routine',c:'morning',m:8},
+  {id:'_HEBKD0y3TI',t:'Prove Them Wrong',c:'grind',m:5},
+  {id:'y2X7c9SBER0',t:'Oprah Winfrey - The Journey',c:'speech',m:9},
+  {id:'HaWY_pUAkgk',t:'Early Bird Gets the Worm',c:'morning',m:4},
+  {id:'hV63DbQ_qSc',t:'Be Obsessed Or Be Average',c:'grind',m:6},
+  {id:'YTuElM6T50w',t:'Kobe Bryant Mamba Mentality',c:'sports',m:7},
+  {id:'nHLl_FYkuJA',t:'Michael Jordan Never Settle',c:'sports',m:5},
+  {id:'Kb6RLqjVVGA',t:'Ali - Float Like a Butterfly',c:'sports',m:4},
+  {id:'FhzNSPiqO0M',t:'Usain Bolt Speed of Greatness',c:'sports',m:3},
+  {id:'WTr12dK2Se0',t:'Build Unshakable Confidence',c:'confidence',m:8},
+  {id:'3PDMfMYqgHI',t:'Transform Your Morning Routine',c:'morning',m:10},
+  {id:'QijH4UAqGD8',t:'Eric Thomas - When You Want Success',c:'speech',m:6},
+  {id:'Js7CQkYjKwM',t:'Gary Vee - Stop Complaining',c:'grind',m:5}
 ];
-function pbAnswer(qi,ai){_pbState={q:qi,ans:ai};render()}
-function pbNext(){_pbState={q:(_pbState.q+1)%_pbQuestions.length,ans:null};render()}
-function pbReset(){_pbState={q:0,ans:null};render()}
+var _mvCats=[
+  {k:'all',l:'All',e:'\\u{1F525}'},
+  {k:'quick',l:'Quick Boost',e:'\\u26A1'},
+  {k:'morning',l:'Morning',e:'\\u{1F305}'},
+  {k:'speech',l:'Speeches',e:'\\u{1F399}\\uFE0F'},
+  {k:'discipline',l:'Discipline',e:'\\u{1F3AF}'},
+  {k:'grind',l:'Grind',e:'\\u{1F4AA}'},
+  {k:'confidence',l:'Confidence',e:'\\u{2B50}'},
+  {k:'sports',l:'Athletes',e:'\\u{1F3C6}'}
+];
+function _mvFilter(){return _mvCat==='all'?_mvVideos:_mvVideos.filter(function(v){return v.c===_mvCat})}
+function _mvSetCat(k){_mvCat=k;_mvPlaying=null;render()}
+function _mvPlay(id){_mvPlaying=(_mvPlaying===id)?null:id;render();if(_mvPlaying){setTimeout(function(){var el=document.getElementById('mv-frame-'+id);if(el)el.scrollIntoView({behavior:'smooth',block:'center'})},100)}}
 function _playWaterSound(){
   try{
     const ac=new(window.AudioContext||window.webkitAudioContext)();
@@ -11642,6 +11718,7 @@ if(S.ytEmbed){
   h+='<button class="med-close" onclick="closeYtEmbed()" aria-label="Close" style="z-index:99">\\u2715</button>';
   h+='<div style="display:flex;align-items:center;justify-content:center;height:100%;width:100%;padding:20px">';
   h+='<iframe width="100%" height="60%" style="max-width:800px;border-radius:12px;border:none" src="https://www.youtube.com/embed/'+esc(S.ytEmbed)+'?autoplay=1&rel=0" allow="autoplay;encrypted-media" allowfullscreen></iframe>';
+  h+='<button onclick="closeYtEmbed()" style="position:absolute;bottom:28px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:14px;padding:10px 24px;color:#fff;font:500 14px var(--sans);cursor:pointer;backdrop-filter:blur(8px);z-index:10">\\u2190 Back to Wisdom</button>';
   h+='</div></div>';
   document.getElementById('app').innerHTML=h;
   return;
@@ -11669,6 +11746,7 @@ if(S.meditating&&S.meditating.active){
     else if(S.playing.error)h+='<div class="med-loading">Audio unavailable</div>';
   }
   h+='<div class="med-tip">Sit comfortably. Let the sound carry you.</div>';
+  h+='<button onclick="closeMeditation()" style="position:absolute;bottom:28px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:14px;padding:10px 24px;color:#fff;font:500 14px var(--sans);cursor:pointer;backdrop-filter:blur(8px);z-index:10;transition:background .2s">\\u2190 Back to Wisdom</button>';
   h+='</div>';
   if(S.toast)h+='<div class="toast toast-'+(S.toastType==='err'?'err':'ok')+'">'+S.toast+'</div>';
   document.getElementById('app').innerHTML=h;
@@ -11830,28 +11908,24 @@ if(isMain){
   hero+='</div></div>';
   hero+='<div style="font:400 13px var(--serif);font-style:italic;color:var(--text-mute);margin-top:10px">'+_ypMsg+'</div>';
   hero+='</div>';
-  // --- Procrastination Buster — interactive game ---
-  var _pbQ=_pbQuestions[_pbState.q];
-  hero+='<div class="pb-wrap">';
-  hero+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font:600 16px var(--sans);color:var(--ink)">\\u{1F3AE} Are You Procrastinating?</span><span style="font:400 12px var(--sans);color:var(--text-mute)">'+((_pbState.q+1)+'/'+_pbQuestions.length)+'</span></div>';
-  hero+='<div class="pb-emoji">'+_pbQ.emoji+'</div>';
-  hero+='<div class="pb-q">'+_pbQ.q+'</div>';
-  if(_pbState.ans===null){
-    hero+='<div class="pb-opts">';
-    _pbQ.opts.forEach(function(o,oi){hero+='<button class="pb-opt" onclick="pbAnswer('+_pbState.q+','+oi+')">'+esc(o)+'</button>'});
-    hero+='</div>';
-  } else {
-    hero+='<div class="pb-opts">';
-    _pbQ.opts.forEach(function(o,oi){hero+='<button class="pb-opt'+(_pbState.ans===oi?' pb-sel':'')+'">'+esc(o)+'</button>'});
-    hero+='</div>';
-    hero+='<div class="pb-result">';
-    hero+='<div class="pb-tip">'+_pbQ.tips[_pbState.ans]+'</div>';
-    hero+='<div style="display:flex;gap:10px;margin-top:10px">';
-    if(_pbState.q<_pbQuestions.length-1)hero+='<span class="pb-action" onclick="pbNext()">Next question \\u2192</span>';
-    else hero+='<span class="pb-action" onclick="pbReset()">\\u21BB Start over</span>';
-    hero+='</div></div>';
-  }
+  // --- Motivational Videos ---
+  hero+='<div class="mv-wrap">';
+  hero+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font:600 16px var(--sans);color:var(--ink)">\\u{1F3AC} Motivational Videos</span><span style="font:400 12px var(--sans);color:var(--text-mute)">'+_mvFilter().length+' videos</span></div>';
+  hero+='<div class="mv-cats">';
+  _mvCats.forEach(function(c){hero+='<button class="mv-cat'+(c.k===_mvCat?' on':'')+'" onclick="_mvSetCat(\\''+c.k+'\\')">'+c.e+' '+c.l+'</button>'});
   hero+='</div>';
+  hero+='<div class="mv-grid">';
+  _mvFilter().forEach(function(v){
+    if(_mvPlaying===v.id){
+      hero+='<div class="mv-player" id="mv-frame-'+v.id+'"><iframe src="https://www.youtube.com/embed/'+v.id+'?autoplay=1&rel=0&modestbranding=1" allow="autoplay;encrypted-media" allowfullscreen></iframe></div>';
+    }
+    hero+='<div class="mv-card" onclick="_mvPlay(\\''+v.id+'\\')">';
+    hero+='<div class="mv-thumb"><img src="https://img.youtube.com/vi/'+v.id+'/mqdefault.jpg" alt="" loading="lazy"><div class="mv-play-icon"><svg viewBox="0 0 24 24"><polygon points="8 5 19 12 8 19"/></svg></div></div>';
+    hero+='<div class="mv-card-info"><div class="mv-card-title">'+esc(v.t)+'</div>';
+    hero+='<div class="mv-card-dur">'+v.m+' min</div></div>';
+    hero+='</div>';
+  });
+  hero+='</div></div>';
   // --- Stacked info rows: weather, hydration ---
   let infoStrip='';
   const _w=S.weather||{};
@@ -12590,68 +12664,107 @@ else if(S.tab==='books'){
   }
 }
 
-// WISDOM TAB — Headspace/Elevate-styled affirmations + meditations
+// WISDOM TAB — Landing page with category cards
 else if(S.tab==='meditation'){
-  const cat=S.medCat||'affirmations';
-  // Category pills
-  h+='<div class="mag-pills hs-cats" style="margin-bottom:18px">';
-  MED_CATEGORIES.forEach(c=>{h+='<button class="mag-pill hs-cat'+(cat===c.k?' on':'')+'" onclick="setMedCat(\\''+c.k+'\\')"><span class="mag-pill-e">'+c.e+'</span>'+esc(c.l)+'</button>'});
-  h+='</div>';
-  if(S.medLoading&&!S.meditations)h+='<div class="loading">Loading...</div>';
-  // ── Big, beautiful Headspace-style cards ──
-  h+='<div class="hs-grid">';
-  MED_SLOTS.filter(s=>s.cat===cat).forEach((x,i)=>{
-    let ready,onclick;
-    const safeTitle=esc(x.title).replace(/\\\\u/g,'\\\\\\\\u').replace(/'/g,"\\\\'");
-    if(x.extUrl){
-      ready=true;
-      const safeUrl=esc(x.extUrl).replace(/'/g,"\\\\'");
-      onclick='playMedExternal(\\''+safeUrl+'\\',\\''+safeTitle+'\\','+x.mins+','+(x.skipSec||0)+')';
-    } else if(x.ytId){
-      ready=true;
-      onclick='playMedYouTube(\\''+x.ytId+'\\',\\''+safeTitle+'\\','+x.mins+')';
-    } else if(x.audioId){
-      ready=true;
-      onclick='playMedAudio(\\''+x.audioId+'\\',\\''+safeTitle+'\\','+x.mins+')';
-    } else {
-      const doc=(S.meditations||{})[x.directId];
-      ready=!!doc;
-      const safeFile=(x.directFile||'').replace(/'/g,"\\\\'");
-      onclick=ready?('playMedDirect(\\''+x.directId+'\\',\\''+safeTitle+'\\','+x.mins+',\\''+safeFile+'\\')'):'toast(\\'\\u23F3 Loading audio...\\',\\'err\\')';
-    }
-    // Map color to a soft warm/cool gradient pair, Headspace style
-    const grads={
-      '#FCB851':'linear-gradient(135deg,#FFE0A3 0%,#EDA68E 100%)',
-      '#FF7A45':'linear-gradient(135deg,#FFD0B0 0%,#E27D60 100%)',
-      '#E8985A':'linear-gradient(135deg,#FDE8D0 0%,#D4976A 100%)',
-      '#CC6E52':'linear-gradient(135deg,#FFCFA0 0%,#CC6E52 100%)',
-      '#F59E0B':'linear-gradient(135deg,#FFE5A0 0%,#D4A030 100%)',
-      '#E27D60':'linear-gradient(135deg,#FFD4A8 0%,#CC6E52 100%)',
-      '#EDA68E':'linear-gradient(135deg,#FFE0B8 0%,#E09040 100%)',
-      '#C8922A':'linear-gradient(135deg,#FFE5A0 0%,#C8922A 100%)',
-      '#B8802A':'linear-gradient(135deg,#FFD68A 0%,#B8802A 100%)',
-      '#C48A5A':'linear-gradient(135deg,#FFD0A0 0%,#C47A3A 100%)',
-      '#A87030':'linear-gradient(135deg,#F0C080 0%,#A87030 100%)',
-      '#A87030':'linear-gradient(135deg,#D4A870 0%,#8B6830 100%)'
-    };
-    const grad=grads[x.color]||('linear-gradient(135deg,'+x.color+',rgba(0,0,0,.6))');
-    h+='<button class="hs-card'+(ready?'':' is-loading')+'" onclick="'+onclick+'" style="--g:'+grad+'">';
-    // Decorative blob (the "headspace orb" feel)
-    h+='<div class="hs-card-blob"></div>';
-    h+='<div class="hs-card-blob hs-card-blob-2"></div>';
-    // Top row: duration pill + optional Goenka badge
-    h+='<div class="hs-card-top"><span class="hs-card-dur">'+x.mins+'</span><span class="hs-card-durU">MIN</span>';
-    if(x.goenka)h+='<span style="margin-left:auto;font-size:9px;letter-spacing:.5px;background:rgba(255,255,255,.25);padding:2px 7px;border-radius:8px;font-weight:600">GOENKA</span>';
-    if(x.ytId)h+='<span style="margin-left:'+(x.goenka?'4':'auto')+'px;font-size:9px;letter-spacing:.3px;opacity:.7">\\u25B6 YouTube</span>';
+  if(!S.medCat){
+    // Landing page — category cards
+    h+='<div style="text-align:center;padding:8px 0 18px">';
+    h+='<div style="font:600 26px var(--serif);color:var(--ink)">Wisdom</div>';
+    h+='<div style="font:400 14px var(--sans);color:var(--text-mute);margin-top:4px">Choose your practice</div>';
     h+='</div>';
-    // Title (serif italic, large)
-    h+='<div class="hs-card-title">'+esc(x.title)+'</div>';
-    h+='<div class="hs-card-desc">'+esc(x.desc)+'</div>';
-    // Play button
-    h+='<div class="hs-card-play">'+(ready?'<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>':'<div class="med-load-dot"></div>')+'</div>';
-    h+='</button>';
-  });
-  h+='</div>';
+    // Two hero cards: Affirmations + Vipassana
+    h+='<div style="display:flex;flex-direction:column;gap:14px;margin-bottom:18px">';
+    // Affirmation card
+    h+='<button class="ws-hero-card" onclick="setMedCat(\\'affirmations\\')" style="--wg:linear-gradient(135deg,#FFE0A3 0%,#EDA68E 100%)">';
+    h+='<div class="ws-hero-emoji">\\u2728</div>';
+    h+='<div class="ws-hero-info"><div class="ws-hero-title">Affirmations</div>';
+    h+='<div class="ws-hero-desc">Positive declarations to rewire your mindset</div></div>';
+    h+='<div class="ws-hero-arrow">\\u2192</div></button>';
+    // Vipassana card
+    h+='<button class="ws-hero-card" onclick="setMedCat(\\'vipassana\\')" style="--wg:linear-gradient(135deg,#D4A870 0%,#8B6830 100%)">';
+    h+='<div class="ws-hero-emoji">\\u{1F9D8}\\u200D\\u2642\\uFE0F</div>';
+    h+='<div class="ws-hero-info"><div class="ws-hero-title">Vipassana</div>';
+    h+='<div class="ws-hero-desc">Ancient meditation from S.N. Goenka tradition</div></div>';
+    h+='<div class="ws-hero-arrow">\\u2192</div></button>';
+    h+='</div>';
+    // Other categories — smaller grid
+    h+='<div style="font:600 15px var(--sans);color:var(--ink);margin-bottom:10px">More practices</div>';
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
+    [{k:'guided',e:'\\u{1F50A}',l:'Guided',d:'Gentle guided sessions'},{k:'sleep',e:'\\u{1F319}',l:'Sleep',d:'Wind down & rest'},{k:'music',e:'\\u{1F3B5}',l:'Music',d:'Calming soundscapes'},{k:'stories',e:'\\u{1F4D6}',l:'Stories',d:'Wisdom tales'}].forEach(function(c){
+      h+='<button class="ws-mini-card" onclick="setMedCat(\\''+c.k+'\\')">';
+      h+='<div style="font-size:28px;margin-bottom:6px">'+c.e+'</div>';
+      h+='<div style="font:600 14px var(--sans);color:var(--ink)">'+c.l+'</div>';
+      h+='<div style="font:400 11px var(--sans);color:var(--text-mute);margin-top:2px">'+c.d+'</div>';
+      h+='</button>';
+    });
+    h+='</div>';
+    // Streak info at bottom
+    var _wsStrk=_wsCalcStreak();
+    var _wsCnt=parseInt(localStorage.getItem('med_count')||'0',10);
+    if(_wsStrk>0||_wsCnt>0){
+      h+='<div style="display:flex;gap:14px;margin-top:18px;justify-content:center">';
+      if(_wsStrk>0)h+='<div style="text-align:center;padding:12px 20px;border-radius:14px;background:var(--surface);border:1px solid var(--line)"><div style="font:700 22px var(--sans);color:var(--accent)">'+_wsStrk+'</div><div style="font:400 11px var(--sans);color:var(--text-mute)">day streak</div></div>';
+      if(_wsCnt>0)h+='<div style="text-align:center;padding:12px 20px;border-radius:14px;background:var(--surface);border:1px solid var(--line)"><div style="font:700 22px var(--sans);color:var(--ink)">'+_wsCnt+'</div><div style="font:400 11px var(--sans);color:var(--text-mute)">sessions</div></div>';
+      h+='</div>';
+    }
+  } else {
+    // Category view — show back button + meditation cards
+    var _catInfo={affirmations:{e:'\\u2728',l:'Affirmations'},vipassana:{e:'\\u{1F9D8}\\u200D\\u2642\\uFE0F',l:'Vipassana'},guided:{e:'\\u{1F50A}',l:'Guided'},sleep:{e:'\\u{1F319}',l:'Sleep'},music:{e:'\\u{1F3B5}',l:'Music'},stories:{e:'\\u{1F4D6}',l:'Stories'}};
+    var _ci=_catInfo[S.medCat]||{e:'',l:S.medCat};
+    h+='<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">';
+    h+='<button onclick="setMedCat(null)" style="background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 12px;cursor:pointer;font:500 13px var(--sans);color:var(--ink);display:flex;align-items:center;gap:6px">\\u2190 Back</button>';
+    h+='<div style="font:600 20px var(--sans);color:var(--ink)">'+_ci.e+' '+_ci.l+'</div>';
+    h+='</div>';
+    if(S.medLoading&&!S.meditations)h+='<div class="loading">Loading...</div>';
+    h+='<div class="hs-grid">';
+    MED_SLOTS.filter(function(s){return s.cat===S.medCat}).forEach(function(x,i){
+      var ready,onclick;
+      var safeTitle=esc(x.title).replace(/\\\\u/g,'\\\\\\\\u').replace(/'/g,"\\\\'");
+      if(x.extUrl){
+        ready=true;
+        var safeUrl=esc(x.extUrl).replace(/'/g,"\\\\'");
+        onclick='playMedExternal(\\''+safeUrl+'\\',\\''+safeTitle+'\\','+x.mins+','+(x.skipSec||0)+')';
+      } else if(x.ytId){
+        ready=true;
+        onclick='playMedYouTube(\\''+x.ytId+'\\',\\''+safeTitle+'\\','+x.mins+')';
+      } else if(x.audioId){
+        ready=true;
+        onclick='playMedAudio(\\''+x.audioId+'\\',\\''+safeTitle+'\\','+x.mins+')';
+      } else {
+        var doc=(S.meditations||{})[x.directId];
+        ready=!!doc;
+        var safeFile=(x.directFile||'').replace(/'/g,"\\\\'");
+        onclick=ready?('playMedDirect(\\''+x.directId+'\\',\\''+safeTitle+'\\','+x.mins+',\\''+safeFile+'\\')'):'toast(\\'\\u23F3 Loading audio...\\',\\'err\\')';
+      }
+      var grads={
+        '#FCB851':'linear-gradient(135deg,#FFE0A3 0%,#EDA68E 100%)',
+        '#FF7A45':'linear-gradient(135deg,#FFD0B0 0%,#E27D60 100%)',
+        '#E8985A':'linear-gradient(135deg,#FDE8D0 0%,#D4976A 100%)',
+        '#CC6E52':'linear-gradient(135deg,#FFCFA0 0%,#CC6E52 100%)',
+        '#F59E0B':'linear-gradient(135deg,#FFE5A0 0%,#D4A030 100%)',
+        '#E27D60':'linear-gradient(135deg,#FFD4A8 0%,#CC6E52 100%)',
+        '#EDA68E':'linear-gradient(135deg,#FFE0B8 0%,#E09040 100%)',
+        '#C8922A':'linear-gradient(135deg,#FFE5A0 0%,#C8922A 100%)',
+        '#B8802A':'linear-gradient(135deg,#FFD68A 0%,#B8802A 100%)',
+        '#C48A5A':'linear-gradient(135deg,#FFD0A0 0%,#C47A3A 100%)',
+        '#A87030':'linear-gradient(135deg,#F0C080 0%,#A87030 100%)',
+        '#A87030':'linear-gradient(135deg,#D4A870 0%,#8B6830 100%)'
+      };
+      var grad=grads[x.color]||('linear-gradient(135deg,'+x.color+',rgba(0,0,0,.6))');
+      h+='<button class="hs-card'+(ready?'':' is-loading')+'" onclick="'+onclick+'" style="--g:'+grad+'">';
+      h+='<div class="hs-card-blob"></div>';
+      h+='<div class="hs-card-blob hs-card-blob-2"></div>';
+      h+='<div class="hs-card-top"><span class="hs-card-dur">'+x.mins+'</span><span class="hs-card-durU">MIN</span>';
+      if(x.goenka)h+='<span style="margin-left:auto;font-size:9px;letter-spacing:.5px;background:rgba(255,255,255,.25);padding:2px 7px;border-radius:8px;font-weight:600">GOENKA</span>';
+      if(x.ytId)h+='<span style="margin-left:'+(x.goenka?'4':'auto')+'px;font-size:9px;letter-spacing:.3px;opacity:.7">\\u25B6 YouTube</span>';
+      h+='</div>';
+      h+='<div class="hs-card-title">'+esc(x.title)+'</div>';
+      h+='<div class="hs-card-desc">'+esc(x.desc)+'</div>';
+      h+='<div class="hs-card-play">'+(ready?'<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>':'<div class="med-load-dot"></div>')+'</div>';
+      h+='</button>';
+    });
+    h+='</div>';
+  }
 }
 
 // BRO TAB — AI assistant (direct chat)
@@ -14483,7 +14596,7 @@ app.get('/privacy',(_,res)=>{
 app.get('/terms',(_,res)=>{
   res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Terms of Service — Brodoit</title><meta name="description" content="The simple terms for using Brodoit. Plain English, no surprises."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Terms</div><h1>The simple rules.</h1><p class="lede">We've kept these terms short and human. Use Brodoit kindly, and we'll keep building it for you.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">The service</h2><p>Brodoit is a personal productivity app: it lets you manage tasks with optional WhatsApp and email reminders, listen to free public-domain audiobooks, sharpen your mind with brain games, and see a daily wisdom quote.</p><h2 data-n="02">Your account</h2><p>You register with your email address or phone number. Keep your one-time verification codes private — anyone with the code can sign in. You are responsible for activity on your account.</p><h2 data-n="03">Acceptable use</h2><p>Please don't abuse the service: no spam, no impersonation, no automated scraping, no attempts to disrupt other users or the service itself. We may suspend or remove accounts that do.</p><h2 data-n="04">Content</h2><p>You own your tasks, notes, and other content you create. We store them so we can show them back to you. Audiobook content belongs to the respective public-domain authors and is served from the Internet Archive's LibriVox collection.</p><h2 data-n="05">No warranty</h2><p>The service is provided "as is". We try hard to keep it running, but can't promise zero downtime or guarantee that every reminder is delivered (WhatsApp and email providers can fail). If something matters, please don't rely solely on Brodoit.</p><h2 data-n="06">Limitation of liability</h2><p>Brodoit is a personal tool. We're not liable for missed deadlines, lost data, or any consequential damages from using — or not using — the service.</p><h2 data-n="07">Changes</h2><p>We may update these terms. If we do, we'll update the date at the top. Continued use after a change means you accept the new terms.</p><h2 data-n="08">Contact</h2><p>Need anything? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });
-app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v50";
+app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v51";
 self.addEventListener("install",function(e){self.skipWaiting()});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener("fetch",function(e){});
