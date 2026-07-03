@@ -2552,18 +2552,16 @@ h1,h2,h3,h4{font-family:var(--serif);font-weight:500;letter-spacing:-.015em;colo
 .yp-stat-v{font:700 13px var(--sans);color:var(--ink)}
 @keyframes ypPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
 .mv-wrap{margin-top:14px;border-radius:20px;background:var(--surface);border:1px solid var(--line);padding:16px;animation:fadeSlideUp .4s cubic-bezier(.2,.8,.2,1) both;animation-delay:.1s}
-.mv-hero{position:relative;border-radius:18px;padding:24px 20px;margin-bottom:18px;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 40%,#0f3460 100%);overflow:hidden;min-height:160px;display:flex;flex-direction:column;justify-content:center}
-.mv-hero-text{font:700 22px/1.25 var(--serif);color:#fff;position:relative;z-index:2;max-width:65%;letter-spacing:-.01em}
-.mv-hero-sub{font:500 13px var(--sans);color:rgba(255,255,255,.7);margin-top:8px;position:relative;z-index:2;max-width:65%}
-.mv-hero-icons{position:absolute;right:8px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:10px;z-index:1}
-.mv-hero-icon{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;backdrop-filter:blur(6px)}
+.mv-hero-card{grid-column:1/-1;position:relative;border-radius:14px;padding:20px;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 40%,#0f3460 100%);overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.mv-hero-icons{display:flex;gap:8px}
+.mv-hero-icon{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;backdrop-filter:blur(6px)}
 .mv-hero-icon:nth-child(1){background:rgba(217,115,74,.25);animation:mvFloat 3s ease-in-out infinite}
 .mv-hero-icon:nth-child(2){background:rgba(190,140,54,.25);animation:mvFloat 3s ease-in-out infinite .6s}
 .mv-hero-icon:nth-child(3){background:rgba(92,111,82,.25);animation:mvFloat 3s ease-in-out infinite 1.2s}
-@keyframes mvFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-8px) scale(1.08)}}
-.mv-hero-glow{position:absolute;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(217,115,74,.3),transparent 70%);right:60px;top:50%;transform:translateY(-50%);filter:blur(20px);animation:mvPulse 4s ease-in-out infinite}
+@keyframes mvFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-6px) scale(1.06)}}
+.mv-hero-glow{position:absolute;width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(217,115,74,.3),transparent 70%);right:40px;top:50%;transform:translateY(-50%);filter:blur(20px);animation:mvPulse 4s ease-in-out infinite}
 @keyframes mvPulse{0%,100%{opacity:.4;transform:translateY(-50%) scale(1)}50%{opacity:.7;transform:translateY(-50%) scale(1.2)}}
-body[data-theme=aurora] .mv-hero{background:linear-gradient(135deg,#0d0d1a 0%,#1a0a2e 40%,#2d1b69 100%)}
+body[data-theme=aurora] .mv-hero-card{background:linear-gradient(135deg,#0d0d1a 0%,#1a0a2e 40%,#2d1b69 100%)}
 .mv-cats{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .mv-cats::-webkit-scrollbar{display:none}
 .mv-cat{flex:none;padding:6px 12px;border-radius:10px;background:var(--paper);border:1px solid var(--line);font:500 12px var(--sans);color:var(--ink);cursor:pointer;white-space:nowrap;transition:all .2s}
@@ -7946,13 +7944,13 @@ body[data-theme=aurora] .bro-ticker-inner{background:rgba(255,255,255,.04);borde
 /* ── Wisdom / Meditation ── */
 .med-card{border-radius:16px;overflow:hidden;transition:all .2s ease;box-shadow:var(--shadow-1)}
 .med-card:hover{box-shadow:var(--shadow-2);transform:translateY(-2px)}
-.ws-hero-card{display:flex;align-items:center;gap:14px;width:100%;padding:20px;border-radius:18px;background:var(--wg);border:none;cursor:pointer;text-align:left;transition:transform .2s,box-shadow .2s;box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.ws-hero-card{display:flex;align-items:center;gap:14px;width:100%;padding:18px;border-radius:18px;background:var(--wg,var(--surface));border:1px solid var(--line);cursor:pointer;text-align:left;transition:transform .2s,box-shadow .2s;box-shadow:0 2px 8px rgba(0,0,0,.04)}
 .ws-hero-card:active{transform:scale(.97)}
-.ws-hero-emoji{font-size:40px;flex:none}
+.ws-hero-emoji{font-size:36px;flex:none}
 .ws-hero-info{flex:1;min-width:0}
-.ws-hero-title{font:700 19px var(--sans);color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.2)}
-.ws-hero-desc{font:400 13px var(--sans);color:rgba(255,255,255,.85);margin-top:3px}
-.ws-hero-arrow{font-size:22px;color:rgba(255,255,255,.7);flex:none}
+.ws-hero-title{font:700 17px var(--sans);color:var(--ink)}
+.ws-hero-desc{font:400 13px var(--sans);color:var(--text-mute);margin-top:3px}
+.ws-hero-arrow{font-size:20px;color:var(--accent);flex:none}
 .ws-mini-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 14px;cursor:pointer;text-align:center;transition:transform .2s,box-shadow .2s}
 .ws-mini-card:active{transform:scale(.97)}
 body[data-theme=aurora] .ws-hero-card{box-shadow:0 4px 20px rgba(0,0,0,.3)}
@@ -11935,23 +11933,13 @@ if(isMain){
   const _ritualCount=Object.values(_ritualDone).filter(Boolean).length;
   const _ritualTotal=4;
   const _ritualPct=Math.round(_ritualCount/_ritualTotal*100);
-  const _statusLine=_dueToday>0?_dueToday+' due today':'Let\\'s make it count.';
+  const _statusLine=_dueToday>0?_dueToday+' task'+(_dueToday>1?'s':'')+' due today':'No tasks due today';
   let hero='<h2 style="font:500 32px/1.1 var(--serif);color:var(--ink);letter-spacing:-.015em;margin:18px 0 0">'+esc(_greet)+(_firstName?', <em>'+esc(_firstName)+'</em>':'')+'</h2>';
-  hero+='<p style="font:400 15.5px var(--sans);color:var(--text-mute);margin:6px 0 0">'+esc(_today)+' \\u00B7 '+_statusLine+'</p>';
-  hero+='<div class="rd-card" style="margin-top:18px">';
-  hero+='<div style="display:flex;align-items:center;justify-content:space-between"><span style="font:600 16.5px var(--sans);color:var(--ink)">Today\\'s ritual</span><span style="font:600 14px var(--sans);color:var(--text-mute)">'+_ritualCount+' of '+_ritualTotal+' done</span></div>';
-  hero+='<div class="rd-progress-bar" style="margin-top:13px"><div class="rd-progress-fill" style="width:'+_ritualPct+'%"></div></div>';
-  hero+='<div style="display:flex;justify-content:space-between;margin-top:15px">';
-  var _ritualSteps=[{k:'tasks',l:'Tasks'},{k:'listen',l:'Listen'},{k:'mind',l:'Mind'},{k:'wisdom',l:'Wisdom'}];
-  _ritualSteps.forEach(function(rs){
-    var done=_ritualDone[rs.k];
-    hero+='<div style="display:flex;flex-direction:column;align-items:center;gap:7px">';
-    if(done)hero+='<div class="rd-ritual-circle rd-ritual-done"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 10 17.5 19 6.5"/></svg></div>';
-    else hero+='<div class="rd-ritual-circle rd-ritual-pending"></div>';
-    hero+='<span style="font:600 12.5px var(--sans);color:'+(done?'var(--ink)':'var(--text-mute)')+'">'+rs.l+'</span>';
-    hero+='</div>';
-  });
-  hero+='</div></div>';
+  hero+='<p style="font:400 15.5px var(--sans);color:var(--text-mute);margin:6px 0 0">'+esc(_today)+'</p>';
+  hero+='<div style="display:flex;gap:8px;margin-top:16px">';
+  hero+='<button onclick="switchTab(\\'tasks\\')" style="flex:1;padding:14px 12px;border-radius:14px;background:var(--surface);border:1px solid var(--line);cursor:pointer;text-align:left"><div style="font:600 20px var(--sans);color:var(--accent)">'+_dueToday+'</div><div style="font:500 12px var(--sans);color:var(--text-mute);margin-top:2px">'+_statusLine+'</div></button>';
+  hero+='<button onclick="switchTab(\\'tasks\\');setTimeout(opA,80)" style="flex:1;padding:14px 12px;border-radius:14px;background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 20%,transparent);cursor:pointer;text-align:left"><div style="font:600 14px var(--sans);color:var(--accent)">+ Add task</div><div style="font:500 12px var(--sans);color:var(--text-mute);margin-top:2px">Plan your day</div></button>';
+  hero+='</div>';
   var _wqDoy=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/(864e5));
   var _wq=window._DQ&&window._DQ[(_wqDoy-1)%window._DQ.length]||{q:'The secret of getting ahead is getting started.',a:'Mark Twain'};
   hero+='<div class="rd-wisdom-card" style="margin-top:13px">';
@@ -11959,18 +11947,7 @@ if(isMain){
   hero+='<p style="font:400 21px/1.36 var(--serif);font-style:italic;color:var(--ink);margin:9px 0 0">\\u201C'+esc(_wq.q)+'\\u201D</p>';
   hero+='<div style="display:flex;align-items:center;justify-content:space-between;margin-top:11px"><span style="font:500 14px var(--sans);color:var(--text-mute)">\\u2014 '+esc(_wq.a)+'</span><span style="font:600 14.5px var(--sans);color:var(--accent);cursor:pointer" onclick="openDailyWisdom()">Read today\\'s \\u2192</span></div>';
   hero+='</div>';
-  var _curBook=S.currentBook||{};
-  hero+='<div class="rd-listen-card" style="margin-top:13px">';
-  hero+='<div class="rd-listen-cover"></div>';
-  hero+='<div style="flex:1;min-width:0">';
-  hero+='<div class="rd-eyebrow" style="color:var(--text-mute)">CONTINUE LISTENING</div>';
-  hero+='<div style="font:600 17px var(--sans);color:var(--ink);margin-top:2px">'+esc(_curBook.title||'Meditations')+'</div>';
-  hero+='<div style="font:400 13.5px var(--sans);color:var(--text-mute)">'+esc(_curBook.author||'Marcus Aurelius')+' \\u00B7 '+esc(_curBook.remaining||'2h 14m left')+'</div>';
-  hero+='<div class="rd-progress-bar" style="margin-top:8px;height:4px"><div class="rd-progress-fill" style="width:'+(_curBook.pct||42)+'%"></div></div>';
-  hero+='</div>';
-  hero+='<button class="rd-play-btn" onclick="switchTab(\\'books\\');render()"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M8 5.5v13l11-6.5z"/></svg></button>';
-  hero+='</div>';
-  // --- Year Progress — animated countdown ---
+  // --- Year Progress — compact collapsible ---
   var _ypNow=new Date();
   var _ypYear=_ypNow.getFullYear();
   var _ypStart=new Date(_ypYear,0,1);
@@ -11980,39 +11957,33 @@ if(isMain){
   var _ypLeft=_ypTotal-_ypElapsed;
   var _ypPct=Math.round(_ypElapsed/_ypTotal*100);
   var _ypWeeksLeft=Math.ceil(_ypLeft/7);
-  var _ypMonthsLeft=11-_ypNow.getMonth()+((_ypNow.getDate()<=15)?1:0);
-  var _ypCircum=2*Math.PI*42;
-  var _ypDash=(_ypPct/100)*_ypCircum;
-  var _ypMsgs=['Fresh start \\u2014 the whole year is ahead!','Getting warmed up!','Building momentum!','Quarter done \\u2014 keep pushing!','Almost halfway!','Halfway mark \\u2014 make it count!','Second half energy!','Strong finish territory!','Final stretch \\u2014 sprint!','Year\\'s almost done!'];
-  var _ypMsg=_ypMsgs[Math.min(Math.floor(_ypPct/10),_ypMsgs.length-1)];
-  hero+='<div class="yp-wrap">';
-  hero+='<div style="font:600 16px var(--sans);color:var(--ink);margin-bottom:12px">\\u23F3 Year Progress '+_ypYear+'</div>';
-  hero+='<div class="yp-ring-box">';
-  hero+='<div class="yp-ring"><svg width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="var(--line)" stroke-width="8"/><circle cx="50" cy="50" r="42" fill="none" stroke="var(--accent)" stroke-width="8" stroke-linecap="round" stroke-dasharray="'+_ypDash+' '+_ypCircum+'" style="transition:stroke-dasharray 1s ease"/></svg><div class="yp-ring-num"><span class="yp-ring-big">'+_ypPct+'%</span><span class="yp-ring-unit">complete</span></div></div>';
-  hero+='<div class="yp-stats">';
-  hero+='<div class="yp-stat-row"><span class="yp-stat-l">Days left</span><span class="yp-stat-v">'+_ypLeft+'</span></div>';
-  hero+='<div class="yp-stat-row"><span class="yp-stat-l">Weeks left</span><span class="yp-stat-v">'+_ypWeeksLeft+'</span></div>';
-  hero+='<div class="yp-stat-row"><span class="yp-stat-l">Months left</span><span class="yp-stat-v">'+Math.max(0,_ypMonthsLeft)+'</span></div>';
-  hero+='<div class="yp-stat-row"><span class="yp-stat-l">Day of year</span><span class="yp-stat-v">'+_ypElapsed+' / '+_ypTotal+'</span></div>';
-  hero+='</div></div>';
-  hero+='<div style="font:400 13px var(--serif);font-style:italic;color:var(--text-mute);margin-top:10px">'+_ypMsg+'</div>';
+  var _ypExpanded=!!S.ypExpanded;
+  hero+='<div class="rd-card" style="margin-top:13px;padding:14px 17px;cursor:pointer" onclick="S.ypExpanded=!S.ypExpanded;render()">';
+  hero+='<div style="display:flex;align-items:center;justify-content:space-between">';
+  hero+='<div style="display:flex;align-items:center;gap:10px"><span style="font-size:16px">\\u23F3</span><span style="font:600 14px var(--sans);color:var(--ink)">'+_ypYear+' Progress</span></div>';
+  hero+='<div style="display:flex;align-items:center;gap:10px"><span style="font:700 14px var(--sans);color:var(--accent)">'+_ypPct+'%</span><span style="font:400 12px var(--sans);color:var(--text-mute)">'+_ypLeft+'d left</span>';
+  hero+='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--text-mute)" stroke-width="2.6" stroke-linecap="round" style="transition:transform .2s;transform:rotate('+(_ypExpanded?'180':'0')+'deg)"><polyline points="6 9 12 15 18 9"/></svg></div></div>';
+  if(_ypExpanded){
+    var _ypCircum=2*Math.PI*42;var _ypDash=(_ypPct/100)*_ypCircum;
+    var _ypMonthsLeft=11-_ypNow.getMonth()+((_ypNow.getDate()<=15)?1:0);
+    hero+='<div class="yp-ring-box" style="margin-top:14px">';
+    hero+='<div class="yp-ring"><svg width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="var(--line)" stroke-width="8"/><circle cx="50" cy="50" r="42" fill="none" stroke="var(--accent)" stroke-width="8" stroke-linecap="round" stroke-dasharray="'+_ypDash+' '+_ypCircum+'"/></svg><div class="yp-ring-num"><span class="yp-ring-big">'+_ypPct+'%</span><span class="yp-ring-unit">done</span></div></div>';
+    hero+='<div class="yp-stats">';
+    hero+='<div class="yp-stat-row"><span class="yp-stat-l">Days left</span><span class="yp-stat-v">'+_ypLeft+'</span></div>';
+    hero+='<div class="yp-stat-row"><span class="yp-stat-l">Weeks left</span><span class="yp-stat-v">'+_ypWeeksLeft+'</span></div>';
+    hero+='<div class="yp-stat-row"><span class="yp-stat-l">Months left</span><span class="yp-stat-v">'+Math.max(0,_ypMonthsLeft)+'</span></div>';
+    hero+='<div class="yp-stat-row"><span class="yp-stat-l">Day of year</span><span class="yp-stat-v">'+_ypElapsed+' / '+_ypTotal+'</span></div>';
+    hero+='</div></div>';
+  }
   hero+='</div>';
   // --- Motivational Videos ---
   hero+='<div class="mv-wrap">';
-  hero+='<div class="mv-hero">';
-  hero+='<div class="mv-hero-glow"></div>';
-  hero+='<div class="mv-hero-text">Want to be motivated?</div>';
-  hero+='<div class="mv-hero-sub">Listen to everyday motivation \\u2014 real voices, real fire.</div>';
-  hero+='<div class="mv-hero-icons">';
-  hero+='<div class="mv-hero-icon">\\u{1F3CB}\\uFE0F</div>';
-  hero+='<div class="mv-hero-icon">\\u{1F4D6}</div>';
-  hero+='<div class="mv-hero-icon">\\u{1FA9C}</div>';
-  hero+='</div></div>';
   hero+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font:600 16px var(--sans);color:var(--ink)">\\u{1F525} Everyday Motivation</span><span style="font:400 12px var(--sans);color:var(--text-mute)">'+_mvFilter().length+' videos</span></div>';
   hero+='<div class="mv-cats">';
   _mvCats.forEach(function(c){hero+='<button class="mv-cat'+(c.k===_mvCat?' on':'')+'" onclick="_mvSetCat(\\''+c.k+'\\')">'+c.e+' '+c.l+'</button>'});
   hero+='</div>';
   hero+='<div class="mv-grid">';
+  hero+='<div class="mv-hero-card"><div class="mv-hero-glow"></div><div style="position:relative;z-index:1"><div style="font:700 20px/1.3 var(--serif);color:#fff">Want to be motivated?</div><div style="font:400 13px var(--sans);color:rgba(255,255,255,.8);margin-top:6px">Real voices, real fire \\u2014 tap any video below</div></div><div class="mv-hero-icons" style="position:relative;z-index:1"><div class="mv-hero-icon">\\u{1F3CB}\\uFE0F</div><div class="mv-hero-icon">\\u{1F4D6}</div><div class="mv-hero-icon">\\u{1FA9C}</div></div></div>';
   _mvFilter().forEach(function(v){
     var thumbUrl='/api/mv-thumb/'+v.src.split('/').pop()+'.jpg';
     if(_mvPlaying===v.id){
@@ -12120,12 +12091,12 @@ if(isMain){
   const yearPct=Math.round(dayOfYear/365*100);
   const dateStr=now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
   const _rdTabIcons={
-    home:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 4.5l8 7"/><path d="M6 10.5V19a1 1 0 0 0 1 1h3.5v-5h3V20H17a1 1 0 0 0 1-1v-8.5"/></svg>',
-    tasks:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="16" height="16" rx="4.5"/><path d="M8 12l2.5 2.5L16 9"/></svg>',
-    books:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>',
-    meditation:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="6" r="3"/><path d="M12 9v4"/><path d="M8 17c0-2.2 1.8-4 4-4s4 1.8 4 4"/><path d="M6 20c1-1.5 3-2.5 6-2.5s5 1 6 2.5"/><path d="M4.5 14.5c1.5-1 3-1.5 4.5-1.5"/><path d="M19.5 14.5c-1.5-1-3-1.5-4.5-1.5"/></svg>',
-    bro:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>',
-    cal:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><circle cx="8" cy="15" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="15" r="1.5" fill="currentColor" stroke="none"/><circle cx="16" cy="15" r="1.5" fill="currentColor" stroke="none"/></svg>'
+    home:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1m-2 0h2"/></svg>',
+    tasks:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 14l2 2 4-4"/></svg>',
+    books:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.25v13m0-13C10.83 4.67 8.5 3.5 6 3.5c-1.5 0-2.8.4-3.5.7v13c.7-.3 2-.7 3.5-.7 2.5 0 4.83 1.17 6 2.75m0-13C13.17 4.67 15.5 3.5 18 3.5c1.5 0 2.8.4 3.5.7v13c-.7-.3-2-.7-3.5-.7-2.5 0-4.83 1.17-6 2.75"/></svg>',
+    meditation:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 100 6 3 3 0 000-6z"/><path d="M12 8c-2.5 0-5 2-5 5.5 0 1 .5 2 1.5 2.5l1 .5v2.5c0 1 .5 2 1.5 2h2c1 0 1.5-1 1.5-2v-2.5l1-.5c1-.5 1.5-1.5 1.5-2.5 0-3.5-2.5-5.5-5-5.5z"/></svg>',
+    bro:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>',
+    cal:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/></svg>'
   };
   const tabsHtml=[{k:'home',l:'Home'},{k:'tasks',l:'Tasks'},{k:'books',l:'Listen'},{k:'meditation',l:'Wisdom'},{k:'bro',l:'Chat'},{k:'cal',l:'Calendar'}].map(x=>'<button class="tab tab-'+x.k+((S.tab===x.k||(x.k==='home'&&(!S.tab||S.tab==='home')))?(' on'):'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(_rdTabIcons[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
   // "Bro, do it!" mascot — a character with a speech bubble that animates
@@ -12667,7 +12638,7 @@ else if(S.tab==='cal'){
     const selDate=new Date(sel+'T00:00:00');
     const selLabel=selDate.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
     h+='<div class="cal-selected-box"><h4>\\u{1F4CD} '+esc(selLabel)+'</h4>';
-    if(!selTasks.length)h+='<div class="muted">No tasks for this date yet.</div>';
+    if(!selTasks.length)h+='<button onclick="calAddForDate()" style="width:100%;padding:14px;border-radius:14px;border:2px dashed var(--line);background:none;cursor:pointer;font:500 14px var(--sans);color:var(--accent);display:flex;align-items:center;justify-content:center;gap:8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Add a task for this day</button>';
     else{
       h+='<div class="muted">'+selTasks.length+' task'+(selTasks.length>1?'s':'')+' scheduled</div>';
       selTasks.forEach(t=>{const p=P[t.priority]||P.medium,st=ST[t.status]||ST.pending,d=t.status==='done';
@@ -12776,26 +12747,22 @@ else if(S.tab==='meditation'){
     h+='<div style="font:600 26px var(--serif);color:var(--ink)">Wisdom</div>';
     h+='<div style="font:400 14px var(--sans);color:var(--text-mute);margin-top:4px">Choose your practice</div>';
     h+='</div>';
-    // Two hero cards: Affirmations + Vipassana
-    h+='<div style="display:flex;flex-direction:column;gap:14px;margin-bottom:18px">';
-    // Affirmation card
-    h+='<button class="ws-hero-card" onclick="setMedCat(\\'affirmations\\')" style="--wg:linear-gradient(135deg,#FFE0A3 0%,#EDA68E 100%)">';
+    h+='<div style="display:flex;flex-direction:column;gap:12px;margin-bottom:18px">';
+    h+='<button class="ws-hero-card" onclick="setMedCat(\\'affirmations\\')" style="--wg:linear-gradient(135deg,var(--accent-soft) 0%,color-mix(in srgb,var(--accent) 25%,var(--paper)) 100%)">';
     h+='<div class="ws-hero-emoji">\\u2728</div>';
-    h+='<div class="ws-hero-info"><div class="ws-hero-title">Affirmations</div>';
-    h+='<div class="ws-hero-desc">Positive declarations to rewire your mindset</div></div>';
-    h+='<div class="ws-hero-arrow">\\u2192</div></button>';
-    // Vipassana card
-    h+='<button class="ws-hero-card" onclick="setMedCat(\\'vipassana\\')" style="--wg:linear-gradient(135deg,#D4A870 0%,#8B6830 100%)">';
+    h+='<div class="ws-hero-info"><div class="ws-hero-title" style="color:var(--ink)">Affirmations</div>';
+    h+='<div class="ws-hero-desc" style="color:var(--text-mute)">Positive declarations to rewire your mindset</div></div>';
+    h+='<div class="ws-hero-arrow" style="color:var(--accent)">\\u2192</div></button>';
+    h+='<button class="ws-hero-card" onclick="setMedCat(\\'vipassana\\')" style="--wg:linear-gradient(135deg,color-mix(in srgb,var(--gold) 20%,var(--paper)) 0%,color-mix(in srgb,var(--gold) 30%,var(--surface)) 100%)">';
     h+='<div class="ws-hero-emoji">\\u{1F9D8}\\u200D\\u2642\\uFE0F</div>';
-    h+='<div class="ws-hero-info"><div class="ws-hero-title">Vipassana</div>';
-    h+='<div class="ws-hero-desc">Ancient meditation from S.N. Goenka tradition</div></div>';
-    h+='<div class="ws-hero-arrow">\\u2192</div></button>';
-    // Rain for Sleep card
-    h+='<button class="ws-hero-card" onclick="S.showRainPicker=!S.showRainPicker;render()" style="--wg:linear-gradient(135deg,#6B7FA3 0%,#3D4F6F 100%)">';
+    h+='<div class="ws-hero-info"><div class="ws-hero-title" style="color:var(--ink)">Vipassana</div>';
+    h+='<div class="ws-hero-desc" style="color:var(--text-mute)">Ancient meditation from S.N. Goenka tradition</div></div>';
+    h+='<div class="ws-hero-arrow" style="color:var(--gold)">\\u2192</div></button>';
+    h+='<button class="ws-hero-card" onclick="S.showRainPicker=!S.showRainPicker;render()" style="--wg:linear-gradient(135deg,color-mix(in srgb,var(--sage) 15%,var(--paper)) 0%,color-mix(in srgb,var(--sage) 25%,var(--surface)) 100%)">';
     h+='<div class="ws-hero-emoji">\\u{1F327}\\uFE0F</div>';
-    h+='<div class="ws-hero-info"><div class="ws-hero-title" style="color:#fff">Rain for Sleep</div>';
-    h+='<div class="ws-hero-desc" style="color:rgba(255,255,255,.8)">Soothing rain sounds to fall asleep</div></div>';
-    h+='<div class="ws-hero-arrow" style="color:rgba(255,255,255,.7)">\\u2192</div></button>';
+    h+='<div class="ws-hero-info"><div class="ws-hero-title" style="color:var(--ink)">Rain for Sleep</div>';
+    h+='<div class="ws-hero-desc" style="color:var(--text-mute)">Soothing rain sounds to fall asleep</div></div>';
+    h+='<div class="ws-hero-arrow" style="color:var(--sage)">\\u2192</div></button>';
     if(S.showRainPicker){
       h+='<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:-4px;padding:12px 14px;background:var(--surface);border:1px solid var(--line);border-radius:14px">';
       [5,10,20,30,60].forEach(function(m){
@@ -13182,13 +13149,11 @@ else if(S.tab==='__obsolete_knowledge__'){
 
 
 h+='</main>';
-// Global FAB+ — always rendered, fixed-position, bouncy animation. Adapts behavior per tab.
-if(S.tab!=='bro'){
-  const isTaskTab=S.tab==='tasks'||S.tab==='board';
-  const isCalTab=S.tab==='cal';
-  const action=isTaskTab?'opA()':(isCalTab?'openCalSchedule()':"switchTab('tasks');setTimeout(opA,80)");
-  const lbl=isTaskTab?'Add a new task':(isCalTab?'Add to calendar':'Add a task');
-  h+='<button class="fab fab-global" onclick="'+action+'" aria-label="'+lbl+'" title="'+lbl+'">+</button>';
+// Global FAB+ — only on Tasks and Calendar tabs
+if(S.tab==='tasks'||S.tab==='board'){
+  h+='<button class="fab fab-global" onclick="opA()" aria-label="Add a new task" title="Add a new task">+</button>';
+} else if(S.tab==='cal'){
+  h+='<button class="fab fab-global" onclick="openCalSchedule()" aria-label="Add to calendar" title="Add to calendar">+</button>';
 }
 
 // Player bar (any tab)
@@ -14714,7 +14679,7 @@ app.get('/privacy',(_,res)=>{
 app.get('/terms',(_,res)=>{
   res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Terms of Service — Brodoit</title><meta name="description" content="The simple terms for using Brodoit. Plain English, no surprises."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Terms</div><h1>The simple rules.</h1><p class="lede">We've kept these terms short and human. Use Brodoit kindly, and we'll keep building it for you.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">The service</h2><p>Brodoit is a personal productivity app: it lets you manage tasks with optional WhatsApp and email reminders, listen to free public-domain audiobooks, sharpen your mind with brain games, and see a daily wisdom quote.</p><h2 data-n="02">Your account</h2><p>You register with your email address or phone number. Keep your one-time verification codes private — anyone with the code can sign in. You are responsible for activity on your account.</p><h2 data-n="03">Acceptable use</h2><p>Please don't abuse the service: no spam, no impersonation, no automated scraping, no attempts to disrupt other users or the service itself. We may suspend or remove accounts that do.</p><h2 data-n="04">Content</h2><p>You own your tasks, notes, and other content you create. We store them so we can show them back to you. Audiobook content belongs to the respective public-domain authors and is served from the Internet Archive's LibriVox collection.</p><h2 data-n="05">No warranty</h2><p>The service is provided "as is". We try hard to keep it running, but can't promise zero downtime or guarantee that every reminder is delivered (WhatsApp and email providers can fail). If something matters, please don't rely solely on Brodoit.</p><h2 data-n="06">Limitation of liability</h2><p>Brodoit is a personal tool. We're not liable for missed deadlines, lost data, or any consequential damages from using — or not using — the service.</p><h2 data-n="07">Changes</h2><p>We may update these terms. If we do, we'll update the date at the top. Continued use after a change means you accept the new terms.</p><h2 data-n="08">Contact</h2><p>Need anything? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });
-app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v56";
+app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v57";
 self.addEventListener("install",function(e){self.skipWaiting()});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener("fetch",function(e){});
