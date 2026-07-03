@@ -542,6 +542,8 @@ function _broSaveMsg(userPhone,role,content){
 const _crypto=require('crypto');
 const _fs=require('fs');
 const _path=require('path');
+let _dailyQuotes=[];
+try{_dailyQuotes=JSON.parse(_fs.readFileSync(_path.join(__dirname,'daily-quotes.json'),'utf8'))}catch(e){console.warn('daily-quotes.json not found, using fallback quotes')}
 // ─────────────────────────────────────────────────────────────────────────
 // Affirmation + guided-meditation library. All audio is pre-rendered as
 // static MP3 files in audio-static/ (edge-tts, Azure Neural voices, $0).
@@ -1239,6 +1241,65 @@ app.get('/api/book-audio/:id', (req, res) => {
     }
   } catch (e) {}
   res.status(404).json({ error: 'no static audio' });
+});
+
+// Motivational video clips (CC-licensed YouTube clips with real voice narration)
+app.get('/api/mv-video/:clip', (req, res) => {
+  const clip = String(req.params.clip || '').replace(/[^a-zA-Z0-9_-]/g, '');
+  if (!clip) return res.status(400).json({ error: 'missing clip' });
+  const filePath = _path.join(__dirname, 'video-mv', clip + '.mp4');
+  try {
+    if (!_fs.existsSync(filePath)) return res.status(404).json({ error: 'not found' });
+    const stat = _fs.statSync(filePath);
+    const total = stat.size;
+    const range = req.headers.range;
+    if (range) {
+      const parts = range.replace(/bytes=/, '').split('-');
+      const start = parseInt(parts[0], 10);
+      const end = parts[1] ? parseInt(parts[1], 10) : total - 1;
+      res.writeHead(206, {
+        'Content-Range': 'bytes ' + start + '-' + end + '/' + total,
+        'Accept-Ranges': 'bytes',
+        'Content-Length': String(end - start + 1),
+        'Content-Type': 'video/mp4',
+        'Cache-Control': 'public, max-age=604800',
+      });
+      return _fs.createReadStream(filePath, { start, end }).pipe(res);
+    }
+    res.set({ 'Content-Type': 'video/mp4', 'Cache-Control': 'public, max-age=604800', 'Content-Length': String(total), 'Accept-Ranges': 'bytes' });
+    return _fs.createReadStream(filePath).pipe(res);
+  } catch (e) { res.status(500).json({ error: 'read error' }); }
+});
+
+// Motivational video thumbnails
+app.use('/api/mv-thumb', express.static(_path.join(__dirname, 'video-mv', 'thumbs'), { maxAge: '7d' }));
+
+// Motivational video voice narration (pre-generated ElevenLabs MP3s)
+app.get('/api/mv-audio/:id', (req, res) => {
+  const id = String(req.params.id || '').replace(/[^a-zA-Z0-9_-]/g, '');
+  if (!id) return res.status(400).json({ error: 'missing id' });
+  const filePath = _path.join(__dirname, 'audio-mv', id + '.mp3');
+  try {
+    if (!_fs.existsSync(filePath)) return res.status(404).json({ error: 'not found' });
+    const stat = _fs.statSync(filePath);
+    const total = stat.size;
+    const range = req.headers.range;
+    if (range) {
+      const parts = range.replace(/bytes=/, '').split('-');
+      const start = parseInt(parts[0], 10);
+      const end = parts[1] ? parseInt(parts[1], 10) : total - 1;
+      res.writeHead(206, {
+        'Content-Range': 'bytes ' + start + '-' + end + '/' + total,
+        'Accept-Ranges': 'bytes',
+        'Content-Length': String(end - start + 1),
+        'Content-Type': 'audio/mpeg',
+        'Cache-Control': 'public, max-age=604800',
+      });
+      return _fs.createReadStream(filePath, { start, end }).pipe(res);
+    }
+    res.set({ 'Content-Type': 'audio/mpeg', 'Cache-Control': 'public, max-age=604800', 'Content-Length': String(total), 'Accept-Ranges': 'bytes' });
+    return _fs.createReadStream(filePath).pipe(res);
+  } catch (e) { res.status(500).json({ error: 'read error' }); }
 });
 
 // AI status — client-only check, no key exposure
@@ -2491,6 +2552,18 @@ h1,h2,h3,h4{font-family:var(--serif);font-weight:500;letter-spacing:-.015em;colo
 .yp-stat-v{font:700 13px var(--sans);color:var(--ink)}
 @keyframes ypPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
 .mv-wrap{margin-top:14px;border-radius:20px;background:var(--surface);border:1px solid var(--line);padding:16px;animation:fadeSlideUp .4s cubic-bezier(.2,.8,.2,1) both;animation-delay:.1s}
+.mv-hero{position:relative;border-radius:18px;padding:24px 20px;margin-bottom:18px;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 40%,#0f3460 100%);overflow:hidden;min-height:160px;display:flex;flex-direction:column;justify-content:center}
+.mv-hero-text{font:700 22px/1.25 var(--serif);color:#fff;position:relative;z-index:2;max-width:65%;letter-spacing:-.01em}
+.mv-hero-sub{font:500 13px var(--sans);color:rgba(255,255,255,.7);margin-top:8px;position:relative;z-index:2;max-width:65%}
+.mv-hero-icons{position:absolute;right:8px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:10px;z-index:1}
+.mv-hero-icon{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;backdrop-filter:blur(6px)}
+.mv-hero-icon:nth-child(1){background:rgba(217,115,74,.25);animation:mvFloat 3s ease-in-out infinite}
+.mv-hero-icon:nth-child(2){background:rgba(190,140,54,.25);animation:mvFloat 3s ease-in-out infinite .6s}
+.mv-hero-icon:nth-child(3){background:rgba(92,111,82,.25);animation:mvFloat 3s ease-in-out infinite 1.2s}
+@keyframes mvFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-8px) scale(1.08)}}
+.mv-hero-glow{position:absolute;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(217,115,74,.3),transparent 70%);right:60px;top:50%;transform:translateY(-50%);filter:blur(20px);animation:mvPulse 4s ease-in-out infinite}
+@keyframes mvPulse{0%,100%{opacity:.4;transform:translateY(-50%) scale(1)}50%{opacity:.7;transform:translateY(-50%) scale(1.2)}}
+body[data-theme=aurora] .mv-hero{background:linear-gradient(135deg,#0d0d1a 0%,#1a0a2e 40%,#2d1b69 100%)}
 .mv-cats{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .mv-cats::-webkit-scrollbar{display:none}
 .mv-cat{flex:none;padding:6px 12px;border-radius:10px;background:var(--paper);border:1px solid var(--line);font:500 12px var(--sans);color:var(--ink);cursor:pointer;white-space:nowrap;transition:all .2s}
@@ -8095,7 +8168,7 @@ const BRO_FACTS=[
 ];
 let _broFactIdx=Math.floor(Math.random()*BRO_FACTS.length);
 let S={tasks:[],view:'pending',search:'',tab:'tasks',showAdd:false,editing:null,listening:false,toast:null,toastType:'ok',waOk:false,sending:{},user:null,compose:{value:'',priority:null,dueDate:null,saving:false},
-books:[],booksLoading:false,booksCat:'all',bookSearch:'',playing:null,moralIdx:Math.floor(Math.random()*MORALS.length),
+books:[],booksLoading:false,booksCat:'all',bookSearch:'',playing:null,moralIdx:Math.floor(Math.random()*(window._DQ?window._DQ.length:MORALS.length)),
 knowledge:{loading:false,loaded:{},articles:{},events:[],topic:'history',sec:'today'},
 game:{active:false,board:Array(9).fill(null),turn:'X',status:'idle',winLine:null,wins:Number(localStorage.getItem('tf_ttt_wins')||0),losses:Number(localStorage.getItem('tf_ttt_losses')||0),draws:Number(localStorage.getItem('tf_ttt_draws')||0)},
 coin:{face:null,flipping:false,heads:Number(localStorage.getItem('tf_coin_h')||0),tails:Number(localStorage.getItem('tf_coin_t')||0)},
@@ -8599,26 +8672,35 @@ function showThemePicker(){
 function hideThemePicker(){var el=document.getElementById('themePicker');if(el)el.remove()}
 function openDailyWisdom(){
   if(document.getElementById('wisdomFull'))return;
-  var _wq=[{q:'Discipline is choosing between what you want now and what you want most.',a:'Abraham Lincoln'},{q:'The secret of getting ahead is getting started.',a:'Mark Twain'},{q:'It does not matter how slowly you go as long as you do not stop.',a:'Confucius'},{q:'Well done is better than well said.',a:'Benjamin Franklin'},{q:'Action is the foundational key to all success.',a:'Pablo Picasso'}];
-  var _idx=Math.floor(new Date().getTime()/(864e5))%_wq.length;
-  var q=_wq[_idx];
+  var _doy=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/(864e5));
+  var q=(window._DQ&&window._DQ[(_doy-1)%window._DQ.length])||{q:'The secret of getting ahead is getting started.',a:'Mark Twain',s:''};
+  var dayNum=_doy;
   var ov=document.createElement('div');ov.id='wisdomFull';ov.className='rd-wisdom-full';
-  var html='<div style=”padding:16px 20px;display:flex;justify-content:flex-end”><button class=”rd-wf-close” onclick=”document.getElementById(\\'wisdomFull\\').remove()”><svg width=”16” height=”16” viewBox=”0 0 24 24” fill=”none” stroke=”currentColor” stroke-width=”2.2” stroke-linecap=”round”><path d=”M18 6 6 18M6 6l12 12”/></svg></button></div>';
-  html+='<div style=”flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 32px”>';
-  html+='<div style=”width:40px;height:40px;border-radius:50%;background:color-mix(in srgb,var(--gold) 18%,transparent);display:flex;align-items:center;justify-content:center;margin-bottom:22px”><svg width=”18” height=”18” viewBox=”0 0 24 24” fill=”none” stroke=”var(--gold)” stroke-width=”1.8” stroke-linecap=”round” stroke-linejoin=”round”><circle cx=”12” cy=”12” r=”5”/><path d=”M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42”/></svg></div>';
-  html+='<p class=”rd-wf-quote”>”'+q.q+'”</p>';
-  html+='<div class=”rd-wf-divider”></div>';
-  html+='<p style=”font:500 15px var(--sans);color:var(--text-mute);margin:0”>\\u2014 '+q.a+'</p>';
+  var html='<div style="padding:16px 20px;display:flex;justify-content:space-between;align-items:center"><span style="font:600 12px var(--sans);letter-spacing:.08em;color:var(--text-mute)">DAY '+dayNum+' OF 365</span><button class="rd-wf-close" onclick="document.getElementById(\\'wisdomFull\\').remove()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>';
+  html+='<div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch">';
+  html+='<div style="display:flex;flex-direction:column;align-items:center;padding:20px 28px 0">';
+  html+='<div style="width:44px;height:44px;border-radius:50%;background:color-mix(in srgb,var(--gold) 18%,transparent);display:flex;align-items:center;justify-content:center;margin-bottom:22px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></div>';
+  html+='<p class="rd-wf-quote">\\u201C'+q.q+'\\u201D</p>';
+  html+='<div class="rd-wf-divider"></div>';
+  html+='<p style="font:500 15px var(--sans);color:var(--text-mute);margin:0">\\u2014 '+q.a+'</p>';
   html+='</div>';
-  html+='<div style=”padding:0 24px 22px;display:flex;flex-direction:column;gap:10px”>';
-  html+='<div style=”border-radius:16px;padding:16px;background:rgba(43,39,34,.04)”>';
-  html+='<div style=”font:700 10.5px var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--text-mute)”>REFLECT</div>';
-  html+='<p style=”font:400 15px/1.45 var(--serif);color:var(--ink);margin:8px 0 0”>How does this wisdom apply to your life today?</p>';
-  html+='</div>';
-  html+='<div style=”display:flex;gap:10px”>';
-  html+='<button style=”flex:1;padding:13px;border-radius:13px;background:var(--accent-soft);color:var(--accent-strong);font:600 14px var(--sans);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px” onclick=”toast(\\'Saved to your journal\\')”><svg width=”14” height=”14” viewBox=”0 0 24 24” fill=”none” stroke=”currentColor” stroke-width=”2” stroke-linecap=”round” stroke-linejoin=”round”><path d=”M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z”/><polyline points=”17 21 17 13 7 13 7 21”/></svg>Save</button>';
-  html+='<button style=”flex:1;padding:13px;border-radius:13px;background:rgba(43,39,34,.06);color:var(--ink);font:600 14px var(--sans);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px” onclick=”if(navigator.share)navigator.share({text:\\'\\\\u201C\\'+document.querySelector(\\'.rd-wf-quote\\').textContent+\\'\\\\u201D\\'}).catch(function(){});else toast(\\'Copied!\\')”><svg width=”14” height=”14” viewBox=”0 0 24 24” fill=”none” stroke=”currentColor” stroke-width=”2” stroke-linecap=”round” stroke-linejoin=”round”><circle cx=”18” cy=”5” r=”3”/><circle cx=”6” cy=”12” r=”3”/><circle cx=”18” cy=”19” r=”3”/><line x1=”8.59” y1=”13.51” x2=”15.42” y2=”17.49”/><line x1=”15.41” y1=”6.51” x2=”8.59” y2=”10.49”/></svg>Share</button>';
+  if(q.s){
+    html+='<div style="padding:24px 24px 0">';
+    html+='<div style="border-radius:18px;padding:20px;background:rgba(43,39,34,.04)">';
+    html+='<div style="font:700 11px var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:12px">TODAY\\u2019S STORY</div>';
+    html+='<p style="font:400 15.5px/1.65 var(--serif);color:var(--ink);margin:0">'+q.s+'</p>';
+    html+='</div></div>';
+  }
+  html+='<div style="padding:18px 24px 0">';
+  html+='<div style="border-radius:16px;padding:16px;background:rgba(43,39,34,.04)">';
+  html+='<div style="font:700 10.5px var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--text-mute)">REFLECT</div>';
+  html+='<p style="font:400 15px/1.45 var(--serif);color:var(--ink);margin:8px 0 0">How does this wisdom apply to your life today?</p>';
   html+='</div></div>';
+  html+='</div>';
+  html+='<div style="padding:14px 24px 22px;display:flex;gap:10px;flex:none">';
+  html+='<button style="flex:1;padding:13px;border-radius:13px;background:var(--accent-soft);color:var(--accent-strong);font:600 14px var(--sans);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px" onclick="toast(\\'Saved to your journal\\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>Save</button>';
+  html+='<button style="flex:1;padding:13px;border-radius:13px;background:rgba(43,39,34,.06);color:var(--ink);font:600 14px var(--sans);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px" onclick="if(navigator.share)navigator.share({text:\\'\\\\u201C\\'+document.querySelector(\\'.rd-wf-quote\\').textContent+\\'\\\\u201D\\'}).catch(function(){});else toast(\\'Copied!\\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Share</button>';
+  html+='</div>';
   ov.innerHTML=html;document.body.appendChild(ov);
 }
 function openPaywall(){
@@ -9044,13 +9126,11 @@ function calSchedToggle(idx){if(S.calSchedule&&S.calSchedule.items[idx])S.calSch
 function calSchedTime(idx,field,val){if(S.calSchedule&&S.calSchedule.items[idx])S.calSchedule.items[idx][field]=val}
 function calSchedCustomTime(field,val){if(S.calSchedule)S.calSchedule[field]=val}
 async function calSchedSave(){if(!S.calSchedule)return;var d=S.calSchedule.date;var saved=0;for(var i=0;i<S.calSchedule.items.length;i++){var item=S.calSchedule.items[i];if(!item.selected||!item.sh)continue;var shr=parseInt(item.sh,10);if(item.sp==='PM'&&shr<12)shr+=12;if(item.sp==='AM'&&shr===12)shr=0;var ehr=item.eh?parseInt(item.eh,10):shr+1;if(item.eh){if(item.ep==='PM'&&ehr<12)ehr+=12;if(item.ep==='AM'&&ehr===12)ehr=0}var st=(shr<10?'0':'')+shr+':'+(item.sm||'00');var en=(ehr<10?'0':'')+ehr+':'+(item.em||'00');try{var r=await api('/schedule',{method:'POST',body:JSON.stringify({date:d,start_time:st,end_time:en,label:item.title,color:'#E27D60'})});if(r&&r.ok)saved++}catch(e){}}var cLabel=(S.calSchedule.custom||'').trim();if(cLabel&&S.calSchedule.csh){var cshr=parseInt(S.calSchedule.csh,10);if(S.calSchedule.csp==='PM'&&cshr<12)cshr+=12;if(S.calSchedule.csp==='AM'&&cshr===12)cshr=0;var cehr=S.calSchedule.ceh?parseInt(S.calSchedule.ceh,10):cshr+1;if(S.calSchedule.ceh){if(S.calSchedule.cep==='PM'&&cehr<12)cehr+=12;if(S.calSchedule.cep==='AM'&&cehr===12)cehr=0}var cst=(cshr<10?'0':'')+cshr+':'+(S.calSchedule.csm||'00');var cen=(cehr<10?'0':'')+cehr+':'+(S.calSchedule.cem||'00');try{var cr=await api('/schedule',{method:'POST',body:JSON.stringify({date:d,start_time:cst,end_time:cen,label:cLabel,color:'#4285F4'})});if(cr&&cr.ok)saved++}catch(e){}}if(saved){toast('\\u2705 '+saved+' item'+(saved>1?'s':'')+' added to calendar');S.showCalSchedule=false;loadGcalEvents();render()}else toast('\\u26A0\\uFE0F Select a task and set a start time','err')}
-function rotateMoral(){if(_audioBusy())return;if(_isModalOpen())return;S.moralIdx=(S.moralIdx+1)%MORALS.length;
-  // Direct DOM update — no full re-render. This used to fire every 45 seconds
-  // and rebuild every card on the page.
-  const m=MORALS[S.moralIdx];
-  const txt=document.querySelector('.quote-strip-txt');if(txt)txt.textContent='"'+m.t+'"';
-  const by=document.querySelector('.quote-strip-by');if(by)by.textContent='— '+m.a;
-  // Fall back to a passive render if those nodes aren't on the page (other tab, etc.)
+function rotateMoral(){if(_audioBusy())return;if(_isModalOpen())return;var pool=window._DQ||MORALS;S.moralIdx=(S.moralIdx+1)%pool.length;
+  var m=pool[S.moralIdx];
+  var qt=m.q||m.t;
+  const txt=document.querySelector('.quote-strip-txt');if(txt)txt.textContent='"'+qt+'"';
+  const by=document.querySelector('.quote-strip-by');if(by)by.textContent='\\u2014 '+m.a;
   if(!txt)renderPassive();
 }
 setInterval(()=>{if(S.user)rotateMoral()},45000);
@@ -11137,7 +11217,7 @@ function voicePronRecord(){
   try{r.start();S._pronRec=r}catch(e){toast('\\u26A0\\uFE0F '+e.message,'err');S._pronRec=null;S.pron={...(S.pron||{}),recording:false};render()}
 }
 function closePlayer(){stopBookListenTimer();_killAllBookAudio();S.playing=null;S.meditating={active:false,title:'',mins:0,startedAt:0};S._renderForce=true;render();setTimeout(()=>{S._renderForce=false},100)}
-function closeMeditation(){const a=document.getElementById('audioEl');if(a){try{a.pause()}catch(e){}}try{_stopRain()}catch(e){}try{speechSynthesis.cancel()}catch(e){}closePlayer()}
+function closeMeditation(){const a=document.getElementById('audioEl');if(a){try{a.pause()}catch(e){}}try{_stopRain()}catch(e){}try{_mvStopAudio()}catch(e){}try{speechSynthesis.cancel()}catch(e){}closePlayer()}
 let _bkTimer=null;
 function startBookListenTimer(){if(_bkTimer)return;S._bkSec=0;_bkTimer=setInterval(async()=>{const a=document.getElementById('audioEl');if(!a||a.paused||a.ended)return;S._bkSec+=5;if(S._bkSec===120&&S.user&&!S.bookStreak.today){const r=await api('/book-streak',{method:'POST',body:JSON.stringify({date:new Date().toISOString().slice(0,10),seconds:120})});if(r?.ok){S.bookStreak={streak:r.streak,total:r.total,today:true,days:S.bookStreak.days};toast('\\u{1F389} '+r.streak+'-day listening streak!');render()}}},5000)}
 function stopBookListenTimer(){if(_bkTimer){clearInterval(_bkTimer);_bkTimer=null}}
@@ -11468,127 +11548,46 @@ function drinkWater(){_hydrationToday();if(S.hydration.glass>=S.hydration.goal){
 function undrinkWater(){_hydrationToday();if(S.hydration.glass<=0)return;S.hydration.glass--;localStorage.setItem('tf_hydration_glass',String(S.hydration.glass));toast('\\u{1F4A7} Adjusted to '+S.hydration.glass+'/'+S.hydration.goal);_hydrationPatch()}
 var _mvCat='all';var _mvPlaying=null;
 var _mvVideos=[
-  {id:'mv1',src:'https://cdn.pixabay.com/video/2022/06/15/120450-720880556_medium.mp4',t:'Keep Moving Forward',q:'The only way out is through',c:'grind'},
-  {id:'mv2',src:'https://cdn.pixabay.com/video/2020/07/13/44639-439413049_medium.mp4',t:'Victory Is Yours',q:'Success is not given, it is earned',c:'confidence'},
-  {id:'mv3',src:'https://cdn.pixabay.com/video/2022/08/28/129424-744370601_medium.mp4',t:'Unleash Your Power',q:'You are stronger than you think',c:'confidence'},
-  {id:'mv4',src:'https://cdn.pixabay.com/video/2022/06/18/120683-721759770_medium.mp4',t:'Run Your Race',q:'Don\\'t stop when you\\'re tired, stop when you\\'re done',c:'grind'},
-  {id:'mv5',src:'https://cdn.pixabay.com/video/2022/06/15/120449-720880553_medium.mp4',t:'Outwork Everyone',q:'Hard work beats talent when talent doesn\\'t work hard',c:'grind'},
-  {id:'mv6',src:'https://cdn.pixabay.com/video/2022/06/01/118891-716614154_medium.mp4',t:'Rise and Grind',q:'Every morning is a chance to start again',c:'morning'},
-  {id:'mv7',src:'https://cdn.pixabay.com/video/2020/08/12/46989-449623829_medium.mp4',t:'Push Your Limits',q:'Growth begins at the edge of your comfort zone',c:'discipline'},
-  {id:'mv8',src:'https://cdn.pixabay.com/video/2022/06/18/120679-721759754_medium.mp4',t:'Sprint to Greatness',q:'Champions train, losers complain',c:'grind'},
-  {id:'mv9',src:'https://cdn.pixabay.com/video/2018/09/26/18438-292228576_medium.mp4',t:'Stay Positive',q:'Your attitude determines your altitude',c:'confidence'},
-  {id:'mv10',src:'https://cdn.pixabay.com/video/2018/09/24/18390-291585321_medium.mp4',t:'Golden Hour Awakening',q:'Wake up with determination, go to bed with satisfaction',c:'morning'},
-  {id:'mv11',src:'https://cdn.pixabay.com/video/2025/02/17/258799_medium.mp4',t:'New Dawn, New Goals',q:'Today is the day you change your life',c:'morning'},
-  {id:'mv12',src:'https://cdn.pixabay.com/video/2023/11/19/189813-887078786_medium.mp4',t:'Sunrise Strength',q:'Every sunrise brings a new opportunity',c:'morning'},
-  {id:'mv13',src:'https://cdn.pixabay.com/video/2024/12/12/246391_medium.mp4',t:'Chase the Light',q:'Be the energy you want to attract',c:'morning'},
-  {id:'mv14',src:'https://cdn.pixabay.com/video/2023/03/13/154586-808119408_medium.mp4',t:'Morning Momentum',q:'Start before you\\'re ready',c:'morning'},
-  {id:'mv15',src:'https://cdn.pixabay.com/video/2019/11/11/28975-372617944_medium.mp4',t:'Break of Dawn',q:'Discipline is choosing what you want most over what you want now',c:'morning'},
-  {id:'mv16',src:'https://cdn.pixabay.com/video/2020/11/28/57647-486227472_medium.mp4',t:'First Light Focus',q:'Win the morning, win the day',c:'morning'},
-  {id:'mv17',src:'https://cdn.pixabay.com/video/2020/12/15/59291-492700392_medium.mp4',t:'Peaceful Power',q:'Stillness is where creativity and solutions are found',c:'nature'},
-  {id:'mv18',src:'https://cdn.pixabay.com/video/2022/11/11/138588-770315514_medium.mp4',t:'Ocean of Calm',q:'Be like water — flexible yet unstoppable',c:'nature'},
-  {id:'mv19',src:'https://cdn.pixabay.com/video/2024/06/29/218714_medium.mp4',t:'Waves of Determination',q:'Persistence breaks down all resistance',c:'nature'},
-  {id:'mv20',src:'https://cdn.pixabay.com/video/2020/03/03/33194-396036988_medium.mp4',t:'Endless Horizon',q:'Think big, start small, act now',c:'nature'},
-  {id:'mv21',src:'https://cdn.pixabay.com/video/2019/03/21/22183-712840599_medium.mp4',t:'Tides of Change',q:'Embrace change, it is your greatest teacher',c:'nature'},
-  {id:'mv22',src:'https://cdn.pixabay.com/video/2023/01/30/148597-794221559_medium.mp4',t:'Deep Breath',q:'In the middle of difficulty lies opportunity',c:'nature'},
-  {id:'mv23',src:'https://cdn.pixabay.com/video/2021/04/15/71122-537102350_medium.mp4',t:'Tranquil Strength',q:'Calmness is a superpower',c:'nature'},
-  {id:'mv24',src:'https://cdn.pixabay.com/video/2021/02/18/65560-515098344_medium.mp4',t:'Shore of Serenity',q:'Peace is the foundation of productivity',c:'nature'},
-  {id:'mv25',src:'https://cdn.pixabay.com/video/2023/01/27/148208-793717949_medium.mp4',t:'Iron Will',q:'The pain you feel today is the strength you feel tomorrow',c:'discipline'},
-  {id:'mv26',src:'https://cdn.pixabay.com/video/2023/01/27/148212-793717957_medium.mp4',t:'No Shortcuts',q:'Discipline is the bridge between goals and accomplishment',c:'discipline'},
-  {id:'mv27',src:'https://cdn.pixabay.com/video/2021/06/07/76737-560201133_medium.mp4',t:'Build Your Body',q:'Take care of your body, it\\'s the only place you have to live',c:'discipline'},
-  {id:'mv28',src:'https://cdn.pixabay.com/video/2022/10/16/135162-761273567_medium.mp4',t:'Relentless Training',q:'Sweat now, shine later',c:'discipline'},
-  {id:'mv29',src:'https://cdn.pixabay.com/video/2024/07/08/220150_medium.mp4',t:'Forge Ahead',q:'Every rep counts, every set matters',c:'discipline'},
-  {id:'mv30',src:'https://cdn.pixabay.com/video/2023/01/27/148196-793717922_medium.mp4',t:'Strength Within',q:'You don\\'t find willpower, you create it',c:'discipline'},
-  {id:'mv31',src:'https://cdn.pixabay.com/video/2023/01/27/148204-793717940_medium.mp4',t:'Power Hour',q:'One hour of focused effort changes everything',c:'discipline'},
-  {id:'mv32',src:'https://cdn.pixabay.com/video/2024/02/15/200657-913478674_medium.mp4',t:'Mind Over Matter',q:'Your body achieves what your mind believes',c:'discipline'},
-  {id:'mv33',src:'https://cdn.pixabay.com/video/2023/01/27/148211-793717955_medium.mp4',t:'Daily Grind',q:'Success is the sum of small efforts repeated daily',c:'grind'},
-  {id:'mv34',src:'https://cdn.pixabay.com/video/2021/06/16/77903-563974343_medium.mp4',t:'Never Quit',q:'It does not matter how slowly you go, just don\\'t stop',c:'grind'},
-  {id:'mv35',src:'https://cdn.pixabay.com/video/2018/12/18/20112-307163913_medium.mp4',t:'Sweat Equity',q:'The harder you work, the luckier you get',c:'grind'},
-  {id:'mv36',src:'https://cdn.pixabay.com/video/2023/06/05/165867-833532201_medium.mp4',t:'All In',q:'Go all in or don\\'t go at all',c:'grind'},
-  {id:'mv37',src:'https://cdn.pixabay.com/video/2022/10/16/135160-761273559_medium.mp4',t:'Beast Mode',q:'Excuses don\\'t burn calories',c:'discipline'},
-  {id:'mv38',src:'https://cdn.pixabay.com/video/2024/09/29/233867_medium.mp4',t:'Flow State',q:'When you are in the zone, nothing can stop you',c:'focus'},
-  {id:'mv39',src:'https://cdn.pixabay.com/video/2024/03/18/204565-924698132_medium.mp4',t:'Crystal Clear',q:'Clarity comes from action, not thought',c:'focus'},
-  {id:'mv40',src:'https://cdn.pixabay.com/video/2022/10/14/134822-760690982_medium.mp4',t:'Still Waters Run Deep',q:'Focus on progress, not perfection',c:'focus'},
-  {id:'mv41',src:'https://cdn.pixabay.com/video/2024/07/27/223459_medium.mp4',t:'Inner Peace',q:'A calm mind is an unstoppable mind',c:'focus'},
-  {id:'mv42',src:'https://cdn.pixabay.com/video/2023/08/16/176303-855196335_medium.mp4',t:'Breathe and Believe',q:'Believe you can and you\\'re halfway there',c:'focus'},
-  {id:'mv43',src:'https://cdn.pixabay.com/video/2025/07/23/293085_medium.mp4',t:'Cardio Queen',q:'Strong is the new beautiful',c:'quick'},
-  {id:'mv44',src:'https://cdn.pixabay.com/video/2018/09/26/18439-292228582_medium.mp4',t:'Choose Happiness',q:'Happiness is a choice, not a result',c:'quick'},
-  {id:'mv45',src:'https://cdn.pixabay.com/video/2024/02/02/199001-909564581_medium.mp4',t:'Rise With The Sun',q:'Be so good they can\\'t ignore you',c:'confidence'},
-  {id:'mv46',src:'https://cdn.pixabay.com/video/2023/11/10/188595-883402169_medium.mp4',t:'Sky Is The Limit',q:'Dream bigger than your fears',c:'confidence'},
-  {id:'mv47',src:'https://cdn.pixabay.com/video/2023/08/22/177223-857013274_medium.mp4',t:'Golden Glow',q:'Shine so bright they need sunglasses',c:'confidence'},
-  {id:'mv48',src:'https://cdn.pixabay.com/video/2024/02/08/199788-911378451_medium.mp4',t:'Radiant Energy',q:'Your energy introduces you before you speak',c:'confidence'},
-  {id:'mv49',src:'https://cdn.pixabay.com/video/2022/12/18/143431-782373969_medium.mp4',t:'5 Minute Fire',q:'You are one decision away from a different life',c:'quick'},
-  {id:'mv50',src:'https://cdn.pixabay.com/video/2025/09/14/304019_medium.mp4',t:'Deep Blue Calm',q:'The secret of getting ahead is getting started',c:'quick'}
+  {id:'mv1',src:'/api/mv-video/clip_01',t:'Be Yourself Strong',q:'Strength comes from being who you truly are',c:'confidence',voice:true},
+  {id:'mv2',src:'/api/mv-video/clip_02',t:'Speech For Success',q:'Success starts with a burning desire',c:'harsh',voice:true},
+  {id:'mv3',src:'/api/mv-video/clip_03',t:'Never Stop Believing',q:'Belief is the first step to achievement',c:'confidence',voice:true},
+  {id:'mv4',src:'/api/mv-video/clip_04',t:'Heart of a Champion',q:'Champions are made when nobody is watching',c:'discipline',voice:true},
+  {id:'mv5',src:'/api/mv-video/clip_05',t:'Push Past Your Limits',q:'Your limits are just illusions',c:'harsh',voice:true},
+  {id:'mv6',src:'/api/mv-video/clip_06',t:'Break Through Fear',q:'Fear is the enemy of progress',c:'discipline',voice:true},
+  {id:'mv7',src:'/api/mv-video/clip_07',t:'Rise Above It All',q:'Rise above the noise and find your purpose',c:'harsh',voice:true},
+  {id:'mv8',src:'/api/mv-video/clip_08',t:'Unstoppable Force',q:'Nothing can stop you but yourself',c:'discipline',voice:true},
+  {id:'mv9',src:'/api/mv-video/clip_09',t:'Conquer Your Mind',q:'Master your thoughts, master your life',c:'mindset',voice:true},
+  {id:'mv10',src:'/api/mv-video/clip_10',t:'The Fire Within',q:'Let the fire inside burn brighter than the fire around you',c:'harsh',voice:true},
+  {id:'mv11',src:'/api/mv-video/clip_11',t:'Take Massive Action',q:'Action is the foundational key to success',c:'discipline',voice:true},
+  {id:'mv12',src:'/api/mv-video/clip_12',t:'Awaken The Giant',q:'There is a giant inside you waiting to be unleashed',c:'confidence',voice:true},
+  {id:'mv13',src:'/api/mv-video/clip_13',t:'Change Your Story',q:'You are the author of your own destiny',c:'mindset',voice:true},
+  {id:'mv14',src:'/api/mv-video/clip_14',t:'Demand More',q:'Demand more from yourself than anyone else could',c:'harsh',voice:true},
+  {id:'mv15',src:'/api/mv-video/clip_15',t:'Raise Your Standards',q:'It is not about resources, it is about resourcefulness',c:'mindset',voice:true},
+  {id:'mv16',src:'/api/mv-video/clip_16',t:'Hunger For Success',q:'Stay hungry, stay foolish, stay relentless',c:'harsh',voice:true},
+  {id:'mv17',src:'/api/mv-video/clip_17',t:'Own Your Power',q:'Your power is in your decisions, not your conditions',c:'confidence',voice:true},
+  {id:'mv18',src:'/api/mv-video/clip_18',t:'Become Legendary',q:'Legends are made through consistency and sacrifice',c:'discipline',voice:true}
 ];
 var _mvCats=[
   {k:'all',l:'All',e:'\\u{1F525}'},
-  {k:'quick',l:'Quick Boost',e:'\\u26A1'},
-  {k:'morning',l:'Morning',e:'\\u{1F305}'},
+  {k:'harsh',l:'Hardcore',e:'\\u{1F4A5}'},
   {k:'discipline',l:'Discipline',e:'\\u{1F3AF}'},
-  {k:'grind',l:'Grind',e:'\\u{1F4AA}'},
   {k:'confidence',l:'Confidence',e:'\\u{2B50}'},
-  {k:'nature',l:'Nature',e:'\\u{1F30A}'},
-  {k:'focus',l:'Focus',e:'\\u{1F9D8}'}
+  {k:'mindset',l:'Mindset',e:'\\u{1F9E0}'}
 ];
 function _mvFilter(){return _mvCat==='all'?_mvVideos:_mvVideos.filter(function(v){return v.c===_mvCat})}
 function _mvSetCat(k){_mvCat=k;_mvPlaying=null;render()}
-function _mvPlay(id){
+function _mvStopAudio(){
+  if(window._mvAudio){try{window._mvAudio.pause();window._mvAudio.src=''}catch(e){}window._mvAudio=null}
   try{speechSynthesis.cancel()}catch(e){}
+}
+function _mvPlay(id){
+  _mvStopAudio();
   if(window._mvRainCtx){try{window._mvRainCtx.close()}catch(e){}window._mvRainCtx=null}
   _mvPlaying=(_mvPlaying===id)?null:id;render();
   if(_mvPlaying){setTimeout(function(){
     var el=document.getElementById('mv-frame-'+id);
     if(el){el.scrollIntoView({behavior:'smooth',block:'center'});var vid=el.querySelector('video');if(vid){vid.play()}}
-    var v=_mvVideos.find(function(x){return x.id===id});
-    if(v&&window.speechSynthesis){_mvSpeak(v)}
   },100)}
-}
-function _mvSpeak(v){
-  var cats={grind:{r:1.05,p:0.8},discipline:{r:1.0,p:0.85},quick:{r:1.0,p:0.9},morning:{r:0.92,p:1.0},confidence:{r:0.95,p:0.95},nature:{r:0.82,p:1.05},focus:{r:0.8,p:1.08}};
-  var cfg=cats[v.c]||{r:0.92,p:1.0};
-  var speeches={
-    grind:[
-      'Every single day you have a choice. You can stay in bed, stay comfortable, stay average. Or you can get up, push through the pain, and become someone extraordinary. The grind never stops. The hustle never sleeps. And neither should your ambition.',
-      'Pain is temporary. Quitting lasts forever. When your muscles ache, when your mind screams stop, that is when champions are made. Push through. One more rep. One more step. One more hour. You are built for this.',
-      'Nobody is coming to save you. No one is going to do the work for you. Success is not handed out, it is earned with blood, sweat, and tears. So stop waiting for permission and start grinding.'
-    ],
-    discipline:[
-      'Discipline is choosing between what you want now and what you want most. Every time you resist temptation, every time you show up when you do not feel like it, you are building the foundation of greatness.',
-      'Motivation gets you started. Discipline keeps you going. You do not need to feel inspired to work. You just need to work. Day after day, brick by brick, until the ordinary becomes extraordinary.',
-      'The body achieves what the mind believes. Train your mind first. Control your thoughts. Master your emotions. When you conquer yourself, the world has no choice but to follow.'
-    ],
-    quick:[
-      'Stop overthinking. Stop waiting for the perfect moment. The perfect moment is now. Take that first step. Make that call. Send that message. Your future self will thank you.',
-      'Five minutes. That is all it takes to change the trajectory of your entire life. Five minutes of courage. Five minutes of action. Five minutes of being brave enough to try.'
-    ],
-    morning:[
-      'Good morning, champion. The sun is rising, and so are you. Today is a gift. A brand new chance to chase your dreams, to be better than yesterday, to prove to yourself that you are capable of incredible things.',
-      'The way you start your morning determines the quality of your day. Rise with purpose. Move with intention. Breathe with gratitude. Today, you choose greatness.'
-    ],
-    confidence:[
-      'You are stronger than you know. Braver than you believe. And more capable than you can imagine. Stop shrinking to fit into spaces that were never meant for you. Expand. Grow. Shine.',
-      'Confidence is not about being perfect. It is about knowing your worth even when the world tells you otherwise. Walk tall. Speak boldly. Dream bigger than your fears.'
-    ],
-    nature:[
-      'In the stillness of nature, you find your truest self. The ocean does not rush. The mountains do not hurry. Yet everything is accomplished. Be like water. Flow with life. Trust the process.',
-      'Take a deep breath. Feel the peace that surrounds you. You are part of something vast and beautiful. Let go of what you cannot control. Embrace the calm. You are exactly where you need to be.'
-    ],
-    focus:[
-      'In a world full of distractions, your ability to focus is your superpower. Close your eyes. Clear your mind. When you are truly present, anything becomes possible.',
-      'Silence the noise. Filter out the chaos. Your mind is a powerful instrument. When you learn to focus it like a laser, there is nothing you cannot achieve. Stay present. Stay powerful.'
-    ]
-  };
-  var pool=speeches[v.c]||speeches.quick;
-  var idx=parseInt(v.id.replace('mv',''),10)%pool.length;
-  var text=v.t+'. '+pool[idx];
-  try{speechSynthesis.cancel()}catch(e){}
-  var go=function(){
-    var u=new SpeechSynthesisUtterance(text);
-    var best=pickBestVoice();if(best){u.voice=best;u.lang=best.lang}
-    u.rate=cfg.r;u.pitch=cfg.p;u.volume=1.0;
-    speechSynthesis.speak(u);
-  };
-  var vs=speechSynthesis.getVoices();
-  if(vs&&vs.length)go();else{speechSynthesis.onvoiceschanged=function(){speechSynthesis.onvoiceschanged=null;go()};setTimeout(go,300)}
 }
 function _playWaterSound(){
   try{
@@ -11934,7 +11933,9 @@ let h='<div class="hdr"><div class="hdr-l">'+LOGO_MARK+'</div><div class="hdr-ac
   +'<button class="hdr-help" onclick="toggleTheme()" title="Dark mode" style="font-size:16px">'+(S.theme==='aurora'?'\\u2600\\uFE0F':'\\u{1F319}')+'</button>'
   +'</div></div>';
 
-const m=MORALS[S.moralIdx];
+var _mPool=window._DQ||MORALS;
+const m=_mPool[S.moralIdx%_mPool.length]||{q:'Start.',a:'You'};
+const _mQt=m.q||m.t;
 let moralBlock='';
 let bottomBlock='';
 if(isMain){
@@ -11969,9 +11970,8 @@ if(isMain){
     hero+='</div>';
   });
   hero+='</div></div>';
-  var _wisdomQuotes=[{q:'Discipline is choosing between what you want now and what you want most.',a:'Abraham Lincoln'},{q:'The secret of getting ahead is getting started.',a:'Mark Twain'},{q:'It does not matter how slowly you go as long as you do not stop.',a:'Confucius'},{q:'Well done is better than well said.',a:'Benjamin Franklin'},{q:'Action is the foundational key to all success.',a:'Pablo Picasso'}];
-  var _wqIdx=Math.floor(new Date().getTime()/(864e5))%_wisdomQuotes.length;
-  var _wq=_wisdomQuotes[_wqIdx];
+  var _wqDoy=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/(864e5));
+  var _wq=window._DQ&&window._DQ[(_wqDoy-1)%window._DQ.length]||{q:'The secret of getting ahead is getting started.',a:'Mark Twain'};
   hero+='<div class="rd-wisdom-card" style="margin-top:13px">';
   hero+='<div class="rd-eyebrow" style="color:color-mix(in srgb,var(--gold) 86%,#3a2a08);font-size:13.5px">DAILY WISDOM</div>';
   hero+='<p style="font:400 21px/1.36 var(--serif);font-style:italic;color:var(--ink);margin:9px 0 0">\\u201C'+esc(_wq.q)+'\\u201D</p>';
@@ -12017,13 +12017,22 @@ if(isMain){
   hero+='</div>';
   // --- Motivational Videos ---
   hero+='<div class="mv-wrap">';
-  hero+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font:600 16px var(--sans);color:var(--ink)">\\u{1F3AC} Motivational Videos</span><span style="font:400 12px var(--sans);color:var(--text-mute)">'+_mvFilter().length+' videos</span></div>';
+  hero+='<div class="mv-hero">';
+  hero+='<div class="mv-hero-glow"></div>';
+  hero+='<div class="mv-hero-text">Want to be motivated?</div>';
+  hero+='<div class="mv-hero-sub">Listen to everyday motivation \\u2014 real voices, real fire.</div>';
+  hero+='<div class="mv-hero-icons">';
+  hero+='<div class="mv-hero-icon">\\u{1F3CB}\\uFE0F</div>';
+  hero+='<div class="mv-hero-icon">\\u{1F4D6}</div>';
+  hero+='<div class="mv-hero-icon">\\u{1FA9C}</div>';
+  hero+='</div></div>';
+  hero+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font:600 16px var(--sans);color:var(--ink)">\\u{1F525} Everyday Motivation</span><span style="font:400 12px var(--sans);color:var(--text-mute)">'+_mvFilter().length+' videos</span></div>';
   hero+='<div class="mv-cats">';
   _mvCats.forEach(function(c){hero+='<button class="mv-cat'+(c.k===_mvCat?' on':'')+'" onclick="_mvSetCat(\\''+c.k+'\\')">'+c.e+' '+c.l+'</button>'});
   hero+='</div>';
   hero+='<div class="mv-grid">';
   _mvFilter().forEach(function(v){
-    var thumbUrl=v.src.replace('_medium.mp4','_tiny.jpg');
+    var thumbUrl='/api/mv-thumb/'+v.src.split('/').pop()+'.jpg';
     if(_mvPlaying===v.id){
       hero+='<div class="mv-player" id="mv-frame-'+v.id+'">';
       hero+='<video src="'+v.src+'" autoplay playsinline loop poster="'+thumbUrl+'"></video>';
@@ -12116,7 +12125,7 @@ if(isMain){
   const fmtTZ2=(tz)=>{try{return new Date().toLocaleTimeString('en-US',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false})}catch(e){return '--:--'}};
   const isDayAt=(tz)=>{try{const h=Number(new Date().toLocaleString('en-US',{timeZone:tz,hour:'2-digit',hour12:false}).split(',')[1]||new Date().toLocaleString('en-US',{timeZone:tz,hour:'2-digit',hour12:false}));return h>=6&&h<18}catch(e){return true}};
   const wc='<div class="world-clocks" id="worldClocks">'+WORLD_CITY_LIST.map((c,i)=>{const day=isDayAt(c.tz);const icon=day?'<svg class="wc-icon wc-sun" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4" fill="#F59E0B"/><g stroke="#F59E0B" stroke-width="1.6" stroke-linecap="round"><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.9" y1="4.9" x2="7" y2="7"/><line x1="17" y1="17" x2="19.1" y2="19.1"/><line x1="4.9" y1="19.1" x2="7" y2="17"/><line x1="17" y1="7" x2="19.1" y2="4.9"/></g></svg>':'<svg class="wc-icon wc-moon" viewBox="0 0 24 24" fill="none"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="#EDA68E"/><circle class="wc-star" cx="6" cy="6" r="0.8" fill="#EDA68E"/><circle class="wc-star" cx="20" cy="20" r="0.7" fill="#EDA68E"/></svg>';const ct=(S.cityTemps||{})[c.key.toLowerCase()];const tempStr=ct&&ct.temp!=null?ct.temp+'\\u00B0':'';return '<span class="wc-item '+(day?'wc-day':'wc-night')+'" style="animation-delay:'+(i*0.05)+'s"><span class="wc-icon-wrap">'+icon+'</span><b>'+esc(c.label)+'</b><span class="wc-time" data-tz="'+c.tz+'">'+fmtTZ2(c.tz)+'</span>'+(tempStr?'<span class="wc-temp">'+tempStr+'</span>':'')+'</span>'}).join('')+'</div>';
-  const mLine='<div class="quote-strip"><span class="quote-strip-em">\\u{1F4A1}</span><span class="quote-strip-txt">"'+esc(m.t)+'"</span><span class="quote-strip-by">\\u2014 '+esc(m.a)+'</span><button class="quote-strip-ref" onclick="rotateMoral()" aria-label="New quote">\\u21BB</button></div>';
+  const mLine='<div class="quote-strip"><span class="quote-strip-em">\\u{1F4A1}</span><span class="quote-strip-txt">"'+esc(_mQt)+'"</span><span class="quote-strip-by">\\u2014 '+esc(m.a)+'</span><button class="quote-strip-ref" onclick="rotateMoral()" aria-label="New quote">\\u21BB</button></div>';
   bottomBlock='<div class="bottom-strip">'+mLine+ticker+wc+'</div>';
 }
 
@@ -14722,7 +14731,7 @@ app.get('/privacy',(_,res)=>{
 app.get('/terms',(_,res)=>{
   res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Terms of Service — Brodoit</title><meta name="description" content="The simple terms for using Brodoit. Plain English, no surprises."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Terms</div><h1>The simple rules.</h1><p class="lede">We've kept these terms short and human. Use Brodoit kindly, and we'll keep building it for you.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">The service</h2><p>Brodoit is a personal productivity app: it lets you manage tasks with optional WhatsApp and email reminders, listen to free public-domain audiobooks, sharpen your mind with brain games, and see a daily wisdom quote.</p><h2 data-n="02">Your account</h2><p>You register with your email address or phone number. Keep your one-time verification codes private — anyone with the code can sign in. You are responsible for activity on your account.</p><h2 data-n="03">Acceptable use</h2><p>Please don't abuse the service: no spam, no impersonation, no automated scraping, no attempts to disrupt other users or the service itself. We may suspend or remove accounts that do.</p><h2 data-n="04">Content</h2><p>You own your tasks, notes, and other content you create. We store them so we can show them back to you. Audiobook content belongs to the respective public-domain authors and is served from the Internet Archive's LibriVox collection.</p><h2 data-n="05">No warranty</h2><p>The service is provided "as is". We try hard to keep it running, but can't promise zero downtime or guarantee that every reminder is delivered (WhatsApp and email providers can fail). If something matters, please don't rely solely on Brodoit.</p><h2 data-n="06">Limitation of liability</h2><p>Brodoit is a personal tool. We're not liable for missed deadlines, lost data, or any consequential damages from using — or not using — the service.</p><h2 data-n="07">Changes</h2><p>We may update these terms. If we do, we'll update the date at the top. Continued use after a change means you accept the new terms.</p><h2 data-n="08">Contact</h2><p>Need anything? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });
-app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v52";
+app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v55";
 self.addEventListener("install",function(e){self.skipWaiting()});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener("fetch",function(e){});
@@ -14773,7 +14782,8 @@ app.get('/changelog',(_,res)=>{
 function _readCookie(req,name){const c=req.headers.cookie||'';const m=c.match(new RegExp('(?:^|; )'+name+'=([^;]*)'));return m?decodeURIComponent(m[1]):''}
 app.get('/',(req,res)=>{
   const pendingEmail=_readCookie(req,'pending_otp_email');
-  const inject=pendingEmail?'window.__PENDING_OTP_EMAIL='+JSON.stringify(pendingEmail.slice(0,254))+';':'';
+  let inject=pendingEmail?'window.__PENDING_OTP_EMAIL='+JSON.stringify(pendingEmail.slice(0,254))+';':'';
+  if(_dailyQuotes.length)inject+='window._DQ='+JSON.stringify(_dailyQuotes)+';';
   const html=HTML.replace('/*__SERVER_INJECT__*/',inject);
   // Vary: Cookie tells any CDN (Railway uses Fastly) that responses differ per cookie — never serve a
   // user-A cookie response to user-B. Combined with no-store, this blocks all caching of /.
