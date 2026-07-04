@@ -2552,15 +2552,7 @@ h1,h2,h3,h4{font-family:var(--serif);font-weight:500;letter-spacing:-.015em;colo
 .yp-stat-v{font:700 13px var(--sans);color:var(--ink)}
 @keyframes ypPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
 .mv-wrap{margin-top:14px;border-radius:20px;background:var(--surface);border:1px solid var(--line);padding:16px;animation:fadeSlideUp .4s cubic-bezier(.2,.8,.2,1) both;animation-delay:.1s}
-.mv-hero-card{grid-column:1/-1;position:relative;border-radius:14px;padding:20px;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 40%,#0f3460 100%);overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:12px}
-.mv-hero-icons{display:flex;gap:8px}
-.mv-hero-icon{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;backdrop-filter:blur(6px)}
-.mv-hero-icon:nth-child(1){background:rgba(217,115,74,.25);animation:mvFloat 3s ease-in-out infinite}
-.mv-hero-icon:nth-child(2){background:rgba(190,140,54,.25);animation:mvFloat 3s ease-in-out infinite .6s}
-.mv-hero-icon:nth-child(3){background:rgba(92,111,82,.25);animation:mvFloat 3s ease-in-out infinite 1.2s}
-@keyframes mvFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-6px) scale(1.06)}}
-.mv-hero-glow{position:absolute;width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(217,115,74,.3),transparent 70%);right:40px;top:50%;transform:translateY(-50%);filter:blur(20px);animation:mvPulse 4s ease-in-out infinite}
-@keyframes mvPulse{0%,100%{opacity:.4;transform:translateY(-50%) scale(1)}50%{opacity:.7;transform:translateY(-50%) scale(1.2)}}
+.mv-hero-card{grid-column:1/-1;position:relative;border-radius:12px;padding:12px 14px;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 40%,#0f3460 100%);overflow:hidden;display:flex;align-items:center;gap:10px}
 body[data-theme=aurora] .mv-hero-card{background:linear-gradient(135deg,#0d0d1a 0%,#1a0a2e 40%,#2d1b69 100%)}
 .mv-cats{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .mv-cats::-webkit-scrollbar{display:none}
@@ -2585,6 +2577,28 @@ body[data-theme=aurora] .mv-hero-card{background:linear-gradient(135deg,#0d0d1a 
 body[data-theme=aurora] .mv-card{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1)}
 body[data-theme=aurora] .mv-thumb{background:rgba(0,0,0,.3)}
 .rd-card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:17px;box-shadow:var(--shadow-1);animation:fadeSlideUp .4s cubic-bezier(.2,.8,.2,1) both}
+.focus-card{background:linear-gradient(135deg,var(--accent-soft) 0%,color-mix(in srgb,var(--accent) 18%,var(--paper)) 100%);border:1px solid color-mix(in srgb,var(--accent) 20%,transparent);border-radius:20px;padding:20px;margin-top:13px;animation:fadeSlideUp .4s cubic-bezier(.2,.8,.2,1) both}
+.focus-ring-wrap{position:relative;width:130px;height:130px;margin:0 auto}
+.focus-ring-wrap svg{transform:rotate(-90deg)}
+.focus-ring-bg{fill:none;stroke:color-mix(in srgb,var(--accent) 15%,transparent);stroke-width:7}
+.focus-ring-fg{fill:none;stroke:var(--accent);stroke-width:7;stroke-linecap:round;transition:stroke-dasharray .3s ease}
+.focus-time{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.focus-time-num{font:800 32px var(--sans);color:var(--ink);letter-spacing:-.02em}
+.focus-time-lbl{font:500 11px var(--sans);color:var(--text-mute);text-transform:uppercase;letter-spacing:.06em}
+.focus-btns{display:flex;gap:8px;justify-content:center;margin-top:16px}
+.focus-btn{height:42px;padding:0 20px;border-radius:12px;border:none;font:600 14px var(--sans);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:transform .15s ease}
+.focus-btn:active{transform:scale(.95)}
+.focus-btn-start{background:var(--accent);color:#fff}
+.focus-btn-pause{background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent)}
+.focus-btn-reset{background:rgba(43,39,34,.06);color:var(--text-mute)}
+.focus-presets{display:flex;gap:6px;justify-content:center;margin-top:12px}
+.focus-preset{padding:6px 14px;border-radius:10px;border:1px solid var(--line);background:var(--paper);font:500 12px var(--sans);color:var(--ink);cursor:pointer;transition:all .2s}
+.focus-preset.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.focus-stats{display:flex;gap:16px;justify-content:center;margin-top:14px}
+.focus-stat{text-align:center}
+.focus-stat-v{font:700 18px var(--sans);color:var(--accent)}
+.focus-stat-l{font:400 11px var(--sans);color:var(--text-mute)}
+body[data-theme=aurora] .focus-card{background:linear-gradient(135deg,rgba(226,125,96,.12),rgba(226,125,96,.06));border-color:rgba(226,125,96,.2)}
 .rd-session-card{animation:scaleIn .45s cubic-bezier(.2,.8,.2,1) both;animation-delay:.1s}
 .rd-mg-cat{animation:fadeSlideUp .4s cubic-bezier(.2,.8,.2,1) both;transition:transform .2s ease}
 .rd-mg-cat:nth-child(1){animation-delay:.05s}.rd-mg-cat:nth-child(2){animation-delay:.12s}.rd-mg-cat:nth-child(3){animation-delay:.19s}
@@ -3989,8 +4003,8 @@ body[data-theme=aurora] .moral::after{background:linear-gradient(90deg,rgba(20,2
   .fab{bottom:108px !important;right:18px !important}
   .flt button.fb,.fb{padding:10px 16px !important;font-size:13px !important;min-height:auto !important;border-radius:10px !important}
 }
-body[data-theme=aurora] .tabs.page-t{background:rgba(18,16,32,.95) !important;backdrop-filter:blur(14px) !important;border-top:1px solid rgba(255,255,255,.08) !important}
-body[data-theme=aurora] .tabs.page-t .tab{color:rgba(255,255,255,.35) !important}
+body[data-theme=aurora] .tabs.page-t{background:rgba(15,18,32,.92) !important;backdrop-filter:blur(20px) !important;border-top:1px solid rgba(255,255,255,.1) !important}
+body[data-theme=aurora] .tabs.page-t .tab{color:rgba(255,255,255,.5) !important}
 body[data-theme=aurora] .tabs.page-t .tab.on{color:#D9734A !important}
 body[data-theme=aurora] .tabs.page-t .tab.on .ti svg{color:#D9734A !important;stroke:#D9734A !important}
 body[data-theme=aurora] .tabs.page-t .tab.on .tl{color:#D9734A !important}
@@ -4472,13 +4486,13 @@ body[data-theme=aurora] .help-callout b{color:#FCD34D}
 /* ============================================== */
 /* AURORA THEME \u2014 modern dark with gradient accents */
 /* ============================================== */
-body[data-theme=aurora]{background:#0A0A14;color:#E8E8F4}
+body[data-theme=aurora]{background:#0f1220;color:#E8E8F4}
 body[data-theme=aurora]::before{content:'';position:fixed;inset:-60px;background:
-  radial-gradient(600px 400px at 10% 10%,rgba(139,92,246,.25),transparent 60%),
-  radial-gradient(520px 380px at 90% 20%,rgba(236,72,153,.18),transparent 60%),
-  radial-gradient(580px 420px at 50% 100%,rgba(6,182,212,.18),transparent 60%);
-  pointer-events:none;z-index:0;animation:aurora-drift 20s ease-in-out infinite alternate;filter:blur(40px)}
-@keyframes aurora-drift{0%{transform:translate(0,0) scale(1)}50%{transform:translate(-30px,20px) scale(1.05)}100%{transform:translate(20px,-30px) scale(.98)}}
+  radial-gradient(600px 400px at 10% 10%,rgba(139,92,246,.12),transparent 60%),
+  radial-gradient(520px 380px at 90% 20%,rgba(236,72,153,.08),transparent 60%),
+  radial-gradient(580px 420px at 50% 100%,rgba(6,182,212,.08),transparent 60%);
+  pointer-events:none;z-index:0;animation:aurora-drift 25s ease-in-out infinite alternate;filter:blur(50px)}
+@keyframes aurora-drift{0%{transform:translate(0,0) scale(1)}50%{transform:translate(-20px,15px) scale(1.03)}100%{transform:translate(15px,-20px) scale(.98)}}
 body[data-theme=aurora] .app{position:relative;z-index:1}
 #starfield{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:0;transition:opacity 1.2s ease}
 body[data-theme=aurora] #starfield{opacity:1}
@@ -4488,7 +4502,7 @@ body[data-theme=aurora] .logo .k{color:#F472B6;-webkit-text-fill-color:#F472B6}
 body[data-theme=aurora] .hdr-sub{color:#9999B5}
 /* Cards (glassmorphic) */
 body[data-theme=aurora] .moral,body[data-theme=aurora] .user-bar,body[data-theme=aurora] .tc,body[data-theme=aurora] .st,body[data-theme=aurora] .dash-card,body[data-theme=aurora] .col,body[data-theme=aurora] .kc,body[data-theme=aurora] .tabs,body[data-theme=aurora] .hdr-st,body[data-theme=aurora] .cal-grid,body[data-theme=aurora] .cal-selected-box,body[data-theme=aurora] .calc-screen,body[data-theme=aurora] .book-card,body[data-theme=aurora] .insight,body[data-theme=aurora] .calc-hist{
-  background:rgba(26,26,44,.65);border-color:rgba(255,255,255,.08);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);color:#E8E8F4
+  background:rgba(20,22,40,.75);border-color:rgba(255,255,255,.1);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);color:#E8E8F4
 }
 body[data-theme=aurora] .moral{background:linear-gradient(135deg,rgba(139,92,246,.18),rgba(236,72,153,.12));border-color:rgba(226,125,96,.3);box-shadow:0 4px 24px rgba(139,92,246,.15)}
 body[data-theme=aurora] .moral-lbl{color:#EDA68E}
@@ -7944,13 +7958,13 @@ body[data-theme=aurora] .bro-ticker-inner{background:rgba(255,255,255,.04);borde
 /* ── Wisdom / Meditation ── */
 .med-card{border-radius:16px;overflow:hidden;transition:all .2s ease;box-shadow:var(--shadow-1)}
 .med-card:hover{box-shadow:var(--shadow-2);transform:translateY(-2px)}
-.ws-hero-card{display:flex;align-items:center;gap:14px;width:100%;padding:18px;border-radius:18px;background:var(--wg,var(--surface));border:1px solid var(--line);cursor:pointer;text-align:left;transition:transform .2s,box-shadow .2s;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.ws-hero-card{display:flex;align-items:center;gap:16px;width:100%;padding:24px 20px;border-radius:20px;background:var(--wg,var(--surface));border:1px solid var(--line);cursor:pointer;text-align:left;transition:transform .2s,box-shadow .2s;box-shadow:0 2px 8px rgba(0,0,0,.04);flex:1}
 .ws-hero-card:active{transform:scale(.97)}
-.ws-hero-emoji{font-size:36px;flex:none}
+.ws-hero-emoji{font-size:42px;flex:none}
 .ws-hero-info{flex:1;min-width:0}
-.ws-hero-title{font:700 17px var(--sans);color:var(--ink)}
-.ws-hero-desc{font:400 13px var(--sans);color:var(--text-mute);margin-top:3px}
-.ws-hero-arrow{font-size:20px;color:var(--accent);flex:none}
+.ws-hero-title{font:700 19px var(--sans);color:var(--ink)}
+.ws-hero-desc{font:400 14px/1.4 var(--sans);color:var(--text-mute);margin-top:5px}
+.ws-hero-arrow{font-size:22px;color:var(--accent);flex:none}
 .ws-mini-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 14px;cursor:pointer;text-align:center;transition:transform .2s,box-shadow .2s}
 .ws-mini-card:active{transform:scale(.97)}
 body[data-theme=aurora] .ws-hero-card{box-shadow:0 4px 20px rgba(0,0,0,.3)}
@@ -8096,7 +8110,7 @@ body[data-theme=aurora] .tg-game-fill{background:rgba(255,255,255,.5)}
 <path class="wv wv1" fill="url(#oc1)" d="M0,272 C240,224 480,304 720,272 C960,240 1200,304 1440,272 L1440,320 L0,320 Z"/>
 </svg></div>
 <canvas id="starfield"></canvas>
-<div id="splash"><div class="sp-fist">&#x1F91C;&#x1F91B;</div><div class="sp-name">Brodoit</div><div class="sp-sub">Loading your day</div></div>
+<div id="splash"><div class="sp-name">Brodoit</div><div class="sp-sub">Loading your day</div></div>
 <div class="app" id="app"></div>
 <noscript><div style="text-align:center;padding:40px 20px"><h1>Brodoit</h1><p>Brodoit needs JavaScript to run. Please enable JavaScript in your browser.</p><p><a href="/privacy">Privacy Policy</a> &middot; <a href="/terms">Terms of Service</a></p></div></noscript>
 <footer id="seo-foot" style="position:fixed;bottom:8px;left:50%;transform:translateX(-50%);font-size:11px;color:rgba(100,116,139,.7);z-index:1;pointer-events:auto;display:flex;gap:8px;background:rgba(255,255,255,.6);backdrop-filter:blur(8px);padding:4px 10px;border-radius:8px"><a href="/privacy" style="color:inherit;text-decoration:none">Privacy</a><span>&middot;</span><a href="/terms" style="color:inherit;text-decoration:none">Terms</a></footer>
@@ -8157,12 +8171,13 @@ bro:{messages:[],input:'',sending:false,listening:false,speaking:false,agent:nul
 hydration:{enabled:JSON.parse(localStorage.getItem('tf_hydration')||'false'),interval:null,lastReminder:0,glass:parseInt(localStorage.getItem('tf_hydration_glass')||'0',10),goal:8,todayDate:new Date().toISOString().slice(0,10)},
 weather:{city:localStorage.getItem('tf_city')||'Bangalore',temp:null,aqi:null,country:'',loaded:false,loading:false,error:null,daily:null},weatherExpanded:false,
 cityTemps:{},remember:{person:null,loaded:false},lifeGoal:localStorage.getItem('tf_life_goal')||'',meditating:{active:false,title:'',mins:0,startedAt:0},
-medCat:localStorage.getItem('tf_medcat')||'affirmations',
+medCat:null,
 ticker:{items:[],idx:0,loaded:false},
 waConnected:false,showWAOnboard:false,activeMeditation:null,
 google:{configured:false,accounts:[],loaded:false},gcalEvents:[],gcalLoading:false,showGcalAdd:false,gcalForm:{title:'',date:'',time:'',duration:30,notes:'',email:''},showCalSchedule:false,calSchedule:null,
 calMonth:new Date(),calSelectedDate:new Date().toISOString().slice(0,10),
 steps:[],stepGoal:parseInt(localStorage.getItem('step_goal')||'10000',10),stepLive:{active:false,count:0},healthLoaded:false,fitSyncing:false,fitNeedReauth:false,fitLastSync:parseInt(localStorage.getItem('fit_last_sync')||'0',10),
+focus:{active:false,paused:false,remaining:25*60,total:25*60,sessions:parseInt(localStorage.getItem('tf_focus_sessions')||'0',10),startedAt:0,intervalId:null},
 theme:localStorage.getItem('theme')||'classic',
 themeColor:localStorage.getItem('themeColor')||'coral',
 news:{},newsCat:'world',newsLoading:false,
@@ -8370,7 +8385,7 @@ function restoreLoginState(){
 }
 function clearLoginState(){try{localStorage.removeItem('tf_login_state')}catch(e){}}
 async function sendOTP(){S.loginLoading=true;S.loginError='';render();let url,body;if(S.loginMethod==='email'){const em=(S.loginEmail||'').trim().toLowerCase();if(!/^[\\w.+-]+@[\\w-]+\\.[a-z]{2,}$/i.test(em)){S.loginError='Enter a valid email address';S.loginLoading=false;render();return}url='/api/send-otp-email';body={email:em}}else{const cc=(S.loginCountryCode||'+91').replace(/[^0-9+]/g,'');const local=(S.loginPhone||'').replace(/[^0-9]/g,'');if(!local){S.loginError='Enter your WhatsApp number';S.loginLoading=false;render();return}if(local.length<6){S.loginError='Phone number too short';S.loginLoading=false;render();return}const ph=cc+local;url='/api/send-otp';body={phone:ph}}const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(r=>r.json()).catch(()=>({ok:false,error:'Network error \\u2014 check your connection'}));S.loginLoading=false;if(r.ok){S.loginStep='otp';S.loginOTP=['','','','','',''];S.loginError='';S.loginSentTo=r.phone||S.loginEmail||((S.loginCountryCode||'')+S.loginPhone);persistLoginState();try{sessionStorage.setItem('tf_otp_ts',String(Date.now()))}catch(e){}try{const id=S.loginMethod==='email'?S.loginEmail:S.loginPhone;history.replaceState(null,'','#otp:'+encodeURIComponent(id||''))}catch(e){}render();setTimeout(()=>{const el=document.getElementById('otp0');if(el)el.focus()},100)}else{S.loginError=r.error||'Failed to send OTP';S.loginErrorDetail=r.detail||'';S.loginErrorCode=r.code||0;render()}}
-async function verifyOTP(){const code=S.loginOTP.join('');if(code.length<6){S.loginError='Enter the 6-digit code';render();return}S.loginLoading=true;S.loginError='';render();let url,body;if(S.loginMethod==='email'){url='/api/verify-otp-email';body={email:(S.loginEmail||'').trim().toLowerCase(),code,name:S.loginName}}else{let ph=S.loginPhone.replace(/[^0-9+]/g,'');if(!ph.startsWith('+'))ph='+'+ph;url='/api/verify-otp';body={phone:ph,code,name:S.loginName}}const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(r=>r.json()).catch(()=>({error:'Network error'}));S.loginLoading=false;if(r.token){token=r.token;localStorage.setItem('tf_token',r.token);localStorage.setItem('tf_phone',r.phone);localStorage.setItem('tf_name',r.name||'');if(r.email)localStorage.setItem('tf_email',r.email);S.user=r;S.loginStep='phone';clearLoginState();try{sessionStorage.removeItem('tf_otp_ts')}catch(e){}try{history.replaceState(null,'','/')}catch(e){}load();chk();toast('\\u2705 Welcome!')}else{S.loginError=r.error||'Verification failed';render()}}
+async function verifyOTP(){const code=S.loginOTP.join('');if(code.length<6){S.loginError='Enter the 6-digit code';render();return}S.loginLoading=true;S.loginError='';render();let url,body;if(S.loginMethod==='email'){url='/api/verify-otp-email';body={email:(S.loginEmail||'').trim().toLowerCase(),code,name:S.loginName}}else{let ph=S.loginPhone.replace(/[^0-9+]/g,'');if(!ph.startsWith('+'))ph='+'+ph;url='/api/verify-otp';body={phone:ph,code,name:S.loginName}}const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(r=>r.json()).catch(()=>({error:'Network error'}));S.loginLoading=false;if(r.token){token=r.token;localStorage.setItem('tf_token',r.token);localStorage.setItem('tf_phone',r.phone);localStorage.setItem('tf_name',r.name||'');if(r.email)localStorage.setItem('tf_email',r.email);S.user=r;S.loginStep='phone';clearLoginState();try{sessionStorage.removeItem('tf_otp_ts')}catch(e){}try{history.replaceState(null,'','/')}catch(e){}load();chk();toast('Welcome!')}else{S.loginError=r.error||'Verification failed';render()}}
 function otpInput(i,v){const d=v.slice(-1);S.loginOTP[i]=d;const el=document.getElementById('otp'+i);if(el)el.value=d;persistLoginState();if(d&&i<5){const nx=document.getElementById('otp'+(i+1));if(nx)nx.focus()}else if(d&&i===5){if(S.loginOTP.every(x=>x))verifyOTP()}}
 function otpKey(i,e){if(e.key==='Backspace'&&!S.loginOTP[i]&&i>0){const prev=document.getElementById('otp'+(i-1));if(prev){prev.focus();S.loginOTP[i-1]='';prev.value='';persistLoginState()}}}
 function logout(){
@@ -8594,7 +8609,7 @@ async function startPed(){if(typeof DeviceMotionEvent==='undefined'){toast('\\u2
 async function stopPed(){if(_ped){window.removeEventListener('devicemotion',_ped);_ped=null}await releaseWake();const added=S.stepLive.count||0;S.stepLive={active:false,count:0};if(added>0){const today=new Date().toISOString().slice(0,10);const current=(S.steps.find(s=>s.date===today)?.count)||0;await postSteps(today,current+added,'device')}else{toast('\\u23F8 Stopped \\u2014 no steps detected');render()}}
 /* When the tab is backgrounded, flush whatever we counted so we don't lose it, and re-acquire wake lock on return. */
 document.addEventListener('visibilitychange',async()=>{if(document.visibilityState==='hidden'){if(S.stepLive&&S.stepLive.active)await flushPedCount()}else if(document.visibilityState==='visible'){if(S.stepLive&&S.stepLive.active&&!_wakeLock)await acquireWake()}});
-function toggleTheme(){S.theme=S.theme==='aurora'?'classic':'aurora';localStorage.setItem('theme',S.theme);document.body.setAttribute('data-theme',S.theme);toast(S.theme==='aurora'?'\\u{1F30C} Aurora theme on':'\\u2728 Classic theme on');render()}
+function toggleTheme(){S.theme=S.theme==='aurora'?'classic':'aurora';localStorage.setItem('theme',S.theme);document.body.setAttribute('data-theme',S.theme);toast(S.theme==='aurora'?'Aurora theme':'Classic theme');render()}
 function applyTheme(){document.body.setAttribute('data-theme',S.theme||'classic');applyColorThemeCSS(S.themeColor||'coral')}
 const _COLOR_THEMES={
   blue:{c1:'#4F6DF5',c2:'#7B93F8',c3:'#B4C2FB',c4:'#1E2A5E',c5:'#3B5CE0',bg:'#F4F6FF',bg2:'#F9FAFF',border:'#E0E5F6',rgba1:'79,109,245',rgba2:'123,147,248'},
@@ -8640,6 +8655,28 @@ function showThemePicker(){
   ov.innerHTML=pk;document.body.appendChild(ov);
 }
 function hideThemePicker(){var el=document.getElementById('themePicker');if(el)el.remove()}
+function focusStart(){
+  if(S.focus.active&&!S.focus.paused)return;
+  if(!S.focus.paused){S.focus.remaining=S.focus.total;}
+  S.focus.active=true;S.focus.paused=false;
+  if(S.focus.intervalId)clearInterval(S.focus.intervalId);
+  S.focus.intervalId=setInterval(function(){
+    if(!S.focus.active||S.focus.paused)return;
+    S.focus.remaining=Math.max(0,S.focus.remaining-1);
+    var el=document.getElementById('focusTime');
+    if(el){var m=Math.floor(S.focus.remaining/60);var s=S.focus.remaining%60;el.textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');}
+    var ring=document.getElementById('focusRing');
+    if(ring){var pct=S.focus.remaining/S.focus.total;var circ=2*Math.PI*54;ring.style.strokeDasharray=(pct*circ)+' '+circ;}
+    var pctEl=document.getElementById('focusPct');
+    if(pctEl)pctEl.textContent=Math.round((1-S.focus.remaining/S.focus.total)*100)+'%';
+    if(S.focus.remaining<=0){clearInterval(S.focus.intervalId);S.focus.intervalId=null;S.focus.active=false;S.focus.sessions++;localStorage.setItem('tf_focus_sessions',String(S.focus.sessions));try{if(Notification.permission==='granted')new Notification('Brodoit Focus',{body:'Session complete! Take a 5-minute break.'});}catch(e){}toast('Focus session complete. Take a break.');render();}
+  },1000);
+  if(typeof Notification!=='undefined'&&Notification.permission==='default'){Notification.requestPermission();}
+  render();
+}
+function focusPause(){if(!S.focus.active)return;S.focus.paused=true;render();}
+function focusReset(){if(S.focus.intervalId)clearInterval(S.focus.intervalId);S.focus.intervalId=null;var sess=S.focus.sessions;S.focus={active:false,paused:false,remaining:25*60,total:25*60,sessions:sess,startedAt:0,intervalId:null};render();}
+function focusSetDuration(mins){if(S.focus.active)return;S.focus.total=mins*60;S.focus.remaining=mins*60;render();}
 function openDailyWisdom(){
   if(document.getElementById('wisdomFull'))return;
   var _doy=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/(864e5));
@@ -8657,8 +8694,10 @@ function openDailyWisdom(){
   if(q.s){
     html+='<div style="padding:24px 24px 0">';
     html+='<div style="border-radius:18px;padding:20px;background:rgba(43,39,34,.04)">';
-    html+='<div style="font:700 11px var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:12px">TODAY\\u2019S STORY</div>';
-    html+='<p style="font:400 15.5px/1.65 var(--serif);color:var(--ink);margin:0">'+q.s+'</p>';
+    var _readMin=Math.max(1,Math.round(q.s.split(/\s+/).length/200));
+    html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font:700 11px var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--accent)">TODAY\\u2019S STORY</span><span style="font:500 11px var(--sans);color:var(--text-mute)">'+_readMin+' min read</span></div>';
+    var _paras=q.s.split(/\\n\\n+/).filter(function(p){return p.trim()&&!/^#+\\s/.test(p.trim())});
+    _paras.forEach(function(p,pi){var _pt=p.trim().replace(/\\*\\*([^*]+)\\*\\*/g,'<strong>$1</strong>').replace(/\\*([^*]+)\\*/g,'<em>$1</em>');html+='<p style="font:400 15.5px/1.75 var(--serif);color:var(--ink);margin:'+(pi?'14px':'0')+' 0 0">'+_pt+'</p>'});
     html+='</div></div>';
   }
   html+='<div style="padding:18px 24px 0">';
@@ -8667,9 +8706,8 @@ function openDailyWisdom(){
   html+='<p style="font:400 15px/1.45 var(--serif);color:var(--ink);margin:8px 0 0">How does this wisdom apply to your life today?</p>';
   html+='</div></div>';
   html+='</div>';
-  html+='<div style="padding:14px 24px 22px;display:flex;gap:10px;flex:none">';
-  html+='<button style="flex:1;padding:13px;border-radius:13px;background:var(--accent-soft);color:var(--accent-strong);font:600 14px var(--sans);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px" onclick="toast(\\'Saved to your journal\\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>Save</button>';
-  html+='<button style="flex:1;padding:13px;border-radius:13px;background:rgba(43,39,34,.06);color:var(--ink);font:600 14px var(--sans);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px" onclick="if(navigator.share)navigator.share({text:\\'\\\\u201C\\'+document.querySelector(\\'.rd-wf-quote\\').textContent+\\'\\\\u201D\\'}).catch(function(){});else toast(\\'Copied!\\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Share</button>';
+  html+='<div style="padding:14px 24px 22px;flex:none">';
+  html+='<button style="width:100%;padding:14px;border-radius:14px;background:var(--accent);color:#fff;font:600 15px var(--sans);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px" onclick="var qt=document.querySelector(\\'.rd-wf-quote\\');var txt=qt?qt.textContent:\\'\\';var shareText=txt+\\'\\\\n\\\\n\\u2014 Shared from Brodoit\\\\n\\\\n\\u{2728} Get your daily wisdom & boost productivity:\\\\nhttps://brodoit.com\\';if(navigator.share)navigator.share({title:\\'Daily Wisdom from Brodoit\\',text:shareText,url:\\'https://brodoit.com\\'}).catch(function(){});else{navigator.clipboard.writeText(shareText);toast(\\'Copied to clipboard!\\')}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Share from Brodoit</button>';
   html+='</div>';
   ov.innerHTML=html;document.body.appendChild(ov);
 }
@@ -8682,7 +8720,7 @@ function openPaywall(){
   h+='</div>';
   h+='<div style="flex:1;display:flex;flex-direction:column;padding:0 24px">';
   h+='<div style="text-align:center;margin:20px 0 24px">';
-  h+='<div style="font-size:36px;margin-bottom:8px">\\u{1F91C}\\u{1F91B}</div>';
+  h+='<div style="font:500 28px var(--serif);color:var(--accent);margin-bottom:8px">B</div>';
   h+='<div style="font:700 14px var(--sans);letter-spacing:.06em;color:var(--text-mute)">BRODOIT LIFETIME</div>';
   h+='</div>';
   h+='<h2 style="font:500 30px/1.18 var(--serif);color:var(--ink);margin:0;text-align:center;text-wrap:balance">Yours for life.<br>One payment, that\\u2019s it.</h2>';
@@ -8756,7 +8794,7 @@ meditation:"Take a mindful break. Pick a one, five, ten, twenty, or thirty minut
 health:"Your health dashboard. Track your daily steps, set goals, stay hydrated, and monitor your activity over the week."
 };
 function pickBestVoice(){try{const vs=speechSynthesis.getVoices()||[];if(!vs.length)return null;const pref=['Samantha','Google UK English Female','Microsoft Aria Online (Natural) - English (United States)','Microsoft Jenny Online (Natural) - English (United States)','Google US English','Karen','Moira','Tessa','Veena','Fiona','Allison','Ava','Susan'];for(const name of pref){const v=vs.find(x=>x.name===name||x.name.indexOf(name)===0);if(v)return v}const en=vs.filter(v=>(v.lang||'').toLowerCase().startsWith('en'));const natural=en.find(v=>/natural|neural|premium|enhanced/i.test(v.name));if(natural)return natural;const female=en.find(v=>/female|samantha|karen|moira|tessa|veena|fiona|allison|ava|susan|aria|jenny/i.test(v.name));if(female)return female;return en[0]||vs[0]}catch(e){return null}}
-function speakIntro(){try{if(!('speechSynthesis' in window)){toast('\\u26A0\\uFE0F Voice not supported on this device','err');return}const t=TAB_INTROS[S.tab];if(!t)return;speechSynthesis.cancel();const go=()=>{const u=new SpeechSynthesisUtterance(t);const v=pickBestVoice();if(v){u.voice=v;u.lang=v.lang}u.rate=.92;u.pitch=1.05;u.volume=1;speechSynthesis.speak(u);toast('\\u{1F50A} Playing intro')};const vs=speechSynthesis.getVoices();if(!vs||!vs.length){speechSynthesis.onvoiceschanged=()=>{speechSynthesis.onvoiceschanged=null;go()};setTimeout(go,250)}else go()}catch(e){toast('\\u26A0\\uFE0F Voice error','err')}}
+function speakIntro(){try{if(!('speechSynthesis' in window)){toast('\\u26A0\\uFE0F Voice not supported on this device','err');return}const t=TAB_INTROS[S.tab];if(!t)return;speechSynthesis.cancel();const go=()=>{const u=new SpeechSynthesisUtterance(t);const v=pickBestVoice();if(v){u.voice=v;u.lang=v.lang}u.rate=.92;u.pitch=1.05;u.volume=1;speechSynthesis.speak(u);toast('Playing intro')};const vs=speechSynthesis.getVoices();if(!vs||!vs.length){speechSynthesis.onvoiceschanged=()=>{speechSynthesis.onvoiceschanged=null;go()};setTimeout(go,250)}else go()}catch(e){toast('\\u26A0\\uFE0F Voice error','err')}}
 function stopSpeak(){try{speechSynthesis.cancel()}catch(e){}}
 function filterBooks(v){S.bookSearch=v;const grid=document.getElementById('books-grid');if(!grid){render();return}const q=(v||'').toLowerCase().trim();const fb=!q?S.books:S.books.filter(b=>{const t=(Array.isArray(b.title)?b.title[0]:b.title||'').toLowerCase();const a=(Array.isArray(b.creator)?b.creator[0]:b.creator||'').toLowerCase();return t.includes(q)||a.includes(q)});grid.innerHTML=renderBookCards(fb)}
 function renderBookCards(fb){if(!fb.length)return '<div class="empty"><div style="font-size:36px">\\u{1F4DA}</div><div style="font-size:14px;margin-top:8px">No books found</div></div>';let h='<div class="book-list">';fb.forEach(b=>{const id=b.identifier;const cover='https://archive.org/services/img/'+id;const author=Array.isArray(b.creator)?b.creator[0]:(b.creator||'Unknown');const title=Array.isArray(b.title)?b.title[0]:b.title;h+='<div class="book-card"><div class="book-cover"><img src="'+cover+'" loading="lazy" onerror="this.style.display=\\'none\\'"/></div><div class="book-info"><div class="book-title">'+esc(title)+'</div><div class="book-author">'+esc(author)+'</div><div class="book-meta"><span>\\u{1F3A7} '+(b.downloads?(+b.downloads).toLocaleString():'\\u2014')+' plays</span><span>\\u{1F4D6} LibriVox</span></div></div><button class="book-play" onclick="playBook(\\''+id+'\\')">\\u25B6</button></div>'});h+='</div>';return h}
@@ -8908,12 +8946,12 @@ const MED_SLOTS=[
 {cat:'stories',mins:5,title:'The Samurai and the Tea Master',desc:'Courage is doing what you know.',color:'#A87030',audioId:'story-20'}
 ];
 const MED_CATEGORIES=[
-  {k:'affirmations',l:'Affirmations',e:'\\u{2728}'},
-  {k:'vipassana',l:'Vipassana',e:'\\u{1F9D8}\\u200D\\u2642\\uFE0F'},
-  {k:'guided',l:'Guided',e:'\\u{1F50A}'},
-  {k:'sleep',l:'Sleep',e:'\\u{1F319}'},
-  {k:'music',l:'Music',e:'\\u{1F3B5}'},
-  {k:'stories',l:'Stories',e:'\\u{1F4D6}'}
+  {k:'affirmations',l:'Affirmations'},
+  {k:'vipassana',l:'Vipassana'},
+  {k:'guided',l:'Guided'},
+  {k:'sleep',l:'Sleep'},
+  {k:'music',l:'Music'},
+  {k:'stories',l:'Stories'}
 ];
 var _wsCalMonth=new Date().getMonth(),_wsCalYear=new Date().getFullYear();
 function _wsGetMedDays(){try{return(localStorage.getItem('med_days')||'').split(',').filter(Boolean)}catch(e){return[]}}
@@ -8925,7 +8963,7 @@ function setMedCat(k){S.medCat=k;window.scrollTo(0,0);render()}
 function playMedDirect(id,title,mins,file){playMeditation(id,title,mins,file)}
 function playMedExternal(url,title,mins,skipSec){
   S.meditating={active:true,title,mins:mins||10,startedAt:Date.now()};
-  S.playing={id:'ext-'+mins,title,author:'\u{1F9D8} S.N. Goenka • Original voice',url,external:null,loading:false};
+  S.playing={id:'ext-'+mins,title,author:'S.N. Goenka \\u2022 Original voice',url,external:null,loading:false};
   try{const last=parseInt(localStorage.getItem('med_last_count_ts')||'0',10);if(Date.now()-last>60000){const cur=parseInt(localStorage.getItem('med_count')||'0',10)||0;localStorage.setItem('med_count',String(cur+1));localStorage.setItem('med_last_count_ts',String(Date.now()));const today=new Date().toISOString().slice(0,10);const days=(localStorage.getItem('med_days')||'').split(',').filter(Boolean);if(days[days.length-1]!==today){days.push(today);localStorage.setItem('med_days',days.slice(-365).join(','))}}}catch(e){}
   render();
   setTimeout(()=>{const a=document.getElementById('audioEl');if(!a)return;a.setAttribute('playsinline','');a.preload='auto';
@@ -9014,7 +9052,7 @@ function playMedAudio(id,title,mins){
     try{const last=parseInt(localStorage.getItem('med_last_count_ts')||'0',10);if(Date.now()-last>60000){const cur=parseInt(localStorage.getItem('med_count')||'0',10)||0;localStorage.setItem('med_count',String(cur+1));localStorage.setItem('med_last_count_ts',String(Date.now()));const today=new Date().toISOString().slice(0,10);const days=(localStorage.getItem('med_days')||'').split(',').filter(Boolean);if(days[days.length-1]!==today){days.push(today);localStorage.setItem('med_days',days.slice(-365).join(','))}}}catch(e){}
     render();
     _speakScriptFallback(id);
-    toast('\\u{1F50A} Reading aloud');
+    toast('Reading aloud');
     return;
   }
   S.playing={id:'el-'+id,title,author:'\\u{1F50A} Voice narration',url,external:null,loading:false};
@@ -9067,7 +9105,7 @@ function playMedSlot(mins){const doc=(S.meditations||{})[mins];if(!doc){toast('\
 async function playMeditation(id,title,mins,preferFile){S.meditating={active:true,title:title||(mins+'-min meditation'),mins:mins||10,startedAt:Date.now()};S.playing={id,title:title||(mins+'-minute meditation'),author:'Guided meditation \\u2022 Internet Archive',loading:true};
 // Track meditation count (incremented once per session; the same session re-played within 60s isn't double-counted).
 try{const last=parseInt(localStorage.getItem('med_last_count_ts')||'0',10);if(Date.now()-last>60000){const cur=parseInt(localStorage.getItem('med_count')||'0',10)||0;localStorage.setItem('med_count',String(cur+1));localStorage.setItem('med_last_count_ts',String(Date.now()));const today=new Date().toISOString().slice(0,10);const days=(localStorage.getItem('med_days')||'').split(',').filter(Boolean);if(days[days.length-1]!==today){days.push(today);localStorage.setItem('med_days',days.slice(-365).join(','))}}}catch(e){}
-render();try{const r=await fetch('https://archive.org/metadata/'+encodeURIComponent(id));if(!r.ok)throw new Error('metadata '+r.status);const j=await r.json();if(!j.files||!j.files.length){toast('\\u26A0\\uFE0F No audio \\u2014 opening archive.org','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render();return}let mp3=null;if(preferFile){mp3=j.files.find(f=>f.name===preferFile||(f.name||'').endsWith('/'+preferFile))}if(!mp3){const mp3s=j.files.filter(f=>/\\.mp3$/i.test(f.name)&&!/sample|preview|announce|intro\\.mp3|sting/i.test(f.name)).sort((a,b)=>(parseFloat(b.length||'0')||0)-(parseFloat(a.length||'0')||0));mp3=mp3s[0]}if(!mp3)mp3=j.files.find(f=>/\\.(mp3|m4a|ogg)$/i.test(f.name));if(mp3){const server=j.server||'archive.org';const dir=j.dir||('/'+id);const directUrl='https://'+server+dir+'/'+mp3.name.split('/').map(encodeURIComponent).join('/');const dlUrl='https://archive.org/download/'+encodeURIComponent(id)+'/'+mp3.name.split('/').map(encodeURIComponent).join('/');S.playing={id,title:title||mins+'-min meditation',author:'\\u{1F9D8} Guided meditation \\u2022 Archive.org',url:directUrl,altUrl:dlUrl,external:'https://archive.org/details/'+id};render();setTimeout(()=>{const a=document.getElementById('audioEl');if(!a)return;a.setAttribute('playsinline','');a.preload='auto';a.addEventListener('error',function onErr(){a.removeEventListener('error',onErr);if(a.src!==dlUrl){a.src=dlUrl;a.load()}},{once:true});a.load();const p=a.play();if(p&&p.catch)p.catch(()=>toast('\\u25B6\\uFE0F Tap play on the bar','err'))},250)}else{toast('\\u26A0\\uFE0F No mp3 \\u2014 opening archive.org','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render()}}catch(e){toast('\\u26A0\\uFE0F '+e.message,'err');S.playing=null;render()}}
+render();try{const r=await fetch('https://archive.org/metadata/'+encodeURIComponent(id));if(!r.ok)throw new Error('metadata '+r.status);const j=await r.json();if(!j.files||!j.files.length){toast('\\u26A0\\uFE0F No audio \\u2014 opening archive.org','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render();return}let mp3=null;if(preferFile){mp3=j.files.find(f=>f.name===preferFile||(f.name||'').endsWith('/'+preferFile))}if(!mp3){const mp3s=j.files.filter(f=>/\\.mp3$/i.test(f.name)&&!/sample|preview|announce|intro\\.mp3|sting/i.test(f.name)).sort((a,b)=>(parseFloat(b.length||'0')||0)-(parseFloat(a.length||'0')||0));mp3=mp3s[0]}if(!mp3)mp3=j.files.find(f=>/\\.(mp3|m4a|ogg)$/i.test(f.name));if(mp3){const server=j.server||'archive.org';const dir=j.dir||('/'+id);const directUrl='https://'+server+dir+'/'+mp3.name.split('/').map(encodeURIComponent).join('/');const dlUrl='https://archive.org/download/'+encodeURIComponent(id)+'/'+mp3.name.split('/').map(encodeURIComponent).join('/');S.playing={id,title:title||mins+'-min meditation',author:'Guided meditation \\u2022 Archive.org',url:directUrl,altUrl:dlUrl,external:'https://archive.org/details/'+id};render();setTimeout(()=>{const a=document.getElementById('audioEl');if(!a)return;a.setAttribute('playsinline','');a.preload='auto';a.addEventListener('error',function onErr(){a.removeEventListener('error',onErr);if(a.src!==dlUrl){a.src=dlUrl;a.load()}},{once:true});a.load();const p=a.play();if(p&&p.catch)p.catch(()=>toast('\\u25B6\\uFE0F Tap play on the bar','err'))},250)}else{toast('\\u26A0\\uFE0F No mp3 \\u2014 opening archive.org','err');window.open('https://archive.org/details/'+id,'_blank');S.playing=null;render()}}catch(e){toast('\\u26A0\\uFE0F '+e.message,'err');S.playing=null;render()}}
 async function openProfile(){S.showProfile=true;render();const me=await api('/me');if(me&&!me.error)S.profile=me;render()}
 function openHelp(){S.showHelp=true;S.helpStep=0;render()}
 function closeHelp(){S.showHelp=false;render()}
@@ -9087,7 +9125,7 @@ async function refreshSession(){
 }
 function calPrev(){const d=new Date(S.calMonth);d.setMonth(d.getMonth()-1);S.calMonth=d;render()}
 function calNext(){const d=new Date(S.calMonth);d.setMonth(d.getMonth()+1);S.calMonth=d;render()}
-function calSelect(d){S.calSelectedDate=d;render()}
+function calSelect(d){S.calSelectedDate=d;calAddForDate();}
 function calAddForDate(){S.form={title:'',notes:'',priority:'medium',dueDate:S.calSelectedDate||'',reminderTime:'',status:'pending',board:S.board==='combined'?'home':S.board};S.editing=null;S.showAdd=true;render();/* No auto-focus: keyboard appears only when the user taps the input */}
 function _calTimeDropdowns(pfx,fld,hv,mv,pv){var q='&#39;';var s='<select class="pmd-sel pmd-sel-hr" onchange="'+pfx+q+fld+'h'+q+',this.value)"><option value="">--</option>';for(var i=1;i<=12;i++)s+='<option value="'+i+'"'+(String(hv)===String(i)?' selected':'')+'>'+i+'</option>';s+='</select><span class="pmd-colon">:</span><select class="pmd-sel pmd-sel-min" onchange="'+pfx+q+fld+'m'+q+',this.value)">';['00','15','30','45'].forEach(function(v){s+='<option value="'+v+'"'+(mv===v?' selected':'')+'>'+v+'</option>'});s+='</select><select class="pmd-sel pmd-sel-ap" onchange="'+pfx+q+fld+'p'+q+',this.value)"><option value="AM"'+(pv==='AM'||!pv?' selected':'')+'>AM</option><option value="PM"'+(pv==='PM'?' selected':'')+'>PM</option></select>';return s}
 function openCalSchedule(){var selDate=S.calSelectedDate||new Date().toISOString().slice(0,10);var pending=S.tasks.filter(function(t){return t.status!=='done'}).slice(0,10);S.calSchedule={date:selDate,items:pending.map(function(t){return{id:t.id,title:t.title,priority:t.priority,selected:false,sh:'',sm:'00',sp:'AM',eh:'',em:'00',ep:'AM'}}),custom:'',csh:'',csm:'00',csp:'AM',ceh:'',cem:'00',cep:'AM'};S.showCalSchedule=true;render()}
@@ -11282,7 +11320,7 @@ function selectCoach(agent){
   if(agent==='bri'){
     S.bro.messages=[{role:'bro',text:'Hey'+(name?' '+name:'')+', I\\'m Bri \\u2014 your personal wellness coach and biggest cheerleader. Tell me what\\'s going on, ask for advice, or let me help you build a routine that actually sticks. What are we working on today?'}];
   }else{
-    S.bro.messages=[{role:'bro',text:'Yo'+(name?' '+name:'')+' \\u{1F91C}\\u{1F91B} What\\'s good? I\\'m Bro \\u2014 your personal AI. Need to brainstorm, write something, explain stuff, plan your day, or just chat? I got you. What are we working on?'}];
+    S.bro.messages=[{role:'bro',text:'Hey'+(name?' '+name:'')+', what\\'s good? I\\'m Bro \\u2014 your personal AI. Need to brainstorm, write something, explain stuff, plan your day, or just chat? I got you. What are we working on?'}];
   }
   render();
 }
@@ -11492,7 +11530,7 @@ async function toggleHydration(){
   if(S.hydration.enabled){
     startHydrationTimer();
     await subscribePush(true);
-    toast('\\u{1F4A7} Hydration reminders ON \\u2014 even when app is closed')
+    toast('Hydration reminders on')
   }else{
     clearInterval(S.hydration.interval);S.hydration.interval=null;
     await api('/push/hydration-toggle',{method:'POST',body:JSON.stringify({enabled:false})});
@@ -11514,8 +11552,8 @@ async function subscribePush(hydration){
   }catch(e){}
 }
 function _hydrationPatch(){var dots=document.querySelectorAll('.is-hyd-dot');dots.forEach(function(d,i){if(i<S.hydration.glass)d.classList.add('filled');else d.classList.remove('filled')});var tEl=document.querySelector('.is-hydration .is-row-title');if(tEl)tEl.textContent='Water \\u00B7 '+S.hydration.glass+'/'+S.hydration.goal+' glasses'}
-function drinkWater(){_hydrationToday();if(S.hydration.glass>=S.hydration.goal){toast('\\u{1F4A7} You already hit your goal! Great job!');return}S.hydration.glass++;localStorage.setItem('tf_hydration_glass',String(S.hydration.glass));_mgSound('water');toast('\\u{1F4A7} Nice! '+S.hydration.glass+'/'+S.hydration.goal+' glasses today');_hydrationPatch()}
-function undrinkWater(){_hydrationToday();if(S.hydration.glass<=0)return;S.hydration.glass--;localStorage.setItem('tf_hydration_glass',String(S.hydration.glass));toast('\\u{1F4A7} Adjusted to '+S.hydration.glass+'/'+S.hydration.goal);_hydrationPatch()}
+function drinkWater(){_hydrationToday();if(S.hydration.glass>=S.hydration.goal){toast('You already hit your goal!');return}S.hydration.glass++;localStorage.setItem('tf_hydration_glass',String(S.hydration.glass));_mgSound('water');toast(S.hydration.glass+'/'+S.hydration.goal+' glasses today');_hydrationPatch()}
+function undrinkWater(){_hydrationToday();if(S.hydration.glass<=0)return;S.hydration.glass--;localStorage.setItem('tf_hydration_glass',String(S.hydration.glass));toast('Adjusted to '+S.hydration.glass+'/'+S.hydration.goal);_hydrationPatch()}
 var _mvCat='all';var _mvPlaying=null;
 var _mvVideos=[
   {id:'mv1',src:'/api/mv-video/clip_01',t:'Be Yourself Strong',q:'Strength comes from being who you truly are',c:'confidence',voice:true},
@@ -11538,11 +11576,11 @@ var _mvVideos=[
   {id:'mv18',src:'/api/mv-video/clip_18',t:'Become Legendary',q:'Legends are made through consistency and sacrifice',c:'discipline',voice:true}
 ];
 var _mvCats=[
-  {k:'all',l:'All',e:'\\u{1F525}'},
-  {k:'harsh',l:'Hardcore',e:'\\u{1F4A5}'},
-  {k:'discipline',l:'Discipline',e:'\\u{1F3AF}'},
-  {k:'confidence',l:'Confidence',e:'\\u{2B50}'},
-  {k:'mindset',l:'Mindset',e:'\\u{1F9E0}'}
+  {k:'all',l:'All'},
+  {k:'harsh',l:'Hardcore'},
+  {k:'discipline',l:'Discipline'},
+  {k:'confidence',l:'Confidence'},
+  {k:'mindset',l:'Mindset'}
 ];
 function _mvFilter(){return _mvCat==='all'?_mvVideos:_mvVideos.filter(function(v){return v.c===_mvCat})}
 function _mvSetCat(k){_mvCat=k;_mvPlaying=null;render()}
@@ -11666,11 +11704,11 @@ function _showHydrationOverlay(){
   var existing=document.getElementById('hydration-overlay');if(existing)existing.remove();
   var ov=document.createElement('div');ov.id='hydration-overlay';
   ov.innerHTML='<div class="hyd-ov-card">'
-    +'<div class="hyd-ov-icon">\\u{1F4A7}</div>'
+    +'<div class="hyd-ov-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg></div>'
     +'<div class="hyd-ov-title">Time to hydrate!</div>'
     +'<div class="hyd-ov-sub">You\\'ve had <b>'+S.hydration.glass+'/'+S.hydration.goal+'</b> glasses today</div>'
     +'<div class="hyd-ov-btns">'
-    +'<button class="hyd-ov-drink" onclick="drinkWater();this.closest(\\\'#hydration-overlay\\\').remove()">\\u{1F4A7} Drink water</button>'
+    +'<button class="hyd-ov-drink" onclick="drinkWater();this.closest(\\\'#hydration-overlay\\\').remove()">Drink water</button>'
     +'<button class="hyd-ov-later" onclick="this.closest(\\\'#hydration-overlay\\\').remove()">Later</button>'
     +'</div></div>';
   document.body.appendChild(ov);
@@ -11681,7 +11719,7 @@ function startHydrationTimer(){
   if(S.hydration.interval)clearInterval(S.hydration.interval);
   if(!S.hydration.enabled)return;
   if('Notification' in window&&Notification.permission==='default'){
-    Notification.requestPermission().then(function(p){if(p==='granted'){toast('\\u{1F514} Notifications enabled!');subscribePush(true)}})
+    Notification.requestPermission().then(function(p){if(p==='granted'){toast('Notifications enabled');subscribePush(true)}})
   }
   S.hydration.interval=setInterval(_showHydrationNotif,3600000);
   // Also check on visibility change — catches missed reminders when phone was sleeping
@@ -11768,7 +11806,7 @@ if(S.loginStep!=='otp'){
 let h='<div class="login">';
 if(S.loginStep==='phone'){
 h+='<div class="hero-photo"><img src="https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?auto=format&fit=crop&w=1200&q=80" alt="Calm productive workspace" loading="eager"/><div class="hero-photo-overlay"></div></div>';
-h+='<div class="login-logo"><span class="logo-fist">\\u{1F91C}\\u{1F91B}</span><span class="b1">Bro</span><span class="b2">do</span><span class="b3">it</span><span class="dot"></span></div>';
+h+='<div class="login-logo"><span class="b1">Bro</span><span class="b2">do</span><span class="b3">it</span><span class="dot"></span></div>';
 h+='<div class="login-tagline">Tasks. Books. Wisdom.</div>';
 h+='<a class="whatsnew-pill" href="/about" style="display:inline-flex;align-items:center;gap:8px;padding:7px 14px;margin:0 0 18px;background:rgba(31,77,63,.08);border:1px solid rgba(31,77,63,.2);border-radius:999px;font-size:12px;font-weight:500;letter-spacing:.04em;color:#E27D60;text-decoration:none;font-family:\\'JetBrains Mono\\',monospace;text-transform:uppercase"><span style="width:6px;height:6px;border-radius:999px;background:#E27D60;box-shadow:0 0 8px #E27D60;animation:wn-pulse 2s ease-in-out infinite"></span>NEW · Our Story <span style="opacity:.7">→</span></a>';
 h+='<div class="login-sub">A calm, focused space for the work that matters.</div>';
@@ -11904,13 +11942,11 @@ const isMain=(S.tab==='home'||!S.tab);
 _hydrationToday();
 const _hyd=S.hydration;
 const HELP_BTN='<button class="hdr-help" onclick="openHelp()" aria-label="Help" title="How to use Brodoit">?</button>';
-const LOGO_MARK='<div class="logo" aria-label="Brodoit"><span class="logo-fist">\\u{1F91C}\\u{1F91B}</span><span class="b1">Bro</span><span class="b2">do</span><span class="b3">it</span></div>';
+const LOGO_MARK='<div class="logo" aria-label="Brodoit"><span class="b1">Bro</span><span class="b2">do</span><span class="b3">it</span></div>';
 let _hdrStreak=0;for(let _si=0;_si<60;_si++){const _sd=new Date(Date.now()-_si*864e5).toISOString().slice(0,10);const _sok=ts.some(x=>x.status==='done'&&(x.updated_at||'').slice(0,10)===_sd);if(_sok)_hdrStreak++;else if(_si>0)break}
 let h='<div class="hdr"><div class="hdr-l">'+LOGO_MARK+'</div><div class="hdr-actions">'
-  +(_hdrStreak>0?'<div class="rd-pill rd-pill-accent">\\u{1F525} '+_hdrStreak+'-day streak</div>':'')
-  +HELP_BTN
-  +'<button class="rd-pill" style="background:linear-gradient(135deg,var(--accent),var(--gold));color:#fff;font-size:11px;padding:5px 10px;border:none;cursor:pointer" onclick="openPaywall()">PRO</button>'
-  +'<button class="hdr-help" onclick="toggleTheme()" title="Dark mode" style="font-size:16px">'+(S.theme==='aurora'?'\\u2600\\uFE0F':'\\u{1F319}')+'</button>'
+  +(_hdrStreak>0?'<div class="rd-pill rd-pill-accent">'+_hdrStreak+'-day streak</div>':'')
+  +'<button class="hdr-help" onclick="toggleTheme()" title="Dark mode" style="font-size:16px;display:flex;align-items:center;justify-content:center">'+(S.theme==='aurora'?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="18.4" y1="18.4" x2="19.8" y2="19.8"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.2" y1="19.8" x2="5.6" y2="18.4"/><line x1="18.4" y1="5.6" x2="19.8" y2="4.2"/></svg>':'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>')+'</button>'
   +'</div></div>';
 
 var _mPool=window._DQ||MORALS;
@@ -11937,15 +11973,40 @@ if(isMain){
   let hero='<h2 style="font:500 32px/1.1 var(--serif);color:var(--ink);letter-spacing:-.015em;margin:18px 0 0">'+esc(_greet)+(_firstName?', <em>'+esc(_firstName)+'</em>':'')+'</h2>';
   hero+='<p style="font:400 15.5px var(--sans);color:var(--text-mute);margin:6px 0 0">'+esc(_today)+'</p>';
   hero+='<div style="display:flex;gap:8px;margin-top:16px">';
-  hero+='<button onclick="switchTab(\\'tasks\\')" style="flex:1;padding:14px 12px;border-radius:14px;background:var(--surface);border:1px solid var(--line);cursor:pointer;text-align:left"><div style="font:600 20px var(--sans);color:var(--accent)">'+_dueToday+'</div><div style="font:500 12px var(--sans);color:var(--text-mute);margin-top:2px">'+_statusLine+'</div></button>';
-  hero+='<button onclick="switchTab(\\'tasks\\');setTimeout(opA,80)" style="flex:1;padding:14px 12px;border-radius:14px;background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 20%,transparent);cursor:pointer;text-align:left"><div style="font:600 14px var(--sans);color:var(--accent)">+ Add task</div><div style="font:500 12px var(--sans);color:var(--text-mute);margin-top:2px">Plan your day</div></button>';
+  hero+='<button onclick="switchTab(\\'tasks\\')" style="flex:1;padding:14px 12px;border-radius:14px;background:var(--surface);border:1px solid var(--line);cursor:pointer;text-align:left"><div style="font:500 20px var(--sans);color:var(--accent)">'+_dueToday+'</div><div style="font:400 12px var(--sans);color:var(--text-mute);margin-top:2px">'+_statusLine+'</div></button>';
+  hero+='<button onclick="switchTab(\\'tasks\\');setTimeout(opA,80)" style="flex:1;padding:14px 12px;border-radius:14px;background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 20%,transparent);cursor:pointer;text-align:left"><div style="font:500 14px var(--sans);color:var(--accent)">+ Add task</div><div style="font:400 12px var(--sans);color:var(--text-mute);margin-top:2px">Plan your day</div></button>';
+  hero+='</div>';
+  // --- Focus Timer ---
+  var _foc=S.focus;
+  var _focMins=Math.floor(_foc.remaining/60);var _focSecs=_foc.remaining%60;
+  var _focTimeStr=String(_focMins).padStart(2,'0')+':'+String(_focSecs).padStart(2,'0');
+  var _focPct=_foc.active||_foc.paused?Math.round((1-_foc.remaining/_foc.total)*100):0;
+  var _focCircum=2*Math.PI*54;var _focDash=((_foc.remaining/_foc.total)*_focCircum);
+  var _focDurMins=Math.round(_foc.total/60);
+  hero+='<div class="focus-card">';
+  hero+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><div style="display:flex;align-items:center;gap:8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span style="font:500 15px var(--sans);color:var(--ink)">Focus time</span></div>';
+  if(_foc.sessions>0)hero+='<span style="font:500 12px var(--sans);color:var(--text-mute)">'+_foc.sessions+' session'+(_foc.sessions>1?'s':'')+' today</span>';
+  hero+='</div>';
+  hero+='<div class="focus-ring-wrap"><svg width="130" height="130" viewBox="0 0 130 130"><circle class="focus-ring-bg" cx="65" cy="65" r="54"/><circle class="focus-ring-fg" id="focusRing" cx="65" cy="65" r="54" stroke-dasharray="'+_focDash+' '+_focCircum+'"/></svg>';
+  hero+='<div class="focus-time"><span class="focus-time-num" id="focusTime">'+_focTimeStr+'</span><span class="focus-time-lbl" id="focusPct">'+(_foc.active?_focPct+'%':'focus')+'</span></div></div>';
+  if(!_foc.active){
+    hero+='<div class="focus-presets">';
+    [15,25,45,60].forEach(function(m){hero+='<button class="focus-preset'+(_focDurMins===m?' on':'')+'" onclick="focusSetDuration('+m+')">'+m+' min</button>';});
+    hero+='</div>';
+  }
+  hero+='<div class="focus-btns">';
+  if(!_foc.active){hero+='<button class="focus-btn focus-btn-start" onclick="focusStart()"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20"/></svg>Start Focus</button>';}
+  else if(_foc.paused){hero+='<button class="focus-btn focus-btn-start" onclick="focusStart()"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20"/></svg>Resume</button><button class="focus-btn focus-btn-reset" onclick="focusReset()">Reset</button>';}
+  else{hero+='<button class="focus-btn focus-btn-pause" onclick="focusPause()"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>Pause</button><button class="focus-btn focus-btn-reset" onclick="focusReset()">Reset</button>';}
+  hero+='</div>';
+  if(!_foc.active&&!_foc.paused){hero+='<div style="text-align:center;margin-top:10px;font:400 12px var(--sans);color:var(--text-mute)">Do Not Disturb will be requested when you start</div>';}
   hero+='</div>';
   var _wqDoy=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/(864e5));
   var _wq=window._DQ&&window._DQ[(_wqDoy-1)%window._DQ.length]||{q:'The secret of getting ahead is getting started.',a:'Mark Twain'};
   hero+='<div class="rd-wisdom-card" style="margin-top:13px">';
-  hero+='<div class="rd-eyebrow" style="color:color-mix(in srgb,var(--gold) 86%,#3a2a08);font-size:13.5px">DAILY WISDOM</div>';
+  hero+='<div class="rd-eyebrow" style="color:var(--accent);font-size:11px;letter-spacing:.1em;font-weight:500">DAILY WISDOM</div>';
   hero+='<p style="font:400 21px/1.36 var(--serif);font-style:italic;color:var(--ink);margin:9px 0 0">\\u201C'+esc(_wq.q)+'\\u201D</p>';
-  hero+='<div style="display:flex;align-items:center;justify-content:space-between;margin-top:11px"><span style="font:500 14px var(--sans);color:var(--text-mute)">\\u2014 '+esc(_wq.a)+'</span><span style="font:600 14.5px var(--sans);color:var(--accent);cursor:pointer" onclick="openDailyWisdom()">Read today\\'s \\u2192</span></div>';
+  hero+='<div style="display:flex;align-items:center;justify-content:space-between;margin-top:11px"><span style="font:400 13px var(--sans);color:var(--text-mute)">\\u2014 '+esc(_wq.a)+'</span><span style="font:500 13px var(--sans);color:var(--accent);cursor:pointer;display:flex;align-items:center;gap:4px" onclick="openDailyWisdom()">Read today\\'s <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span></div>';
   hero+='</div>';
   // --- Year Progress — compact collapsible ---
   var _ypNow=new Date();
@@ -11960,7 +12021,7 @@ if(isMain){
   var _ypExpanded=!!S.ypExpanded;
   hero+='<div class="rd-card" style="margin-top:13px;padding:14px 17px;cursor:pointer" onclick="S.ypExpanded=!S.ypExpanded;render()">';
   hero+='<div style="display:flex;align-items:center;justify-content:space-between">';
-  hero+='<div style="display:flex;align-items:center;gap:10px"><span style="font-size:16px">\\u23F3</span><span style="font:600 14px var(--sans);color:var(--ink)">'+_ypYear+' Progress</span></div>';
+  hero+='<div style="display:flex;align-items:center;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-mute)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12"/><polyline points="16 16 12 12"/></svg><span style="font:500 14px var(--sans);color:var(--ink)">'+_ypYear+' Progress</span></div>';
   hero+='<div style="display:flex;align-items:center;gap:10px"><span style="font:700 14px var(--sans);color:var(--accent)">'+_ypPct+'%</span><span style="font:400 12px var(--sans);color:var(--text-mute)">'+_ypLeft+'d left</span>';
   hero+='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--text-mute)" stroke-width="2.6" stroke-linecap="round" style="transition:transform .2s;transform:rotate('+(_ypExpanded?'180':'0')+'deg)"><polyline points="6 9 12 15 18 9"/></svg></div></div>';
   if(_ypExpanded){
@@ -11976,14 +12037,19 @@ if(isMain){
     hero+='</div></div>';
   }
   hero+='</div>';
-  // --- Motivational Videos ---
+  // --- Motivational Videos (collapsed by default) ---
+  var _mvExpanded=!!S.mvExpanded;
   hero+='<div class="mv-wrap">';
-  hero+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font:600 16px var(--sans);color:var(--ink)">\\u{1F525} Everyday Motivation</span><span style="font:400 12px var(--sans);color:var(--text-mute)">'+_mvFilter().length+' videos</span></div>';
-  hero+='<div class="mv-cats">';
-  _mvCats.forEach(function(c){hero+='<button class="mv-cat'+(c.k===_mvCat?' on':'')+'" onclick="_mvSetCat(\\''+c.k+'\\')">'+c.e+' '+c.l+'</button>'});
+  hero+='<div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="S.mvExpanded=!S.mvExpanded;render()">';
+  hero+='<div style="display:flex;align-items:center;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-mute)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg><span style="font:500 15px var(--sans);color:var(--ink)">Motivation videos</span></div>';
+  hero+='<div style="display:flex;align-items:center;gap:8px"><span style="font:400 12px var(--sans);color:var(--text-mute)">'+_mvFilter().length+' videos</span>';
+  hero+='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--text-mute)" stroke-width="2.6" stroke-linecap="round" style="transition:transform .2s;transform:rotate('+(_mvExpanded?'180':'0')+'deg)"><polyline points="6 9 12 15 18 9"/></svg></div></div>';
+  if(_mvExpanded){
+  hero+='<div class="mv-cats" style="margin-top:10px">';
+  _mvCats.forEach(function(c){hero+='<button class="mv-cat'+(c.k===_mvCat?' on':'')+'" onclick="_mvSetCat(\\''+c.k+'\\')">'+c.l+'</button>'});
   hero+='</div>';
   hero+='<div class="mv-grid">';
-  hero+='<div class="mv-hero-card"><div class="mv-hero-glow"></div><div style="position:relative;z-index:1"><div style="font:700 20px/1.3 var(--serif);color:#fff">Want to be motivated?</div><div style="font:400 13px var(--sans);color:rgba(255,255,255,.8);margin-top:6px">Real voices, real fire \\u2014 tap any video below</div></div><div class="mv-hero-icons" style="position:relative;z-index:1"><div class="mv-hero-icon">\\u{1F3CB}\\uFE0F</div><div class="mv-hero-icon">\\u{1F4D6}</div><div class="mv-hero-icon">\\u{1FA9C}</div></div></div>';
+  hero+='<div class="mv-hero-card"><div style="flex:none;display:flex;align-items:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg></div><div style="flex:1;min-width:0"><div style="font:500 14px/1.3 var(--sans);color:#fff">Ready to be inspired?</div><div style="font:400 12px var(--sans);color:rgba(255,255,255,.7);margin-top:2px">Tap any video below</div></div></div>';
   _mvFilter().forEach(function(v){
     var thumbUrl='/api/mv-thumb/'+v.src.split('/').pop()+'.jpg';
     if(_mvPlaying===v.id){
@@ -11997,10 +12063,12 @@ if(isMain){
     hero+='<div class="mv-card'+((_mvPlaying===v.id)?' mv-card-playing':'')+'" onclick="_mvPlay(\\''+v.id+'\\')">';
     hero+='<div class="mv-thumb"><img src="'+thumbUrl+'" alt="" loading="lazy"><div class="mv-play-icon"><svg viewBox="0 0 24 24"><polygon points="8 5 19 12 8 19"/></svg></div></div>';
     hero+='<div class="mv-card-info"><div class="mv-card-title">'+esc(v.t)+'</div>';
-    hero+='<div class="mv-card-cat">'+(catLabel?catLabel.e+' '+catLabel.l:'')+'</div></div>';
+    hero+='<div class="mv-card-cat">'+(catLabel?catLabel.l:'')+'</div></div>';
     hero+='</div>';
   });
-  hero+='</div></div>';
+  hero+='</div>';
+  }
+  hero+='</div>';
   // --- Stacked info rows: weather, hydration ---
   let infoStrip='';
   const _w=S.weather||{};
@@ -12009,10 +12077,10 @@ if(isMain){
   const _wxExpanded=!!S.weatherExpanded;
   infoStrip+='<div class="is-weather-wrap" style="position:relative">';
   infoStrip+='<div class="is-row is-weather" onclick="S.weatherExpanded=!S.weatherExpanded;render()">'
-    +'<div class="is-row-icon">'+(_w.temp!=null?(_w.temp>30?'\\u2600\\uFE0F':_w.temp>20?'\\u26C5':'\\u2601\\uFE0F'):'\\u{1F321}\\uFE0F')+'</div>'
+    +'<div class="is-row-icon" style="display:flex;align-items:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round">'+(_w.temp!=null&&_w.temp>25?'<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="18.4" y1="18.4" x2="19.8" y2="19.8"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>':'<path d="M17.5 19H9.5a4.5 4.5 0 110-9 4.5 4.5 0 018 0 3.5 3.5 0 010 7z" stroke-linejoin="round"/>')+'</svg></div>'
     +'<div class="is-row-body" style="flex:1">'
       +'<div class="is-row-title">'+(_w.temp!=null?_w.temp+'\\u00B0C':'--')+' \\u00B7 '+esc(_w.city||'Loading...')+'</div>'
-      +'<div class="is-row-sub">'+(_w.country?'\\u{1F4CD} '+esc(_w.country):'')+((_w.aqi!=null)?' \\u00B7 AQI '+_w.aqi:'')+(_wxRainHint>0?' \\u00B7 \\u{1F327}\\uFE0F '+_wxRainHint+'d rain':'')+'</div>'
+      +'<div class="is-row-sub">'+(_w.country?esc(_w.country):'')+((_w.aqi!=null)?' \\u00B7 AQI '+_w.aqi:'')+(_wxRainHint>0?' \\u00B7 Rain '+_wxRainHint+'d':'')+'</div>'
     +'</div>'
     +'<span class="hgc-arrow'+(_wxExpanded?' open':'')+'"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>'
   +'</div>';
@@ -12035,7 +12103,7 @@ if(isMain){
           +'<div class="wx-day-name">'+(isToday?'Today':dn)+'</div>'
           +'<div class="wx-day-icon">'+_wxIc(wc)+'</div>'
           +'<div class="wx-day-temps">'+hi+'\\u00B0 <span>'+lo+'\\u00B0</span></div>'
-          +'<div class="wx-day-rain'+(rain<20?' dry':'')+'">\\u{1F4A7}'+rain+'%</div>'
+          +'<div class="wx-day-rain'+(rain<20?' dry':'')+'">'+rain+'%</div>'
         +'</div>';
       });
       infoStrip+='</div>';
@@ -12043,14 +12111,14 @@ if(isMain){
       const _avgLo=Math.round(_sumMin/_w.daily.time.length);
       infoStrip+='<div class="wx-summary">'
         +'<span>Avg: <b>'+_avgHi+'\\u00B0</b> / <b>'+_avgLo+'\\u00B0</b></span>'
-        +'<span>'+(_rainDays>0?'\\u{1F327}\\uFE0F Rain likely <b>'+_rainDays+' day'+(_rainDays>1?'s':'')+'</b>':'\\u2600\\uFE0F No rain expected')+'</span>'
+        +'<span>'+(_rainDays>0?'Rain likely <b>'+_rainDays+' day'+(_rainDays>1?'s':'')+'</b>':'No rain expected')+'</span>'
       +'</div>';
     }
     // City search inside expanded panel
     infoStrip+='<div class="wx-city-row" onclick="event.stopPropagation()">'
-      +'<span class="wx-city-label">\\u{1F4CD} Change city</span>'
+      +'<span class="wx-city-label">Change city</span>'
       +'<input class="wx-city-input" id="citySearchInput" placeholder="Search city..." value="'+esc(S.cityQuery||'')+'" oninput="cityTypeahead(this.value)" autocomplete="off">'
-      +'<span class="wx-city-gps" onclick="useGpsCity()" title="Use GPS">\\u{1F4F1}</span>'
+      +'<span class="wx-city-gps" onclick="useGpsCity()" title="Use GPS" style="display:flex;align-items:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg></span>'
     +'</div>';
     infoStrip+='<div class="city-dd-list" id="cityResults">';
     if(S.cityResults&&S.cityResults.length){
@@ -12079,7 +12147,7 @@ if(isMain){
   const fmtTZ2=(tz)=>{try{return new Date().toLocaleTimeString('en-US',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false})}catch(e){return '--:--'}};
   const isDayAt=(tz)=>{try{const h=Number(new Date().toLocaleString('en-US',{timeZone:tz,hour:'2-digit',hour12:false}).split(',')[1]||new Date().toLocaleString('en-US',{timeZone:tz,hour:'2-digit',hour12:false}));return h>=6&&h<18}catch(e){return true}};
   const wc='<div class="world-clocks" id="worldClocks">'+WORLD_CITY_LIST.map((c,i)=>{const day=isDayAt(c.tz);const icon=day?'<svg class="wc-icon wc-sun" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4" fill="#F59E0B"/><g stroke="#F59E0B" stroke-width="1.6" stroke-linecap="round"><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.9" y1="4.9" x2="7" y2="7"/><line x1="17" y1="17" x2="19.1" y2="19.1"/><line x1="4.9" y1="19.1" x2="7" y2="17"/><line x1="17" y1="7" x2="19.1" y2="4.9"/></g></svg>':'<svg class="wc-icon wc-moon" viewBox="0 0 24 24" fill="none"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="#EDA68E"/><circle class="wc-star" cx="6" cy="6" r="0.8" fill="#EDA68E"/><circle class="wc-star" cx="20" cy="20" r="0.7" fill="#EDA68E"/></svg>';const ct=(S.cityTemps||{})[c.key.toLowerCase()];const tempStr=ct&&ct.temp!=null?ct.temp+'\\u00B0':'';return '<span class="wc-item '+(day?'wc-day':'wc-night')+'" style="animation-delay:'+(i*0.05)+'s"><span class="wc-icon-wrap">'+icon+'</span><b>'+esc(c.label)+'</b><span class="wc-time" data-tz="'+c.tz+'">'+fmtTZ2(c.tz)+'</span>'+(tempStr?'<span class="wc-temp">'+tempStr+'</span>':'')+'</span>'}).join('')+'</div>';
-  const mLine='<div class="quote-strip"><span class="quote-strip-em">\\u{1F4A1}</span><span class="quote-strip-txt">"'+esc(_mQt)+'"</span><span class="quote-strip-by">\\u2014 '+esc(m.a)+'</span><button class="quote-strip-ref" onclick="rotateMoral()" aria-label="New quote">\\u21BB</button></div>';
+  const mLine='<div class="quote-strip"><span class="quote-strip-txt">"'+esc(_mQt)+'"</span><span class="quote-strip-by">\\u2014 '+esc(m.a)+'</span><button class="quote-strip-ref" onclick="rotateMoral()" aria-label="New quote" style="display:flex;align-items:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg></button></div>';
   bottomBlock='<div class="bottom-strip">'+mLine+ticker+wc+'</div>';
 }
 
@@ -12207,13 +12275,17 @@ if(S.tab==='tasks'){
   const _cp=S.compose.priority;
   h+='<div class="qc-bar" style="margin-top:14px">';
   h+='<div class="qc-row"><textarea class="qc-input" rows="2" wrap="soft" style="display:block;width:100%;box-sizing:border-box;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;overflow-x:hidden;resize:none;border-radius:14px;font-family:var(--sans)" placeholder="Add a task... (try: Buy milk tomorrow !high)" oninput="composeUpdate(this.value);this.style.height=\\'auto\\';this.style.height=Math.min(this.scrollHeight,120)+\\'px\\'" onkeydown="if(event.key===\\'Enter\\'&&!event.shiftKey){event.preventDefault();composeSubmit()}">'+esc(S.compose.value||'')+'</textarea>';
-  h+='<div class="qc-send-row"><button class="qc-send" onclick="composeSubmit()" title="Add task" style="border-radius:12px;background:var(--accent)">+</button></div></div>';
+  var _hasText=(S.compose.value||'').trim().length>0;
+  if(_hasText){h+='<div class="qc-send-row"><button class="qc-send" onclick="composeSubmit()" title="Add task" style="border-radius:12px;background:var(--accent)">+</button></div>';}
+  h+='</div>';
+  if(_hasText){
   h+='<div class="qc-chips">';
   h+='<span class="qc-chip qc-high'+(_cp==='high'?' on':'')+'" onclick="composeSetPriority(\\'high\\')"><span class="qc-dot" style="background:#DC2626"></span>High</span>';
   h+='<span class="qc-chip qc-med'+(_cp==='medium'?' on':'')+'" onclick="composeSetPriority(\\'medium\\')"><span class="qc-dot" style="background:#F59E0B"></span>Med</span>';
   h+='<span class="qc-chip qc-low'+(_cp==='low'?' on':'')+'" onclick="composeSetPriority(\\'low\\')"><span class="qc-dot" style="background:#16A34A"></span>Low</span>';
   h+='<span class="qc-expand" onclick="opA()">+ More options</span>';
-  h+='</div></div>';
+  h+='</div>';}
+  h+='</div>';
   // Hydration tracker
   h+='<div class="is-row is-hydration" style="margin:14px 0;border-radius:16px;border:1px solid var(--line);padding:12px 14px">'
     +'<div class="is-row-icon">\\u{1F4A7}</div>'
@@ -12772,17 +12844,6 @@ else if(S.tab==='meditation'){
       h+='</div>';
     }
     h+='</div>';
-    // Other categories — smaller grid
-    h+='<div style="font:600 15px var(--sans);color:var(--ink);margin-bottom:10px">More practices</div>';
-    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
-    [{k:'guided',e:'\\u{1F50A}',l:'Guided',d:'Gentle guided sessions'},{k:'sleep',e:'\\u{1F319}',l:'Sleep',d:'Wind down & rest'},{k:'music',e:'\\u{1F3B5}',l:'Music',d:'Calming soundscapes'},{k:'stories',e:'\\u{1F4D6}',l:'Stories',d:'Wisdom tales'}].forEach(function(c){
-      h+='<button class="ws-mini-card" onclick="setMedCat(\\''+c.k+'\\')">';
-      h+='<div style="font-size:28px;margin-bottom:6px">'+c.e+'</div>';
-      h+='<div style="font:600 14px var(--sans);color:var(--ink)">'+c.l+'</div>';
-      h+='<div style="font:400 11px var(--sans);color:var(--text-mute);margin-top:2px">'+c.d+'</div>';
-      h+='</button>';
-    });
-    h+='</div>';
     // Streak info at bottom
     var _wsStrk=_wsCalcStreak();
     var _wsCnt=parseInt(localStorage.getItem('med_count')||'0',10);
@@ -12794,11 +12855,11 @@ else if(S.tab==='meditation'){
     }
   } else {
     // Category view — show back button + meditation cards
-    var _catInfo={affirmations:{e:'\\u2728',l:'Affirmations'},vipassana:{e:'\\u{1F9D8}\\u200D\\u2642\\uFE0F',l:'Vipassana'},guided:{e:'\\u{1F50A}',l:'Guided'},sleep:{e:'\\u{1F319}',l:'Sleep'},music:{e:'\\u{1F3B5}',l:'Music'},stories:{e:'\\u{1F4D6}',l:'Stories'}};
-    var _ci=_catInfo[S.medCat]||{e:'',l:S.medCat};
+    var _catInfo={affirmations:{l:'Affirmations'},vipassana:{l:'Vipassana'},guided:{l:'Guided'},sleep:{l:'Sleep'},music:{l:'Music'},stories:{l:'Stories'}};
+    var _ci=_catInfo[S.medCat]||{l:S.medCat};
     h+='<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">';
-    h+='<button onclick="setMedCat(null)" style="background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 12px;cursor:pointer;font:500 13px var(--sans);color:var(--ink);display:flex;align-items:center;gap:6px">\\u2190 Back</button>';
-    h+='<div style="font:600 20px var(--sans);color:var(--ink)">'+_ci.e+' '+_ci.l+'</div>';
+    h+='<button onclick="setMedCat(null)" style="background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 12px;cursor:pointer;font:500 13px var(--sans);color:var(--ink);display:flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> Back</button>';
+    h+='<div style="font:500 18px var(--sans);color:var(--ink)">'+_ci.l+'</div>';
     h+='</div>';
     if(S.medLoading&&!S.meditations)h+='<div class="loading">Loading...</div>';
     h+='<div class="hs-grid">';
@@ -14679,7 +14740,7 @@ app.get('/privacy',(_,res)=>{
 app.get('/terms',(_,res)=>{
   res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Terms of Service — Brodoit</title><meta name="description" content="The simple terms for using Brodoit. Plain English, no surprises."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Terms</div><h1>The simple rules.</h1><p class="lede">We've kept these terms short and human. Use Brodoit kindly, and we'll keep building it for you.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">The service</h2><p>Brodoit is a personal productivity app: it lets you manage tasks with optional WhatsApp and email reminders, listen to free public-domain audiobooks, sharpen your mind with brain games, and see a daily wisdom quote.</p><h2 data-n="02">Your account</h2><p>You register with your email address or phone number. Keep your one-time verification codes private — anyone with the code can sign in. You are responsible for activity on your account.</p><h2 data-n="03">Acceptable use</h2><p>Please don't abuse the service: no spam, no impersonation, no automated scraping, no attempts to disrupt other users or the service itself. We may suspend or remove accounts that do.</p><h2 data-n="04">Content</h2><p>You own your tasks, notes, and other content you create. We store them so we can show them back to you. Audiobook content belongs to the respective public-domain authors and is served from the Internet Archive's LibriVox collection.</p><h2 data-n="05">No warranty</h2><p>The service is provided "as is". We try hard to keep it running, but can't promise zero downtime or guarantee that every reminder is delivered (WhatsApp and email providers can fail). If something matters, please don't rely solely on Brodoit.</p><h2 data-n="06">Limitation of liability</h2><p>Brodoit is a personal tool. We're not liable for missed deadlines, lost data, or any consequential damages from using — or not using — the service.</p><h2 data-n="07">Changes</h2><p>We may update these terms. If we do, we'll update the date at the top. Continued use after a change means you accept the new terms.</p><h2 data-n="08">Contact</h2><p>Need anything? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });
-app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v57";
+app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v60";
 self.addEventListener("install",function(e){self.skipWaiting()});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener("fetch",function(e){});
