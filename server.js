@@ -2733,9 +2733,9 @@ body[data-theme=aurora] .rd-wisdom-card{background:#3A3C44;border-color:rgba(212
 .rd-listen-cover{width:58px;height:58px;border-radius:13px;flex:none;background:repeating-linear-gradient(135deg,#d8ccb7,#d8ccb7 6px,#ccbda6 6px,#ccbda6 12px);box-shadow:0 4px 10px -4px rgba(43,39,34,.5)}
 .rd-play-btn{width:42px;height:42px;border-radius:50%;background:var(--accent);flex:none;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;box-shadow:0 8px 18px -8px var(--accent)}
 .rd-session-card{border-radius:22px;padding:22px;background:var(--sage);color:#fff;box-shadow:0 16px 30px -18px var(--sage);position:relative;overflow:hidden}
-.rd-mg-cat{border-radius:20px;border:none;padding:0;width:100%;text-align:left;cursor:pointer;color:#fff;overflow:hidden;position:relative}
+.rd-mg-cat{border-radius:20px;border:none;padding:18px 20px;width:100%;text-align:left;cursor:pointer;color:#fff;overflow:hidden;position:relative;box-sizing:border-box}
 .rd-mg-cat-img{width:100%;height:140px;object-fit:cover;display:block}
-.rd-mg-cat-body{padding:16px 18px;display:flex;align-items:center;gap:14px}
+.rd-mg-cat-body{padding:0;display:flex;align-items:center;gap:14px}
 .rd-mg-game{display:flex;align-items:center;gap:14px;padding:15px 16px;border-radius:18px;border:1px solid var(--line);background:var(--surface);width:100%;text-align:left;cursor:pointer}
 .rd-mg-game-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex:none}
 .rd-profile-section{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:18px;margin-top:14px}
@@ -7439,13 +7439,13 @@ body[data-theme=aurora] .bro-header-sub{color:rgba(255,255,255,.35)}
 .bro-header-btn{background:none;border:none;cursor:pointer;padding:8px;border-radius:10px;color:#6B7280;transition:all .2s}
 .bro-header-btn:hover{background:rgba(17,24,39,.06);color:#111827}
 body[data-theme=aurora] .bro-header-btn:hover{background:rgba(255,255,255,.08);color:#E8E8EC}
-.bro-chat{flex:1;display:flex;flex-direction:column;gap:6px;padding:10px 14px 10px;overflow-y:auto;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;min-height:0}
-.bro-msg{display:flex;gap:6px;align-items:flex-start;animation:broFadeIn .25s ease-out}
-.bro-msg-user{flex-direction:row-reverse}
-.bro-avatar{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;margin-top:2px}
-.bro-msg-content{display:flex;flex-direction:column;gap:2px;max-width:85%}
-.bro-msg-user .bro-msg-content{align-items:flex-end}
-.bro-bubble{padding:8px 12px;font-size:14px;line-height:1.5;word-break:break-word}
+.bro-chat{flex:1;display:flex;flex-direction:column;gap:2px;padding:16px 18px 16px;overflow-y:auto;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;min-height:0}
+.bro-msg{display:flex;align-items:flex-start;animation:broFadeIn .25s ease-out;padding:8px 0}
+.bro-msg-user{justify-content:flex-end}
+.bro-avatar{display:none}
+.bro-msg-content{display:flex;flex-direction:column;gap:2px;max-width:100%}
+.bro-msg-user .bro-msg-content{align-items:flex-end;max-width:82%}
+.bro-bubble{padding:0;font-size:15px;line-height:1.7;word-break:break-word;letter-spacing:-.01em}
 .bro-bubble .bro-p{margin:0 0 8px}
 .bro-bubble .bro-p:last-child{margin-bottom:0}
 .bro-bubble strong{font-weight:600;color:#111827}
@@ -7469,10 +7469,10 @@ body[data-theme=aurora] .bro-bubble .bro-inline-code{background:rgba(255,255,255
 .bro-bubble .bro-table tr:first-child td{font-weight:600;background:rgba(17,24,39,.04)}
 body[data-theme=aurora] .bro-bubble .bro-table td{border-color:rgba(255,255,255,.1)}
 body[data-theme=aurora] .bro-bubble .bro-table tr:first-child td{background:rgba(255,255,255,.05)}
-.bro-msg-ai .bro-bubble{background:#fff;color:var(--ink);border-radius:16px 16px 16px 4px;padding:10px 14px;border:1px solid var(--line);box-shadow:none}
-body[data-theme=aurora] .bro-msg-ai .bro-bubble{background:var(--surface);color:var(--ink);border-color:var(--line)}
-.bro-msg-user .bro-bubble{border-radius:16px 16px 4px 16px;color:#fff;padding:10px 14px}
-.bro-bubble-bro{background:linear-gradient(135deg,#E27D60,#EDA68E)}
+.bro-msg-ai .bro-bubble{background:transparent;color:var(--ink);border-radius:0;padding:0;border:none;box-shadow:none}
+body[data-theme=aurora] .bro-msg-ai .bro-bubble{background:transparent;color:var(--ink);border:none}
+.bro-msg-user .bro-bubble{border-radius:22px 22px 4px 22px;color:#fff;padding:10px 18px;font-size:15px}
+.bro-bubble-bro{background:var(--accent)}
 .bro-bubble-bri{background:linear-gradient(135deg,#EC4899,#F472B6)}
 .bro-msg-meta{font-size:11px;color:#9CA3AF;padding:0 4px}
 body[data-theme=aurora] .bro-msg-meta{color:rgba(255,255,255,.25)}
@@ -7499,13 +7499,13 @@ body[data-theme=aurora] .bro-typing-dot{background:var(--accent)}
 .bro-hist-del{opacity:0;margin-left:auto;background:none;border:none;color:var(--text-mute);cursor:pointer;font-size:14px;padding:2px 6px}
 .bro-hist-item:hover .bro-hist-del{opacity:1}
 .bro-main{flex:1;display:flex;flex-direction:column;min-width:0}
-.bro-input-wrap{flex-shrink:0;padding:8px 14px 10px;background:var(--bg);border-top:1px solid var(--line);z-index:20;transition:padding .15s ease;overflow:hidden;width:100%;box-sizing:border-box}
-body[data-theme=aurora] .bro-input-wrap{background:var(--bg-2);border-top-color:var(--line)}
-.bro-input-bar{display:block;padding:14px 16px;background:#fff;border:1.5px solid rgba(0,0,0,.08);border-radius:20px;box-shadow:0 2px 12px rgba(0,0,0,.04),0 1px 3px rgba(0,0,0,.02);transition:all .2s;overflow:hidden;width:100%;box-sizing:border-box}
+.bro-input-wrap{flex-shrink:0;padding:10px 16px 12px;background:var(--bg);border-top:none;z-index:20;transition:padding .15s ease;overflow:hidden;width:100%;box-sizing:border-box}
+body[data-theme=aurora] .bro-input-wrap{background:var(--bg);border-top:none}
+.bro-input-bar{display:block;padding:12px 16px;background:#fff;border:1.5px solid rgba(0,0,0,.12);border-radius:24px;box-shadow:0 4px 24px rgba(0,0,0,.06);transition:all .2s;overflow:hidden;width:100%;box-sizing:border-box}
 .bro-input-actions{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
-.bro-input-bar:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(226,125,96,.08),0 4px 16px rgba(226,125,96,.04)}
-body[data-theme=aurora] .bro-input-bar{background:var(--surface);border-color:var(--line);box-shadow:none}
-body[data-theme=aurora] .bro-input-bar:focus-within{background:var(--surface-2);border-color:var(--accent);box-shadow:0 0 0 3px rgba(226,125,96,.12)}
+.bro-input-bar:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(226,125,96,.1),0 4px 24px rgba(226,125,96,.06)}
+body[data-theme=aurora] .bro-input-bar{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.1);box-shadow:0 4px 24px rgba(0,0,0,.2)}
+body[data-theme=aurora] .bro-input-bar:focus-within{background:rgba(255,255,255,.08);border-color:var(--accent);box-shadow:0 0 0 3px rgba(226,125,96,.15),0 4px 24px rgba(0,0,0,.2)}
 body[data-theme=aurora] .bro-input-actions{border-top-color:rgba(255,255,255,.08)}
 .bro-input{display:block;width:100%;border:none;background:transparent;font-size:15px;outline:none;color:var(--ink);font-family:inherit;padding:6px 0;line-height:1.5;min-height:36px;max-height:120px;resize:none;overflow-y:auto;overflow-x:hidden;word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;white-space:pre-wrap;-webkit-appearance:none;appearance:none;box-sizing:border-box}
 .bro-input::placeholder{color:#9CA3AF}
@@ -7592,10 +7592,11 @@ body[data-theme=aurora] .bro-scene{background:linear-gradient(135deg,rgba(40,35,
 body[data-theme=aurora] .bro-mode-btn{background:var(--surface);color:var(--ink-3);border:1px solid var(--line)}
 body[data-theme=aurora] .bro-mode-btn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
 .bro-suggestions{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:8px;padding:0 12px;animation:broWelcomeIn .6s cubic-bezier(.16,1,.3,1) .35s both}
-.bro-suggest-btn{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 12px;font-size:13px;color:var(--ink);cursor:pointer;transition:all .15s;font-family:inherit;font-weight:500;text-align:left;flex:1 1 45%;min-width:0}
-.bro-suggest-btn:active{background:rgba(226,125,96,.18);transform:scale(.96)}
-body[data-theme=aurora] .bro-suggest-btn{background:var(--surface);border:1px solid var(--line);color:var(--ink-2)}
-body[data-theme=aurora] .bro-suggest-btn:active{background:var(--surface-2);border-color:var(--accent)}
+.bro-suggest-btn{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:10px 14px;font-size:13px;color:var(--ink-2);cursor:pointer;transition:all .2s;font-family:inherit;font-weight:500;text-align:center;min-width:0}
+.bro-suggest-btn:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.14)}
+.bro-suggest-btn:active{background:rgba(226,125,96,.15);transform:scale(.97);border-color:var(--accent)}
+body[data-theme=aurora] .bro-suggest-btn{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:var(--ink-2)}
+body[data-theme=aurora] .bro-suggest-btn:active{background:rgba(226,125,96,.15);border-color:var(--accent)}
 .bro-gen-img{max-width:100%;border-radius:12px;margin-top:10px;cursor:pointer;transition:transform .2s;box-shadow:0 4px 16px rgba(0,0,0,.12)}
 .bro-gen-img:hover{transform:scale(1.02)}
 .bro-img-wrap{margin-top:8px}
@@ -7623,10 +7624,10 @@ body[data-theme=aurora] .bro-img-err{background:rgba(239,68,68,.12)}
   body.bro-tab .tab-hero{display:none !important}
   body.bro-tab .bro-container{position:fixed !important;top:0 !important;left:0 !important;right:0 !important;bottom:0 !important;height:100% !important;height:100dvh !important;margin:0 !important;z-index:50 !important;border-radius:0 !important;display:flex !important;flex-direction:column !important}
   body.bro-tab .bro-header{padding:8px 14px;flex-shrink:0}
-  body.bro-tab .bro-chat{flex:1 !important;min-height:0 !important;padding:8px 12px 8px !important;gap:4px}
-  body.bro-tab .bro-input-wrap{flex-shrink:0 !important;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px)) !important;padding-bottom:calc(78px + env(safe-area-inset-bottom,0px)) !important;border-top:1px solid var(--line) !important;background:var(--bg-2) !important}
+  body.bro-tab .bro-chat{flex:1 !important;min-height:0 !important;padding:12px 16px 12px !important;gap:2px}
+  body.bro-tab .bro-input-wrap{flex-shrink:0 !important;padding:8px 14px calc(8px + env(safe-area-inset-bottom,0px)) !important;padding-bottom:calc(76px + env(safe-area-inset-bottom,0px)) !important;border-top:none !important;background:var(--bg) !important}
   body.bro-tab .bro-input{display:block !important;width:100% !important;font-size:16px !important;-webkit-text-size-adjust:none !important;caret-color:var(--accent);line-height:1.5 !important;min-height:36px !important;max-height:120px !important;padding:6px 0 !important;-webkit-appearance:none !important;word-wrap:break-word !important;word-break:break-word !important;overflow-wrap:break-word !important;white-space:pre-wrap !important;overflow-x:hidden !important;box-sizing:border-box !important}
-  body.bro-tab .bro-input-bar{display:block !important;padding:14px 16px !important;border-radius:20px !important;background:var(--surface) !important;box-shadow:none !important;border:1.5px solid var(--line) !important;overflow:hidden !important}
+  body.bro-tab .bro-input-bar{display:block !important;padding:12px 16px !important;border-radius:24px !important;background:rgba(255,255,255,.06) !important;box-shadow:0 4px 24px rgba(0,0,0,.15) !important;border:1.5px solid rgba(255,255,255,.1) !important;overflow:hidden !important}
   body.bro-tab.kb-open .bro-container{height:var(--vv-h,100%) !important;top:var(--vv-top,0px) !important;bottom:auto !important}
   body.bro-tab.kb-open .bro-header{display:none !important}
   body.bro-tab.kb-open .bro-welcome{display:none !important}
@@ -8134,8 +8135,7 @@ body[data-theme=aurora] .cal-selected-box{background:rgba(255,255,255,.03);borde
 body[data-theme=aurora] .gcal-card{background:#3A3C44;border-color:rgba(255,255,255,.06)}
 body[data-theme=aurora] .gcal-upcoming{background:#3A3C44;border-color:rgba(255,255,255,.06)}
 body[data-theme=aurora] .bro-mode-btn{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.06);color:#E8E8EC}
-body[data-theme=aurora] .bro-suggest-btn{background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.06);color:#888888}
-body[data-theme=aurora] .bro-typing{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.06)}
+body[data-theme=aurora] .bro-typing{background:transparent;border:none}
 body[data-theme=aurora] .mg-ach-strip{background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.06)}
 body[data-theme=aurora] .mg-ach-mini{background:rgba(255,255,255,.04)}
 body[data-theme=aurora] .mg-ach-mini.on{background:rgba(226,125,96,.12)}
@@ -8144,8 +8144,8 @@ body[data-theme=aurora] .qa-stat-tile{background:#3A3C44 !important;border-color
 body[data-theme=aurora] .qa-stat-tile:hover{background:rgba(255,255,255,.06) !important}
 body[data-theme=aurora] .streak-card{background:#3A3C44;border-color:rgba(255,255,255,.06)}
 body[data-theme=aurora] .book-card{background:#3A3C44;border-color:rgba(255,255,255,.06)}
-body[data-theme=aurora] .bro-header{background:#32343A;border-color:rgba(255,255,255,.06)}
-body[data-theme=aurora] .bro-input-wrap{background:#32343A;border-color:rgba(255,255,255,.06)}
+body[data-theme=aurora] .bro-header{background:transparent;border-color:rgba(255,255,255,.06)}
+body[data-theme=aurora] .bro-input-wrap{background:var(--bg);border:none}
 
 /* ═══ TRAIN PAGE — Minimal section-based design ═══ */
 .tg-header{margin-bottom:20px}
@@ -10124,9 +10124,7 @@ function _renderHlPoster(text,done){
 }
 // Game-detail view: click a game card → see its 10-level journey before playing
 function mgDetailOpen(key){
-  // Reaction and Memory Tap were retired. If a stale tile or cached state asks
-  // for them, fall back to Math so the modal isn't broken.
-  if(key==='reaction'||key==='memory'||key==='word')key='math';
+  if(key==='reaction'||key==='memory')key='math';
   S.mgDetail=key;S.mgGamesPanel=false;render();try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){}
 }
 function mgDetailClose(){S.mgDetail=null;render()}
@@ -12757,21 +12755,23 @@ else if(S.tab==='mindgym'){
   const _spatP=(mg.progress.spatial||{level:1,xp:0,best:0});
 
   const _mgLevel=Math.floor(totalXp/500)+1;
-  const _focusXp=(mg.progress.math.xp||0)+(mg.progress.sudoku||{xp:0}).xp;
-  const _memXp=(_schP.xp||0)+(_spatP.xp||0);
-  const _logicXp=(_wordP.xp||0);
-  const _maxSkill=1000;
+  const _focusXp=(mg.progress.math.xp||0)+((mg.progress.stroop||{}).xp||0)+((mg.progress.colormatch||{}).xp||0);
+  const _memXp=(_schP.xp||0)+(_spatP.xp||0)+((mg.progress.nback||{}).xp||0);
+  const _logicXp=(_wordP.xp||0)+(mg.progress.sudoku||{xp:0}).xp;
+  const _maxSkill=1500;
   h+='<div style="display:flex;align-items:flex-end;justify-content:space-between;margin-top:6px">';
   h+='<div><h2 class="rd-serif-title">Mind Gym</h2>';
   h+='<div style="font:500 14px var(--sans);color:var(--text-mute);margin-top:6px">'+totalXp+' XP \\u00B7 '+streak.current+' day streak</div></div>';
   h+='<div class="rd-pill rd-pill-sage" style="font-size:14px;padding:8px 16px">Level '+_mgLevel+'</div>';
   h+='</div>';
-  h+='<div class="rd-session-card" style="margin-top:18px">';
+  h+='<div class="rd-session-card" style="margin-top:18px;position:relative;overflow:hidden">';
+  h+='<div style="position:absolute;top:-20px;right:-10px;font-size:80px;opacity:.12;pointer-events:none">\\u{1F680}</div>';
   h+='<div class="rd-eyebrow" style="color:rgba(255,255,255,.8);font-size:12px">TODAY\\u2019S SESSION</div>';
-  h+='<div style="font:500 26px/1.15 var(--serif);margin:8px 0 0">3 quick drills \\u00B7 5 min</div>';
+  h+='<div style="font:500 26px/1.15 var(--serif);margin:8px 0 0">8 games \\u00B7 3 categories</div>';
+  h+='<div style="font:400 14px var(--sans);color:rgba(255,255,255,.7);margin-top:6px">Focus, Logic, Memory \\u2014 train your brain daily</div>';
   h+='<div style="display:flex;align-items:center;gap:14px;margin-top:18px">';
-  h+='<button style="height:50px;padding:0 28px;border:none;border-radius:14px;background:#fff;color:color-mix(in srgb,var(--sage) 78%,#16200f);font:600 16px var(--sans);cursor:pointer;display:flex;align-items:center;gap:8px" onclick="mgDetailOpen(\\'math\\')"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg>Start</button>';
-  h+='<div style="display:flex;gap:8px"><div style="width:10px;height:10px;border-radius:50%;background:#fff"></div><div style="width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.4)"></div><div style="width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.4)"></div></div>';
+  h+='<button style="height:50px;padding:0 28px;border:none;border-radius:14px;background:#fff;color:#1a1a2e;font:600 16px var(--sans);cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,.2)" onclick="mgDetailOpen(\\'math\\')"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg>Quick Play</button>';
+  h+='<button style="height:50px;padding:0 20px;border:1.5px solid rgba(255,255,255,.3);border-radius:14px;background:transparent;color:#fff;font:600 14px var(--sans);cursor:pointer" onclick="mgGamesOpen()">All Games</button>';
   h+='</div></div>';
   h+='<div class="rd-eyebrow" style="margin:24px 0 0;font-size:12px">YOUR SKILLS</div>';
   h+='<div class="rd-skill-bar" style="margin-top:14px">';
@@ -12782,40 +12782,44 @@ else if(S.tab==='mindgym'){
     h+='<div class="rd-progress-bar" style="height:8px"><div class="rd-progress-fill" style="width:'+pct+'%;background:'+sk.c+'"></div></div></div>';
   });
   h+='</div>';
+  const _stroopP=(mg.progress.stroop||{level:1,xp:0,best:0});
+  const _nbackP=(mg.progress.nback||{level:1,xp:0,best:0});
+  const _cmP=(mg.progress.colormatch||{level:1,xp:0,best:0});
   const _cats=[
-    {id:'maths',title:'Maths',desc:'Arithmetic & logic puzzles',
-     img:'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=600&q=80&auto=format&fit=crop',
+    {id:'focus',title:'Focus & Speed',desc:'Sharpen your reflexes and concentration',
      grad:'linear-gradient(135deg,#D9734A 0%,#BE8C36 100%)',
      games:[
       {k:'math',n:'Math Sprint',d:'Mental arithmetic against the clock',em:'\\u26A1',fill:'var(--accent)',pData:mg.progress.math},
-      {k:'sudoku',n:'Sudoku',d:'4\\u00D74 logic puzzle',em:'\\u{1F9E9}',fill:'var(--gold)',pData:_sudP}
+      {k:'stroop',n:'Stroop Challenge',d:'Tap the ink color, not the word',em:'\\u{1F308}',fill:'#EF4444',pData:_stroopP},
+      {k:'colormatch',n:'Color Match',d:'Does the word match the color?',em:'\\u{1F3A8}',fill:'#F59E0B',pData:_cmP}
     ]},
-    {id:'english',title:'English',desc:'Vocabulary & word skills',
-     img:'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=600&q=80&auto=format&fit=crop',
+    {id:'logic',title:'Logic & Language',desc:'Puzzles that stretch your reasoning',
      grad:'linear-gradient(135deg,#5C6F52 0%,#7C8E72 100%)',
      games:[
-      {k:'word',n:'Word Sprint',d:'Unscramble letters into words',em:'\\u{1F524}',fill:'var(--sage)',pData:_wordP}
+      {k:'word',n:'Word Sprint',d:'Unscramble letters into words',em:'\\u{1F524}',fill:'var(--sage)',pData:_wordP},
+      {k:'sudoku',n:'Sudoku',d:'4\\u00D74 logic puzzle',em:'\\u{1F9E9}',fill:'var(--gold)',pData:_sudP}
     ]},
-    {id:'memory',title:'Memory',desc:'Focus & recall training',
-     img:'https://images.unsplash.com/photo-1606326608606-aa0b62935f2b?w=600&q=80&auto=format&fit=crop',
-     grad:'linear-gradient(135deg,#BE8C36 0%,#D4A64A 100%)',
+    {id:'memory',title:'Memory & Recall',desc:'Train your working memory',
+     grad:'linear-gradient(135deg,#8B5CF6 0%,#6D28D9 100%)',
      games:[
       {k:'schulte',n:'Schulte Grid',d:'Find numbers 1\\u219225 in order',em:'\\u{1F522}',fill:'var(--accent)',pData:_schP},
-      {k:'spatial',n:'Pattern Recall',d:'Memorize and recreate patterns',em:'\\u{1F9E7}',fill:'var(--gold)',pData:_spatP}
+      {k:'spatial',n:'Pattern Recall',d:'Memorize and recreate patterns',em:'\\u{1F9E7}',fill:'var(--gold)',pData:_spatP},
+      {k:'nback',n:'N-Back',d:'Was this letter shown N steps ago?',em:'\\u{1F9E0}',fill:'#8B5CF6',pData:_nbackP}
     ]}
   ];
   h+='<div class="rd-eyebrow" style="margin:24px 0 0;font-size:12px">CATEGORIES</div>';
   const _openCat=S.trainCat||'';
   h+='<div style="margin-top:14px;display:flex;flex-direction:column;gap:12px">';
+  var _catEmoji={focus:'\\u26A1',logic:'\\u{1F9E9}',memory:'\\u{1F9E0}'};
   _cats.forEach(cat=>{
-    h+='<div class="rd-mg-cat" onclick="S.trainCat=(S.trainCat===\\''+cat.id+'\\')?\\'\\':\\''+cat.id+'\\';render()" style="background:'+cat.grad+'">'
-      +'<img class="rd-mg-cat-img" src="'+cat.img+'" alt="'+cat.title+'" loading="lazy">'
+    h+='<div class="rd-mg-cat" onclick="S.trainCat=(S.trainCat===\\''+cat.id+'\\')?\\'\\':\\''+cat.id+'\\';render()" style="background:'+cat.grad+';position:relative;overflow:hidden">'
+      +'<div style="position:absolute;top:-10px;right:10px;font-size:64px;opacity:.15;pointer-events:none">'+(_catEmoji[cat.id]||'\\u{1F3AE}')+'</div>'
       +'<div class="rd-mg-cat-body">'
         +'<div style="flex:1;min-width:0">'
-          +'<h3 style="font:600 20px var(--sans);margin:0;color:#fff">'+cat.title+'</h3>'
-          +'<div style="font:400 14px var(--sans);opacity:.85;margin-top:4px">'+cat.desc+'</div>'
+          +'<h3 style="font:700 22px var(--sans);margin:0;color:#fff;letter-spacing:-.01em">'+cat.title+'</h3>'
+          +'<div style="font:400 14px var(--sans);color:rgba(255,255,255,.8);margin-top:4px">'+cat.desc+'</div>'
         +'</div>'
-        +'<div style="font:600 13px var(--sans);background:rgba(255,255,255,.22);padding:6px 12px;border-radius:10px">'+cat.games.length+' game'+(cat.games.length>1?'s':'')+'</div>'
+        +'<div style="font:600 13px var(--sans);background:rgba(255,255,255,.22);padding:6px 12px;border-radius:10px;color:#fff">'+cat.games.length+' games</div>'
       +'</div>'
     +'</div>';
     if(_openCat===cat.id){
@@ -13313,12 +13317,11 @@ else if(S.tab==='bro'){
   {
     var _bm=S.bro.mode||'ask';
     h+='<div class="bro-container">';
-    // Header bar with hamburger + new chat
-    h+='<div class="bro-header" style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line)">';
-    h+='<button onclick="_broToggleSidebar()" style="background:none;border:none;cursor:pointer;padding:4px;color:var(--ink)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>';
-    h+='<div style="flex:1;min-width:0"><div style="font:600 19px var(--sans);color:var(--ink)">\\u26A1 Bro AI<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#22C55E;margin-left:8px;vertical-align:middle"></span></div>';
-    h+='<div style="font:400 13px var(--sans);color:var(--text-mute)">Can manage tasks, calendar & more</div></div>';
-    h+='<button class="bro-new-chat" onclick="_broNewChat()">+ New</button>';
+    // Minimal header
+    h+='<div class="bro-header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.06);background:transparent">';
+    h+='<button onclick="_broToggleSidebar()" style="background:none;border:none;cursor:pointer;padding:6px;color:var(--text-mute);border-radius:8px" title="History"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="18" y2="18"/></svg></button>';
+    h+='<div style="flex:1;text-align:center;font:600 16px var(--sans);color:var(--ink)">Bro AI</div>';
+    h+='<button onclick="_broNewChat()" style="background:none;border:none;cursor:pointer;padding:6px;color:var(--text-mute);border-radius:8px" title="New chat"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>';
     h+='</div>';
     // Layout: sidebar + main
     h+='<div class="bro-layout">';
@@ -13343,18 +13346,19 @@ else if(S.tab==='bro'){
     h+='</div></div></div>';
     // Main chat area
     h+='<div class="bro-main">';
-    // Mode toggle
-    h+='<div style="display:flex;gap:6px;padding:10px 16px;border-bottom:1px solid var(--line)">';
-    h+='<button style="padding:6px 12px;border-radius:20px;border:1.5px solid '+(_bm==='ask'?'var(--accent)':'var(--line)')+';background:'+(_bm==='ask'?'var(--accent-soft)':'transparent')+';font:500 12px var(--sans);color:'+(_bm==='ask'?'var(--accent)':'var(--text-mute)')+';cursor:pointer" onclick="S.bro.mode=\\'ask\\';S.bro.messages=[];switchTab(\\'bro\\')">\\u26A1 Assistant</button>';
-    h+='<button style="padding:6px 12px;border-radius:20px;border:1.5px solid '+(_bm==='friend'?'#EC4899':'var(--line)')+';background:'+(_bm==='friend'?'rgba(236,72,153,.1)':'transparent')+';font:500 12px var(--sans);color:'+(_bm==='friend'?'#EC4899':'var(--text-mute)')+';cursor:pointer" onclick="S.bro.mode=\\'friend\\';S.bro.messages=[];switchTab(\\'bro\\')">\\u{1F49C} Friend</button>';
+    // Mode toggle — minimal pill switcher
+    h+='<div style="display:flex;gap:4px;padding:6px 16px 4px;justify-content:center">';
+    h+='<button style="padding:5px 14px;border-radius:99px;border:none;background:'+(_bm==='ask'?'var(--accent)':'transparent')+';font:500 12px var(--sans);color:'+(_bm==='ask'?'#fff':'var(--text-mute)')+';cursor:pointer;transition:all .2s" onclick="S.bro.mode=\\'ask\\';S.bro.messages=[];switchTab(\\'bro\\')">Assistant</button>';
+    h+='<button style="padding:5px 14px;border-radius:99px;border:none;background:'+(_bm==='friend'?'#EC4899':'transparent')+';font:500 12px var(--sans);color:'+(_bm==='friend'?'#fff':'var(--text-mute)')+';cursor:pointer;transition:all .2s" onclick="S.bro.mode=\\'friend\\';S.bro.messages=[];switchTab(\\'bro\\')">Friend</button>';
     h+='</div>';
     // Chat messages
     h+='<div class="bro-chat" id="broChat">';
     if(S.bro.messages.length<=1){
-      h+='<div style="display:flex;flex-direction:column;align-items:center;padding:20px 16px 8px;text-align:center">';
-      h+='<div style="font:600 20px var(--sans);color:var(--ink);margin-bottom:4px">'+(_bm==='friend'?'Hey, what\\'s up?':'How can I help?')+'</div>';
-      h+='<div style="font:400 13px var(--sans);color:var(--text-mute);max-width:280px;line-height:1.4;margin-bottom:14px">'+(_bm==='friend'?'Talk to me about anything.':'Tasks, calendar, planning, brainstorming.')+'</div>';
-      h+='<div style="display:flex;flex-wrap:wrap;gap:6px;width:100%;max-width:320px">';
+      h+='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:30px 20px 16px;text-align:center;min-height:200px">';
+      h+='<div style="width:48px;height:48px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:0 4px 20px rgba(226,125,96,.3)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>';
+      h+='<div style="font:700 24px var(--sans);color:var(--ink);letter-spacing:-.02em;margin-bottom:6px">'+(_bm==='friend'?'Hey there':'What can I help with?')+'</div>';
+      h+='<div style="font:400 14px var(--sans);color:var(--text-mute);max-width:300px;line-height:1.5;margin-bottom:24px">'+(_bm==='friend'?'I\\'m here to talk, vent, or just hang out.':'Tasks, calendar, planning, brainstorming — ask anything.')+'</div>';
+      h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;max-width:340px">';
       if(_bm==='friend'){
         h+='<button class="bro-suggest-btn" onclick="_broFill(\\'How\\'s my vibe today?\\')">\\u2728 Check my vibe</button>';
         h+='<button class="bro-suggest-btn" onclick="_broFill(\\'I\\'m feeling low because \\')">\\u{1F614} Feeling low</button>';
@@ -13380,9 +13384,9 @@ else if(S.tab==='bro'){
     if(S.bro.sending)h+='<div class="bro-typing-wrap"><div class="bro-typing"><span class="bro-typing-dot"></span><span class="bro-typing-dot"></span><span class="bro-typing-dot"></span></div></div>';
     h+='</div>';
     // Input bar
-    h+='<div class="bro-input-wrap" style="padding:10px 14px;border-top:1px solid var(--line);background:var(--bg)">';
+    h+='<div class="bro-input-wrap">';
     if(S.bro._file){h+='<div class="bro-file-badge" onclick="S.bro._file=null;S.bro._fileText=null;render()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> '+esc(S.bro._file)+' <span class="bro-file-x">\\u2715</span></div>'}
-    h+='<div style="display:flex;align-items:flex-end;gap:8px;background:var(--surface);border:1.5px solid var(--line);border-radius:22px;padding:6px 6px 6px 16px">';
+    h+='<div style="display:flex;align-items:flex-end;gap:8px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.1);border-radius:24px;padding:6px 6px 6px 16px;box-shadow:0 4px 24px rgba(0,0,0,.15)">';
     h+='<textarea class="bro-input" id="broInput" rows="1" wrap="soft" placeholder="'+(_bm==='friend'?'Talk to me...':'Message Bro AI...')+'" autocomplete="off" autocorrect="off" spellcheck="false" style="display:block;width:100%;box-sizing:border-box;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;overflow-x:hidden;resize:none;border:none;background:transparent;font:400 15px var(--sans);color:var(--ink);padding:6px 0;max-height:120px;outline:none" oninput="S.bro.input=this.value;this.style.height=\\'auto\\';this.style.height=Math.min(this.scrollHeight,120)+\\'px\\'" onfocus="setTimeout(function(){var c=document.getElementById(\\'broChat\\');if(c)c.scrollTop=c.scrollHeight},300)" onkeydown="if(event.key===\\'Enter\\'&&!event.shiftKey){event.preventDefault();broSend()}">'+esc(S.bro.input)+'</textarea>';
     h+='<button onclick="document.getElementById(\\'broFileInput\\').click()" title="Attach" style="width:36px;height:36px;border-radius:50%;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-mute);flex:none"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></button>';
     h+='<input type="file" id="broFileInput" style="display:none" accept=".txt,.md,.csv,.json,.js,.py,.html,.css,.xml,.log,.pdf,.doc,.docx" onchange="broAttachFile(this)">';
@@ -13875,9 +13879,14 @@ if(S.mgGamesPanel&&!S.mgDetail&&!S.mgPlay){
   // ─── All-games fullscreen modal — opened from the Mind Gym launcher chip ───
   const _mg=S.mg;
   const _gms=[
-    {k:'math',e:'\\u{1F522}',n:'Math Sprint',d:'Mental arithmetic against the clock',accent:'#EDA68E',accent2:'#3B82F6',pData:_mg.progress.math,pct:mgPercent('math')},
+    {k:'math',e:'\\u26A1',n:'Math Sprint',d:'Mental arithmetic',accent:'#EDA68E',accent2:'#3B82F6',pData:_mg.progress.math,pct:mgPercent('math')},
+    {k:'stroop',e:'\\u{1F308}',n:'Stroop Challenge',d:'Ink color, not word',accent:'#EF4444',accent2:'#3B82F6',pData:(_mg.progress.stroop||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((_mg.progress.stroop||{}).xp||0)/(5*100))*100))},
+    {k:'colormatch',e:'\\u{1F3A8}',n:'Color Match',d:'Word vs color',accent:'#F59E0B',accent2:'#10B981',pData:(_mg.progress.colormatch||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((_mg.progress.colormatch||{}).xp||0)/(5*100))*100))},
     {k:'word',e:'\\u{1F520}',n:'Word Sprint',d:'Anagrams. 90 seconds.',accent:'#EDA68E',accent2:'#CC6E52',pData:(_mg.progress.word||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((_mg.progress.word||{}).xp||0)/(5*100))*100)),bestSuffix:' words'},
-    {k:'schulte',e:'\\u{1F3AF}',n:'Schulte Grid',d:'Tap 1\\u219225 in order',accent:'#F472B6',accent2:'#EDA68E',pData:(_mg.progress.schulte||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((_mg.progress.schulte||{}).xp||0)/(5*100))*100)),bestSuffix:' s'}
+    {k:'sudoku',e:'\\u{1F9E9}',n:'Sudoku',d:'4\\u00D74 logic puzzle',accent:'#FBBF24',accent2:'#F59E0B',pData:(_mg.progress.sudoku||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((_mg.progress.sudoku||{}).xp||0)/(5*100))*100))},
+    {k:'schulte',e:'\\u{1F3AF}',n:'Schulte Grid',d:'Tap 1\\u219225 in order',accent:'#F472B6',accent2:'#EDA68E',pData:(_mg.progress.schulte||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((_mg.progress.schulte||{}).xp||0)/(5*100))*100)),bestSuffix:' s'},
+    {k:'spatial',e:'\\u{1F9E7}',n:'Pattern Recall',d:'Memorize patterns',accent:'#A855F7',accent2:'#7C3AED',pData:(_mg.progress.spatial||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((_mg.progress.spatial||{}).xp||0)/(5*100))*100))},
+    {k:'nback',e:'\\u{1F9E0}',n:'N-Back',d:'Working memory drill',accent:'#8B5CF6',accent2:'#06B6D4',pData:(_mg.progress.nback||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((_mg.progress.nback||{}).xp||0)/(5*100))*100))}
   ];
   h+='<div class="ov" onclick="mgGamesClose()"><div class="mdl mtg-mdl" onclick="event.stopPropagation()">';
   h+='<header class="mtg-hd-v2">'
@@ -14585,7 +14594,7 @@ function _recoverLoginIfNeeded(){
 }
 window.addEventListener('pageshow',function(e){_recoverLoginIfNeeded()});
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')_recoverLoginIfNeeded()});
-if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js?v=74').then(function(reg){reg.update()}).catch(()=>{});}
+if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js?v=75').then(function(reg){reg.update()}).catch(()=>{});}
 // ─── Mobile keyboard: keep Bro input visible ───
 (function(){
   if(!window.visualViewport)return;
@@ -14852,7 +14861,7 @@ app.get('/privacy',(_,res)=>{
 app.get('/terms',(_,res)=>{
   res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Terms of Service — Brodoit</title><meta name="description" content="The simple terms for using Brodoit. Plain English, no surprises."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Terms</div><h1>The simple rules.</h1><p class="lede">We've kept these terms short and human. Use Brodoit kindly, and we'll keep building it for you.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">The service</h2><p>Brodoit is a personal productivity app: it lets you manage tasks with optional WhatsApp and email reminders, listen to free public-domain audiobooks, sharpen your mind with brain games, and see a daily wisdom quote.</p><h2 data-n="02">Your account</h2><p>You register with your email address or phone number. Keep your one-time verification codes private — anyone with the code can sign in. You are responsible for activity on your account.</p><h2 data-n="03">Acceptable use</h2><p>Please don't abuse the service: no spam, no impersonation, no automated scraping, no attempts to disrupt other users or the service itself. We may suspend or remove accounts that do.</p><h2 data-n="04">Content</h2><p>You own your tasks, notes, and other content you create. We store them so we can show them back to you. Audiobook content belongs to the respective public-domain authors and is served from the Internet Archive's LibriVox collection.</p><h2 data-n="05">No warranty</h2><p>The service is provided "as is". We try hard to keep it running, but can't promise zero downtime or guarantee that every reminder is delivered (WhatsApp and email providers can fail). If something matters, please don't rely solely on Brodoit.</p><h2 data-n="06">Limitation of liability</h2><p>Brodoit is a personal tool. We're not liable for missed deadlines, lost data, or any consequential damages from using — or not using — the service.</p><h2 data-n="07">Changes</h2><p>We may update these terms. If we do, we'll update the date at the top. Continued use after a change means you accept the new terms.</p><h2 data-n="08">Contact</h2><p>Need anything? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });
-app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v74";
+app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v75";
 self.addEventListener("install",function(e){self.skipWaiting()});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener("fetch",function(e){});
