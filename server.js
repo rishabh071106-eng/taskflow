@@ -5692,6 +5692,40 @@ body[data-theme=aurora] .was-step-d{color:#888888}
 body[data-theme=aurora] .was-cc,body[data-theme=aurora] .was-ph,body[data-theme=aurora] .was-code{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.08);color:#E8E8EC}
 body[data-theme=aurora] .was-mini{background:rgba(37,211,102,.12);border-color:rgba(37,211,102,.28);color:#A8E6BC}
 body[data-theme=aurora] .was-skip{color:#888888}
+body[data-theme=aurora] .login-btn{background:var(--accent);color:#fff}
+body[data-theme=aurora] .login-btn:hover{background:#C96A50}
+body[data-theme=aurora] .login-btn.sec{background:transparent;color:var(--ink-2)}
+body[data-theme=aurora] .was-body{background:var(--surface)}
+body[data-theme=aurora] .was-card-t{color:var(--ink)}
+body[data-theme=aurora] .was-card-d{color:var(--ink-3)}
+body[data-theme=aurora] .was-helper{background:rgba(37,211,102,.1);border-color:rgba(37,211,102,.25)}
+body[data-theme=aurora] .was-helper-t{color:#A8E6BC}
+body[data-theme=aurora] .was-helper-d{color:#8CC89E}
+body[data-theme=aurora] .was-helper-acts .was-skip{background:var(--bg-elev);border-color:var(--line);color:var(--ink-3)}
+body[data-theme=aurora] .was-resend{color:#25D366;border-color:var(--line)}
+body[data-theme=aurora] .was-resend:hover{background:var(--bg-sunken)}
+body[data-theme=aurora] .was-err{background:rgba(185,28,28,.12);border-color:rgba(185,28,28,.3);color:#F87171}
+body[data-theme=aurora] .cc-select{background:var(--bg-elev);border-color:var(--line);color:var(--ink)}
+body[data-theme=aurora] .login-err{background:rgba(185,28,28,.12);border-color:rgba(185,28,28,.3)}
+body[data-theme=aurora] .login-err-msg{color:#F87171}
+body[data-theme=aurora] .login-err-code{color:#FCA5A5}
+body[data-theme=aurora] .login-err-acts button{background:var(--bg-elev);color:var(--ink);border-color:var(--line)}
+body[data-theme=aurora] .login-err-acts button:hover{background:var(--surface-2);border-color:var(--line-2)}
+body[data-theme=aurora] .login-foot{border-color:var(--line)}
+body[data-theme=aurora] .login-foot a{color:var(--ink-3)}
+body[data-theme=aurora] .login-foot a:hover{color:var(--ink)}
+body[data-theme=aurora] .user-bar{background:var(--surface);border-color:var(--line);color:var(--ink);box-shadow:none}
+body[data-theme=aurora] .user-bar:hover{border-color:var(--line-2);box-shadow:none}
+body[data-theme=aurora] .user-bar button:hover{background:rgba(232,69,60,.12)}
+body[data-theme=aurora] .step-dot{background:var(--ink-5)}
+body[data-theme=aurora] .step-dot.on{background:var(--ink)}
+body[data-theme=aurora] .voice-lg{border-color:var(--line);background:var(--bg-elev);color:var(--ink-3)}
+body[data-theme=aurora] .voice-lg.rec{border-color:#E8453C;background:rgba(232,69,60,.12);color:#E8453C}
+body[data-theme=aurora] .book-card{background:var(--surface);border-color:var(--line);box-shadow:none}
+body[data-theme=aurora] .book-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.3)}
+body[data-theme=aurora] .book-author{color:var(--ink-3)}
+body[data-theme=aurora] .book-meta{color:var(--ink-4)}
+body[data-theme=aurora] .book-play{background:var(--ink);color:var(--bg)}
 @keyframes wn-pulse{0%,100%{opacity:.55;transform:scale(1)}50%{opacity:1;transform:scale(1.4)}}
 .whatsnew-pill:hover{background:rgba(31,77,63,.12)!important;border-color:rgba(31,77,63,.35)!important;transform:translateY(-1px);transition:all .25s}
 .login-foot{margin-top:32px;padding-top:18px;border-top:1px solid rgba(17,24,39,.06);display:flex;align-items:center;justify-content:center;gap:10px;font-size:12px;color:#A0AEC0;flex-wrap:wrap}
@@ -14501,7 +14535,7 @@ function _recoverLoginIfNeeded(){
 }
 window.addEventListener('pageshow',function(e){_recoverLoginIfNeeded()});
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')_recoverLoginIfNeeded()});
-if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js?v=66').then(function(reg){reg.update()}).catch(()=>{});}
+if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js?v=67').then(function(reg){reg.update()}).catch(()=>{});}
 // ─── Mobile keyboard: keep Bro input visible ───
 (function(){
   if(!window.visualViewport)return;
@@ -14768,7 +14802,7 @@ app.get('/privacy',(_,res)=>{
 app.get('/terms',(_,res)=>{
   res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Terms of Service — Brodoit</title><meta name="description" content="The simple terms for using Brodoit. Plain English, no surprises."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Terms</div><h1>The simple rules.</h1><p class="lede">We've kept these terms short and human. Use Brodoit kindly, and we'll keep building it for you.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">The service</h2><p>Brodoit is a personal productivity app: it lets you manage tasks with optional WhatsApp and email reminders, listen to free public-domain audiobooks, sharpen your mind with brain games, and see a daily wisdom quote.</p><h2 data-n="02">Your account</h2><p>You register with your email address or phone number. Keep your one-time verification codes private — anyone with the code can sign in. You are responsible for activity on your account.</p><h2 data-n="03">Acceptable use</h2><p>Please don't abuse the service: no spam, no impersonation, no automated scraping, no attempts to disrupt other users or the service itself. We may suspend or remove accounts that do.</p><h2 data-n="04">Content</h2><p>You own your tasks, notes, and other content you create. We store them so we can show them back to you. Audiobook content belongs to the respective public-domain authors and is served from the Internet Archive's LibriVox collection.</p><h2 data-n="05">No warranty</h2><p>The service is provided "as is". We try hard to keep it running, but can't promise zero downtime or guarantee that every reminder is delivered (WhatsApp and email providers can fail). If something matters, please don't rely solely on Brodoit.</p><h2 data-n="06">Limitation of liability</h2><p>Brodoit is a personal tool. We're not liable for missed deadlines, lost data, or any consequential damages from using — or not using — the service.</p><h2 data-n="07">Changes</h2><p>We may update these terms. If we do, we'll update the date at the top. Continued use after a change means you accept the new terms.</p><h2 data-n="08">Contact</h2><p>Need anything? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });
-app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v66";
+app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v67";
 self.addEventListener("install",function(e){self.skipWaiting()});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener("fetch",function(e){});
