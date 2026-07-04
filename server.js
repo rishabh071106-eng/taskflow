@@ -4567,6 +4567,14 @@ body[data-theme=aurora]{background:#2B2D33;color:#EAEAEE;
 --accent-2:#D9734A;--accent-strong:#E27D60;--warm:#E27D60;--paper:#3A3C44;
 --gold:#D4A545;--sage:#7A9B6D;
 --shadow-1:0 8px 22px -16px rgba(0,0,0,.3);--shadow-2:0 12px 26px -12px rgba(0,0,0,.3);--shadow-3:0 14px 30px -12px rgba(0,0,0,.3)}
+
+/* ============================================== */
+/* EYE SHIELD MODE — warm overlay for eye comfort */
+/* ============================================== */
+body.eye-shield::after{content:'';position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;pointer-events:none;background:rgba(40,28,8,.18);mix-blend-mode:multiply}
+body.eye-shield{--ink:#DDD8D0;--text:#DDD8D0;--ink-2:#C8C2B8;--ink-3:#A09888;--text-mute:#A09888}
+body.eye-shield[data-theme=aurora]{background:#26241E;--bg:#26241E;--bg-2:#2E2C24;--surface:#38352C;--surface-2:#423E34;--line:rgba(200,180,140,.14);--accent:#D4A060}
+body.eye-shield .tabs.page-t{filter:sepia(.12) brightness(.92)}
 body[data-theme=aurora]::before{content:'';position:fixed;inset:0;background:
   radial-gradient(800px 500px at 20% 80%,rgba(226,125,96,.04),transparent 70%);
   pointer-events:none;z-index:0}
@@ -7431,13 +7439,13 @@ body[data-theme=aurora] .bro-header-sub{color:rgba(255,255,255,.35)}
 .bro-header-btn{background:none;border:none;cursor:pointer;padding:8px;border-radius:10px;color:#6B7280;transition:all .2s}
 .bro-header-btn:hover{background:rgba(17,24,39,.06);color:#111827}
 body[data-theme=aurora] .bro-header-btn:hover{background:rgba(255,255,255,.08);color:#E8E8EC}
-.bro-chat{flex:1;display:flex;flex-direction:column;gap:14px;padding:16px 16px 16px;overflow-y:auto;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;min-height:0}
-.bro-msg{display:flex;gap:8px;align-items:flex-start;animation:broFadeIn .25s ease-out}
+.bro-chat{flex:1;display:flex;flex-direction:column;gap:6px;padding:10px 14px 10px;overflow-y:auto;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;min-height:0}
+.bro-msg{display:flex;gap:6px;align-items:flex-start;animation:broFadeIn .25s ease-out}
 .bro-msg-user{flex-direction:row-reverse}
 .bro-avatar{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;margin-top:2px}
 .bro-msg-content{display:flex;flex-direction:column;gap:2px;max-width:85%}
 .bro-msg-user .bro-msg-content{align-items:flex-end}
-.bro-bubble{padding:10px 14px;font-size:14px;line-height:1.6;word-break:break-word}
+.bro-bubble{padding:8px 12px;font-size:14px;line-height:1.5;word-break:break-word}
 .bro-bubble .bro-p{margin:0 0 8px}
 .bro-bubble .bro-p:last-child{margin-bottom:0}
 .bro-bubble strong{font-weight:600;color:#111827}
@@ -7461,9 +7469,9 @@ body[data-theme=aurora] .bro-bubble .bro-inline-code{background:rgba(255,255,255
 .bro-bubble .bro-table tr:first-child td{font-weight:600;background:rgba(17,24,39,.04)}
 body[data-theme=aurora] .bro-bubble .bro-table td{border-color:rgba(255,255,255,.1)}
 body[data-theme=aurora] .bro-bubble .bro-table tr:first-child td{background:rgba(255,255,255,.05)}
-.bro-msg-ai .bro-bubble{background:#fff;color:var(--ink);border-radius:18px 18px 18px 4px;padding:12px 16px;border:1px solid var(--line);box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.bro-msg-ai .bro-bubble{background:#fff;color:var(--ink);border-radius:16px 16px 16px 4px;padding:10px 14px;border:1px solid var(--line);box-shadow:none}
 body[data-theme=aurora] .bro-msg-ai .bro-bubble{background:var(--surface);color:var(--ink);border-color:var(--line)}
-.bro-msg-user .bro-bubble{border-radius:18px 18px 4px 18px;color:#fff;padding:12px 16px}
+.bro-msg-user .bro-bubble{border-radius:16px 16px 4px 16px;color:#fff;padding:10px 14px}
 .bro-bubble-bro{background:linear-gradient(135deg,#E27D60,#EDA68E)}
 .bro-bubble-bri{background:linear-gradient(135deg,#EC4899,#F472B6)}
 .bro-msg-meta{font-size:11px;color:#9CA3AF;padding:0 4px}
@@ -7499,7 +7507,7 @@ body[data-theme=aurora] .bro-input-wrap{background:var(--bg-2);border-top-color:
 body[data-theme=aurora] .bro-input-bar{background:var(--surface);border-color:var(--line);box-shadow:none}
 body[data-theme=aurora] .bro-input-bar:focus-within{background:var(--surface-2);border-color:var(--accent);box-shadow:0 0 0 3px rgba(226,125,96,.12)}
 body[data-theme=aurora] .bro-input-actions{border-top-color:rgba(255,255,255,.08)}
-.bro-input{display:block;width:100%;border:none;background:transparent;font-size:16px;outline:none;color:var(--ink);font-family:inherit;padding:10px 0;line-height:1.6;min-height:80px;max-height:200px;resize:none;overflow-y:auto;overflow-x:hidden;word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;white-space:pre-wrap;-webkit-appearance:none;appearance:none;box-sizing:border-box}
+.bro-input{display:block;width:100%;border:none;background:transparent;font-size:15px;outline:none;color:var(--ink);font-family:inherit;padding:6px 0;line-height:1.5;min-height:36px;max-height:120px;resize:none;overflow-y:auto;overflow-x:hidden;word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;white-space:pre-wrap;-webkit-appearance:none;appearance:none;box-sizing:border-box}
 .bro-input::placeholder{color:#9CA3AF}
 body[data-theme=aurora] .bro-input{color:#fff}
 body[data-theme=aurora] .bro-input::placeholder{color:rgba(255,255,255,.35)}
@@ -7584,7 +7592,7 @@ body[data-theme=aurora] .bro-scene{background:linear-gradient(135deg,rgba(40,35,
 body[data-theme=aurora] .bro-mode-btn{background:var(--surface);color:var(--ink-3);border:1px solid var(--line)}
 body[data-theme=aurora] .bro-mode-btn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
 .bro-suggestions{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:8px;padding:0 12px;animation:broWelcomeIn .6s cubic-bezier(.16,1,.3,1) .35s both}
-.bro-suggest-btn{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:12px 16px;font-size:14px;color:var(--ink);cursor:pointer;transition:all .2s;font-family:inherit;font-weight:500;text-align:left;width:100%}
+.bro-suggest-btn{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 12px;font-size:13px;color:var(--ink);cursor:pointer;transition:all .15s;font-family:inherit;font-weight:500;text-align:left;flex:1 1 45%;min-width:0}
 .bro-suggest-btn:active{background:rgba(226,125,96,.18);transform:scale(.96)}
 body[data-theme=aurora] .bro-suggest-btn{background:var(--surface);border:1px solid var(--line);color:var(--ink-2)}
 body[data-theme=aurora] .bro-suggest-btn:active{background:var(--surface-2);border-color:var(--accent)}
@@ -7615,9 +7623,9 @@ body[data-theme=aurora] .bro-img-err{background:rgba(239,68,68,.12)}
   body.bro-tab .tab-hero{display:none !important}
   body.bro-tab .bro-container{position:fixed !important;top:0 !important;left:0 !important;right:0 !important;bottom:0 !important;height:100% !important;height:100dvh !important;margin:0 !important;z-index:50 !important;border-radius:0 !important;display:flex !important;flex-direction:column !important}
   body.bro-tab .bro-header{padding:8px 14px;flex-shrink:0}
-  body.bro-tab .bro-chat{flex:1 !important;min-height:0 !important;padding:12px 14px 12px !important;gap:12px}
+  body.bro-tab .bro-chat{flex:1 !important;min-height:0 !important;padding:8px 12px 8px !important;gap:4px}
   body.bro-tab .bro-input-wrap{flex-shrink:0 !important;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px)) !important;padding-bottom:calc(78px + env(safe-area-inset-bottom,0px)) !important;border-top:1px solid var(--line) !important;background:var(--bg-2) !important}
-  body.bro-tab .bro-input{display:block !important;width:100% !important;font-size:16px !important;-webkit-text-size-adjust:none !important;caret-color:var(--accent);line-height:1.6 !important;min-height:80px !important;max-height:220px !important;padding:10px 0 !important;-webkit-appearance:none !important;word-wrap:break-word !important;word-break:break-word !important;overflow-wrap:break-word !important;white-space:pre-wrap !important;overflow-x:hidden !important;box-sizing:border-box !important}
+  body.bro-tab .bro-input{display:block !important;width:100% !important;font-size:16px !important;-webkit-text-size-adjust:none !important;caret-color:var(--accent);line-height:1.5 !important;min-height:36px !important;max-height:120px !important;padding:6px 0 !important;-webkit-appearance:none !important;word-wrap:break-word !important;word-break:break-word !important;overflow-wrap:break-word !important;white-space:pre-wrap !important;overflow-x:hidden !important;box-sizing:border-box !important}
   body.bro-tab .bro-input-bar{display:block !important;padding:14px 16px !important;border-radius:20px !important;background:var(--surface) !important;box-shadow:none !important;border:1.5px solid var(--line) !important;overflow:hidden !important}
   body.bro-tab.kb-open .bro-container{height:var(--vv-h,100%) !important;top:var(--vv-top,0px) !important;bottom:auto !important}
   body.bro-tab.kb-open .bro-header{display:none !important}
@@ -7635,7 +7643,7 @@ body[data-theme=aurora] .bro-img-err{background:rgba(239,68,68,.12)}
   body.bro-tab .bro-welcome-text{font-size:14px;max-width:280px;line-height:1.5}
   body.bro-tab .bro-scene{height:120px;max-width:300px;margin:6px auto 4px;border-radius:18px}
   body.bro-tab .bro-suggestions{margin-top:10px;gap:7px;padding:0 10px}
-  body.bro-tab .bro-suggest-btn{padding:8px 12px;font-size:12px}
+  body.bro-tab .bro-suggest-btn{padding:7px 10px;font-size:12px}
   body.bro-tab .bro-modes{margin-top:2px;margin-bottom:4px;gap:10px}
   body.bro-tab .bro-mode-btn{padding:8px 18px;font-size:14px}
   body.bro-tab .bro-msg{gap:6px}
@@ -8013,48 +8021,12 @@ body[data-theme=aurora] .bro-header{background:#32343A;border-color:rgba(255,255
 .bro-header-name{font-size:16px;font-weight:700;letter-spacing:-.01em}
 .bro-header-sub{font-size:12px;color:var(--ink-4);font-weight:500}
 .bro-online{width:8px;height:8px;border-radius:50%;background:#22C55E;display:inline-block;margin-left:6px;box-shadow:0 0 0 2px #fff,0 0 8px rgba(34,197,94,.4)}
-.bro-chat{flex:1;overflow-y:auto;padding:20px;scroll-behavior:smooth;background:linear-gradient(180deg,#F1F2F6 0%,#E8EAF0 100%)}
-body[data-theme=aurora] .bro-chat{background:#2B2D33}
-.bro-msg{display:flex;gap:10px;margin-bottom:16px;max-width:85%}
-.bro-msg-user{margin-left:auto;flex-direction:row-reverse}
-.bro-avatar{width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;background:linear-gradient(135deg,#E27D60,#EDA68E);color:#fff;box-shadow:0 2px 8px rgba(226,125,96,.2)}
-.bro-bubble{padding:12px 16px;border-radius:18px;font-size:14px;line-height:1.55;font-weight:400;letter-spacing:-.005em;word-break:break-word;color:var(--ink)}
-.bro-msg-ai .bro-bubble{background:#FFFFFF;color:#1a1a1a;border:1px solid rgba(0,0,0,.08);border-bottom-left-radius:4px;box-shadow:0 4px 16px rgba(0,0,0,.06),0 1px 3px rgba(0,0,0,.04)}
-body[data-theme=aurora] .bro-msg-ai .bro-bubble{background:#3A3C44;color:#E8E8EC;border-color:rgba(255,255,255,.06)}
-.bro-bubble-bro,.bro-msg-user .bro-bubble{background:linear-gradient(135deg,#E27D60,#CC6E52);color:#fff;border:none;border-bottom-right-radius:4px;box-shadow:0 4px 14px rgba(226,125,96,.25)}
-.bro-input-wrap{padding:12px 16px;background:#FFFFFF;border-top:1px solid rgba(0,0,0,.06)}
-body[data-theme=aurora] .bro-input-wrap{background:#32343A;border-color:rgba(255,255,255,.06)}
-.bro-input-bar{display:block;padding:14px 16px;background:#fff;border:1.5px solid rgba(0,0,0,.08);border-radius:20px;box-shadow:0 2px 12px rgba(0,0,0,.04),0 1px 3px rgba(0,0,0,.02);transition:all .2s;overflow:hidden;width:100%;box-sizing:border-box}
-body[data-theme=aurora] .bro-input-bar{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08);box-shadow:none}
-.bro-input-bar:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(226,125,96,.08),0 4px 16px rgba(226,125,96,.04)}
-.bro-input{border:none !important;outline:none !important;background:transparent !important;font-size:14px !important;padding:10px 0 !important;color:var(--ink) !important;resize:none !important;font-family:var(--sans) !important;line-height:1.5 !important}
-.bro-send-btn{width:38px;height:38px;border-radius:14px;border:none;display:flex;align-items:center;justify-content:center;transition:all .2s cubic-bezier(.2,.8,.2,1);cursor:pointer;flex-shrink:0}
-.bro-send-bro{background:linear-gradient(135deg,#E27D60,#CC6E52);color:#fff;box-shadow:0 4px 14px rgba(226,125,96,.3)}
-.bro-send-bro:hover{transform:scale(1.08);box-shadow:0 6px 20px rgba(226,125,96,.4)}
-.bro-attach-btn{width:40px;height:40px;border-radius:12px;border:none;background:transparent;color:var(--ink-4);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
-.bro-attach-btn:hover{background:rgba(226,125,96,.08);color:var(--accent)}
-
-/* Mode buttons */
-.bro-mode-btn{padding:12px 20px;border-radius:12px;border:1.5px solid var(--line);background:#fff;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer;transition:all .15s}
-.bro-mode-btn:hover{border-color:var(--accent);color:var(--accent)}
-.bro-mode-btn.on{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 2px 8px rgba(226,125,96,.25)}
-.bro-suggest-btn{padding:10px 18px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:13px;font-weight:500;color:var(--ink-2);cursor:pointer;transition:all .15s}
-.bro-suggest-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(226,125,96,.04)}
-
 /* Typing indicator */
-.bro-typing{display:flex;gap:4px;align-items:center;padding:12px 16px;background:#FFFFFF;border-radius:16px;border:1px solid rgba(0,0,0,.08);border-bottom-left-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
-.bro-typing-dot{width:7px;height:7px;border-radius:50%;background:var(--ink-4);animation:broTyping 1.4s ease-in-out infinite}
+.bro-typing{display:flex;gap:4px;align-items:center;padding:8px 14px;background:var(--surface);border-radius:14px;border:1px solid var(--line);border-bottom-left-radius:4px}
+.bro-typing-dot{width:6px;height:6px;border-radius:50%;background:var(--ink-4);animation:broTyping 1.4s ease-in-out infinite}
 .bro-typing-dot:nth-child(2){animation-delay:.2s}
 .bro-typing-dot:nth-child(3){animation-delay:.4s}
 @keyframes broTyping{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-4px);opacity:1}}
-
-/* Welcome screen polish */
-.bro-welcome{text-align:center;padding:32px 20px}
-.bro-welcome-avatar{width:56px;height:56px;border-radius:16px;display:inline-flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:16px}
-.bro-welcome-title{font-size:22px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px}
-.bro-welcome-text{font-size:14px;color:var(--ink-3);line-height:1.5;max-width:360px;margin:0 auto 20px}
-.bro-modes{display:flex;gap:10px;justify-content:center;margin-bottom:24px;flex-wrap:wrap}
-.bro-suggestions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:20px}
 
 /* Ticker */
 .bro-ticker{padding:0 16px;margin-bottom:8px}
@@ -8297,6 +8269,7 @@ steps:[],stepGoal:parseInt(localStorage.getItem('step_goal')||'10000',10),stepLi
 focus:{active:false,paused:false,remaining:25*60,total:25*60,sessions:parseInt(localStorage.getItem('tf_focus_sessions')||'0',10),startedAt:0,intervalId:null},
 theme:localStorage.getItem('theme')||'aurora',
 themeColor:localStorage.getItem('themeColor')||'coral',
+eyeShield:!!localStorage.getItem('eyeShield'),
 news:{},newsCat:'world',newsLoading:false,
 bookStreak:{streak:0,total:0,today:false,days:[]},_bkSec:0,
 
@@ -8727,7 +8700,8 @@ async function stopPed(){if(_ped){window.removeEventListener('devicemotion',_ped
 /* When the tab is backgrounded, flush whatever we counted so we don't lose it, and re-acquire wake lock on return. */
 document.addEventListener('visibilitychange',async()=>{if(document.visibilityState==='hidden'){if(S.stepLive&&S.stepLive.active)await flushPedCount()}else if(document.visibilityState==='visible'){if(S.stepLive&&S.stepLive.active&&!_wakeLock)await acquireWake()}});
 function toggleTheme(){S.theme=S.theme==='aurora'?'classic':'aurora';localStorage.setItem('theme',S.theme);document.body.setAttribute('data-theme',S.theme);toast(S.theme==='aurora'?'Aurora theme':'Classic theme');render()}
-function applyTheme(){document.body.setAttribute('data-theme',S.theme||'classic');applyColorThemeCSS(S.themeColor||'coral')}
+function toggleEyeShield(){S.eyeShield=!S.eyeShield;localStorage.setItem('eyeShield',S.eyeShield?'1':'');document.body.classList.toggle('eye-shield',S.eyeShield);toast(S.eyeShield?'Eye Shield on':'Eye Shield off');render()}
+function applyTheme(){document.body.setAttribute('data-theme',S.theme||'classic');applyColorThemeCSS(S.themeColor||'coral');if(S.eyeShield)document.body.classList.add('eye-shield')}
 const _COLOR_THEMES={
   blue:{c1:'#4F6DF5',c2:'#7B93F8',c3:'#B4C2FB',c4:'#1E2A5E',c5:'#3B5CE0',bg:'#F4F6FF',bg2:'#F9FAFF',border:'#E0E5F6',rgba1:'79,109,245',rgba2:'123,147,248'},
   emerald:{c1:'#10B981',c2:'#34D399',c3:'#6EE7B7',c4:'#064E3B',c5:'#059669',bg:'#ECFDF5',bg2:'#F0FDF4',border:'#D1FAE5',rgba1:'16,185,129',rgba2:'52,211,153'},
@@ -12329,6 +12303,7 @@ const LOGO_MARK='<div class="logo" aria-label="Brodoit"><span class="b1">Bro</sp
 let _hdrStreak=0;for(let _si=0;_si<60;_si++){const _sd=new Date(Date.now()-_si*864e5).toISOString().slice(0,10);const _sok=ts.some(x=>x.status==='done'&&(x.updated_at||'').slice(0,10)===_sd);if(_sok)_hdrStreak++;else if(_si>0)break}
 let h='<div class="hdr"><div class="hdr-l">'+LOGO_MARK+'</div><div class="hdr-actions">'
   +(_hdrStreak>0?'<div class="rd-pill rd-pill-accent">'+_hdrStreak+'-day streak</div>':'')
+  +'<button class="hdr-help" onclick="toggleEyeShield()" title="Eye Shield" style="font-size:16px;display:flex;align-items:center;justify-content:center;opacity:'+(S.eyeShield?'1':'.5')+'"><svg width="16" height="16" viewBox="0 0 24 24" fill="'+(S.eyeShield?'#D4A060':'none')+'" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>'
   +'<button class="hdr-help" onclick="toggleTheme()" title="Dark mode" style="font-size:16px;display:flex;align-items:center;justify-content:center">'+(S.theme==='aurora'?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="18.4" y1="18.4" x2="19.8" y2="19.8"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.2" y1="19.8" x2="5.6" y2="18.4"/><line x1="18.4" y1="5.6" x2="19.8" y2="4.2"/></svg>':'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>')+'</button>'
   +'</div></div>';
 
@@ -13344,26 +13319,20 @@ else if(S.tab==='bro'){
     // Chat messages
     h+='<div class="bro-chat" id="broChat">';
     if(S.bro.messages.length<=1){
-      h+='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;text-align:center">';
-      h+='<div style="font:600 26px var(--serif);color:var(--ink);margin-bottom:6px">'+(_bm==='friend'?'\\u{1F49C} Hey bestie!':'\\u26A1 How can I help?')+'</div>';
-      h+='<div style="font:400 15px var(--sans);color:var(--text-mute);max-width:300px;line-height:1.5;margin-bottom:24px">'+(_bm==='friend'?'I\\'m your ride-or-die. Talk to me about anything.':'I can create tasks, schedule events, plan your day, brainstorm ideas, and more.')+'</div>';
-      if(_bm==='ask'){
-        h+='<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:20px">';
-        var _caps=[{ic:'\\u2705',t:'Create tasks'},{ic:'\\u{1F4C5}',t:'Schedule events'},{ic:'\\u{1F4CB}',t:'Plan your day'},{ic:'\\u{1F4A1}',t:'Brainstorm'},{ic:'\\u270D\\uFE0F',t:'Write content'}];
-        _caps.forEach(function(c){h+='<div style="display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:20px;background:var(--surface);border:1px solid var(--line);font:500 12px var(--sans);color:var(--text-mute)">'+c.ic+' '+c.t+'</div>'});
-        h+='</div>';
-      }
-      h+='<div style="display:flex;flex-direction:column;gap:8px;width:100%;max-width:320px">';
+      h+='<div style="display:flex;flex-direction:column;align-items:center;padding:20px 16px 8px;text-align:center">';
+      h+='<div style="font:600 20px var(--sans);color:var(--ink);margin-bottom:4px">'+(_bm==='friend'?'Hey, what\\'s up?':'How can I help?')+'</div>';
+      h+='<div style="font:400 13px var(--sans);color:var(--text-mute);max-width:280px;line-height:1.4;margin-bottom:14px">'+(_bm==='friend'?'Talk to me about anything.':'Tasks, calendar, planning, brainstorming.')+'</div>';
+      h+='<div style="display:flex;flex-wrap:wrap;gap:6px;width:100%;max-width:320px">';
       if(_bm==='friend'){
         h+='<button class="bro-suggest-btn" onclick="_broFill(\\'How\\'s my vibe today?\\')">\\u2728 Check my vibe</button>';
         h+='<button class="bro-suggest-btn" onclick="_broFill(\\'I\\'m feeling low because \\')">\\u{1F614} Feeling low</button>';
         h+='<button class="bro-suggest-btn" onclick="_broFill(\\'Tell me something fun\\')">\\u{1F389} Something fun</button>';
         h+='<button class="bro-suggest-btn" onclick="_broFill(\\'Roast me to motivate me\\')">\\u{1F525} Roast me</button>';
       }else{
-        h+='<button class="bro-suggest-btn" onclick="_broFill(\\'Add a task: \\')">\\u2705 Add a task</button>';
-        h+='<button class="bro-suggest-btn" onclick="_broFill(\\'What\\'s on my schedule today?\\')">\\u{1F4C5} Today\\'s schedule</button>';
+        h+='<button class="bro-suggest-btn" onclick="_broFill(\\'Add a task: \\')">\\u2705 Add task</button>';
+        h+='<button class="bro-suggest-btn" onclick="_broFill(\\'What\\'s on my schedule today?\\')">\\u{1F4C5} Today\\'s plan</button>';
         h+='<button class="bro-suggest-btn" onclick="_broFill(\\'Help me plan my day\\')">\\u{1F9E0} Plan my day</button>';
-        h+='<button class="bro-suggest-btn" onclick="_broFill(\\'Give me ideas for \\')">\\u{1F4A1} Brainstorm ideas</button>';
+        h+='<button class="bro-suggest-btn" onclick="_broFill(\\'Give me ideas for \\')">\\u{1F4A1} Ideas</button>';
       }
       h+='</div></div>';
     }
@@ -13373,7 +13342,7 @@ else if(S.tab==='bro'){
       const isAgent=m.role==='bro';
       h+='<div class="bro-msg '+(isAgent?'bro-msg-ai':'bro-msg-user')+'">';
       h+='<div class="bro-msg-content">';
-      h+='<div class="bro-bubble '+(isAgent?'':'bro-bubble-bro')+'" style="font-size:15.5px;line-height:1.55">'+broMd(m.text)+'</div>';
+      h+='<div class="bro-bubble '+(isAgent?'':'bro-bubble-bro')+'">'+broMd(m.text)+'</div>';
       h+='</div></div>';
     });
     if(S.bro.sending)h+='<div class="bro-typing-wrap"><div class="bro-typing"><span class="bro-typing-dot"></span><span class="bro-typing-dot"></span><span class="bro-typing-dot"></span></div></div>';
@@ -13382,7 +13351,7 @@ else if(S.tab==='bro'){
     h+='<div class="bro-input-wrap" style="padding:10px 14px;border-top:1px solid var(--line);background:var(--bg)">';
     if(S.bro._file){h+='<div class="bro-file-badge" onclick="S.bro._file=null;S.bro._fileText=null;render()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> '+esc(S.bro._file)+' <span class="bro-file-x">\\u2715</span></div>'}
     h+='<div style="display:flex;align-items:flex-end;gap:8px;background:var(--surface);border:1.5px solid var(--line);border-radius:22px;padding:6px 6px 6px 16px">';
-    h+='<textarea class="bro-input" id="broInput" rows="1" wrap="soft" placeholder="'+(_bm==='friend'?'Talk to me...':'Message Bro AI...')+'" autocomplete="off" autocorrect="off" spellcheck="false" style="display:block;width:100%;box-sizing:border-box;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;overflow-x:hidden;resize:none;border:none;background:transparent;font:400 15px var(--sans);color:var(--ink);padding:8px 0;max-height:120px;outline:none" oninput="S.bro.input=this.value;this.style.height=\\'auto\\';this.style.height=Math.min(this.scrollHeight,120)+\\'px\\'" onfocus="setTimeout(function(){var c=document.getElementById(\\'broChat\\');if(c)c.scrollTop=c.scrollHeight},300)" onkeydown="if(event.key===\\'Enter\\'&&!event.shiftKey){event.preventDefault();broSend()}">'+esc(S.bro.input)+'</textarea>';
+    h+='<textarea class="bro-input" id="broInput" rows="1" wrap="soft" placeholder="'+(_bm==='friend'?'Talk to me...':'Message Bro AI...')+'" autocomplete="off" autocorrect="off" spellcheck="false" style="display:block;width:100%;box-sizing:border-box;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;overflow-x:hidden;resize:none;border:none;background:transparent;font:400 15px var(--sans);color:var(--ink);padding:6px 0;max-height:120px;outline:none" oninput="S.bro.input=this.value;this.style.height=\\'auto\\';this.style.height=Math.min(this.scrollHeight,120)+\\'px\\'" onfocus="setTimeout(function(){var c=document.getElementById(\\'broChat\\');if(c)c.scrollTop=c.scrollHeight},300)" onkeydown="if(event.key===\\'Enter\\'&&!event.shiftKey){event.preventDefault();broSend()}">'+esc(S.bro.input)+'</textarea>';
     h+='<button onclick="document.getElementById(\\'broFileInput\\').click()" title="Attach" style="width:36px;height:36px;border-radius:50%;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-mute);flex:none"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></button>';
     h+='<input type="file" id="broFileInput" style="display:none" accept=".txt,.md,.csv,.json,.js,.py,.html,.css,.xml,.log,.pdf,.doc,.docx" onchange="broAttachFile(this)">';
     h+='<button onclick="broSend()" '+(S.bro.sending?'disabled':'')+' style="width:36px;height:36px;border-radius:50%;border:none;background:var(--accent);cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;flex:none;opacity:'+(S.bro.sending?'.5':'1')+'"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>';
@@ -14584,7 +14553,7 @@ function _recoverLoginIfNeeded(){
 }
 window.addEventListener('pageshow',function(e){_recoverLoginIfNeeded()});
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')_recoverLoginIfNeeded()});
-if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js?v=71').then(function(reg){reg.update()}).catch(()=>{});}
+if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js?v=72').then(function(reg){reg.update()}).catch(()=>{});}
 // ─── Mobile keyboard: keep Bro input visible ───
 (function(){
   if(!window.visualViewport)return;
@@ -14851,7 +14820,7 @@ app.get('/privacy',(_,res)=>{
 app.get('/terms',(_,res)=>{
   res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Terms of Service — Brodoit</title><meta name="description" content="The simple terms for using Brodoit. Plain English, no surprises."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Terms</div><h1>The simple rules.</h1><p class="lede">We've kept these terms short and human. Use Brodoit kindly, and we'll keep building it for you.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">The service</h2><p>Brodoit is a personal productivity app: it lets you manage tasks with optional WhatsApp and email reminders, listen to free public-domain audiobooks, sharpen your mind with brain games, and see a daily wisdom quote.</p><h2 data-n="02">Your account</h2><p>You register with your email address or phone number. Keep your one-time verification codes private — anyone with the code can sign in. You are responsible for activity on your account.</p><h2 data-n="03">Acceptable use</h2><p>Please don't abuse the service: no spam, no impersonation, no automated scraping, no attempts to disrupt other users or the service itself. We may suspend or remove accounts that do.</p><h2 data-n="04">Content</h2><p>You own your tasks, notes, and other content you create. We store them so we can show them back to you. Audiobook content belongs to the respective public-domain authors and is served from the Internet Archive's LibriVox collection.</p><h2 data-n="05">No warranty</h2><p>The service is provided "as is". We try hard to keep it running, but can't promise zero downtime or guarantee that every reminder is delivered (WhatsApp and email providers can fail). If something matters, please don't rely solely on Brodoit.</p><h2 data-n="06">Limitation of liability</h2><p>Brodoit is a personal tool. We're not liable for missed deadlines, lost data, or any consequential damages from using — or not using — the service.</p><h2 data-n="07">Changes</h2><p>We may update these terms. If we do, we'll update the date at the top. Continued use after a change means you accept the new terms.</p><h2 data-n="08">Contact</h2><p>Need anything? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });
-app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v71";
+app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v72";
 self.addEventListener("install",function(e){self.skipWaiting()});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener("fetch",function(e){});
