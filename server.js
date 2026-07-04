@@ -2602,7 +2602,7 @@ body[data-theme=aurora] .mv-card{background:rgba(255,255,255,.05);border-color:r
 body[data-theme=aurora] .mv-thumb{background:rgba(0,0,0,.3)}
 .rd-card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:17px;box-shadow:var(--shadow-1);animation:fadeSlideUp .4s cubic-bezier(.2,.8,.2,1) both}
 .focus-card{background:linear-gradient(135deg,var(--accent-soft) 0%,color-mix(in srgb,var(--accent) 18%,var(--paper)) 100%);border:1px solid color-mix(in srgb,var(--accent) 20%,transparent);border-radius:20px;padding:20px;margin-top:13px;animation:fadeSlideUp .4s cubic-bezier(.2,.8,.2,1) both;position:relative;overflow:hidden}
-.focus-card::before{content:'';position:absolute;inset:-50%;width:200%;height:200%;background:conic-gradient(from 0deg,transparent,rgba(226,125,96,.06),transparent,rgba(226,125,96,.03),transparent);opacity:0;transition:opacity .6s;animation:none}
+.focus-card::before{content:'';position:absolute;inset:-50%;width:200%;height:200%;background:conic-gradient(from 0deg,transparent,rgba(226,125,96,.06),transparent,rgba(226,125,96,.03),transparent);opacity:0;transition:opacity .6s;animation:none;pointer-events:none}
 .focus-card.is-active::before{opacity:1;animation:focusCardSpin 8s linear infinite}
 @keyframes focusCardSpin{to{transform:rotate(360deg)}}
 .focus-ring-wrap{position:relative;width:140px;height:140px;margin:0 auto}
@@ -2618,14 +2618,14 @@ body[data-theme=aurora] .mv-thumb{background:rgba(0,0,0,.3)}
 @keyframes focusTimePulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
 .focus-time-lbl{font:500 11px var(--sans);color:var(--text-mute);text-transform:uppercase;letter-spacing:.06em}
 .focus-btns{display:flex;gap:8px;justify-content:center;margin-top:16px}
-.focus-btn{height:44px;padding:0 22px;border-radius:14px;border:none;font:600 14px var(--sans);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .2s}
+.focus-btn{height:44px;padding:0 22px;border-radius:14px;border:none;font:600 14px var(--sans);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .2s;position:relative;z-index:2}
 .focus-btn:active{transform:scale(.92)}
 .focus-btn-start{background:var(--accent);color:#fff;box-shadow:0 4px 16px -2px rgba(226,125,96,.4)}
 .focus-btn-start:hover{box-shadow:0 6px 24px -2px rgba(226,125,96,.5);transform:translateY(-1px)}
 .focus-btn-pause{background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent)}
 .focus-btn-reset{background:rgba(255,255,255,.06);color:var(--text-mute);border:1px solid rgba(255,255,255,.08)}
 .focus-presets{display:flex;gap:6px;justify-content:center;margin-top:12px}
-.focus-preset{padding:7px 16px;border-radius:12px;border:1px solid var(--line);background:var(--paper);font:500 12px var(--sans);color:var(--ink);cursor:pointer;transition:all .25s cubic-bezier(.34,1.56,.64,1)}
+.focus-preset{padding:7px 16px;border-radius:12px;border:1px solid var(--line);background:var(--paper);font:500 12px var(--sans);color:var(--ink);cursor:pointer;transition:all .25s cubic-bezier(.34,1.56,.64,1);position:relative;z-index:2}
 .focus-preset:hover{border-color:rgba(226,125,96,.3);transform:translateY(-1px)}
 .focus-preset.on{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 4px 12px -2px rgba(226,125,96,.4)}
 .focus-stats{display:flex;gap:16px;justify-content:center;margin-top:14px}
@@ -14535,7 +14535,7 @@ function _recoverLoginIfNeeded(){
 }
 window.addEventListener('pageshow',function(e){_recoverLoginIfNeeded()});
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')_recoverLoginIfNeeded()});
-if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js?v=67').then(function(reg){reg.update()}).catch(()=>{});}
+if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js?v=68').then(function(reg){reg.update()}).catch(()=>{});}
 // ─── Mobile keyboard: keep Bro input visible ───
 (function(){
   if(!window.visualViewport)return;
@@ -14802,7 +14802,7 @@ app.get('/privacy',(_,res)=>{
 app.get('/terms',(_,res)=>{
   res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Terms of Service — Brodoit</title><meta name="description" content="The simple terms for using Brodoit. Plain English, no surprises."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Terms</div><h1>The simple rules.</h1><p class="lede">We've kept these terms short and human. Use Brodoit kindly, and we'll keep building it for you.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">The service</h2><p>Brodoit is a personal productivity app: it lets you manage tasks with optional WhatsApp and email reminders, listen to free public-domain audiobooks, sharpen your mind with brain games, and see a daily wisdom quote.</p><h2 data-n="02">Your account</h2><p>You register with your email address or phone number. Keep your one-time verification codes private — anyone with the code can sign in. You are responsible for activity on your account.</p><h2 data-n="03">Acceptable use</h2><p>Please don't abuse the service: no spam, no impersonation, no automated scraping, no attempts to disrupt other users or the service itself. We may suspend or remove accounts that do.</p><h2 data-n="04">Content</h2><p>You own your tasks, notes, and other content you create. We store them so we can show them back to you. Audiobook content belongs to the respective public-domain authors and is served from the Internet Archive's LibriVox collection.</p><h2 data-n="05">No warranty</h2><p>The service is provided "as is". We try hard to keep it running, but can't promise zero downtime or guarantee that every reminder is delivered (WhatsApp and email providers can fail). If something matters, please don't rely solely on Brodoit.</p><h2 data-n="06">Limitation of liability</h2><p>Brodoit is a personal tool. We're not liable for missed deadlines, lost data, or any consequential damages from using — or not using — the service.</p><h2 data-n="07">Changes</h2><p>We may update these terms. If we do, we'll update the date at the top. Continued use after a change means you accept the new terms.</p><h2 data-n="08">Contact</h2><p>Need anything? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });
-app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v67";
+app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v68";
 self.addEventListener("install",function(e){self.skipWaiting()});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener("fetch",function(e){});
