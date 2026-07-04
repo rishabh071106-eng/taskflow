@@ -7709,6 +7709,8 @@ body[data-theme=aurora] .hydration-info b{color:#E27D60}
 .hyd-ov-drink{padding:12px 24px;border:none;border-radius:12px;background:linear-gradient(135deg,#0EA5E9,#06B6D4);color:#fff;font-size:15px;font-weight:700;cursor:pointer;transition:transform .2s}
 .hyd-ov-drink:active{transform:scale(.95)}
 .hyd-ov-later{padding:12px 20px;border:1px solid rgba(14,165,233,.3);border-radius:12px;background:transparent;color:#7DD3FC;font-size:14px;cursor:pointer}
+@keyframes waterRise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes dropFall{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(30px)}}
 /* ─── Compact greeting chip ─── */
 .home-greeting-chip{display:flex;align-items:center;gap:12px;padding:16px 18px;margin:0 0 10px;background:linear-gradient(135deg,#EDA68E 0%,#E27D60 100%);border:none;border-radius:16px;cursor:pointer;transition:all .2s;box-shadow:0 4px 16px rgba(226,125,96,.15)}
 .home-greeting-chip:hover{box-shadow:0 6px 24px rgba(226,125,96,.25)}
@@ -11860,8 +11862,38 @@ async function subscribePush(hydration){
   }catch(e){}
 }
 function _hydrationPatch(){var dots=document.querySelectorAll('.is-hyd-dot');dots.forEach(function(d,i){if(i<S.hydration.glass)d.classList.add('filled');else d.classList.remove('filled')});var tEl=document.querySelector('.is-hydration .is-row-title');if(tEl)tEl.textContent='Water \\u00B7 '+S.hydration.glass+'/'+S.hydration.goal+' glasses'}
-function drinkWater(){_hydrationToday();if(S.hydration.glass>=S.hydration.goal){toast('You already hit your goal!');return}S.hydration.glass++;localStorage.setItem('tf_hydration_glass',String(S.hydration.glass));_mgSound('water');toast(S.hydration.glass+'/'+S.hydration.goal+' glasses today');_hydrationPatch()}
-function undrinkWater(){_hydrationToday();if(S.hydration.glass<=0)return;S.hydration.glass--;localStorage.setItem('tf_hydration_glass',String(S.hydration.glass));toast('Adjusted to '+S.hydration.glass+'/'+S.hydration.goal);_hydrationPatch()}
+function drinkWater(){_hydrationToday();if(S.hydration.glass>=S.hydration.goal){toast('You already hit your goal!');return}S.hydration.glass++;localStorage.setItem('tf_hydration_glass',String(S.hydration.glass));_mgSound('water');_hydrationPatch()}
+function undrinkWater(){_hydrationToday();if(S.hydration.glass<=0)return;S.hydration.glass--;localStorage.setItem('tf_hydration_glass',String(S.hydration.glass));toast('Adjusted to '+S.hydration.glass+'/'+S.hydration.goal);_hydrationPatch();render()}
+function drinkWaterAnimated(){
+  _hydrationToday();
+  if(S.hydration.glass>=S.hydration.goal){toast('You already hit your goal!');return}
+  S.hydration.glass++;localStorage.setItem('tf_hydration_glass',String(S.hydration.glass));_mgSound('water');_hydrationPatch();
+  var _g=S.hydration.glass,_go=S.hydration.goal,_done=_g>=_go;
+  var ov=document.createElement('div');ov.id='waterPourOverlay';
+  ov.style.cssText='position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.85);display:flex;flex-direction:column;align-items:center;justify-content:center;animation:hydOvIn .3s ease;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)';
+  var _pct=Math.round((_g/_go)*100);
+  ov.innerHTML='<div style="position:relative;width:120px;height:180px;margin-bottom:24px">'
+    +'<svg viewBox="0 0 120 180" width="120" height="180" style="position:absolute;top:0;left:0">'
+    +'<defs><linearGradient id="wfill" x1="0" y1="1" x2="0" y2="0"><stop offset="0%" stop-color="#0EA5E9"/><stop offset="100%" stop-color="#38BDF8"/></linearGradient>'
+    +'<clipPath id="gclip"><path d="M30 10 Q28 0 35 0 L85 0 Q92 0 90 10 L82 160 Q80 170 70 170 L50 170 Q40 170 38 160 Z"/></clipPath></defs>'
+    +'<rect x="0" y="'+(180-Math.round(160*_g/_go))+'" width="120" height="'+Math.round(160*_g/_go)+'" fill="url(#wfill)" clip-path="url(#gclip)" style="animation:waterRise .8s cubic-bezier(.2,.8,.2,1) both"/>'
+    +'<path d="M30 10 Q28 0 35 0 L85 0 Q92 0 90 10 L82 160 Q80 170 70 170 L50 170 Q40 170 38 160 Z" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="2"/>'
+    +'<path d="M25 5 L22 -20 Q20 -30 30 -25 L40 -15 Q42 -10 38 -8 L32 8 Z" fill="rgba(255,255,255,.15)" stroke="rgba(255,255,255,.2)" stroke-width="1"/>'
+    +'<animateTransform attributeType="xml" attributeName="transform" type="rotate" from="-20 60 90" to="0 60 90" dur="0.6s" fill="freeze"/>'
+    +'</svg>'
+    +'<div style="position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);display:flex;gap:2px">'
+    +'<span style="width:4px;height:4px;border-radius:50%;background:#38BDF8;animation:dropFall .6s ease-in .3s both"></span>'
+    +'<span style="width:3px;height:3px;border-radius:50%;background:#0EA5E9;animation:dropFall .6s ease-in .5s both"></span>'
+    +'<span style="width:5px;height:5px;border-radius:50%;background:#38BDF8;animation:dropFall .6s ease-in .4s both"></span>'
+    +'</div></div>'
+    +'<div style="font:700 48px var(--sans);color:#38BDF8;margin-bottom:4px;animation:waterRise .6s cubic-bezier(.2,.8,.2,1) .2s both">'+_g+'/'+_go+'</div>'
+    +'<div style="font:500 16px var(--sans);color:rgba(255,255,255,.7);margin-bottom:6px">'+(_done?'Goal complete!':'glasses today')+'</div>'
+    +'<div style="width:200px;height:6px;border-radius:3px;background:rgba(255,255,255,.1);margin-bottom:20px;overflow:hidden"><div style="height:100%;width:'+_pct+'%;background:linear-gradient(90deg,#38BDF8,#0EA5E9);border-radius:3px;transition:width .6s"></div></div>'
+    +(_done?'<div style="font-size:48px;animation:waterRise .5s cubic-bezier(.34,1.56,.64,1) .4s both">\\u{1F389}</div>':'')
+    +'<button onclick="document.getElementById(\\'waterPourOverlay\\').remove();render()" style="margin-top:16px;padding:12px 32px;border-radius:14px;border:none;background:linear-gradient(135deg,#0EA5E9,#06B6D4);color:#fff;font:600 15px var(--sans);cursor:pointer">'+(_done?'Amazing!':'Nice!')+'</button>';
+  document.body.appendChild(ov);
+  if(!_done)setTimeout(function(){var o=document.getElementById('waterPourOverlay');if(o)o.remove();render()},2500);
+}
 var _mvCat='all';var _mvPlaying=null;
 var _mvVideos=[
   {id:'mv1',src:'/api/mv-video/clip_01',t:'Be Yourself Strong',q:'Strength comes from being who you truly are',c:'confidence',voice:true},
@@ -12359,6 +12391,23 @@ if(isMain){
   hero+='</div>';
   if(!_foc.active&&!_foc.paused){hero+='<div style="text-align:center;margin-top:10px;font:400 12px var(--sans);color:var(--text-mute)">Do Not Disturb will be requested when you start</div>';}
   hero+='</div>';
+  // --- Hydration tracker ---
+  hero+='<div class="rd-card" style="margin-top:13px;padding:14px 17px">';
+  hero+='<div style="display:flex;align-items:center;justify-content:space-between">';
+  hero+='<div style="display:flex;align-items:center;gap:10px">';
+  hero+='<div style="font-size:22px">\\u{1F4A7}</div>';
+  hero+='<div><div style="font:600 14px var(--sans);color:var(--ink)">Water \\u00B7 '+_hyd.glass+'/'+_hyd.goal+'</div>';
+  hero+='<div style="display:flex;gap:4px;margin-top:4px">';
+  for(var _gi=0;_gi<_hyd.goal;_gi++){
+    hero+='<span class="is-hyd-dot'+(_gi<_hyd.glass?' filled':'')+'"></span>';
+  }
+  hero+='</div></div></div>';
+  hero+='<div style="display:flex;gap:6px;align-items:center">';
+  hero+='<button class="is-hyd-minus" onclick="event.stopPropagation();undrinkWater()" title="Undo">&minus;</button>';
+  hero+='<button onclick="event.stopPropagation();drinkWaterAnimated()" style="padding:8px 16px;border-radius:12px;border:none;background:var(--accent);color:#fff;font:600 13px var(--sans);cursor:pointer">+ Drink</button>';
+  hero+='<button class="is-hyd-toggle'+(_hyd.enabled?' on':'')+'" onclick="event.stopPropagation();toggleHydration()" title="'+(_hyd.enabled?'Reminders ON':'Turn on reminders')+'">\\u{1F514}</button>';
+  hero+='</div></div></div>';
+
   var _wqDoy=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/(864e5));
   var _wq=window._DQ&&window._DQ[(_wqDoy-1)%window._DQ.length]||{q:'The secret of getting ahead is getting started.',a:'Mark Twain'};
   hero+='<div class="rd-wisdom-card" style="margin-top:13px">';
@@ -12644,23 +12693,6 @@ if(S.tab==='tasks'){
   h+='<span class="qc-expand" onclick="opA()">+ More options</span>';
   h+='</div>';}
   h+='</div>';
-  // Hydration tracker
-  h+='<div class="is-row is-hydration" style="margin:14px 0;border-radius:16px;border:1px solid var(--line);padding:12px 14px">'
-    +'<div class="is-row-icon">\\u{1F4A7}</div>'
-    +'<div class="is-row-body" style="flex:1">'
-      +'<div class="is-row-title" style="font:600 14px var(--sans);color:var(--ink)">Water \\u00B7 '+_hyd.glass+'/'+_hyd.goal+' glasses</div>'
-      +'<div class="is-hyd-glasses">';
-  for(let _gi=0;_gi<_hyd.goal;_gi++){
-    h+='<span class="is-hyd-dot'+(_gi<_hyd.glass?' filled':'')+'"></span>';
-  }
-  h+='</div>'
-    +'</div>'
-    +'<div class="is-hyd-actions">'
-      +'<button class="is-hyd-minus" onclick="event.stopPropagation();undrinkWater()" title="Undo">&minus;</button>'
-      +'<button class="is-hyd-drink" onclick="event.stopPropagation();drinkWater()" style="border-radius:10px;background:var(--accent);font-family:var(--sans)">+ Drink</button>'
-      +'<button class="is-hyd-toggle'+(_hyd.enabled?' on':'')+'" onclick="event.stopPropagation();toggleHydration()" title="'+(_hyd.enabled?'Reminders ON':'Turn on reminders')+'">\\u{1F514}</button>'
-    +'</div>'
-  +'</div>';
   // Segmented control
   if(!S.taskSegment)S.taskSegment='today';
   h+='<div class="rd-segmented" style="margin-top:4px">';
@@ -14553,7 +14585,7 @@ function _recoverLoginIfNeeded(){
 }
 window.addEventListener('pageshow',function(e){_recoverLoginIfNeeded()});
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')_recoverLoginIfNeeded()});
-if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js?v=72').then(function(reg){reg.update()}).catch(()=>{});}
+if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js?v=73').then(function(reg){reg.update()}).catch(()=>{});}
 // ─── Mobile keyboard: keep Bro input visible ───
 (function(){
   if(!window.visualViewport)return;
@@ -14820,7 +14852,7 @@ app.get('/privacy',(_,res)=>{
 app.get('/terms',(_,res)=>{
   res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Terms of Service — Brodoit</title><meta name="description" content="The simple terms for using Brodoit. Plain English, no surprises."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Terms</div><h1>The simple rules.</h1><p class="lede">We've kept these terms short and human. Use Brodoit kindly, and we'll keep building it for you.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">The service</h2><p>Brodoit is a personal productivity app: it lets you manage tasks with optional WhatsApp and email reminders, listen to free public-domain audiobooks, sharpen your mind with brain games, and see a daily wisdom quote.</p><h2 data-n="02">Your account</h2><p>You register with your email address or phone number. Keep your one-time verification codes private — anyone with the code can sign in. You are responsible for activity on your account.</p><h2 data-n="03">Acceptable use</h2><p>Please don't abuse the service: no spam, no impersonation, no automated scraping, no attempts to disrupt other users or the service itself. We may suspend or remove accounts that do.</p><h2 data-n="04">Content</h2><p>You own your tasks, notes, and other content you create. We store them so we can show them back to you. Audiobook content belongs to the respective public-domain authors and is served from the Internet Archive's LibriVox collection.</p><h2 data-n="05">No warranty</h2><p>The service is provided "as is". We try hard to keep it running, but can't promise zero downtime or guarantee that every reminder is delivered (WhatsApp and email providers can fail). If something matters, please don't rely solely on Brodoit.</p><h2 data-n="06">Limitation of liability</h2><p>Brodoit is a personal tool. We're not liable for missed deadlines, lost data, or any consequential damages from using — or not using — the service.</p><h2 data-n="07">Changes</h2><p>We may update these terms. If we do, we'll update the date at the top. Continued use after a change means you accept the new terms.</p><h2 data-n="08">Contact</h2><p>Need anything? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });
-app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v72";
+app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v73";
 self.addEventListener("install",function(e){self.skipWaiting()});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener("fetch",function(e){});
