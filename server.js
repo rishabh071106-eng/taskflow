@@ -1274,6 +1274,27 @@ app.get('/api/mv-video/:clip', (req, res) => {
 // Motivational video thumbnails
 app.use('/api/mv-thumb', express.static(_path.join(__dirname, 'video-mv', 'thumbs'), { maxAge: '7d' }));
 
+// Breathing exercise audio (ElevenLabs pre-generated)
+app.get('/api/breathe-audio/:id', (req, res) => {
+  const id = String(req.params.id || '').replace(/[^a-z-]/g, '');
+  const allowed = ['breathe-in','breathe-out','breathe-hold','breathe-done'];
+  if (!allowed.includes(id)) return res.status(404).end();
+  const fp = _path.join(__dirname, 'audio-static', id + '.mp3');
+  if (!_fs.existsSync(fp)) return res.status(404).end();
+  const stat = _fs.statSync(fp);
+  const range = req.headers.range;
+  if (range) {
+    const parts = range.replace(/bytes=/, '').split('-');
+    const start = parseInt(parts[0], 10);
+    const end = parts[1] ? parseInt(parts[1], 10) : stat.size - 1;
+    res.writeHead(206, { 'Content-Range': 'bytes ' + start + '-' + end + '/' + stat.size, 'Accept-Ranges': 'bytes', 'Content-Length': end - start + 1, 'Content-Type': 'audio/mpeg' });
+    _fs.createReadStream(fp, { start, end }).pipe(res);
+  } else {
+    res.writeHead(200, { 'Content-Length': stat.size, 'Content-Type': 'audio/mpeg', 'Cache-Control': 'public, max-age=86400' });
+    _fs.createReadStream(fp).pipe(res);
+  }
+});
+
 // Motivational video voice narration (pre-generated ElevenLabs MP3s)
 app.get('/api/mv-audio/:id', (req, res) => {
   const id = String(req.params.id || '').replace(/[^a-zA-Z0-9_-]/g, '');
@@ -2613,6 +2634,21 @@ body[data-theme=aurora] .mv-thumb{background:rgba(0,0,0,.3)}
 .focus-stat-l{font:400 11px var(--sans);color:var(--text-mute)}
 body[data-theme=aurora] .focus-card{background:#0A0A0A;border-color:rgba(226,125,96,.1)}
 body[data-theme=aurora] .focus-card.is-active{border-color:rgba(226,125,96,.2);box-shadow:0 0 40px -10px rgba(226,125,96,.15)}
+/* ─── Focus Lock Screen ─── */
+.focus-lock{position:fixed;inset:0;z-index:99999;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;animation:breatheFadeIn .5s ease both}
+.focus-lock-glow{position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(226,125,96,.08) 0%,transparent 70%);pointer-events:none;animation:focusLockGlow 4s ease-in-out infinite alternate}
+@keyframes focusLockGlow{0%{transform:scale(1);opacity:.6}100%{transform:scale(1.15);opacity:1}}
+.focus-lock-label{font:600 12px var(--sans);letter-spacing:.2em;color:rgba(226,125,96,.7);text-transform:uppercase;margin-bottom:32px}
+.focus-lock-ring-wrap{position:relative;width:180px;height:180px}
+.focus-lock-time{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.focus-lock-num{font:800 44px var(--sans);color:#E8E8EC;letter-spacing:-.02em}
+.focus-lock-pct{font:500 13px var(--sans);color:rgba(226,125,96,.8);margin-top:2px}
+.focus-lock-phase{font:400 16px var(--serif);color:rgba(255,255,255,.5);margin-top:28px;text-align:center}
+.focus-lock-btns{display:flex;gap:10px;margin-top:24px}
+.focus-lock-btn{height:44px;padding:0 24px;border-radius:14px;border:none;font:600 14px var(--sans);cursor:pointer;display:flex;align-items:center;gap:6px;transition:transform .2s cubic-bezier(.34,1.56,.64,1);background:rgba(226,125,96,.15);color:#E27D60}
+.focus-lock-btn:active{transform:scale(.93)}
+.focus-lock-btn-s{background:rgba(255,255,255,.06);color:rgba(255,255,255,.5)}
+.focus-lock-tip{font:400 12px var(--sans);color:rgba(255,255,255,.2);margin-top:40px;text-align:center}
 /* ─── Breathe Section ─── */
 .breathe-screen{position:fixed;inset:0;z-index:9998;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;animation:breatheFadeIn .6s ease both}
 @keyframes breatheFadeIn{from{opacity:0}}
@@ -8702,27 +8738,85 @@ function showThemePicker(){
   ov.innerHTML=pk;document.body.appendChild(ov);
 }
 function hideThemePicker(){var el=document.getElementById('themePicker');if(el)el.remove()}
+var _focusWakeLock=null;
+async function _focusAcquireWakeLock(){
+  try{if('wakeLock' in navigator){_focusWakeLock=await navigator.wakeLock.request('screen')}}catch(e){}
+}
+function _focusReleaseWakeLock(){
+  try{if(_focusWakeLock){_focusWakeLock.release();_focusWakeLock=null}}catch(e){}
+}
 function focusStart(){
   if(S.focus.active&&!S.focus.paused)return;
   if(!S.focus.paused){S.focus.remaining=S.focus.total;}
   S.focus.active=true;S.focus.paused=false;
+  _focusAcquireWakeLock();
+  try{if(document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(function(){})}catch(e){}
   if(S.focus.intervalId)clearInterval(S.focus.intervalId);
   S.focus.intervalId=setInterval(function(){
     if(!S.focus.active||S.focus.paused)return;
     S.focus.remaining=Math.max(0,S.focus.remaining-1);
-    var el=document.getElementById('focusTime');
+    var el=document.getElementById('focusLockTime');
     if(el){var m=Math.floor(S.focus.remaining/60);var s=S.focus.remaining%60;el.textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');}
-    var ring=document.getElementById('focusRing');
-    if(ring){var pct=S.focus.remaining/S.focus.total;var circ=2*Math.PI*58;ring.style.strokeDasharray=(pct*circ)+' '+circ;}
-    var pctEl=document.getElementById('focusPct');
+    var ring=document.getElementById('focusLockRing');
+    if(ring){var pct=S.focus.remaining/S.focus.total;var circ=2*Math.PI*72;ring.style.strokeDasharray=(pct*circ)+' '+circ;}
+    var pctEl=document.getElementById('focusLockPct');
     if(pctEl)pctEl.textContent=Math.round((1-S.focus.remaining/S.focus.total)*100)+'%';
-    if(S.focus.remaining<=0){clearInterval(S.focus.intervalId);S.focus.intervalId=null;S.focus.active=false;S.focus.sessions++;localStorage.setItem('tf_focus_sessions',String(S.focus.sessions));try{if(Notification.permission==='granted')new Notification('Brodoit Focus',{body:'Session complete! Take a 5-minute break.'});}catch(e){}toast('Focus session complete. Take a break.');render();}
+    if(S.focus.remaining<=0){_focusComplete();}
   },1000);
   if(typeof Notification!=='undefined'&&Notification.permission==='default'){Notification.requestPermission();}
+  _focusShowLockScreen();
+}
+function _focusComplete(){
+  clearInterval(S.focus.intervalId);S.focus.intervalId=null;
+  S.focus.active=false;S.focus.sessions++;
+  localStorage.setItem('tf_focus_sessions',String(S.focus.sessions));
+  _focusReleaseWakeLock();
+  try{if(document.fullscreenElement)document.exitFullscreen().catch(function(){})}catch(e){}
+  var lock=document.getElementById('focusLockScreen');
+  if(lock){lock.style.opacity='0';lock.style.transition='opacity .5s';setTimeout(function(){lock.remove()},500);}
+  try{if(Notification.permission==='granted')new Notification('Brodoit Focus',{body:'Session complete! Great work.'})}catch(e){}
+  toast('Focus session complete. Take a break.');
   render();
 }
-function focusPause(){if(!S.focus.active)return;S.focus.paused=true;render();}
-function focusReset(){if(S.focus.intervalId)clearInterval(S.focus.intervalId);S.focus.intervalId=null;var sess=S.focus.sessions;S.focus={active:false,paused:false,remaining:25*60,total:25*60,sessions:sess,startedAt:0,intervalId:null};render();}
+function focusPause(){
+  if(!S.focus.active)return;S.focus.paused=true;
+  var phEl=document.getElementById('focusLockPhase');
+  if(phEl)phEl.textContent='Paused';
+  var btnW=document.getElementById('focusLockBtns');
+  if(btnW){btnW.innerHTML='<button class="focus-lock-btn" onclick="focusStart()"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20"/></svg>Resume</button><button class="focus-lock-btn focus-lock-btn-s" onclick="focusGiveUp()">Give Up</button>';}
+}
+function focusGiveUp(){
+  clearInterval(S.focus.intervalId);S.focus.intervalId=null;
+  S.focus.active=false;S.focus.paused=false;
+  _focusReleaseWakeLock();
+  try{if(document.fullscreenElement)document.exitFullscreen().catch(function(){})}catch(e){}
+  var lock=document.getElementById('focusLockScreen');
+  if(lock){lock.style.opacity='0';lock.style.transition='opacity .5s';setTimeout(function(){lock.remove()},500);}
+  render();
+}
+function focusReset(){if(S.focus.intervalId)clearInterval(S.focus.intervalId);S.focus.intervalId=null;var sess=S.focus.sessions;S.focus={active:false,paused:false,remaining:25*60,total:25*60,sessions:sess,startedAt:0,intervalId:null};_focusReleaseWakeLock();render();}
+function _focusShowLockScreen(){
+  var old=document.getElementById('focusLockScreen');if(old)old.remove();
+  var d=document.createElement('div');d.id='focusLockScreen';d.className='focus-lock';
+  var foc=S.focus;var m=Math.floor(foc.remaining/60);var s=foc.remaining%60;
+  var timeStr=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  var pct=Math.round((1-foc.remaining/foc.total)*100);
+  var circ=2*Math.PI*72;var dash=(foc.remaining/foc.total)*circ;
+  var durMins=Math.round(foc.total/60);
+  var h='<div class="focus-lock-glow"></div>';
+  h+='<div class="focus-lock-label">FOCUS MODE</div>';
+  h+='<div class="focus-lock-ring-wrap">';
+  h+='<svg width="180" height="180" viewBox="0 0 180 180"><circle cx="90" cy="90" r="72" fill="none" stroke="rgba(226,125,96,.1)" stroke-width="5"/><circle id="focusLockRing" cx="90" cy="90" r="72" fill="none" stroke="#E27D60" stroke-width="5" stroke-linecap="round" stroke-dasharray="'+dash+' '+circ+'" style="transform:rotate(-90deg);transform-origin:center;filter:drop-shadow(0 0 12px rgba(226,125,96,.4));transition:stroke-dasharray .8s cubic-bezier(.4,0,.2,1)"/></svg>';
+  h+='<div class="focus-lock-time"><span id="focusLockTime" class="focus-lock-num">'+timeStr+'</span><span id="focusLockPct" class="focus-lock-pct">'+pct+'%</span></div>';
+  h+='</div>';
+  h+='<div id="focusLockPhase" class="focus-lock-phase">Stay focused for '+durMins+' minutes</div>';
+  h+='<div id="focusLockBtns" class="focus-lock-btns">';
+  h+='<button class="focus-lock-btn focus-lock-btn-s" onclick="focusPause()"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>Pause</button>';
+  h+='</div>';
+  h+='<div class="focus-lock-tip">Screen will stay awake &bull; Do Not Disturb active</div>';
+  d.innerHTML=h;
+  document.body.appendChild(d);
+}
 function focusSetDuration(mins){if(S.focus.active)return;S.focus.total=mins*60;S.focus.remaining=mins*60;render();}
 
 var _breatheState={active:false,pattern:'calm',phase:'idle',elapsed:0,totalTime:180,timer:null,phaseTimer:null,voiceEnabled:true};
@@ -8748,17 +8842,21 @@ function _breatheStopAll(){
   _breatheState.active=false;_breatheState.phase='idle';
   if(_breatheState.timer){clearInterval(_breatheState.timer);_breatheState.timer=null;}
   if(_breatheState.phaseTimer){clearTimeout(_breatheState.phaseTimer);_breatheState.phaseTimer=null;}
-  try{speechSynthesis.cancel()}catch(e){}
+  if(_breatheAudio){try{_breatheAudio.pause();_breatheAudio.currentTime=0}catch(e){}}
 }
+var _breatheAudio=null;
+var _breatheAudioMap={'Breathe in':'breathe-in','Breathe out':'breathe-out','Hold':'breathe-hold','Session complete. Well done.':'breathe-done'};
 function _breatheSpeak(text){
   if(!_breatheState.voiceEnabled)return;
-  try{
-    speechSynthesis.cancel();
-    var u=new SpeechSynthesisUtterance(text);
-    var v=pickBestVoice();if(v){u.voice=v;u.lang=v.lang}
-    u.rate=0.8;u.pitch=0.95;u.volume=0.9;
-    speechSynthesis.speak(u);
-  }catch(e){}
+  var id=_breatheAudioMap[text];
+  if(id){
+    try{
+      if(_breatheAudio){_breatheAudio.pause();_breatheAudio.currentTime=0}
+      _breatheAudio=new Audio('/api/breathe-audio/'+id);
+      _breatheAudio.volume=0.9;
+      _breatheAudio.play().catch(function(){});
+    }catch(e){}
+  }
 }
 function _breatheSetPattern(k){
   _breatheStopAll();
@@ -14670,7 +14768,7 @@ app.get('/privacy',(_,res)=>{
 app.get('/terms',(_,res)=>{
   res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Terms of Service — Brodoit</title><meta name="description" content="The simple terms for using Brodoit. Plain English, no surprises."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Terms</div><h1>The simple rules.</h1><p class="lede">We've kept these terms short and human. Use Brodoit kindly, and we'll keep building it for you.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">The service</h2><p>Brodoit is a personal productivity app: it lets you manage tasks with optional WhatsApp and email reminders, listen to free public-domain audiobooks, sharpen your mind with brain games, and see a daily wisdom quote.</p><h2 data-n="02">Your account</h2><p>You register with your email address or phone number. Keep your one-time verification codes private — anyone with the code can sign in. You are responsible for activity on your account.</p><h2 data-n="03">Acceptable use</h2><p>Please don't abuse the service: no spam, no impersonation, no automated scraping, no attempts to disrupt other users or the service itself. We may suspend or remove accounts that do.</p><h2 data-n="04">Content</h2><p>You own your tasks, notes, and other content you create. We store them so we can show them back to you. Audiobook content belongs to the respective public-domain authors and is served from the Internet Archive's LibriVox collection.</p><h2 data-n="05">No warranty</h2><p>The service is provided "as is". We try hard to keep it running, but can't promise zero downtime or guarantee that every reminder is delivered (WhatsApp and email providers can fail). If something matters, please don't rely solely on Brodoit.</p><h2 data-n="06">Limitation of liability</h2><p>Brodoit is a personal tool. We're not liable for missed deadlines, lost data, or any consequential damages from using — or not using — the service.</p><h2 data-n="07">Changes</h2><p>We may update these terms. If we do, we'll update the date at the top. Continued use after a change means you accept the new terms.</p><h2 data-n="08">Contact</h2><p>Need anything? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });
-app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v62";
+app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v63";
 self.addEventListener("install",function(e){self.skipWaiting()});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener("fetch",function(e){});
