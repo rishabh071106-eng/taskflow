@@ -2458,15 +2458,15 @@ const HTML=`<!DOCTYPE html><html lang="en"><head>
 <title>Brodoit — Tasks, audiobooks &amp; daily wisdom</title>
 <meta name="description" content="Brodoit is your calm productivity companion. Manage tasks with email reminders, listen to free public-domain audiobooks, sharpen your mind, and build a daily ritual that sticks.">
 <link rel="canonical" href="https://brodoit.com/">
-<meta name="theme-color" content="#F4EEE3">
+<meta name="theme-color" content="#1E1C22">
 <meta name="format-detection" content="telephone=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Brodoit">
 <link rel="manifest" href="/manifest.json">
-<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png?v=2">
-<link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png?v=2">
-<link rel="apple-touch-icon" href="/icon-192.png?v=2">
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png?v=3">
+<link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png?v=3">
+<link rel="apple-touch-icon" href="/icon-192.png?v=3">
 <!-- Open Graph -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Brodoit">
@@ -2488,7 +2488,7 @@ const HTML=`<!DOCTYPE html><html lang="en"><head>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,500;1,6..72,600&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-#splash{position:fixed;inset:0;z-index:99999;background:#2B2D33;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity .4s ease-out}
+#splash{position:fixed;inset:0;z-index:99999;background:#1E1C22;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity .4s ease-out}
 #splash.hide{opacity:0;pointer-events:none}
 #splash .sp-fist{font-size:56px;animation:spPulse 1.5s ease-in-out infinite}
 #splash .sp-name{font-family:'Newsreader',Georgia,serif;font-size:36px;color:#E8E8EC;letter-spacing:-.02em;font-weight:500}
@@ -14585,7 +14585,7 @@ function _recoverLoginIfNeeded(){
 }
 window.addEventListener('pageshow',function(e){_recoverLoginIfNeeded()});
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')_recoverLoginIfNeeded()});
-if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js?v=73').then(function(reg){reg.update()}).catch(()=>{});}
+if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js?v=74').then(function(reg){reg.update()}).catch(()=>{});}
 // ─── Mobile keyboard: keep Bro input visible ───
 (function(){
   if(!window.visualViewport)return;
@@ -14635,15 +14635,15 @@ app.get('/manifest.json',(_,res)=>{res.set('Cache-Control','no-cache');res.json(
   id:"/",
   display:"standalone",
   orientation:"portrait",
-  background_color:"#F5F6F8",
-  theme_color:"#111827",
+  background_color:"#1E1C22",
+  theme_color:"#1E1C22",
   lang:"en",
   dir:"ltr",
   categories:["productivity","lifestyle","utilities","education"],
   icons:[
-    {src:"/icon-192.png?v=2",sizes:"192x192",type:"image/png",purpose:"any"},
-    {src:"/icon-512.png?v=2",sizes:"512x512",type:"image/png",purpose:"any"},
-    {src:"/icon-maskable-512.png?v=2",sizes:"512x512",type:"image/png",purpose:"maskable"}
+    {src:"/icon-192.png?v=3",sizes:"192x192",type:"image/png",purpose:"any"},
+    {src:"/icon-512.png?v=3",sizes:"512x512",type:"image/png",purpose:"any"},
+    {src:"/icon-maskable-512.png?v=3",sizes:"512x512",type:"image/png",purpose:"maskable"}
   ],
   screenshots:[
     {src:"/screenshot-phone-1.png",sizes:"1080x1920",type:"image/png",form_factor:"narrow"}
@@ -14752,7 +14752,7 @@ app.post('/api/beta-mark-added',adminAuth,(req,res)=>{
 // Public landing page — the "/beta" URL you share with friends
 app.get('/beta',(req,res)=>{
   const src=String(req.query.src||'').replace(/[^a-zA-Z0-9_-]/g,'').slice(0,20);
-  res.type('html').send(`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#F4EEE3"><title>Become a Brodoit beta tester</title><meta name="description" content="Help test Brodoit before public launch. 30 seconds to install."><meta property="og:title" content="Test Brodoit before launch"><meta property="og:description" content="30 seconds to join the closed beta"><meta property="og:image" content="https://brodoit.com/icon-512.png"><link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet"><style>
+  res.type('html').send(`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#1E1C22"><title>Become a Brodoit beta tester</title><meta name="description" content="Help test Brodoit before public launch. 30 seconds to install."><meta property="og:title" content="Test Brodoit before launch"><meta property="og:description" content="30 seconds to join the closed beta"><meta property="og:image" content="https://brodoit.com/icon-512.png"><link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet"><style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Inter','SF Pro Text',-apple-system,BlinkMacSystemFont,sans-serif;background:#EDECE8;color:#0F1115;min-height:100vh;-webkit-font-smoothing:antialiased;letter-spacing:-.011em;font-weight:450;background-image:radial-gradient(circle at 1px 1px,rgba(15,17,21,.05) 1px,transparent 0);background-size:24px 24px}
 .wrap{max-width:520px;margin:0 auto;padding:48px 24px 64px}
@@ -14852,7 +14852,7 @@ app.get('/privacy',(_,res)=>{
 app.get('/terms',(_,res)=>{
   res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Terms of Service — Brodoit</title><meta name="description" content="The simple terms for using Brodoit. Plain English, no surprises."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Terms</div><h1>The simple rules.</h1><p class="lede">We've kept these terms short and human. Use Brodoit kindly, and we'll keep building it for you.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">The service</h2><p>Brodoit is a personal productivity app: it lets you manage tasks with optional WhatsApp and email reminders, listen to free public-domain audiobooks, sharpen your mind with brain games, and see a daily wisdom quote.</p><h2 data-n="02">Your account</h2><p>You register with your email address or phone number. Keep your one-time verification codes private — anyone with the code can sign in. You are responsible for activity on your account.</p><h2 data-n="03">Acceptable use</h2><p>Please don't abuse the service: no spam, no impersonation, no automated scraping, no attempts to disrupt other users or the service itself. We may suspend or remove accounts that do.</p><h2 data-n="04">Content</h2><p>You own your tasks, notes, and other content you create. We store them so we can show them back to you. Audiobook content belongs to the respective public-domain authors and is served from the Internet Archive's LibriVox collection.</p><h2 data-n="05">No warranty</h2><p>The service is provided "as is". We try hard to keep it running, but can't promise zero downtime or guarantee that every reminder is delivered (WhatsApp and email providers can fail). If something matters, please don't rely solely on Brodoit.</p><h2 data-n="06">Limitation of liability</h2><p>Brodoit is a personal tool. We're not liable for missed deadlines, lost data, or any consequential damages from using — or not using — the service.</p><h2 data-n="07">Changes</h2><p>We may update these terms. If we do, we'll update the date at the top. Continued use after a change means you accept the new terms.</p><h2 data-n="08">Contact</h2><p>Need anything? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });
-app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v73";
+app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v74";
 self.addEventListener("install",function(e){self.skipWaiting()});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener("fetch",function(e){});
