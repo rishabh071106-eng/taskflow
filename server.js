@@ -11980,9 +11980,12 @@ function _playRainSound(mins){
   window._rainCtx=ac;
   var dur=mins*60;
   var bufSize=4096;
+  var sr=ac.sampleRate;
   var b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
-  var noise=ac.createScriptProcessor(bufSize,1,2);
-  noise.onaudioprocess=function(e){
+  var rainProc=ac.createScriptProcessor(bufSize,1,2);
+  var dripPhase=0;var dripNext=sr*0.5;var dripFreq=0;var dripAmp=0;
+  var sampleCount=0;
+  rainProc.onaudioprocess=function(e){
     var outL=e.outputBuffer.getChannelData(0);
     var outR=e.outputBuffer.getChannelData(1);
     for(var i=0;i<bufSize;i++){
@@ -11995,19 +11998,65 @@ function _playRainSound(mins){
       b5=-0.7616*b5-w*0.0168980;
       var pink=(b0+b1+b2+b3+b4+b5+b6+w*0.5362)*0.04;
       b6=w*0.115926;
-      var variance=(Math.random()*2-1)*0.003;
-      outL[i]=pink*(0.35+variance);
-      outR[i]=pink*(0.35-variance);
+      var heavyRain=pink*0.55;
+      var hiss=(Math.random()*2-1)*0.04;
+      sampleCount++;
+      if(sampleCount>=dripNext){
+        dripPhase=0;dripFreq=800+Math.random()*1400;
+        dripAmp=0.03+Math.random()*0.06;
+        dripNext=sampleCount+sr*(0.15+Math.random()*0.8);
+      }
+      var drip=0;
+      if(dripPhase<sr*0.06){
+        var dt=dripPhase/sr;
+        drip=Math.sin(2*Math.PI*dripFreq*dt)*dripAmp*Math.exp(-dt*40);
+        dripPhase++;
+      }
+      var panL=0.4+Math.random()*0.2;
+      var panR=1-panL;
+      var sample=heavyRain+hiss+drip;
+      outL[i]=sample*panL;
+      outR[i]=sample*panR;
     }
   };
-  var lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.value=800;lp.Q.value=0.7;
-  var hp=ac.createBiquadFilter();hp.type='highpass';hp.frequency.value=80;hp.Q.value=0.5;
-  var gain=ac.createGain();gain.gain.value=0.7;
-  noise.connect(lp);lp.connect(hp);hp.connect(gain);gain.connect(ac.destination);
-  S.meditating={active:true,title:'Rain for Sleep',mins:mins,startedAt:Date.now(),isRain:true};
-  S.playing={id:'rain-'+mins,title:'Rain for Sleep ('+mins+' min)',author:'\\u{1F327}\\uFE0F Ambient rain sounds',loading:false};
+  var lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.value=2800;lp.Q.value=0.4;
+  var lp2=ac.createBiquadFilter();lp2.type='lowpass';lp2.frequency.value=1400;lp2.Q.value=0.8;
+  var hp=ac.createBiquadFilter();hp.type='highpass';hp.frequency.value=60;hp.Q.value=0.5;
+  var rainGain=ac.createGain();rainGain.gain.value=0.8;
+  rainProc.connect(lp);lp.connect(lp2);lp2.connect(hp);hp.connect(rainGain);rainGain.connect(ac.destination);
+  function rumbleThunder(){
+    if(!window._rainCtx||window._rainCtx!==ac)return;
+    try{
+      var tLen=3+Math.random()*5;
+      var tBuf=ac.createBuffer(2,sr*tLen,sr);
+      var tL=tBuf.getChannelData(0);var tR=tBuf.getChannelData(1);
+      var rumbleFreq=30+Math.random()*40;
+      for(var j=0;j<tL.length;j++){
+        var tt=j/sr;
+        var env=Math.sin(Math.PI*tt/tLen);
+        env=env*env*env;
+        var crack=tt<0.15?Math.exp(-tt*20)*(Math.random()*2-1)*0.4:0;
+        var rumble=Math.sin(2*Math.PI*rumbleFreq*tt+Math.sin(2*Math.PI*0.5*tt)*3)*env*0.12;
+        var sub=Math.sin(2*Math.PI*(rumbleFreq*0.5)*tt)*env*0.08;
+        var noise=(Math.random()*2-1)*env*0.05;
+        var s=crack+rumble+sub+noise;
+        var pan=0.3+Math.random()*0.4;
+        tL[j]=s*pan;tR[j]=s*(1-pan);
+      }
+      var tSrc=ac.createBufferSource();tSrc.buffer=tBuf;
+      var tGain=ac.createGain();tGain.gain.value=0.6+Math.random()*0.4;
+      var tLp=ac.createBiquadFilter();tLp.type='lowpass';tLp.frequency.value=200+Math.random()*100;tLp.Q.value=0.5;
+      tSrc.connect(tLp);tLp.connect(tGain);tGain.connect(ac.destination);
+      tSrc.start();
+    }catch(e){}
+    var nextThunder=15000+Math.random()*45000;
+    setTimeout(rumbleThunder,nextThunder);
+  }
+  setTimeout(rumbleThunder,5000+Math.random()*10000);
+  S.meditating={active:true,title:'Rain & Thunder',mins:mins,startedAt:Date.now(),isRain:true};
+  S.playing={id:'rain-'+mins,title:'Rain & Thunder ('+mins+' min)',author:'\\u26C8\\uFE0F Rain with distant thunder',loading:false};
   render();
-  toast('\\u{1F327}\\uFE0F Rain sounds playing for '+mins+' min');
+  toast('\\u26C8\\uFE0F Rain & thunder playing for '+mins+' min');
   setTimeout(function(){
     if(window._rainCtx===ac){
       try{ac.close()}catch(e){}
@@ -13166,8 +13215,8 @@ else if(S.tab==='meditation'){
     h+='<div class="ws-hero-arrow" style="color:var(--gold)">\\u2192</div></button>';
     h+='<button class="ws-hero-card" onclick="S.showRainPicker=!S.showRainPicker;render()" style="--wg:linear-gradient(135deg,color-mix(in srgb,var(--sage) 15%,var(--paper)) 0%,color-mix(in srgb,var(--sage) 25%,var(--surface)) 100%)">';
     h+='<div class="ws-hero-emoji">\\u{1F327}\\uFE0F</div>';
-    h+='<div class="ws-hero-info"><div class="ws-hero-title" style="color:var(--ink)">Rain for Sleep</div>';
-    h+='<div class="ws-hero-desc" style="color:var(--text-mute)">Soothing rain sounds to fall asleep</div></div>';
+    h+='<div class="ws-hero-info"><div class="ws-hero-title" style="color:var(--ink)">Rain & Thunder</div>';
+    h+='<div class="ws-hero-desc" style="color:var(--text-mute)">Rain with distant thunder to fall asleep</div></div>';
     h+='<div class="ws-hero-arrow" style="color:var(--sage)">\\u2192</div></button>';
     h+='<button class="ws-hero-card" onclick="openBreathe()" style="--wg:linear-gradient(135deg,color-mix(in srgb,#7B8CDE 15%,var(--paper)) 0%,color-mix(in srgb,#7B8CDE 25%,var(--surface)) 100%)">';
     h+='<div class="ws-hero-emoji">\\u{1F32C}\\uFE0F</div>';
@@ -14535,7 +14584,7 @@ function _recoverLoginIfNeeded(){
 }
 window.addEventListener('pageshow',function(e){_recoverLoginIfNeeded()});
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')_recoverLoginIfNeeded()});
-if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js?v=69').then(function(reg){reg.update()}).catch(()=>{});}
+if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js?v=70').then(function(reg){reg.update()}).catch(()=>{});}
 // ─── Mobile keyboard: keep Bro input visible ───
 (function(){
   if(!window.visualViewport)return;
@@ -14802,7 +14851,7 @@ app.get('/privacy',(_,res)=>{
 app.get('/terms',(_,res)=>{
   res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Terms of Service — Brodoit</title><meta name="description" content="The simple terms for using Brodoit. Plain English, no surprises."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Terms</div><h1>The simple rules.</h1><p class="lede">We've kept these terms short and human. Use Brodoit kindly, and we'll keep building it for you.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">The service</h2><p>Brodoit is a personal productivity app: it lets you manage tasks with optional WhatsApp and email reminders, listen to free public-domain audiobooks, sharpen your mind with brain games, and see a daily wisdom quote.</p><h2 data-n="02">Your account</h2><p>You register with your email address or phone number. Keep your one-time verification codes private — anyone with the code can sign in. You are responsible for activity on your account.</p><h2 data-n="03">Acceptable use</h2><p>Please don't abuse the service: no spam, no impersonation, no automated scraping, no attempts to disrupt other users or the service itself. We may suspend or remove accounts that do.</p><h2 data-n="04">Content</h2><p>You own your tasks, notes, and other content you create. We store them so we can show them back to you. Audiobook content belongs to the respective public-domain authors and is served from the Internet Archive's LibriVox collection.</p><h2 data-n="05">No warranty</h2><p>The service is provided "as is". We try hard to keep it running, but can't promise zero downtime or guarantee that every reminder is delivered (WhatsApp and email providers can fail). If something matters, please don't rely solely on Brodoit.</p><h2 data-n="06">Limitation of liability</h2><p>Brodoit is a personal tool. We're not liable for missed deadlines, lost data, or any consequential damages from using — or not using — the service.</p><h2 data-n="07">Changes</h2><p>We may update these terms. If we do, we'll update the date at the top. Continued use after a change means you accept the new terms.</p><h2 data-n="08">Contact</h2><p>Need anything? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });
-app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v69";
+app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v70";
 self.addEventListener("install",function(e){self.skipWaiting()});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener("fetch",function(e){});
