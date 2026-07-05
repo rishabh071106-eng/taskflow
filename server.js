@@ -372,6 +372,24 @@ Keep total response under 90 words. Use sophisticated vocabulary yourself natura
 
 Be warm but direct. Never explain that you are an AI.`;
 
+app.post('/api/transcribe',async(req,res)=>{
+  const t=req.headers['x-token'];if(!t)return res.status(401).json({error:'auth'});
+  try{const u=jwt.verify(t,JWT_SECRET);if(!u)return res.status(401).json({error:'invalid'})}catch(e){return res.status(401).json({error:'invalid'})}
+  if(!GROQ_KEY)return res.status(503).json({error:'Transcription not configured'});
+  try{
+    const chunks=[];for await(const c of req)chunks.push(c);const buf=Buffer.concat(chunks);
+    const FormData=(await import('node-fetch')).default?null:null;
+    const boundary='----FormBoundary'+Date.now().toString(36);
+    const ct=req.headers['content-type']||'audio/webm';
+    const head=Buffer.from('--'+boundary+'\\r\\nContent-Disposition: form-data; name="file"; filename="voice.webm"\\r\\nContent-Type: '+ct+'\\r\\n\\r\\n');
+    const model=Buffer.from('\\r\\n--'+boundary+'\\r\\nContent-Disposition: form-data; name="model"\\r\\n\\r\\nwhisper-large-v3\\r\\n--'+boundary+'--\\r\\n');
+    const body=Buffer.concat([head,buf,model]);
+    const r=await fetch('https://api.groq.com/openai/v1/audio/transcriptions',{method:'POST',headers:{'Authorization':'Bearer '+GROQ_KEY,'Content-Type':'multipart/form-data; boundary='+boundary},body});
+    const d=await r.json();
+    res.json({text:d.text||''});
+  }catch(e){console.error('[transcribe]',e.message);res.status(500).json({error:'Transcription failed'})}
+});
+
 app.post('/api/coach/chat',auth,async(req,res)=>{
   if(!GROQ_KEY&&!GEMINI_KEY)return res.status(503).json({error:'AI coach not configured.'});
   const messages=Array.isArray(req.body&&req.body.messages)?req.body.messages.slice(-20):null;
@@ -4575,6 +4593,48 @@ body.eye-shield::after{content:'';position:fixed;top:0;left:0;right:0;bottom:0;z
 body.eye-shield{--ink:#DDD8D0;--text:#DDD8D0;--ink-2:#C8C2B8;--ink-3:#A09888;--text-mute:#A09888}
 body.eye-shield[data-theme=aurora]{background:#26241E;--bg:#26241E;--bg-2:#2E2C24;--surface:#38352C;--surface-2:#423E34;--line:rgba(200,180,140,.14);--accent:#D4A060}
 body.eye-shield .tabs.page-t{filter:sepia(.12) brightness(.92)}
+
+/* ============================================== */
+/* NIGHT SKY MODE — immersive starry background   */
+/* ============================================== */
+body.night-sky[data-theme=aurora]{background:#0B0D1A}
+body.night-sky[data-theme=aurora]::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(1.5px 1.5px at 10% 15%,rgba(255,255,255,.9),transparent),
+    radial-gradient(1px 1px at 25% 8%,rgba(255,255,255,.7),transparent),
+    radial-gradient(2px 2px at 40% 22%,rgba(200,220,255,.85),transparent),
+    radial-gradient(1px 1px at 55% 5%,rgba(255,255,255,.6),transparent),
+    radial-gradient(1.5px 1.5px at 70% 18%,rgba(255,255,255,.8),transparent),
+    radial-gradient(1px 1px at 85% 12%,rgba(200,200,255,.65),transparent),
+    radial-gradient(2px 2px at 15% 35%,rgba(255,255,255,.5),transparent),
+    radial-gradient(1px 1px at 32% 42%,rgba(255,255,255,.7),transparent),
+    radial-gradient(1.5px 1.5px at 48% 38%,rgba(200,220,255,.6),transparent),
+    radial-gradient(1px 1px at 62% 30%,rgba(255,255,255,.55),transparent),
+    radial-gradient(2px 2px at 78% 45%,rgba(255,255,255,.75),transparent),
+    radial-gradient(1px 1px at 90% 28%,rgba(220,220,255,.65),transparent),
+    radial-gradient(1.5px 1.5px at 5% 55%,rgba(255,255,255,.5),transparent),
+    radial-gradient(1px 1px at 20% 62%,rgba(255,255,255,.6),transparent),
+    radial-gradient(1px 1px at 38% 58%,rgba(200,210,255,.55),transparent),
+    radial-gradient(2px 2px at 52% 65%,rgba(255,255,255,.7),transparent),
+    radial-gradient(1px 1px at 68% 52%,rgba(255,255,255,.5),transparent),
+    radial-gradient(1.5px 1.5px at 82% 60%,rgba(200,220,255,.65),transparent),
+    radial-gradient(1px 1px at 95% 48%,rgba(255,255,255,.55),transparent),
+    radial-gradient(1px 1px at 8% 78%,rgba(255,255,255,.5),transparent),
+    radial-gradient(1.5px 1.5px at 28% 85%,rgba(255,255,255,.6),transparent),
+    radial-gradient(1px 1px at 45% 75%,rgba(200,200,255,.5),transparent),
+    radial-gradient(2px 2px at 58% 82%,rgba(255,255,255,.65),transparent),
+    radial-gradient(1px 1px at 75% 72%,rgba(255,255,255,.5),transparent),
+    radial-gradient(1.5px 1.5px at 88% 80%,rgba(200,220,255,.6),transparent),
+    radial-gradient(1px 1px at 12% 92%,rgba(255,255,255,.45),transparent),
+    radial-gradient(1px 1px at 35% 95%,rgba(255,255,255,.5),transparent),
+    radial-gradient(1.5px 1.5px at 65% 90%,rgba(200,210,255,.55),transparent),
+    radial-gradient(1px 1px at 80% 95%,rgba(255,255,255,.5),transparent)
+}
+body.night-sky[data-theme=aurora] #starfield{opacity:.7}
+body.night-sky{--bg:#0B0D1A;--bg-2:#10132A;--surface:rgba(255,255,255,.05);--surface-2:rgba(255,255,255,.08);--line:rgba(255,255,255,.08);--border:rgba(255,255,255,.1)}
+body.night-sky .ns-moon{position:fixed;top:8%;right:10%;width:60px;height:60px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#FFFDE8,#F5E6B8 60%,#D4C08A);box-shadow:0 0 40px 15px rgba(255,253,232,.12),0 0 80px 30px rgba(255,253,232,.06);z-index:0;pointer-events:none;animation:moonGlow 8s ease-in-out infinite alternate}
+@keyframes moonGlow{from{box-shadow:0 0 40px 15px rgba(255,253,232,.12),0 0 80px 30px rgba(255,253,232,.06)}to{box-shadow:0 0 50px 20px rgba(255,253,232,.16),0 0 100px 40px rgba(255,253,232,.08)}}
+body.night-sky .tabs.page-t{background:rgba(11,13,26,.92)!important;border-top-color:rgba(255,255,255,.06)!important;backdrop-filter:blur(20px)!important}
 body[data-theme=aurora]::before{content:'';position:fixed;inset:0;background:
   radial-gradient(800px 500px at 20% 80%,rgba(226,125,96,.04),transparent 70%);
   pointer-events:none;z-index:0}
@@ -5973,6 +6033,76 @@ body.audio-on .fab-global{bottom:calc(96px + env(safe-area-inset-bottom,0px))!im
 .qc-scene.fast .qc-nb-check{animation-duration:1.2s !important}
 .qc-scene.fast .qc-quotes-track{animation-duration:10s !important}
 }
+/* ─── MOTIVATIONAL ADD-TASK HERO CARD ─── */
+.task-hero{position:relative;border-radius:24px;padding:28px 22px;margin-bottom:18px;overflow:hidden;cursor:pointer;perspective:800px;transform-style:preserve-3d;background:linear-gradient(135deg,#667eea 0%,#764ba2 50%,#f093fb 100%);box-shadow:0 12px 40px -8px rgba(102,126,234,.4);transition:transform .3s ease,box-shadow .3s ease;min-height:140px;display:flex;flex-direction:column;justify-content:space-between}
+.task-hero:active{transform:scale(.97) rotateX(2deg);box-shadow:0 6px 20px -4px rgba(102,126,234,.3)}
+.task-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 20%,rgba(255,255,255,.15) 0%,transparent 60%);pointer-events:none}
+.task-hero-blob{position:absolute;border-radius:50%;background:rgba(255,255,255,.1);filter:blur(20px);animation:heroFloat 6s ease-in-out infinite alternate}
+.task-hero-blob:nth-child(1){width:100px;height:100px;top:-20px;right:-10px;animation-delay:0s}
+.task-hero-blob:nth-child(2){width:70px;height:70px;bottom:-15px;left:10px;animation-delay:2s}
+.task-hero-blob:nth-child(3){width:50px;height:50px;top:40%;left:60%;animation-delay:4s}
+@keyframes heroFloat{0%{transform:translate(0,0) scale(1)}100%{transform:translate(10px,-10px) scale(1.1)}}
+.task-hero-text{position:relative;z-index:2;color:#fff}
+.task-hero-title{font:700 22px/1.2 var(--sans);margin:0 0 6px;text-shadow:0 2px 8px rgba(0,0,0,.15)}
+.task-hero-sub{font:400 13.5px/1.4 var(--sans);opacity:.85;max-width:220px}
+.task-hero-cta{position:relative;z-index:2;display:flex;align-items:center;gap:10px;margin-top:16px}
+.task-hero-btn{width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.95);border:none;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,.1);animation:heroPulse 2s ease-in-out infinite}
+@keyframes heroPulse{0%,100%{transform:scale(1);box-shadow:0 4px 12px rgba(0,0,0,.1)}50%{transform:scale(1.08);box-shadow:0 6px 20px rgba(0,0,0,.15)}}
+.task-hero-label{font:600 14px var(--sans);color:rgba(255,255,255,.9);letter-spacing:.02em}
+.task-hero-orbit{position:absolute;top:50%;right:16px;width:80px;height:80px;transform:translateY(-50%);z-index:1}
+.task-hero-ring{position:absolute;inset:0;border:1.5px solid rgba(255,255,255,.2);border-radius:50%;animation:heroSpin 8s linear infinite}
+.task-hero-ring:nth-child(2){inset:10px;animation-duration:12s;animation-direction:reverse}
+.task-hero-dot{position:absolute;width:8px;height:8px;border-radius:50%;background:#fff;top:-4px;left:50%;transform:translateX(-50%);box-shadow:0 0 8px rgba(255,255,255,.6)}
+@keyframes heroSpin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+/* Motivational phrases cycling */
+.task-hero-motiv{position:absolute;bottom:12px;right:16px;font:500 11px var(--sans);color:rgba(255,255,255,.6);letter-spacing:.03em;animation:motivFade 12s ease-in-out infinite}
+@keyframes motivFade{0%,25%{opacity:.6}30%{opacity:0}35%,60%{opacity:.6}65%{opacity:0}70%,100%{opacity:.6}}
+/* ─── NOTES UI ─── */
+.note-cats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.note-cat{border-radius:16px;padding:18px 14px;border:1.5px solid var(--line);background:var(--surface);cursor:pointer;text-align:center;transition:all .2s ease}
+.note-cat:active{transform:scale(.96)}
+.note-cat.on{border-color:var(--accent);background:rgba(226,125,96,.08);box-shadow:0 4px 16px rgba(226,125,96,.12)}
+.note-cat-icon{font-size:24px;margin-bottom:6px}
+.note-cat-label{font:600 13px var(--sans);color:var(--ink)}
+.note-editor{background:var(--surface);border:1.5px solid var(--line);border-radius:18px;padding:18px;margin-top:14px}
+.note-editor textarea{width:100%;min-height:140px;border:none;background:transparent;font:400 15px/1.6 var(--sans);color:var(--ink);outline:none;resize:none}
+.note-editor textarea::placeholder{color:var(--text-mute)}
+.note-toolbar{display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.note-tool-btn{height:36px;padding:0 14px;border-radius:10px;border:1.5px solid var(--line);background:transparent;font:600 12px var(--sans);color:var(--ink-2);cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .15s}
+.note-tool-btn:active{transform:scale(.95)}
+.note-tool-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(226,125,96,.06)}
+.note-canvas-wrap{position:relative;margin-top:12px;border:1.5px solid var(--line);border-radius:14px;overflow:hidden;touch-action:none}
+.note-canvas-wrap canvas{display:block;width:100%;height:200px;background:#fafafa}
+[data-theme=aurora] .note-canvas-wrap canvas{background:#1e1e22}
+.note-voice-rec{display:flex;align-items:center;gap:12px;padding:14px;background:var(--surface);border:1.5px solid var(--line);border-radius:14px;margin-top:12px}
+.note-voice-btn{width:44px;height:44px;border-radius:50%;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s}
+.note-voice-btn.idle{background:linear-gradient(135deg,#EF4444,#DC2626);color:#fff;box-shadow:0 4px 12px rgba(239,68,68,.3)}
+.note-voice-btn.rec{background:#EF4444;color:#fff;animation:voicePulseNote 1s ease-in-out infinite}
+@keyframes voicePulseNote{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.4)}50%{box-shadow:0 0 0 12px rgba(239,68,68,0)}}
+.note-voice-wave{flex:1;height:24px;display:flex;align-items:center;gap:2px}
+.note-voice-wave span{width:3px;border-radius:2px;background:var(--accent);animation:noteWave 1s ease-in-out infinite}
+.note-voice-wave span:nth-child(1){height:8px;animation-delay:0s}
+.note-voice-wave span:nth-child(2){height:16px;animation-delay:.1s}
+.note-voice-wave span:nth-child(3){height:12px;animation-delay:.2s}
+.note-voice-wave span:nth-child(4){height:20px;animation-delay:.3s}
+.note-voice-wave span:nth-child(5){height:10px;animation-delay:.4s}
+.note-voice-wave span:nth-child(6){height:14px;animation-delay:.5s}
+@keyframes noteWave{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.4)}}
+.note-voice-time{font:600 14px var(--mono,monospace);color:var(--ink)}
+.note-card{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:16px;margin-bottom:10px;cursor:pointer;transition:all .15s}
+.note-card:active{transform:scale(.98)}
+.note-card-cat{font:600 11px var(--sans);color:var(--accent);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.note-card-title{font:600 15px/1.3 var(--sans);color:var(--ink);margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.note-card-preview{font:400 13px/1.4 var(--sans);color:var(--text-mute);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.note-card-meta{font:400 11px var(--sans);color:var(--text-dim);margin-top:8px;display:flex;align-items:center;gap:8px}
+.note-empty{text-align:center;padding:40px 20px}
+.note-empty-icon{font-size:40px;margin-bottom:10px}
+.note-empty-title{font:600 16px var(--sans);color:var(--ink);margin-bottom:4px}
+.note-empty-sub{font:400 13px var(--sans);color:var(--text-mute)}
+/* Sub-tab switcher for Tasks/Notes */
+.task-sub-tabs{display:flex;gap:4px;background:var(--surface);border-radius:12px;padding:4px;margin-bottom:16px;border:1px solid var(--line)}
+.task-sub-tab{flex:1;padding:10px 0;border-radius:10px;border:none;background:transparent;font:600 13.5px var(--sans);color:var(--text-mute);cursor:pointer;transition:all .2s;text-align:center}
+.task-sub-tab.on{background:var(--accent);color:#fff;box-shadow:0 2px 8px rgba(226,125,96,.25)}
 /* Priority badge on task cards */
 .tc-pri{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;text-transform:uppercase;letter-spacing:.3px}
 /* Dashboard */
@@ -6117,6 +6247,7 @@ body[data-theme=aurora] .inshort-share{background:rgba(226,125,96,.18);color:#E2
 .hs-card-play{position:absolute;bottom:14px;right:14px;width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.95);color:#111827;display:grid;place-items:center;box-shadow:0 4px 14px -3px rgba(0,0,0,.25);transition:all .25s cubic-bezier(.2,.8,.2,1);backdrop-filter:blur(8px)}
 .hs-card:hover .hs-card-play{transform:scale(1.12);background:#fff;box-shadow:0 12px 32px -4px rgba(0,0,0,.35)}
 .hs-card.is-loading .hs-card-play{background:rgba(255,255,255,.4)}
+.hs-card-done{opacity:.7}.hs-card-done .hs-card-play{background:rgba(255,255,255,.5)}
 body[data-theme=aurora] .hs-cat{background:rgba(255,255,255,.06)!important;color:#E8E8EC!important;border-color:rgba(255,255,255,.08)!important}
 body[data-theme=aurora] .hs-cat.on{background:#FFD27A!important;color:#1B0E2E!important;border-color:#FFD27A!important}
 
@@ -8146,6 +8277,37 @@ body[data-theme=aurora] .streak-card{background:#3A3C44;border-color:rgba(255,25
 body[data-theme=aurora] .book-card{background:#3A3C44;border-color:rgba(255,255,255,.06)}
 body[data-theme=aurora] .bro-header{background:transparent;border-color:rgba(255,255,255,.06)}
 body[data-theme=aurora] .bro-input-wrap{background:var(--bg);border:none}
+/* ─── Aurora/Night dark mode — kill all white backgrounds ─── */
+body[data-theme=aurora] .qc-bar,body.night-sky .qc-bar{background:rgba(255,255,255,.03) !important;border-color:rgba(255,255,255,.06) !important;box-shadow:0 2px 10px rgba(0,0,0,.2) !important}
+body[data-theme=aurora] .rd-segmented button.on{background:rgba(255,255,255,.1) !important;color:var(--ink) !important;box-shadow:0 2px 8px rgba(0,0,0,.2) !important}
+body[data-theme=aurora] .rd-segmented{background:rgba(255,255,255,.03) !important;border-color:rgba(255,255,255,.06) !important}
+body[data-theme=aurora] .srch input{background:rgba(255,255,255,.04) !important;border-color:rgba(255,255,255,.06) !important;color:var(--ink) !important}
+body[data-theme=aurora] .task-sub-tabs{background:rgba(255,255,255,.04) !important;border-color:rgba(255,255,255,.06) !important}
+body[data-theme=aurora] .task-sub-tab{color:var(--text-mute) !important}
+body[data-theme=aurora] .task-sub-tab.on{background:var(--accent) !important;color:#fff !important}
+body[data-theme=aurora] .note-editor{background:rgba(255,255,255,.03) !important;border-color:rgba(255,255,255,.06) !important}
+body[data-theme=aurora] .note-editor textarea{color:var(--ink) !important}
+body[data-theme=aurora] .note-tool-btn{border-color:rgba(255,255,255,.08) !important;color:var(--text-mute) !important}
+body[data-theme=aurora] .note-tool-btn.active{border-color:var(--accent) !important;color:var(--accent) !important}
+body[data-theme=aurora] .note-card{background:rgba(255,255,255,.03) !important;border-color:rgba(255,255,255,.06) !important}
+body[data-theme=aurora] .note-cat{background:rgba(255,255,255,.03) !important;border-color:rgba(255,255,255,.08) !important}
+body[data-theme=aurora] .note-cat.on{border-color:var(--accent) !important;background:rgba(226,125,96,.08) !important}
+body[data-theme=aurora] .note-voice-rec{background:rgba(255,255,255,.03) !important;border-color:rgba(255,255,255,.06) !important}
+body[data-theme=aurora] .note-canvas-wrap{border-color:rgba(255,255,255,.06) !important}
+body[data-theme=aurora] .note-canvas-wrap canvas{background:#1e1e22 !important}
+body[data-theme=aurora] .mdl{background:var(--surface,#3A3C44) !important;color:var(--ink) !important}
+body[data-theme=aurora] .mdl input,body[data-theme=aurora] .mdl textarea,body[data-theme=aurora] .mdl select{background:rgba(255,255,255,.04) !important;border-color:rgba(255,255,255,.08) !important;color:var(--ink) !important}
+body[data-theme=aurora] .email-tasks-btn{background:rgba(255,255,255,.03) !important;border-color:rgba(255,255,255,.06) !important;color:var(--text-mute) !important}
+body[data-theme=aurora] .restore-banner{background:rgba(255,255,255,.04) !important;border-color:rgba(255,255,255,.08) !important}
+body[data-theme=aurora] .ov{background:rgba(0,0,0,.7) !important}
+body[data-theme=aurora] .qc-chip{background:rgba(255,255,255,.04) !important;border-color:rgba(255,255,255,.08) !important;color:var(--text-mute) !important}
+body[data-theme=aurora] .qc-chip.on{border-color:var(--accent) !important;color:var(--accent) !important;background:rgba(226,125,96,.1) !important}
+body[data-theme=aurora] .qc-chip.qc-high{background:rgba(220,38,38,.08) !important;border-color:rgba(220,38,38,.2) !important;color:#f87171 !important}
+body[data-theme=aurora] .qc-chip.qc-high.on{background:#DC2626 !important;color:#fff !important;border-color:#DC2626 !important}
+body[data-theme=aurora] .qc-chip.qc-med{background:rgba(245,158,11,.08) !important;border-color:rgba(245,158,11,.2) !important;color:#fbbf24 !important}
+body[data-theme=aurora] .qc-chip.qc-med.on{background:#CC6E52 !important;color:#fff !important;border-color:#CC6E52 !important}
+body[data-theme=aurora] .qc-chip.qc-low{background:rgba(22,163,74,.08) !important;border-color:rgba(22,163,74,.2) !important;color:#4ade80 !important}
+body[data-theme=aurora] .qc-chip.qc-low.on{background:#16A34A !important;color:#fff !important;border-color:#16A34A !important}
 
 /* ═══ TRAIN PAGE — Minimal section-based design ═══ */
 .tg-header{margin-bottom:20px}
@@ -8272,7 +8434,9 @@ focus:{active:false,paused:false,remaining:25*60,total:25*60,sessions:parseInt(l
 theme:localStorage.getItem('theme')||'aurora',
 themeColor:localStorage.getItem('themeColor')||'coral',
 eyeShield:!!localStorage.getItem('eyeShield'),
+nightSky:!!localStorage.getItem('nightSky'),
 news:{},newsCat:'world',newsLoading:false,
+notes:JSON.parse(localStorage.getItem('tf_notes')||'[]'),noteView:'list',noteEdit:null,noteCategory:null,noteRecording:false,noteDrawing:false,noteVoiceBlob:null,noteTranscript:'',taskSubTab:'tasks',
 bookStreak:{streak:0,total:0,today:false,days:[]},_bkSec:0,
 
 loginStep:'phone',loginMethod:'email',loginPhone:'',loginCountryCode:localStorage.getItem('tf_cc')||'+91',loginEmail:'',loginName:'',loginOTP:['','','','','',''],loginLoading:false,loginError:'',loginErrorDetail:'',loginErrorCode:0,loginSentTo:'',emailOk:false,
@@ -8635,6 +8799,51 @@ function setBoard(b){S.board=b;localStorage.setItem('tf_board',b);render()}
 function clM(){S.showAdd=false;S.editing=null;if(rec)try{rec.stop()}catch(e){}S.listening=false;render()}
 function stV(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){toast('\\u26A0\\uFE0F Voice not supported','err');return}rec=new SR();rec.continuous=false;rec.interimResults=true;rec.lang='en-US';rec.onresult=e=>{let t='';for(let i=0;i<e.results.length;i++)t+=e.results[i][0].transcript;if(e.results[0].isFinal){S.form.title=t;const l=t.toLowerCase();if(/urgent|important|asap/.test(l)){S.form.priority='high';S.form.title=S.form.title.replace(/urgent|important|asap/gi,'').trim()}if(/\\btoday\\b/.test(l))S.form.dueDate=new Date().toISOString().split('T')[0];else if(/\\btomorrow\\b/.test(l)){const d=new Date();d.setDate(d.getDate()+1);S.form.dueDate=d.toISOString().split('T')[0]}}else S.form.title=t;render()};rec.onend=()=>{S.listening=false;render()};rec.onerror=e=>{S.listening=false;toast('\\u26A0\\uFE0F '+e.error,'err');render()};rec.start();S.listening=true;render()}
 
+// ─── NOTES FUNCTIONS ───
+const NOTE_CATS=[{k:'personal',l:'Personal',icon:'\\u{1F3E0}'},{k:'work',l:'Work',icon:'\\u{1F4BC}'},{k:'ideas',l:'Ideas',icon:'\\u{1F4A1}'},{k:'learning',l:'Learning',icon:'\\u{1F4DA}'},{k:'journal',l:'Journal',icon:'\\u{1F4D3}'}];
+function _saveNotes(){localStorage.setItem('tf_notes',JSON.stringify(S.notes))}
+function noteSelectCat(k){S.noteCategory=k;S.noteView='edit';S.noteEdit={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),category:k,title:'',content:'',drawing:null,voiceUrl:null,transcript:'',created:new Date().toISOString()};render()}
+function noteOpen(id){const n=S.notes.find(x=>x.id===id);if(!n)return;S.noteEdit={...n};S.noteView='edit';S.noteCategory=n.category;render()}
+function noteSave(){if(!S.noteEdit)return;const idx=S.notes.findIndex(x=>x.id===S.noteEdit.id);if(idx>-1)S.notes[idx]={...S.noteEdit,updated:new Date().toISOString()};else S.notes.unshift({...S.noteEdit,updated:new Date().toISOString()});_saveNotes();S.noteView='list';S.noteEdit=null;S.noteCategory=null;toast('\\u{1F4DD} Note saved');render()}
+function noteDelete(id){S.notes=S.notes.filter(x=>x.id!==id);_saveNotes();S.noteView='list';S.noteEdit=null;toast('\\u{1F5D1}\\uFE0F Deleted');render()}
+function noteBack(){if(S.noteView==='edit'){S.noteView=S.noteCategory&&!S.noteEdit?.content?'categories':'list';S.noteEdit=null}else if(S.noteView==='categories'){S.noteView='list'}else{S.noteView='list'}render()}
+let _noteRec=null,_noteRecStart=0,_noteRecInterval=null;
+function noteStartRec(){
+  if(!navigator.mediaDevices){toast('\\u26A0\\uFE0F Microphone not available','err');return}
+  navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{
+    _noteRec=new MediaRecorder(stream);const chunks=[];
+    _noteRec.ondataavailable=e=>{if(e.data.size>0)chunks.push(e.data)};
+    _noteRec.onstop=()=>{stream.getTracks().forEach(t=>t.stop());const blob=new Blob(chunks,{type:'audio/webm'});S.noteVoiceBlob=blob;S.noteRecording=false;clearInterval(_noteRecInterval);render();noteTranscribe(blob)};
+    _noteRec.start();S.noteRecording=true;_noteRecStart=Date.now();
+    _noteRecInterval=setInterval(()=>render(),1000);render()
+  }).catch(()=>{toast('\\u26A0\\uFE0F Mic permission denied','err')})
+}
+function noteStopRec(){if(_noteRec&&_noteRec.state==='recording')_noteRec.stop()}
+async function noteTranscribe(blob){
+  S.noteTranscript='Transcribing...';render();
+  try{
+    const r=await fetch('/api/transcribe',{method:'POST',headers:{'Content-Type':blob.type,'x-token':token},body:blob});
+    const d=await r.json();
+    if(d&&d.text){S.noteTranscript=d.text;if(S.noteEdit){S.noteEdit.content=(S.noteEdit.content?S.noteEdit.content+'\\n':'')+d.text;S.noteEdit.transcript=d.text}render()}
+    else{S.noteTranscript='';toast('\\u26A0\\uFE0F Could not transcribe','err');render()}
+  }catch(e){S.noteTranscript='';toast('\\u26A0\\uFE0F Transcription failed','err');render()}
+}
+let _noteCanvas=null,_noteCtx=null,_noteDraw=false;
+function noteInitCanvas(){
+  setTimeout(()=>{
+    const c=document.getElementById('noteDrawCanvas');if(!c)return;
+    _noteCanvas=c;_noteCtx=c.getContext('2d');
+    c.width=c.offsetWidth*2;c.height=c.offsetHeight*2;
+    _noteCtx.scale(2,2);_noteCtx.lineCap='round';_noteCtx.lineJoin='round';_noteCtx.lineWidth=2;_noteCtx.strokeStyle=getComputedStyle(document.body).getPropertyValue('--ink').trim()||'#333';
+    function getXY(e){const r=c.getBoundingClientRect();const t=e.touches?e.touches[0]:e;return[(t.clientX-r.left),(t.clientY-r.top)]}
+    c.addEventListener('pointerdown',e=>{_noteDraw=true;_noteCtx.beginPath();const[x,y]=getXY(e);_noteCtx.moveTo(x,y);e.preventDefault()});
+    c.addEventListener('pointermove',e=>{if(!_noteDraw)return;const[x,y]=getXY(e);_noteCtx.lineTo(x,y);_noteCtx.stroke();e.preventDefault()});
+    c.addEventListener('pointerup',()=>{_noteDraw=false;if(S.noteEdit)S.noteEdit.drawing=c.toDataURL()});
+    c.addEventListener('pointerleave',()=>{_noteDraw=false;if(S.noteEdit)S.noteEdit.drawing=c.toDataURL()});
+  },100)
+}
+function noteClearCanvas(){if(_noteCanvas&&_noteCtx){_noteCtx.clearRect(0,0,_noteCanvas.width,_noteCanvas.height);if(S.noteEdit)S.noteEdit.drawing=null}}
+
 // Knowledge magazine — four major topics, each with 4-5 sub-sections of curated Wikipedia article slugs
 // Total: 130+ articles across History (40 + today), Geography (32), Space (28), Karma (24)
 const KNOWLEDGE_TOPICS=[
@@ -8702,8 +8911,9 @@ async function stopPed(){if(_ped){window.removeEventListener('devicemotion',_ped
 /* When the tab is backgrounded, flush whatever we counted so we don't lose it, and re-acquire wake lock on return. */
 document.addEventListener('visibilitychange',async()=>{if(document.visibilityState==='hidden'){if(S.stepLive&&S.stepLive.active)await flushPedCount()}else if(document.visibilityState==='visible'){if(S.stepLive&&S.stepLive.active&&!_wakeLock)await acquireWake()}});
 function toggleTheme(){S.theme=S.theme==='aurora'?'classic':'aurora';localStorage.setItem('theme',S.theme);document.body.setAttribute('data-theme',S.theme);toast(S.theme==='aurora'?'Aurora theme':'Classic theme');render()}
-function toggleEyeShield(){S.eyeShield=!S.eyeShield;localStorage.setItem('eyeShield',S.eyeShield?'1':'');document.body.classList.toggle('eye-shield',S.eyeShield);toast(S.eyeShield?'Eye Shield on':'Eye Shield off');render()}
-function applyTheme(){document.body.setAttribute('data-theme',S.theme||'classic');applyColorThemeCSS(S.themeColor||'coral');if(S.eyeShield)document.body.classList.add('eye-shield')}
+function toggleEyeShield(){S.eyeShield=!S.eyeShield;localStorage.setItem('eyeShield',S.eyeShield?'1':'');document.body.classList.toggle('eye-shield',S.eyeShield);if(S.eyeShield){S.nightSky=false;localStorage.setItem('nightSky','');document.body.classList.remove('night-sky');var mn=document.getElementById('nsMoon');if(mn)mn.remove()}toast(S.eyeShield?'Eye Shield on':'Eye Shield off');render()}
+function toggleNightSky(){S.nightSky=!S.nightSky;localStorage.setItem('nightSky',S.nightSky?'1':'');document.body.classList.toggle('night-sky',S.nightSky);if(S.nightSky){S.eyeShield=false;localStorage.setItem('eyeShield','');document.body.classList.remove('eye-shield');if(S.theme!=='aurora'){S.theme='aurora';localStorage.setItem('theme','aurora');document.body.setAttribute('data-theme','aurora')}if(!document.getElementById('nsMoon')){var m=document.createElement('div');m.id='nsMoon';m.className='ns-moon';document.body.appendChild(m)}}else{var mn=document.getElementById('nsMoon');if(mn)mn.remove()}toast(S.nightSky?'Night Sky on':'Night Sky off');render()}
+function applyTheme(){document.body.setAttribute('data-theme',S.theme||'classic');applyColorThemeCSS(S.themeColor||'coral');if(S.eyeShield)document.body.classList.add('eye-shield');if(S.nightSky){document.body.classList.add('night-sky');if(!document.getElementById('nsMoon')){var m=document.createElement('div');m.id='nsMoon';m.className='ns-moon';document.body.appendChild(m)}}}
 const _COLOR_THEMES={
   blue:{c1:'#4F6DF5',c2:'#7B93F8',c3:'#B4C2FB',c4:'#1E2A5E',c5:'#3B5CE0',bg:'#F4F6FF',bg2:'#F9FAFF',border:'#E0E5F6',rgba1:'79,109,245',rgba2:'123,147,248'},
   emerald:{c1:'#10B981',c2:'#34D399',c3:'#6EE7B7',c4:'#064E3B',c5:'#059669',bg:'#ECFDF5',bg2:'#F0FDF4',border:'#D1FAE5',rgba1:'16,185,129',rgba2:'52,211,153'},
@@ -12333,6 +12543,7 @@ const LOGO_MARK='<div class="logo" aria-label="Brodoit"><span class="b1">Bro</sp
 let _hdrStreak=0;for(let _si=0;_si<60;_si++){const _sd=new Date(Date.now()-_si*864e5).toISOString().slice(0,10);const _sok=ts.some(x=>x.status==='done'&&(x.updated_at||'').slice(0,10)===_sd);if(_sok)_hdrStreak++;else if(_si>0)break}
 let h='<div class="hdr"><div class="hdr-l">'+LOGO_MARK+'</div><div class="hdr-actions">'
   +(_hdrStreak>0?'<div class="rd-pill rd-pill-accent">'+_hdrStreak+'-day streak</div>':'')
+  +'<button class="hdr-help" onclick="toggleNightSky()" title="Night Sky" style="font-size:16px;display:flex;align-items:center;justify-content:center;opacity:'+(S.nightSky?'1':'.5')+'"><svg width="16" height="16" viewBox="0 0 24 24" fill="'+(S.nightSky?'#A5B4FC':'none')+'" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2l1.09 3.26L16.36 6l-3.27 1.09L12 10.36l-1.09-3.27L7.64 6l3.27-1.09z"/><path d="M17 14l.62 1.87L19.5 16.5l-1.88.63L17 19l-.62-1.87L14.5 16.5l1.88-.63z"/><path d="M7 14l.62 1.87L9.5 16.5l-1.88.63L7 19l-.62-1.87L4.5 16.5l1.88-.63z"/></svg></button>'
   +'<button class="hdr-help" onclick="toggleEyeShield()" title="Eye Shield" style="font-size:16px;display:flex;align-items:center;justify-content:center;opacity:'+(S.eyeShield?'1':'.5')+'"><svg width="16" height="16" viewBox="0 0 24 24" fill="'+(S.eyeShield?'#D4A060':'none')+'" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>'
   +'<button class="hdr-help" onclick="toggleTheme()" title="Dark mode" style="font-size:16px;display:flex;align-items:center;justify-content:center">'+(S.theme==='aurora'?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="18.4" y1="18.4" x2="19.8" y2="19.8"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.2" y1="19.8" x2="5.6" y2="18.4"/><line x1="18.4" y1="5.6" x2="19.8" y2="4.2"/></svg>':'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>')+'</button>'
   +'</div></div>';
@@ -12663,6 +12874,7 @@ if(S.tab==='dash')S.tab='tasks'; // Stats tab removed; redirect any stale state 
 if(S.tab==='health')S.tab='tasks'; // Health tab removed; step tracking needs app open
 const _firstName=((S.user&&S.user.name)||'').split(' ')[0]||'';
 if(S.tab==='tasks'){
+  if(S.view!=='all')S.view='all';
   // Restore-from-backup banner
   if(S.restoreOffer&&S.restoreOffer.count){
     const when=S.restoreOffer.savedAt?new Date(S.restoreOffer.savedAt).toLocaleString():'';
@@ -12671,25 +12883,39 @@ if(S.tab==='tasks'){
   if(!S.dailyHl&&!S._hlFetched){S._hlFetched=true;const _c=_hlLocalCache();if(_c)S.dailyHl=_c;hlLoad()}
   // Overdue alert
   if(s.od>0)h+='<div class="al" style="background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);color:var(--accent-strong);cursor:pointer;border-radius:14px;padding:12px 16px;font:600 13.5px var(--sans);margin-bottom:10px" onclick="S.view=\\'overdue\\';render()">\\u26A0\\uFE0F '+s.od+' overdue</div>';
-  // Header row: serif title + date + FAB
+  // Header
   const _todayStr=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric'});
-  h+='<div style="display:flex;align-items:flex-end;justify-content:space-between;margin-top:6px">';
-  h+='<div><h2 class="rd-serif-title">Tasks</h2><p style="font:400 13.5px var(--sans);color:var(--text-mute);margin:6px 0 0">Today \\u00B7 '+esc(_todayStr)+'</p></div>';
-  h+='<button class="rd-fab" onclick="opA()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>';
+  h+='<div style="margin-top:6px"><h2 class="rd-serif-title">Workspace</h2><p style="font:400 13.5px var(--sans);color:var(--text-mute);margin:4px 0 14px">'+esc(_todayStr)+'</p></div>';
+  // Sub-tab switcher: Tasks | Notes
+  if(!S.taskSubTab)S.taskSubTab='tasks';
+  h+='<div class="task-sub-tabs">';
+  h+='<button class="task-sub-tab'+(S.taskSubTab==='tasks'?' on':'')+'" onclick="S.taskSubTab=\\'tasks\\';render()">\\u2705 Tasks</button>';
+  h+='<button class="task-sub-tab'+(S.taskSubTab==='notes'?' on':'')+'" onclick="S.taskSubTab=\\'notes\\';render()">\\u{1F4DD} Notes</button>';
+  h+='</div>';
+
+  if(S.taskSubTab==='tasks'){
+  // ── MOTIVATIONAL ADD-TASK HERO CARD ──
+  const _heroMsgs=['Don\\u2019t put it off. Write it down.','Your future self will thank you.','One task at a time, one step closer.','Start now. Perfect later.','Clarity begins with a list.'];
+  const _heroIdx=Math.floor(Date.now()/30000)%_heroMsgs.length;
+  h+='<div class="task-hero" onclick="opA()">';
+  h+='<div class="task-hero-blob"></div><div class="task-hero-blob"></div><div class="task-hero-blob"></div>';
+  h+='<div class="task-hero-text"><div class="task-hero-title">What needs to get done?</div><div class="task-hero-sub">'+_heroMsgs[_heroIdx]+'</div></div>';
+  h+='<div class="task-hero-cta"><div class="task-hero-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#764ba2" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div><span class="task-hero-label">Add Task</span></div>';
+  h+='<div class="task-hero-orbit"><div class="task-hero-ring"><div class="task-hero-dot"></div></div><div class="task-hero-ring"></div></div>';
   h+='</div>';
   // Quick-compose bar
   const _cp=S.compose.priority;
-  h+='<div class="qc-bar" style="margin-top:14px">';
-  h+='<div class="qc-row"><textarea class="qc-input" rows="2" wrap="soft" style="display:block;width:100%;box-sizing:border-box;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;overflow-x:hidden;resize:none;border-radius:14px;font-family:var(--sans)" placeholder="Add a task... (try: Buy milk tomorrow !high)" oninput="composeUpdate(this.value);this.style.height=\\'auto\\';this.style.height=Math.min(this.scrollHeight,120)+\\'px\\'" onkeydown="if(event.key===\\'Enter\\'&&!event.shiftKey){event.preventDefault();composeSubmit()}">'+esc(S.compose.value||'')+'</textarea>';
+  h+='<div class="qc-bar" style="margin-top:0">';
+  h+='<div class="qc-row"><textarea class="qc-input" rows="1" wrap="soft" style="display:block;width:100%;box-sizing:border-box;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;overflow-x:hidden;resize:none;border-radius:14px;font-family:var(--sans)" placeholder="Quick add... (try: Buy milk tomorrow !high)" oninput="composeUpdate(this.value);this.style.height=\\'auto\\';this.style.height=Math.min(this.scrollHeight,120)+\\'px\\'" onkeydown="if(event.key===\\'Enter\\'&&!event.shiftKey){event.preventDefault();composeSubmit()}">'+esc(S.compose.value||'')+'</textarea>';
   var _hasText=(S.compose.value||'').trim().length>0;
-  if(_hasText){h+='<div class="qc-send-row"><button class="qc-send" onclick="composeSubmit()" title="Add task" style="border-radius:12px;background:var(--accent)">+</button></div>';}
+  if(_hasText){h+='<div class="qc-send-row"><button class="qc-send" onclick="composeSubmit()" title="Add task" style="border-radius:12px;background:var(--accent)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>';}
   h+='</div>';
   if(_hasText){
   h+='<div class="qc-chips">';
   h+='<span class="qc-chip qc-high'+(_cp==='high'?' on':'')+'" onclick="composeSetPriority(\\'high\\')"><span class="qc-dot" style="background:#DC2626"></span>High</span>';
   h+='<span class="qc-chip qc-med'+(_cp==='medium'?' on':'')+'" onclick="composeSetPriority(\\'medium\\')"><span class="qc-dot" style="background:#F59E0B"></span>Med</span>';
   h+='<span class="qc-chip qc-low'+(_cp==='low'?' on':'')+'" onclick="composeSetPriority(\\'low\\')"><span class="qc-dot" style="background:#16A34A"></span>Low</span>';
-  h+='<span class="qc-expand" onclick="opA()">+ More options</span>';
+  h+='<span class="qc-expand" onclick="opA()">+ Details</span>';
   h+='</div>';}
   h+='</div>';
   // Segmented control
@@ -12699,11 +12925,8 @@ if(S.tab==='tasks'){
   h+='<button class="'+(S.taskSegment==='upcoming'?'on':'')+'" onclick="S.taskSegment=\\'upcoming\\';render()">Upcoming</button>';
   h+='<button class="'+(S.taskSegment==='done'?'on':'')+'" onclick="S.taskSegment=\\'done\\';render()">Done</button>';
   h+='</div>';
-  // Search + filter
+  // Search
   h+='<div class="srch" style="margin-top:10px"><input style="border-radius:12px;font-family:var(--sans)" placeholder="Search tasks..." value="'+esc(S.search)+'" oninput="S.search=this.value;render()"></div>';
-  h+='<div class="flt" style="margin-top:8px;gap:6px">'+[{k:'all',l:'All'},{k:'pending',l:'To Do'},{k:'in-progress',l:'Doing'},{k:'done',l:'Done'},{k:'today',l:'Today'}].map(x=>'<button class="fb'+(S.view===x.k?' on':'')+'" style="border-radius:10px;font-family:var(--sans)" onclick="S.view=\\''+x.k+'\\';render()">'+x.l+'</button>').join('')+'</div>';
-  // Email tasks button
-  h+='<button class="email-tasks-btn" style="border-radius:12px;font-family:var(--sans);margin-top:8px" onclick="emailMyTasks()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> Email my tasks</button>';
   // Task list with segmented filtering
   const _tISO=new Date().toISOString().slice(0,10);
   let _segTasks=f;
@@ -12741,109 +12964,161 @@ if(S.tab==='tasks'){
     h+='<div class="tc-acts" style="display:flex;gap:4px;align-items:flex-start;margin-left:6px"><button class="ib" onclick="opE(\\''+t.id+'\\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="ib" style="color:#E8453C" onclick="del(\\''+t.id+'\\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button></div>';
     h+='</div>';
   }
-  if(!_segTasks.length&&!f.length)h+='<div style="text-align:center;padding:40px 0"><div style="font-size:36px;margin-bottom:8px">\\u2728</div><div style="font:600 15px var(--sans);color:var(--ink)">No tasks yet</div><div style="font:400 13px var(--sans);color:var(--text-mute);margin-top:4px">Tap + to add your first task</div></div>';
+  if(!_segTasks.length&&!f.length)h+='<div style="text-align:center;padding:40px 0"><div style="font-size:36px;margin-bottom:8px">\\u2728</div><div style="font:600 15px var(--sans);color:var(--ink)">No tasks yet</div><div style="font:400 13px var(--sans);color:var(--text-mute);margin-top:4px">Tap the card above to add your first task</div></div>';
   else if(!_segTasks.length)h+='<div style="text-align:center;padding:30px 0"><div style="font:500 14px var(--sans);color:var(--text-mute)">No tasks in this view</div></div>';
+  }
+  // ── NOTES SUB-TAB ──
+  else if(S.taskSubTab==='notes'){
+    if(S.noteView==='edit'&&S.noteEdit){
+      // Note editor
+      h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">';
+      h+='<button style="background:none;border:none;cursor:pointer;padding:4px" onclick="noteBack()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>';
+      h+='<span style="font:600 16px var(--sans);color:var(--ink)">'+esc((NOTE_CATS.find(c=>c.k===S.noteEdit.category)||{}).l||'Note')+'</span>';
+      h+='<div style="flex:1"></div>';
+      h+='<button style="background:var(--accent);color:#fff;border:none;border-radius:10px;padding:8px 18px;font:600 13px var(--sans);cursor:pointer" onclick="noteSave()">Save</button>';
+      if(S.notes.find(x=>x.id===S.noteEdit.id)){h+='<button style="background:none;border:none;color:#E8453C;font:600 13px var(--sans);cursor:pointer;padding:8px" onclick="noteDelete(\\''+S.noteEdit.id+'\\')">Delete</button>';}
+      h+='</div>';
+      h+='<input style="width:100%;border:none;background:transparent;font:600 20px var(--sans);color:var(--ink);outline:none;padding:8px 0;margin-bottom:4px" placeholder="Note title..." value="'+esc(S.noteEdit.title||'')+'" oninput="S.noteEdit.title=this.value">';
+      h+='<div class="note-editor">';
+      h+='<textarea placeholder="Start writing..." oninput="S.noteEdit.content=this.value">'+esc(S.noteEdit.content||'')+'</textarea>';
+      h+='<div class="note-toolbar">';
+      h+='<button class="note-tool-btn'+(S.noteDrawing?' active':'')+'" onclick="S.noteDrawing=!S.noteDrawing;render();if(S.noteDrawing)noteInitCanvas()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/></svg> Draw</button>';
+      h+='<button class="note-tool-btn'+(S.noteRecording?' active':'')+'" onclick="'+(S.noteRecording?'noteStopRec()':'noteStartRec()')+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/></svg> '+(S.noteRecording?'Stop':'Voice')+'</button>';
+      if(S.noteTranscript&&S.noteTranscript!=='Transcribing...')h+='<span style="font:400 12px var(--sans);color:var(--text-mute);padding:6px">\\u2705 Transcribed</span>';
+      if(S.noteTranscript==='Transcribing...')h+='<span style="font:400 12px var(--sans);color:var(--accent);padding:6px">\\u23F3 Transcribing...</span>';
+      h+='</div>';
+      h+='</div>';
+      // Drawing canvas
+      if(S.noteDrawing){
+        h+='<div class="note-canvas-wrap"><canvas id="noteDrawCanvas" style="touch-action:none"></canvas></div>';
+        h+='<div style="display:flex;gap:8px;margin-top:8px"><button class="note-tool-btn" onclick="noteClearCanvas()">Clear Canvas</button></div>';
+      }
+      // Voice recorder UI
+      if(S.noteRecording){
+        const _recSec=Math.floor((Date.now()-_noteRecStart)/1000);
+        const _recMin=Math.floor(_recSec/60);const _recS=_recSec%60;
+        h+='<div class="note-voice-rec">';
+        h+='<button class="note-voice-btn rec" onclick="noteStopRec()"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><rect x="6" y="6" width="12" height="12" rx="2"/></svg></button>';
+        h+='<div class="note-voice-wave"><span></span><span></span><span></span><span></span><span></span><span></span></div>';
+        h+='<span class="note-voice-time">'+String(_recMin).padStart(2,'0')+':'+String(_recS).padStart(2,'0')+'</span>';
+        h+='</div>';
+      }
+      // Show saved drawing preview
+      if(S.noteEdit.drawing&&!S.noteDrawing){
+        h+='<div style="margin-top:12px;border-radius:14px;overflow:hidden;border:1.5px solid var(--line)"><img src="'+S.noteEdit.drawing+'" style="width:100%;display:block" alt="Drawing"></div>';
+      }
+    } else if(S.noteView==='categories'){
+      // Category picker
+      h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">';
+      h+='<button style="background:none;border:none;cursor:pointer;padding:4px" onclick="noteBack()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>';
+      h+='<span style="font:600 16px var(--sans);color:var(--ink)">Choose a category</span>';
+      h+='</div>';
+      h+='<div class="note-cats">';
+      NOTE_CATS.forEach(function(c){
+        h+='<div class="note-cat" onclick="noteSelectCat(\\''+c.k+'\\')">';
+        h+='<div class="note-cat-icon">'+c.icon+'</div>';
+        h+='<div class="note-cat-label">'+c.l+'</div>';
+        h+='</div>';
+      });
+      h+='</div>';
+    } else {
+      // Notes list
+      h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">';
+      h+='<span style="font:600 15px var(--sans);color:var(--ink)">Your Notes</span>';
+      h+='<button style="background:var(--accent);color:#fff;border:none;border-radius:10px;padding:8px 18px;font:600 13px var(--sans);cursor:pointer" onclick="S.noteView=\\'categories\\';render()">+ New Note</button>';
+      h+='</div>';
+      // Category filter chips
+      h+='<div style="display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;padding-bottom:4px">';
+      h+='<span class="qc-chip'+(S.noteCategory===null?' on':'')+'" onclick="S.noteCategory=null;render()" style="border-radius:20px">All</span>';
+      NOTE_CATS.forEach(function(c){
+        h+='<span class="qc-chip'+(S.noteCategory===c.k?' on':'')+'" onclick="S.noteCategory=\\''+c.k+'\\';render()" style="border-radius:20px">'+c.icon+' '+c.l+'</span>';
+      });
+      h+='</div>';
+      var _filtNotes=S.notes;
+      if(S.noteCategory)_filtNotes=S.notes.filter(function(n){return n.category===S.noteCategory});
+      if(_filtNotes.length){
+        _filtNotes.forEach(function(n){
+          var catObj=NOTE_CATS.find(function(c){return c.k===n.category})||{l:'Note',icon:''};
+          h+='<div class="note-card" onclick="noteOpen(\\''+n.id+'\\')">';
+          h+='<div class="note-card-cat">'+catObj.icon+' '+catObj.l+'</div>';
+          h+='<div class="note-card-title">'+esc(n.title||'Untitled')+'</div>';
+          if(n.content)h+='<div class="note-card-preview">'+esc(n.content.slice(0,120))+'</div>';
+          h+='<div class="note-card-meta">';
+          if(n.drawing)h+='<span>\\u{1F3A8} Drawing</span>';
+          if(n.voiceUrl||n.transcript)h+='<span>\\u{1F3A4} Voice</span>';
+          h+='<span>'+new Date(n.updated||n.created).toLocaleDateString()+'</span>';
+          h+='</div></div>';
+        });
+      } else {
+        h+='<div class="note-empty"><div class="note-empty-icon">\\u{1F4DD}</div><div class="note-empty-title">No notes yet</div><div class="note-empty-sub">Tap + New Note to capture your thoughts</div></div>';
+      }
+    }
+  }
 }
 
 // MIND GYM TAB — section-based brain training (Maths, English, Memory)
 else if(S.tab==='mindgym'){
   const mg=S.mg;
-  const _wordP=mg.progress.word||{level:1,xp:0,best:0};
-  const _schP=mg.progress.schulte||{level:1,xp:0,best:0};
-  const totalXp=(mg.progress.math.xp||0)+(_wordP.xp||0)+(_schP.xp||0)+(mg.progress.sudoku||{xp:0}).xp+(mg.progress.spatial||{xp:0}).xp;
+  const _allGames=[
+    {k:'math',n:'Speed Arithmetic',d:'Solve equations before time runs out',mins:2,grad:'linear-gradient(135deg,#FFE0A3 0%,#EDA68E 100%)',skill:'Focus'},
+    {k:'stroop',n:'Color Conflict',d:'Name the ink color, ignore the word',mins:1,grad:'linear-gradient(135deg,#FCA5A5 0%,#EF4444 100%)',skill:'Focus'},
+    {k:'colormatch',n:'Quick Match',d:'Does the word match the colour shown?',mins:1,grad:'linear-gradient(135deg,#FDE68A 0%,#F59E0B 100%)',skill:'Focus'},
+    {k:'word',n:'Word Builder',d:'Form words from scrambled letters',mins:2,grad:'linear-gradient(135deg,#BBF7D0 0%,#5C6F52 100%)',skill:'Logic'},
+    {k:'sudoku',n:'Logic Grid',d:'Fill the grid \\u2014 no repeats per row or column',mins:3,grad:'linear-gradient(135deg,#FEF3C7 0%,#D4A545 100%)',skill:'Logic'},
+    {k:'schulte',n:'Number Hunt',d:'Tap 1 through 25 as fast as you can',mins:1,grad:'linear-gradient(135deg,#FBCFE8 0%,#DB2777 100%)',skill:'Memory'},
+    {k:'spatial',n:'Pattern Flash',d:'Memorise the pattern, recreate it',mins:2,grad:'linear-gradient(135deg,#DDD6FE 0%,#7C3AED 100%)',skill:'Memory'},
+    {k:'nback',n:'Dual Focus',d:'Was this letter shown N steps back?',mins:2,grad:'linear-gradient(135deg,#C7D2FE 0%,#4F46E5 100%)',skill:'Memory'}
+  ];
+  const _todaySeed=new Date().toISOString().slice(0,10).split('-').reduce(function(a,b){return a+parseInt(b)},0);
+  const _dailyPick=[];var _pool=_allGames.slice();
+  for(var _di=0;_di<5&&_pool.length;_di++){var _idx=(_todaySeed*7+_di*13)%_pool.length;_dailyPick.push(_pool.splice(_idx,1)[0])}
+  const _todayKey=new Date().toISOString().slice(0,10);
+  const _doneToday=mg.dailyDone||{};
+  const _doneTodayList=_doneToday[_todayKey]||[];
+  const _dailyComplete=_dailyPick.every(function(g){return _doneTodayList.indexOf(g.k)>=0});
+  const _doneCount=_dailyPick.filter(function(g){return _doneTodayList.indexOf(g.k)>=0}).length;
   const streak=mg.streak||{current:0,longest:0,total:0};
-  const _sudP=(mg.progress.sudoku||{level:1,xp:0,best:0});
-  const _spatP=(mg.progress.spatial||{level:1,xp:0,best:0});
+  const totalXp=_allGames.reduce(function(s,g){return s+((mg.progress[g.k]||{}).xp||0)},0);
 
-  const _mgLevel=Math.floor(totalXp/500)+1;
-  const _focusXp=(mg.progress.math.xp||0)+((mg.progress.stroop||{}).xp||0)+((mg.progress.colormatch||{}).xp||0);
-  const _memXp=(_schP.xp||0)+(_spatP.xp||0)+((mg.progress.nback||{}).xp||0);
-  const _logicXp=(_wordP.xp||0)+(mg.progress.sudoku||{xp:0}).xp;
-  const _maxSkill=1500;
-  h+='<div style="display:flex;align-items:flex-end;justify-content:space-between;margin-top:6px">';
-  h+='<div><h2 class="rd-serif-title">Mind Gym</h2>';
-  h+='<div style="font:500 14px var(--sans);color:var(--text-mute);margin-top:6px">'+totalXp+' XP \\u00B7 '+streak.current+' day streak</div></div>';
-  h+='<div class="rd-pill rd-pill-sage" style="font-size:14px;padding:8px 16px">Level '+_mgLevel+'</div>';
-  h+='</div>';
-  h+='<div class="rd-session-card" style="margin-top:18px;position:relative;overflow:hidden">';
-  h+='<div style="position:absolute;top:-20px;right:-10px;font-size:80px;opacity:.12;pointer-events:none">\\u{1F680}</div>';
-  h+='<div class="rd-eyebrow" style="color:rgba(255,255,255,.8);font-size:12px">TODAY\\u2019S SESSION</div>';
-  h+='<div style="font:500 26px/1.15 var(--serif);margin:8px 0 0">8 games \\u00B7 3 categories</div>';
-  h+='<div style="font:400 14px var(--sans);color:rgba(255,255,255,.7);margin-top:6px">Focus, Logic, Memory \\u2014 train your brain daily</div>';
-  h+='<div style="display:flex;align-items:center;gap:14px;margin-top:18px">';
-  h+='<button style="height:50px;padding:0 28px;border:none;border-radius:14px;background:#fff;color:#1a1a2e;font:600 16px var(--sans);cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,.2)" onclick="mgDetailOpen(\\'math\\')"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg>Quick Play</button>';
-  h+='<button style="height:50px;padding:0 20px;border:1.5px solid rgba(255,255,255,.3);border-radius:14px;background:transparent;color:#fff;font:600 14px var(--sans);cursor:pointer" onclick="mgGamesOpen()">All Games</button>';
-  h+='</div></div>';
-  h+='<div class="rd-eyebrow" style="margin:24px 0 0;font-size:12px">YOUR SKILLS</div>';
-  h+='<div class="rd-skill-bar" style="margin-top:14px">';
-  var _skills=[{n:'Focus',v:_focusXp,max:_maxSkill,c:'var(--accent)',ic:'\\u{1F3AF}'},{n:'Memory',v:_memXp,max:_maxSkill,c:'var(--gold)',ic:'\\u{1F9E0}'},{n:'Logic',v:_logicXp,max:_maxSkill,c:'var(--sage)',ic:'\\u{1F4A1}'}];
-  _skills.forEach(function(sk){
-    var pct=Math.min(100,Math.round(sk.v/sk.max*100));
-    h+='<div><div style="display:flex;justify-content:space-between;margin-bottom:7px"><span style="font:600 15px var(--sans);color:var(--ink)">'+sk.ic+' '+sk.n+'</span><span style="font:600 14px var(--sans);color:var(--text-mute)">'+sk.v+'</span></div>';
-    h+='<div class="rd-progress-bar" style="height:8px"><div class="rd-progress-fill" style="width:'+pct+'%;background:'+sk.c+'"></div></div></div>';
+  h+='<div style="margin-top:6px"><h2 class="rd-serif-title">Daily Training</h2>';
+  h+='<div style="font:500 14px var(--sans);color:var(--text-mute);margin-top:6px">'+streak.current+' day streak \\u00B7 '+totalXp+' XP</div></div>';
+
+  h+='<div class="rd-eyebrow" style="margin:28px 0 12px;font-size:12px">TODAY\\u2019S CHALLENGE \\u00B7 '+_doneCount+'/'+_dailyPick.length+'</div>';
+  h+='<div style="display:flex;gap:6px;margin-bottom:18px">';
+  _dailyPick.forEach(function(g){
+    var done=_doneTodayList.indexOf(g.k)>=0;
+    h+='<div style="flex:1;height:5px;border-radius:3px;background:'+(done?'var(--accent)':'var(--surface)')+'"></div>';
   });
   h+='</div>';
-  const _stroopP=(mg.progress.stroop||{level:1,xp:0,best:0});
-  const _nbackP=(mg.progress.nback||{level:1,xp:0,best:0});
-  const _cmP=(mg.progress.colormatch||{level:1,xp:0,best:0});
-  const _cats=[
-    {id:'focus',title:'Focus & Speed',desc:'Sharpen your reflexes and concentration',
-     grad:'linear-gradient(135deg,#D9734A 0%,#BE8C36 100%)',
-     games:[
-      {k:'math',n:'Math Sprint',d:'Mental arithmetic against the clock',em:'\\u26A1',fill:'var(--accent)',pData:mg.progress.math},
-      {k:'stroop',n:'Stroop Challenge',d:'Tap the ink color, not the word',em:'\\u{1F308}',fill:'#EF4444',pData:_stroopP},
-      {k:'colormatch',n:'Color Match',d:'Does the word match the color?',em:'\\u{1F3A8}',fill:'#F59E0B',pData:_cmP}
-    ]},
-    {id:'logic',title:'Logic & Language',desc:'Puzzles that stretch your reasoning',
-     grad:'linear-gradient(135deg,#5C6F52 0%,#7C8E72 100%)',
-     games:[
-      {k:'word',n:'Word Sprint',d:'Unscramble letters into words',em:'\\u{1F524}',fill:'var(--sage)',pData:_wordP},
-      {k:'sudoku',n:'Sudoku',d:'4\\u00D74 logic puzzle',em:'\\u{1F9E9}',fill:'var(--gold)',pData:_sudP}
-    ]},
-    {id:'memory',title:'Memory & Recall',desc:'Train your working memory',
-     grad:'linear-gradient(135deg,#8B5CF6 0%,#6D28D9 100%)',
-     games:[
-      {k:'schulte',n:'Schulte Grid',d:'Find numbers 1\\u219225 in order',em:'\\u{1F522}',fill:'var(--accent)',pData:_schP},
-      {k:'spatial',n:'Pattern Recall',d:'Memorize and recreate patterns',em:'\\u{1F9E7}',fill:'var(--gold)',pData:_spatP},
-      {k:'nback',n:'N-Back',d:'Was this letter shown N steps ago?',em:'\\u{1F9E0}',fill:'#8B5CF6',pData:_nbackP}
-    ]}
-  ];
-  h+='<div class="rd-eyebrow" style="margin:24px 0 0;font-size:12px">CATEGORIES</div>';
-  const _openCat=S.trainCat||'';
-  h+='<div style="margin-top:14px;display:flex;flex-direction:column;gap:12px">';
-  var _catEmoji={focus:'\\u26A1',logic:'\\u{1F9E9}',memory:'\\u{1F9E0}'};
-  _cats.forEach(cat=>{
-    h+='<div class="rd-mg-cat" onclick="S.trainCat=(S.trainCat===\\''+cat.id+'\\')?\\'\\':\\''+cat.id+'\\';render()" style="background:'+cat.grad+';position:relative;overflow:hidden">'
-      +'<div style="position:absolute;top:-10px;right:10px;font-size:64px;opacity:.15;pointer-events:none">'+(_catEmoji[cat.id]||'\\u{1F3AE}')+'</div>'
-      +'<div class="rd-mg-cat-body">'
-        +'<div style="flex:1;min-width:0">'
-          +'<h3 style="font:700 22px var(--sans);margin:0;color:#fff;letter-spacing:-.01em">'+cat.title+'</h3>'
-          +'<div style="font:400 14px var(--sans);color:rgba(255,255,255,.8);margin-top:4px">'+cat.desc+'</div>'
-        +'</div>'
-        +'<div style="font:600 13px var(--sans);background:rgba(255,255,255,.22);padding:6px 12px;border-radius:10px;color:#fff">'+cat.games.length+' games</div>'
-      +'</div>'
-    +'</div>';
-    if(_openCat===cat.id){
-      h+='<div style="display:flex;flex-direction:column;gap:8px;padding:0 4px">';
-      cat.games.forEach(g=>{
-        const p=g.pData;
-        const lvl=p.level||1;
-        const xp=p.xp||0;
-        const nextXp=lvl*100;
-        const xpPct=Math.min(100,Math.round(xp/nextXp*100));
-        h+='<button class="rd-mg-game" onclick="event.stopPropagation();mgDetailOpen(\\''+g.k+'\\')">'+
-          '<div class="rd-mg-game-icon" style="background:var(--accent-soft)">'+g.em+'</div>'
-          +'<div style="flex:1;min-width:0">'
-            +'<div style="font:600 16px var(--sans);color:var(--ink)">'+g.n+'</div>'
-            +'<div style="font:400 13.5px var(--sans);color:var(--text-mute);margin-top:3px">'+g.d+'</div>'
-            +'<div class="rd-progress-bar" style="margin-top:8px;height:6px"><div class="rd-progress-fill" style="width:'+xpPct+'%;background:'+g.fill+'"></div></div>'
-            +'<div style="font:500 12px var(--sans);color:var(--text-dim);margin-top:5px">Level '+lvl+' \\u00B7 '+xp+'/'+nextXp+' XP</div>'
-          +'</div>'
-          +'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-mute)" stroke-width="2.5" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>'
-        +'</button>';
-      });
-      h+='</div>';
-    }
+  h+='<div class="hs-grid">';
+  _dailyPick.forEach(function(g){
+    var p=mg.progress[g.k]||{level:1,xp:0,best:0};
+    var done=_doneTodayList.indexOf(g.k)>=0;
+    h+='<button class="hs-card'+(done?' hs-card-done':'')+'" onclick="mgDetailOpen(\\''+g.k+'\\')" style="--g:'+g.grad+'">';
+    h+='<div class="hs-card-blob"></div>';
+    h+='<div class="hs-card-blob hs-card-blob-2"></div>';
+    h+='<div class="hs-card-top"><span class="hs-card-dur">'+g.mins+'</span><span class="hs-card-durU">MIN</span>';
+    if(done)h+='<span style="margin-left:auto;font-size:9px;letter-spacing:.5px;background:rgba(255,255,255,.3);padding:2px 8px;border-radius:8px;font-weight:700">DONE</span>';
+    h+='</div>';
+    h+='<div class="hs-card-title">'+g.n+'</div>';
+    h+='<div class="hs-card-desc">'+g.d+'</div>';
+    h+='<div class="hs-card-play">'+(done?'<svg width="16" height="16" viewBox="0 0 24 24" fill="#111827" stroke="#111827" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>':'<svg width="16" height="16" viewBox="0 0 24 24" fill="#111827"><polygon points="6 4 20 12 6 20 6 4"/></svg>')+'</div>';
+    h+='</button>';
+  });
+  h+='</div>';
+
+  h+='<div class="rd-eyebrow" style="margin:28px 0 12px;font-size:12px">ALL EXERCISES</div>';
+  h+='<div class="hs-grid">';
+  _allGames.forEach(function(g){
+    var p=mg.progress[g.k]||{level:1,xp:0,best:0};
+    h+='<button class="hs-card" onclick="mgDetailOpen(\\''+g.k+'\\')" style="--g:'+g.grad+'">';
+    h+='<div class="hs-card-blob"></div>';
+    h+='<div class="hs-card-blob hs-card-blob-2"></div>';
+    h+='<div class="hs-card-top"><span class="hs-card-dur">'+g.mins+'</span><span class="hs-card-durU">MIN</span></div>';
+    h+='<div class="hs-card-title">'+g.n+'</div>';
+    h+='<div class="hs-card-desc">'+g.d+'</div>';
+    h+='<div class="hs-card-play"><svg width="16" height="16" viewBox="0 0 24 24" fill="#111827"><polygon points="6 4 20 12 6 20 6 4"/></svg></div>';
+    h+='</button>';
   });
   h+='</div>';
 }
@@ -13604,10 +13879,8 @@ else if(S.tab==='__obsolete_knowledge__'){
 
 
 h+='</main>';
-// Global FAB+ — only on Tasks and Calendar tabs
-if(S.tab==='tasks'||S.tab==='board'){
-  h+='<button class="fab fab-global" onclick="opA()" aria-label="Add a new task" title="Add a new task">+</button>';
-} else if(S.tab==='cal'){
+// Global FAB+ — only on Calendar tab (Tasks tab uses hero card instead)
+if(S.tab==='cal'){
   h+='<button class="fab fab-global" onclick="openCalSchedule()" aria-label="Add to calendar" title="Add to calendar">+</button>';
 }
 
@@ -13877,59 +14150,50 @@ if(S.showHelp){
 // ─── MIND GYM gameplay modal ───
 // ─── Game detail (journey roadmap) ───
 if(S.mgGamesPanel&&!S.mgDetail&&!S.mgPlay){
-  // ─── All-games fullscreen modal — opened from the Mind Gym launcher chip ───
-  const _mg=S.mg;
-  const _gms=[
-    {k:'math',e:'\\u26A1',n:'Math Sprint',d:'Mental arithmetic',accent:'#EDA68E',accent2:'#3B82F6',pData:_mg.progress.math,pct:mgPercent('math')},
-    {k:'stroop',e:'\\u{1F308}',n:'Stroop Challenge',d:'Ink color, not word',accent:'#EF4444',accent2:'#3B82F6',pData:(_mg.progress.stroop||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((_mg.progress.stroop||{}).xp||0)/(5*100))*100))},
-    {k:'colormatch',e:'\\u{1F3A8}',n:'Color Match',d:'Word vs color',accent:'#F59E0B',accent2:'#10B981',pData:(_mg.progress.colormatch||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((_mg.progress.colormatch||{}).xp||0)/(5*100))*100))},
-    {k:'word',e:'\\u{1F520}',n:'Word Sprint',d:'Anagrams. 90 seconds.',accent:'#EDA68E',accent2:'#CC6E52',pData:(_mg.progress.word||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((_mg.progress.word||{}).xp||0)/(5*100))*100)),bestSuffix:' words'},
-    {k:'sudoku',e:'\\u{1F9E9}',n:'Sudoku',d:'4\\u00D74 logic puzzle',accent:'#FBBF24',accent2:'#F59E0B',pData:(_mg.progress.sudoku||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((_mg.progress.sudoku||{}).xp||0)/(5*100))*100))},
-    {k:'schulte',e:'\\u{1F3AF}',n:'Schulte Grid',d:'Tap 1\\u219225 in order',accent:'#F472B6',accent2:'#EDA68E',pData:(_mg.progress.schulte||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((_mg.progress.schulte||{}).xp||0)/(5*100))*100)),bestSuffix:' s'},
-    {k:'spatial',e:'\\u{1F9E7}',n:'Pattern Recall',d:'Memorize patterns',accent:'#A855F7',accent2:'#7C3AED',pData:(_mg.progress.spatial||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((_mg.progress.spatial||{}).xp||0)/(5*100))*100))},
-    {k:'nback',e:'\\u{1F9E0}',n:'N-Back',d:'Working memory drill',accent:'#8B5CF6',accent2:'#06B6D4',pData:(_mg.progress.nback||{level:1,xp:0,best:0}),pct:Math.min(100,Math.round((((_mg.progress.nback||{}).xp||0)/(5*100))*100))}
-  ];
   h+='<div class="ov" onclick="mgGamesClose()"><div class="mdl mtg-mdl" onclick="event.stopPropagation()">';
   h+='<header class="mtg-hd-v2">'
     +'<button class="qa-back-pill" onclick="mgGamesClose()" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back</button>'
-    +'<div class="hh-eyebrow" style="color:rgba(255,255,255,.78)">Mind Games \\u00B7 '+_gms.length+' games</div>'
+    +'<div class="hh-eyebrow" style="color:rgba(255,255,255,.78)">Daily Training \\u00B7 8 exercises</div>'
     +'<div style="width:38px"></div>'
   +'</header>';
   h+='<div class="mtg-body">';
-  h+='<section class="home-hero" style="margin-bottom:14px">'
-    +'<div class="hh-bg"></div>'
-    +'<div class="hh-row"><div class="hh-eyebrow">\\u{1F9E0} Mind Gym</div></div>'
-    +'<h1 class="hh-greet">Pick a <em>game</em>.</h1>'
-    +'<p class="hh-line">Each game opens fullscreen with its own level roadmap. Sub-90 seconds per round.</p>'
-  +'</section>';
-  h+='<section class="mtg-card"><div class="mtg-card-hd"><span class="mtg-card-ic" style="background:linear-gradient(135deg,#EDA68E,#374151)">\\u{1F3AE}</span><div class="mtg-card-title"><div class="mtg-card-name">Choose a game<span class="mtg-card-bdg">'+_gms.length+'</span></div><div class="mtg-card-sub">Tap any to open the level roadmap</div></div></div>';
-  h+='<div class="hh-stats game-grid-hero" style="margin-top:14px">';
-  _gms.forEach(g=>{
-    const p=g.pData;
-    const bestStr=p.best?(g.k==='schulte'?(p.best/10).toFixed(1)+(g.bestSuffix||''):(p.best+(g.bestSuffix||''))):'\\u2014';
-    h+='<button class="hh-stat game-tile-hero" onclick="mgDetailOpen(\\''+g.k+'\\')" style="--accent:'+g.accent+';--accent2:'+g.accent2+'">'
-      +'<span class="game-tile-emoji" style="background:linear-gradient(135deg,'+g.accent+','+g.accent2+')">'+g.e+'</span>'
-      +'<span class="game-tile-lvl">L'+(p.level||1)+'</span>'
-      +'<div class="game-tile-name">'+g.n+'</div>'
-      +'<div class="game-tile-bar"><i style="width:'+g.pct+'%;background:linear-gradient(90deg,'+g.accent+','+g.accent2+')"></i></div>'
-      +'<small style="color:rgba(255,255,255,.78)">'+bestStr+' \\u00B7 '+g.pct+'%</small>'
-    +'</button>';
+  var _panelGames=[
+    {k:'math',n:'Speed Arithmetic',d:'Solve equations before time runs out',mins:2,grad:'linear-gradient(135deg,#FFE0A3 0%,#EDA68E 100%)'},
+    {k:'stroop',n:'Color Conflict',d:'Name the ink color, ignore the word',mins:1,grad:'linear-gradient(135deg,#FCA5A5 0%,#EF4444 100%)'},
+    {k:'colormatch',n:'Quick Match',d:'Does the word match the colour shown?',mins:1,grad:'linear-gradient(135deg,#FDE68A 0%,#F59E0B 100%)'},
+    {k:'word',n:'Word Builder',d:'Form words from scrambled letters',mins:2,grad:'linear-gradient(135deg,#BBF7D0 0%,#5C6F52 100%)'},
+    {k:'sudoku',n:'Logic Grid',d:'Fill the grid \\u2014 no repeats per row or column',mins:3,grad:'linear-gradient(135deg,#FEF3C7 0%,#D4A545 100%)'},
+    {k:'schulte',n:'Number Hunt',d:'Tap 1 through 25 as fast as you can',mins:1,grad:'linear-gradient(135deg,#FBCFE8 0%,#DB2777 100%)'},
+    {k:'spatial',n:'Pattern Flash',d:'Memorise the pattern, recreate it',mins:2,grad:'linear-gradient(135deg,#DDD6FE 0%,#7C3AED 100%)'},
+    {k:'nback',n:'Dual Focus',d:'Was this letter shown N steps back?',mins:2,grad:'linear-gradient(135deg,#C7D2FE 0%,#4F46E5 100%)'}
+  ];
+  h+='<div class="rd-eyebrow" style="margin:4px 0 14px;font-size:12px">ALL EXERCISES \\u00B7 '+_panelGames.length+'</div>';
+  h+='<div class="hs-grid">';
+  _panelGames.forEach(function(g){
+    h+='<button class="hs-card" onclick="mgDetailOpen(\\''+g.k+'\\')" style="--g:'+g.grad+'">';
+    h+='<div class="hs-card-blob"></div>';
+    h+='<div class="hs-card-blob hs-card-blob-2"></div>';
+    h+='<div class="hs-card-top"><span class="hs-card-dur">'+g.mins+'</span><span class="hs-card-durU">MIN</span></div>';
+    h+='<div class="hs-card-title">'+g.n+'</div>';
+    h+='<div class="hs-card-desc">'+g.d+'</div>';
+    h+='<div class="hs-card-play"><svg width="16" height="16" viewBox="0 0 24 24" fill="#111827"><polygon points="6 4 20 12 6 20 6 4"/></svg></div>';
+    h+='</button>';
   });
-  h+='</div></section>';
+  h+='</div>';
   h+='</div></div></div>';
 }
 if(S.mgDetail&&!S.mgPlay){
   const _gameMeta={
-    math:{e:'\\u{1F522}',n:'Math Sprint',d:'Mental arithmetic, against the clock. Each level adds a harder operation or a tighter window.',accent:'#EDA68E',accent2:'#3B82F6',road:'highway',vehicle:'\\u{1F697}',start:'mgMathStart()'},
+    math:{e:'\\u{1F522}',n:'Speed Arithmetic',d:'Solve equations before time runs out. Each level adds harder operations and tighter windows.',accent:'#EDA68E',accent2:'#3B82F6',road:'highway',vehicle:'\\u{1F697}',start:'mgMathStart()'},
     memory:{e:'\\u{1F9E9}',n:'Memory Tap',d:'Watch a pattern, repeat it. Each level adds one more tile to the sequence.',accent:'#EDA68E',accent2:'#EC4899',road:'mountain',vehicle:'\\u{1F9D7}',start:'mgMemoryStart()'},
     reaction:{e:'\\u26A1',n:'Reaction',d:'Tap the moment the screen turns green. Pure reflex, milliseconds matter.',accent:'#FED7AA',accent2:'#EDA68E',road:'racetrack',vehicle:'\\u{1F3CE}',start:'mgReactionStart()'},
-    word:{e:'\\u{1F520}',n:'Word Sprint',d:'Seven scrambled letters, ninety seconds. Higher levels demand longer words.',accent:'#EDA68E',accent2:'#CC6E52',road:'forest',vehicle:'\\u{1F6B5}',start:'mgWordStart()'},
-    schulte:{e:'\\u{1F3AF}',n:'Schulte Grid',d:'Tap 1 to 25 in order. Higher levels grow the grid up to 7\\u00D77 (49 cells).',accent:'#F472B6',accent2:'#EDA68E',road:'space',vehicle:'\\u{1F680}',start:'mgSchulteStart()'},
-    sudoku:{e:'\\u{1F9E9}',n:'Sudoku',d:'Solve a 4\\u00D74 logic puzzle. Each level has fewer pre-filled cells.',accent:'#FBBF24',accent2:'#F59E0B',road:'desert',vehicle:'\\u{1F42A}',start:'mgSudokuStart()'},
-    spatial:{e:'\\u{1F9E0}',n:'Pattern Recall',d:'Memorize a lit pattern, then tap it back. Higher levels show more cells on larger grids.',accent:'#A855F7',accent2:'#7C3AED',road:'galaxy',vehicle:'\\u{1F6F8}',start:'mgSpatialStart()'},
-    stroop:{e:'\\u{1F308}',n:'Stroop Challenge',d:'Tap the INK COLOR, not the word. Fights your brain\\'s autopilot.',accent:'#EF4444',accent2:'#3B82F6',road:'city',vehicle:'\\u{1F3CE}',start:'mgStroopStart()'},
-    nback:{e:'\\u{1F9E0}',n:'N-Back',d:'Did this letter appear N steps ago? The gold standard for working memory.',accent:'#8B5CF6',accent2:'#06B6D4',road:'cosmos',vehicle:'\\u{1F52E}',start:'mgNbackStart()'},
-    colormatch:{e:'\\u{1F3A8}',n:'Color Match',d:'Does the word match the ink? Fast decisions under pressure.',accent:'#F59E0B',accent2:'#10B981',road:'neon',vehicle:'\\u{1F3AE}',start:'mgColorMatchStart()'}
+    word:{e:'\\u{1F520}',n:'Word Builder',d:'Form words from scrambled letters. Higher levels demand longer words.',accent:'#EDA68E',accent2:'#CC6E52',road:'forest',vehicle:'\\u{1F6B5}',start:'mgWordStart()'},
+    schulte:{e:'\\u{1F3AF}',n:'Number Hunt',d:'Tap 1 to 25 in order. Higher levels grow the grid up to 7\\u00D77.',accent:'#F472B6',accent2:'#EDA68E',road:'space',vehicle:'\\u{1F680}',start:'mgSchulteStart()'},
+    sudoku:{e:'\\u{1F9E9}',n:'Logic Grid',d:'Fill the grid \\u2014 no repeats per row or column. Fewer clues each level.',accent:'#FBBF24',accent2:'#F59E0B',road:'desert',vehicle:'\\u{1F42A}',start:'mgSudokuStart()'},
+    spatial:{e:'\\u{1F9E0}',n:'Pattern Flash',d:'Memorise a lit pattern, then tap it back. Larger grids each level.',accent:'#A855F7',accent2:'#7C3AED',road:'galaxy',vehicle:'\\u{1F6F8}',start:'mgSpatialStart()'},
+    stroop:{e:'\\u{1F308}',n:'Color Conflict',d:'Tap the INK COLOR, not the word. Fights your brain\\'s autopilot.',accent:'#EF4444',accent2:'#3B82F6',road:'city',vehicle:'\\u{1F3CE}',start:'mgStroopStart()'},
+    nback:{e:'\\u{1F9E0}',n:'Dual Focus',d:'Did this letter appear N steps ago? The gold standard for working memory.',accent:'#8B5CF6',accent2:'#06B6D4',road:'cosmos',vehicle:'\\u{1F52E}',start:'mgNbackStart()'},
+    colormatch:{e:'\\u{1F3A8}',n:'Quick Match',d:'Does the word match the ink? Fast decisions under pressure.',accent:'#F59E0B',accent2:'#10B981',road:'neon',vehicle:'\\u{1F3AE}',start:'mgColorMatchStart()'}
   };
   const meta=_gameMeta[S.mgDetail];
   const prog=S.mg.progress[S.mgDetail]||{level:1,xp:0,best:0};
@@ -14520,7 +14784,7 @@ h+='<label class="lbl">Notes</label><textarea oninput="S.form.notes=this.value" 
 h+='<div class="row"><div><label class="lbl">Priority</label><div class="qc-chips" style="margin-top:4px"><span class="qc-chip qc-high'+(S.form.priority==='high'?' on':'')+'" onclick="S.form.priority=\\'high\\';render()"><span class="qc-dot" style="background:#DC2626"></span>High</span><span class="qc-chip qc-med'+(S.form.priority==='medium'?' on':'')+'" onclick="S.form.priority=\\'medium\\';render()"><span class="qc-dot" style="background:#F59E0B"></span>Med</span><span class="qc-chip qc-low'+(S.form.priority==='low'?' on':'')+'" onclick="S.form.priority=\\'low\\';render()"><span class="qc-dot" style="background:#16A34A"></span>Low</span></div></div>';
 h+='<div><label class="lbl">Due Date</label><input type="date" value="'+S.form.dueDate+'" onchange="S.form.dueDate=this.value"></div></div>';
 h+='<label class="lbl">Reminder</label><input type="time" value="'+S.form.reminderTime+'" onchange="S.form.reminderTime=this.value">';
-// Board picker in form removed — single unified task list. Server defaults new tasks to 'home'.
+if(S.google&&S.google.configured&&S.form.dueDate){h+='<label class="lbl" style="margin-top:8px"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;font:500 13px var(--sans);color:var(--ink-2)"><input type="checkbox" '+(S.form._gcalSync?'checked':'')+' onchange="S.form._gcalSync=this.checked" style="accent-color:var(--accent)"> Add to Google Calendar</label></label>';}
 if(isE)h+='<label class="lbl">Status</label><select onchange="S.form.status=this.value"><option value="pending"'+(S.form.status==='pending'?' selected':'')+'>To Do</option><option value="in-progress"'+(S.form.status==='in-progress'?' selected':'')+'>Doing</option><option value="done"'+(S.form.status==='done'?' selected':'')+'>Done</option></select>';
 h+='<div class="macts"><button class="mb mb-c" onclick="clM()">Cancel</button><button class="mb mb-s" onclick="'+(isE?'savE()':'addT()')+'">'+(isE?'Update':'Add Task')+'</button></div>';
 if(isE)h+='<button class="mb mb-d" onclick="del(\\''+S.editing+'\\');clM()">Delete</button>';
@@ -14595,7 +14859,7 @@ function _recoverLoginIfNeeded(){
 }
 window.addEventListener('pageshow',function(e){_recoverLoginIfNeeded()});
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')_recoverLoginIfNeeded()});
-if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js?v=76').then(function(reg){reg.update()}).catch(()=>{});}
+if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js?v=79').then(function(reg){reg.update()}).catch(()=>{});}
 // ─── Mobile keyboard: keep Bro input visible ───
 (function(){
   if(!window.visualViewport)return;
@@ -14862,7 +15126,7 @@ app.get('/privacy',(_,res)=>{
 app.get('/terms',(_,res)=>{
   res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Terms of Service — Brodoit</title><meta name="description" content="The simple terms for using Brodoit. Plain English, no surprises."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Terms</div><h1>The simple rules.</h1><p class="lede">We've kept these terms short and human. Use Brodoit kindly, and we'll keep building it for you.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">The service</h2><p>Brodoit is a personal productivity app: it lets you manage tasks with optional WhatsApp and email reminders, listen to free public-domain audiobooks, sharpen your mind with brain games, and see a daily wisdom quote.</p><h2 data-n="02">Your account</h2><p>You register with your email address or phone number. Keep your one-time verification codes private — anyone with the code can sign in. You are responsible for activity on your account.</p><h2 data-n="03">Acceptable use</h2><p>Please don't abuse the service: no spam, no impersonation, no automated scraping, no attempts to disrupt other users or the service itself. We may suspend or remove accounts that do.</p><h2 data-n="04">Content</h2><p>You own your tasks, notes, and other content you create. We store them so we can show them back to you. Audiobook content belongs to the respective public-domain authors and is served from the Internet Archive's LibriVox collection.</p><h2 data-n="05">No warranty</h2><p>The service is provided "as is". We try hard to keep it running, but can't promise zero downtime or guarantee that every reminder is delivered (WhatsApp and email providers can fail). If something matters, please don't rely solely on Brodoit.</p><h2 data-n="06">Limitation of liability</h2><p>Brodoit is a personal tool. We're not liable for missed deadlines, lost data, or any consequential damages from using — or not using — the service.</p><h2 data-n="07">Changes</h2><p>We may update these terms. If we do, we'll update the date at the top. Continued use after a change means you accept the new terms.</p><h2 data-n="08">Contact</h2><p>Need anything? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });
-app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v76";
+app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v79";
 self.addEventListener("install",function(e){self.skipWaiting()});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener("fetch",function(e){});
