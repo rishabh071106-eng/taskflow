@@ -3255,42 +3255,45 @@ body[data-theme=aurora] .mg-grid-tab .mg-card-d{color:#888888}
 body[data-theme=aurora] .mg-why-card{background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.06)}
 body[data-theme=aurora] .mg-why-t{color:#E8E8EC}
 body[data-theme=aurora] .mg-why-d{color:#888888}
-/* MIND GAMES — Hero banner + section-based layout */
-.mg-hero-banner{position:relative;border-radius:20px;overflow:hidden;margin-bottom:24px;padding:28px 22px 22px;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 40%,#0f3460 100%);box-shadow:0 12px 40px -8px rgba(0,0,0,.4)}
-.mg-hero-bg{position:absolute;inset:0;background:radial-gradient(600px 400px at 80% 20%,rgba(226,125,96,.15),transparent 60%),radial-gradient(400px 300px at 10% 80%,rgba(102,126,234,.12),transparent 55%);pointer-events:none}
-.mg-hero-content{position:relative;z-index:1}
-.mg-hero-stats-row{display:flex;gap:10px;margin-top:18px}
-.mg-hero-stat{flex:1;padding:10px 8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:12px;text-align:center}
-.mg-hero-stat-n{display:block;font:800 22px/1 'Space Mono',monospace;color:#FCD34D;letter-spacing:-.02em}
-.mg-hero-stat-l{display:block;font:500 10px var(--sans);color:rgba(255,255,255,.55);letter-spacing:.04em;text-transform:uppercase;margin-top:4px}
-.mg-section{margin-bottom:24px}
-.mg-sec-header{display:flex;align-items:center;gap:14px;margin-bottom:14px;padding:0 2px}
-.mg-sec-icon{width:48px;height:48px;flex-shrink:0}
-.mg-sec-icon svg{width:100%;height:100%}
-.mg-sec-info{flex:1;min-width:0}
-.mg-sec-title{font:800 20px var(--sans);color:var(--ink);letter-spacing:-.01em}
-.mg-sec-desc{font:400 13px var(--sans);color:var(--text-mute);margin-top:2px}
-.mg-scroll-row{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:4px 2px 16px;scrollbar-width:none}
-.mg-scroll-row::-webkit-scrollbar{display:none}
-.mg-game-card{position:relative;flex:0 0 200px;scroll-snap-align:start;border-radius:20px;overflow:hidden;border:none;cursor:pointer;display:flex;flex-direction:column;text-align:left;color:#fff;background:var(--gg,linear-gradient(135deg,#667eea,#764ba2));box-shadow:0 8px 24px -6px rgba(0,0,0,.3);transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s ease;font-family:inherit;isolation:isolate;min-height:220px}
-.mg-game-card:hover{transform:translateY(-4px) scale(1.02);box-shadow:0 16px 40px -8px rgba(0,0,0,.45)}
-.mg-game-card:active{transform:scale(.97)}
-.mg-game-illust{position:absolute;top:0;right:0;width:120px;height:80px;opacity:.7;pointer-events:none;z-index:0}
-.mg-game-illust svg{width:100%;height:100%}
-.mg-game-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.05) 0%,rgba(0,0,0,.45) 100%);pointer-events:none;z-index:1}
-.mg-game-body{position:relative;z-index:2;padding:18px 16px 14px;flex:1;display:flex;flex-direction:column}
-.mg-game-meta{display:flex;align-items:center;gap:6px;margin-bottom:auto}
-.mg-game-mins{font:700 11px var(--sans);letter-spacing:.04em;text-transform:uppercase;background:rgba(255,255,255,.18);padding:3px 8px;border-radius:8px}
-.mg-game-lvl{font:700 11px 'Space Mono',monospace;letter-spacing:.04em;color:rgba(255,255,255,.7)}
-.mg-game-badge{font:700 10px var(--sans);letter-spacing:.04em;background:rgba(255,255,255,.25);padding:3px 8px;border-radius:8px;color:#fff}
-.mg-game-name{font:800 17px var(--sans);color:#fff;letter-spacing:-.01em;margin-top:10px;line-height:1.15}
-.mg-game-desc{font:400 12px var(--sans);color:rgba(255,255,255,.75);margin-top:5px;line-height:1.4}
-.mg-game-xp-bar{height:4px;background:rgba(255,255,255,.15);border-radius:99px;overflow:hidden;margin-top:10px}
-.mg-game-xp-fill{height:100%;background:linear-gradient(90deg,#FCD34D,#EDA68E);border-radius:99px;transition:width .4s ease}
-.mg-game-play{position:absolute;bottom:14px;right:14px;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.92);color:#111827;display:grid;place-items:center;box-shadow:0 4px 14px -3px rgba(0,0,0,.3);transition:all .25s ease;z-index:2}
-.mg-game-card:hover .mg-game-play{transform:scale(1.12);background:#fff}
-.mg-game-done{opacity:.65}
-.mg-game-done .mg-game-play{background:rgba(255,255,255,.5)}
+/* MIND GAMES — Landing cards + Section drill-down */
+.mg-landing{display:flex;flex-direction:column;gap:16px}
+.mg-sec-card{position:relative;border-radius:24px;overflow:hidden;height:180px;cursor:pointer;display:flex;align-items:flex-end;transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s ease;box-shadow:0 8px 30px -6px rgba(0,0,0,.35);border:none;width:100%;text-align:left;font-family:inherit}
+.mg-sec-card:hover{transform:translateY(-3px);box-shadow:0 16px 40px -8px rgba(0,0,0,.5)}
+.mg-sec-card:active{transform:scale(.98)}
+.mg-sec-card-bg{position:absolute;inset:0;z-index:0}
+.mg-sec-card-bg svg{width:100%;height:100%;display:block}
+.mg-sec-card-ov{position:absolute;inset:0;z-index:1;background:linear-gradient(0deg,rgba(0,0,0,.65) 0%,rgba(0,0,0,.18) 45%,rgba(0,0,0,.05) 100%)}
+.mg-sec-card-body{position:relative;z-index:2;padding:20px 22px;width:100%}
+.mg-sec-card-title{font:800 26px var(--sans);color:#fff;letter-spacing:-.02em}
+.mg-sec-card-desc{font:400 13px var(--sans);color:rgba(255,255,255,.8);margin-top:3px}
+.mg-sec-card-prog{display:flex;align-items:center;gap:10px;margin-top:10px}
+.mg-sec-card-bar{flex:1;height:4px;background:rgba(255,255,255,.2);border-radius:99px;overflow:hidden}
+.mg-sec-card-fill{height:100%;background:linear-gradient(90deg,#FCD34D,#F59E0B);border-radius:99px;transition:width .4s ease}
+.mg-sec-card-count{font:700 12px 'Space Mono',monospace;color:rgba(255,255,255,.7)}
+.mg-sec-card-arrow{position:absolute;top:50%;right:20px;transform:translateY(-50%);z-index:2;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.12);display:grid;place-items:center;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.mg-drill-hd{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.mg-drill-back{width:38px;height:38px;border-radius:50%;background:var(--surface);border:1px solid rgba(255,255,255,.08);display:grid;place-items:center;cursor:pointer;color:var(--ink);transition:background .2s}
+.mg-drill-back:hover{background:rgba(255,255,255,.1)}
+.mg-drill-title{font:800 24px var(--sans);color:var(--ink);letter-spacing:-.02em}
+.mg-drill-hero{position:relative;border-radius:20px;overflow:hidden;height:140px;margin-bottom:22px;display:flex;align-items:flex-end}
+.mg-drill-hero-bg{position:absolute;inset:0}
+.mg-drill-hero-bg svg{width:100%;height:100%;display:block}
+.mg-drill-hero-ov{position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.55) 0%,rgba(0,0,0,.08) 100%)}
+.mg-drill-hero-body{position:relative;z-index:1;padding:18px 22px;width:100%}
+.mg-drill-hero-title{font:800 28px var(--sans);color:#fff;letter-spacing:-.02em}
+.mg-drill-hero-desc{font:400 13px var(--sans);color:rgba(255,255,255,.8);margin-top:3px}
+.mg-drill-list{display:flex;flex-direction:column;gap:10px}
+.mg-drill-game{display:flex;align-items:center;gap:16px;padding:16px 18px;border-radius:18px;background:var(--surface);border:1px solid rgba(255,255,255,.06);cursor:pointer;transition:all .25s ease;font-family:inherit;text-align:left;color:inherit;width:100%}
+.mg-drill-game:hover{transform:translateY(-2px);box-shadow:0 8px 24px -6px rgba(0,0,0,.2)}
+.mg-drill-game:active{transform:scale(.98)}
+.mg-drill-game-locked{opacity:.4;pointer-events:none;filter:grayscale(.3)}
+.mg-drill-game-icon{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-size:24px;flex-shrink:0}
+.mg-drill-game-info{flex:1;min-width:0}
+.mg-drill-game-name{font:700 16px var(--sans);color:var(--ink);letter-spacing:-.01em}
+.mg-drill-game-desc{font:400 13px var(--sans);color:var(--text-mute);margin-top:3px;line-height:1.3}
+.mg-drill-game-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.mg-drill-game-lvl{font:700 12px 'Space Mono',monospace;color:var(--accent);letter-spacing:.02em}
+.mg-drill-game-lock{color:var(--text-mute);opacity:.5}
 /* VOICE TRAINER */
 .vc-hero{position:relative;border-radius:20px;overflow:hidden;margin-bottom:18px;background:linear-gradient(135deg,#111827 0%,#292524 50%,#A07040 100%);color:#fff;box-shadow:0 16px 40px rgba(17,24,39,.22)}
 .vc-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 78% 100%,rgba(251,146,60,.28),transparent 55%),radial-gradient(circle at 10% 0%,rgba(252,211,77,.15),transparent 50%);pointer-events:none}
@@ -10398,14 +10401,13 @@ function _renderHlPoster(text,done){
 }
 // Game-detail view: click a game card → see its 10-level journey before playing
 function mgDetailOpen(key){
-  if(key==='reaction'||key==='memory')key='math';
-  if(key==='numchain'||key==='fraction'||key==='mental')key='math';
-  if(key==='cardmatch')key='spatial';
   S.mgDetail=key;S.mgGamesPanel=false;render();try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){}
 }
 function mgDetailClose(){S.mgDetail=null;render()}
 function mgGamesOpen(){S.mgGamesPanel=true;if(!S.mg.loaded)loadMindGym();render()}
 function mgGamesClose(){S.mgGamesPanel=false;render()}
+function mgSectionOpen(id){S.mgSection=id;render();try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){}}
+function mgSectionClose(){S.mgSection=null;render()}
 function mgPlayLevel(key,lvl){
   const cur=(S.mg.progress[key]||{level:1}).level||1;
   if(lvl>cur){toast('\\u{1F512} Reach Level '+lvl+' first','err');return}
@@ -13127,102 +13129,100 @@ else if(S.tab==='mindgym'){
   const mg=S.mg;
   const _mgSections=[
     {id:'maths',title:'Maths',desc:'Sharpen your numerical intelligence',
-      grad:'linear-gradient(135deg,#2D1B69 0%,#1a1a2e 50%,#0f3460 100%)',
       games:[
-        {k:'math',n:'Speed Arithmetic',d:'Race against time solving equations',mins:2,grad:'linear-gradient(135deg,#FFE0A3 0%,#FF8C42 100%)'},
-        {k:'numchain',n:'Number Chains',d:'Find the missing number in the sequence',mins:2,grad:'linear-gradient(135deg,#F6D365 0%,#FDA085 100%)'},
-        {k:'fraction',n:'Fraction Master',d:'Compare and order fractions quickly',mins:2,grad:'linear-gradient(135deg,#A18CD1 0%,#FBC2EB 100%)'},
-        {k:'mental',n:'Mental Math',d:'Multi-step calculations, no pen allowed',mins:3,grad:'linear-gradient(135deg,#667EEA 0%,#764BA2 100%)'}
+        {k:'math',n:'Speed Arithmetic',d:'Race against time solving equations',mins:2,emoji:'\u{1F522}',bg:'#2D6A4F'},
+        {k:'schulte',n:'Number Hunt',d:'Tap 1 through 25 in order',mins:1,emoji:'\u{1F3AF}',bg:'#1B4332'},
+        {k:'sudoku',n:'Logic Grid',d:'Fill the grid — no repeats per row or column',mins:3,emoji:'\u{1F9E9}',bg:'#40916C'}
       ]
     },
     {id:'memory',title:'Memory',desc:'Train your recall and working memory',
-      grad:'linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%)',
       games:[
-        {k:'spatial',n:'Pattern Flash',d:'Memorise the grid, then recreate it',mins:2,grad:'linear-gradient(135deg,#DDD6FE 0%,#7C3AED 100%)'},
-        {k:'nback',n:'Dual N-Back',d:'Was this letter shown N steps back?',mins:2,grad:'linear-gradient(135deg,#C7D2FE 0%,#4F46E5 100%)'},
-        {k:'cardmatch',n:'Card Match',d:'Find all matching pairs before time runs out',mins:2,grad:'linear-gradient(135deg,#F093FB 0%,#F5576C 100%)'},
-        {k:'schulte',n:'Number Hunt',d:'Tap 1 through 25 as fast as you can',mins:1,grad:'linear-gradient(135deg,#FBCFE8 0%,#DB2777 100%)'}
+        {k:'spatial',n:'Pattern Flash',d:'Memorise the grid, then recreate it',mins:2,emoji:'\u{1F9E0}',bg:'#5B21B6'},
+        {k:'nback',n:'Dual N-Back',d:'Was this letter shown N steps back?',mins:2,emoji:'\u{1F52E}',bg:'#4C1D95'},
+        {k:'memory',n:'Memory Tap',d:'Watch a pattern, repeat the sequence',mins:2,emoji:'\u{1F4A1}',bg:'#6D28D9'},
+        {k:'colormatch',n:'Quick Match',d:'Does the word match the colour shown?',mins:1,emoji:'\u{1F3A8}',bg:'#7C3AED'}
       ]
     },
-    {id:'puzzles',title:'Puzzles',desc:'Challenge your logic and reasoning',
-      grad:'linear-gradient(135deg,#0f3460 0%,#1a1a2e 50%,#16213e 100%)',
+    {id:'puzzles',title:'Puzzles',desc:'Challenge your logic and attention',
       games:[
-        {k:'sudoku',n:'Logic Grid',d:'Fill the grid — no repeats per row or column',mins:3,grad:'linear-gradient(135deg,#FEF3C7 0%,#D4A545 100%)'},
-        {k:'word',n:'Word Builder',d:'Form words from scrambled letters',mins:2,grad:'linear-gradient(135deg,#BBF7D0 0%,#059669 100%)'},
-        {k:'stroop',n:'Color Conflict',d:'Name the ink color, ignore the word',mins:1,grad:'linear-gradient(135deg,#FCA5A5 0%,#EF4444 100%)'},
-        {k:'colormatch',n:'Quick Match',d:'Does the word match the colour shown?',mins:1,grad:'linear-gradient(135deg,#FDE68A 0%,#F59E0B 100%)'}
+        {k:'word',n:'Word Builder',d:'Form words from scrambled letters',mins:2,emoji:'\u{1F520}',bg:'#0E4D64'},
+        {k:'stroop',n:'Color Conflict',d:'Name the ink color, ignore the word',mins:1,emoji:'\u{1F308}',bg:'#0C3547'},
+        {k:'reaction',n:'Reaction Speed',d:'Tap the moment the screen turns green',mins:1,emoji:'⚡',bg:'#1A535C'}
       ]
     }
   ];
-  const _mgIllusts={
-    math:'<svg viewBox="0 0 120 80" fill="none"><text x="10" y="45" font-family="monospace" font-size="32" font-weight="900" fill="rgba(255,255,255,.12)">+−×</text><text x="60" y="65" font-family="monospace" font-size="24" fill="rgba(255,255,255,.08)">=?</text></svg>',
-    numchain:'<svg viewBox="0 0 120 80" fill="none"><text x="8" y="35" font-family="monospace" font-size="18" fill="rgba(255,255,255,.15)">2 4 ? 16</text><text x="20" y="60" font-family="monospace" font-size="14" fill="rgba(255,255,255,.08)">×2</text></svg>',
-    fraction:'<svg viewBox="0 0 120 80" fill="none"><text x="20" y="30" font-family="serif" font-size="22" fill="rgba(255,255,255,.15)">½</text><text x="55" y="45" font-family="serif" font-size="18" fill="rgba(255,255,255,.1)">vs</text><text x="80" y="58" font-family="serif" font-size="22" fill="rgba(255,255,255,.15)">¾</text></svg>',
-    mental:'<svg viewBox="0 0 120 80" fill="none"><text x="10" y="50" font-family="monospace" font-size="14" fill="rgba(255,255,255,.12)">24×3+18÷2</text></svg>',
-    spatial:'<svg viewBox="0 0 120 80" fill="none"><rect x="20" y="15" width="18" height="18" rx="3" fill="rgba(255,255,255,.15)"/><rect x="42" y="15" width="18" height="18" rx="3" fill="rgba(255,255,255,.06)"/><rect x="20" y="37" width="18" height="18" rx="3" fill="rgba(255,255,255,.06)"/><rect x="42" y="37" width="18" height="18" rx="3" fill="rgba(255,255,255,.15)"/><rect x="64" y="15" width="18" height="18" rx="3" fill="rgba(255,255,255,.15)"/></svg>',
-    nback:'<svg viewBox="0 0 120 80" fill="none"><text x="15" y="40" font-family="serif" font-size="28" font-weight="bold" fill="rgba(255,255,255,.12)">A</text><text x="45" y="50" font-family="serif" font-size="22" fill="rgba(255,255,255,.08)">B</text><text x="70" y="35" font-family="serif" font-size="26" font-weight="bold" fill="rgba(255,255,255,.15)">A?</text></svg>',
-    cardmatch:'<svg viewBox="0 0 120 80" fill="none"><rect x="15" y="12" width="22" height="28" rx="4" fill="rgba(255,255,255,.12)"/><rect x="42" y="12" width="22" height="28" rx="4" fill="rgba(255,255,255,.08)"/><rect x="15" y="44" width="22" height="28" rx="4" fill="rgba(255,255,255,.08)"/><rect x="42" y="44" width="22" height="28" rx="4" fill="rgba(255,255,255,.12)"/></svg>',
-    schulte:'<svg viewBox="0 0 120 80" fill="none"><text x="12" y="28" font-family="monospace" font-size="12" fill="rgba(255,255,255,.12)">14  2  8</text><text x="12" y="46" font-family="monospace" font-size="12" fill="rgba(255,255,255,.1)"> 5 21  1</text><text x="12" y="64" font-family="monospace" font-size="12" fill="rgba(255,255,255,.08)">19  7 13</text></svg>',
-    sudoku:'<svg viewBox="0 0 120 80" fill="none"><rect x="15" y="10" width="50" height="50" rx="4" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="1"/><line x1="32" y1="10" x2="32" y2="60" stroke="rgba(255,255,255,.06)"/><line x1="48" y1="10" x2="48" y2="60" stroke="rgba(255,255,255,.06)"/><line x1="15" y1="27" x2="65" y2="27" stroke="rgba(255,255,255,.06)"/><line x1="15" y1="43" x2="65" y2="43" stroke="rgba(255,255,255,.06)"/><text x="20" y="24" font-family="monospace" font-size="11" fill="rgba(255,255,255,.15)">5</text><text x="37" y="40" font-family="monospace" font-size="11" fill="rgba(255,255,255,.12)">3</text></svg>',
-    word:'<svg viewBox="0 0 120 80" fill="none"><rect x="10" y="25" width="22" height="26" rx="5" fill="rgba(255,255,255,.1)"/><rect x="35" y="25" width="22" height="26" rx="5" fill="rgba(255,255,255,.08)"/><rect x="60" y="25" width="22" height="26" rx="5" fill="rgba(255,255,255,.1)"/><text x="16" y="44" font-family="serif" font-size="16" font-weight="bold" fill="rgba(255,255,255,.18)">W</text><text x="41" y="44" font-family="serif" font-size="16" font-weight="bold" fill="rgba(255,255,255,.12)">O</text><text x="66" y="44" font-family="serif" font-size="16" font-weight="bold" fill="rgba(255,255,255,.18)">R</text></svg>',
-    stroop:'<svg viewBox="0 0 120 80" fill="none"><text x="15" y="35" font-family="sans-serif" font-size="16" font-weight="bold" fill="rgba(100,200,255,.2)">RED</text><text x="15" y="58" font-family="sans-serif" font-size="14" font-weight="bold" fill="rgba(255,150,150,.15)">BLUE</text></svg>',
-    colormatch:'<svg viewBox="0 0 120 80" fill="none"><circle cx="35" cy="38" r="16" fill="rgba(255,200,100,.1)"/><circle cx="65" cy="42" r="14" fill="rgba(150,200,255,.08)"/></svg>'
+  const _mgSecArt={
+    maths:'<svg viewBox="0 0 400 180" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="mg_cb" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1a2f23"/><stop offset="100%" stop-color="#0d1f17"/></linearGradient></defs><rect width="400" height="180" fill="url(#mg_cb)"/><rect x="6" y="6" width="388" height="168" rx="3" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="1"/><text x="30" y="48" font-family="serif" font-size="26" fill="rgba(255,255,255,.8)" font-style="italic">f(x) = x² + 2x</text><text x="280" y="42" font-family="serif" font-size="20" fill="rgba(255,255,255,.4)">π ≈ 3.14</text><text x="45" y="92" font-family="serif" font-size="19" fill="rgba(255,255,255,.5)">∑ n = n(n+1)/2</text><text x="270" y="98" font-family="serif" font-size="34" fill="rgba(255,255,255,.25)">∫</text><text x="55" y="142" font-family="serif" font-size="17" fill="rgba(255,255,255,.35)">E = mc²</text><text x="195" y="148" font-family="serif" font-size="22" fill="rgba(255,255,255,.45)">√2 ≈ 1.414</text><text x="345" y="135" font-family="serif" font-size="28" fill="rgba(255,255,255,.18)">∞</text><circle cx="150" cy="60" r="1.5" fill="rgba(255,255,255,.07)"/><circle cx="330" cy="75" r="2" fill="rgba(255,255,255,.05)"/><circle cx="90" cy="115" r="1" fill="rgba(255,255,255,.06)"/></svg>',
+    memory:'<svg viewBox="0 0 400 180" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="mg_nb" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1e1145"/><stop offset="100%" stop-color="#0f0a2e"/></linearGradient><radialGradient id="mg_gw"><stop offset="0%" stop-color="rgba(139,92,246,.35)"/><stop offset="100%" stop-color="transparent"/></radialGradient></defs><rect width="400" height="180" fill="url(#mg_nb)"/><circle cx="200" cy="90" r="85" fill="url(#mg_gw)"/><line x1="75" y1="48" x2="140" y2="78" stroke="rgba(167,139,250,.22)" stroke-width="1"/><line x1="140" y1="78" x2="205" y2="55" stroke="rgba(167,139,250,.18)" stroke-width="1"/><line x1="205" y1="55" x2="285" y2="88" stroke="rgba(167,139,250,.25)" stroke-width="1"/><line x1="285" y1="88" x2="325" y2="128" stroke="rgba(167,139,250,.18)" stroke-width="1"/><line x1="140" y1="78" x2="165" y2="128" stroke="rgba(167,139,250,.12)" stroke-width="1"/><line x1="205" y1="55" x2="245" y2="128" stroke="rgba(167,139,250,.16)" stroke-width="1"/><line x1="75" y1="48" x2="115" y2="138" stroke="rgba(167,139,250,.08)" stroke-width="1"/><line x1="285" y1="88" x2="245" y2="128" stroke="rgba(167,139,250,.14)" stroke-width="1"/><circle cx="75" cy="48" r="5.5" fill="rgba(196,181,253,.65)"/><circle cx="140" cy="78" r="7" fill="rgba(139,92,246,.75)"/><circle cx="205" cy="55" r="6" fill="rgba(196,181,253,.55)"/><circle cx="285" cy="88" r="8" fill="rgba(139,92,246,.85)"/><circle cx="325" cy="128" r="4.5" fill="rgba(196,181,253,.45)"/><circle cx="165" cy="128" r="5.5" fill="rgba(167,139,250,.55)"/><circle cx="245" cy="128" r="6" fill="rgba(139,92,246,.65)"/><circle cx="115" cy="138" r="3.5" fill="rgba(196,181,253,.35)"/><circle cx="75" cy="48" r="2.5" fill="rgba(255,255,255,.45)"/><circle cx="285" cy="88" r="3.5" fill="rgba(255,255,255,.35)"/><circle cx="140" cy="78" r="3" fill="rgba(255,255,255,.4)"/></svg>',
+    puzzles:'<svg viewBox="0 0 400 180" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="mg_pb" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0C3547"/><stop offset="100%" stop-color="#071E2E"/></linearGradient></defs><rect width="400" height="180" fill="url(#mg_pb)"/><rect x="50" y="28" width="42" height="42" rx="8" fill="none" stroke="rgba(6,182,212,.22)" stroke-width="1.5" transform="rotate(15 71 49)"/><rect x="130" y="48" width="56" height="56" rx="10" fill="none" stroke="rgba(6,182,212,.16)" stroke-width="1.5" transform="rotate(-10 158 76)"/><rect x="265" y="18" width="36" height="36" rx="6" fill="none" stroke="rgba(6,182,212,.26)" stroke-width="1.5" transform="rotate(25 283 36)"/><rect x="310" y="78" width="52" height="52" rx="9" fill="none" stroke="rgba(6,182,212,.18)" stroke-width="1.5" transform="rotate(-20 336 104)"/><rect x="185" y="108" width="32" height="32" rx="5" fill="none" stroke="rgba(6,182,212,.2)" stroke-width="1.5"/><circle cx="70" cy="130" r="18" fill="none" stroke="rgba(20,184,166,.18)" stroke-width="1.5"/><circle cx="70" cy="130" r="9" fill="none" stroke="rgba(20,184,166,.12)" stroke-width="1"/><polygon points="340,28 356,56 324,56" fill="none" stroke="rgba(6,182,212,.18)" stroke-width="1.5"/><polygon points="225,58 252,42 244,78" fill="none" stroke="rgba(20,184,166,.15)" stroke-width="1.5"/><circle cx="100" cy="88" r="3.5" fill="rgba(6,182,212,.12)"/><circle cx="300" cy="148" r="2.5" fill="rgba(20,184,166,.1)"/></svg>'
   };
-  const _mgSecIcons={
-    maths:'<svg viewBox="0 0 48 48" fill="none"><rect width="48" height="48" rx="12" fill="rgba(255,224,163,.12)"/><text x="24" y="32" text-anchor="middle" font-family="serif" font-size="24" font-weight="bold" fill="#FFE0A3">π</text></svg>',
-    memory:'<svg viewBox="0 0 48 48" fill="none"><rect width="48" height="48" rx="12" fill="rgba(221,214,254,.12)"/><circle cx="24" cy="24" r="10" fill="none" stroke="#DDD6FE" stroke-width="2"/><circle cx="24" cy="24" r="4" fill="#DDD6FE"/></svg>',
-    puzzles:'<svg viewBox="0 0 48 48" fill="none"><rect width="48" height="48" rx="12" fill="rgba(187,247,208,.12)"/><path d="M16 16h6v-3a3 3 0 0 1 6 0v3h6v6h3a3 3 0 0 1 0 6h-3v6H28v3a3 3 0 0 1-6 0v-3H16V28h-3a3 3 0 0 1 0-6h3V16z" fill="none" stroke="#BBF7D0" stroke-width="1.5"/></svg>'
-  };
-  const streak=mg.streak||{current:0,longest:0,total:0};
-  const _allG=_mgSections.reduce(function(a,s){return a.concat(s.games)},[]);
-  const totalXp=_allG.reduce(function(s,g){return s+((mg.progress[g.k]||{}).xp||0)},0);
-  const _todayKey=new Date().toISOString().slice(0,10);
-  const _doneToday=mg.dailyDone||{};
-  const _doneTodayList=_doneToday[_todayKey]||[];
 
-  // Hero banner
-  h+='<div class="mg-hero-banner">';
-  h+='<div class="mg-hero-bg"></div>';
-  h+='<div class="mg-hero-content">';
-  h+='<div style="font:800 28px var(--serif);color:#fff;letter-spacing:-.02em">Mind Games</div>';
-  h+='<div style="font:500 14px var(--sans);color:rgba(255,255,255,.75);margin-top:6px">Train your brain daily</div>';
-  h+='<div class="mg-hero-stats-row">';
-  h+='<div class="mg-hero-stat"><span class="mg-hero-stat-n">'+streak.current+'</span><span class="mg-hero-stat-l">day streak</span></div>';
-  h+='<div class="mg-hero-stat"><span class="mg-hero-stat-n">'+totalXp+'</span><span class="mg-hero-stat-l">total XP</span></div>';
-  h+='<div class="mg-hero-stat"><span class="mg-hero-stat-n">'+(streak.longest||0)+'</span><span class="mg-hero-stat-l">best streak</span></div>';
-  h+='</div>';
-  h+='</div></div>';
-
-  // Sections
-  _mgSections.forEach(function(sec){
-    h+='<div class="mg-section">';
-    h+='<div class="mg-sec-header">';
-    h+='<div class="mg-sec-icon">'+_mgSecIcons[sec.id]+'</div>';
-    h+='<div class="mg-sec-info"><div class="mg-sec-title">'+sec.title+'</div>';
-    h+='<div class="mg-sec-desc">'+sec.desc+'</div></div>';
-    h+='</div>';
-    h+='<div class="mg-scroll-row">';
-    sec.games.forEach(function(g){
-      var p=mg.progress[g.k]||{level:1,xp:0,best:0};
-      var done=_doneTodayList.indexOf(g.k)>=0;
-      h+='<button class="mg-game-card'+(done?' mg-game-done':'')+'" onclick="mgDetailOpen(\\''+g.k+'\\')" style="--gg:'+g.grad+'">';
-      h+='<div class="mg-game-illust">'+((_mgIllusts[g.k])||'')+'</div>';
-      h+='<div class="mg-game-overlay"></div>';
-      h+='<div class="mg-game-body">';
-      h+='<div class="mg-game-meta"><span class="mg-game-mins">'+g.mins+' min</span>';
-      if(done)h+='<span class="mg-game-badge">✓ Done</span>';
-      else h+='<span class="mg-game-lvl">Lv '+p.level+'</span>';
+  if(!S.mgSection){
+    // === LANDING PAGE — 3 section cards ===
+    var streak=mg.streak||{current:0,longest:0,total:0};
+    var _allG=_mgSections.reduce(function(a,s){return a.concat(s.games)},[]);
+    var totalXp=_allG.reduce(function(s,g){return s+((mg.progress[g.k]||{}).xp||0)},0);
+    h+='<div style="font:800 28px var(--sans);color:var(--ink);letter-spacing:-.02em;margin-bottom:4px">Mind Games</div>';
+    h+='<div style="font:400 14px var(--sans);color:var(--text-mute);margin-bottom:22px">Train your brain daily · '+totalXp+' XP · '+streak.current+' day streak</div>';
+    h+='<div class="mg-landing">';
+    _mgSections.forEach(function(sec){
+      var secGames=sec.games;
+      var played=secGames.filter(function(g){return ((mg.progress[g.k]||{}).xp||0)>0}).length;
+      h+='<button class="mg-sec-card" onclick="mgSectionOpen(\\''+sec.id+'\\')">';
+      h+='<div class="mg-sec-card-bg">'+_mgSecArt[sec.id]+'</div>';
+      h+='<div class="mg-sec-card-ov"></div>';
+      h+='<div class="mg-sec-card-body">';
+      h+='<div class="mg-sec-card-title">'+sec.title+'</div>';
+      h+='<div class="mg-sec-card-desc">'+sec.desc+'</div>';
+      h+='<div class="mg-sec-card-prog">';
+      h+='<div class="mg-sec-card-bar"><div class="mg-sec-card-fill" style="width:'+Math.round((played/secGames.length)*100)+'%"></div></div>';
+      h+='<span class="mg-sec-card-count">'+played+'/'+secGames.length+'</span>';
       h+='</div>';
-      h+='<div class="mg-game-name">'+g.n+'</div>';
-      h+='<div class="mg-game-desc">'+g.d+'</div>';
-      if(p.xp>0)h+='<div class="mg-game-xp-bar"><div class="mg-game-xp-fill" style="width:'+Math.min(100,((p.xp%100)))+'%"></div></div>';
       h+='</div>';
-      h+='<div class="mg-game-play"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg></div>';
+      h+='<div class="mg-sec-card-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>';
       h+='</button>';
     });
     h+='</div>';
-    h+='</div>';
-  });
+  }else{
+    // === SECTION DRILL-DOWN ===
+    var sec=_mgSections.find(function(s){return s.id===S.mgSection});
+    if(sec){
+      h+='<div class="mg-drill-hd">';
+      h+='<button class="mg-drill-back" onclick="mgSectionClose()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>';
+      h+='<div class="mg-drill-title">'+sec.title+'</div>';
+      h+='</div>';
+      h+='<div class="mg-drill-hero">';
+      h+='<div class="mg-drill-hero-bg">'+_mgSecArt[sec.id]+'</div>';
+      h+='<div class="mg-drill-hero-ov"></div>';
+      h+='<div class="mg-drill-hero-body">';
+      h+='<div class="mg-drill-hero-title">'+sec.title+'</div>';
+      h+='<div class="mg-drill-hero-desc">'+sec.desc+'</div>';
+      h+='</div></div>';
+      h+='<div class="mg-drill-list">';
+      sec.games.forEach(function(g,i){
+        var p=mg.progress[g.k]||{level:1,xp:0,best:0};
+        var prevKey=i>0?sec.games[i-1].k:null;
+        var prevP=prevKey?(mg.progress[prevKey]||{level:1,xp:0,best:0}):null;
+        var locked=i>0&&(!prevP||(prevP.xp||0)<1);
+        h+='<button class="mg-drill-game'+(locked?' mg-drill-game-locked':'')+'" onclick="'+(locked?'':'mgDetailOpen(\\''+g.k+'\\')')+'">';
+        h+='<div class="mg-drill-game-icon" style="background:'+g.bg+'"><span>'+g.emoji+'</span></div>';
+        h+='<div class="mg-drill-game-info">';
+        h+='<div class="mg-drill-game-name">'+g.n+'</div>';
+        h+='<div class="mg-drill-game-desc">'+g.d+'</div>';
+        h+='</div>';
+        h+='<div class="mg-drill-game-right">';
+        if(locked){
+          h+='<div class="mg-drill-game-lock"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>';
+        }else{
+          h+='<div class="mg-drill-game-lvl">Lv '+p.level+'</div>';
+          h+='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-mute)" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>';
+        }
+        h+='</div>';
+        h+='</button>';
+      });
+      h+='</div>';
+    }
+  }
 }
 // PLAN TAB — calendar + day planner + quick actions
 else if(S.tab==='profile'){
@@ -15228,7 +15228,7 @@ app.get('/privacy',(_,res)=>{
 app.get('/terms',(_,res)=>{
   res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Terms of Service — Brodoit</title><meta name="description" content="The simple terms for using Brodoit. Plain English, no surprises."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Terms</div><h1>The simple rules.</h1><p class="lede">We've kept these terms short and human. Use Brodoit kindly, and we'll keep building it for you.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">The service</h2><p>Brodoit is a personal productivity app: it lets you manage tasks with optional WhatsApp and email reminders, listen to free public-domain audiobooks, sharpen your mind with brain games, and see a daily wisdom quote.</p><h2 data-n="02">Your account</h2><p>You register with your email address or phone number. Keep your one-time verification codes private — anyone with the code can sign in. You are responsible for activity on your account.</p><h2 data-n="03">Acceptable use</h2><p>Please don't abuse the service: no spam, no impersonation, no automated scraping, no attempts to disrupt other users or the service itself. We may suspend or remove accounts that do.</p><h2 data-n="04">Content</h2><p>You own your tasks, notes, and other content you create. We store them so we can show them back to you. Audiobook content belongs to the respective public-domain authors and is served from the Internet Archive's LibriVox collection.</p><h2 data-n="05">No warranty</h2><p>The service is provided "as is". We try hard to keep it running, but can't promise zero downtime or guarantee that every reminder is delivered (WhatsApp and email providers can fail). If something matters, please don't rely solely on Brodoit.</p><h2 data-n="06">Limitation of liability</h2><p>Brodoit is a personal tool. We're not liable for missed deadlines, lost data, or any consequential damages from using — or not using — the service.</p><h2 data-n="07">Changes</h2><p>We may update these terms. If we do, we'll update the date at the top. Continued use after a change means you accept the new terms.</p><h2 data-n="08">Contact</h2><p>Need anything? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });
-app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v80";
+app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v81";
 self.addEventListener("install",function(e){self.skipWaiting()});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener("fetch",function(e){});
