@@ -3255,6 +3255,42 @@ body[data-theme=aurora] .mg-grid-tab .mg-card-d{color:#888888}
 body[data-theme=aurora] .mg-why-card{background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.06)}
 body[data-theme=aurora] .mg-why-t{color:#E8E8EC}
 body[data-theme=aurora] .mg-why-d{color:#888888}
+/* MIND GAMES — Hero banner + section-based layout */
+.mg-hero-banner{position:relative;border-radius:20px;overflow:hidden;margin-bottom:24px;padding:28px 22px 22px;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 40%,#0f3460 100%);box-shadow:0 12px 40px -8px rgba(0,0,0,.4)}
+.mg-hero-bg{position:absolute;inset:0;background:radial-gradient(600px 400px at 80% 20%,rgba(226,125,96,.15),transparent 60%),radial-gradient(400px 300px at 10% 80%,rgba(102,126,234,.12),transparent 55%);pointer-events:none}
+.mg-hero-content{position:relative;z-index:1}
+.mg-hero-stats-row{display:flex;gap:10px;margin-top:18px}
+.mg-hero-stat{flex:1;padding:10px 8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:12px;text-align:center}
+.mg-hero-stat-n{display:block;font:800 22px/1 'Space Mono',monospace;color:#FCD34D;letter-spacing:-.02em}
+.mg-hero-stat-l{display:block;font:500 10px var(--sans);color:rgba(255,255,255,.55);letter-spacing:.04em;text-transform:uppercase;margin-top:4px}
+.mg-section{margin-bottom:24px}
+.mg-sec-header{display:flex;align-items:center;gap:14px;margin-bottom:14px;padding:0 2px}
+.mg-sec-icon{width:48px;height:48px;flex-shrink:0}
+.mg-sec-icon svg{width:100%;height:100%}
+.mg-sec-info{flex:1;min-width:0}
+.mg-sec-title{font:800 20px var(--sans);color:var(--ink);letter-spacing:-.01em}
+.mg-sec-desc{font:400 13px var(--sans);color:var(--text-mute);margin-top:2px}
+.mg-scroll-row{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:4px 2px 16px;scrollbar-width:none}
+.mg-scroll-row::-webkit-scrollbar{display:none}
+.mg-game-card{position:relative;flex:0 0 200px;scroll-snap-align:start;border-radius:20px;overflow:hidden;border:none;cursor:pointer;display:flex;flex-direction:column;text-align:left;color:#fff;background:var(--gg,linear-gradient(135deg,#667eea,#764ba2));box-shadow:0 8px 24px -6px rgba(0,0,0,.3);transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s ease;font-family:inherit;isolation:isolate;min-height:220px}
+.mg-game-card:hover{transform:translateY(-4px) scale(1.02);box-shadow:0 16px 40px -8px rgba(0,0,0,.45)}
+.mg-game-card:active{transform:scale(.97)}
+.mg-game-illust{position:absolute;top:0;right:0;width:120px;height:80px;opacity:.7;pointer-events:none;z-index:0}
+.mg-game-illust svg{width:100%;height:100%}
+.mg-game-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.05) 0%,rgba(0,0,0,.45) 100%);pointer-events:none;z-index:1}
+.mg-game-body{position:relative;z-index:2;padding:18px 16px 14px;flex:1;display:flex;flex-direction:column}
+.mg-game-meta{display:flex;align-items:center;gap:6px;margin-bottom:auto}
+.mg-game-mins{font:700 11px var(--sans);letter-spacing:.04em;text-transform:uppercase;background:rgba(255,255,255,.18);padding:3px 8px;border-radius:8px}
+.mg-game-lvl{font:700 11px 'Space Mono',monospace;letter-spacing:.04em;color:rgba(255,255,255,.7)}
+.mg-game-badge{font:700 10px var(--sans);letter-spacing:.04em;background:rgba(255,255,255,.25);padding:3px 8px;border-radius:8px;color:#fff}
+.mg-game-name{font:800 17px var(--sans);color:#fff;letter-spacing:-.01em;margin-top:10px;line-height:1.15}
+.mg-game-desc{font:400 12px var(--sans);color:rgba(255,255,255,.75);margin-top:5px;line-height:1.4}
+.mg-game-xp-bar{height:4px;background:rgba(255,255,255,.15);border-radius:99px;overflow:hidden;margin-top:10px}
+.mg-game-xp-fill{height:100%;background:linear-gradient(90deg,#FCD34D,#EDA68E);border-radius:99px;transition:width .4s ease}
+.mg-game-play{position:absolute;bottom:14px;right:14px;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.92);color:#111827;display:grid;place-items:center;box-shadow:0 4px 14px -3px rgba(0,0,0,.3);transition:all .25s ease;z-index:2}
+.mg-game-card:hover .mg-game-play{transform:scale(1.12);background:#fff}
+.mg-game-done{opacity:.65}
+.mg-game-done .mg-game-play{background:rgba(255,255,255,.5)}
 /* VOICE TRAINER */
 .vc-hero{position:relative;border-radius:20px;overflow:hidden;margin-bottom:18px;background:linear-gradient(135deg,#111827 0%,#292524 50%,#A07040 100%);color:#fff;box-shadow:0 16px 40px rgba(17,24,39,.22)}
 .vc-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 78% 100%,rgba(251,146,60,.28),transparent 55%),radial-gradient(circle at 10% 0%,rgba(252,211,77,.15),transparent 50%);pointer-events:none}
@@ -4597,44 +4633,72 @@ body.eye-shield .tabs.page-t{filter:sepia(.12) brightness(.92)}
 /* ============================================== */
 /* NIGHT SKY MODE — immersive starry background   */
 /* ============================================== */
-body.night-sky[data-theme=aurora]{background:#0B0D1A}
+body.night-sky[data-theme=aurora]{background:#050714}
+body.night-sky[data-theme=aurora]::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(800px 600px at 15% 25%,rgba(88,40,120,.12),transparent 65%),
+    radial-gradient(600px 500px at 75% 60%,rgba(20,60,120,.1),transparent 60%),
+    radial-gradient(500px 400px at 50% 85%,rgba(120,40,80,.08),transparent 55%),
+    radial-gradient(900px 500px at 85% 15%,rgba(30,50,100,.07),transparent 60%),
+    radial-gradient(400px 350px at 25% 70%,rgba(60,20,90,.06),transparent 50%)
+}
 body.night-sky[data-theme=aurora]::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   background:
-    radial-gradient(1.5px 1.5px at 10% 15%,rgba(255,255,255,.9),transparent),
+    radial-gradient(1.5px 1.5px at 10% 15%,rgba(255,255,255,.95),transparent),
     radial-gradient(1px 1px at 25% 8%,rgba(255,255,255,.7),transparent),
-    radial-gradient(2px 2px at 40% 22%,rgba(200,220,255,.85),transparent),
+    radial-gradient(2.5px 2.5px at 40% 22%,rgba(200,220,255,.9),transparent),
     radial-gradient(1px 1px at 55% 5%,rgba(255,255,255,.6),transparent),
-    radial-gradient(1.5px 1.5px at 70% 18%,rgba(255,255,255,.8),transparent),
+    radial-gradient(1.5px 1.5px at 70% 18%,rgba(255,255,255,.85),transparent),
     radial-gradient(1px 1px at 85% 12%,rgba(200,200,255,.65),transparent),
-    radial-gradient(2px 2px at 15% 35%,rgba(255,255,255,.5),transparent),
+    radial-gradient(2px 2px at 15% 35%,rgba(255,255,255,.55),transparent),
     radial-gradient(1px 1px at 32% 42%,rgba(255,255,255,.7),transparent),
-    radial-gradient(1.5px 1.5px at 48% 38%,rgba(200,220,255,.6),transparent),
+    radial-gradient(1.5px 1.5px at 48% 38%,rgba(200,220,255,.65),transparent),
     radial-gradient(1px 1px at 62% 30%,rgba(255,255,255,.55),transparent),
-    radial-gradient(2px 2px at 78% 45%,rgba(255,255,255,.75),transparent),
+    radial-gradient(2px 2px at 78% 45%,rgba(255,255,255,.8),transparent),
     radial-gradient(1px 1px at 90% 28%,rgba(220,220,255,.65),transparent),
     radial-gradient(1.5px 1.5px at 5% 55%,rgba(255,255,255,.5),transparent),
-    radial-gradient(1px 1px at 20% 62%,rgba(255,255,255,.6),transparent),
+    radial-gradient(1px 1px at 20% 62%,rgba(255,255,255,.65),transparent),
     radial-gradient(1px 1px at 38% 58%,rgba(200,210,255,.55),transparent),
     radial-gradient(2px 2px at 52% 65%,rgba(255,255,255,.7),transparent),
     radial-gradient(1px 1px at 68% 52%,rgba(255,255,255,.5),transparent),
     radial-gradient(1.5px 1.5px at 82% 60%,rgba(200,220,255,.65),transparent),
     radial-gradient(1px 1px at 95% 48%,rgba(255,255,255,.55),transparent),
     radial-gradient(1px 1px at 8% 78%,rgba(255,255,255,.5),transparent),
-    radial-gradient(1.5px 1.5px at 28% 85%,rgba(255,255,255,.6),transparent),
+    radial-gradient(1.5px 1.5px at 28% 85%,rgba(255,255,255,.65),transparent),
     radial-gradient(1px 1px at 45% 75%,rgba(200,200,255,.5),transparent),
     radial-gradient(2px 2px at 58% 82%,rgba(255,255,255,.65),transparent),
     radial-gradient(1px 1px at 75% 72%,rgba(255,255,255,.5),transparent),
     radial-gradient(1.5px 1.5px at 88% 80%,rgba(200,220,255,.6),transparent),
     radial-gradient(1px 1px at 12% 92%,rgba(255,255,255,.45),transparent),
-    radial-gradient(1px 1px at 35% 95%,rgba(255,255,255,.5),transparent),
+    radial-gradient(1px 1px at 35% 95%,rgba(255,255,255,.55),transparent),
     radial-gradient(1.5px 1.5px at 65% 90%,rgba(200,210,255,.55),transparent),
-    radial-gradient(1px 1px at 80% 95%,rgba(255,255,255,.5),transparent)
+    radial-gradient(1px 1px at 80% 95%,rgba(255,255,255,.5),transparent),
+    radial-gradient(1px 1px at 3% 3%,rgba(255,220,180,.6),transparent),
+    radial-gradient(1.5px 1.5px at 17% 48%,rgba(255,255,255,.55),transparent),
+    radial-gradient(1px 1px at 42% 12%,rgba(180,200,255,.5),transparent),
+    radial-gradient(2px 2px at 93% 55%,rgba(255,255,255,.6),transparent),
+    radial-gradient(1px 1px at 57% 88%,rgba(220,220,255,.45),transparent),
+    radial-gradient(1.5px 1.5px at 73% 35%,rgba(255,255,255,.55),transparent),
+    radial-gradient(1px 1px at 88% 72%,rgba(200,210,255,.5),transparent),
+    radial-gradient(1px 1px at 22% 28%,rgba(255,240,200,.55),transparent),
+    radial-gradient(2px 2px at 65% 48%,rgba(200,220,255,.6),transparent),
+    radial-gradient(1px 1px at 48% 72%,rgba(255,255,255,.45),transparent),
+    radial-gradient(3px 3px at 30% 15%,rgba(200,220,255,.35),transparent),
+    radial-gradient(2.5px 2.5px at 72% 82%,rgba(220,200,255,.3),transparent)
 }
-body.night-sky[data-theme=aurora] #starfield{opacity:.7}
-body.night-sky{--bg:#0B0D1A;--bg-2:#10132A;--surface:rgba(255,255,255,.05);--surface-2:rgba(255,255,255,.08);--line:rgba(255,255,255,.08);--border:rgba(255,255,255,.1)}
-body.night-sky .ns-moon{position:fixed;top:8%;right:10%;width:60px;height:60px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#FFFDE8,#F5E6B8 60%,#D4C08A);box-shadow:0 0 40px 15px rgba(255,253,232,.12),0 0 80px 30px rgba(255,253,232,.06);z-index:0;pointer-events:none;animation:moonGlow 8s ease-in-out infinite alternate}
-@keyframes moonGlow{from{box-shadow:0 0 40px 15px rgba(255,253,232,.12),0 0 80px 30px rgba(255,253,232,.06)}to{box-shadow:0 0 50px 20px rgba(255,253,232,.16),0 0 100px 40px rgba(255,253,232,.08)}}
-body.night-sky .tabs.page-t{background:rgba(11,13,26,.92)!important;border-top-color:rgba(255,255,255,.06)!important;backdrop-filter:blur(20px)!important}
+body.night-sky[data-theme=aurora] #starfield{opacity:.8}
+body.night-sky .ns-nebula{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.6;animation:nebulaDrift 60s ease-in-out infinite alternate;
+  background:
+    radial-gradient(ellipse 500px 350px at 20% 30%,rgba(100,50,150,.14),transparent),
+    radial-gradient(ellipse 400px 300px at 70% 65%,rgba(30,80,140,.1),transparent),
+    radial-gradient(ellipse 350px 250px at 45% 80%,rgba(140,50,80,.08),transparent),
+    radial-gradient(ellipse 600px 400px at 80% 20%,rgba(40,60,120,.06),transparent)
+}
+@keyframes nebulaDrift{0%{opacity:.5;transform:scale(1) translate(0,0)}50%{opacity:.7;transform:scale(1.05) translate(-1%,1%)}100%{opacity:.5;transform:scale(1) translate(1%,-1%)}}
+body.night-sky{--bg:#050714;--bg-2:#0A0D1E;--surface:rgba(255,255,255,.05);--surface-2:rgba(255,255,255,.08);--line:rgba(255,255,255,.08);--border:rgba(255,255,255,.1)}
+body.night-sky .ns-moon{position:fixed;top:8%;right:10%;width:60px;height:60px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#FFFDE8,#F5E6B8 60%,#D4C08A);box-shadow:0 0 40px 15px rgba(255,253,232,.15),0 0 80px 30px rgba(255,253,232,.08),0 0 120px 50px rgba(255,253,232,.03);z-index:0;pointer-events:none;animation:moonGlow 8s ease-in-out infinite alternate}
+@keyframes moonGlow{from{box-shadow:0 0 40px 15px rgba(255,253,232,.15),0 0 80px 30px rgba(255,253,232,.08),0 0 120px 50px rgba(255,253,232,.03)}to{box-shadow:0 0 50px 20px rgba(255,253,232,.2),0 0 100px 40px rgba(255,253,232,.1),0 0 150px 60px rgba(255,253,232,.04)}}
+body.night-sky .tabs.page-t{background:rgba(5,7,20,.94)!important;border-top-color:rgba(255,255,255,.06)!important;backdrop-filter:blur(24px)!important}
 body[data-theme=aurora]::before{content:'';position:fixed;inset:0;background:
   radial-gradient(800px 500px at 20% 80%,rgba(226,125,96,.04),transparent 70%);
   pointer-events:none;z-index:0}
@@ -8911,9 +8975,9 @@ async function stopPed(){if(_ped){window.removeEventListener('devicemotion',_ped
 /* When the tab is backgrounded, flush whatever we counted so we don't lose it, and re-acquire wake lock on return. */
 document.addEventListener('visibilitychange',async()=>{if(document.visibilityState==='hidden'){if(S.stepLive&&S.stepLive.active)await flushPedCount()}else if(document.visibilityState==='visible'){if(S.stepLive&&S.stepLive.active&&!_wakeLock)await acquireWake()}});
 function toggleTheme(){S.theme=S.theme==='aurora'?'classic':'aurora';localStorage.setItem('theme',S.theme);document.body.setAttribute('data-theme',S.theme);toast(S.theme==='aurora'?'Aurora theme':'Classic theme');render()}
-function toggleEyeShield(){S.eyeShield=!S.eyeShield;localStorage.setItem('eyeShield',S.eyeShield?'1':'');document.body.classList.toggle('eye-shield',S.eyeShield);if(S.eyeShield){S.nightSky=false;localStorage.setItem('nightSky','');document.body.classList.remove('night-sky');var mn=document.getElementById('nsMoon');if(mn)mn.remove()}toast(S.eyeShield?'Eye Shield on':'Eye Shield off');render()}
-function toggleNightSky(){S.nightSky=!S.nightSky;localStorage.setItem('nightSky',S.nightSky?'1':'');document.body.classList.toggle('night-sky',S.nightSky);if(S.nightSky){S.eyeShield=false;localStorage.setItem('eyeShield','');document.body.classList.remove('eye-shield');if(S.theme!=='aurora'){S.theme='aurora';localStorage.setItem('theme','aurora');document.body.setAttribute('data-theme','aurora')}if(!document.getElementById('nsMoon')){var m=document.createElement('div');m.id='nsMoon';m.className='ns-moon';document.body.appendChild(m)}}else{var mn=document.getElementById('nsMoon');if(mn)mn.remove()}toast(S.nightSky?'Night Sky on':'Night Sky off');render()}
-function applyTheme(){document.body.setAttribute('data-theme',S.theme||'classic');applyColorThemeCSS(S.themeColor||'coral');if(S.eyeShield)document.body.classList.add('eye-shield');if(S.nightSky){document.body.classList.add('night-sky');if(!document.getElementById('nsMoon')){var m=document.createElement('div');m.id='nsMoon';m.className='ns-moon';document.body.appendChild(m)}}}
+function toggleEyeShield(){S.eyeShield=!S.eyeShield;localStorage.setItem('eyeShield',S.eyeShield?'1':'');document.body.classList.toggle('eye-shield',S.eyeShield);if(S.eyeShield){S.nightSky=false;localStorage.setItem('nightSky','');document.body.classList.remove('night-sky');var mn=document.getElementById('nsMoon');if(mn)mn.remove();var nb=document.getElementById('nsNebula');if(nb)nb.remove()}toast(S.eyeShield?'Eye Shield on':'Eye Shield off');render()}
+function toggleNightSky(){S.nightSky=!S.nightSky;localStorage.setItem('nightSky',S.nightSky?'1':'');document.body.classList.toggle('night-sky',S.nightSky);if(S.nightSky){S.eyeShield=false;localStorage.setItem('eyeShield','');document.body.classList.remove('eye-shield');if(S.theme!=='aurora'){S.theme='aurora';localStorage.setItem('theme','aurora');document.body.setAttribute('data-theme','aurora')}if(!document.getElementById('nsMoon')){var m=document.createElement('div');m.id='nsMoon';m.className='ns-moon';document.body.appendChild(m)}if(!document.getElementById('nsNebula')){var nb=document.createElement('div');nb.id='nsNebula';nb.className='ns-nebula';document.body.appendChild(nb)}}else{var mn=document.getElementById('nsMoon');if(mn)mn.remove();var nb2=document.getElementById('nsNebula');if(nb2)nb2.remove()}toast(S.nightSky?'Night Sky on':'Night Sky off');render()}
+function applyTheme(){document.body.setAttribute('data-theme',S.theme||'classic');applyColorThemeCSS(S.themeColor||'coral');if(S.eyeShield)document.body.classList.add('eye-shield');if(S.nightSky){document.body.classList.add('night-sky');if(!document.getElementById('nsMoon')){var m=document.createElement('div');m.id='nsMoon';m.className='ns-moon';document.body.appendChild(m)}if(!document.getElementById('nsNebula')){var nb=document.createElement('div');nb.id='nsNebula';nb.className='ns-nebula';document.body.appendChild(nb)}}}
 const _COLOR_THEMES={
   blue:{c1:'#4F6DF5',c2:'#7B93F8',c3:'#B4C2FB',c4:'#1E2A5E',c5:'#3B5CE0',bg:'#F4F6FF',bg2:'#F9FAFF',border:'#E0E5F6',rgba1:'79,109,245',rgba2:'123,147,248'},
   emerald:{c1:'#10B981',c2:'#34D399',c3:'#6EE7B7',c4:'#064E3B',c5:'#059669',bg:'#ECFDF5',bg2:'#F0FDF4',border:'#D1FAE5',rgba1:'16,185,129',rgba2:'52,211,153'},
@@ -10335,6 +10399,8 @@ function _renderHlPoster(text,done){
 // Game-detail view: click a game card → see its 10-level journey before playing
 function mgDetailOpen(key){
   if(key==='reaction'||key==='memory')key='math';
+  if(key==='numchain'||key==='fraction'||key==='mental')key='math';
+  if(key==='cardmatch')key='spatial';
   S.mgDetail=key;S.mgGamesPanel=false;render();try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){}
 }
 function mgDetailClose(){S.mgDetail=null;render()}
@@ -12781,9 +12847,9 @@ if(isMain){
     meditation:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 100 6 3 3 0 000-6z"/><path d="M12 8c-2.5 0-5 2-5 5.5 0 1 .5 2 1.5 2.5l1 .5v2.5c0 1 .5 2 1.5 2h2c1 0 1.5-1 1.5-2v-2.5l1-.5c1-.5 1.5-1.5 1.5-2.5 0-3.5-2.5-5.5-5-5.5z"/></svg>',
     bro:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>',
     cal:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/></svg>',
-    mindgym:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12h4l2-8 2 16 2-8h4"/><circle cx="12" cy="12" r="10"/></svg>'
+    mindgym:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 0-7 7c0 2.5 1.2 4.8 3 6.2V18a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.8c1.8-1.4 3-3.7 3-6.2a7 7 0 0 0-7-7z"/><path d="M9 21h6"/><path d="M12 2v4"/><path d="M8.5 8.5c0-1 .7-2 2-2.3"/><path d="M15.5 8.5c0-1-.7-2-2-2.3"/></svg>'
   };
-  const tabsHtml=[{k:'home',l:'Home'},{k:'tasks',l:'Tasks'},{k:'mindgym',l:'Games'},{k:'books',l:'Listen'},{k:'meditation',l:'Wisdom'},{k:'bro',l:'Chat'},{k:'cal',l:'Calendar'}].map(x=>'<button class="tab tab-'+x.k+((S.tab===x.k||(x.k==='home'&&(!S.tab||S.tab==='home')))?(' on'):'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(_rdTabIcons[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
+  const tabsHtml=[{k:'home',l:'Home'},{k:'tasks',l:'Tasks'},{k:'mindgym',l:'Mind Games'},{k:'books',l:'Listen'},{k:'meditation',l:'Wisdom'},{k:'bro',l:'Chat'},{k:'cal',l:'Calendar'}].map(x=>'<button class="tab tab-'+x.k+((S.tab===x.k||(x.k==='home'&&(!S.tab||S.tab==='home')))?(' on'):'')+'" onclick="stopSpeak();switchTab(\\''+x.k+'\\')"><span class="ti">'+(_rdTabIcons[x.k]||ic(x.k,26))+'</span><span class="tl">'+x.l+'</span></button>').join('');
   // "Bro, do it!" mascot — a character with a speech bubble that animates
   const climbScene='<div class="bro-mascot" aria-hidden="true">'
     +'<svg class="bro-svg" viewBox="0 0 340 130" xmlns="http://www.w3.org/2000/svg">'
@@ -13056,73 +13122,108 @@ if(S.tab==='tasks'){
   }
 }
 
-// MIND GYM TAB — section-based brain training (Maths, English, Memory)
+// MIND GAMES TAB — 3 sections: Maths, Memory, Puzzles
 else if(S.tab==='mindgym'){
   const mg=S.mg;
-  const _allGames=[
-    {k:'math',n:'Speed Arithmetic',d:'Solve equations before time runs out',mins:2,grad:'linear-gradient(135deg,#FFE0A3 0%,#EDA68E 100%)',skill:'Focus'},
-    {k:'stroop',n:'Color Conflict',d:'Name the ink color, ignore the word',mins:1,grad:'linear-gradient(135deg,#FCA5A5 0%,#EF4444 100%)',skill:'Focus'},
-    {k:'colormatch',n:'Quick Match',d:'Does the word match the colour shown?',mins:1,grad:'linear-gradient(135deg,#FDE68A 0%,#F59E0B 100%)',skill:'Focus'},
-    {k:'word',n:'Word Builder',d:'Form words from scrambled letters',mins:2,grad:'linear-gradient(135deg,#BBF7D0 0%,#5C6F52 100%)',skill:'Logic'},
-    {k:'sudoku',n:'Logic Grid',d:'Fill the grid \\u2014 no repeats per row or column',mins:3,grad:'linear-gradient(135deg,#FEF3C7 0%,#D4A545 100%)',skill:'Logic'},
-    {k:'schulte',n:'Number Hunt',d:'Tap 1 through 25 as fast as you can',mins:1,grad:'linear-gradient(135deg,#FBCFE8 0%,#DB2777 100%)',skill:'Memory'},
-    {k:'spatial',n:'Pattern Flash',d:'Memorise the pattern, recreate it',mins:2,grad:'linear-gradient(135deg,#DDD6FE 0%,#7C3AED 100%)',skill:'Memory'},
-    {k:'nback',n:'Dual Focus',d:'Was this letter shown N steps back?',mins:2,grad:'linear-gradient(135deg,#C7D2FE 0%,#4F46E5 100%)',skill:'Memory'}
+  const _mgSections=[
+    {id:'maths',title:'Maths',desc:'Sharpen your numerical intelligence',
+      grad:'linear-gradient(135deg,#2D1B69 0%,#1a1a2e 50%,#0f3460 100%)',
+      games:[
+        {k:'math',n:'Speed Arithmetic',d:'Race against time solving equations',mins:2,grad:'linear-gradient(135deg,#FFE0A3 0%,#FF8C42 100%)'},
+        {k:'numchain',n:'Number Chains',d:'Find the missing number in the sequence',mins:2,grad:'linear-gradient(135deg,#F6D365 0%,#FDA085 100%)'},
+        {k:'fraction',n:'Fraction Master',d:'Compare and order fractions quickly',mins:2,grad:'linear-gradient(135deg,#A18CD1 0%,#FBC2EB 100%)'},
+        {k:'mental',n:'Mental Math',d:'Multi-step calculations, no pen allowed',mins:3,grad:'linear-gradient(135deg,#667EEA 0%,#764BA2 100%)'}
+      ]
+    },
+    {id:'memory',title:'Memory',desc:'Train your recall and working memory',
+      grad:'linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%)',
+      games:[
+        {k:'spatial',n:'Pattern Flash',d:'Memorise the grid, then recreate it',mins:2,grad:'linear-gradient(135deg,#DDD6FE 0%,#7C3AED 100%)'},
+        {k:'nback',n:'Dual N-Back',d:'Was this letter shown N steps back?',mins:2,grad:'linear-gradient(135deg,#C7D2FE 0%,#4F46E5 100%)'},
+        {k:'cardmatch',n:'Card Match',d:'Find all matching pairs before time runs out',mins:2,grad:'linear-gradient(135deg,#F093FB 0%,#F5576C 100%)'},
+        {k:'schulte',n:'Number Hunt',d:'Tap 1 through 25 as fast as you can',mins:1,grad:'linear-gradient(135deg,#FBCFE8 0%,#DB2777 100%)'}
+      ]
+    },
+    {id:'puzzles',title:'Puzzles',desc:'Challenge your logic and reasoning',
+      grad:'linear-gradient(135deg,#0f3460 0%,#1a1a2e 50%,#16213e 100%)',
+      games:[
+        {k:'sudoku',n:'Logic Grid',d:'Fill the grid — no repeats per row or column',mins:3,grad:'linear-gradient(135deg,#FEF3C7 0%,#D4A545 100%)'},
+        {k:'word',n:'Word Builder',d:'Form words from scrambled letters',mins:2,grad:'linear-gradient(135deg,#BBF7D0 0%,#059669 100%)'},
+        {k:'stroop',n:'Color Conflict',d:'Name the ink color, ignore the word',mins:1,grad:'linear-gradient(135deg,#FCA5A5 0%,#EF4444 100%)'},
+        {k:'colormatch',n:'Quick Match',d:'Does the word match the colour shown?',mins:1,grad:'linear-gradient(135deg,#FDE68A 0%,#F59E0B 100%)'}
+      ]
+    }
   ];
-  const _todaySeed=new Date().toISOString().slice(0,10).split('-').reduce(function(a,b){return a+parseInt(b)},0);
-  const _dailyPick=[];var _pool=_allGames.slice();
-  for(var _di=0;_di<5&&_pool.length;_di++){var _idx=(_todaySeed*7+_di*13)%_pool.length;_dailyPick.push(_pool.splice(_idx,1)[0])}
+  const _mgIllusts={
+    math:'<svg viewBox="0 0 120 80" fill="none"><text x="10" y="45" font-family="monospace" font-size="32" font-weight="900" fill="rgba(255,255,255,.12)">+−×</text><text x="60" y="65" font-family="monospace" font-size="24" fill="rgba(255,255,255,.08)">=?</text></svg>',
+    numchain:'<svg viewBox="0 0 120 80" fill="none"><text x="8" y="35" font-family="monospace" font-size="18" fill="rgba(255,255,255,.15)">2 4 ? 16</text><text x="20" y="60" font-family="monospace" font-size="14" fill="rgba(255,255,255,.08)">×2</text></svg>',
+    fraction:'<svg viewBox="0 0 120 80" fill="none"><text x="20" y="30" font-family="serif" font-size="22" fill="rgba(255,255,255,.15)">½</text><text x="55" y="45" font-family="serif" font-size="18" fill="rgba(255,255,255,.1)">vs</text><text x="80" y="58" font-family="serif" font-size="22" fill="rgba(255,255,255,.15)">¾</text></svg>',
+    mental:'<svg viewBox="0 0 120 80" fill="none"><text x="10" y="50" font-family="monospace" font-size="14" fill="rgba(255,255,255,.12)">24×3+18÷2</text></svg>',
+    spatial:'<svg viewBox="0 0 120 80" fill="none"><rect x="20" y="15" width="18" height="18" rx="3" fill="rgba(255,255,255,.15)"/><rect x="42" y="15" width="18" height="18" rx="3" fill="rgba(255,255,255,.06)"/><rect x="20" y="37" width="18" height="18" rx="3" fill="rgba(255,255,255,.06)"/><rect x="42" y="37" width="18" height="18" rx="3" fill="rgba(255,255,255,.15)"/><rect x="64" y="15" width="18" height="18" rx="3" fill="rgba(255,255,255,.15)"/></svg>',
+    nback:'<svg viewBox="0 0 120 80" fill="none"><text x="15" y="40" font-family="serif" font-size="28" font-weight="bold" fill="rgba(255,255,255,.12)">A</text><text x="45" y="50" font-family="serif" font-size="22" fill="rgba(255,255,255,.08)">B</text><text x="70" y="35" font-family="serif" font-size="26" font-weight="bold" fill="rgba(255,255,255,.15)">A?</text></svg>',
+    cardmatch:'<svg viewBox="0 0 120 80" fill="none"><rect x="15" y="12" width="22" height="28" rx="4" fill="rgba(255,255,255,.12)"/><rect x="42" y="12" width="22" height="28" rx="4" fill="rgba(255,255,255,.08)"/><rect x="15" y="44" width="22" height="28" rx="4" fill="rgba(255,255,255,.08)"/><rect x="42" y="44" width="22" height="28" rx="4" fill="rgba(255,255,255,.12)"/></svg>',
+    schulte:'<svg viewBox="0 0 120 80" fill="none"><text x="12" y="28" font-family="monospace" font-size="12" fill="rgba(255,255,255,.12)">14  2  8</text><text x="12" y="46" font-family="monospace" font-size="12" fill="rgba(255,255,255,.1)"> 5 21  1</text><text x="12" y="64" font-family="monospace" font-size="12" fill="rgba(255,255,255,.08)">19  7 13</text></svg>',
+    sudoku:'<svg viewBox="0 0 120 80" fill="none"><rect x="15" y="10" width="50" height="50" rx="4" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="1"/><line x1="32" y1="10" x2="32" y2="60" stroke="rgba(255,255,255,.06)"/><line x1="48" y1="10" x2="48" y2="60" stroke="rgba(255,255,255,.06)"/><line x1="15" y1="27" x2="65" y2="27" stroke="rgba(255,255,255,.06)"/><line x1="15" y1="43" x2="65" y2="43" stroke="rgba(255,255,255,.06)"/><text x="20" y="24" font-family="monospace" font-size="11" fill="rgba(255,255,255,.15)">5</text><text x="37" y="40" font-family="monospace" font-size="11" fill="rgba(255,255,255,.12)">3</text></svg>',
+    word:'<svg viewBox="0 0 120 80" fill="none"><rect x="10" y="25" width="22" height="26" rx="5" fill="rgba(255,255,255,.1)"/><rect x="35" y="25" width="22" height="26" rx="5" fill="rgba(255,255,255,.08)"/><rect x="60" y="25" width="22" height="26" rx="5" fill="rgba(255,255,255,.1)"/><text x="16" y="44" font-family="serif" font-size="16" font-weight="bold" fill="rgba(255,255,255,.18)">W</text><text x="41" y="44" font-family="serif" font-size="16" font-weight="bold" fill="rgba(255,255,255,.12)">O</text><text x="66" y="44" font-family="serif" font-size="16" font-weight="bold" fill="rgba(255,255,255,.18)">R</text></svg>',
+    stroop:'<svg viewBox="0 0 120 80" fill="none"><text x="15" y="35" font-family="sans-serif" font-size="16" font-weight="bold" fill="rgba(100,200,255,.2)">RED</text><text x="15" y="58" font-family="sans-serif" font-size="14" font-weight="bold" fill="rgba(255,150,150,.15)">BLUE</text></svg>',
+    colormatch:'<svg viewBox="0 0 120 80" fill="none"><circle cx="35" cy="38" r="16" fill="rgba(255,200,100,.1)"/><circle cx="65" cy="42" r="14" fill="rgba(150,200,255,.08)"/></svg>'
+  };
+  const _mgSecIcons={
+    maths:'<svg viewBox="0 0 48 48" fill="none"><rect width="48" height="48" rx="12" fill="rgba(255,224,163,.12)"/><text x="24" y="32" text-anchor="middle" font-family="serif" font-size="24" font-weight="bold" fill="#FFE0A3">π</text></svg>',
+    memory:'<svg viewBox="0 0 48 48" fill="none"><rect width="48" height="48" rx="12" fill="rgba(221,214,254,.12)"/><circle cx="24" cy="24" r="10" fill="none" stroke="#DDD6FE" stroke-width="2"/><circle cx="24" cy="24" r="4" fill="#DDD6FE"/></svg>',
+    puzzles:'<svg viewBox="0 0 48 48" fill="none"><rect width="48" height="48" rx="12" fill="rgba(187,247,208,.12)"/><path d="M16 16h6v-3a3 3 0 0 1 6 0v3h6v6h3a3 3 0 0 1 0 6h-3v6H28v3a3 3 0 0 1-6 0v-3H16V28h-3a3 3 0 0 1 0-6h3V16z" fill="none" stroke="#BBF7D0" stroke-width="1.5"/></svg>'
+  };
+  const streak=mg.streak||{current:0,longest:0,total:0};
+  const _allG=_mgSections.reduce(function(a,s){return a.concat(s.games)},[]);
+  const totalXp=_allG.reduce(function(s,g){return s+((mg.progress[g.k]||{}).xp||0)},0);
   const _todayKey=new Date().toISOString().slice(0,10);
   const _doneToday=mg.dailyDone||{};
   const _doneTodayList=_doneToday[_todayKey]||[];
-  const _dailyComplete=_dailyPick.every(function(g){return _doneTodayList.indexOf(g.k)>=0});
-  const _doneCount=_dailyPick.filter(function(g){return _doneTodayList.indexOf(g.k)>=0}).length;
-  const streak=mg.streak||{current:0,longest:0,total:0};
-  const totalXp=_allGames.reduce(function(s,g){return s+((mg.progress[g.k]||{}).xp||0)},0);
 
-  h+='<div style="margin-top:6px"><h2 class="rd-serif-title">Daily Training</h2>';
-  h+='<div style="font:500 14px var(--sans);color:var(--text-mute);margin-top:6px">'+streak.current+' day streak \\u00B7 '+totalXp+' XP</div></div>';
-
-  h+='<div class="rd-eyebrow" style="margin:28px 0 12px;font-size:12px">TODAY\\u2019S CHALLENGE \\u00B7 '+_doneCount+'/'+_dailyPick.length+'</div>';
-  h+='<div style="display:flex;gap:6px;margin-bottom:18px">';
-  _dailyPick.forEach(function(g){
-    var done=_doneTodayList.indexOf(g.k)>=0;
-    h+='<div style="flex:1;height:5px;border-radius:3px;background:'+(done?'var(--accent)':'var(--surface)')+'"></div>';
-  });
+  // Hero banner
+  h+='<div class="mg-hero-banner">';
+  h+='<div class="mg-hero-bg"></div>';
+  h+='<div class="mg-hero-content">';
+  h+='<div style="font:800 28px var(--serif);color:#fff;letter-spacing:-.02em">Mind Games</div>';
+  h+='<div style="font:500 14px var(--sans);color:rgba(255,255,255,.75);margin-top:6px">Train your brain daily</div>';
+  h+='<div class="mg-hero-stats-row">';
+  h+='<div class="mg-hero-stat"><span class="mg-hero-stat-n">'+streak.current+'</span><span class="mg-hero-stat-l">day streak</span></div>';
+  h+='<div class="mg-hero-stat"><span class="mg-hero-stat-n">'+totalXp+'</span><span class="mg-hero-stat-l">total XP</span></div>';
+  h+='<div class="mg-hero-stat"><span class="mg-hero-stat-n">'+(streak.longest||0)+'</span><span class="mg-hero-stat-l">best streak</span></div>';
   h+='</div>';
-  h+='<div class="hs-grid">';
-  _dailyPick.forEach(function(g){
-    var p=mg.progress[g.k]||{level:1,xp:0,best:0};
-    var done=_doneTodayList.indexOf(g.k)>=0;
-    h+='<button class="hs-card'+(done?' hs-card-done':'')+'" onclick="mgDetailOpen(\\''+g.k+'\\')" style="--g:'+g.grad+'">';
-    h+='<div class="hs-card-blob"></div>';
-    h+='<div class="hs-card-blob hs-card-blob-2"></div>';
-    h+='<div class="hs-card-top"><span class="hs-card-dur">'+g.mins+'</span><span class="hs-card-durU">MIN</span>';
-    if(done)h+='<span style="margin-left:auto;font-size:9px;letter-spacing:.5px;background:rgba(255,255,255,.3);padding:2px 8px;border-radius:8px;font-weight:700">DONE</span>';
+  h+='</div></div>';
+
+  // Sections
+  _mgSections.forEach(function(sec){
+    h+='<div class="mg-section">';
+    h+='<div class="mg-sec-header">';
+    h+='<div class="mg-sec-icon">'+_mgSecIcons[sec.id]+'</div>';
+    h+='<div class="mg-sec-info"><div class="mg-sec-title">'+sec.title+'</div>';
+    h+='<div class="mg-sec-desc">'+sec.desc+'</div></div>';
     h+='</div>';
-    h+='<div class="hs-card-title">'+g.n+'</div>';
-    h+='<div class="hs-card-desc">'+g.d+'</div>';
-    h+='<div class="hs-card-play">'+(done?'<svg width="16" height="16" viewBox="0 0 24 24" fill="#111827" stroke="#111827" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>':'<svg width="16" height="16" viewBox="0 0 24 24" fill="#111827"><polygon points="6 4 20 12 6 20 6 4"/></svg>')+'</div>';
-    h+='</button>';
+    h+='<div class="mg-scroll-row">';
+    sec.games.forEach(function(g){
+      var p=mg.progress[g.k]||{level:1,xp:0,best:0};
+      var done=_doneTodayList.indexOf(g.k)>=0;
+      h+='<button class="mg-game-card'+(done?' mg-game-done':'')+'" onclick="mgDetailOpen(\\''+g.k+'\\')" style="--gg:'+g.grad+'">';
+      h+='<div class="mg-game-illust">'+((_mgIllusts[g.k])||'')+'</div>';
+      h+='<div class="mg-game-overlay"></div>';
+      h+='<div class="mg-game-body">';
+      h+='<div class="mg-game-meta"><span class="mg-game-mins">'+g.mins+' min</span>';
+      if(done)h+='<span class="mg-game-badge">✓ Done</span>';
+      else h+='<span class="mg-game-lvl">Lv '+p.level+'</span>';
+      h+='</div>';
+      h+='<div class="mg-game-name">'+g.n+'</div>';
+      h+='<div class="mg-game-desc">'+g.d+'</div>';
+      if(p.xp>0)h+='<div class="mg-game-xp-bar"><div class="mg-game-xp-fill" style="width:'+Math.min(100,((p.xp%100)))+'%"></div></div>';
+      h+='</div>';
+      h+='<div class="mg-game-play"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg></div>';
+      h+='</button>';
+    });
+    h+='</div>';
+    h+='</div>';
   });
-  h+='</div>';
-
-  h+='<div class="rd-eyebrow" style="margin:28px 0 12px;font-size:12px">ALL EXERCISES</div>';
-  h+='<div class="hs-grid">';
-  _allGames.forEach(function(g){
-    var p=mg.progress[g.k]||{level:1,xp:0,best:0};
-    h+='<button class="hs-card" onclick="mgDetailOpen(\\''+g.k+'\\')" style="--g:'+g.grad+'">';
-    h+='<div class="hs-card-blob"></div>';
-    h+='<div class="hs-card-blob hs-card-blob-2"></div>';
-    h+='<div class="hs-card-top"><span class="hs-card-dur">'+g.mins+'</span><span class="hs-card-durU">MIN</span></div>';
-    h+='<div class="hs-card-title">'+g.n+'</div>';
-    h+='<div class="hs-card-desc">'+g.d+'</div>';
-    h+='<div class="hs-card-play"><svg width="16" height="16" viewBox="0 0 24 24" fill="#111827"><polygon points="6 4 20 12 6 20 6 4"/></svg></div>';
-    h+='</button>';
-  });
-  h+='</div>';
 }
-
 // PLAN TAB — calendar + day planner + quick actions
 else if(S.tab==='profile'){
   const _planNow=new Date();
@@ -14802,6 +14903,7 @@ try{var _ta=document.querySelectorAll('textarea.bro-input,textarea.qc-input');fo
 }
 fetch('/api/config').then(r=>r.json()).then(c=>{window.__TWILIO_SANDBOX_CODE=c.sandboxCode||'';render()}).catch(()=>{});
 applyTheme();
+window.S=S;window._render=_render;window.render=render;window.switchTab=switchTab;
 (function(){
   var cv=document.getElementById('starfield');if(!cv)return;
   var ctx=cv.getContext('2d');
@@ -15126,7 +15228,7 @@ app.get('/privacy',(_,res)=>{
 app.get('/terms',(_,res)=>{
   res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Terms of Service — Brodoit</title><meta name="description" content="The simple terms for using Brodoit. Plain English, no surprises."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Terms</div><h1>The simple rules.</h1><p class="lede">We've kept these terms short and human. Use Brodoit kindly, and we'll keep building it for you.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">The service</h2><p>Brodoit is a personal productivity app: it lets you manage tasks with optional WhatsApp and email reminders, listen to free public-domain audiobooks, sharpen your mind with brain games, and see a daily wisdom quote.</p><h2 data-n="02">Your account</h2><p>You register with your email address or phone number. Keep your one-time verification codes private — anyone with the code can sign in. You are responsible for activity on your account.</p><h2 data-n="03">Acceptable use</h2><p>Please don't abuse the service: no spam, no impersonation, no automated scraping, no attempts to disrupt other users or the service itself. We may suspend or remove accounts that do.</p><h2 data-n="04">Content</h2><p>You own your tasks, notes, and other content you create. We store them so we can show them back to you. Audiobook content belongs to the respective public-domain authors and is served from the Internet Archive's LibriVox collection.</p><h2 data-n="05">No warranty</h2><p>The service is provided "as is". We try hard to keep it running, but can't promise zero downtime or guarantee that every reminder is delivered (WhatsApp and email providers can fail). If something matters, please don't rely solely on Brodoit.</p><h2 data-n="06">Limitation of liability</h2><p>Brodoit is a personal tool. We're not liable for missed deadlines, lost data, or any consequential damages from using — or not using — the service.</p><h2 data-n="07">Changes</h2><p>We may update these terms. If we do, we'll update the date at the top. Continued use after a change means you accept the new terms.</p><h2 data-n="08">Contact</h2><p>Need anything? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });
-app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v79";
+app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v80";
 self.addEventListener("install",function(e){self.skipWaiting()});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener("fetch",function(e){});
