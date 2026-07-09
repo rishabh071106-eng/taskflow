@@ -1,5 +1,5 @@
 require('dotenv').config({path:require('path').join(__dirname,'.env'),override:true});
-const express=require('express'),cors=require('cors'),Database=require('better-sqlite3'),twilio=require('twilio'),path=require('path'),crypto=require('crypto'),webpush=require('web-push');
+const express=require('express'),cors=require('cors'),Database=require('better-sqlite3'),path=require('path'),crypto=require('crypto'),webpush=require('web-push');
 const app=express();app.use(cors());app.use(express.json());app.use(express.urlencoded({extended:true}));
 
 // DB path — explicit DB_PATH env var wins. Otherwise, if /data exists (Railway Volume convention),
@@ -70,8 +70,13 @@ const VAPID_PUBLIC='BPfvXAUnmSa0KZgsQ7jlqMULApFdrO6PRUMJRwXJQicnAUj5Yj2pCDxK8lZB
 const VAPID_PRIVATE=process.env.VAPID_PRIVATE_KEY||'N7yZL_7GRwTXgw-ckT8A5SiRJz2gK1r9PGYMYBmmgpc';
 webpush.setVapidDetails('mailto:rishabh071106@gmail.com',VAPID_PUBLIC,VAPID_PRIVATE);
 
-let tw=null;const TW_FROM=process.env.TWILIO_WHATSAPP_FROM||'whatsapp:+14155238886';
-try{if(process.env.TWILIO_ACCOUNT_SID&&process.env.TWILIO_AUTH_TOKEN){tw=twilio(process.env.TWILIO_ACCOUNT_SID,process.env.TWILIO_AUTH_TOKEN);console.log('✅ Twilio connected')}}catch(e){console.log('⚠️',e.message)}
+// WhatsApp Cloud API (Meta) — replaces Twilio for free 1000 conversations/month
+const WA_TOKEN=process.env.WHATSAPP_TOKEN||'';
+const WA_PHONE_ID=process.env.WHATSAPP_PHONE_ID||'';
+const WA_VERIFY=process.env.WHATSAPP_VERIFY_TOKEN||'brodoit_verify_2024';
+const WA_NUM=process.env.WHATSAPP_NUMBER||'+919999999999';
+const WA_OK=!!(WA_TOKEN&&WA_PHONE_ID);
+if(WA_OK)console.log('\\u2705 WhatsApp Cloud API configured');else console.log('\\u26A0\\uFE0F WhatsApp Cloud API not configured (set WHATSAPP_TOKEN + WHATSAPP_PHONE_ID)')
 
 const genId=()=>'t_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);
 const genToken=()=>crypto.randomBytes(32).toString('hex');
@@ -90,17 +95,22 @@ function looksLikeMissingCountryCode(p){
 }
 
 async function sendWA(to,body){
-  if(!tw)return{ok:false,reason:'Twilio not configured',code:'NO_TWILIO'};
-  try{const n=to.startsWith('whatsapp:')?to:'whatsapp:'+to;const m=await tw.messages.create({from:TW_FROM,to:n,body});return{ok:true,sid:m.sid,status:m.status}}catch(e){return{ok:false,reason:e.message||String(e),code:e.code||0,moreInfo:e.moreInfo||''}}
+  if(!WA_OK)return{ok:false,reason:'WhatsApp not configured',code:'NO_WA'};
+  const cleanTo=String(to).replace(/[^0-9]/g,'');
+  try{const r=await fetch('https://graph.facebook.com/v21.0/'+WA_PHONE_ID+'/messages',{method:'POST',headers:{'Authorization':'Bearer '+WA_TOKEN,'Content-Type':'application/json'},body:JSON.stringify({messaging_product:'whatsapp',to:cleanTo,type:'text',text:{preview_url:true,body}})});const d=await r.json();if(d.messages&&d.messages[0])return{ok:true,messageId:d.messages[0].id};return{ok:false,reason:JSON.stringify(d.error||d),code:(d.error&&d.error.code)||0}}catch(e){return{ok:false,reason:e.message,code:0}}
+}
+async function sendWAButtons(to,body,buttons){
+  if(!WA_OK)return{ok:false};
+  const cleanTo=String(to).replace(/[^0-9]/g,'');
+  try{const r=await fetch('https://graph.facebook.com/v21.0/'+WA_PHONE_ID+'/messages',{method:'POST',headers:{'Authorization':'Bearer '+WA_TOKEN,'Content-Type':'application/json'},body:JSON.stringify({messaging_product:'whatsapp',to:cleanTo,type:'interactive',interactive:{type:'button',body:{text:body},action:{buttons:buttons.slice(0,3).map(function(b,i){return{type:'reply',reply:{id:'btn_'+i,title:b.slice(0,20)}}})}}})});return{ok:true}}catch(e){return{ok:false}}
 }
 function waErrorMessage(r){
   const c=r.code;
-  if(c===21211||c===21214||c===21217)return 'Phone number format is invalid. Include the country code (e.g. +91 9876543210 for India).';
-  if(c===63007)return 'WhatsApp number not registered for this account.';
-  if(c===63015||c===63016)return 'WhatsApp link to BroDoit has expired. Tap "Re-send join code" below to refresh it (links expire after 72h of inactivity).';
-  if(c===63018)return 'Daily message limit reached. Try again in a few hours or use email login.';
-  if(c===21610)return 'This number opted out of BroDoit messages. Tap "Re-send join code" below to opt back in.';
-  return 'WhatsApp delivery failed. Tap "Re-send join code" below \\u2014 you may need to reconnect to BroDoit on WhatsApp.';
+  if(c===131030)return 'This phone number is not a valid WhatsApp number.';
+  if(c===131047)return 'Message failed \\u2014 user may need to message Brodoit first (24h window).';
+  if(c===131026)return 'Message not delivered. The user may have blocked this number.';
+  if(c===130429)return 'Rate limit reached. Try again in a few minutes.';
+  return 'WhatsApp delivery failed (code '+(c||'unknown')+'). Check the number and try again.';
 }
 
 // Email via Resend (free tier: 3000/mo, 100/day)
@@ -2108,13 +2118,11 @@ app.post('/api/send-all',auth,async(req,res)=>{
   if(r.ok)return res.json({ok:true,sent:ts.length,sid:r.sid,label});
   res.status(502).json({ok:false,error:waErrorMessage(r),code:r.code});
 });
-app.get('/api/health',(_,res)=>res.json({status:'ok',twilio:!!tw,email:!!process.env.RESEND_API_KEY,users:db.prepare('SELECT COUNT(*)as c FROM users').get().c,tasks:db.prepare('SELECT COUNT(*)as c FROM tasks').get().c}));
+app.get('/api/health',(_,res)=>res.json({status:'ok',whatsapp:WA_OK,email:!!process.env.RESEND_API_KEY,users:db.prepare('SELECT COUNT(*)as c FROM users').get().c,tasks:db.prepare('SELECT COUNT(*)as c FROM tasks').get().c}));
 
-// Inject Twilio sandbox code into the HTML so frontend can build the wa.me link
-app.get('/api/config',(_,res)=>res.json({sandboxCode:process.env.TWILIO_SANDBOX_CODE||''}));
+app.get('/api/config',(_,res)=>res.json({waNumber:WA_NUM,waOk:WA_OK}));
 app.get('/brodoit.vcf',(_,res)=>{
-  const num=(process.env.TWILIO_WHATSAPP_FROM||'whatsapp:+14155238886').replace(/^whatsapp:/,'');
-  const vcf=['BEGIN:VCARD','VERSION:3.0','FN:BroDoit','N:BroDoit;;;;','ORG:BroDoit','TITLE:Productivity Assistant','TEL;TYPE=CELL,VOICE,WHATSAPP:'+num,'EMAIL:hello@brodoit.com','URL:https://brodoit.com','NOTE:Your BroDoit assistant. Send tasks here and get reminders.','END:VCARD'].join('\\r\\n');
+  const vcf=['BEGIN:VCARD','VERSION:3.0','FN:BroDoit','N:BroDoit;;;;','ORG:BroDoit','TITLE:Productivity Assistant','TEL;TYPE=CELL,VOICE,WHATSAPP:'+WA_NUM,'EMAIL:hello@brodoit.com','URL:https://brodoit.com','NOTE:Your BroDoit assistant. Send tasks here and get reminders.','END:VCARD'].join('\\r\\n');
   res.setHeader('Content-Type','text/vcard; charset=utf-8');
   res.setHeader('Content-Disposition','attachment; filename="BroDoit.vcf"');
   res.send(vcf);
@@ -2385,14 +2393,12 @@ app.post('/api/wa/connect',auth,async(req,res)=>{
   // Block if this WA number is already linked to a different account
   const owner=db.prepare("SELECT phone FROM users WHERE wa_phone=? AND phone!=?").get(phone,req.user.phone);
   if(owner)return res.status(409).json({error:'That WhatsApp number is already linked to another Brodoit account.'});
-  if(!tw)return res.status(503).json({error:'WhatsApp is not configured on the server.'});
+  if(!WA_OK)return res.status(503).json({error:'WhatsApp is not configured on the server.'});
   const code=genOTP();const expires=new Date(Date.now()+10*60*1000).toISOString();
   db.prepare('INSERT OR REPLACE INTO otps(phone,code,expires_at)VALUES(?,?,?)').run('wac:'+phone,code,expires);
-  const r=await sendWA(phone,`🔗 *Brodoit — link this WhatsApp*\n\nYour code: *${code}*\n\nEnter it on brodoit.com to connect this number to your account.\nExpires in 10 minutes.`);
-  if(r.ok)return res.json({ok:true,sentTo:phone,sid:r.sid});
-  // Sandbox-not-joined cases — tell the client so the UI can show the join instructions.
-  const needsJoin=(r.code===63007||r.code===63015||r.code===63016||r.code===21610);
-  res.status(502).json({ok:false,error:waErrorMessage(r),code:r.code,needsJoin});
+  const r=await sendWA(phone,'\u{1F517} *Brodoit \\u2014 link this WhatsApp*\n\nYour code: *'+code+'*\n\nEnter it on brodoit.com to connect this number to your account.\nExpires in 10 minutes.');
+  if(r.ok)return res.json({ok:true,sentTo:phone,messageId:r.messageId});
+  res.status(502).json({ok:false,error:waErrorMessage(r),code:r.code});
 });
 app.post('/api/wa/verify',auth,(req,res)=>{
   const phone=normWA(req.body.phone),code=String(req.body.code||'').trim();
@@ -2421,36 +2427,88 @@ app.put('/api/me',auth,(req,res)=>{
   res.json({phone:req.user.phone,name});
 });
 
-// ═══ WHATSAPP WEBHOOK ═══
+// ═══ WHATSAPP CLOUD API WEBHOOK ═══
+// Setup: 1) Create Meta App at developers.facebook.com 2) Add WhatsApp product
+// 3) Set webhook URL to https://brodoit.com/api/webhook/whatsapp
+// 4) Set env vars: WHATSAPP_TOKEN, WHATSAPP_PHONE_ID, WHATSAPP_VERIFY_TOKEN, WHATSAPP_NUMBER
+
 function parseIn(text){const r={title:text.trim(),priority:'medium',dueDate:'',command:null};const l=text.toLowerCase().trim();
-if(/^(list|tasks|pending|show)$/i.test(l))return{...r,command:'list'};if(/^(help|\?)$/i.test(l))return{...r,command:'help'};
+if(/^(list|tasks|pending|show|my tasks)$/i.test(l))return{...r,command:'list'};if(/^(help|\?|hi|hello|hey|start)$/i.test(l))return{...r,command:'help'};
 if(/^done\b/i.test(l))return{...r,command:'done',title:l.replace(/^done\s*/i,'')};if(/^(delete|remove)\b/i.test(l))return{...r,command:'delete',title:l.replace(/^(delete|remove)\s*/i,'')};
 if(/^(doing|start)\b/i.test(l))return{...r,command:'doing',title:l.replace(/^(doing|start)\s*/i,'')};
-if(/\b(urgent|important|asap|high priority)\b/i.test(l)){r.priority='high';r.title=r.title.replace(/\b(urgent|important|asap|high priority)\b/gi,'')}
+if(/\b(urgent|important|asap|high priority|!high)\b/i.test(l)){r.priority='high';r.title=r.title.replace(/\b(urgent|important|asap|high priority|!high)\b/gi,'')}
 if(/\btoday\b/i.test(l)){r.dueDate=todayStr();r.title=r.title.replace(/\btoday\b/gi,'')}
 else if(/\btomorrow\b/i.test(l)){const d=new Date();d.setDate(d.getDate()+1);r.dueDate=d.toISOString().split('T')[0];r.title=r.title.replace(/\btomorrow\b/gi,'')}
 r.title=r.title.replace(/\s+/g,' ').trim();return r}
 
+// Webhook verification (required by Meta Cloud API)
+app.get('/api/webhook/whatsapp',(req,res)=>{
+  const mode=req.query['hub.mode'],token=req.query['hub.verify_token'],challenge=req.query['hub.challenge'];
+  if(mode==='subscribe'&&token===WA_VERIFY){console.log('WhatsApp webhook verified');return res.status(200).send(challenge)}
+  res.sendStatus(403);
+});
+
+// Incoming message handler
 app.post('/api/webhook/whatsapp',async(req,res)=>{
-  const body=req.body.Body||'',from=req.body.From||'',phone=from.replace('whatsapp:','');
-  const twiml=new twilio.twiml.MessagingResponse();
-  // Find the Brodoit account that linked this WhatsApp number. NEVER auto-create users from incoming WA;
-  // that orphans tasks from the email-login account they belong to.
-  const linked=db.prepare('SELECT phone,name FROM users WHERE wa_phone=?').get(phone);
-  if(!linked){
-    twiml.message('👋 Hi! This number isn\'t linked to a Brodoit account yet.\n\nTo connect:\n1. Sign in at https://brodoit.com\n2. Tap your profile (top-right)\n3. Tap "📲 Connect WhatsApp"\n4. Enter this number and the code we send\n\nThen come back here and your tasks will sync. 🚀');
-    return res.type('text/xml').send(twiml.toString());
-  }
-  const acct=linked.phone; // account ID (email-derived for email users)
-  const p=parseIn(body);
-  if(p.command==='help')twiml.message('🤖 *Brodoit*\n\n📝 Type any task to add\n📋 "list" — your open tasks\n✅ "done <task>" — complete\n🔄 "doing <task>" — start\n🗑️ "delete <task>" — remove\n\n🌐 App: https://brodoit.com');
-  else if(p.command==='list'){const ts=db.prepare("SELECT * FROM tasks WHERE user_phone=? AND status!='done' ORDER BY priority DESC").all(acct);if(!ts.length)twiml.message('✨ No pending tasks!');else{let m='📋 *Your Tasks ('+ts.length+')*\n';ts.forEach((t,i)=>m+='\n'+(i+1)+'. '+PRI[t.priority]+' '+t.title+(t.due_date?' _('+fmtD(t.due_date)+')_':''));twiml.message(m)}}
-  else if(p.command==='done'){const t=db.prepare("SELECT * FROM tasks WHERE user_phone=? AND status!='done' AND LOWER(title) LIKE ?").get(acct,'%'+p.title+'%');if(t){db.prepare("UPDATE tasks SET status='done',updated_at=datetime('now')WHERE id=?").run(t.id);twiml.message('✅ Done: *'+t.title+'* 🎉')}else twiml.message('❌ No task matching "'+p.title+'"')}
-  else if(p.command==='doing'){const t=db.prepare("SELECT * FROM tasks WHERE user_phone=? AND status='pending' AND LOWER(title) LIKE ?").get(acct,'%'+p.title+'%');if(t){db.prepare("UPDATE tasks SET status='in-progress',updated_at=datetime('now')WHERE id=?").run(t.id);twiml.message('🔄 Started: *'+t.title+'*')}else twiml.message('❌ Not found')}
-  else if(p.command==='delete'){const t=db.prepare("SELECT * FROM tasks WHERE user_phone=? AND LOWER(title) LIKE ?").get(acct,'%'+p.title+'%');if(t){db.prepare('DELETE FROM tasks WHERE id=?').run(t.id);twiml.message('🗑️ Deleted: *'+t.title+'*')}else twiml.message('❌ Not found')}
-  else if(p.title){const id=genId();db.prepare("INSERT INTO tasks(id,user_phone,title,priority,due_date,source,board)VALUES(?,?,?,?,?,'whatsapp','home')").run(id,acct,p.title,p.priority,p.dueDate);let m='✅ *Added to Home Tasks!*\n\n'+PRI[p.priority]+' '+p.title;if(p.dueDate)m+='\n📅 '+fmtD(p.dueDate);twiml.message(m)}
-  else twiml.message('Type "help" for commands');
-  res.type('text/xml').send(twiml.toString());
+  res.sendStatus(200);
+  try{
+    const entry=req.body.entry;if(!entry||!entry[0])return;
+    const changes=entry[0].changes;if(!changes||!changes[0])return;
+    const value=changes[0].value;if(!value.messages||!value.messages[0])return;
+    const msg=value.messages[0];
+    const waNum='+'+msg.from;
+    const contactName=(value.contacts&&value.contacts[0]&&value.contacts[0].profile&&value.contacts[0].profile.name)||'';
+    // Handle text and interactive button replies
+    let text='';
+    if(msg.type==='text')text=msg.text.body||'';
+    else if(msg.type==='interactive'&&msg.interactive&&msg.interactive.button_reply)text=msg.interactive.button_reply.title||'';
+    else return;
+    if(!text.trim())return;
+
+    // Find linked account or auto-create (Memorae-style seamless onboarding)
+    let linked=db.prepare('SELECT phone,name FROM users WHERE wa_phone=?').get(waNum);
+    if(!linked){
+      const userPhone='wa_'+msg.from;
+      const token=genToken();
+      const existing=db.prepare('SELECT phone FROM users WHERE phone=?').get(userPhone);
+      if(!existing){
+        db.prepare("INSERT INTO users(phone,name,token,wa_phone,created_at)VALUES(?,?,?,?,datetime('now'))").run(userPhone,contactName||'WhatsApp User',token,waNum);
+      }
+      linked={phone:userPhone,name:contactName||'WhatsApp User'};
+      await sendWA(waNum,"👋 *Welcome to Brodoit!*\n\nI'm your productivity assistant. Just text me your tasks and I'll track them for you.\n\n*Quick commands:*\n📝 Type any task to add it\n📋 Send _list_ to see your tasks\n✅ Send _done <task>_ to complete\n🗑️ Send _delete <task>_ to remove\n\n🌐 Open the full app: https://brodoit.com\n\n_Your tasks sync automatically between WhatsApp and the app!_");
+      return;
+    }
+
+    const acct=linked.phone;
+    const p=parseIn(text);
+
+    if(p.command==='help'){
+      await sendWA(waNum,"🤖 *Brodoit — Your Task Assistant*\n\n📝 Type any task to add it\n📋 _list_ — see your open tasks\n✅ _done <task>_ — mark complete\n🔄 _doing <task>_ — mark in progress\n🗑️ _delete <task>_ — remove\n\n*Tips:*\n• Add _today_ or _tomorrow_ for due dates\n• Add _urgent_ for high priority\n• Tasks sync to https://brodoit.com\n\nJust send a message and I'll add it as a task!");
+    }else if(p.command==='list'){
+      const ts=db.prepare("SELECT * FROM tasks WHERE user_phone=? AND status!='done' ORDER BY priority DESC,created_at DESC").all(acct);
+      if(!ts.length){await sendWA(waNum,"✨ No pending tasks! You're all caught up.\n\nSend me a task to get started.")}
+      else{let m='📋 *Your Tasks ('+ts.length+')*\n';ts.slice(0,15).forEach(function(t,i){m+='\n'+(i+1)+'. '+PRI[t.priority]+' '+t.title+(t.status==='in-progress'?' 🔄':'')+(t.due_date?' _('+fmtD(t.due_date)+')_':'')});if(ts.length>15)m+='\n\n_+ '+(ts.length-15)+' more in the app_';await sendWA(waNum,m)}
+    }else if(p.command==='done'){
+      const t=db.prepare("SELECT * FROM tasks WHERE user_phone=? AND status!='done' AND LOWER(title) LIKE ?").get(acct,'%'+p.title+'%');
+      if(t){db.prepare("UPDATE tasks SET status='done',updated_at=datetime('now')WHERE id=?").run(t.id);await sendWA(waNum,'✅ Done: *'+t.title+'* 🎉')}
+      else await sendWA(waNum,'❌ No task matching "'+p.title+'"');
+    }else if(p.command==='doing'){
+      const t=db.prepare("SELECT * FROM tasks WHERE user_phone=? AND status='pending' AND LOWER(title) LIKE ?").get(acct,'%'+p.title+'%');
+      if(t){db.prepare("UPDATE tasks SET status='in-progress',updated_at=datetime('now')WHERE id=?").run(t.id);await sendWA(waNum,'🔄 Started: *'+t.title+'*')}
+      else await sendWA(waNum,'❌ Not found');
+    }else if(p.command==='delete'){
+      const t=db.prepare("SELECT * FROM tasks WHERE user_phone=? AND LOWER(title) LIKE ?").get(acct,'%'+p.title+'%');
+      if(t){db.prepare('DELETE FROM tasks WHERE id=?').run(t.id);await sendWA(waNum,'🗑️ Deleted: *'+t.title+'*')}
+      else await sendWA(waNum,'❌ Not found');
+    }else if(p.title){
+      const id=genId();
+      db.prepare("INSERT INTO tasks(id,user_phone,title,priority,due_date,source,board,created_at)VALUES(?,?,?,?,?,'whatsapp','home',datetime('now'))").run(id,acct,p.title,p.priority,p.dueDate||null);
+      let m='✅ *Added!*\n\n'+PRI[p.priority]+' '+p.title;
+      if(p.dueDate)m+='\n📅 '+fmtD(p.dueDate);
+      m+='\n\n_Reply done '+p.title.slice(0,20)+' to complete_';
+      await sendWA(waNum,m);
+    }
+  }catch(e){console.error('WA webhook error:',e.message||e)}
 });
 
 // ═══ REMINDERS ═══
@@ -8768,7 +8826,7 @@ async function restoreFromBackup(){
 }
 function dismissRestoreOffer(){S.restoreOffer=null;render()}
 function downloadBackup(){window.open('/api/me/export','_blank')}
-async function chk(){const h=await api('/health');if(h)S.waOk=h.twilio;render()}
+async function chk(){const h=await api('/health');if(h)S.waOk=h.whatsapp;render()}
 async function addT(){if(!S.form.title.trim())return;const r=await api('/tasks',{method:'POST',body:JSON.stringify({title:S.form.title,notes:S.form.notes,priority:S.form.priority,status:'pending',due_date:S.form.dueDate,reminder_time:S.form.reminderTime,board:S.form.board})});if(r?.id){S.tasks.unshift(r);clM();toast('\\u2705 Task added!')}}
 // ─── Inline composer ────────────────────────────────────────────
 // Smart-parses natural language: "Buy milk tomorrow !urgent" →
@@ -9459,7 +9517,7 @@ function waConnectAbort(){S.waConn=null;S.showWASetup=false;localStorage.removeI
 function waConnPhInput(v){if(!S.waConn)return;S.waConn={...S.waConn,phoneInput:v};_waPersist()}
 function waConnCcInput(v){if(!S.waConn)return;S.waConn={...S.waConn,cc:v};_waPersist()}
 function waConnCodeInput(v){if(!S.waConn)return;S.waConn={...S.waConn,codeInput:v};_waPersist();if((v||'').replace(/\D/g,'').length>=6)waConnectVerify()}
-function waOpenJoin(){const code=window.__TWILIO_SANDBOX_CODE||'along-wool';window.open('https://wa.me/14155238886?text='+encodeURIComponent('join '+code),'_blank')}
+function waOpenJoin(){const num=(window.__WA_NUMBER||'+919999999999').replace(/[^0-9]/g,'');window.open('https://wa.me/'+num+'?text='+encodeURIComponent('Hi'),'_blank')}
 // Meditation slots:
 //   directId = Archive.org item (legacy real-teacher recordings)
 //   audioId = AUDIO_LIBRARY key (pre-rendered static MP3 in audio-static/)
@@ -14901,7 +14959,7 @@ try{document.body.classList.toggle('bro-tab',S.tab==='bro')}catch(e){}
 // Force textarea width to parent's pixel width — WebView ignores CSS width on textareas
 try{var _ta=document.querySelectorAll('textarea.bro-input,textarea.qc-input');for(var _i=0;_i<_ta.length;_i++){var _p=_ta[_i].parentNode;if(_p&&_p.clientWidth>0)_ta[_i].style.width=_p.clientWidth+'px'}}catch(e){}
 }
-fetch('/api/config').then(r=>r.json()).then(c=>{window.__TWILIO_SANDBOX_CODE=c.sandboxCode||'';render()}).catch(()=>{});
+fetch('/api/config').then(r=>r.json()).then(c=>{window.__WA_NUMBER=c.waNumber||'';S.waOk=c.waOk;render()}).catch(()=>{});
 applyTheme();
 window.S=S;window._render=_render;window.render=render;window.switchTab=switchTab;
 (function(){
@@ -14961,7 +15019,7 @@ function _recoverLoginIfNeeded(){
 }
 window.addEventListener('pageshow',function(e){_recoverLoginIfNeeded()});
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')_recoverLoginIfNeeded()});
-if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js?v=79').then(function(reg){reg.update()}).catch(()=>{});}
+if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js?v=82').then(function(reg){reg.update()}).catch(()=>{});}
 // ─── Mobile keyboard: keep Bro input visible ───
 (function(){
   if(!window.visualViewport)return;
@@ -15221,14 +15279,14 @@ function copyShare(){
 });
 
 app.get('/privacy',(_,res)=>{
-  res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Privacy Policy — Brodoit</title><meta name="description" content="What Brodoit collects, why, and your rights. Plain-English privacy policy."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Privacy</div><h1>Privacy, plainly.</h1><p class="lede">We built Brodoit to be a calm, private place. This page explains exactly what we collect, why, and what we will never do. No dark patterns, no fine print.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">What we collect</h2><ul><li><strong>Email address</strong> or <strong>phone number</strong> — used only to authenticate you via a one-time verification code.</li><li><strong>Your name</strong> — displayed in your profile screen.</li><li><strong>Your tasks, notes, due dates, reminders</strong> — stored so we can show them back to you and send reminders on the times you set.</li><li><strong>Session token</strong> — a random string stored in your browser so you stay logged in.</li></ul><div class="note">We do <strong>not</strong> collect: your location, your contacts, advertising IDs, device IDs, photos, payment info, or any data we don't explicitly list above.</div><h2 data-n="02">How we use it</h2><ul><li>Deliver one-time codes by email or WhatsApp.</li><li>Show your tasks, books, and other content you've created.</li><li>Send reminders at the times you set.</li></ul><h2 data-n="03">Who we share with</h2><p>We share data only with the following service providers, strictly to operate the service:</p><ul><li><strong>Resend</strong> — to deliver verification emails (<a href="https://resend.com/privacy">privacy policy</a>).</li><li><strong>Twilio</strong> — to deliver WhatsApp messages (<a href="https://www.twilio.com/legal/privacy">privacy policy</a>).</li><li><strong>Railway</strong> — our hosting provider (<a href="https://railway.app/legal/privacy">privacy policy</a>).</li><li><strong>Internet Archive (LibriVox)</strong> — we fetch public-domain audiobook metadata. No personal data is sent.</li></ul><div class="note">We never sell your data. We never show ads. We never track you across other apps or sites.</div><h2 data-n="04">Data retention</h2><p>Your tasks and account persist until you delete them or ask us to delete your account. Verification codes expire after 5 minutes and are wiped after use.</p><h2 data-n="05">Your rights</h2><p>Email <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> any time to export your data, correct it, or permanently delete your account. We respond within seven days.</p><h2 data-n="06">Children</h2><p>Brodoit is not directed at children under 13. We do not knowingly collect data from children under 13. If you believe we have, please contact us and we will delete it immediately.</p><h2 data-n="07">Changes</h2><p>If we make material changes, we'll update the date at the top of this page and notify you by email if we have your address.</p><h2 data-n="08">Contact</h2><p>Questions about anything on this page? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
+  res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Privacy Policy — Brodoit</title><meta name="description" content="What Brodoit collects, why, and your rights. Plain-English privacy policy."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Privacy</div><h1>Privacy, plainly.</h1><p class="lede">We built Brodoit to be a calm, private place. This page explains exactly what we collect, why, and what we will never do. No dark patterns, no fine print.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">What we collect</h2><ul><li><strong>Email address</strong> or <strong>phone number</strong> — used only to authenticate you via a one-time verification code.</li><li><strong>Your name</strong> — displayed in your profile screen.</li><li><strong>Your tasks, notes, due dates, reminders</strong> — stored so we can show them back to you and send reminders on the times you set.</li><li><strong>Session token</strong> — a random string stored in your browser so you stay logged in.</li></ul><div class="note">We do <strong>not</strong> collect: your location, your contacts, advertising IDs, device IDs, photos, payment info, or any data we don't explicitly list above.</div><h2 data-n="02">How we use it</h2><ul><li>Deliver one-time codes by email or WhatsApp.</li><li>Show your tasks, books, and other content you've created.</li><li>Send reminders at the times you set.</li></ul><h2 data-n="03">Who we share with</h2><p>We share data only with the following service providers, strictly to operate the service:</p><ul><li><strong>Resend</strong> — to deliver verification emails (<a href="https://resend.com/privacy">privacy policy</a>).</li><li><strong>Meta (WhatsApp Cloud API)</strong> — to deliver WhatsApp messages (<a href="https://www.whatsapp.com/legal/privacy-policy">privacy policy</a>).</li><li><strong>Railway</strong> — our hosting provider (<a href="https://railway.app/legal/privacy">privacy policy</a>).</li><li><strong>Internet Archive (LibriVox)</strong> — we fetch public-domain audiobook metadata. No personal data is sent.</li></ul><div class="note">We never sell your data. We never show ads. We never track you across other apps or sites.</div><h2 data-n="04">Data retention</h2><p>Your tasks and account persist until you delete them or ask us to delete your account. Verification codes expire after 5 minutes and are wiped after use.</p><h2 data-n="05">Your rights</h2><p>Email <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> any time to export your data, correct it, or permanently delete your account. We respond within seven days.</p><h2 data-n="06">Children</h2><p>Brodoit is not directed at children under 13. We do not knowingly collect data from children under 13. If you believe we have, please contact us and we will delete it immediately.</p><h2 data-n="07">Changes</h2><p>If we make material changes, we'll update the date at the top of this page and notify you by email if we have your address.</p><h2 data-n="08">Contact</h2><p>Questions about anything on this page? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });
 
 // Terms of Service
 app.get('/terms',(_,res)=>{
   res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Terms of Service — Brodoit</title><meta name="description" content="The simple terms for using Brodoit. Plain English, no surprises."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Terms</div><h1>The simple rules.</h1><p class="lede">We've kept these terms short and human. Use Brodoit kindly, and we'll keep building it for you.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">The service</h2><p>Brodoit is a personal productivity app: it lets you manage tasks with optional WhatsApp and email reminders, listen to free public-domain audiobooks, sharpen your mind with brain games, and see a daily wisdom quote.</p><h2 data-n="02">Your account</h2><p>You register with your email address or phone number. Keep your one-time verification codes private — anyone with the code can sign in. You are responsible for activity on your account.</p><h2 data-n="03">Acceptable use</h2><p>Please don't abuse the service: no spam, no impersonation, no automated scraping, no attempts to disrupt other users or the service itself. We may suspend or remove accounts that do.</p><h2 data-n="04">Content</h2><p>You own your tasks, notes, and other content you create. We store them so we can show them back to you. Audiobook content belongs to the respective public-domain authors and is served from the Internet Archive's LibriVox collection.</p><h2 data-n="05">No warranty</h2><p>The service is provided "as is". We try hard to keep it running, but can't promise zero downtime or guarantee that every reminder is delivered (WhatsApp and email providers can fail). If something matters, please don't rely solely on Brodoit.</p><h2 data-n="06">Limitation of liability</h2><p>Brodoit is a personal tool. We're not liable for missed deadlines, lost data, or any consequential damages from using — or not using — the service.</p><h2 data-n="07">Changes</h2><p>We may update these terms. If we do, we'll update the date at the top. Continued use after a change means you accept the new terms.</p><h2 data-n="08">Contact</h2><p>Need anything? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });
-app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v81";
+app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v82";
 self.addEventListener("install",function(e){self.skipWaiting()});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener("fetch",function(e){});
