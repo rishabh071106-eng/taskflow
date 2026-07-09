@@ -299,6 +299,9 @@ app.post('/api/verify-otp',(req,res)=>{
   let token;
   if(!user){token=genToken();db.prepare('INSERT INTO users(phone,name,token)VALUES(?,?,?)').run(phone,name,token);user={phone,name,token}}
   else{token=user.token||genToken();db.prepare('UPDATE users SET token=?,name=COALESCE(NULLIF(?,\'\'),name)WHERE phone=?').run(token,name,phone);user.token=token;if(name)user.name=name}
+  // Merge any wa_ auto-created account that used this phone number on WhatsApp
+  const waAcct=db.prepare("SELECT phone FROM users WHERE wa_phone=? AND phone LIKE 'wa_%'").get(phone);
+  if(waAcct){db.prepare('UPDATE tasks SET user_phone=? WHERE user_phone=?').run(phone,waAcct.phone);db.prepare('DELETE FROM users WHERE phone=?').run(waAcct.phone);db.prepare('UPDATE users SET wa_phone=? WHERE phone=?').run(phone,phone)}
   setTokenCookie(res,token);
   res.json({phone:user.phone,name:user.name||name,token});
 });
@@ -2390,9 +2393,10 @@ app.post('/api/wa/connect',auth,async(req,res)=>{
   const phone=normWA(req.body.phone);
   if(phone.length<8)return res.status(400).json({error:'Enter your WhatsApp number with country code (e.g. +91 9876543210).'});
   if(rateLimited('wac:'+req.user.phone))return res.status(429).json({error:'Too many attempts. Try again in 10 minutes.'});
-  // Block if this WA number is already linked to a different account
+  // If a wa_ auto-created account owns this number, that's fine — it'll merge at verify time.
+  // Only block if a real (non-auto-created) account owns it.
   const owner=db.prepare("SELECT phone FROM users WHERE wa_phone=? AND phone!=?").get(phone,req.user.phone);
-  if(owner)return res.status(409).json({error:'That WhatsApp number is already linked to another Brodoit account.'});
+  if(owner&&!owner.phone.startsWith('wa_'))return res.status(409).json({error:'That WhatsApp number is already linked to another Brodoit account.'});
   if(!WA_OK)return res.status(503).json({error:'WhatsApp is not configured on the server.'});
   const code=genOTP();const expires=new Date(Date.now()+10*60*1000).toISOString();
   db.prepare('INSERT OR REPLACE INTO otps(phone,code,expires_at)VALUES(?,?,?)').run('wac:'+phone,code,expires);
@@ -2409,9 +2413,16 @@ app.post('/api/wa/verify',auth,(req,res)=>{
   if(new Date(otp.expires_at)<new Date()){db.prepare('DELETE FROM otps WHERE phone=?').run(key);return res.status(400).json({error:'Code expired. Request a new one.'})}
   if(otp.code!==code)return res.status(400).json({error:'Wrong code. Try again.'});
   db.prepare('DELETE FROM otps WHERE phone=?').run(key);
-  // Final dup check before commit
+  // If a wa_ auto-created account owns this number, merge its tasks into the web account
   const owner=db.prepare("SELECT phone FROM users WHERE wa_phone=? AND phone!=?").get(phone,req.user.phone);
-  if(owner)return res.status(409).json({error:'That WhatsApp number is already linked to another Brodoit account.'});
+  if(owner){
+    if(owner.phone.startsWith('wa_')){
+      db.prepare('UPDATE tasks SET user_phone=? WHERE user_phone=?').run(req.user.phone,owner.phone);
+      db.prepare('DELETE FROM users WHERE phone=?').run(owner.phone);
+    }else{
+      return res.status(409).json({error:'That WhatsApp number is already linked to another Brodoit account.'});
+    }
+  }
   db.prepare('UPDATE users SET wa_phone=? WHERE phone=?').run(phone,req.user.phone);
   res.json({ok:true,wa_phone:phone});
 });
@@ -2465,9 +2476,15 @@ app.post('/api/webhook/whatsapp',async(req,res)=>{
     else return;
     if(!text.trim())return;
 
-    // Find linked account or auto-create (Memorae-style seamless onboarding)
+    // Find linked account — check wa_phone first, then fall back to phone number match
     let linked=db.prepare('SELECT phone,name FROM users WHERE wa_phone=?').get(waNum);
     if(!linked){
+      // Check if a web user signed up with this phone number but hasn't linked WhatsApp yet
+      const byPhone=db.prepare('SELECT phone,name FROM users WHERE phone=?').get(waNum);
+      if(byPhone){db.prepare('UPDATE users SET wa_phone=? WHERE phone=?').run(waNum,byPhone.phone);linked=byPhone}
+    }
+    if(!linked){
+      // Auto-create account for new WhatsApp user (Memorae-style seamless onboarding)
       const userPhone='wa_'+msg.from;
       const token=genToken();
       const existing=db.prepare('SELECT phone FROM users WHERE phone=?').get(userPhone);
