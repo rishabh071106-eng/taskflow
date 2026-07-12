@@ -10,5 +10,5 @@ brodoit.db-wal
 tts-cache/
 audio-static/*
 !audio-static/*.mp3
-.claude/
+.claude/settings.local.json
 *.aab

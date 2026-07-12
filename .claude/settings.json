@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -c server.js)",
+      "Bash(node server.js*)",
+      "Bash(grep *)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git add*)",
+      "Bash(git commit*)",
+      "Bash(git push origin main)",
+      "Bash(git push railway main)",
+      "Bash(curl -s http://localhost*)",
+      "Bash(lsof -ti :3000*)",
+      "Bash(kill *)",
+      "Bash(wc -l *)",
+      "Bash(ls *)",
+      "Bash(cat package.json*)",
+      "Read(*)",
+      "Edit(*)"
+    ]
+  }
+}
