@@ -2655,175 +2655,6 @@ app.get('/api/wiki/summaries',async(req,res)=>{
   res.json({summaries,cached:false});
 });
 
-// ═══ SPEAKER & TEACHING AGENT — college talks, guest lectures, part-time faculty ═══
-// Tracks opportunities in a pipeline, discovers new ones from live news/job feeds,
-// scores fit against the user's speaker profile, and drafts applications with AI.
-try{db.exec("CREATE TABLE IF NOT EXISTS speaker_events(id TEXT PRIMARY KEY,user_phone TEXT NOT NULL,title TEXT NOT NULL,org TEXT DEFAULT'',kind TEXT DEFAULT'talk',mode TEXT DEFAULT'in-person',location TEXT DEFAULT'',event_date TEXT DEFAULT'',deadline TEXT DEFAULT'',url TEXT DEFAULT'',contact TEXT DEFAULT'',source TEXT DEFAULT'manual',status TEXT DEFAULT'interested',notes TEXT DEFAULT'',draft TEXT DEFAULT'',fit INTEGER DEFAULT 0,created_at TEXT DEFAULT(datetime('now')),updated_at TEXT DEFAULT(datetime('now')))")}catch(e){}
-try{db.exec("CREATE INDEX IF NOT EXISTS idx_speaker_events_user ON speaker_events(user_phone)")}catch(e){}
-try{db.exec("CREATE TABLE IF NOT EXISTS speaker_profile(user_phone TEXT PRIMARY KEY,data TEXT NOT NULL,updated_at TEXT DEFAULT(datetime('now')))")}catch(e){}
-
-const SPK_KINDS=['talk','guest-lecture','teaching','workshop','panel','judge','mentoring'];
-const SPK_STATUSES=['interested','applied','shortlisted','confirmed','delivered','declined'];
-const SPK_DEFAULT_PROFILE={
-  name:'',headline:'Vice President, State Street | AI & Data Leader',
-  bio:'',
-  topics:['Generative AI in financial services','AI agents & automation','Data & ML strategy','Product building from 0 to 1','Careers in fintech & technology','Leadership & managing tech teams'],
-  subjects:['Artificial Intelligence','Machine Learning','Business Analytics','Product Management','FinTech','Digital Transformation'],
-  cities:['Bengaluru'],online:true,hoursPerWeek:4,
-  resume:''
-};
-function _spkProfile(phone){
-  const r=db.prepare('SELECT data FROM speaker_profile WHERE user_phone=?').get(phone);
-  let p={};try{p=r?JSON.parse(r.data):{}}catch(e){}
-  return Object.assign({},SPK_DEFAULT_PROFILE,p);
-}
-function _spkClean(v,max){return String(v==null?'':v).slice(0,max||500).trim()}
-function _spkRow(b,base){
-  const o=Object.assign({},base||{});
-  ['title','org','location','event_date','deadline','url','contact','notes','draft'].forEach(k=>{if(b[k]!==undefined)o[k]=_spkClean(b[k],k==='draft'||k==='notes'?8000:500)});
-  if(b.kind!==undefined)o.kind=SPK_KINDS.includes(b.kind)?b.kind:'talk';
-  if(b.mode!==undefined)o.mode=['in-person','online','hybrid'].includes(b.mode)?b.mode:'in-person';
-  if(b.status!==undefined)o.status=SPK_STATUSES.includes(b.status)?b.status:'interested';
-  if(b.source!==undefined)o.source=_spkClean(b.source,60);
-  if(b.fit!==undefined)o.fit=Math.max(0,Math.min(100,parseInt(b.fit)||0));
-  return o;
-}
-// Keyword fit score (0-100): how well an opportunity matches the profile's topics/subjects/cities
-function _spkFit(text,profile){
-  const t=String(text||'').toLowerCase();if(!t)return 0;
-  const words=[].concat(profile.topics||[],profile.subjects||[]).join(' ').toLowerCase().split(/[^a-z0-9+#]+/).filter(w=>w.length>2&&!['and','the','for','from','with','in'].includes(w));
-  // Common synonyms so 'GenAI', 'banking', 'B-school' etc. still match the profile
-  const SYN={generative:['genai','gen ai','llm','chatgpt'],financial:['banking','bank','finance','bfsi'],fintech:['banking','payments','bfsi'],machine:['ml','data science'],artificial:[' ai ','a.i.'],product:['startup','entrepreneurship'],careers:['placement','career'],leadership:['management','mba']};
-  Object.keys(SYN).forEach(k=>{if(words.includes(k))words.push(...SYN[k])});
-  const uniq=[...new Set(words)];let hits=0;uniq.forEach(w=>{if(t.includes(w))hits++});
-  let s=Math.min(70,hits*12);
-  if(/guest|visiting|adjunct|faculty|lecture|professor of practice|speaker|keynote|cfp|call for/.test(t))s+=20;
-  if((profile.cities||[]).some(c=>c&&t.includes(String(c).toLowerCase())))s+=10;
-  if(profile.online&&/online|virtual|remote|webinar/.test(t))s+=5;
-  return Math.min(100,s);
-}
-
-app.get('/api/speaker/profile',auth,(req,res)=>{
-  const p=_spkProfile(req.user.phone);if(!p.name)p.name=req.user.name||'';res.json(p);
-});
-app.put('/api/speaker/profile',auth,(req,res)=>{
-  const b=req.body||{};const cur=_spkProfile(req.user.phone);
-  const arr=v=>(Array.isArray(v)?v:String(v||'').split(/[,\n]/)).map(s=>_spkClean(s,120)).filter(Boolean).slice(0,30);
-  const p={
-    name:b.name!==undefined?_spkClean(b.name,120):cur.name,
-    headline:b.headline!==undefined?_spkClean(b.headline,200):cur.headline,
-    bio:b.bio!==undefined?_spkClean(b.bio,3000):cur.bio,
-    topics:b.topics!==undefined?arr(b.topics):cur.topics,
-    subjects:b.subjects!==undefined?arr(b.subjects):cur.subjects,
-    cities:b.cities!==undefined?arr(b.cities):cur.cities,
-    online:b.online!==undefined?!!b.online:cur.online,
-    hoursPerWeek:b.hoursPerWeek!==undefined?Math.max(0,Math.min(40,parseInt(b.hoursPerWeek)||0)):cur.hoursPerWeek,
-    resume:b.resume!==undefined?_spkClean(b.resume,20000):cur.resume
-  };
-  db.prepare("INSERT INTO speaker_profile(user_phone,data,updated_at)VALUES(?,?,datetime('now')) ON CONFLICT(user_phone) DO UPDATE SET data=excluded.data,updated_at=excluded.updated_at").run(req.user.phone,JSON.stringify(p));
-  res.json(p);
-});
-
-app.get('/api/speaker/events',auth,(req,res)=>{
-  res.json(db.prepare("SELECT * FROM speaker_events WHERE user_phone=? ORDER BY CASE status WHEN 'confirmed' THEN 0 WHEN 'shortlisted' THEN 1 WHEN 'applied' THEN 2 WHEN 'interested' THEN 3 WHEN 'delivered' THEN 4 ELSE 5 END, COALESCE(NULLIF(deadline,''),NULLIF(event_date,''),'9999') ASC, created_at DESC").all(req.user.phone));
-});
-app.post('/api/speaker/events',auth,(req,res)=>{
-  const o=_spkRow(req.body||{},{kind:'talk',mode:'in-person',status:'interested',source:'manual'});
-  if(!o.title)return res.status(400).json({error:'Title required'});
-  if(o.url){const dup=db.prepare('SELECT id FROM speaker_events WHERE user_phone=? AND url=?').get(req.user.phone,o.url);if(dup)return res.status(409).json({error:'Already tracked',id:dup.id})}
-  if(req.body.fit===undefined)o.fit=_spkFit([o.title,o.org,o.location,o.notes].join(' '),_spkProfile(req.user.phone));
-  const id=genId();
-  db.prepare('INSERT INTO speaker_events(id,user_phone,title,org,kind,mode,location,event_date,deadline,url,contact,source,status,notes,draft,fit)VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)').run(id,req.user.phone,o.title,o.org||'',o.kind,o.mode,o.location||'',o.event_date||'',o.deadline||'',o.url||'',o.contact||'',o.source,o.status,o.notes||'',o.draft||'',o.fit||0);
-  res.json(db.prepare('SELECT * FROM speaker_events WHERE id=?').get(id));
-});
-app.put('/api/speaker/events/:id',auth,(req,res)=>{
-  const cur=db.prepare('SELECT * FROM speaker_events WHERE id=? AND user_phone=?').get(req.params.id,req.user.phone);
-  if(!cur)return res.status(404).json({error:'Not found'});
-  const o=_spkRow(req.body||{},cur);
-  db.prepare("UPDATE speaker_events SET title=?,org=?,kind=?,mode=?,location=?,event_date=?,deadline=?,url=?,contact=?,source=?,status=?,notes=?,draft=?,fit=?,updated_at=datetime('now') WHERE id=?").run(o.title,o.org,o.kind,o.mode,o.location,o.event_date,o.deadline,o.url,o.contact,o.source,o.status,o.notes,o.draft,o.fit,cur.id);
-  res.json(db.prepare('SELECT * FROM speaker_events WHERE id=?').get(cur.id));
-});
-app.delete('/api/speaker/events/:id',auth,(req,res)=>{
-  db.prepare('DELETE FROM speaker_events WHERE id=? AND user_phone=?').run(req.params.id,req.user.phone);res.json({ok:true});
-});
-// Push an opportunity's deadline into the main Brodoit task list
-app.post('/api/speaker/events/:id/task',auth,(req,res)=>{
-  const ev=db.prepare('SELECT * FROM speaker_events WHERE id=? AND user_phone=?').get(req.params.id,req.user.phone);
-  if(!ev)return res.status(404).json({error:'Not found'});
-  const verb=ev.status==='confirmed'?'Prepare':'Apply';
-  const due=ev.status==='confirmed'?(ev.event_date||ev.deadline):(ev.deadline||ev.event_date);
-  const id=genId();
-  db.prepare('INSERT INTO tasks(id,user_phone,title,notes,priority,status,due_date,reminder_time,source,board)VALUES(?,?,?,?,?,?,?,?,?,?)').run(id,req.user.phone,verb+': '+ev.title+(ev.org?' ('+ev.org+')':''),ev.url||'','high','pending',/^\d{4}-\d{2}-\d{2}$/.test(due||'')?due:'','','speaker','office');
-  res.json({ok:true,taskId:id});
-});
-
-// Live discovery — Google News RSS searches for real calls for speakers / faculty openings
-const SPK_QUERIES=[
-  {q:'"guest faculty" OR "visiting faculty" recruitment',kind:'teaching'},
-  {q:'"adjunct faculty" OR "professor of practice" India',kind:'teaching'},
-  {q:'"call for speakers" 2026 India',kind:'talk'},
-  {q:'"guest lecture" college AI OR fintech',kind:'guest-lecture'},
-  {q:'"call for proposals" conference AI 2026',kind:'talk'},
-  {q:'"industry expert" "guest lecture" OR "expert talk" engineering college',kind:'guest-lecture'}
-];
-const _spkDiscCache={at:0,items:[]};
-async function _spkFetchRss(q){
-  const url='https://news.google.com/rss/search?q='+encodeURIComponent(q+' when:60d')+'&hl=en-IN&gl=IN&ceid=IN:en';
-  const ctrl=new AbortController();const t=setTimeout(()=>ctrl.abort(),9000);
-  try{
-    const r=await fetch(url,{signal:ctrl.signal,headers:{'User-Agent':'Mozilla/5.0 Brodoit'}});clearTimeout(t);
-    if(!r.ok)return[];const xml=await r.text();
-    return (xml.match(/<item>[\s\S]*?<\/item>/g)||[]).slice(0,15).map(it=>{
-      const g=tag=>{const m=it.match(new RegExp('<'+tag+'[^>]*>([\\s\\S]*?)</'+tag+'>'));return m?stripXmlTags(m[1]):''};
-      let title=g('title');const src=g('source');
-      if(src&&title.endsWith(' - '+src))title=title.slice(0,-(src.length+3));
-      return{title,url:g('link'),org:src,date:g('pubDate'),snippet:g('description').slice(0,280)};
-    }).filter(x=>x.title&&x.url);
-  }catch(e){clearTimeout(t);return[]}
-}
-app.get('/api/speaker/discover',auth,async(req,res)=>{
-  const profile=_spkProfile(req.user.phone);
-  const extra=_spkClean(req.query.q,120);
-  let items;
-  if(!extra&&Date.now()-_spkDiscCache.at<6*3600*1000&&_spkDiscCache.items.length)items=_spkDiscCache.items;
-  else{
-    const qs=extra?[{q:extra,kind:'talk'},{q:extra+' "guest lecture" OR "visiting faculty"',kind:'teaching'}]:SPK_QUERIES;
-    const results=await Promise.all(qs.map(x=>_spkFetchRss(x.q).then(list=>list.map(i=>Object.assign(i,{kind:x.kind})))));
-    const seen=new Set();items=[];
-    results.flat().forEach(i=>{const k=i.title.toLowerCase().slice(0,80);if(!seen.has(k)){seen.add(k);items.push(i)}});
-    if(!extra){_spkDiscCache.at=Date.now();_spkDiscCache.items=items}
-  }
-  const tracked=new Set(db.prepare('SELECT url FROM speaker_events WHERE user_phone=?').all(req.user.phone).map(r=>r.url));
-  const out=items.map(i=>Object.assign({},i,{fit:_spkFit(i.title+' '+i.snippet+' '+i.org,profile),tracked:tracked.has(i.url)}))
-    .sort((a,b)=>b.fit-a.fit||(Date.parse(b.date)||0)-(Date.parse(a.date)||0)).slice(0,60);
-  res.json({items:out,updated:_spkDiscCache.at||Date.now()});
-});
-
-// AI agent: draft an application / pitch, a talk abstract, or a syllabus outline for an opportunity
-app.post('/api/speaker/draft',auth,async(req,res)=>{
-  if(!GROQ_KEY&&!GEMINI_KEY)return res.status(503).json({error:'AI not configured on the server.'});
-  const profile=_spkProfile(req.user.phone);if(!profile.name)profile.name=req.user.name||'';
-  const ev=req.body.id?db.prepare('SELECT * FROM speaker_events WHERE id=? AND user_phone=?').get(req.body.id,req.user.phone):null;
-  const what=['application','abstract','syllabus','followup'].includes(req.body.type)?req.body.type:'application';
-  const opp=ev?`Title: ${ev.title}\nOrganisation: ${ev.org}\nType: ${ev.kind} (${ev.mode})\nLocation: ${ev.location}\nDate: ${ev.event_date}\nDeadline: ${ev.deadline}\nLink: ${ev.url}\nNotes: ${ev.notes}`:_spkClean(req.body.context,3000)||'General outreach to colleges for guest lectures and part-time teaching.';
-  const asks={
-    application:'Write a concise, warm, professional application email (subject line + body, under 220 words) offering to speak / teach at this opportunity. Lead with credibility, propose 2-3 specific session ideas drawn from the speaker topics, mention availability, and close with a clear call to action.',
-    abstract:'Write a talk proposal: a punchy title, a 120-word abstract, 3-4 learning outcomes as bullets, a session format (duration, interactive elements) and a 60-word speaker bio in third person.',
-    syllabus:'Draft a part-time course outline: course title, target students, 8-10 weekly sessions (one line each), assessment approach, and a 60-word instructor bio in third person.',
-    followup:'Write a short, polite follow-up email (subject + under 120 words) checking on the status of an application submitted earlier for this opportunity.'
-  };
-  const sys='You are a career agent who helps senior industry professionals land college speaking engagements, guest lectures and part-time teaching roles in India. Be specific, credible and concise. Never invent credentials that are not in the profile. Output plain text, no markdown headings with #.';
-  const prompt=`SPEAKER PROFILE\nName: ${profile.name}\nHeadline: ${profile.headline}\nBio: ${profile.bio}\nTopics: ${(profile.topics||[]).join('; ')}\nCan teach: ${(profile.subjects||[]).join('; ')}\nPreferred cities: ${(profile.cities||[]).join(', ')}; online OK: ${profile.online?'yes':'no'}; hours/week: ${profile.hoursPerWeek}\nResume (excerpt): ${String(profile.resume||'').slice(0,4000)}\n\nOPPORTUNITY\n${opp}\n\nTASK\n${asks[what]}`;
-  const msgs=[{role:'system',content:sys},{role:'user',content:prompt}];
-  let reply='';
-  if(GEMINI_KEY){try{reply=(await _callGemini(msgs,{maxTokens:1200,systemPrompt:sys})).reply}catch(e){}}
-  if(!reply&&GROQ_KEY){try{reply=(await _callGroq(msgs,{maxTokens:1200})).reply}catch(e){}}
-  if(!reply)return res.status(502).json({error:'The agent is busy — try again in a moment.'});
-  reply=reply.replace(/\*\*(.+?)\*\*/g,'$1').trim();
-  if(ev&&(what==='application'||what==='followup'))db.prepare("UPDATE speaker_events SET draft=?,updated_at=datetime('now') WHERE id=?").run(reply,ev.id);
-  res.json({draft:reply,type:what});
-});
-
 // ═══ PROFILE (/api/me) ═══
 app.get('/api/me',auth,(req,res)=>{
   const u=db.prepare('SELECT phone,name,email,created_at FROM users WHERE phone=?').get(req.user.phone);
@@ -15460,7 +15291,6 @@ else if(S.tab==='courses'){
     h+='<span style="align-self:flex-start;background:rgba(255,255,255,.2);padding:5px 11px;border-radius:999px;font:800 10.5px var(--sans);letter-spacing:.12em;text-transform:uppercase">New \\u00B7 Brodoit Prep</span>';
     h+='<span style="font:800 26px var(--sans);letter-spacing:-.03em;line-height:1.05">Crack NDA, CDS, SSB,<br>UPSC, Banks &amp; IT</span>';
     h+='<span style="font:600 13px var(--sans);opacity:.9">Swipe lessons \\u00B7 listen like an audiobook \\u00B7 streaks</span></button>';
-    h+='<button onclick="location.href=\\'/speaker/\\'" style="border:none;cursor:pointer;text-align:left;border-radius:20px;padding:16px 18px;color:#fff;background:linear-gradient(140deg,#0B3B2E,#1F7A4D 55%,#3DAE5C);display:flex;align-items:center;gap:14px;box-shadow:0 8px 20px rgba(0,0,0,.12)"><span style="font-size:34px">\\u{1F3A4}</span><span><span style="display:block;font:800 17px var(--sans);letter-spacing:-.02em">Speaker &amp; Teaching Agent</span><span style="display:block;font:600 12px var(--sans);opacity:.9;margin-top:2px">College talks \\u00B7 guest lectures \\u00B7 part-time faculty</span></span></button>';
     h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
     h+='<button onclick="_openPrep(\\'ssb.html\\')" style="border:none;cursor:pointer;text-align:left;border-radius:20px;padding:16px;min-height:132px;color:#fff;background:linear-gradient(140deg,#14213D,#2B4C8C 60%,#F2A541);display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 8px 20px rgba(0,0,0,.12)"><span style="font-size:30px">\\u{1F9ED}</span><span><span style="display:block;font:800 16px var(--sans);letter-spacing:-.02em">SSB Journey</span><span style="display:block;font:600 11.5px var(--sans);opacity:.88;margin-top:2px">Day-by-day + drills</span></span></button>';
     h+='<button onclick="_openPrep(\\'exams.html#defence\\')" style="border:none;cursor:pointer;text-align:left;border-radius:20px;padding:16px;min-height:132px;color:#fff;background:linear-gradient(140deg,#0F3D2E,#1F7A4D 60%,#9BD36A);display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 8px 20px rgba(0,0,0,.12)"><span style="font-size:30px">\\u{1F396}\\uFE0F</span><span><span style="display:block;font:800 16px var(--sans);letter-spacing:-.02em">Defence</span><span style="display:block;font:600 11.5px var(--sans);opacity:.88;margin-top:2px">NDA \\u00B7 CDS \\u00B7 AFCAT</span></span></button>';
@@ -17669,7 +17499,7 @@ function _recoverLoginIfNeeded(){
 }
 window.addEventListener('pageshow',function(e){_recoverLoginIfNeeded()});
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')_recoverLoginIfNeeded()});
-if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js?v=160').then(function(reg){reg.update()}).catch(()=>{});}
+if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js?v=111').then(function(reg){reg.update()}).catch(()=>{});}
 // ─── Mobile keyboard: keep Bro input visible ───
 (function(){
   if(!window.visualViewport)return;
@@ -17978,12 +17808,10 @@ app.get('/terms',(_,res)=>{
 // Brodoit Learning — interactive courses (standalone immersive pages)
 // Exam prep + NCERT (static pages and JSON content in ./prep)
 app.use('/prep',express.static(path.join(__dirname,'prep'),{maxAge:'1h'}));
-// Speaker & Teaching agent (standalone page in ./speaker, data via /api/speaker/*)
-app.use('/speaker',express.static(path.join(__dirname,'speaker'),{maxAge:'1h'}));
 app.get('/learning/ml-algorithms',(_,res)=>{
   res.sendFile(path.join(__dirname,'learning','ml-algorithms.html'));
 });
-app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v160";
+app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="v159";
 self.addEventListener("install",function(e){self.skipWaiting()});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener("fetch",function(e){});
