@@ -19,6 +19,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           api() { curl -sS -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/$GITHUB_REPOSITORY$1"; }
+          echo "== brodoit.com right now"
+          for u in /api/health / /api/bro/ok; do
+            code=$(curl -s -o /tmp/b -D /tmp/h -w '%{http_code}' --max-time 30 "https://brodoit.com$u"); echo "$u -> $code $(grep -i -E '^(x-railway|server|content-type)' /tmp/h | tr -d '\r' | tr '\n' ' ')"; head -c 300 /tmp/b | tr '\n' ' '; echo
+          done
           echo "== repo"; api "" | jq -c '{archived, disabled, default_branch, visibility, pushed_at}'
           echo "== latest 12 deployments"
           api "/deployments?per_page=12" | jq -r '.[] | "\(.created_at) \(.sha[0:7]) id=\(.id) env=\(.environment) by=\(.creator.login) app=\(.performed_via_github_app.slug // "-") desc=\(.description // "")"'
