@@ -1,0 +1,32 @@
+# One-off, read-only: why did Railway stop deploying after 1f489ec (2026-10-20 22:06 UTC)?
+# Runs only on a push to this branch; never on main.
+name: Deploy diagnose
+on:
+  push:
+    branches: [claude/deploy-diagnose]
+permissions:
+  contents: read
+  deployments: read
+  checks: read
+  statuses: read
+  actions: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deployments, check suites and statuses around the last deploy
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          api() { curl -sS -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/$GITHUB_REPOSITORY$1"; }
+          echo "== repo"; api "" | jq -c '{archived, disabled, default_branch, visibility, pushed_at}'
+          echo "== latest 12 deployments"
+          api "/deployments?per_page=12" | jq -r '.[] | "\(.created_at) \(.sha[0:7]) id=\(.id) env=\(.environment) by=\(.creator.login) app=\(.performed_via_github_app.slug // "-") desc=\(.description // "")"'
+          for id in $(api "/deployments?per_page=3" | jq -r '.[].id'); do echo "-- statuses of $id"; api "/deployments/$id/statuses?per_page=5" | jq -r '.[] | "   \(.created_at) \(.state) \(.description // "") \(.environment_url // "")"'; done
+          echo "== environments"; api "/environments" | jq -r '.environments[]? | "\(.name) updated=\(.updated_at) rules=\([.protection_rules[]?.type] | join(","))"'
+          for sha in 1f489ec31fb797f9d393d99a09df30c11ed0f2ae ca3533f591df7b71be692604684d5d83de5f9542 e4be55dc787f94e163828a249ae34db746c40af6 c118a7e2ed6ba690eb9db5bc45a7caa15f184547; do
+            echo "== ${sha:0:7}"
+            echo "check suites:"; api "/commits/$sha/check-suites?per_page=50" | jq -r '.check_suites[]? | "   \(.app.slug) status=\(.status) conclusion=\(.conclusion) created=\(.created_at)"'
+            echo "statuses:"; api "/commits/$sha/status" | jq -r '"   combined=\(.state) count=\(.total_count)", (.statuses[]? | "   \(.context) \(.state) \(.description // "")")'
+            echo "deployments:"; api "/deployments?sha=$sha" | jq -r '.[]? | "   \(.created_at) env=\(.environment) by=\(.creator.login)"'
+          done
