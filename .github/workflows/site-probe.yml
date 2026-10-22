@@ -1,0 +1,29 @@
+# Throwaway-branch only: is brodoit.com up, down or flapping, and does its login screen let a new visitor type?
+name: Site probe
+on:
+  push:
+    branches: [claude/deploy-diagnose]
+permissions:
+  contents: read
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    steps:
+      - name: /api/health 12 times over 3 minutes
+        run: |
+          for i in $(seq 1 12); do
+            code=$(curl -s -o /tmp/b -D /tmp/h -w '%{http_code}' --max-time 20 https://brodoit.com/api/health)
+            echo "$(date -u +%H:%M:%S) $code $(grep -i '^x-railway-fallback' /tmp/h | tr -d '\r') $(head -c 160 /tmp/b | tr '\n' ' ')"
+            sleep 15
+          done
+  login:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: A new visitor types on the login screen (Chromium, phone size)
+        run: |
+          mkdir -p /tmp/pw && cd /tmp/pw && npm init -y > /dev/null && npm i playwright@1.48.2 > /dev/null 2>&1 && npx playwright install --with-deps chromium > /dev/null 2>&1
+          cd "$GITHUB_WORKSPACE" && PW_PATH=/tmp/pw/node_modules/playwright BASE=https://brodoit.com SHOT=login.png node .github/scripts/login-probe.mjs || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: login-shot, path: login.png, if-no-files-found: ignore }
