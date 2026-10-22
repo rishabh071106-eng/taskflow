@@ -1,0 +1,41 @@
+# Throwaway-branch only: see what Railway is doing with brodoit.com, and redeploy when asked.
+# Uses the RAILWAY_TOKEN secret (a Railway project token for production). The repo is public, so Railway's log lines
+# are filtered to start / listen / error / crash lines and anything that looks like a key, token, email or phone is
+# replaced before it is printed. A commit message containing [redeploy] redeploys the service.
+name: Railway ops
+on:
+  push:
+    branches: [claude/deploy-diagnose]
+permissions:
+  contents: read
+jobs:
+  ops:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: brodoit.com right now
+        run: |
+          for u in /api/health /; do
+            code=$(curl -s -o /tmp/b -D /tmp/h -w '%{http_code}' --max-time 30 "https://brodoit.com$u")
+            echo "$u -> $code $(grep -i -E '^(x-railway-fallback|server)' /tmp/h | tr -d '\r' | tr '\n' ' ')"
+            head -c 200 /tmp/b | tr '\n' ' '; echo
+          done
+      - name: Railway status and the newest deployment's logs (filtered)
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          MSG: ${{ github.event.head_commit.message }}
+        run: |
+          if [ -z "$RAILWAY_TOKEN" ]; then echo "::warning::No RAILWAY_TOKEN secret yet: Railway's logs can't be read from here"; exit 0; fi
+          npm i -g @railway/cli@5.63.1 > /dev/null 2>&1
+          # keys, tokens, emails and phone numbers never reach this public log
+          red() { sed -E -e 's/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/<email>/g' \
+                         -e 's/\+?[0-9][0-9 -]{9,}[0-9]/<number>/g' \
+                         -e 's/(sk|xi|gsk|AIza|ghp|gho|pk|rk)[-_A-Za-z0-9]{12,}/<key>/g' \
+                         -e 's/[A-Za-z0-9_-]{32,}/<long-id>/g' \
+                         -e 's/((key|token|secret|password|authorization)[^=:]{0,20}[=:] *)[^ ,"]+/\1<hidden>/Ig'; }
+          echo "== status"; railway status --json 2>&1 | jq -c '{project: .name, services: [.services.edges[]?.node | {name, deployments: [.serviceInstances.edges[]?.node.latestDeployment | {status, createdAt, meta: (.meta.commitHash // "")[0:7]}]}]}' 2>/dev/null || railway status 2>&1 | red | head -20
+          echo "== deployments"; railway deployment list --service taskflow 2>&1 | red | head -12 || true
+          echo "== build log (last 60 lines)"; timeout 60 railway logs --build --service taskflow 2>&1 | red | tail -60 || true
+          echo "== deploy log (start, listen, errors, crashes; last 80)"
+          timeout 60 railway logs --deployment --service taskflow 2>&1 | red | grep -i -E "brodoit running|listening|error|fail|crash|killed|out of memory|oom|exit|cannot|undefined|throw|  at |volume|migrat|starting|healthcheck|SIG" | tail -80 || true
+          if echo "$MSG" | grep -q '\[redeploy\]'; then echo "== redeploy"; railway redeploy --service taskflow -y 2>&1 | red | tail -5; fi
