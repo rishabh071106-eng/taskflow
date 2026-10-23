@@ -112,3 +112,16 @@ jobs:
           for t in VolumeInstance Volume; do gq '{"query":"{__type(name:\"'$t'\"){fields{name}}}"}' | jq -c --arg t $t '{($t): [.data.__type.fields[]?.name]}'; done
           echo "== the volume, as the API sees it"
           gq '{"query":"{project(id:\"8f37872b-d549-41a9-9828-dc74f4a2e36f\"){volumes{edges{node{id name createdAt volumeInstances{edges{node{id serviceId mountPath state deletedAt environmentId}}}}}}}}"}' | jq -c '.errors // .data' | sed -E 's/[0-9a-f]{8}-[0-9a-f-]{27,}/<id>/g' | head -c 2000; echo
+      - name: How the volume appears in the environment config (volumes and mounts only)
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          if [ -z "$RAILWAY_TOKEN" ]; then exit 0; fi
+          gq() { curl -sS --max-time 30 https://backboard.railway.com/graphql/v2 -H "Project-Access-Token: $RAILWAY_TOKEN" -H 'Content-Type: application/json' -d "$1"; }
+          echo "== config query fields on Environment"
+          gq '{"query":"{__type(name:\"Environment\"){fields{name}}}"}' | jq -c '[.data.__type.fields[]?.name]'
+          echo "== railway environment config (volumes + volumeMounts only)"
+          railway environment config --environment b5552552-8b7b-4e20-881e-6b0f88475b88 --json > /tmp/cfg.json 2>/tmp/cfg.err || true
+          head -c 300 /tmp/cfg.err; echo
+          jq -c '{volumes: (.volumes // .config.volumes), mounts: [((.services // .config.services) // {}) | to_entries[] | {service: .key[0:8], volumeMounts: .value.volumeMounts}]}' /tmp/cfg.json 2>/dev/null | head -c 3000 || echo "(not json)"
+          echo; echo "== top-level keys"; jq -c 'keys' /tmp/cfg.json 2>/dev/null || true
