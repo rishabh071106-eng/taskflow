@@ -138,6 +138,5 @@ jobs:
           $V files --help 2>&1 | head -20
           for d in / /media /media/android /data; do
             echo "== $d"
-            $V files list "$d" --json 2>&1 | jq -c '.[]? | {name: (.name // .path), size: (.size // .sizeBytes), modified: (.modifiedAt // .mtime // .updatedAt), dir: (.isDirectory // .type)}' 2>/dev/null | head -60 \
-              || $V files list "$d" 2>&1 | head -60
+            $V files list "$d" --volume taskflow-volume 2>&1 | head -60
           done
