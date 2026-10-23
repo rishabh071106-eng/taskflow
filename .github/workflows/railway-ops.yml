@@ -153,3 +153,20 @@ jobs:
           gq '{"query":"query($v:String!){volumeInstanceBackupList(volumeInstanceId:$v){id name createdAt expiresAt usedMB referencedMB}}","variables":{"v":"'$VI'"}}' | jq -c '.errors // .data' | sed -E 's/[0-9a-f]{8}-[0-9a-f-]{27,}/<id>/g'
           echo "== backup schedule"
           gq '{"query":"query($v:String!){volumeInstanceBackupScheduleList(volumeInstanceId:$v){id kind cron retentionSeconds}}","variables":{"v":"'$VI'"}}' | jq -c '.errors // .data' | sed -E 's/[0-9a-f]{8}-[0-9a-f-]{27,}/<id>/g'
+      # [apply-admin-email] in the commit message: deploy the owner's staged ADMIN_EMAIL change, only if it is the
+      # one and only staged change (anything else staged: nothing is applied). Values are never printed.
+      - name: Apply the owner's staged ADMIN_EMAIL
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          MSG: ${{ github.event.head_commit.message }}
+        run: |
+          if [ -z "$RAILWAY_TOKEN" ] || ! echo "$MSG" | grep -q '\[apply-admin-email\]'; then exit 0; fi
+          gq() { curl -sS --max-time 60 https://backboard.railway.com/graphql/v2 -H "Project-Access-Token: $RAILWAY_TOKEN" -H 'Content-Type: application/json' -d "$1"; }
+          E=b5552552-8b7b-4e20-881e-6b0f88475b88; S=736f24b6-270e-49e8-b22a-f830f72d9794
+          paths=$(gq '{"query":"query($e:String!){environmentStagedChanges(environmentId:$e){status patch}}","variables":{"e":"'$E'"}}' | jq -r '.data.environmentStagedChanges.patch // {} | paths(scalars) | map(tostring) | join(".")')
+          echo "staged: $(echo "$paths" | sed -E 's/[0-9a-f]{8}-[0-9a-f-]{27,}/<id>/g' | tr '\n' ' ')"
+          if [ "$paths" != "services.$S.variables.ADMIN_EMAIL.value" ]; then echo "staged changes are not exactly ADMIN_EMAIL: nothing applied"; exit 0; fi
+          gq '{"query":"mutation($e:String!){environmentPatchCommitStaged(environmentId:$e,commitMessage:\"Apply ADMIN_EMAIL\")}","variables":{"e":"'$E'"}}' | jq -c '{errors: [.errors[]?.message], applied: (.data != null)}'
+          sleep 15
+          echo "staged after: $(gq '{"query":"query($e:String!){environmentStagedChanges(environmentId:$e){status}}","variables":{"e":"'$E'"}}' | jq -c '.data')"
+          railway deployment list --service $S --environment $E 2>&1 | head -4
