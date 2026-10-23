@@ -41,5 +41,7 @@ jobs:
           echo "bro clouds (sealed keys decrypt?): $(j /api/bro/ok | jq -c '{ok, clouds, voice}')"
           echo "news stories: $(j '/api/news/desk?limit=60' | jq '.stories | length') · edition: $(j /api/news/edition | jq -c '{id, count}')"
           echo "voice clips recorded (was 792): $(j /api/learn/voice-status | jq -c '{voice, recorded, total}')"
+          echo "assetlinks (package: first 8 bytes of each fingerprint): $(j /.well-known/assetlinks.json | jq -c '[.[].target | {p: .package_name, fp: [.sha256_cert_fingerprints[] | .[0:23]]}]')"
+          echo "APK on /android signed with (full): $(j /api/android/status | jq -r '.cert_sha256 // .cert // ""')"
           echo "login fix served (_startPolls in the page): $(curl -fsS --max-time 20 https://brodoit.com/ | grep -c '_startPolls')"
           echo "news fix served (fitCover in news.js?v=26, overflow:hidden in news.css?v=26): $(curl -fsS --max-time 20 'https://brodoit.com/app/news.js?v=26' | grep -c 'function fitCover') / $(curl -fsS --max-time 20 'https://brodoit.com/app/news.css?v=26' | grep -c 'nz-cover .nz-cv{overflow:hidden}')"
