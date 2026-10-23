@@ -88,3 +88,15 @@ jobs:
           echo "== volume (json)"; railway volume --service $S --environment $E list --json 2>&1 | jq -c '.[]? // . | {name, mountPath, attachedTo: (.serviceName // .attachedTo // .serviceId), state, deletedAt, deletesOn: (.scheduledDeletionAt // .deletesOn), sizeMB: (.currentSizeMB // .usedMB)}' 2>/dev/null || railway volume --service $S --environment $E list 2>&1 | head -12
           echo "== deployments"; railway deployment list --service $S --environment $E 2>&1 | head -8 || true
           echo "== health"; curl -fsS --max-time 20 https://brodoit.com/api/health || true
+      - name: Staged changes waiting for a deploy (paths only, never values)
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          if [ -z "$RAILWAY_TOKEN" ]; then exit 0; fi
+          E=b5552552-8b7b-4e20-881e-6b0f88475b88
+          q='{"query":"query($e:String!){environmentStagedChanges(environmentId:$e){id status createdAt patch}}","variables":{"e":"'$E'"}}'
+          curl -sS --max-time 30 https://backboard.railway.com/graphql/v2 -H "Project-Access-Token: $RAILWAY_TOKEN" -H 'Content-Type: application/json' -d "$q" > /tmp/staged.json || true
+          jq -c '{errors: [.errors[]?.message], status: .data.environmentStagedChanges.status, createdAt: .data.environmentStagedChanges.createdAt}' /tmp/staged.json
+          echo "== what is staged (paths only)"
+          jq -r '.data.environmentStagedChanges.patch // {} | paths(scalars) | map(tostring) | join(".")' /tmp/staged.json | sed -E 's/[0-9a-f]{8}-[0-9a-f-]{27,}/<id>/g' | head -40
+          for c in "environment" "redeploy" "deploy"; do echo "== railway $c --help"; railway $c --help 2>&1 | head -25; done
