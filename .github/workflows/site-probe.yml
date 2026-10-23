@@ -24,9 +24,11 @@ jobs:
         run: |
           mkdir -p /tmp/pw && cd /tmp/pw && npm init -y > /dev/null && npm i playwright@1.48.2 > /dev/null 2>&1 && npx playwright install --with-deps chromium > /dev/null 2>&1
           cd "$GITHUB_WORKSPACE" && PW_PATH=/tmp/pw/node_modules/playwright BASE=https://brodoit.com SHOT=login.png node .github/scripts/login-probe.mjs || true
+      - name: A returning visitor whose saved login the server no longer knows types on the login screen
+        run: cd "$GITHUB_WORKSPACE" && STALE=1 PW_PATH=/tmp/pw/node_modules/playwright BASE=https://brodoit.com SHOT=login-stale.png node .github/scripts/login-probe.mjs || true
       - uses: actions/upload-artifact@v4
         if: always()
-        with: { name: login-shot, path: login.png, if-no-files-found: ignore }
+        with: { name: login-shot, path: 'login*.png', if-no-files-found: ignore }
   data:
     runs-on: ubuntu-latest
     steps:
