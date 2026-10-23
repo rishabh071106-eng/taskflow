@@ -58,9 +58,9 @@ jobs:
         run: |
           if [ -z "$RAILWAY_TOKEN" ]; then echo "::warning::No RAILWAY_TOKEN secret yet"; exit 0; fi
           ids() { sed -E 's/[A-Za-z0-9_-]{32,}/<long-id>/g'; }
-          echo "== volumes now"; railway volume list --service taskflow 2>&1 | ids | head -20 || true
+          echo "== volumes now"; railway volume --service taskflow list 2>&1 | ids | head -20 || true
           if echo "$MSG" | grep -q '\[volume\]'; then
-            if railway volume list --service taskflow 2>&1 | grep -q '/data'; then echo "taskflow already has a volume at /data"
-            else echo "== adding a volume at /data"; railway volume add --service taskflow --mount-path /data 2>&1 | ids | tail -5; fi
-            echo "== volumes after"; railway volume list --service taskflow 2>&1 | ids | head -20 || true
+            if railway volume --service taskflow list 2>&1 | grep -q '/data'; then echo "taskflow already has a volume at /data"
+            else echo "== adding a volume at /data"; railway volume --service taskflow add --mount-path /data 2>&1 | ids | tail -5; fi
+            echo "== volumes after"; railway volume --service taskflow list 2>&1 | ids | head -20 || true
           fi
