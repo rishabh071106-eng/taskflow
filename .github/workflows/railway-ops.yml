@@ -76,6 +76,6 @@ jobs:
           for c in "volume attach" "volume update"; do echo "== railway $c --help"; railway $c --help 2>&1 | head -30; done
           if echo "$MSG" | grep -q '\[attach\]'; then
             echo "== attach"
-            railway volume --service taskflow attach --volume taskflow-volume --yes 2>&1 | ids | tail -5 || true
+            railway volume --service 736f24b6-270e-49e8-b22a-f830f72d9794 --environment b5552552-8b7b-4e20-881e-6b0f88475b88 attach --volume taskflow-volume --yes 2>&1 | ids | tail -5 || true
             echo "== volumes after"; railway volume --service taskflow list 2>&1 | ids | head -20 || true
           fi
