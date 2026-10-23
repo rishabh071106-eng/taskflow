@@ -64,3 +64,18 @@ jobs:
             else echo "== adding a volume at /data"; railway volume --service taskflow add --mount-path /data 2>&1 | ids | tail -5; fi
             echo "== volumes after"; railway volume --service taskflow list 2>&1 | ids | head -20 || true
           fi
+      # [attach] in the commit message: attach the existing taskflow-volume (the owner's old data, scheduled for deletion)
+      # to taskflow at /data, as the owner asked. Nothing is deleted or detached.
+      - name: Reattach the old volume
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          MSG: ${{ github.event.head_commit.message }}
+        run: |
+          if [ -z "$RAILWAY_TOKEN" ]; then exit 0; fi
+          ids() { sed -E 's/[A-Za-z0-9_-]{32,}/<long-id>/g'; }
+          for c in "volume attach" "volume update"; do echo "== railway $c --help"; railway $c --help 2>&1 | head -30; done
+          if echo "$MSG" | grep -q '\[attach\]'; then
+            echo "== attach"
+            railway volume --service taskflow attach --volume taskflow-volume --yes 2>&1 | ids | tail -5 || true
+            echo "== volumes after"; railway volume --service taskflow list 2>&1 | ids | head -20 || true
+          fi
