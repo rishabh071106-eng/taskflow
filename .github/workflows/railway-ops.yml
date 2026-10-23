@@ -79,3 +79,12 @@ jobs:
             railway volume --service 736f24b6-270e-49e8-b22a-f830f72d9794 --environment b5552552-8b7b-4e20-881e-6b0f88475b88 attach --volume taskflow-volume --yes 2>&1 | ids | tail -5 || true
             echo "== volumes after"; railway volume --service taskflow list 2>&1 | ids | head -20 || true
           fi
+      - name: Volume and deployment state (read only)
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          if [ -z "$RAILWAY_TOKEN" ]; then exit 0; fi
+          S=736f24b6-270e-49e8-b22a-f830f72d9794; E=b5552552-8b7b-4e20-881e-6b0f88475b88
+          echo "== volume (json)"; railway volume --service $S --environment $E list --json 2>&1 | jq -c '.[]? // . | {name, mountPath, attachedTo: (.serviceName // .attachedTo // .serviceId), state, deletedAt, deletesOn: (.scheduledDeletionAt // .deletesOn), sizeMB: (.currentSizeMB // .usedMB)}' 2>/dev/null || railway volume --service $S --environment $E list 2>&1 | head -12
+          echo "== deployments"; railway deployment list --service $S --environment $E 2>&1 | head -8 || true
+          echo "== health"; curl -fsS --max-time 20 https://brodoit.com/api/health || true
