@@ -129,3 +129,15 @@ jobs:
           head -c 300 /tmp/cfg.err; echo
           jq -c '{volumes: (.volumes // .config.volumes), mounts: [((.services // .config.services) // {}) | to_entries[] | {service: .key[0:8], volumeMounts: .value.volumeMounts}]}' /tmp/cfg.json 2>/dev/null | head -c 3000 || echo "(not json)"
           echo; echo "== top-level keys"; jq -c 'keys' /tmp/cfg.json 2>/dev/null || true
+      - name: Files on the volume (names, sizes and dates only; read only)
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          if [ -z "$RAILWAY_TOKEN" ]; then exit 0; fi
+          V="railway volume --service 736f24b6-270e-49e8-b22a-f830f72d9794 --environment b5552552-8b7b-4e20-881e-6b0f88475b88"
+          $V files --help 2>&1 | head -20
+          for d in / /media /media/android /data; do
+            echo "== $d"
+            $V files list "$d" --json 2>&1 | jq -c '.[]? | {name: (.name // .path), size: (.size // .sizeBytes), modified: (.modifiedAt // .mtime // .updatedAt), dir: (.isDirectory // .type)}' 2>/dev/null | head -60 \
+              || $V files list "$d" 2>&1 | head -60
+          done
