@@ -20,6 +20,13 @@ jobs:
             echo "$u -> $code $(grep -i -E '^(x-railway-fallback|server)' /tmp/h | tr -d '\r' | tr '\n' ' ')"
             head -c 200 /tmp/b | tr '\n' ' '; echo
           done
+      - name: Railway's status page (current incidents)
+        run: |
+          txt() { sed -e 's/<script[^>]*>.*<\/script>//g' -e 's/<style[^>]*>.*<\/style>//g' -e 's/<[^>]*>/ /g' -e 's/&amp;/\&/g' -e 's/&#x27;/'"'"'/g' -e 's/&quot;/"/g' | tr -s ' \t' ' ' | grep -v '^ *$'; }
+          for u in https://status.railway.com/incident/QH8L8B3E https://status.railway.com/; do
+            echo "== $u"; curl -sSL --max-time 30 "$u" | tr '\n' ' ' | sed 's/></>\n</g' | txt | grep -v -i -E 'function|var |window\.|\{|\}' | head -120 || true
+          done
+          echo "== feed"; for f in https://status.railway.com/feed.rss https://status.railway.com/history.rss https://status.railway.com/api/v2/incidents.json; do echo "-- $f"; curl -sSL --max-time 20 "$f" | head -c 4000; echo; done
       - name: Railway status and the newest deployment's logs (filtered)
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
