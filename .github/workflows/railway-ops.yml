@@ -100,3 +100,15 @@ jobs:
           echo "== what is staged (paths only)"
           jq -r '.data.environmentStagedChanges.patch // {} | paths(scalars) | map(tostring) | join(".")' /tmp/staged.json | sed -E 's/[0-9a-f]{8}-[0-9a-f-]{27,}/<id>/g' | head -40
           for c in "environment" "redeploy" "deploy"; do echo "== railway $c --help"; railway $c --help 2>&1 | head -25; done
+      - name: Railway API - volume and staged-change operations (read only)
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          if [ -z "$RAILWAY_TOKEN" ]; then exit 0; fi
+          gq() { curl -sS --max-time 30 https://backboard.railway.com/graphql/v2 -H "Project-Access-Token: $RAILWAY_TOKEN" -H 'Content-Type: application/json' -d "$1"; }
+          echo "== mutations about volumes, restores and staged changes"
+          gq '{"query":"{__schema{mutationType{fields{name args{name}}}}}"}' | jq -r '.data.__schema.mutationType.fields[] | select(.name|test("olume|estore|ndelete|tage|atchCommit";"i")) | .name + "(" + ([.args[].name]|join(",")) + ")"'
+          echo "== VolumeInstance and Volume fields"
+          for t in VolumeInstance Volume; do gq '{"query":"{__type(name:\"'$t'\"){fields{name}}}"}' | jq -c --arg t $t '{($t): [.data.__type.fields[]?.name]}'; done
+          echo "== the volume, as the API sees it"
+          gq '{"query":"{project(id:\"8f37872b-d549-41a9-9828-dc74f4a2e36f\"){volumes{edges{node{id name createdAt volumeInstances{edges{node{id serviceId mountPath state deletedAt environmentId}}}}}}}}"}' | jq -c '.errors // .data' | sed -E 's/[0-9a-f]{8}-[0-9a-f-]{27,}/<id>/g' | head -c 2000; echo
