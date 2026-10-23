@@ -138,5 +138,5 @@ jobs:
           $V files --help 2>&1 | head -20
           for d in / /media /media/android /data; do
             echo "== $d"
-            $V files list "$d" --volume taskflow-volume 2>&1 | head -60
+            $V files --volume taskflow-volume list "$d" 2>&1 | head -60
           done
