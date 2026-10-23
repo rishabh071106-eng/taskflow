@@ -78,6 +78,10 @@ jobs:
             echo "== attach"
             railway volume --service 736f24b6-270e-49e8-b22a-f830f72d9794 --environment b5552552-8b7b-4e20-881e-6b0f88475b88 attach --volume taskflow-volume --yes 2>&1 | ids | tail -5 || true
             echo "== volumes after"; railway volume --service taskflow list 2>&1 | ids | head -20 || true
+            echo "== staged changes after (paths only)"
+            curl -sS --max-time 30 https://backboard.railway.com/graphql/v2 -H "Project-Access-Token: $RAILWAY_TOKEN" -H 'Content-Type: application/json' \
+              -d '{"query":"query($e:String!){environmentStagedChanges(environmentId:$e){status patch}}","variables":{"e":"b5552552-8b7b-4e20-881e-6b0f88475b88"}}' \
+              | jq -r '.data.environmentStagedChanges.patch // {} | paths(scalars) | map(tostring) | join(".")' | ids | head -20
           fi
       - name: Volume and deployment state (read only)
         env:
