@@ -35,7 +35,7 @@ jobs:
       - name: Is the server on its old data volume? (fingerprints from before the deploy)
         run: |
           j() { curl -fsS --max-time 20 "https://brodoit.com$1" 2>/dev/null || echo '{}'; }
-          echo "health: $(j /api/health)"
+          echo "health (users > 0 means the old data is back): $(j /api/health)"
           echo "play uploader cert (was 6C:E0:AF:7C:5F:BB:A7:21...): $(j /api/android/status | jq -c '{version, ready, cert: (.cert_sha256 // "" | .[0:23]), play_api_cert: (.play.apiCertSha256 // "" | .[0:23]), play_state: .play.state}')"
           echo "push key (was not BPfvXAUnm; any change means a new key): $(j /api/push/vapid-key | jq -r '.key // "" | .[0:12]')"
           echo "bro clouds (sealed keys decrypt?): $(j /api/bro/ok | jq -c '{ok, clouds, voice}')"
