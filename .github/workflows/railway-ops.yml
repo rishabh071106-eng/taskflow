@@ -140,3 +140,16 @@ jobs:
             echo "== $d"
             $V files --volume taskflow-volume list "$d" 2>&1 | head -60
           done
+      - name: Volume backups and other volumes (read only)
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          if [ -z "$RAILWAY_TOKEN" ]; then exit 0; fi
+          gq() { curl -sS --max-time 30 https://backboard.railway.com/graphql/v2 -H "Project-Access-Token: $RAILWAY_TOKEN" -H 'Content-Type: application/json' -d "$1"; }
+          echo "== backup queries the API offers"
+          gq '{"query":"{__schema{queryType{fields{name args{name}}}}}"}' | jq -r '.data.__schema.queryType.fields[] | select(.name|test("ackup|olume";"i")) | .name + "(" + ([.args[].name]|join(",")) + ")"'
+          VI=$(gq '{"query":"{project(id:\"8f37872b-d549-41a9-9828-dc74f4a2e36f\"){volumes{edges{node{volumeInstances{edges{node{id}}}}}}}}"}' | jq -r '.data.project.volumes.edges[0].node.volumeInstances.edges[0].node.id')
+          echo "== backups of taskflow-volume"
+          gq '{"query":"query($v:String!){volumeInstanceBackupList(volumeInstanceId:$v){id name createdAt expiresAt usedMB referencedMB}}","variables":{"v":"'$VI'"}}' | jq -c '.errors // .data' | sed -E 's/[0-9a-f]{8}-[0-9a-f-]{27,}/<id>/g'
+          echo "== backup schedule"
+          gq '{"query":"query($v:String!){volumeInstanceBackupScheduleList(volumeInstanceId:$v){id kind cron retentionSeconds}}","variables":{"v":"'$VI'"}}' | jq -c '.errors // .data' | sed -E 's/[0-9a-f]{8}-[0-9a-f-]{27,}/<id>/g'
