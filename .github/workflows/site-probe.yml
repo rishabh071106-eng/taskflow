@@ -49,5 +49,6 @@ jobs:
           echo "icon files (bytes; new: 41845 176877 125892): $(for f in icon-192.png icon-512.png icon-maskable-512.png; do curl -fsS --max-time 20 -o /dev/null -w '%{size_download} ' "https://brodoit.com/$f?v=6"; done)"
           echo "beta page links (Google Group + Play testing page; old internaltest links: $(curl -fsS --max-time 20 https://brodoit.com/beta | grep -c internaltest)): $(curl -fsS --max-time 20 https://brodoit.com/beta | grep -o 'https://[a-z.]*google.com/[^"<]*' | sort -u | tr '\n' ' ')"
           echo "every link on /beta (public page): $(curl -fsS --max-time 20 https://brodoit.com/beta | grep -oE 'href="[^"]*"' | sort -u | tr '\n' ' ')"
-          echo "site commit (main is 1830256c2dfd): $(j /api/health | jq -r .commit)"
+          echo "notifications card for the app served (notify.js?v=2): $(curl -fsS --max-time 20 https://brodoit.com/ | grep -c "notify.js?v=2") / $(curl -fsS --max-time 20 "https://brodoit.com/app/notify.js?v=2" | grep -c "Notifications in the Brodoit app come with an update")"
+          echo "site commit (main is 3b3368f614b9): $(j /api/health | jq -r .commit)"
           echo "android build served: $(j /api/android/status | jq -c '{version, build, ready, play_state: .play.state}')"
