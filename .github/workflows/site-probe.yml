@@ -53,7 +53,7 @@ jobs:
           echo "chat + speed served (home.css?v=25 / voice.js?v=30 in the page / V.earlyStart in voice.js): $(curl -fsS --max-time 20 https://brodoit.com/ | grep -c 'home.css?v=25') / $(curl -fsS --max-time 20 https://brodoit.com/ | grep -c 'voice.js?v=30') / $(curl -fsS --max-time 20 'https://brodoit.com/app/voice.js?v=30' | grep -c 'V.earlyStart')"
           echo "voice detector sent compressed (content-encoding, bytes): $(curl -sS --max-time 30 -H 'Accept-Encoding: gzip' -D - -o /tmp/w -w ' %{size_download}' https://brodoit.com/app/vendor/vad/ort-wasm-simd-threaded.wasm | grep -iE 'content-encoding|^ [0-9]' | tr -d '\r' | tr '\n' ' ')"
           echo "site commit (main is d7644d3f6773): $(j /api/health | jq -r .commit)"
-          for i in $(seq 1 40); do c=$(j /api/health | jq -r .commit); [ "$c" = "080b263289f0" ] && break; sleep 20; done; echo "waited for 080b263: now $(j /api/health | jq -r .commit)"
+          for i in $(seq 1 45); do c=$(j /api/health | jq -r .commit); [ "$c" = "080b263289f0" ] && break; sleep 20; done; echo "waited for 080b263: now $(j /api/health | jq -r .commit)"
           P=$(curl -fsS --max-time 20 https://brodoit.com/)
           echo "assets: voice.js?v=31 $(grep -c 'voice.js?v=31' <<<"$P") · news.js?v=27 $(grep -c 'news.js?v=27' <<<"$P") · news.css?v=27 $(grep -c 'news.css?v=27' <<<"$P")"
           echo "book notes in the page (notes:1 entries, 104 expected): $(grep -o 'notes:1,' <<<"$P" | wc -l) · 'Book notes' label: $(grep -c "Book notes" <<<"$P") · old 'Free public-domain audio': $(grep -c 'Free public-domain audio' <<<"$P") · 'Chapter one' in briefs: $(grep -c 'Chapter one' <<<"$P")"
