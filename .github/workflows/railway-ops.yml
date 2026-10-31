@@ -61,7 +61,8 @@ jobs:
           echo "failed deployment: $D"; [ -n "$D" ] || exit 0
           railway logs --help 2>&1 | head -30
           echo "== build log of $D (last 80)"; timeout 90 railway logs --build "$D" --service $S --environment $E 2>&1 | red | tail -80 || true
-          echo "== deploy log of $D (last 120)"; timeout 90 railway logs --deployment "$D" --service $S --environment $E 2>&1 | red | grep -v '^\[play\]' | tail -120 || true
+          echo "== deploy log of $D (stored, last 400 lines, play lines dropped)"; timeout 120 railway logs --deployment "$D" --service $S --environment $E --lines 400 2>&1 | red | grep -v '^\[play\]' | tail -150 || true
+          echo "== deployment details"; railway deployment list --service $S --environment $E --json 2>&1 | jq -c '.[0:2][] | {id: .id[0:8], status, createdAt, meta: (.meta | {reason, healthcheckPath: .healthcheckPath, numReplicas} ?), staticUrl}' 2>/dev/null | head -4 || true
       - name: The Railway CLI's volume commands (no token needed)
         run: |
           npm i -g @railway/cli@5.63.1 > /dev/null 2>&1
