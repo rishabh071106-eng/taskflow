@@ -46,6 +46,22 @@ jobs:
           echo "== deploy log (start, listen, errors, crashes; last 80)"
           timeout 60 railway logs --deployment --service taskflow 2>&1 | red | grep -i -E "brodoit running|listening|error|fail|crash|killed|out of memory|oom|exit|cannot|undefined|throw|  at |volume|migrat|starting|healthcheck|SIG" | tail -80 || true
           if echo "$MSG" | grep -q '\[redeploy\]'; then echo "== redeploy"; railway redeploy --service taskflow -y 2>&1 | red | tail -5; fi
+      - name: The newest FAILED deployment's build and deploy logs (filtered)
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          if [ -z "$RAILWAY_TOKEN" ]; then exit 0; fi
+          npm i -g @railway/cli@5.63.1 > /dev/null 2>&1
+          red() { sed -E -e 's/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/<email>/g' \
+                         -e 's/\+?[0-9][0-9 -]{9,}[0-9]/<number>/g' \
+                         -e 's/(sk|xi|gsk|AIza|ghp|gho|pk|rk)[-_A-Za-z0-9]{12,}/<key>/g' \
+                         -e 's/((key|token|secret|password|authorization)[^=:]{0,20}[=:] *)[^ ,"]+/\1<hidden>/Ig'; }
+          S=736f24b6-270e-49e8-b22a-f830f72d9794; E=b5552552-8b7b-4e20-881e-6b0f88475b88
+          D=$(railway deployment list --service $S --environment $E 2>&1 | grep -m1 FAILED | awk '{print $1}')
+          echo "failed deployment: $D"; [ -n "$D" ] || exit 0
+          railway logs --help 2>&1 | head -30
+          echo "== build log of $D (last 80)"; timeout 90 railway logs --build "$D" --service $S --environment $E 2>&1 | red | tail -80 || true
+          echo "== deploy log of $D (last 120)"; timeout 90 railway logs --deployment "$D" --service $S --environment $E 2>&1 | red | grep -v '^\[play\]' | tail -120 || true
       - name: The Railway CLI's volume commands (no token needed)
         run: |
           npm i -g @railway/cli@5.63.1 > /dev/null 2>&1
