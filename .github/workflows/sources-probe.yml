@@ -1,0 +1,14 @@
+name: Sources probe
+on:
+  push:
+    branches: [claude/deploy-diagnose]
+    paths: ['.github/scripts/sources-probe.mjs', '.github/workflows/sources-probe.yml']
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+      - run: node .github/scripts/sources-probe.mjs
