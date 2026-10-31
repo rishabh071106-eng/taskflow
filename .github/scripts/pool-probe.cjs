@@ -4,9 +4,9 @@ const QS = { india: ['India Gate New Delhi', 'Gateway of India Mumbai', 'Parliam
 const strip = h => String(h || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
 (async () => {
   for (const [cat, qs] of Object.entries(QS)) for (const q of qs) {
-    const t0 = Date.now(); const hit = await P.find(q);
+    const t0 = Date.now(); console.log('== ' + q); const hit = await P.findDebug(q);
     console.log(`${cat} "${q}": ${hit ? 'FOUND ' + hit.license + ' · ' + hit.title.slice(0, 50) : 'none'} (${Date.now() - t0}ms)`);
-    if (hit) continue;
+    continue;
     const u = 'https://commons.wikimedia.org/w/api.php?' + new URLSearchParams({ action: 'query', format: 'json', formatversion: '2', generator: 'search', gsrnamespace: '6', gsrlimit: '12', gsrsearch: q + ' filetype:bitmap', prop: 'imageinfo', iiprop: 'url|extmetadata|mime|size', iiurlwidth: '960', iiextmetadatafilter: 'LicenseShortName|LicenseUrl|Artist|NonFree|Restrictions|ObjectName|ImageDescription', origin: '*' });
     const r = await fetch(u, { headers: { 'User-Agent': P.UA } }); const j = await r.json().catch(() => null);
     for (const p of ((j && j.query && j.query.pages) || []).slice(0, 6)) {

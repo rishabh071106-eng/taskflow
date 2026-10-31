@@ -67,6 +67,41 @@ async function find(query, opts = {}) {
   return null;
 }
 
+async function findDebug(query, opts = {}) {
+  query = String(query || '').replace(/\s+/g, ' ').trim().slice(0, 80);
+  const want = words(query);
+  if (!want.length) return null;
+  const doFetch = opts.fetch || fetch;
+  const u = API + '?' + new URLSearchParams({
+    action: 'query', format: 'json', formatversion: '2', generator: 'search', gsrnamespace: '6', gsrlimit: '12',
+    gsrsearch: query + ' filetype:bitmap', prop: 'imageinfo', iiprop: 'url|extmetadata|mime|size', iiurlwidth: '960',
+    iiextmetadatafilter: 'LicenseShortName|LicenseUrl|Artist|Credit|NonFree|Restrictions|ObjectName|ImageDescription', origin: '*',
+  });
+  let j;
+  try {
+    const r = await doFetch(u, { headers: { 'User-Agent': UA, Accept: 'application/json' }, signal: AbortSignal.timeout(opts.timeout || 10000) });
+    if (!r.ok) return null;
+    j = await r.json();
+  } catch (e) { return null; }
+  const pages = ((j && j.query && j.query.pages) || []).slice().sort((a, b) => (a.index || 0) - (b.index || 0));
+  for (const p of pages) {
+    const ii = p.imageinfo && p.imageinfo[0]; if (!ii) continue;
+    if (!/^image\/(jpeg|png)$/.test(ii.mime || '')) { console.log('   x mime', p.title); continue; }
+    if ((ii.width || 0) < 640 || (ii.height || 0) < 360 || ii.height > ii.width * 1.25) { console.log('   x size', p.title); continue; } // landscape-ish, big enough
+    const meta = ii.extmetadata || {};
+    const license = freeLicense(meta); if (!license) { console.log('   x licence', p.title, JSON.stringify(meta.LicenseShortName)); continue; }
+    if (strip(meta.Restrictions && meta.Restrictions.value)) { console.log('   x restr', p.title); continue; } // trademark, insignia, personality… skip
+    // it must really be about the subject: a query word in its file name, title or description
+    const about = new Set(words(String(p.title || '').replace(/^File:/, '') + ' ' + strip(meta.ObjectName && meta.ObjectName.value) + ' ' + strip(meta.ImageDescription && meta.ImageDescription.value).slice(0, 400)));
+    if (!want.some(w => about.has(w))) { console.log('   x about', p.title, JSON.stringify(want), JSON.stringify([...about].slice(0, 12))); continue; }
+    const url = ii.thumburl || ii.url;
+    if (!/^https:\/\/upload\.wikimedia\.org\//.test(url || '')) { console.log('   x url', p.title, url); continue; }
+    const by = strip(meta.Artist && meta.Artist.value).slice(0, 80) || strip(meta.Credit && meta.Credit.value).slice(0, 80) || 'Unknown author';
+    return { url, page: ii.descriptionurl || ('https://commons.wikimedia.org/wiki/' + encodeURIComponent(p.title || '')), by, license, title: String(p.title || '').replace(/^File:/, '').replace(/\.[a-z]+$/i, '') };
+  }
+  return null;
+}
+
 // v28: Openverse (openverse.org, the open search over CC-licensed and public-domain images from Flickr, museums,
 // Wikimedia and more) when Commons has nothing that fits. The same rules: CC0, the public domain mark, CC BY or
 // CC BY-SA only (the search asks for nothing else and the answer is checked again), big enough, landscape-ish, about
@@ -108,4 +143,4 @@ async function findAny(query, opts = {}) {
   return findOpenverse(query, opts);
 }
 
-module.exports = { find, findOpenverse, findAny, queryFromHeadline, freeLicense, UA };
+module.exports = { findDebug, find, findOpenverse, findAny, queryFromHeadline, freeLicense, UA };
