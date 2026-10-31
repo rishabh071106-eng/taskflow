@@ -46,6 +46,20 @@ jobs:
           echo "== deploy log (start, listen, errors, crashes; last 80)"
           timeout 60 railway logs --deployment --service taskflow 2>&1 | red | grep -i -E "brodoit running|listening|error|fail|crash|killed|out of memory|oom|exit|cannot|undefined|throw|  at |volume|migrat|starting|healthcheck|SIG" | tail -80 || true
           if echo "$MSG" | grep -q '\[redeploy\]'; then echo "== redeploy"; railway redeploy --service taskflow -y 2>&1 | red | tail -5; fi
+      - name: Bro Core's background lane, News desk and Hindi notes (log lines since boot, filtered)
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          if [ -z "$RAILWAY_TOKEN" ]; then exit 0; fi
+          red() { sed -E -e 's/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/<email>/g' -e 's/\+?[0-9][0-9 -]{9,}[0-9]/<number>/g' \
+                         -e 's/(sk|xi|gsk|AIza|ghp|gho|pk|rk)[-_A-Za-z0-9]{12,}/<key>/g' -e 's/[A-Za-z0-9_-]{32,}/<long-id>/g' \
+                         -e 's/((key|token|secret|password|authorization)[^=:]{0,20}[=:] *)[^ ,"]+/\1<hidden>/Ig'; }
+          timeout 90 railway logs --deployment --service taskflow --lines 5000 > /tmp/dl.txt 2>&1 || true
+          echo "lines read: $(wc -l < /tmp/dl.txt)"
+          echo "== brain: models retired, lanes answering, cloud models, rate limits"
+          grep -E "model retired|answering on|cloud brain|cloud .* refused|rate|429|413|groq" /tmp/dl.txt | grep -v -i "ratelimit-remaining" | red | cut -c1-300 | head -60
+          echo "== news desk"; grep -E "\[desk\]|\[news" /tmp/dl.txt | red | cut -c1-300 | tail -25
+          echo "== Hindi notes"; grep -E "\[book-notes-hi\]" /tmp/dl.txt | red | cut -c1-300 | head -20
       - name: The newest FAILED deployment's build and deploy logs (filtered)
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
