@@ -55,7 +55,7 @@ jobs:
                          -e 's/(sk|xi|gsk|AIza|ghp|gho|pk|rk)[-_A-Za-z0-9]{12,}/<key>/g' -e 's/[A-Za-z0-9_-]{32,}/<long-id>/g' \
                          -e 's/((key|token|secret|password|authorization)[^=:]{0,20}[=:] *)[^ ,"]+/\1<hidden>/Ig'; }
           for i in $(seq 1 45); do [ "$(curl -fsS --max-time 15 https://brodoit.com/api/health | jq -r .commit)" = "9c3937a7aacf" ] && break; sleep 20; done
-          echo "site on $(curl -fsS --max-time 15 https://brodoit.com/api/health | jq -r .commit) at $(date -u +%H:%M:%S); reading the logs 7 minutes after boot"; sleep 420
+          echo "site on $(curl -fsS --max-time 15 https://brodoit.com/api/health | jq -r .commit) at $(date -u +%H:%M:%S); reading the logs in 18 minutes"; sleep 1080
           timeout 90 railway logs --deployment --service taskflow --lines 5000 > /tmp/dl.txt 2>&1 || true
           echo "lines read: $(wc -l < /tmp/dl.txt)"
           echo "== brain: models retired, lanes answering, cloud models, rate limits"
