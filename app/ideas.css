@@ -1,0 +1,78 @@
+/* Books v32: the 7-chapter story player, the Ideas feed, and the book page's chapter + whole-book sections. */
+.bi-ch .bkp-sub{margin-bottom:12px}
+.bi-chs{display:grid;gap:8px;margin:4px 0 14px}
+.bi-row{display:flex;align-items:center;gap:12px;width:100%;min-height:52px;padding:10px 14px;border:1px solid var(--b-line);border-radius:14px;background:var(--b-card);color:var(--b-ink);font:600 15px/1.3 var(--b-sans);text-align:left;cursor:pointer}
+.bi-row .bi-n{flex:0 0 30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--b-bg-2);color:var(--b-ink-2);font-size:13px;font-weight:700}
+.bi-row.done .bi-n{background:var(--b-mint);color:#fff}
+.bi-row .bi-t{flex:1;min-width:0}
+.bi-row .bi-go{color:var(--b-mute);font-size:22px;line-height:1}
+.bi-start{display:block;width:100%;min-height:50px;border:0;border-radius:999px;background:var(--b-primary);color:#fff;font:700 16px/1 var(--b-sans);cursor:pointer}
+.bi-prog{height:6px;border-radius:9px;background:var(--b-bg-2);margin:14px 0 6px;overflow:hidden}.bi-prog i{display:block;height:100%;background:var(--b-mint);border-radius:9px}
+.bi-prog-t{font-size:13px;color:var(--b-mute)}
+.bi-brief-txt{margin-top:16px}.bi-brief-txt p{margin:0 0 14px;color:var(--b-ink-2);font-size:15.5px;line-height:1.65}.bi-brief-txt b{color:var(--b-ink)}
+.bi-pd{font-size:12.5px;color:var(--b-mute);margin-top:6px}
+
+/* the player */
+body.bi-open{overflow:hidden}
+.bi-player{position:fixed;inset:0;z-index:9000;display:flex;flex-direction:column;background:var(--b-bg);color:var(--b-ink);padding:max(10px,env(safe-area-inset-top)) 16px max(14px,env(safe-area-inset-bottom));font-family:var(--b-sans)}
+.bi-top{display:flex;align-items:center;gap:6px;max-width:640px;width:100%;margin:0 auto}
+.bi-ib{flex:0 0 44px;height:44px;border:0;border-radius:50%;background:transparent;color:var(--b-ink);display:grid;place-items:center;cursor:pointer}
+.bi-ib.on{color:var(--b-primary)}.bi-ib:disabled{opacity:.3}
+.bi-where{flex:1;min-width:0;text-align:center}.bi-where b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.bi-where small{display:block;font-size:12px;color:var(--b-mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bi-segs{display:flex;gap:5px;max-width:640px;width:100%;margin:6px auto 0}.bi-segs i{flex:1;height:4px;border-radius:4px;background:var(--b-line)}.bi-segs i.on{background:var(--b-ink)}.bi-segs i.cur{background:var(--b-primary)}
+.bi-card{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;max-width:640px;width:100%;margin:14px auto 0;padding:22px 20px;border-radius:24px;background:var(--b-card);box-shadow:var(--b-shadow);position:relative}
+.bi-card::before{content:"";position:absolute;left:0;right:0;top:0;height:6px;border-radius:24px 24px 0 0;background:var(--bi-grad,var(--b-primary))}
+.bi-eb{font:700 12px/1.2 var(--b-sans);letter-spacing:.08em;text-transform:uppercase;color:var(--b-primary);margin:4px 0 10px}
+.bi-h{font:800 clamp(22px,6vw,28px)/1.2 var(--b-sans);margin:0 0 12px;letter-spacing:-.01em}
+.bi-q{font-size:clamp(19px,5.2vw,23px)}
+.bi-p{font-size:clamp(16px,4.4vw,18px);line-height:1.62;color:var(--b-ink-2);margin:0}
+.bi-story{color:var(--b-ink)}
+.bi-hero{margin-top:18px;padding:12px 14px;border-radius:14px;background:var(--b-bg-2);font-size:14px;line-height:1.45}.bi-hero b{display:block;font-size:13px;color:var(--b-primary);margin-bottom:2px}
+.bi-opts{display:grid;gap:10px}
+.bi-opt{display:flex;gap:12px;align-items:flex-start;width:100%;min-height:52px;padding:12px 14px;border:1.5px solid var(--b-line);border-radius:14px;background:var(--b-bg);color:var(--b-ink);font:500 15.5px/1.4 var(--b-sans);text-align:left;cursor:pointer}
+.bi-opt span{flex:0 0 26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--b-bg-2);font-weight:700;font-size:13px}
+.bi-opt.right{border-color:var(--b-mint);background:var(--b-mint-soft)}.bi-opt.right span{background:var(--b-mint);color:#fff}
+.bi-opt.wrong{border-color:var(--b-primary);background:var(--b-primary-soft)}.bi-opt.wrong span{background:var(--b-primary);color:#fff}
+.bi-opt.dim{opacity:.55}.bi-opt:disabled{cursor:default}
+.bi-why{margin-top:14px;padding:14px;border-radius:14px;font-size:15px;line-height:1.55;background:var(--b-bg-2)}.bi-why.yes b{color:var(--b-mint)}.bi-why.no b{color:var(--b-primary)}
+.bi-take{font:800 clamp(22px,6.4vw,30px)/1.3 var(--b-sans);margin:6px 0 20px;letter-spacing:-.01em}
+.bi-try{padding:14px;border-radius:16px;background:var(--b-bg-2);display:grid;gap:8px}.bi-try b{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--b-mint)}.bi-try span{font-size:15px;line-height:1.5}
+.bi-try button{justify-self:start;min-height:44px;padding:0 18px;border:0;border-radius:999px;background:var(--b-ink);color:var(--b-bg);font:700 14px/1 var(--b-sans);cursor:pointer}.bi-try button.on{background:var(--b-mint);color:#fff}
+.bi-nav{display:flex;gap:10px;max-width:640px;width:100%;margin:12px auto 0}
+.bi-primary,.bi-ghost{min-height:52px;border-radius:999px;font:700 16px/1 var(--b-sans);cursor:pointer;padding:0 20px}
+.bi-primary{flex:2;border:0;background:var(--b-primary);color:#fff}
+.bi-ghost{flex:1;border:1.5px solid var(--b-line);background:transparent;color:var(--b-ink)}.bi-ghost:disabled{opacity:.35}
+.bi-done{text-align:center;padding:28px 6px;display:grid;gap:12px;justify-items:center}
+.bi-done h2{font:800 26px/1.2 var(--b-sans);margin:4px 0 0}.bi-done p{color:var(--b-ink-2);font-size:16px;line-height:1.5;margin:0 0 8px;max-width:420px}
+.bi-done .bi-primary,.bi-done .bi-ghost{width:100%;max-width:360px;flex:none}
+.bi-tick{width:72px;height:72px;border-radius:50%;display:grid;place-items:center;background:var(--b-mint);color:#fff}
+
+/* Ideas: the feed */
+.bi-chips{display:flex;gap:8px;margin:0 0 8px}
+.bi-chips button{min-height:36px;padding:0 14px;font-size:13.5px!important;border-radius:999px;border:1.5px solid var(--b-line);background:transparent;color:var(--b-ink-2);font:600 14px/1 var(--b-sans);cursor:pointer}
+.bi-chips button.on{background:var(--b-ink);border-color:var(--b-ink);color:var(--b-bg)}
+.bi-deck{overflow-y:auto;scroll-snap-type:y mandatory;overscroll-behavior-y:contain;border-radius:22px;scrollbar-width:none}
+.bi-deck::-webkit-scrollbar{display:none}
+.bi-short{position:relative;height:100%;scroll-snap-align:start;scroll-snap-stop:always;padding:0 0 10px;box-sizing:border-box}
+.bi-sin{height:100%;box-sizing:border-box;overflow-y:auto;padding:18px 18px 16px;border-radius:22px;background:var(--b-card);box-shadow:var(--b-shadow);cursor:pointer;display:flex;flex-direction:column}
+.bi-sbook{display:flex;gap:10px;align-items:center;padding-right:44px;margin-bottom:12px}
+.bi-scv{flex:0 0 34px;height:48px;border-radius:6px;overflow:hidden;position:relative}.bi-scv img{width:100%;height:100%;object-fit:cover}
+.bi-sbook b{display:block;font-size:14px;line-height:1.25}.bi-sbook small{display:block;font-size:12px;color:var(--b-mute);margin-top:2px}
+.bi-sin>.bi-eb{margin:0 0 6px}
+.bi-sh{font:800 clamp(21px,5.8vw,25px)/1.2 var(--b-sans);margin:0 0 10px;letter-spacing:-.01em}
+.bi-sstory{font-size:16px;line-height:1.58;color:var(--b-ink);margin:0}
+.bi-stake{font:700 17px/1.35 var(--b-sans);margin:14px 0 6px;padding-left:12px;border-left:3px solid var(--b-primary)}
+.bi-sin.sm .bi-sstory{font-size:15px;line-height:1.5}.bi-sin.sm .bi-sh{font-size:21px}.bi-sin.sm .bi-stake{font-size:16px;margin-top:10px}
+.bi-sin.xs .bi-sstory{font-size:14px;line-height:1.45}.bi-sin.xs .bi-sh{font-size:19px;margin-bottom:6px}.bi-sin.xs .bi-sbook{margin-bottom:8px}.bi-sin.xs{padding:14px 16px 12px}
+.bi-sopen{margin-top:auto;padding-top:8px;font:700 14px/1 var(--b-sans);color:var(--b-primary)}
+.bi-ssave{position:absolute;top:10px;right:8px;width:44px;height:44px;border:0;border-radius:50%;background:transparent;color:var(--b-ink-2);display:grid;place-items:center;cursor:pointer}.bi-ssave.on{color:var(--b-primary)}
+.bi-end{height:100%;scroll-snap-align:start;display:grid;place-items:center;text-align:center;padding:24px;color:var(--b-mute);font-size:15px;line-height:1.5}
+/* Ideas mode: the page title steps aside so the idea gets the screen */
+.bk-head.bi-mode h1{display:none}.bk-head.bi-mode{min-height:0;margin:0}
+.bi-segrow{display:flex;gap:8px;align-items:center}.bi-segrow .bk-seg{flex:1;min-width:0;margin:0}
+.bi-svbtn{position:relative;flex:0 0 48px;height:48px;border-radius:50%;border:1.5px solid var(--b-line);background:var(--b-card);color:var(--b-ink-2);display:grid;place-items:center;cursor:pointer}
+.bi-svbtn.on{background:var(--b-ink);border-color:var(--b-ink);color:var(--b-bg)}
+.bi-svbtn i{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--b-primary);color:#fff;font:700 11px/18px var(--b-sans);font-style:normal}
+.bi-svhead{font:700 13px/1 var(--b-sans);letter-spacing:.06em;text-transform:uppercase;color:var(--b-mute);margin:2px 0 8px}
+.bi-feed-slot{margin-top:10px}
+.bi-sin.xxs .bi-sstory{font-size:13.5px;line-height:1.42}.bi-sin.xxs .bi-sh{font-size:18px}.bi-sin.xxs .bi-stake{font-size:15px}.bi-sin.xxs .bi-sbook small{display:none}.bi-sin.xxs .bi-scv{flex-basis:26px;height:36px}

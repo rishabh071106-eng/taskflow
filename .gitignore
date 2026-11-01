@@ -19,3 +19,5 @@ server.js.bak.v136
 secrets/
 config/*.local.json
 .brocore-mind/
+__pycache__/
+*.pyc

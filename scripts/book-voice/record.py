@@ -40,7 +40,7 @@ lang, todo_file, shard, shards, out, voice_dir = sys.argv[1], sys.argv[2], int(s
 ref = sys.argv[7] if len(sys.argv) > 7 else None
 os.makedirs(out, exist_ok=True)
 todo = [n for n in json.load(open(todo_file, encoding='utf-8')) if n['lang'] == lang]
-todo = [n for i, n in enumerate(todo) if i % shards == shard]
+todo = [n for i, n in enumerate(todo) if (n['shard'] if 'shard' in n else i % shards) == shard]  # plan.js assigns runners by length
 print(lang, 'shard', shard, 'of', shards, ':', len(todo), 'notes', flush=True)
 if not todo: sys.exit(0)
 CFG = json.load(open(os.path.join(voice_dir, 'voice.json')))[lang]
