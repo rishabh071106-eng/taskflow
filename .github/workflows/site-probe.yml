@@ -72,8 +72,8 @@ jobs:
           echo "Bro's library (breathing + 104 notes + 9 pieces = 117): $(j /api/learn/voice-status | jq -c '.library')"
           echo "android build served: $(j /api/android/status | jq -c '{version, build, ready, play_state: .play.state}')"
           echo "play status (fixed words only): $(j /api/android/status | jq -c '.play | del(.account)')"
-          echo "== the 07:00 India edition (2026-11-01-0700)"
+          echo "== the 13:00 India edition (2026-11-01-1300)"
           echo "edition now: $(j /api/news/edition | jq -c '{id, ready, count: (.count // .stories // null), next_at}')"
           j '/api/news/desk?limit=100' > /tmp/desk.json
-          echo "its stories: $(jq -c '[.stories[] | select(.edition == "2026-11-01-0700")] | {count: length, writers: (group_by(.writer) | map({key: (.[0].writer // "?"), value: length}) | from_entries), sections: (group_by(.category) | map({key: .[0].category, value: length}) | from_entries), with_photo: (map(select(.image != null)) | length), credited: (map(select(.image_credit.license != null)) | length), pool: (map(select(.image_credit.pool == true)) | length), official: (map(select(any(.sources[]?; .official == true))) | length)}' /tmp/desk.json)"
+          echo "its stories: $(jq -c '[.stories[] | select(.edition == "2026-11-01-1300")] | {count: length, writers: (group_by(.writer) | map({key: (.[0].writer // "?"), value: length}) | from_entries), sections: (group_by(.category) | map({key: .[0].category, value: length}) | from_entries), with_photo: (map(select(.image != null)) | length), credited: (map(select(.image_credit.license != null)) | length), pool: (map(select(.image_credit.pool == true)) | length), official: (map(select(any(.sources[]?; .official == true))) | length)}' /tmp/desk.json)"
           echo "all stories by edition: $(jq -c '.stories | group_by(.edition) | map({key: (.[0].edition // "none"), value: length}) | from_entries' /tmp/desk.json)"
