@@ -53,7 +53,7 @@ jobs:
           echo "chat + speed served (home.css?v=25 / voice.js?v=30 in the page / V.earlyStart in voice.js): $(curl -fsS --max-time 20 https://brodoit.com/ | grep -c 'home.css?v=25') / $(curl -fsS --max-time 20 https://brodoit.com/ | grep -c 'voice.js?v=30') / $(curl -fsS --max-time 20 'https://brodoit.com/app/voice.js?v=30' | grep -c 'V.earlyStart')"
           echo "voice detector sent compressed (content-encoding, bytes): $(curl -sS --max-time 30 -H 'Accept-Encoding: gzip' -D - -o /tmp/w -w ' %{size_download}' https://brodoit.com/app/vendor/vad/ort-wasm-simd-threaded.wasm | grep -iE 'content-encoding|^ [0-9]' | tr -d '\r' | tr '\n' ' ')"
           echo "site commit (main is d7644d3f6773): $(j /api/health | jq -r .commit)"
-          for i in $(seq 1 60); do c=$(j /api/health | jq -r .commit); [ "$c" = "244c1340bd80" ] && break; sleep 20; done; echo "deployed 244c134 (v31.1: narration checked every 30 min): now $(j /api/health | jq -r .commit) at $(date -u +%H:%M:%S)"
+          for i in $(seq 1 60); do c=$(j /api/health | jq -r .commit); [ "$c" = "8ccf271b4a3c" ] && break; sleep 20; done; sleep 30; echo "deployed 8ccf271 (v32 books): now $(j /api/health | jq -r .commit) at $(date -u +%H:%M:%S)"
           for t in 1; do sleep 5; echo "+$((t*2)) min: $(j '/api/news/desk?limit=60' | jq -c '{stories: (.stories | length), photo: ([.stories[] | select(.image != null)] | length), own: ([.stories[] | select(.image != null and (.image_credit.pool | not))] | length), pool: ([.stories[] | select(.image_credit.pool == true)] | length)}')"; done
           echo "== photo per story: section · pool? · photo title · source"; j '/api/news/desk?limit=60' | jq -r '.stories[] | [.category, (if .image_credit.pool then "pool" else "own" end), (.image_credit.title // "-")[0:40], (.image_credit.source // "-"), .headline[0:44]] | @tsv' | sort | head -70
           echo "sample credits: $(j '/api/news/desk?limit=60' | jq -c '[.stories[] | select(.image_credit != null) | {h: .headline[0:50], by: .image_credit.by, lic: .image_credit.license}] | .[0:4]')"
@@ -70,8 +70,14 @@ jobs:
           echo "Hindi book notes so far: $(j /api/book-hi | jq -c '.ids | length')"
           echo "news photos: $(j '/api/news/desk?limit=60' | jq -c '{stories: (.stories | length), with_photo: ([.stories[] | select(.image != null)] | length), credited: ([.stories[] | select(.image_credit != null)] | length), official: ([.stories[] | select(any(.sources[]?; .official == true))] | length), sample_credit: ([.stories[] | select(.image_credit != null) | .image_credit] | .[0])}')"
           echo "Bro's library (breathing + 104 notes + 9 pieces = 117): $(j /api/learn/voice-status | jq -c '.library')"
+          echo "== v32 books: 7 story chapters per book, Ideas, public-domain books whole"
+          echo "page loads ideas.js?v=32 / ideas.css?v=32: $(grep -c 'ideas.js?v=32' <<<"$P") / $(grep -c 'ideas.css?v=32' <<<"$P")"
+          echo "books with story chapters: $(curl -fsS --max-time 20 https://brodoit.com/app/ideas/index.json | jq '.ids | length')"
+          echo "atomic: hero $(curl -fsS --max-time 20 https://brodoit.com/app/ideas/atomic.json | jq -c '{hero: .hero.name, chapters: (.chapters | length)}')"
+          for b in medi discourses lettersstoic tao babylon; do echo "brief $b: $(curl -s -o /dev/null -w '%{http_code}' https://brodoit.com/app/briefs/$b.json) · $(curl -fsS --max-time 20 https://brodoit.com/app/briefs/$b.json | jq -r '.text | length') chars"; done
+          echo "a book still under copyright has no brief: $(curl -s -o /dev/null -w '%{http_code}' https://brodoit.com/app/briefs/atomic.json)"
           echo "== v31 book voice"
-          for i in $(seq 1 50); do r=$(j /api/learn/voice-status | jq -r '.book_voice.ready // 0'); [ "$r" -ge 104 ] 2>/dev/null && break; sleep 60; done; echo "waited for the server to copy the narration: ready $r at $(date -u +%H:%M:%S)"
+          for i in $(seq 1 5); do r=$(j /api/learn/voice-status | jq -r '.book_voice.ready // 0'); [ "$r" -ge 104 ] 2>/dev/null && break; sleep 60; done; echo "waited for the server to copy the narration: ready $r at $(date -u +%H:%M:%S)"
           echo "server: $(j /api/learn/voice-status | jq -c '.book_voice')"
           echo "Bro's library now (notes with narration leave its queue): $(j /api/learn/voice-status | jq -c '.library | {total, recorded, state}')"
           echo "release manifest: $(curl -fsSL --max-time 30 https://github.com/rishabh071106-eng/taskflow/releases/download/book-voice-v1/manifest.json 2>/dev/null | jq -c '{voice, license, voice_id, made, items: (.items | length), hindi: ([.items | keys[] | select(startswith("hi-"))] | length)}' 2>/dev/null || echo 'not published yet')"
