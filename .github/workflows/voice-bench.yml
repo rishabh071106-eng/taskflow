@@ -1,0 +1,118 @@
+# Book-voice bench: which free, openly licensed voice model reads Bro's book notes best (English and Hindi)?
+# Every candidate reads the same passage on the same 4-vCPU runner; score.py rates them all the same way (UTMOS naturalness,
+# Whisper character errors, pitch, pace, speed). Results are RESULT lines in the score job's log; the clips are an artifact.
+# Runs on a push to claude/voice-bench only.
+name: Voice bench
+on:
+  push:
+    branches: [claude/voice-bench]
+permissions:
+  contents: read
+env:
+  PIP_DISABLE_PIP_VERSION_CHECK: '1'
+jobs:
+  kokoro:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: The Hindi passage (the same book's Hindi note on brodoit.com)
+        run: |
+          mkdir -p out
+          python - <<'EOF'
+          import json, urllib.request
+          hi = []
+          try:
+              j = json.load(urllib.request.urlopen('https://brodoit.com/api/book-hi/atomic', timeout=20))
+              hi = [p.strip() for p in j['summary'].split('\n\n') if p.strip()][:3]
+          except Exception as e:
+              print('no Hindi note from the site:', e)
+          if not hi:
+              hi = ['Atomic Habits पर Bro के नोट्स, James Clear की किताब। अगर तुम हर सोमवार नई आदत शुरू करते हो और गुरुवार तक छोड़ देते हो, तो यह किताब तुम्हारे लिए है।',
+                    'पहला आइडिया। छोटे कदम जुड़ते हैं। हर दिन बस एक प्रतिशत बेहतर होना शुरू में कुछ नहीं लगता। लेकिन एक साल बाद यही छोटे कदम तुम्हारी पूरी ज़िंदगी बदल देते हैं।']
+          json.dump({'hi': hi}, open('out/hi.json', 'w'), ensure_ascii=False)
+          print(len(' '.join(hi)), 'Hindi characters')
+          EOF
+      - name: Install Kokoro (Apache-2.0)
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq espeak-ng > /dev/null
+          pip install -q torch==2.6.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+          pip install -q "kokoro==0.9.4" soundfile "misaki[en]"
+      - name: Today's Bro voice and the reference clips
+        run: python bench/voice/synth.py kokoro out
+      - uses: actions/upload-artifact@v4
+        with: { name: kokoro, path: out }
+
+  chatterbox:
+    needs: kokoro
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chatterbox, chatterbox-turbo, chatterbox-hi]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - uses: actions/download-artifact@v4
+        with: { name: kokoro, path: refs }
+      - name: Install Chatterbox (MIT)
+        run: |
+          pip install -q torch==2.6.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+          pip install -q chatterbox-tts soundfile
+          pip show chatterbox-tts | head -3
+      - name: Read the passage
+        run: python bench/voice/synth.py ${{ matrix.engine }} out refs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: '${{ matrix.engine }}', path: out, if-no-files-found: ignore }
+
+  parler:
+    needs: kokoro
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - uses: actions/download-artifact@v4
+        with: { name: kokoro, path: refs }
+      - name: Install Indic Parler-TTS (Apache-2.0)
+        run: |
+          pip install -q torch==2.6.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+          pip install -q git+https://github.com/huggingface/parler-tts.git soundfile
+      - name: Read the passage
+        run: python bench/voice/synth.py parler out refs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: parler, path: out, if-no-files-found: ignore }
+
+  score:
+    needs: [kokoro, chatterbox, parler]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - uses: actions/download-artifact@v4
+        with: { path: all }
+      - name: Install the scorers
+        run: |
+          pip install -q torch==2.6.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+          pip install -q faster-whisper librosa soundfile
+      - name: Score every voice
+        run: python bench/voice/score.py all
+      - name: Clips as mp3 (for listening)
+        if: always()
+        run: |
+          mkdir -p mp3
+          for f in all/*/*.wav; do n=$(basename "$f" .wav); case "$n" in ref-*) continue;; esac; ffmpeg -loglevel error -y -i "$f" -b:a 96k "mp3/$n.mp3"; done
+          ls -la mp3
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: clips-mp3, path: mp3 }
