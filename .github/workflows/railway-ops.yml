@@ -54,7 +54,6 @@ jobs:
           red() { sed -E -e 's/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/<email>/g' -e 's/\+?[0-9][0-9 -]{9,}[0-9]/<number>/g' \
                          -e 's/(sk|xi|gsk|AIza|ghp|gho|pk|rk)[-_A-Za-z0-9]{12,}/<key>/g' -e 's/[A-Za-z0-9_-]{32,}/<long-id>/g' \
                          -e 's/((key|token|secret|password|authorization)[^=:]{0,20}[=:] *)[^ ,"]+/\1<hidden>/Ig'; }
-          for i in $(seq 1 45); do [ "$(curl -fsS --max-time 15 https://brodoit.com/api/health | jq -r .commit)" = "9c3937a7aacf" ] && break; sleep 20; done
           echo "site on $(curl -fsS --max-time 15 https://brodoit.com/api/health | jq -r .commit) at $(date -u +%H:%M:%S); reading the logs now"; sleep 1
           timeout 90 railway logs --deployment --service taskflow --lines 5000 > /tmp/dl.txt 2>&1 || true
           echo "lines read: $(wc -l < /tmp/dl.txt)"
