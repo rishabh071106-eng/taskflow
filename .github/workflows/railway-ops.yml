@@ -213,3 +213,8 @@ jobs:
           S=736f24b6-270e-49e8-b22a-f830f72d9794; E=b5552552-8b7b-4e20-881e-6b0f88475b88
           echo "== redeploy --from-source"; railway redeploy --service $S --environment $E --from-source -y 2>&1 | sed -E 's/[A-Za-z0-9_-]{32,}/<long-id>/g' | tail -8
           sleep 20; echo "== deployments after"; railway deployment list --service $S --environment $E 2>&1 | head -4
+      - name: Play upload lines again (at the end, so they are easy to read)
+        if: always()
+        run: |
+          echo "lines read: $(wc -l < /tmp/dl.txt 2>/dev/null || echo 0)"
+          grep -E "\[play\]" /tmp/dl.txt 2>/dev/null | sed -E -e 's/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/<account>/g' -e 's/[A-Za-z0-9_-]{32,}/<long-id>/g' | cut -c1-400 | tail -15 || echo "no [play] lines"
