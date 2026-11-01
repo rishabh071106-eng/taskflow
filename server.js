@@ -1267,8 +1267,18 @@ function _bookText(id) {
       for (const b of arr) if (b && b.id && b.summary) _booksCache.set(String(b.id), { title: String(b.title || ''), text: String(b.summary).replace(/\\/g, ''), lang: 'en', book: b });
     } catch (e) { console.log('[books] could not read the summaries:', e.message); }
   }
+  // v33: the book in 7 chapters as Bro reads it (app/bookfull.js: his notes and the chapter stories of app/ideas/<id>.json)
+  if (id.startsWith('book-')) {
+    const base = id.slice(5).replace(/[^a-zA-Z0-9_-]/g, '');
+    if (_bookFullCache.has(base)) return _bookFullCache.get(base);
+    const nb = _booksCache.get(base); let out = null;
+    if (nb) { try { const full = require('./app/bookfull.js').compose(nb.book, JSON.parse(_fs.readFileSync(_path.join(__dirname, 'app', 'ideas', base + '.json'), 'utf8'))); if (full) out = { title: nb.title, text: full.text, lang: 'en' }; } catch (e) { /* no chapters for this book */ } }
+    _bookFullCache.set(base, out);
+    return out;
+  }
   return _booksCache.get(id) || null;
 }
+const _bookFullCache = new Map();
 const _bookWant = new Set();
 const _bookWantFile = () => _path.join(MEDIA_DIR, 'bro-voice', 'books-wanted.json');
 try { for (const k of JSON.parse(_fs.readFileSync(_bookWantFile(), 'utf8'))) if (typeof k === 'string') _bookWant.add(k); } catch (e) { /* none yet */ }
@@ -1359,6 +1369,11 @@ app.get('/api/audio-script/:id', (req, res) => {
   res.json({ id, title: entry.title, script: entry.script, kind: entry.kind, mins: entry.mins });
 });
 
+// v33: which books the server has in Bro's studio voice right now ({ items: { id: seconds } }); no account needed, ids only
+app.get('/api/book-voice/ready', (req, res) => {
+  let items = {}; try { items = _bookVoice ? _bookVoice.ready() : {}; } catch (e) { items = {}; }
+  res.set('Cache-Control', 'public, max-age=120').json({ items });
+});
 app.get('/api/book-audio/:id', (req, res) => {
   // Auth: accept token from query string (needed for <audio src=...> on iOS),
   // x-token header, or tf_token cookie
@@ -1376,6 +1391,8 @@ app.get('/api/book-audio/:id', (req, res) => {
   if (pv && require('./modules/brolibrary.js').sendAudio(req, res, pv, 'no-cache')) return;
   const bro = _broLib && _broLib.file('note-' + id);
   if (bro && require('./modules/brolibrary.js').sendAudio(req, res, bro, 'no-cache')) return;
+  // v33: the whole book ("book-<id>") is only ever the studio recording; until it is here the page plays Bro's notes
+  if (id.startsWith('book-')) return res.status(404).json({ error: 'the book is still being recorded' });
   if (process.env.BOOKS_OLD_AUDIO !== '1') { if (!id.startsWith('brief-')) _wantBook(id); return res.status(404).json({ error: 'not recorded in Bro\'s voice yet', live: true }); }
   let staticPath = _path.join(__dirname, 'audio-static', id + '.mp3');
   if (id.startsWith('hi-')) { const m = _path.join(MEDIA_DIR, 'books-hi', id + '.mp3'); if (_fs.existsSync(m)) staticPath = m; }
@@ -2789,8 +2806,8 @@ const HTML=`<!DOCTYPE html><html lang="en"><head>
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png?v=6">
 <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png?v=6">
 <link rel="apple-touch-icon" href="/icon-192.png?v=6">
-<link rel="stylesheet" href="/app/theme.css?v=21"><link rel="stylesheet" href="/app/app.css?v=21"><link rel="stylesheet" href="/app/news.css?v=30"><link rel="stylesheet" href="/app/ideas.css?v=32"><link rel="stylesheet" href="/app/steps.css?v=21"><link rel="stylesheet" href="/app/admin.css?v=23"><link rel="stylesheet" href="/app/onboarding.css?v=21"><link rel="stylesheet" href="/app/cards.css?v=22"><link rel="stylesheet" href="/app/home.css?v=25"><link rel="stylesheet" href="/app/tasks.css?v=22"><link rel="stylesheet" href="/app/books.css?v=21"><link rel="stylesheet" href="/app/learn.css?v=23">
-<script src="/app/icons.js?v=21" defer></script><script src="/app/ideas.js?v=32" defer></script><script src="/app/cards.js?v=21" defer></script><script src="/app/learn.js?v=24" defer></script><script src="/app/you.js?v=23" defer></script><script src="/app/haptics.js?v=21" defer></script><script src="/app/mascot.js?v=21" defer></script><script src="/app/say.js?v=2" defer></script><script src="/app/voice.js?v=31" defer></script><script src="/app/micgain.js?v=1" defer></script><script src="/app/voicenote.js?v=2" defer></script><script src="/app/news.js?v=30" defer></script><script src="/app/notify.js?v=2" defer></script><script src="/app/steps.js?v=22" defer></script><script src="/app/admin.js?v=25" defer></script><script src="/app/onboarding.js?v=22" defer></script><script src="/app/motion.js?v=21" defer></script>
+<link rel="stylesheet" href="/app/theme.css?v=21"><link rel="stylesheet" href="/app/app.css?v=21"><link rel="stylesheet" href="/app/news.css?v=30"><link rel="stylesheet" href="/app/ideas.css?v=33"><link rel="stylesheet" href="/app/steps.css?v=21"><link rel="stylesheet" href="/app/admin.css?v=23"><link rel="stylesheet" href="/app/onboarding.css?v=21"><link rel="stylesheet" href="/app/cards.css?v=22"><link rel="stylesheet" href="/app/home.css?v=25"><link rel="stylesheet" href="/app/tasks.css?v=22"><link rel="stylesheet" href="/app/books.css?v=21"><link rel="stylesheet" href="/app/learn.css?v=23">
+<script src="/app/icons.js?v=21" defer></script><script src="/app/bookfull.js?v=33" defer></script><script src="/app/ideas.js?v=33" defer></script><script src="/app/cards.js?v=21" defer></script><script src="/app/learn.js?v=24" defer></script><script src="/app/you.js?v=23" defer></script><script src="/app/haptics.js?v=21" defer></script><script src="/app/mascot.js?v=21" defer></script><script src="/app/say.js?v=2" defer></script><script src="/app/voice.js?v=31" defer></script><script src="/app/micgain.js?v=1" defer></script><script src="/app/voicenote.js?v=2" defer></script><script src="/app/news.js?v=30" defer></script><script src="/app/notify.js?v=2" defer></script><script src="/app/steps.js?v=22" defer></script><script src="/app/admin.js?v=25" defer></script><script src="/app/onboarding.js?v=22" defer></script><script src="/app/motion.js?v=21" defer></script>
 <!-- Open Graph -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Brodoit">
@@ -11917,9 +11934,9 @@ function bkSearchInput(v){
       let html='';
       f.forEach(b=>{
         const cover=bookCover(b.id);
-        const isLive=S.bkMini&&S.bkMini.book&&S.bkMini.book.id===b.id&&!S.bkMini.paused;
+        const isLive=S.bkMini&&S.bkMini.book&&(S.bkMini.book._full||S.bkMini.book.id)===b.id&&!S.bkMini.paused;
         html+='<button class="bk-sum-card'+(isLive?' is-live':'')+'" onclick="openBookSummary(\\''+b.id+'\\')">'
-          +'<div class="bk-sum-cover'+(cover?' has-img':'')+'" style="background:'+b.grad+'">'+(cover?'<img src="'+cover+'" alt="" loading="lazy" onerror="this.parentElement.classList.remove(\\'has-img\\');this.remove()"/>':'')+'<div class="bk-sum-mins">'+b.mins+(S.lang==='hi'?' मिनट':' min')+'</div>'+(cover?'':'<div></div><div><h5>'+esc(b.title)+'</h5><div class="auth">'+esc(b.author)+'</div></div>')+'<span class="bk-sum-play" onclick="event.stopPropagation();playBookBrief(\\''+b.id+'\\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">'+(isLive?'<rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/>':'<polygon points="6 4 20 12 6 20 6 4"/>')+'</svg></span></div>'
+          +'<div class="bk-sum-cover'+(cover?' has-img':'')+'" style="background:'+b.grad+'">'+(cover?'<img src="'+cover+'" alt="" loading="lazy" onerror="this.parentElement.classList.remove(\\'has-img\\');this.remove()"/>':'')+'<div class="bk-sum-mins">'+(window.BookIdeas?BookIdeas.mins(b.id):b.mins)+(S.lang==='hi'?' मिनट':' min')+'</div>'+(cover?'':'<div></div><div><h5>'+esc(b.title)+'</h5><div class="auth">'+esc(b.author)+'</div></div>')+'<span class="bk-sum-play" onclick="event.stopPropagation();playBookBrief(\\''+b.id+'\\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">'+(isLive?'<rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/>':'<polygon points="6 4 20 12 6 20 6 4"/>')+'</svg></span></div>'
           +'<div class="bk-sum-meta">'+esc(b.title)+'<small>'+esc(b.author)+'</small></div>'
         +'</button>';
       });
@@ -13042,7 +13059,7 @@ const BOOK_COVERS={
   tao:'https://covers.openlibrary.org/b/isbn/0061142662-L.jpg',
   fivedys:'https://covers.openlibrary.org/b/isbn/1443456624-L.jpg'
 };
-function bookCover(id){return BOOK_COVERS[id]||null}
+function bookCover(id){id=String(id||'');return BOOK_COVERS[id]||BOOK_COVERS[id.replace(/^book-/,'')]||null}
 // ═══ BOOK PLAYER v2 — one engine for the studio MP3 and the device voice ═══
 // The narration is the brief's summary text. Studio MP3s are recordings of that
 // same text, so a character offset maps to a time (≈ constant speaking speed).
@@ -13201,7 +13218,7 @@ function _bkDone(){
   if(!BKP||BKP.ended)return;
   BKP.ended=true;BKP.paused=true;BKP.gen++;_bkSync();
   try{api('/book-streak',{method:'POST',body:JSON.stringify({seconds:BKP.book.mins*60})}).then(function(){loadBookStreak()})}catch(e){}
-  toast('✨ Brief complete — streak +1');
+  toast(S.lang==='hi'?'✨ पूरा हुआ — स्ट्रीक +1':(BKP.book._full?'✨ Book finished — streak +1':'✨ Brief complete — streak +1'));
   render();
 }
 function bkpStop(silent){
@@ -13276,13 +13293,13 @@ function bkHiSwitch(base,hi){var b=hi?bkHiBook(base):BOOK_SUMMARIES.find(functio
 function _bkWantHi(base){return S.lang==='hi'&&!(S.bkHiPick&&S.bkHiPick[base]==='en')}
 // v27: an idea's "Try it today" becomes a task for today
 async function bkTry(id,i,btn){var b=BOOK_SUMMARIES.find(function(x){return x.id===id});if(S.bookReader&&S.bookReader.book&&S.bookReader.book._base===id)b=S.bookReader.book;var it=b&&b.insights[i];if(!it||!it[2])return;if(btn)btn.disabled=true;var d=new Date();var r=await api('/tasks',{method:'POST',body:JSON.stringify({title:it[2],notes:_T('From Bro\\'s notes on ','Bro के नोट्स से: ')+b.title,priority:'medium',status:'pending',due_date:d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'),board:'home'})});if(r&&r.id){if(S.tasks)S.tasks.unshift(r);S.bkTried=S.bkTried||{};S.bkTried[id+':'+i]=1;if(btn){btn.textContent=_T('Added to today','आज में जुड़ गया');btn.classList.add('on')}toast(_T('Added to today\\'s tasks','आज के कामों में जुड़ गया'))}else if(btn)btn.disabled=false}
-function openBookSummary(id,autoplay){var b=BOOK_SUMMARIES.find(function(x){return x.id===id});if(!b)return;if(_bkWantHi(id)&&S.bkHi&&S.bkHi[id]){var hb=bkHiBook(id);if(hb)b=hb}S.bookReader={open:true,book:b};S.bkNP=false;render();var el=document.querySelector('.bkp-page');if(el)el.scrollTop=0;if(autoplay===true)bkpPlay(id)}
-function playBookBrief(id){bkpPlay(id)}
+function openBookSummary(id,autoplay){var b=BOOK_SUMMARIES.find(function(x){return x.id===id});if(!b)return;if(_bkWantHi(id)&&S.bkHi&&S.bkHi[id]){var hb=bkHiBook(id);if(hb)b=hb}S.bookReader={open:true,book:b};S.bkNP=false;render();var el=document.querySelector('.bkp-page');if(el)el.scrollTop=0;if(autoplay===true)playBookBrief(id)}
+function playBookBrief(id){if(window.BookIdeas&&BookIdeas.has(id))BookIdeas.play(id);else bkpPlay(id)}
 function closeBookReader(){S.bookReader={open:false};render()}
 function bkMiniToggle(){bkpToggle()}
 function bkMiniClose(){bkpStop()}
 function bkMiniReopen(){if(BKP){S.bkNP=true;render()}}
-function bookReaderToggleTTS(){var r=S.bookReader;if(!r||!r.book)return;if(BKP&&BKP.book.id===r.book.id)bkpToggle();else bkpPlay(r.book.id)}
+function bookReaderToggleTTS(){var r=S.bookReader;if(!r||!r.book)return;if(BKP&&(BKP.book.id===r.book.id||BKP.book._full===r.book.id))bkpToggle();else playBookBrief(r.book.id)}
 function bookReaderSpeed(){if(!BKP)return;var i=BK_RATES.indexOf(BKP.rate);bkpRate(BK_RATES[(i+1)%BK_RATES.length])}
 // Spotify-style: tap a brief card → audio plays in the bottom mini-player
 // without ever opening the big reader. Tap the mini-player to expand later.
@@ -14741,7 +14758,7 @@ function renderPassive(){
   // Skip passive re-renders on the News tab — rebuilding innerHTML resets
   // the horizontal scroll position, causing cards to jump back to the first one.
   if(S.tab==='news')return;
-  // v32: nor on Books (the Ideas feed keeps its place; the chapter player lives outside the shell)
+  // v32: nor on Books (the list and the book page keep their place while someone reads along)
   if(S.tab==='books')return;
   // Skip passive re-renders while in a lesson — rebuilding innerHTML destroys
   // code playground output and textarea edits.
@@ -16299,16 +16316,14 @@ else if(S.tab==='cal'){
 // BOOKS TAB — standalone tab
 else if(S.tab==='books'){
   const bs=S.bookStreak||{streak:0,total:0,today:false};
-  if(!S.booksMode)S.booksMode='ideas';
+  if(S.booksMode!=='audiobooks')S.booksMode='summaries';
   {
-    const isSum=S.booksMode==='summaries',isIdeas=S.booksMode==='ideas';
-    h+='<div class="bk-head'+(isIdeas?' bi-mode':'')+'"><h1>'+(S.lang==='hi'?'\\u0915\\u093F\\u0924\\u093E\\u092C\\u0947\\u0902':'Books')+'</h1>'+(bs.streak>0?'<span class="bk-streak'+(bs.today?' on':'')+'">'+ic('flame',16)+bs.streak+'</span>':'')+'</div>';
-    // v32: Ideas (one chapter per screen, swipe up) · Books (each book in 7 story chapters) · Audiobooks (LibriVox)
-    h+=(isIdeas&&window.BookIdeas?'<div class="bi-segrow">':'')+'<div class="bk-seg"><button class="'+(isIdeas?'on':'')+'" onclick="S.booksMode=\\'ideas\\';render()">'+(S.lang==='hi'?'विचार':'Ideas')+'</button><button class="'+(isSum?'on':'')+'" onclick="S.booksMode=\\'summaries\\';render()">'+(S.lang==='hi'?'किताबें':'Books')+'</button><button class="'+(isSum||isIdeas?'':'on')+'" onclick="S.booksMode=\\'audiobooks\\';render()">'+(S.lang==='hi'?'ऑडियोबुक':'Audiobooks')+'</button></div>'+(isIdeas&&window.BookIdeas?BookIdeas.savedBtn()+'</div>':'');
+    const isSum=S.booksMode==='summaries';
+    h+='<div class="bk-head"><h1>'+(S.lang==='hi'?'\\u0915\\u093F\\u0924\\u093E\\u092C\\u0947\\u0902':'Books')+'</h1>'+(bs.streak>0?'<span class="bk-streak'+(bs.today?' on':'')+'">'+ic('flame',16)+bs.streak+'</span>':'')+'</div>';
+    // v33: Books (each book in 7 chapters, read in Bro's voice) · Audiobooks (LibriVox)
+    h+='<div class="bk-seg"><button class="'+(isSum?'on':'')+'" onclick="S.booksMode=\\'summaries\\';render()">'+(S.lang==='hi'?'किताबें':'Books')+'</button><button class="'+(isSum?'':'on')+'" onclick="S.booksMode=\\'audiobooks\\';render()">'+(S.lang==='hi'?'ऑडियोबुक':'Audiobooks')+'</button></div>';
   }
-  if(S.booksMode==='ideas'){
-    h+=window.BookIdeas?BookIdeas.feedHtml():'<div class="loading">'+(S.lang==='hi'?'लोड हो रहा है…':'Loading…')+'</div>';
-  } else if(S.booksMode==='summaries'){
+  if(S.booksMode==='summaries'){
     // Search bar (briefs)
     if(typeof S.bkSearch!=='string')S.bkSearch='';
     h+='<div class="bk-search"><svg class="bk-search-ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="bkSearch" placeholder="'+(S.lang==='hi'?'खोजें':'Search')+'" value="'+esc(S.bkSearch)+'" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" oninput="bkSearchInput(this.value)"/>'+(S.bkSearch?'<button class="bk-search-x" onmousedown="event.preventDefault()" onclick="bkSearchClear()" aria-label="Clear">\\u2715</button>':'')+'</div>';
@@ -16329,9 +16344,9 @@ else if(S.tab==='books'){
     h+='<div class="bk-sum-grid">';
     bkFiltered.forEach(b=>{
       const coverImg=bookCover(b.id);
-      const isLive=S.bkMini&&S.bkMini.book&&S.bkMini.book.id===b.id&&!S.bkMini.paused;
+      const isLive=S.bkMini&&S.bkMini.book&&(S.bkMini.book._full||S.bkMini.book.id)===b.id&&!S.bkMini.paused;
       h+='<button class="bk-sum-card'+(isLive?' is-live':'')+'" onclick="openBookSummary(\\''+b.id+'\\')">';
-      h+='<div class="bk-sum-cover'+(coverImg?' has-img':'')+'" style="background:'+b.grad+'">'+(coverImg?'<img src="'+coverImg+'" alt="" loading="lazy" onerror="this.parentElement.classList.remove(\\'has-img\\');this.remove()"/>':'')+'<div class="bk-sum-mins">'+b.mins+(S.lang==='hi'?' मिनट':' min')+'</div><div></div><div class="bk-sum-ttl"><h5>'+esc(b.title)+'</h5><div class="auth">'+esc(b.author)+'</div></div><span class="bk-sum-play" onclick="event.stopPropagation();playBookBrief(\\''+b.id+'\\')" aria-label="'+(isLive?'Pause':'Play')+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">'+(isLive?'<rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/>':'<polygon points="6 4 20 12 6 20 6 4"/>')+'</svg></span></div>';
+      h+='<div class="bk-sum-cover'+(coverImg?' has-img':'')+'" style="background:'+b.grad+'">'+(coverImg?'<img src="'+coverImg+'" alt="" loading="lazy" onerror="this.parentElement.classList.remove(\\'has-img\\');this.remove()"/>':'')+'<div class="bk-sum-mins">'+(window.BookIdeas?BookIdeas.mins(b.id):b.mins)+(S.lang==='hi'?' मिनट':' min')+'</div><div></div><div class="bk-sum-ttl"><h5>'+esc(b.title)+'</h5><div class="auth">'+esc(b.author)+'</div></div><span class="bk-sum-play" onclick="event.stopPropagation();playBookBrief(\\''+b.id+'\\')" aria-label="'+(isLive?'Pause':'Play')+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">'+(isLive?'<rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/>':'<polygon points="6 4 20 12 6 20 6 4"/>')+'</svg></span></div>';
       h+='<div class="bk-sum-meta">'+esc(b.title)+'<small>'+esc(b.author)+'</small></div>';
       h+='</button>';
     });
@@ -16537,20 +16552,26 @@ if(S.voiceLesson&&S.voiceLesson.lesson){
   h+='</div></div>';
 }
 if(S.bookReader&&S.bookReader.open&&S.bookReader.book){
-  const b=S.bookReader.book;const _cv=bookCover(b.id);const _live=!!(BKP&&BKP.book.id===b.id);const _on=_live&&!BKP.paused&&!BKP.ended;
-  const _segs=_bkBuild(b).secs;
+  const b=S.bookReader.book;const _cv=bookCover(b.id);const _BI=window.BookIdeas;
+  // v33: an English book is the book in 7 chapters, read in Bro's voice (app/ideas.js); a Hindi version keeps Bro's notes
+  const _bk=!!(!b._base&&_BI&&_BI.has(b.id));const _live=!!(BKP&&(BKP.book.id===b.id||BKP.book._full===b.id));const _on=_live&&!BKP.paused&&!BKP.ended;
+  const _segs=_bkBuild(b).secs;const _mins=_bk?_BI.mins(b.id):b.mins;
   const _ib=function(svg){return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">'+svg+'</svg>'};
   const _pl=function(n){return '<svg width="'+(n||14)+'" height="'+(n||14)+'" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.6v14.8a1 1 0 0 0 1.5.86l12.2-7.4a1 1 0 0 0 0-1.72L8.5 3.74A1 1 0 0 0 7 4.6z"/></svg>'};
   const _bH=S.lang==='hi',_tg=_bH?({productivity:'काम की आदतें',focus:'ध्यान',mind:'मन',stoic:'स्टोइक',money:'पैसा',leadership:'नेतृत्व',communication:'बातचीत',health:'सेहत',creativity:'रचनात्मकता'})[b.tag]||b.tag:b.tag;
+  const _go=_bk?'BookIdeas.play(\\''+b.id+'\\')':(b._base?'bkpPlay(\\''+b.id+'\\',bkHiBook(\\''+b._base+'\\'))':'bkpPlay(\\''+b.id+'\\')');
   h+='<div class="bkp-page">';
-  h+='<header class="bkp-top"><button class="bkp-ib" onclick="closeBookReader()" aria-label="'+_T('Close','बंद करें')+'">'+_ib('<path d="M19 12H5M12 19l-7-7 7-7"/>')+'</button><span class="bkp-lbl">'+(_bH?'बुक नोट्स · '+b.mins+' मिनट · ':'Book notes · '+b.mins+' min · ')+esc(_tg)+'</span><button class="bkp-ib" onclick="bkpShare(\\''+b.id+'\\')" aria-label="'+_T('Share','शेयर करें')+'">'+_ib('<path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>')+'</button></header>';
+  h+='<header class="bkp-top"><button class="bkp-ib" onclick="closeBookReader()" aria-label="'+_T('Close','बंद करें')+'">'+_ib('<path d="M19 12H5M12 19l-7-7 7-7"/>')+'</button><span class="bkp-lbl">'+(_bk?(_bH?'किताब · '+_mins+' मिनट · ':'Book · '+_mins+' min · '):(_bH?'बुक नोट्स · '+b.mins+' मिनट · ':'Book notes · '+b.mins+' min · '))+esc(_tg)+'</span><button class="bkp-ib" onclick="bkpShare(\\''+b.id+'\\')" aria-label="'+_T('Share','शेयर करें')+'">'+_ib('<path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>')+'</button></header>';
   h+='<section class="bkp-hero"><div class="bkp-hero-bg" style="background:'+b.grad+'"></div>';
   h+='<div class="bkp-cover" style="background:'+b.grad+'">'+'<b>'+esc(b.title)+'</b><small>'+esc(b.author)+'</small>'+(_cv?'<img src="'+_cv+'" alt="" onerror="this.remove()"/>':'')+'</div>';
-  h+='<h1>'+esc(b.title)+'</h1><div class="bkp-by">'+esc(b.author)+'</div><p class="bkp-why">'+esc(b.why)+'</p>'+'<p class="bkp-own">'+_T('Bro\\'s own notes on the ideas in this book, in his own words. Not the book, and not a summary of it: if an idea clicks, read the whole book.','इस किताब के विचारों पर Bro के अपने नोट्स, उसके अपने शब्दों में। यह किताब या उसका सार नहीं है: कोई बात जँचे तो पूरी किताब पढ़ें।')+' <a href="https://openlibrary.org/search?q='+encodeURIComponent(b.title+' '+b.author)+'" target="_blank" rel="noopener">'+_T('Find the book','किताब ढूँढें')+'</a></p>';
-  h+='<div class="bkp-stats"><span><b>'+b.insights.length+'</b> '+_T('key ideas','मुख्य बातें')+'</span><span><b>'+b.mins+'</b> '+_T('min listen','मिनट सुनें')+'</span><span><b>'+_segs.length+'</b> '+_T('sections','हिस्से')+'</span></div>';
+  h+='<h1>'+esc(b.title)+'</h1><div class="bkp-by">'+esc(b.author)+'</div><p class="bkp-why">'+esc(b.why)+'</p>'+'<p class="bkp-own">'+(_bk?_T('Bro tells the ideas of this book in 7 chapters, in his own words, with a story of his own in every chapter. It is not the book itself: if an idea clicks, read the whole book.','Bro इस किताब के विचार 7 अध्यायों में सुनाता है, अपने शब्दों में, हर अध्याय में अपनी एक कहानी के साथ। यह ख़ुद किताब नहीं है: कोई बात जँचे तो पूरी किताब पढ़ें।'):_T('Bro\\'s own notes on the ideas in this book, in his own words. Not the book, and not a summary of it: if an idea clicks, read the whole book.','इस किताब के विचारों पर Bro के अपने नोट्स, उसके अपने शब्दों में। यह किताब या उसका सार नहीं है: कोई बात जँचे तो पूरी किताब पढ़ें।'))+' <a href="https://openlibrary.org/search?q='+encodeURIComponent(b.title+' '+b.author)+'" target="_blank" rel="noopener">'+_T('Find the book','किताब ढूँढें')+'</a></p>';
+  if(_bk)h+='<div class="bkp-stats"><span><b>7</b> '+_T('chapters','अध्याय')+'</span><span><b>'+_mins+'</b> '+_T('min listen','मिनट सुनें')+'</span></div>';
+  else h+='<div class="bkp-stats"><span><b>'+b.insights.length+'</b> '+_T('key ideas','मुख्य बातें')+'</span><span><b>'+b.mins+'</b> '+_T('min listen','मिनट सुनें')+'</span><span><b>'+_segs.length+'</b> '+_T('sections','हिस्से')+'</span></div>';
   h+=_bkHiChip(b);
-  h+='<div class="bkp-cta"><button class="bkp-listen" onclick="'+(b._base?'bkpPlay(\\''+b.id+'\\',bkHiBook(\\''+b._base+'\\'))':'bkpPlay(\\''+b.id+'\\')')+'">'+(_on?_T('Now playing','चल रहा है'):_pl()+' '+(_live?_T('Resume','आगे सुनें'):_T('Listen','सुनें')))+'</button><button class="bkp-ghost" onclick="var e=document.getElementById(\\'bkp-ideas\\');if(e)e.scrollIntoView({behavior:\\'smooth\\',block:\\'start\\'})">'+_T('Key ideas','मुख्य बातें')+'</button></div></section>';
-  if(window.BookIdeas){const _base=BOOK_SUMMARIES.find(function(x){return x.id===(b._base||b.id)});h+=BookIdeas.chaptersHtml(_base)+BookIdeas.briefHtml(_base)}
+  h+='<div class="bkp-cta"><button class="bkp-listen" onclick="'+_go+'">'+(_on?_T('Now playing','चल रहा है'):_pl()+' '+(_live?_T('Resume','आगे सुनें'):_T('Listen','सुनें')))+'</button><button class="bkp-ghost" onclick="var e=document.getElementById(\\''+(_bk?'bi-ch':'bkp-ideas')+'\\');if(e)e.scrollIntoView({behavior:\\'smooth\\',block:\\'start\\'})">'+(_bk?_T('Chapters','अध्याय'):_T('Key ideas','मुख्य बातें'))+'</button></div></section>';
+  if(_bk)h+=_BI.chaptersHtml(b)+_BI.briefHtml(b)+_BI.readHtml(b)+'<div style="height:130px"></div>';
+  else{
+  if(_BI)h+=_BI.briefHtml(BOOK_SUMMARIES.find(function(x){return x.id===(b._base||b.id)}));
   h+='<section class="bkp-sec" id="bkp-ideas"><div class="bkp-eyebrow">'+(_bH?'किताब की '+b.insights.length+' बड़ी बातें':'The book in '+b.insights.length+' big ideas')+'</div><h2>'+_T('Key ideas','मुख्य बातें')+'</h2><p class="bkp-sub">'+_T('The high-level points worth remembering — a 2-minute read.','याद रखने लायक़ बातें — 2 मिनट में पढ़ें।')+'</p>';
   b.insights.forEach(function(it,i){h+='<article class="bkp-idea"><div class="bkp-num" style="background:'+b.grad+'">'+(i+1)+'</div><div><h3>'+esc(it[0])+'</h3><p>'+esc(it[1])+'</p>'+(it[2]?'<div class="bkp-try"><b>'+_T('Try it today','आज आज़माएँ')+'</b><span>'+esc(it[2])+'</span>'+(S.bkTried&&S.bkTried[(b._base||b.id)+':'+i]?'<button class="on" disabled>'+_T('Added to today','आज में जुड़ गया')+'</button>':'<button onclick="bkTry(\\''+(b._base||b.id)+'\\','+i+',this)">'+_T('Add to my tasks','मेरे कामों में जोड़ें')+'</button>')+'</div>':'')+'</div></article>'});
   h+='</section>';
@@ -16559,7 +16580,8 @@ if(S.bookReader&&S.bookReader.open&&S.bookReader.book){
   h+='</div>';
   _segs.forEach(function(s,i){var t=s.isCh?s.text.replace(/^(?:Chapter|Idea|अध्याय|विचार) [a-z0-9-\u0900-\u097F]+[.।]\\s*[^.!?।]{3,90}[.!?।]\\s*/i,''):s.text;h+='<div class="bkp-part" id="bks-'+i+'"><div class="bkp-part-h"><span>'+String(i+1).padStart(2,'0')+'</span><h4>'+esc(s.label)+'</h4><button onclick="'+(b._base?'bkpPlayFromHi(\\''+b._base+'\\','+i+')':'bkpPlayFrom(\\''+b.id+'\\','+i+')')+'" aria-label="'+_T('Listen from here','यहाँ से सुनें')+'">'+_pl()+'</button></div><p>'+esc(t)+'</p></div>'});
   h+='</section><div style="height:130px"></div>';
-  if(!_live)h+='<div class="bkp-dock"><button onclick="'+(b._base?'bkpPlay(\\''+b.id+'\\',bkHiBook(\\''+b._base+'\\'))':'bkpPlay(\\''+b.id+'\\')')+'"><span class="bkp-dock-ic">'+_pl(16)+'</span><span><b>'+_T("Listen to Bro's notes",'Bro के नोट्स सुनें')+'</b><small>'+(_bH?b.mins+' मिनट · तेज़ करें · आगे बढ़ें · साथ में पढ़ें':b.mins+' min · speed up · skip · read along')+'</small></span></button></div>';
+  }
+  if(!_live)h+='<div class="bkp-dock"><button onclick="'+_go+'"><span class="bkp-dock-ic">'+_pl(16)+'</span><span><b>'+(_bk?_T('Listen to the book','किताब सुनें'):_T("Listen to Bro's notes",'Bro के नोट्स सुनें'))+'</b><small>'+(_bH?_mins+' मिनट · तेज़ करें · आगे बढ़ें · साथ में पढ़ें':_mins+' min · speed up · skip · read along')+'</small></span></button></div>';
   h+='</div>';
 }
 if(S.bkNP&&BKP){
@@ -16568,10 +16590,10 @@ if(S.bkNP&&BKP){
   const _skip=function(back){return '<span class="bkp-skip">'+_sv(back?'<path d="M3 12a9 9 0 1 0 3-6.7"/><polyline points="3 3 3 9 9 9"/>':'<path d="M21 12a9 9 0 1 1-3-6.7"/><polyline points="21 3 21 9 15 9"/>',30)+'<i>15</i></span>'};
   BKP._si=null;BKP._ci=null;
   h+='<div class="bkp-np"><div class="bkp-np-bg" style="background:'+b.grad+'"></div>';
-  h+='<header class="bkp-np-top"><button class="bkp-ib" onclick="S.bkNP=false;render()" aria-label="'+_T('Minimise','छोटा करें')+'">'+_sv('<polyline points="6 9 12 15 18 9"/>',20)+'</button><div class="bkp-np-src"><small>'+_T("Bro's voice",'Bro की आवाज़')+'</small><b>'+(S.lang==='hi'?b.mins+' मिनट का सार':b.mins+'-min brief')+'</b></div><button class="bkp-ib" onclick="bkpStop()" aria-label="'+_T('Close and stop','बंद करें')+'">'+_sv('<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',18)+'</button></header>';
+  h+='<header class="bkp-np-top"><button class="bkp-ib" onclick="S.bkNP=false;render()" aria-label="'+_T('Minimise','छोटा करें')+'">'+_sv('<polyline points="6 9 12 15 18 9"/>',20)+'</button><div class="bkp-np-src"><small>'+_T("Bro's voice",'Bro की आवाज़')+'</small><b>'+(b._full?(S.lang==='hi'?b.mins+' मिनट की किताब':b.mins+'-min book'):(S.lang==='hi'?b.mins+' मिनट का सार':b.mins+'-min brief'))+'</b></div><button class="bkp-ib" onclick="bkpStop()" aria-label="'+_T('Close and stop','बंद करें')+'">'+_sv('<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',18)+'</button></header>';
   h+='<div class="bkp-np-body">';
   h+='<div class="bkp-art'+(_on?' playing':'')+'" id="bkArt" style="background:'+b.grad+'">'+'<b>'+esc(b.title)+'</b><small>'+esc(b.author)+'</small>'+(_cv?'<img src="'+_cv+'" alt="" onerror="this.remove()"/>':'')+'</div>';
-  h+='<div class="bkp-np-meta"><div><h2>'+esc(b.title)+'</h2><p>'+esc(b.author)+'</p></div><button class="bkp-ib" onclick="'+(b._base?'bkHiSwitch(\\''+b._base+'\\',true)':'openBookSummary(\\''+b.id+'\\')')+'" aria-label="Read the brief" title="Read the brief">'+_sv('<path d="M2 4h7a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H2z"/><path d="M22 4h-7a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h8z"/>',18)+'</button></div>';
+  h+='<div class="bkp-np-meta"><div><h2>'+esc(b.title)+'</h2><p>'+esc(b.author)+'</p></div><button class="bkp-ib" onclick="'+(b._base?'bkHiSwitch(\\''+b._base+'\\',true)':'openBookSummary(\\''+(b._full||b._brief||b.id)+'\\')')+'" aria-label="'+_T('Read along','साथ में पढ़ें')+'" title="'+_T('Read along','साथ में पढ़ें')+'">'+_sv('<path d="M2 4h7a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H2z"/><path d="M22 4h-7a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h8z"/>',18)+'</button></div>';
   h+='<div class="bkp-cap-box"><div class="bkp-cap-lbl" id="bkSecLbl"> </div><p class="bkp-cap in" id="bkCap">'+(BKP.mode==='loading'?_T('Loading…','लोड हो रहा है…'):'')+'</p><p class="bkp-cap-next" id="bkCapNext"></p></div>';
   h+='<div class="bkp-prog"><input type="range" id="bkRange" min="0" max="1000" value="0" oninput="bkpScrub(this.value)" onchange="bkpSeek(this.value)" aria-label="Seek"><div class="bkp-times"><span id="bkCur">0:00</span><span id="bkDur">-0:00</span></div></div>';
   h+='<div class="bkp-ctl"><button onclick="bkpSection(-1)" aria-label="Previous section">'+_sv('<polygon points="19 20 9 12 19 4 19 20" fill="currentColor"/><line x1="5" y1="19" x2="5" y2="5"/>',24)+'</button>';
@@ -17351,7 +17373,7 @@ try{document.body.classList.toggle('audio-on',!!(S.playing&&(S.playing.url||S.pl
 try{document.body.classList.toggle('modal-open',_isModalOpen())}catch(e){}
 try{document.body.classList.toggle('bro-tab',false)}catch(e){}
 try{if(S.tab==='steps'&&window.StepsTab&&StepsTab.mount)StepsTab.mount();if(window.Motion&&Motion.after)Motion.after(S.tab);if(S.tab==='profile'&&window.AdminPanel&&S.profile&&S.profile.admin&&AdminPanel.load&&!(S.adm&&(S.adm.status||S.adm.loading)))AdminPanel.load();if(window.Onboarding&&!window._obShown&&token&&Onboarding.shouldShow&&Onboarding.shouldShow()){window._obShown=true;setTimeout(function(){Onboarding.mount()},400)}}catch(e){}
-try{if(S.tab==='bro'&&window.BroVoice){BroVoice.scroll();if(!BroVoice._booted){BroVoice._booted=true;BroVoice.boot()}}if(S.tab==='news'&&window.NewsChannel&&!NewsChannel.loaded&&!NewsChannel._loading){NewsChannel._loading=true;NewsChannel.load()}try{document.body.classList.toggle('news-tab',S.tab==='news')}catch(e){}if(S.tab==='news'&&window.NewsChannel&&NewsChannel.after)NewsChannel.after();if(S.tab==='books'&&S.booksMode==='ideas'&&window.BookIdeas)BookIdeas.after();}catch(e){}
+try{if(S.tab==='bro'&&window.BroVoice){BroVoice.scroll();if(!BroVoice._booted){BroVoice._booted=true;BroVoice.boot()}}if(S.tab==='news'&&window.NewsChannel&&!NewsChannel.loaded&&!NewsChannel._loading){NewsChannel._loading=true;NewsChannel.load()}try{document.body.classList.toggle('news-tab',S.tab==='news')}catch(e){}if(S.tab==='news'&&window.NewsChannel&&NewsChannel.after)NewsChannel.after();}catch(e){}
 // Force textarea width to parent's pixel width — WebView ignores CSS width on textareas
 try{var _ta=document.querySelectorAll('textarea.bro-input,textarea.qc-input');for(var _i=0;_i<_ta.length;_i++){var _p=_ta[_i].parentNode;if(_p&&_p.clientWidth>0)_ta[_i].style.width=_p.clientWidth+'px'}}catch(e){}
 if(document.getElementById('mcCanvas')&&!_mcRunning&&!_mcDead&&!_mcStarted){_mcInit();_mcDrawStartScreen()}

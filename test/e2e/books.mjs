@@ -1,5 +1,7 @@
-// v32 Books: every book as a story in 7 chapters (app/ideas/<id>.json + Bro's notes), Ideas (a feed of those chapters,
-// one per screen), and the public-domain books chapter by chapter (app/briefs/<id>.json, played as "brief-<id>").
+// v33 Books: books only, read in Bro's voice. Each book is the book in 7 chapters (app/bookfull.js: Bro's notes + the
+// chapter stories of app/ideas/<id>.json), recorded whole in Bro's studio voice ("book-<id>"); until a book's recording
+// is on the server, Listen plays Bro's notes on it (the same 7 parts). The public-domain books also have the original,
+// chapter by chapter (app/briefs/<id>.json, "brief-<id>"). No Ideas feed, no quiz.
 import { createRequire } from 'module'; import fs from 'fs'; import path from 'path'; import { spawn, execFileSync } from 'child_process';
 const HERE = path.dirname(new URL(import.meta.url).pathname);
 const ROOT = process.env.ROOT || path.resolve(HERE, '..', '..');
@@ -28,12 +30,30 @@ check('…quoting only public-domain translations (no modern-translation lines)'
 const notesOut = TMP + '/p14-notes.json';
 execFileSync(process.execPath, [ROOT + '/scripts/book-voice/notes.js', notesOut, 'http://127.0.0.1:9'], { stdio: 'pipe' });
 const notes = JSON.parse(fs.readFileSync(notesOut, 'utf8'));
-check('the narration recorder lists the 5 briefs as "brief-<id>" (so they get the studio voice)', PD.every(id => notes.some(n => n.id === 'brief-' + id && n.text.length > 6000)) && notes.length === 109, notes.length);
+check('the narration recorder lists the 5 briefs as "brief-<id>" (so they get the studio voice)', PD.every(id => notes.some(n => n.id === 'brief-' + id && n.text.length > 6000)), notes.length);
+const books = notes.filter(n => n.id.startsWith('book-'));
+const NUM = ['one', 'two', 'three', 'four', 'five', 'six', 'seven'];
+check('…and every book in 7 chapters as "book-<id>": 104, each 7 paragraphs "Chapter one." … "Chapter seven.", 7,500-9,500 characters', books.length === 104 && books.every(n => { const p = n.text.split('\n\n'); return p.length === 7 && p.every((x, i) => x.startsWith('Chapter ' + NUM[i] + '. ')) && n.text.length > 7500 && n.text.length < 9500; }), books.length);
+const bAtomic = books.find(n => n.id === 'book-atomic'); const jAtomic = JSON.parse(fs.readFileSync(ROOT + '/app/ideas/atomic.json', 'utf8'));
+check('…a chapter is Bro\'s explanation, then the story, the takeaway and "Try this today" (never a quiz)', bAtomic && jAtomic.chapters.every(c => bAtomic.text.includes(c.story.b) && bAtomic.text.includes('In short: ' + c.take)) && (bAtomic.text.match(/Try this today: /g) || []).length === 5 && !/What would you do|\?\s*Keep the two pages/.test(bAtomic.text) && bAtomic.text.startsWith('Chapter one. Why this book. This is Atomic Habits, by James Clear.') && /Meet Riya, a second-year/.test(bAtomic.text), bAtomic && bAtomic.text.slice(0, 160));
+// the books already recorded keep their text (nothing is recorded again)
+const keptNote = notes.find(n => n.id === 'atomic');
+check('…and Bro\'s notes stay as they were (their recordings stay valid): the note is still the 7-part note', keptNote && keptNote.text.startsWith("Bro's notes on Atomic Habits"), keptNote && keptNote.text.slice(0, 40));
 
 // ── the real server ──
 const DB = TMP + '/ideas.db'; fs.copyFileSync(TEMPLATE_DB, DB); for (const x of ['-wal', '-shm']) try { fs.rmSync(DB + x); } catch (e) {}
 const { token } = (() => { const db = new Database(DB, { readonly: true }); const u = db.prepare('SELECT token FROM users ORDER BY created_at ASC, rowid ASC LIMIT 1').get(); db.close(); return u; })();
 const MEDIA = fs.mkdtempSync('/tmp/p14ideas-');
+// Atomic Habits is "recorded": a manifest and an mp3 in MEDIA/book-voice, hashed from the recorder's own text, so the
+// server only plays it if it builds exactly the same book text (app/bookfull.js on both sides)
+const { textHash } = require(ROOT + '/modules/bookvoice.js');
+const BV = path.join(MEDIA, 'book-voice'); fs.mkdirSync(BV, { recursive: true });
+const MP3 = path.join(TMP, 'a.mp3'); execFileSync('ffmpeg', ['-loglevel', 'error', '-y', '-f', 'lavfi', '-i', 'sine=frequency=220:duration=8', '-ac', '1', '-b:a', '64k', MP3]);
+const mbuf = fs.readFileSync(MP3); const ah = textHash(bAtomic.text); const afile = 'book-atomic-' + ah + '.mp3';
+fs.writeFileSync(path.join(BV, afile), mbuf);
+const nDeep = notes.find(n => n.id === 'deep'); const dh = textHash(nDeep.text); const dfile = 'deep-' + dh + '.mp3'; fs.writeFileSync(path.join(BV, dfile), mbuf);
+const sha = require('crypto').createHash('sha256').update(mbuf).digest('hex');
+fs.writeFileSync(path.join(BV, 'manifest.json'), JSON.stringify({ voice: 'test', license: 'test', made: new Date().toISOString(), items: { 'book-atomic': { file: afile, sha256: sha, bytes: mbuf.length, secs: 560, text: ah }, deep: { file: dfile, sha256: sha, bytes: mbuf.length, secs: 190, text: dh } } }));
 const PORT = 3295, BASE = 'http://127.0.0.1:' + PORT;
 const env = Object.assign({}, process.env, { DB_PATH: DB, MEDIA_DIR: MEDIA, PORT: String(PORT), NEWS_DESK: '0', BROCORE_VOICE: '0', BROCORE_NIGHTLY: '0', BRO_OWN_BRAIN: 'off', ADMIN_AUTO_RECORD: '0', LEARN_WARM: '0', BRO_LIBRARY: '0', BOOK_VOICE_DELAY_MS: '999999999', STUB_PORT: '3296' });
 const child = spawn(process.execPath, ['-r', HERE + '/stub-fetch.cjs', 'server.js'], { cwd: ROOT, env, stdio: ['ignore', 'pipe', 'pipe'] });
@@ -42,99 +62,96 @@ let up = false; for (let i = 0; i < 120 && !up; i++) { await sleep(500); try { u
 check('the real server boots', up, out.slice(-5));
 const browser = await chromium.launch();
 try {
-  let r = await fetch(BASE + '/api/book-audio/brief-medi?token=' + token);
-  check('/api/book-audio/brief-medi before its recording → 404 live (the player reads it in Bro\'s voice)', r.status === 404 && (await r.json()).live === true, r.status);
+  let r = await fetch(BASE + '/api/book-voice/ready'); const rd = await r.json();
+  check('/api/book-voice/ready lists the recordings here in Bro\'s studio voice ({ "book-atomic": 560, "deep": 190 })', r.ok && rd.items && rd.items['book-atomic'] === 560 && rd.items.deep === 190 && Object.keys(rd.items).length === 2, rd);
+  r = await fetch(BASE + '/api/book-audio/book-atomic?token=' + token);
+  const ab = Buffer.from(await r.arrayBuffer());
+  check('/api/book-audio/book-atomic plays the recording: the server builds the same book text as the recorder', r.status === 200 && ab.length === mbuf.length, r.status);
+  r = await fetch(BASE + '/api/book-audio/book-deep?token=' + token);
+  check('a book not recorded yet → 404, never a live voice (the page plays Bro\'s notes instead)', r.status === 404 && (await r.json()).live !== true, r.status);
+  r = await fetch(BASE + '/api/book-audio/brief-medi?token=' + token);
+  check('/api/book-audio/brief-medi before its recording → 404 live', r.status === 404 && (await r.json()).live === true, r.status);
   await sleep(300);
   let wanted = []; try { wanted = JSON.parse(fs.readFileSync(path.join(MEDIA, 'bro-voice', 'books-wanted.json'), 'utf8')); } catch (e) {}
-  check('…and a brief is never queued for Bro\'s live engine (the studio narration records it)', !wanted.some(x => /brief/.test(x)), wanted);
-  r = await fetch(BASE + '/app/ideas/atomic.json'); const atomic = await r.json();
-  check('/app/ideas/<id>.json is served (no-cache)', r.ok && atomic.chapters.length === 7 && /no-cache/.test(r.headers.get('cache-control') || ''));
+  check('…and neither a book nor a brief is queued for Bro\'s live engine (the studio narration records them)', !wanted.some(x => /brief|book-/.test(x)), wanted);
+  r = await fetch(BASE + '/app/bookfull.js?v=33');
+  check('/app/bookfull.js is served (the same builder the server and the recorder use)', r.ok && /BookFull/.test(await r.text()));
 
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
   const page = await ctx.newPage(); const errs = [];
   page.on('pageerror', e => errs.push(String(e)));
   await page.addInitScript(t => { localStorage.setItem('tf_token', t); localStorage.setItem('bd_onboarded', '1'); }, token);
   await page.goto(BASE + '/?tab=books', { waitUntil: 'domcontentloaded' });
-  await page.waitForSelector('.bi-short', { timeout: 45000 });
-  await sleep(600);
+  await page.waitForSelector('.bk-sum-card', { timeout: 45000 });
+  await page.waitForFunction(() => window.BookIdeas && BookIdeas.index && BookIdeas.ready, null, { timeout: 15000 }); await sleep(500);
   const seg = await page.$$eval('.bk-seg button', bs => bs.map(b => [b.textContent.trim(), b.classList.contains('on')]));
-  check('Books opens on Ideas: Ideas · Books · Audiobooks', JSON.stringify(seg) === JSON.stringify([['Ideas', true], ['Books', false], ['Audiobooks', false]]), seg);
-  const f1 = await page.evaluate(() => { const d = document.querySelector('.bi-deck'), s = d.querySelector('.bi-short'), i = s.querySelector('.bi-sin'); return { dh: d.clientHeight, sh: s.clientHeight, over: i.scrollHeight - i.clientHeight, k: s.dataset.k, story: (s.querySelector('.bi-sstory') || {}).textContent || '', take: (s.querySelector('.bi-stake') || {}).textContent || '', bottomTab: (document.querySelector('.tabs.page-t') || document.body).getBoundingClientRect().top, deckBottom: d.getBoundingClientRect().bottom }; });
-  check('an idea fills the screen above the tab bar: the situation and the takeaway, nothing cut off (390×844)', f1.over <= 1 && f1.sh === f1.dh && f1.story.split(' ').length >= 80 && f1.take.length > 10 && f1.deckBottom <= f1.bottomTab + 1, f1);
-  // the next one: scroll a screen
-  await page.evaluate(() => { const d = document.querySelector('.bi-deck'); d.scrollTop = d.clientHeight; }); await sleep(900);
-  const f2 = await page.evaluate(() => { const d = document.querySelector('.bi-deck'); const all = [...d.querySelectorAll('.bi-short')]; const cur = all.find(s => Math.abs(s.getBoundingClientRect().top - d.getBoundingClientRect().top) < 4); return { k: cur && cur.dataset.k, n: all.length, seen: Object.keys(JSON.parse(localStorage.getItem('ideas.seen.v1') || '{}')).length, books: all.map(s => s.dataset.k.split(':')[0]) }; });
-  check('swipe up → the next idea snaps into place, from another book (never two from one book in a row)', f2.k && f2.k !== f1.k && f2.books.every((b, i) => i === 0 || b !== f2.books[i - 1]), f2);
-  check('…ideas on screen are remembered as seen (unseen ones come first next time)', f2.seen >= 2, f2.seen);
-  // passive and full redraws keep the feed where it is
-  const top1 = await page.evaluate(() => document.querySelector('.bi-deck').scrollTop);
-  await page.evaluate(() => { renderPassive(); }); await sleep(400);
-  await page.evaluate(() => { render(); }); await sleep(600);
-  const top2 = await page.evaluate(() => { const d = document.querySelector('.bi-deck'); return { top: d.scrollTop, n: document.querySelectorAll('.bi-deck').length }; });
-  check('the 10-second background redraw and a full redraw keep the feed on the same idea', top2.n === 1 && Math.abs(top2.top - top1) < 4, { top1, top2 });
-  // small phone
-  await page.setViewportSize({ width: 360, height: 740 }); await sleep(700);
-  const f3 = await page.evaluate(() => [...document.querySelectorAll('.bi-sin')].slice(0, 6).map(i => ({ over: i.scrollHeight - i.clientHeight, step: ['sm', 'xs', 'xxs'].filter(c => i.classList.contains(c)).pop() || '', scroll: getComputedStyle(i).overflowY })));
-  check('on a small phone (360×740) the type steps down first; a long story then scrolls inside its card (never cut)', f3.every(x => x.over <= 1 || (x.step === 'xxs' && x.scroll === 'auto')) && f3.some(x => x.over <= 1), f3);
-  await page.setViewportSize({ width: 390, height: 844 }); await sleep(500);
-  // save one
-  await page.evaluate(() => { const d = document.querySelector('.bi-deck'); d.scrollTop = 0; }); await sleep(500);
-  await page.click('.bi-short .bi-ssave');
-  const sv = await page.evaluate(() => JSON.parse(localStorage.getItem('ideas.saved.v1') || '[]'));
-  check('the bookmark saves an idea (on this phone)', sv.length === 1 && sv[0].key === f1.k + ':story', sv);
-  // open the chapter
-  await page.click('.bi-short .bi-sin'); await page.waitForSelector('#bi-player .bi-card'); await sleep(200);
-  const [bid, chs] = f1.k.split(':'); const ch = +chs;
-  const p1 = await page.evaluate(() => ({ where: document.querySelector('#bi-player .bi-where small').textContent, eb: document.querySelector('#bi-player .bi-eb').textContent, h: document.querySelector('#bi-player .bi-h').textContent, segs: document.querySelectorAll('#bi-player .bi-segs i').length }));
-  check('tap an idea → its chapter opens on the idea card (4 cards: idea, situation, choice, takeaway)', p1.where.startsWith('Chapter ' + (ch + 1) + ' of 7') && /^Idea /.test(p1.eb) && p1.segs === 4, p1);
-  await page.click('#bi-player .bi-primary'); await sleep(150);
-  const p2 = await page.evaluate(() => ({ eb: document.querySelector('#bi-player .bi-eb').textContent, story: document.querySelector('#bi-player .bi-story').textContent }));
-  check('…Next → the situation (the same story as the idea in the feed)', p2.eb === 'The situation' && p2.story === f1.story, p2.eb);
-  await page.click('#bi-player .bi-primary'); await sleep(150);
-  const right = JSON.parse(fs.readFileSync(ROOT + '/app/ideas/' + bid + '.json', 'utf8')).chapters[ch].ask.a;
-  const wrong = (right + 1) % 3;
-  const navTxt = await page.$eval('#bi-player .bi-primary', b => b.textContent);
-  await page.click('#bi-player .bi-opt >> nth=' + wrong); await sleep(150);
-  const p3 = await page.evaluate(() => ({ eb: document.querySelector('#bi-player .bi-eb').textContent, right: [...document.querySelectorAll('#bi-player .bi-opt')].findIndex(o => o.classList.contains('right')), wrong: [...document.querySelectorAll('#bi-player .bi-opt')].findIndex(o => o.classList.contains('wrong')), why: (document.querySelector('#bi-player .bi-why') || {}).textContent || '', locked: [...document.querySelectorAll('#bi-player .bi-opt')].every(o => o.disabled) }));
-  check('…the choice: before answering the button says Skip; a wrong pick shows the right one and why', navTxt === 'Skip' && p3.eb === 'What would you do?' && p3.right === right && p3.wrong === wrong && /^Not quite\./.test(p3.why) && p3.locked, Object.assign(p3, { navTxt }));
-  await page.click('#bi-player .bi-primary'); await sleep(150);
-  const p4 = await page.evaluate(() => ({ eb: document.querySelector('#bi-player .bi-eb').textContent, take: document.querySelector('#bi-player .bi-take').textContent, tryIt: !!document.querySelector('#bi-player .bi-try'), btn: document.querySelector('#bi-player .bi-nav .bi-primary').textContent }));
-  check('…the takeaway, with the note\'s "Try it today" and Finish chapter', p4.eb === 'The takeaway' && p4.take.length > 10 && p4.tryIt && p4.btn === 'Finish chapter', p4);
-  await page.click('#bi-player .bi-primary'); await sleep(150);
-  const p5 = await page.evaluate(() => ({ h: document.querySelector('#bi-player .bi-done h2').textContent, prog: JSON.parse(localStorage.getItem('ideas.prog.v1') || '{}') }));
-  check('…Finish → "Chapter N done", saved as read on this phone', p5.h === 'Chapter ' + (ch + 1) + ' done' && p5.prog[bid] && p5.prog[bid].done.includes(ch) && p5.prog[bid].at === ch + 1, p5);
-  await page.click('#bi-player .bi-done .bi-primary'); await sleep(150);
-  const p6 = await page.evaluate(() => document.querySelector('#bi-player .bi-where small').textContent);
-  check('…Next chapter → chapter N+1 from its first card', p6.startsWith('Chapter ' + (ch + 2) + ' of 7'), p6);
-  await page.keyboard.press('ArrowRight'); await sleep(100);
-  const p7 = await page.evaluate(() => document.querySelector('#bi-player .bi-eb').textContent);
-  await page.keyboard.press('Escape'); await sleep(300);
-  const closed = !(await page.$('#bi-player'));
-  check('arrow keys step cards; Escape closes the player', p7 === 'The situation' && closed, { p7, closed });
-  // Saved
-  const badge = await page.$eval('.bi-svbtn i', e => e.textContent).catch(() => '');
-  await page.click('.bi-svbtn'); await sleep(900);
-  const s1 = await page.evaluate(() => ({ on: document.querySelector('.bi-svbtn').classList.contains('on'), head: (document.querySelector('.bi-svhead') || {}).textContent, ks: [...document.querySelectorAll('.bi-short')].map(s => s.dataset.k) }));
-  check('the bookmark beside the sections (with the count) shows the saved idea', badge === '1' && s1.on && s1.head === 'Saved ideas' && JSON.stringify(s1.ks) === JSON.stringify([f1.k]), Object.assign(s1, { badge }));
-  await page.click('.bi-svbtn'); await sleep(300);
-  // the book page
-  await page.evaluate(() => { S.booksMode = 'summaries'; render(); }); await sleep(300);
-  await page.evaluate(b => openBookSummary(b), bid); await page.waitForSelector('#bi-ch', { timeout: 10000 }); await sleep(600);
-  const b1 = await page.evaluate(() => ({ rows: [...document.querySelectorAll('#bi-ch .bi-row')].map(r => [r.querySelector('.bi-t').textContent, r.classList.contains('done')]), start: document.querySelector('#bi-ch .bi-start').textContent, sub: document.querySelector('#bi-ch .bkp-sub').textContent, brief: !!document.getElementById('bi-brief') }));
-  check('the book page has its 7 chapters, the ones read ticked, and Continue', b1.rows.length === 7 && b1.rows[0][0] === 'Why this book' && b1.rows[6][0] === "Bro's take" && b1.rows[ch][1] === true && /^(Continue|Start)/.test(b1.start) && /^Follow /.test(b1.sub), b1);
-  check('…a book still under copyright has no whole-book section', PD.includes(bid) || b1.brief === false, b1.brief);
+  check('Books opens on the books: Books · Audiobooks (no Ideas feed)', JSON.stringify(seg) === JSON.stringify([['Books', true], ['Audiobooks', false]]) && !(await page.$('.bi-deck')) && !(await page.$('.bi-svbtn')), seg);
+  const cards = await page.evaluate(() => { const m = {}; document.querySelectorAll('.bk-sum-card').forEach(c => { const k = (c.getAttribute('onclick') || '').match(/openBookSummary\('([^']+)'/); if (k) m[k[1]] = c.querySelector('.bk-sum-mins').textContent; }); return { n: Object.keys(m).length, atomic: m.atomic, deep: m.deep }; });
+  const deepMins = await page.evaluate(() => BOOK_SUMMARIES.find(b => b.id === 'deep').mins);
+  check('every book is on the shelf; a recorded book shows its length (9 min), the others their notes\' length', cards.n === 104 && cards.atomic === '9 min' && cards.deep === deepMins + ' min', Object.assign(cards, { deepMins }));
+  // an old phone that last had Ideas open still lands on the books
+  await page.evaluate(() => { S.booksMode = 'ideas'; render(); }); await sleep(300);
+  check('a phone that last had Ideas open lands on Books', await page.evaluate(() => S.booksMode === 'summaries' && !!document.querySelector('.bk-sum-card')));
+
+  // the book page: Atomic Habits (recorded)
+  await page.evaluate(() => openBookSummary('atomic')); await page.waitForSelector('#bi-read .bi-rd', { timeout: 10000 }); await sleep(300);
+  const ins = await page.evaluate(() => BOOK_SUMMARIES.find(b => b.id === 'atomic').insights.map(i => i[0]));
+  const b1 = await page.evaluate(() => ({ lbl: document.querySelector('.bkp-lbl').textContent, stats: document.querySelector('.bkp-stats').textContent, listen: document.querySelector('.bkp-listen').textContent, ghost: document.querySelector('.bkp-ghost').textContent, rows: [...document.querySelectorAll('#bi-ch .bi-row .bi-t')].map(r => r.textContent), sub: document.querySelector('#bi-ch .bkp-sub').textContent, rec: !!document.querySelector('#bi-ch .bi-rec'), quiz: !!document.querySelector('.bi-opt,#bi-player,.bi-why'), keyIdeas: !!document.getElementById('bkp-ideas'), dock: (document.querySelector('.bkp-dock b') || {}).textContent }));
+  check('the book page: "Book · 9 min", 7 chapters, Listen, the chapter list (Why this book, the five ideas, How it turned out)', /^Book · 9 min · /.test(b1.lbl) && /7\s*chapters/.test(b1.stats) && /Listen/.test(b1.listen) && b1.ghost === 'Chapters' && JSON.stringify(b1.rows) === JSON.stringify(['Why this book', ...ins, 'How it turned out']) && /^Read by Bro\. Follow Riya, /.test(b1.sub) && b1.dock === 'Listen to the book', b1);
+  check('…no quiz, no Ideas cards, no separate key-ideas list, and no "being recorded" note for a recorded book', !b1.quiz && !b1.keyIdeas && !b1.rec, b1);
+  const rd1 = await page.evaluate(() => [...document.querySelectorAll('#bi-read .bi-rd')].map(a => ({ h: a.querySelector('h4').textContent, story: (a.querySelector('.bi-story') || {}).textContent || '', take: (a.querySelector('.bi-take') || {}).textContent || '', tryIt: !!a.querySelector('.bkp-try'), bro: !!a.querySelector('.bi-bro'), meet: (a.querySelector('.bi-meet') || {}).textContent || '' })));
+  check('read along: the 7 chapters with the story, the takeaway, "Try it today" in chapters 2-6 and Bro\'s take at the end', rd1.length === 7 && rd1.every((c, i) => c.story === jAtomic.chapters[i].story.b && c.take === jAtomic.chapters[i].take && c.tryIt === (i >= 1 && i <= 5)) && rd1[6].bro && /^Meet Riya, /.test(rd1[0].meet), rd1.map(c => [c.h, c.story.length, c.tryIt, c.bro]));
+  // Listen → the whole book in Bro's voice
+  await page.click('.bkp-listen'); await sleep(1200);
+  const l1 = await page.evaluate(() => ({ id: BKP && BKP.book.id, full: BKP && BKP.book._full, mode: BKP && BKP.mode, secs: BKP && BKP.secs.map(s => s.label), src: (document.getElementById('bk-narr-audio') || {}).src || '', np: (document.querySelector('.bkp-np-src b') || {}).textContent }));
+  check('Listen plays the whole book from Bro\'s studio recording ("book-atomic"), one section per chapter', l1.id === 'book-atomic' && l1.full === 'atomic' && l1.mode === 'static' && /\/api\/book-audio\/book-atomic\?/.test(l1.src) && JSON.stringify(l1.secs) === JSON.stringify(['Why this book', ...ins, 'How it turned out']) && l1.np === '9-min book', l1);
+  await page.evaluate(() => { S.bkNP = false; render(); }); await sleep(300);
+  await page.click('#bi-ch .bi-row >> nth=3'); await sleep(500);
+  const l2 = await page.evaluate(() => ({ id: BKP.book.id, sec: _bkSecAt(BKP.pendingChar != null ? BKP.pendingChar : _bkPos().ch), n: document.querySelectorAll('.bkp-np').length }));
+  check('…tap chapter 4 → the book from chapter 4', l2.id === 'book-atomic' && l2.sec === 3 && l2.n === 1, l2);
+  await page.evaluate(() => { S.bkNP = false; render(); }); await sleep(300);
+  const mini = await page.evaluate(() => ({ t: (document.querySelector('.bk-mini-info b') || {}).textContent, cover: bookCover(BKP.book.id) === bookCover('atomic') && !!bookCover('atomic') }));
+  check('…the mini player shows the book (its title, and the book\'s cover for "book-atomic")', mini.t === 'Atomic Habits' && mini.cover, mini);
+  await page.evaluate(() => { try { bkpStop(true); } catch (e) {} closeBookReader(); }); await sleep(200);
+
+  // Deep Work: not recorded yet → Bro's notes, the same 7 parts
+  await page.evaluate(() => openBookSummary('deep')); await page.waitForSelector('#bi-read .bi-rd', { timeout: 10000 }); await sleep(300);
+  const d1 = await page.evaluate(() => ({ rec: (document.querySelector('#bi-ch .bi-rec') || {}).textContent || '', lbl: document.querySelector('.bkp-lbl').textContent }));
+  check('a book not recorded yet says Bro is recording it, and Listen will play his notes for now', /^Bro is recording this book in his voice\./.test(d1.rec) && new RegExp('^Book · ' + deepMins + ' min').test(d1.lbl), d1);
+  await page.click('#bi-ch .bi-row >> nth=2'); await sleep(800);
+  const d2 = await page.evaluate(() => ({ id: BKP && BKP.book.id, secs: BKP && BKP.secs.length, mode: BKP && BKP.mode, sec: BKP && _bkSecAt(BKP.pendingChar != null ? BKP.pendingChar : _bkPos().ch), src: (document.getElementById('bk-narr-audio') || {}).src || '' }));
+  check('…tap chapter 3 → Bro\'s recorded notes from his third part (never a live voice)', d2.id === 'deep' && d2.secs === 7 && d2.mode === 'static' && d2.sec === 2 && /\/api\/book-audio\/deep\?/.test(d2.src), d2);
+  await page.evaluate(() => { try { bkpStop(true); } catch (e) {} closeBookReader(); }); await sleep(200);
+
+  // Try it today from the read-along
+  await page.evaluate(() => openBookSummary('atomic')); await page.waitForSelector('#bi-read .bkp-try button', { timeout: 10000 });
+  await page.click('#bi-read .bkp-try button >> nth=0'); await sleep(1500);
+  const tried = await page.evaluate(() => !!(S.bkTried && S.bkTried['atomic:0']));
+  check('"Add to my tasks" in chapter 2 adds its "Try it today" as a task', tried, tried);
   await page.evaluate(() => closeBookReader()); await sleep(200);
+
+  // the public-domain original
   await page.evaluate(() => openBookSummary('medi')); await page.waitForSelector('#bi-brief', { timeout: 10000 }); await sleep(300);
-  const m1 = await page.evaluate(() => ({ h: document.querySelector('#bi-brief h2').textContent, btn: document.querySelector('#bi-brief .bi-start').textContent, paras: document.querySelectorAll('#bi-brief .bi-brief-txt p').length, first: (document.querySelector('#bi-brief .bi-brief-txt p b') || {}).textContent }));
-  check('Meditations: "Chapter by chapter" with Listen to the whole book and every book of it', m1.h === 'Chapter by chapter' && /^Listen to the whole book · \d+ min$/.test(m1.btn) && m1.paras === 11 && m1.first === 'Book one. Debts and lessons.', m1);
+  const m1 = await page.evaluate(() => ({ h: document.querySelector('#bi-brief h2').textContent, btn: document.querySelector('#bi-brief .bi-start').textContent, paras: document.querySelectorAll('#bi-brief .bi-brief-txt p').length, first: (document.querySelector('#bi-brief .bi-brief-txt p b') || {}).textContent, chapters: document.querySelectorAll('#bi-ch .bi-row').length }));
+  check('Meditations: its 7 chapters, and the original chapter by chapter with "Listen to the original"', m1.h === 'The original, chapter by chapter' && /^Listen to the original · \d+ min$/.test(m1.btn) && m1.paras === 11 && m1.first === 'Book one. Debts and lessons.' && m1.chapters === 7, m1);
   await page.click('#bi-brief .bi-start'); await sleep(1500);
-  const m2 = await page.evaluate(() => ({ id: BKP && BKP.book.id, secs: BKP && BKP.secs.map(s => s.label), mode: BKP && BKP.mode }));
-  check('…Listen plays it through the book player with a section per book ("Debts and lessons" … "The bottom line")', m2.id === 'brief-medi' && m2.secs && m2.secs.length === 11 && m2.secs[1] === 'Debts and lessons' && m2.secs[10] === 'The bottom line', m2);
+  const m2 = await page.evaluate(() => ({ id: BKP && BKP.book.id, secs: BKP && BKP.secs.map(s => s.label) }));
+  check('…which plays through the book player, a section per book ("Debts and lessons" … "The bottom line")', m2.id === 'brief-medi' && m2.secs && m2.secs.length === 11 && m2.secs[1] === 'Debts and lessons' && m2.secs[10] === 'The bottom line', m2);
   await page.evaluate(() => { try { bkpStop(true); } catch (e) {} closeBookReader(); });
+  await page.evaluate(() => openBookSummary('atomic')); await sleep(600);
+  const nc = await page.evaluate(() => !!document.getElementById('bi-brief'));
+  check('…a book still under copyright has no original section', nc === false, nc);
+  await page.evaluate(() => closeBookReader()); await sleep(200);
+
   // Hindi labels
-  await page.evaluate(() => { S.lang = 'hi'; S.booksMode = 'ideas'; render(); }); await sleep(700);
+  await page.evaluate(() => { S.lang = 'hi'; render(); }); await sleep(500);
   const hiSeg = await page.$$eval('.bk-seg button', bs => bs.map(b => b.textContent.trim()));
-  check('in Hindi the sections read विचार · किताबें · ऑडियोबुक', JSON.stringify(hiSeg) === JSON.stringify(['विचार', 'किताबें', 'ऑडियोबुक']), hiSeg);
+  await page.evaluate(() => openBookSummary('atomic')); await sleep(500);
+  const hiRows = await page.$$eval('#bi-ch .bi-row .bi-t', rs => rs.map(r => r.textContent));
+  check('in Hindi: किताबें · ऑडियोबुक, and the chapter list opens with "यह किताब क्यों"', JSON.stringify(hiSeg) === JSON.stringify(['किताबें', 'ऑडियोबुक']) && hiRows[0] === 'यह किताब क्यों' && hiRows[6] === 'आख़िर में क्या हुआ', { hiSeg, hiRows });
+  // a phone screen: no sideways scroll on the book page
+  const ox = await page.evaluate(() => { const p = document.querySelector('.bkp-page'); return p ? p.scrollWidth > p.clientWidth + 1 : true; });
+  check('the book page has no sideways scroll at 390 px', !ox, ox);
   check('no page errors', errs.length === 0, errs.slice(0, 3));
   await ctx.close();
 } finally { await browser.close(); child.kill(); }

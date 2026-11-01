@@ -42,3 +42,4 @@ const keep = new Set(Object.values(items).map(i => i.file).concat('manifest.json
 const assets = JSON.parse(gh(['release', 'view', TAG, '--json', 'assets'])).assets.map(a => a.name);
 let removed = 0; for (const a of assets) if (!keep.has(a)) { gh(['release', 'delete-asset', TAG, a, '-y']); removed++; }
 console.log('uploaded', upload.length, 'take(s) and the manifest; removed', removed, 'old take(s)');
+if (process.env.GITHUB_OUTPUT) fs.appendFileSync(process.env.GITHUB_OUTPUT, 'uploaded=' + upload.length + '\n');
