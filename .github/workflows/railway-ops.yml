@@ -213,6 +213,19 @@ jobs:
           S=736f24b6-270e-49e8-b22a-f830f72d9794; E=b5552552-8b7b-4e20-881e-6b0f88475b88
           echo "== redeploy --from-source"; railway redeploy --service $S --environment $E --from-source -y 2>&1 | sed -E 's/[A-Za-z0-9_-]{32,}/<long-id>/g' | tail -8
           sleep 20; echo "== deployments after"; railway deployment list --service $S --environment $E 2>&1 | head -4
+      - name: The 07:00 India edition in the logs of the server that ran it (deployment 69cb1b85)
+        if: always()
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          if [ -z "$RAILWAY_TOKEN" ]; then exit 0; fi
+          red() { sed -E -e 's/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/<email>/g' -e 's/(sk|xi|gsk|AIza|ghp|gho|pk|rk)[-_A-Za-z0-9]{12,}/<key>/g' -e 's/[A-Za-z0-9_-]{32,}/<long-id>/g'; }
+          timeout 120 railway logs --deployment 69cb1b85-9c9f-4a02-9b6f-c375d9f203b4 --service 736f24b6-270e-49e8-b22a-f830f72d9794 --environment b5552552-8b7b-4e20-881e-6b0f88475b88 --lines 5000 > /tmp/ed.txt 2>&1 || true
+          echo "lines read: $(wc -l < /tmp/ed.txt)"
+          echo "== [desk] edition / run lines"; grep -E "\[desk\] (edition|ready|run|wrote|failed|skip|photo pass)" /tmp/ed.txt | red | cut -c1-400 | tail -12
+          echo "== brain (bg) answering on"; grep -E "answering on" /tmp/ed.txt | red | cut -c1-200 | sort | uniq -c | sort -rn | head -8
+          echo "== 429 / rate limits (count and samples)"; echo "429 lines: $(grep -cE "429|rate.?limit|TPM" /tmp/ed.txt)"; grep -E "429|rate.?limit|TPM" /tmp/ed.txt | red | cut -c1-260 | head -8
+          echo "== gpt-oss-20b mentions"; grep -c "gpt-oss-20b" /tmp/ed.txt
       - name: Play upload lines again (at the end, so they are easy to read)
         if: always()
         run: |
