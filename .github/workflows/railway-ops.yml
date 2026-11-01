@@ -231,3 +231,8 @@ jobs:
         run: |
           echo "lines read: $(wc -l < /tmp/dl.txt 2>/dev/null || echo 0)"
           grep -E "\[play\]" /tmp/dl.txt 2>/dev/null | sed -E -e 's/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/<account>/g' -e 's/[A-Za-z0-9_-]{32,}/<long-id>/g' | cut -c1-400 | tail -15 || echo "no [play] lines"
+      - name: News desk edition lines again (at the end)
+        if: always()
+        run: |
+          grep -E "\[desk\] (edition|edition failed)|rate.?limit|\b429\b" /tmp/dl.txt 2>/dev/null | sed -E -e 's/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/<email>/g' -e 's/[A-Za-z0-9_-]{32,}/<long-id>/g' | cut -c1-600 | tail -8 || echo "no desk lines"
+          echo "answering-on counts:"; grep -E "answering on" /tmp/dl.txt 2>/dev/null | sed -E 's/.*answering on //' | sort | uniq -c | sort -rn | head -6
