@@ -6,6 +6,7 @@ name: Voice bench
 on:
   push:
     branches: [claude/voice-bench]
+    paths: ['bench/voice/synth.py', '.github/workflows/voice-bench.yml']
 permissions:
   contents: read
 env:

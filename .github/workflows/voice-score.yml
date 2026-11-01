@@ -1,0 +1,28 @@
+# Scores the clips of a Voice bench run (see voice-bench.yml) without recording them again.
+name: Voice score
+on:
+  push:
+    branches: [claude/voice-bench]
+    paths: ['bench/voice/score.py', 'bench/voice/score-run', '.github/workflows/voice-score.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  score:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - uses: actions/download-artifact@v4
+        with:
+          path: all
+          run-id: 41287883050
+          github-token: ${{ github.token }}
+      - name: Install the scorers
+        run: |
+          pip install -q torch==2.6.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+          pip install -q faster-whisper librosa soundfile
+      - name: Score every voice
+        run: ls all; python bench/voice/score.py all
