@@ -68,3 +68,4 @@ jobs:
           echo "news photos: $(j '/api/news/desk?limit=60' | jq -c '{stories: (.stories | length), with_photo: ([.stories[] | select(.image != null)] | length), credited: ([.stories[] | select(.image_credit != null)] | length), official: ([.stories[] | select(any(.sources[]?; .official == true))] | length), sample_credit: ([.stories[] | select(.image_credit != null) | .image_credit] | .[0])}')"
           echo "Bro's library (breathing + 104 notes + 9 pieces = 117): $(j /api/learn/voice-status | jq -c '.library')"
           echo "android build served: $(j /api/android/status | jq -c '{version, build, ready, play_state: .play.state}')"
+          echo "play status (fixed words only): $(j /api/android/status | jq -c '.play | del(.account)')"
