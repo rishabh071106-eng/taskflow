@@ -1,0 +1,5 @@
+# Bro's voice sample and the Hindi notes (CPU torch 2.6.0 first; espeak-ng from apt)
+kokoro==0.9.4
+misaki[en]
+soundfile
+librosa

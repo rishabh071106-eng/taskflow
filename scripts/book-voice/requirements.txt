@@ -1,0 +1,5 @@
+# the narration voice (CPU torch 2.6.0 is installed first, from the PyTorch CPU index)
+chatterbox-tts==0.1.7
+faster-whisper
+librosa
+soundfile

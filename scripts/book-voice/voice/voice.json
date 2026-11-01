@@ -1,0 +1,7 @@
+{
+ "name": "Chatterbox by Resemble AI (English) and Kokoro-82M (Hindi), in Bro's voice",
+ "license": "MIT and Apache-2.0",
+ "ref": { "engine": "kokoro", "voice": "am_fenrir:0.6+am_puck:0.4", "speed": 1.0, "text": "Good evening. Today we look at one simple idea that can change a whole year. Small steps, taken every single day, add up to something you can be proud of." },
+ "en": { "engine": "chatterbox", "exaggeration": 0.4, "cfg": 0.3, "temperature": 0.8 },
+ "hi": { "engine": "kokoro", "lang_code": "h", "voice": "am_fenrir:0.45+am_puck:0.3+hm_psi:0.25", "speed": 1.0 }
+}
