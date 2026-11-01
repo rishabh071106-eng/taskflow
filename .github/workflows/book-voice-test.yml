@@ -13,7 +13,7 @@ on:
 permissions:
   contents: write
 concurrency:
-  group: book-voice-test
+  group: book-voice-test-2
   cancel-in-progress: false
 env:
   PIP_DISABLE_PIP_VERSION_CHECK: '1'
@@ -84,6 +84,7 @@ jobs:
           key: hf-book-voice-en-v1
       - name: The English narration voice (Chatterbox, CPU)
         run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg > /dev/null
           pip install -q torch==2.6.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cpu
           pip install -q -r scripts/book-voice/requirements.txt
       - name: Read this runner's notes
@@ -105,7 +106,7 @@ jobs:
         with: { name: plan, path: plan }
       - name: The Hindi narration voice (Kokoro, CPU)
         run: |
-          sudo apt-get update -qq && sudo apt-get install -y -qq espeak-ng > /dev/null
+          sudo apt-get update -qq && sudo apt-get install -y -qq espeak-ng ffmpeg > /dev/null
           pip install -q torch==2.6.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cpu
           pip install -q -r scripts/book-voice/requirements-kokoro.txt
       - name: Read the Hindi notes
