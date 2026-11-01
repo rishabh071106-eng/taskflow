@@ -10,7 +10,7 @@ on:
     - cron: '23 21 * * *'   # 02:53 India time
   push:
     branches: [main]
-    paths: ['scripts/book-voice/**', '.github/workflows/book-voice.yml']
+    paths: ['scripts/book-voice/**', '.github/workflows/book-voice.yml', 'app/bookfull.js', 'app/ideas/**', 'app/briefs/**']
   workflow_dispatch:
     inputs:
       redo:
@@ -19,6 +19,7 @@ on:
         default: false
 permissions:
   contents: write
+  actions: write   # v33: a run that left notes for later starts the next run itself
 concurrency:
   group: book-voice
   cancel-in-progress: false
@@ -35,6 +36,7 @@ jobs:
       en_shards: ${{ steps.p.outputs.en_shards }}
       en_n: ${{ steps.p.outputs.en_n }}
       hi: ${{ steps.p.outputs.hi }}
+      more: ${{ steps.p.outputs.more }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -134,6 +136,15 @@ jobs:
       - uses: actions/download-artifact@v4
         with: { pattern: 'takes-*', path: takes }
       - name: Up to the release (takes, then the manifest)
+        id: pub
         env:
           GH_TOKEN: ${{ github.token }}
         run: node scripts/book-voice/publish.js plan/notes.json plan/old/manifest.json takes scripts/book-voice/voice
+      # v33: the 104 books in 7 chapters are more than one run can read; each run that got somewhere starts the next
+      # (a run that recorded nothing stops the chain, and the nightly run picks it up again)
+      - name: The rest in the next run
+        if: needs.plan.outputs.more == 'true' && steps.pub.outputs.uploaded != '0' && steps.pub.outputs.uploaded != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run book-voice.yml --ref main -R "$GITHUB_REPOSITORY" && echo "started the next run"
+

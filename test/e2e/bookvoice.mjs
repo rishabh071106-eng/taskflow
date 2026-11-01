@@ -83,8 +83,8 @@ check('two syncs at the same time are one run', g1 === g2 && g1 === 2, { g1, g2 
 const notesFile = path.join(media, 'notes.json');
 execFileSync(process.execPath, [ROOT + '/scripts/book-voice/notes.js', notesFile, 'http://127.0.0.1:9'], { stdio: 'pipe' });
 const notes = JSON.parse(fs.readFileSync(notesFile, 'utf8'));
-const plain = notes.filter(n => !n.id.startsWith('brief-')), briefN = notes.filter(n => n.id.startsWith('brief-'));
-check('scripts/book-voice/notes.js lists all 104 English notes (and v32: the 5 public-domain briefs) with their hash', plain.length === 104 && briefN.length === 5 && notes.every(n => n.lang === 'en' && /^[0-9a-f]{12}$/.test(n.hash) && n.text.length > 2000), [plain.length, briefN.length]);
+const plain = notes.filter(n => !/^(brief|book)-/.test(n.id)), briefN = notes.filter(n => n.id.startsWith('brief-')), bookN = notes.filter(n => n.id.startsWith('book-'));
+check('scripts/book-voice/notes.js lists all 104 English notes (v32: the 5 public-domain briefs; v33: the 104 books in 7 chapters) with their hash', plain.length === 104 && briefN.length === 5 && bookN.length === 104 && notes.every(n => n.lang === 'en' && /^[0-9a-f]{12}$/.test(n.hash) && n.text.length > 2000), [plain.length, briefN.length, bookN.length]);
 
 // ── the real server ──
 const DB = TMP + '/bv.db'; fs.copyFileSync(TEMPLATE_DB, DB); for (const x of ['-wal', '-shm']) try { fs.rmSync(DB + x); } catch (e) {}

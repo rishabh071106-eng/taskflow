@@ -111,7 +111,12 @@ def take(text, seed0):
         print('  retake', k + 1, '(%.1f chars/s, %.0f%% heard wrong)' % (cps, c * 100), text[:70], flush=True)
     return best[1], best[2]
 
+# v33: a runner never starts a note it may not finish inside the job's limit (BOOK_VOICE_BUDGET_MIN, default 320 of the
+# 350 minutes; ~100 characters a minute is the slow end): what it leaves out is read in the next run
+T_START = time.time(); BUDGET = float(os.environ.get('BOOK_VOICE_BUDGET_MIN') or 320) * 60
 for n in todo:
+    if time.time() - T_START + len(n['text']) / 100 * 60 > BUDGET:
+        print('LEFT FOR THE NEXT RUN', n['id'], '(time budget)', flush=True); continue
     t0 = time.time(); parts = []; worst = 0.0
     paras = [p.strip() for p in re.split(r'\n\s*\n', n['text']) if p.strip()]
     seed = int(hashlib.sha1(n['id'].encode()).hexdigest()[:8], 16)

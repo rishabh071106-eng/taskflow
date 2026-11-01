@@ -3,9 +3,10 @@
 // release "book-voice-v1" with a manifest; this module copies the recordings to MEDIA_DIR/book-voice/ (checked at boot and every 30 minutes) and
 // /api/book-audio/:id plays them before Bro's own recording (modules/brolibrary.js), which stays the fallback.
 //   create({ mediaDir, text: id → current note text | '', base?, fetch?, log?, minFreeBytes? })
-//     → { file(id) → path | '', sync() → Promise<number downloaded>, stats(), start() }
+//     → { file(id) → path | '', sync() → Promise<number downloaded>, stats(), ready() → { id: secs }, start() }
 // manifest.json: { voice, license, made, items: { <id>: { file, sha256, bytes, secs, text } } }, where <id> is a book id
-// ("atomic") or a Hindi note ("hi-atomic") and text = textHash(the note it reads). A recording is used only while the
+// ("atomic", Bro's notes), a Hindi note ("hi-atomic"), a public-domain book read whole ("brief-medi") or, from v33, the
+// book in 7 chapters ("book-atomic", app/bookfull.js), and text = textHash(the note it reads). A recording is used only while the
 // note's text is still the one it reads (an edited note goes back to Bro's voice until the next recording run), and only
 // after its sha256 checks out.
 'use strict';
@@ -88,7 +89,8 @@ function create(o) {
   function stats() {
     const ids = man && man.items ? Object.keys(man.items) : [];
     let ready = 0; for (const id of ids) if (file(id)) ready++;
-    return { voice: (man && man.voice) || '', license: (man && man.license) || '', made: (man && man.made) || null, published: ids.length, ready, synced_at: st.synced_at, error: st.error };
+    const free = freeBytes();
+    return { voice: (man && man.voice) || '', license: (man && man.license) || '', made: (man && man.made) || null, published: ids.length, ready, synced_at: st.synced_at, error: st.error, free_mb: Number.isFinite(free) ? Math.round(free / 1048576) : null };
   }
   // boot + every 30 minutes: only the small manifest is fetched until a recording is new, so a nightly run's takes reach
   // the app within half an hour
@@ -98,7 +100,14 @@ function create(o) {
     const t = setTimeout(() => { sync().catch(() => {}); const iv = setInterval(() => sync().catch(() => {}), 30 * 60e3); if (iv.unref) iv.unref(); }, d);
     if (t.unref) t.unref();
   }
-  return { file, sync, stats, start, dir: () => dir };
+  // v33: the recordings the server can play right now, with their length ({ id: seconds }); the page uses it to choose
+  // the whole book in Bro's voice ("book-<id>") when it is here, and Bro's notes until then
+  function ready() {
+    const out = {};
+    for (const id of man && man.items ? Object.keys(man.items) : []) if (file(id)) out[id] = Number(man.items[id].secs) || 0;
+    return out;
+  }
+  return { file, sync, stats, ready, start, dir: () => dir };
 }
 
 module.exports = { create, textHash, REPO, TAG };

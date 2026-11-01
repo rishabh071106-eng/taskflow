@@ -19,7 +19,7 @@ let up = false; for (let i = 0; i < 120 && !up; i++) { await sleep(500); try { u
 check('the real server boots', up, out.slice(-5));
 const browser = await chromium.launch();
 try {
-  for (const [path, want] of [['/', 'Brodoit'], ['/credits', 'Photo credits'], ['/app/news.js?v=30', 'NewsChannel'], ['/app/ideas.js?v=32', 'BookIdeas'], ['/app/ideas/index.json', 'ids'], ['/app/briefs/medi.json', 'Meditations']]) {
+  for (const [path, want] of [['/', 'Brodoit'], ['/credits', 'Photo credits'], ['/app/news.js?v=30', 'NewsChannel'], ['/app/ideas.js?v=33', 'BookIdeas'], ['/app/bookfull.js?v=33', 'BookFull'], ['/api/book-voice/ready', 'items'], ['/app/ideas/index.json', 'ids'], ['/app/briefs/medi.json', 'Meditations']]) {
     const r = await fetch(BASE + path); const t = await r.text();
     check('GET ' + path + ' answers', r.ok && t.includes(want), r.status);
   }
