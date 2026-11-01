@@ -77,6 +77,8 @@ jobs:
           echo "the page's Books tab has no Ideas segment: $(grep -c "S.booksMode=\\\\'ideas\\\\'" <<<"$P") (0 expected) · default Books: $(grep -c "if(S.booksMode!=='audiobooks')S.booksMode='summaries'" <<<"$P")"
           echo "bookfull.js builds the book: $(curl -fsS --max-time 20 'https://brodoit.com/app/bookfull.js?v=33' | grep -c 'function compose')"
           echo "/api/book-voice/ready: $(j /api/book-voice/ready | jq -c '{all: (.items | length), books: ([.items | keys[] | select(startswith("book-"))] | length), notes: ([.items | keys[] | select(test("^(book|brief|hi)-") | not)] | length)}')"
+          for i in $(seq 1 50); do n=$(curl -fsS --max-time 20 -H 'Cache-Control: no-cache' "https://brodoit.com/api/book-voice/ready?t=$i" | jq '[.items | keys[] | select(startswith("book-"))] | length' 2>/dev/null || echo 0); [ "${n:-0}" -ge 60 ] && break; sleep 60; done
+          echo "run 1 books on the server (60 expected) at $(date -u +%H:%M:%S): $(curl -fsS --max-time 20 "https://brodoit.com/api/book-voice/ready?t=end" | jq -c '{books: ([.items | keys[] | select(startswith("book-"))] | length), mins: ([.items | to_entries[] | select(.key | startswith("book-")) | .value] | add / 60 | floor), atomic_secs: .items["book-atomic"]}') · server: $(j /api/learn/voice-status | jq -c '.book_voice | {published, ready, error, free_mb, synced_at}')"
           echo "/api/book-audio/book-atomic without a token: $(curl -s -o /dev/null -w '%{http_code}' https://brodoit.com/api/book-audio/book-atomic)"
           echo "== v32 books: 7 story chapters per book, public-domain books whole"
           echo "books with story chapters: $(curl -fsS --max-time 20 https://brodoit.com/app/ideas/index.json | jq '.ids | length')"
