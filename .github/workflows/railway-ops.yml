@@ -236,3 +236,7 @@ jobs:
         run: |
           grep -E "\[desk\] (edition|edition failed)|rate.?limit|\b429\b" /tmp/dl.txt 2>/dev/null | sed -E -e 's/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/<email>/g' -e 's/[A-Za-z0-9_-]{32,}/<long-id>/g' | cut -c1-600 | tail -8 || echo "no desk lines"
           echo "answering-on counts:"; grep -E "answering on" /tmp/dl.txt 2>/dev/null | sed -E 's/.*answering on //' | sort | uniq -c | sort -rn | head -6
+      - name: Voice providers and plan (log lines, no keys)
+        if: always()
+        run: |
+          grep -iE "eleven|studio|subscription|tier|openai|tts|voice (ready|engine)|\[learn\] ready|\[brocore\] voice" /tmp/dl.txt 2>/dev/null | sed -E -e 's/(sk|xi|gsk|AIza)[-_A-Za-z0-9]{12,}/<key>/g' -e 's/[A-Za-z0-9_-]{32,}/<long-id>/g' | cut -c1-300 | sort | uniq -c | sort -rn | head -25 || echo "no voice lines"
