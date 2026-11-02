@@ -42,6 +42,8 @@
       '<div class="yu-bars12' + (empty ? ' empty' : '') + '">' + week.map(w => '<div class="yu-b' + (w.today ? ' t' : '') + '"><i style="height:' + Math.max(4, Math.round(w.v / mx * 72)) + 'px"></i><span>' + esc(w.l) + '</span></div>').join('') + '</div></section>';
     // shortcuts
     h += '<div class="yu-rows">' +
+      // v34: Jyotish — palm reading, kundli and pandit booking (/astro, opened in the app's layer)
+      C.row({ icon: 'hand', tone: 'sand', title: hi ? 'हस्तरेखा, कुंडली और पंडित' : 'Palm, kundli and pandit', sub: hi ? 'हथेली पढ़ें, आज का राशिफल, पूजा बुक करें' : 'Read your palm, today\'s horoscope, book a puja', onclick: "(window.BroFrame?BroFrame.go('/astro/'):location.href='/astro/')" }) +
       // v21: the morning and evening summaries, reminders (app/notify.js)
       C.row({ icon: 'bell', tone: 'clay', title: hi ? 'सूचनाएँ' : 'Notifications', sub: window.Notify && Notify.label ? Notify.label() : '', onclick: 'Notify.open()' }) +
       // v24: one language for the whole app (Bro, News and every screen)

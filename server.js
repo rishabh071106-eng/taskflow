@@ -2784,7 +2784,7 @@ app.put('/api/me',auth,(req,res)=>{
 
 // ═══ FRONTEND ═══
 const HTML=`<!DOCTYPE html><html lang="en"><head>
-<script src="/app/frame.js?v=3"></script>
+<script src="/app/frame.js?v=4"></script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZYGVF2BNV9"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-ZYGVF2BNV9');</script>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -2807,7 +2807,7 @@ const HTML=`<!DOCTYPE html><html lang="en"><head>
 <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png?v=6">
 <link rel="apple-touch-icon" href="/icon-192.png?v=6">
 <link rel="stylesheet" href="/app/theme.css?v=21"><link rel="stylesheet" href="/app/app.css?v=21"><link rel="stylesheet" href="/app/news.css?v=30"><link rel="stylesheet" href="/app/ideas.css?v=33"><link rel="stylesheet" href="/app/steps.css?v=21"><link rel="stylesheet" href="/app/admin.css?v=23"><link rel="stylesheet" href="/app/onboarding.css?v=21"><link rel="stylesheet" href="/app/cards.css?v=22"><link rel="stylesheet" href="/app/home.css?v=25"><link rel="stylesheet" href="/app/tasks.css?v=22"><link rel="stylesheet" href="/app/books.css?v=21"><link rel="stylesheet" href="/app/learn.css?v=23">
-<script src="/app/icons.js?v=21" defer></script><script src="/app/bookfull.js?v=33" defer></script><script src="/app/ideas.js?v=33" defer></script><script src="/app/cards.js?v=21" defer></script><script src="/app/learn.js?v=24" defer></script><script src="/app/you.js?v=23" defer></script><script src="/app/haptics.js?v=21" defer></script><script src="/app/mascot.js?v=21" defer></script><script src="/app/say.js?v=2" defer></script><script src="/app/voice.js?v=31" defer></script><script src="/app/micgain.js?v=1" defer></script><script src="/app/voicenote.js?v=2" defer></script><script src="/app/news.js?v=30" defer></script><script src="/app/notify.js?v=2" defer></script><script src="/app/steps.js?v=22" defer></script><script src="/app/admin.js?v=25" defer></script><script src="/app/onboarding.js?v=22" defer></script><script src="/app/motion.js?v=21" defer></script>
+<script src="/app/icons.js?v=21" defer></script><script src="/app/bookfull.js?v=33" defer></script><script src="/app/ideas.js?v=33" defer></script><script src="/app/cards.js?v=21" defer></script><script src="/app/learn.js?v=24" defer></script><script src="/app/you.js?v=24" defer></script><script src="/app/haptics.js?v=21" defer></script><script src="/app/mascot.js?v=21" defer></script><script src="/app/say.js?v=2" defer></script><script src="/app/voice.js?v=31" defer></script><script src="/app/micgain.js?v=1" defer></script><script src="/app/voicenote.js?v=2" defer></script><script src="/app/news.js?v=30" defer></script><script src="/app/notify.js?v=2" defer></script><script src="/app/steps.js?v=22" defer></script><script src="/app/admin.js?v=25" defer></script><script src="/app/onboarding.js?v=22" defer></script><script src="/app/motion.js?v=21" defer></script>
 <!-- Open Graph -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Brodoit">
@@ -17467,7 +17467,7 @@ function _recoverLoginIfNeeded(){
 }
 window.addEventListener('pageshow',function(e){_recoverLoginIfNeeded()});
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')_recoverLoginIfNeeded()});
-if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js?v=138').then(function(reg){reg.update()}).catch(()=>{});}
+if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js?v=139').then(function(reg){reg.update()}).catch(()=>{});}
 // ─── Mobile keyboard: keep Bro input visible ───
 (function(){
   if(!window.visualViewport)return;
@@ -18000,14 +18000,14 @@ app.get(['/lang/phrases.html','/lang/phrase-lesson.html'],(_,res)=>res.redirect(
 // v21 speed: the service worker caches. The cache is named by the deployed commit, so a new deploy drops the old one.
 // The app's page is kept from the moment the worker installs; pages (navigations) come from the network first and fall
 // back to the last copy when offline; the app's and mini-apps'
-// files (/app, /lang, /mind, /code, icons) come from the cache at once and refresh in the background. Never /api/,
+// files (/app, /lang, /mind, /code, /astro, icons) come from the cache at once and refresh in the background. Never /api/,
 // never a Range request, never a page sent no-store.
-const _SW_VER='v187-'+(_BUILD_SHA.slice(0,8)||Date.now().toString(36));
+const _SW_VER='v188-'+(_BUILD_SHA.slice(0,8)||Date.now().toString(36));
 app.get('/sw.js',(_,res)=>{res.set('Content-Type','application/javascript');res.set('Cache-Control','no-cache');res.send(`var CACHE_VER="${_SW_VER}";
 var CACHE="bd-"+CACHE_VER;
 self.addEventListener("install",function(e){self.skipWaiting();e.waitUntil(fetch("/",{credentials:"same-origin",cache:"no-cache"}).then(function(res){if(keep(res))return caches.open(CACHE).then(function(ca){return ca.put("/",res)})}).catch(function(){}))});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.filter(function(c){return c!==CACHE}).map(function(c){return caches.delete(c)}))}).then(function(){return self.clients.claim()}))});
-var ASSET=/^[/](app|lang|mind|code)[/]|^[/](icon|apple-touch|favicon)[^/]*$|^[/]manifest/;
+var ASSET=/^[/](app|lang|mind|code|astro)[/]|^[/](icon|apple-touch|favicon)[^/]*$|^[/]manifest/;
 function keep(res){if(!res||!res.ok||res.type==="opaque")return false;var cc=res.headers.get("Cache-Control")||"";return !/no-store/.test(cc)&&!res.headers.get("Content-Range")}
 self.addEventListener("fetch",function(e){
   var r=e.request;if(r.method!=="GET"||r.headers.has("range"))return;
@@ -18094,7 +18094,7 @@ app.get('/',(req,res)=>{
 app.get('/api/quotes/:n',(req,res)=>{const n=parseInt(req.params.n,10);const x=Number.isInteger(n)&&n>=0&&n<_dailyQuotes.length?_dailyQuotes[n]:null;if(!x)return res.status(404).json({error:'no such day'});res.set('Cache-Control','public, max-age=86400').json({q:x.q,a:x.a,s:x.s||''})});
 // ═══ v9: Talking Bro, News Channel, Languages, Hindi book briefs ═══
 // v21 speed: the app's and mini-apps' text files go out compressed (modules/compress.js); everything else as before
-const _compress=require('./modules/compress.js').staticText({root:__dirname,prefixes:['/app','/lang','/mind','/code']});global._compressStats=()=>_compress.stats();
+const _compress=require('./modules/compress.js').staticText({root:__dirname,prefixes:['/app','/lang','/mind','/code','/astro']});global._compressStats=()=>_compress.stats();
 app.use(_compress);
 app.use('/app',express.static(path.join(__dirname,'app'),{etag:true,setHeaders:res=>res.set('Cache-Control','no-cache')}));
 let _settings=null;try{_settings=require('./modules/settings.js').install(db)}catch(e){console.log('[settings] module missing, env only:',e.message);_settings={getSetting:k=>process.env[k]||'',setSetting:()=>{throw new Error('settings module missing')},settingSource:k=>process.env[k]?'env':null}}
@@ -18124,6 +18124,9 @@ app.use('/speaker',express.static(path.join(__dirname,'speaker'),{etag:true,setH
 let _pyhost={version:''};try{_pyhost=require('./modules/pyhost.js').install(app,{cacheDir:path.join(MEDIA_DIR,'.cache')})}catch(e){console.log('[python] host off:',e.message)}
 app.use('/code',express.static(path.join(__dirname,'code'),{etag:true,setHeaders:res=>res.set('Cache-Control','no-cache')}));
 app.use('/mind',express.static(path.join(__dirname,'mind'),{etag:true,setHeaders:res=>res.set('Cache-Control','no-cache')})); // v14 Mind games (Elevate-style brain training)
+// v34 Jyotish: palm reading (camera or photo), kundli and daily horoscope, pandit booking across India (modules/astro.js, /astro)
+try{require('./modules/astro.js').install(app,{db,getSetting,isAdminUser,pushTo,appRoot:__dirname,adminPhones:()=>{const s=new Set();try{if(ADMIN_EMAIL)for(const r of db.prepare('SELECT phone FROM users WHERE lower(email)=?').all(ADMIN_EMAIL))s.add(r.phone);const f=db.prepare("SELECT phone FROM users WHERE email IS NOT NULL AND email!='' ORDER BY created_at ASC LIMIT 1").get();if(f)s.add(f.phone);const g=db.prepare('SELECT phone FROM users ORDER BY created_at ASC, rowid ASC LIMIT 1').get();if(g)s.add(g.phone)}catch(e){}return [...s]}})}catch(e){console.log('[astro] off:',e.message)}
+app.use('/astro',express.static(path.join(__dirname,'astro'),{etag:true,setHeaders:res=>res.set('Cache-Control','no-cache')}));
 let _speaker=null;try{_speaker=require('./modules/speaker.js').install(app,{db,auth,callGemini:_callGemini,genId,fetchFeed,createTask:({phone,title,due_date,notes})=>{const id=genId();db.prepare('INSERT INTO tasks(id,user_phone,title,notes,priority,status,due_date,reminder_time,source,board)VALUES(?,?,?,?,?,?,?,?,?,?)').run(id,phone,String(title||'').slice(0,200),String(notes||'').slice(0,2000),'high','pending',due_date||'','','speaker','office');return {id}}})}catch(e){console.log('[speaker] not loaded:',e.message)}
 // v27: Hindi versions of Bro's book notes only (modules/booknotes-hi.js writes them, notes: 2)
 const _hiNote=id=>{try{const j=JSON.parse(_fs.readFileSync(path.join(MEDIA_DIR,'books-hi',id+'.json'),'utf8'));return j&&j.notes===2?j:null}catch(e){return null}};

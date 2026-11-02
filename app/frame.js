@@ -10,7 +10,7 @@
 // page did not route through bdGo), it closes the layer and opens there instead.
 (function () {
   'use strict';
-  var MINI = /^\/(lang|mind|code)(\/|$)/;
+  var MINI = /^\/(lang|mind|code|astro)(\/|$)/;
   try {
     if (window.parent !== window && window.parent.BroFrame && window.parent.location.origin === location.origin) {
       window.__bdNested = true;
@@ -47,7 +47,7 @@
     if (F.el) { try { frameWin().location.replace(path); } catch (e) { F.el.querySelector('iframe').src = path; } F.url = path; return true; }
     var wrap = document.createElement('div'); wrap.className = 'bd-frame' + (reduce() ? '' : ' in');
     var fr = document.createElement('iframe');
-    fr.setAttribute('allow', 'microphone; autoplay; fullscreen; screen-wake-lock');
+    fr.setAttribute('allow', 'microphone; camera; autoplay; fullscreen; screen-wake-lock'); // v34: camera for the palm reader
     fr.setAttribute('title', 'Brodoit');
     fr.src = path;
     wrap.appendChild(fr); document.body.appendChild(wrap);

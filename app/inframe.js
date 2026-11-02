@@ -13,7 +13,7 @@
   var framed = false;
   try { framed = window.parent !== window && window.parent.location.origin === location.origin && !!window.parent.BroFrame; } catch (e) { framed = false; }
   window.bdFramed = framed;
-  var MINI = /^\/(lang|mind|code)(\/|$)/;
+  var MINI = /^\/(lang|mind|code|astro)(\/|$)/;
   function go(url, o) {
     var u; try { u = new URL(url, location.href); } catch (e) { return; }
     if (u.origin !== location.origin) { location.href = u.href; return; }

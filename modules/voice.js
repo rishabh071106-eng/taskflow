@@ -76,7 +76,7 @@ const EXTRA_TOOLS = [
   { name: 'get_steps', description: "Read the user's steps today, goal, streak and friends rank. Use when they ask about steps, walking, their streak or the leaderboard.", input_schema: { type: 'object', properties: {} } },
   { name: 'set_step_goal', description: 'Set the user\'s daily step goal (500–100000). Use when they say e.g. "set my step goal to 10k".', input_schema: { type: 'object', properties: { goal: { type: 'integer' } }, required: ['goal'] } },
   { name: 'get_speaker_pipeline', description: "Read the user's speaker & teaching pipeline (college talks, guest lectures, faculty roles): counts and the next confirmed event. Use when they ask about their talks, lectures or speaking applications.", input_schema: { type: 'object', properties: {} } },
-  { name: 'open_screen', description: 'Open a section of the Brodoit app for the user: tasks, learn, news, books, health, you.', input_schema: { type: 'object', properties: { screen: { type: 'string', enum: ['tasks', 'learn', 'news', 'books', 'health', 'you'] } }, required: ['screen'] } },
+  { name: 'open_screen', description: 'Open a section of the Brodoit app for the user: tasks, learn, news, books, health, you; palm (palm reading with the camera), kundli (birth chart and daily horoscope), pandit (book a pandit or puja).', input_schema: { type: 'object', properties: { screen: { type: 'string', enum: ['tasks', 'learn', 'news', 'books', 'health', 'you', 'palm', 'kundli', 'pandit'] } }, required: ['screen'] } },
   // v23: Bro writes things down (a plan, a list, a draft): it appears in the chat as a card and is saved in their Notes
   { name: 'write_down', description: 'Write something down for the user to read and keep: a plan (study, day, week, workout, trip), a timetable, a list or checklist, steps, a recipe, or a draft message or email. Use it whenever they ask you to write, plan, list, draft or make something they will read. It appears in the chat and is saved in their Notes. Afterwards say in one or two sentences what is in it; never read it all out.', input_schema: { type: 'object', properties: { title: { type: 'string', description: 'A short title, e.g. "Exam plan for Friday"' }, text: { type: 'string', description: 'The content: short lines, one item per line; times like "09:00-10:00 Maths"; "- " for bullets. Plain text, no markdown tables.' } }, required: ['title', 'text'] } },
 ];
@@ -265,7 +265,7 @@ function install(app, deps) {
       if (!text) return { error: 'text required: write the plan, list or draft itself in text' };
       return { ok: true, doc: { title: title || 'From Bro', text }, shown: 'in the chat as a card', saved: 'in their Notes' };
     }
-    if (name === 'open_screen') { const s = str(args.screen, 20); if (!['tasks', 'learn', 'news', 'books', 'health', 'you'].includes(s)) return { error: 'unknown screen' }; return { ok: true, open: '/?tab=' + s }; }
+    if (name === 'open_screen') { const s = str(args.screen, 20); const astro = { palm: '/astro/palm.html', kundli: '/astro/kundli.html', pandit: '/astro/pandit.html' }; if (astro[s]) return { ok: true, open: astro[s] }; if (!['tasks', 'learn', 'news', 'books', 'health', 'you'].includes(s)) return { error: 'unknown screen' }; return { ok: true, open: '/?tab=' + s }; }
     return _broExecTool(name, args, user.phone, user.tz || _getUserTz(user.phone));
   }
 

@@ -18,8 +18,10 @@
 (function () {
   // v15: each mini-app returns to its own list in the Learn tab (Games, Coding, Languages)
   var HUB = /^\/mind\//.test(location.pathname) ? 'games' : /^\/lang\//.test(location.pathname) ? 'languages' : /^\/code\//.test(location.pathname) ? 'coding' : '';
-  var HOME = '/?tab=learn' + (HUB ? '&hub=' + HUB : '');
-  var HOME_LABEL = { games: 'Games', languages: 'Languages', coding: 'Coding' }[HUB] || 'Learn';
+  // v34: Jyotish (/astro) opens from the You tab and returns there
+  var ASTRO = /^\/astro\//.test(location.pathname);
+  var HOME = ASTRO ? '/?tab=you' : '/?tab=learn' + (HUB ? '&hub=' + HUB : '');
+  var HOME_LABEL = ASTRO ? 'You' : { games: 'Games', languages: 'Languages', coding: 'Coding' }[HUB] || 'Learn';
   window.bdLearnHref = HOME;
 
   var ICON = {
