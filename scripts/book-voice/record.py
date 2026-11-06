@@ -8,8 +8,8 @@
 # a sentence group at a time (<= 260 characters), so the intonation runs through whole sentences. v34: the voice is given
 # the note's spoken words (notes.js: scripts/book-voice/spoken.js writes out times, numbers and short forms, "5:30" →
 # "five thirty", "SIP" → "S. I. P."), each chapter's heading is a take of its own, and every English take is checked
-# (its length for its text, and a Whisper medium.en transcript against the spoken words, letters spelled out on both
-# sides, so "sip" for "SIP" or "five thousand thirty" for "5:30" fails) and read again with a new seed, up to 5 times,
+# (its length for its text, and a Whisper medium.en transcript against the spoken words, both through spoken.js
+# check: letters spelled out, numbers as digits, one spelling, so "sip" for "SIP" fails and "710" for "seven ten" passes) and read again with a new seed, up to 5 times,
 # until no more than 5% of it is heard wrong. Takes are levelled to the same loudness, joined with natural pauses (0.35 s,
 # 0.6 s after a heading, 1.1 s between chapters), loudness-normalised (-18 LUFS) and encoded to 64 kbps mono mp3.
 # Writes <out_dir>/<id>-<hash>.mp3 and <out_dir>/items.jsonl.
@@ -81,8 +81,9 @@ if CFG['engine'] == 'chatterbox':
     SR = m.sr
     say = lambda t: m.generate(t, exaggeration=CFG.get('exaggeration', 0.5), cfg_weight=CFG.get('cfg', 0.5), temperature=CFG.get('temperature', 0.8)).squeeze(0).numpy()
     CHECK = True
-    # the same spoken.js turns the text and what Whisper heard into words with every letter spelled out
-    SPOKEN = subprocess.Popen(['node', os.path.join(os.path.dirname(os.path.abspath(__file__)), 'spoken.js'), '--lines', 'names'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True, encoding='utf-8', bufsize=1)
+    # the same spoken.js (check) turns the text and what Whisper heard into one form: letters spelled out, numbers as
+    # digits, one spelling, so only a real misreading counts ("sip" for SIP, "five thousand thirty" for five thirty)
+    SPOKEN = subprocess.Popen(['node', os.path.join(os.path.dirname(os.path.abspath(__file__)), 'spoken.js'), '--lines', 'check'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True, encoding='utf-8', bufsize=1)
     def names(t):
         SPOKEN.stdin.write(json.dumps(t) + '\n'); SPOKEN.stdin.flush()
         return json.loads(SPOKEN.stdout.readline())

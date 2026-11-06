@@ -5,8 +5,8 @@
 //   letters: how an initialism is written: 'dots' ("S. I. P.": what the studio voice is given), 'names' ("ess eye pee":
 //   what a take is checked against, so a voice that said "sip" no longer passes as "SIP").
 //   node scripts/book-voice/spoken.js [dots|names] < text      prints spoken(stdin)
-//   node scripts/book-voice/spoken.js --lines [dots|names]      one JSON string per line in, one per line out (the
-//                                                               recorder keeps one of these running to check its takes)
+//   node scripts/book-voice/spoken.js --lines [dots|names|check] one JSON string per line in, one per line out (the
+//                                                               recorder keeps a "check" one running to check its takes)
 'use strict';
 const ONES = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve',
   'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
@@ -100,13 +100,50 @@ function spoken(text, opt) {
   return t.replace(/[ \t]+/g, ' ').replace(/ ([,.!?;:])/g, '$1').replace(/,(\s*,)+/g, ',').replace(/\.(\s*\.)+(?!\.)/g, '.');
 }
 
-module.exports = { spoken, words, year, ordinal, clock };
+// what a take is checked against (record.py): letters spelled out, and every number as digits, so the way Whisper
+// happens to write a number never counts as a misreading ("seven ten" = "710" = "7:10", "five thirty" = "5.30",
+// "nineteen eighty-seven" = "1987"; the check ignores spaces)
+const NUMW = { zero: 0, oh: 0, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
+  eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17, eighteen: 18, nineteen: 19,
+  twenty: 20, thirty: 30, forty: 40, fifty: 50, sixty: 60, seventy: 70, eighty: 80, ninety: 90 };
+const SCALE = { hundred: 100, thousand: 1e3, lakh: 1e5, million: 1e6, crore: 1e7, billion: 1e9 };
+function toDigits(t) {
+  const toks = String(t).split(/(\s+|-)/); const out = []; let total = 0, cur = null, last = '', gap = '';
+  const flush = () => { if (cur !== null || total) out.push(String(total + (cur || 0))); out.push(gap); gap = ''; total = 0; cur = null; last = ''; };
+  for (let i = 0; i < toks.length; i++) {
+    const raw = toks[i]; if (/^(\s+|-)$/.test(raw)) { if (cur === null && !total) out.push(raw); else gap = raw; continue; }
+    // "a hundred", "a thousand"
+    if (/^a$/i.test(raw) && cur === null && !total) { let j = i + 1; while (j < toks.length && /^(\s+|-)$/.test(toks[j])) j++; if (j < toks.length && SCALE[toks[j].toLowerCase()]) { cur = 1; last = 'unit'; continue; } }
+    const m = /^([A-Za-z']+)([^A-Za-z']*)$/.exec(raw); const w = m ? m[1].toLowerCase() : '', tail = m ? m[2] : raw;
+    const nextNum = () => { for (let j = i + 1; j < toks.length; j++) { if (/^(\s+|-)$/.test(toks[j])) continue; return NUMW[(toks[j].match(/^[A-Za-z]+/) || [''])[0].toLowerCase()] != null; } return false; };
+    if (m && NUMW[w] != null && !(w === 'oh' && cur === null && !total)) {
+      const v = NUMW[w], open = cur !== null || total;
+      const joins = open && (last === 'hundred' || last === 'scale' || last === 'and' || (last === 'tens' && v < 10));
+      if (!joins) { if (open) out.push(String(total + (cur || 0)), gap || ' '); gap = ''; total = 0; cur = v; } else { cur = (cur || 0) + v; gap = ''; }
+      last = v >= 20 && v % 10 === 0 ? 'tens' : 'unit';
+    } else if (m && SCALE[w] && (cur !== null || total)) {
+      gap = '';
+      if (w === 'hundred') { cur = (cur || 1) * 100; last = 'hundred'; } else { total += (cur || 1) * SCALE[w]; cur = 0; last = 'scale'; }
+    } else if (w === 'and' && (last === 'hundred' || last === 'scale') && nextNum()) { last = 'and'; gap = ''; continue; }
+    else { flush(); out.push(raw); continue; }
+    if (tail) { flush(); out.push(tail); }
+  }
+  flush();
+  return out.join('').replace(/[ \t]+/g, ' ');
+}
+// British and American spellings are the same word to the ear (Whisper writes "kilometers", "realize", "color")
+const sameSpelling = t => t.replace(/\bpractis/gi, 'practic').replace(/\b(\w{3,})our(s?)\b/gi, '$1or$2').replace(/\b(\w{2,})is(e|ed|es|ing|ation|ations)\b/gi, '$1iz$2')
+  .replace(/\b(\w{2,})tre(s?)\b/gi, '$1ter$2').replace(/\b(\w{2,}[aeiou])ll(ed|ing|er|ers)\b/gi, '$1l$2')
+  .replace(/\binstalment/gi, 'installment').replace(/\bprogramme/gi, 'program').replace(/\bjeweller/gi, 'jeweler');
+const check = t => sameSpelling(toDigits(spoken(t, { letters: 'names' })));
+
+module.exports = { spoken, check, toDigits, words, year, ordinal, clock };
 
 if (require.main === module) {
   const a = process.argv.slice(2);
   if (a[0] === '--lines') {
     const rl = require('readline').createInterface({ input: process.stdin });
-    rl.on('line', l => { let s = ''; try { s = JSON.parse(l); } catch (e) { s = l; } process.stdout.write(JSON.stringify(spoken(s, { letters: a[1] || 'names' })) + '\n'); });
+    rl.on('line', l => { let s = ''; try { s = JSON.parse(l); } catch (e) { s = l; } process.stdout.write(JSON.stringify(a[1] === 'check' ? check(s) : spoken(s, { letters: a[1] || 'names' })) + '\n'); });
   } else {
     let s = ''; process.stdin.setEncoding('utf8');
     process.stdin.on('data', d => { s += d; }).on('end', () => process.stdout.write(spoken(s, { letters: a[0] || 'dots' })));

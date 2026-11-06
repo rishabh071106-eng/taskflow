@@ -107,6 +107,8 @@ const said = notes.filter(n => n.lang === 'en');
 check('every English note carries the spoken words (no digits, ₹ or % left; same chapters) and their hash; the books in 7 chapters come first', said.every(n => n.say && !/[0-9₹%$]/.test(n.say) && n.say.split('\n\n').length === n.text.split('\n\n').length && /^[0-9a-f]{12}$/.test(n.sayHash)) && notes[0].id.startsWith('book-') && notes.findIndex(n => !n.id.startsWith('book-')) === bookN.length, said.filter(n => !n.say || /[0-9₹%$]/.test(n.say)).map(n => n.id).slice(0, 5));
 const lines = execFileSync(process.execPath, [ROOT + '/scripts/book-voice/spoken.js', '--lines', 'names'], { input: JSON.stringify('nine thousand thirty') + '\n' + JSON.stringify('9:30') + '\n' }).toString().trim().split('\n').map(l => JSON.parse(l));
 check('spoken.js --lines (the recorder checks each take through it): "9:30" and "nine thousand thirty" differ', lines[0] === 'nine thousand thirty' && lines[1] === 'nine thirty', lines);
+const { check: chk } = require(ROOT + '/scripts/book-voice/spoken.js'); const flat = t => chk(t).toLowerCase().replace(/[^a-z0-9]/g, '');
+check('…the check form (record.py, --lines check) reads numbers however Whisper writes them, and still catches a misreading', flat('Then seven ten, seven thirty. At seven forty-five he wakes in nineteen eighty-seven.') === flat('Then 710, 7:30. At 7.45 he wakes in 1987.') && flat('three kilometres; she realises') === flat('3 kilometers; she realizes') && flat('Wake at five thirty') !== flat('Wake at 5,030') && flat('an S. I. P.') !== flat('a sip'), [chk('Then 710, 7:30.'), chk('Wake at 5,030')]);
 
 // ── v34: a new reading goes through run by run without losing a published recording ──
 {
