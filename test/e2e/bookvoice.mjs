@@ -133,15 +133,22 @@ check('…the check form (record.py, --lines check) reads numbers however Whispe
   check('every book in 7 chapters is at least ~12,000 characters (13+ minutes read): each story asks "Pause and think" and the book ends with the five ideas and a week', Math.min(...lens) >= 12000 && bookN.every(n => (n.text.match(/Pause and think\./g) || []).length === 6 && /Before you go, here is the whole book in one breath\. One: /.test(n.text) && /Monday: .+Friday: .+And on the weekend/.test(n.text)), { min: Math.min(...lens) });
   const tone = path.join(TMP, 'tone.mp3'); execFileSync('ffmpeg', ['-v', 'error', '-y', '-f', 'lavfi', '-i', 'sine=f=220:d=1', '-ac', '1', '-ar', '44100', '-b:a', '64k', tone]); const TONE = fs.readFileSync(tone);
   const calls = []; let plan = { tier: 'creator', character_count: 0, character_limit: 2000000 }; let reqN = 0;
+  const cloudDir = fs.mkdtempSync('/tmp/p35cloud-'); let site = null; // v35.3: a stand-in release, and the site the backup reads
   const el = http.createServer((req, res) => {
     let b = ''; req.on('data', d => { b += d; }).on('end', () => {
       if (req.url.startsWith('/v1/user/subscription')) return res.writeHead(200, { 'Content-Type': 'application/json' }).end(JSON.stringify(plan));
+      const c = /^\/cloud\/([a-z0-9_.-]+)$/i.exec(req.url);
+      if (c) { const f = path.join(cloudDir, c[1]); return fs.existsSync(f) ? res.writeHead(200).end(fs.readFileSync(f)) : res.writeHead(404).end('Not Found'); }
+      if (req.url === '/site/api/book-eleven/index.json') return res.writeHead(200, { 'Content-Type': 'application/json' }).end(JSON.stringify(site.index()));
+      const sf = /^\/site\/api\/book-eleven\/file\/([^/?]+)$/.exec(req.url);
+      if (sf) { const f = site.fileByName(decodeURIComponent(sf[1])); return f ? res.writeHead(200, { 'Content-Type': 'audio/mpeg' }).end(fs.readFileSync(f)) : res.writeHead(404).end('{}'); }
       const m = /^\/v1\/text-to-speech\/([^/?]+)/.exec(req.url);
       if (m && req.method === 'POST') { calls.push({ voice: m[1], key: req.headers['xi-api-key'], url: req.url, body: JSON.parse(b) }); return res.writeHead(200, { 'Content-Type': 'audio/mpeg', 'request-id': 'r' + (++reqN) }).end(TONE); }
       res.writeHead(404).end('{}');
     });
   });
   await new Promise(r => el.listen(0, '127.0.0.1', r)); process.env.ELEVEN_API_BASE = 'http://127.0.0.1:' + el.address().port;
+  process.env.BOOK_ELEVEN_BACKUP = process.env.ELEVEN_API_BASE + '/cloud/';
   const BE = require(ROOT + '/modules/bookeleven.js');
   const bk = bookN.find(n => n.id === 'book-miracle') || bookN[0]; let bookText = bk.text;
   const mk = (key, extra) => BE.create(Object.assign({ mediaDir: fs.mkdtempSync('/tmp/p35el-'), getSetting: k => ({ ELEVENLABS_API_KEY: key })[k] || '', text: id => id === bk.id ? bookText : '', ids: () => [bk.id], minFreeBytes: 0, log: () => {} }, extra || {}));
@@ -157,7 +164,34 @@ check('…the check form (record.py, --lines check) reads numbers however Whispe
   plan = { tier: 'creator', character_count: 90000, character_limit: 100000 };
   const bl = mk('low-key'); const gl = await bl.run();
   check('…and it never spends the quarter of the month\'s credits that Bro\'s live voice and the news keep', gl === 0 && calls.length === 0 && bl.stats().state === 'waiting', bl.stats());
-  el.close(); delete process.env.ELEVEN_API_BASE;
+  // v35.3: each book is paid for once: the backup copies it to the cloud (a stand-in release driven through a fake gh), and
+  // a new server with no ElevenLabs key takes it back from there without a single ElevenLabs call
+  const ix = be.index(); const one = ix.items[bk.id];
+  check('the backup index lists each recording with its checksum, and the file is served by name', !!one && /^[0-9a-f]{64}$/.test(one.sha256) && be.fileByName(one.file) === be.file(bk.id) && be.fileByName('../x.mp3') === '', ix);
+  const bin = fs.mkdtempSync('/tmp/p35gh-');
+  fs.writeFileSync(path.join(bin, 'gh'), `#!${process.execPath}
+const fs = require('fs'), path = require('path'); const a = process.argv.slice(2); const D = ${JSON.stringify(cloudDir)};
+if (a[0] !== 'release') process.exit(2);
+if (a[1] === 'view') { if (a.includes('assets')) { console.log(JSON.stringify({ assets: fs.readdirSync(D).map(name => ({ name })) })); } process.exit(0); }
+if (a[1] === 'create') process.exit(0);
+if (a[1] === 'download') { const src = path.join(D, 'manifest.json'); if (!fs.existsSync(src)) process.exit(1); const out = a[a.indexOf('-D') + 1]; fs.mkdirSync(out, { recursive: true }); fs.copyFileSync(src, path.join(out, 'manifest.json')); process.exit(0); }
+if (a[1] === 'upload') { fs.copyFileSync(a[3], path.join(D, path.basename(a[3]))); process.exit(0); }
+if (a[1] === 'delete-asset') { fs.rmSync(path.join(D, a[3]), { force: true }); process.exit(0); }
+process.exit(3);
+`, { mode: 0o755 });
+  site = be; const work = fs.mkdtempSync('/tmp/p35bk-');
+  // the backup script fetches from this process's stand-in server, so it runs alongside (never execFileSync here)
+  const backup = () => new Promise((resolve, reject) => { const ch = spawn(process.execPath, [ROOT + '/scripts/book-eleven/backup.js', process.env.ELEVEN_API_BASE + '/site'], { cwd: work, env: Object.assign({}, process.env, { PATH: bin + ':' + process.env.PATH, GITHUB_REPOSITORY: 'test/test' }) }); let out = ''; ch.stdout.on('data', d => { out += d; }); ch.stderr.on('data', d => { out += d; }); ch.on('close', c => c === 0 ? resolve(out) : reject(new Error('backup exited ' + c + ': ' + out))); });
+  const bout = await backup();
+  const cman = JSON.parse(fs.readFileSync(path.join(cloudDir, 'manifest.json'), 'utf8'));
+  check('scripts/book-eleven/backup.js copies the recording and its manifest to the release (the cloud copy)', cman.items[bk.id] && cman.items[bk.id].sha256 === one.sha256 && fs.statSync(path.join(cloudDir, one.file)).size === one.bytes && /1 new/.test(bout), bout);
+  calls.length = 0;
+  const br = BE.create({ mediaDir: fs.mkdtempSync('/tmp/p35re-'), getSetting: () => '', text: id => id === bk.id ? bookText : '', ids: () => [bk.id], minFreeBytes: 0, log: () => {} });
+  await br.run();
+  check('…a new server with no ElevenLabs key takes the book back from the cloud copy: same file, no ElevenLabs call, no credits', !!br.file(bk.id) && fs.readFileSync(br.file(bk.id)).equals(fs.readFileSync(be.file(bk.id))) && calls.length === 0 && br.stats().restored === 1, br.stats());
+  const bout2 = await backup();
+  check('…and a second backup uploads nothing new', /0 new/.test(bout2), bout2);
+  el.close(); delete process.env.ELEVEN_API_BASE; delete process.env.BOOK_ELEVEN_BACKUP;
 }
 
 // ── the real server ──

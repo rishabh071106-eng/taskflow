@@ -1377,6 +1377,14 @@ app.get('/api/book-voice/ready', (req, res) => {
   try { if (_bookEleven) Object.assign(items, _bookEleven.ready()); } catch (e) { /* the studio list stands */ }
   res.set('Cache-Control', 'public, max-age=120').json({ items });
 });
+// v35.3: the ElevenLabs recordings, for the cloud backup (.github/workflows/book-eleven-backup.yml copies them to the
+// release "book-eleven-v1", from where a new server takes them back instead of paying ElevenLabs again)
+app.get('/api/book-eleven/index.json', (req, res) => { try { res.set('Cache-Control', 'no-store').json(_bookEleven ? _bookEleven.index() : { items: {} }); } catch (e) { res.status(500).json({ error: 'index unavailable' }); } });
+app.get('/api/book-eleven/file/:name', (req, res) => {
+  const f = _bookEleven && _bookEleven.fileByName(req.params.name);
+  if (!f) return res.status(404).json({ error: 'no such recording' });
+  if (!require('./modules/brolibrary.js').sendAudio(req, res, f, 'public, max-age=86400')) res.status(404).json({ error: 'no such recording' });
+});
 app.get('/api/book-audio/:id', (req, res) => {
   // Auth: accept token from query string (needed for <audio src=...> on iOS),
   // x-token header, or tf_token cookie
