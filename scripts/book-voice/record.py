@@ -7,11 +7,11 @@
 # Unlike the server's live engine (which cuts a sentence into ~60-character pieces so a call never waits), each note is read
 # a sentence group at a time (<= 260 characters), so the intonation runs through whole sentences. v34: the voice is given
 # the note's spoken words (notes.js: scripts/book-voice/spoken.js writes out times, numbers and short forms, "5:30" →
-# "five thirty", "SIP" → "S. I. P."), each chapter's heading is a take of its own, and every English take is checked
+# "five thirty", "SIP" → "S. I. P."), and every English take is checked
 # (its length for its text, and a Whisper medium.en transcript against the spoken words, both through spoken.js
 # check: letters spelled out, numbers as digits, one spelling, so "sip" for "SIP" fails and "710" for "seven ten" passes) and read again with a new seed, up to 5 times,
 # until no more than 5% of it is heard wrong. Takes are levelled to the same loudness, joined with natural pauses (0.35 s,
-# 0.6 s after a heading, 1.1 s between chapters), loudness-normalised (-18 LUFS) and encoded to 64 kbps mono mp3.
+# 1.1 s between chapters), loudness-normalised (-18 LUFS) and encoded to 64 kbps mono mp3.
 # Writes <out_dir>/<id>-<hash>.mp3 and <out_dir>/items.jsonl.
 import hashlib, json, os, re, subprocess, sys, time, unicodedata
 import numpy as np
@@ -145,13 +145,13 @@ for n in todo:
     seed = int(hashlib.sha1(n['id'].encode()).hexdigest()[:8], 16)
     for pi, p in enumerate(paras):
         p = re.sub(r'\s+', ' ', p)
-        # "Chapter two. Staying power beats raw talent." is read on its own, then a breath before the chapter
-        h = re.match(r'^(Chapter [a-z]+\. [^.!?]{2,90}[.!?])\s+(.+)$', p)
-        cs = ([h.group(1)] + chunks(h.group(2))) if h else chunks(p)
+        # v35.1: the chapter's heading is read with its first sentences (as one take, so the voice finds its pace):
+        # read alone, a five-word heading came out unstable (heard 62-170% wrong, retaken again and again)
+        cs = chunks(p)
         for ci, c in enumerate(cs):
             a, ce = take(c, seed + pi * 101 + ci)
             worst = max(worst, ce)
-            gap = 1.1 if ci == len(cs) - 1 else 0.6 if (h and ci == 0) else 0.35
+            gap = 1.1 if ci == len(cs) - 1 else 0.35
             parts.append(a); parts.append(np.zeros(int(SR * gap), dtype=np.float32))
     if worst > float(CFG.get('skip_over', 0.2)):
         # a sentence group still read wrong after every retake: this note keeps Bro's voice until the next run
