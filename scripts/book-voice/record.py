@@ -5,10 +5,14 @@
 # English: Chatterbox (MIT) speaking in the timbre of Bro's own voice sample, with calm narration settings.
 # Hindi: Kokoro-82M (Apache-2.0), Bro's Hindi blend.
 # Unlike the server's live engine (which cuts a sentence into ~60-character pieces so a call never waits), each note is read
-# a sentence group at a time (<= 260 characters), so the intonation runs through whole sentences. Every English take is
-# checked (its length for its text, and a Whisper transcript against the text) and read again with a new seed when it is
-# off. Takes are joined with natural pauses (0.32 s, 0.9 s between paragraphs), loudness-normalised (-18 LUFS) and encoded
-# to 64 kbps mono mp3. Writes <out_dir>/<id>-<hash>.mp3 and <out_dir>/items.jsonl.
+# a sentence group at a time (<= 260 characters), so the intonation runs through whole sentences. v34: the voice is given
+# the note's spoken words (notes.js: scripts/book-voice/spoken.js writes out times, numbers and short forms, "5:30" →
+# "five thirty", "SIP" → "S. I. P."), each chapter's heading is a take of its own, and every English take is checked
+# (its length for its text, and a Whisper medium.en transcript against the spoken words, letters spelled out on both
+# sides, so "sip" for "SIP" or "five thousand thirty" for "5:30" fails) and read again with a new seed, up to 5 times,
+# until no more than 5% of it is heard wrong. Takes are levelled to the same loudness, joined with natural pauses (0.35 s,
+# 0.6 s after a heading, 1.1 s between chapters), loudness-normalised (-18 LUFS) and encoded to 64 kbps mono mp3.
+# Writes <out_dir>/<id>-<hash>.mp3 and <out_dir>/items.jsonl.
 import hashlib, json, os, re, subprocess, sys, time, unicodedata
 import numpy as np
 import soundfile as sf
@@ -45,8 +49,10 @@ print(lang, 'shard', shard, 'of', shards, ':', len(todo), 'notes', flush=True)
 if not todo: sys.exit(0)
 CFG = json.load(open(os.path.join(voice_dir, 'voice.json')))[lang]
 
+# a sentence ends at . ! ? or । but not after a spelled letter ("S. I. P.") or "Dr."
+SENT = re.compile(r'(?<=[.!?\u0964])(?<!\b[A-Z]\.)(?<!\bDr\.)\s+')
 def chunks(p, limit=260):
-    sents = [s for s in re.split(r'(?<=[.!?।])\s+', p.strip()) if s]
+    sents = [s for s in SENT.split(p.strip()) if s]
     outl, cur = [], ''
     for s in sents:
         if cur and len(cur) + 1 + len(s) > limit: outl.append(cur); cur = s
@@ -75,6 +81,11 @@ if CFG['engine'] == 'chatterbox':
     SR = m.sr
     say = lambda t: m.generate(t, exaggeration=CFG.get('exaggeration', 0.5), cfg_weight=CFG.get('cfg', 0.5), temperature=CFG.get('temperature', 0.8)).squeeze(0).numpy()
     CHECK = True
+    # the same spoken.js turns the text and what Whisper heard into words with every letter spelled out
+    SPOKEN = subprocess.Popen(['node', os.path.join(os.path.dirname(os.path.abspath(__file__)), 'spoken.js'), '--lines', 'names'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True, encoding='utf-8', bufsize=1)
+    def names(t):
+        SPOKEN.stdin.write(json.dumps(t) + '\n'); SPOKEN.stdin.flush()
+        return json.loads(SPOKEN.stdout.readline())
 else:
     say, SR = kokoro_say(CFG.get('lang_code', 'h'), CFG['voice'], CFG.get('speed', 1.0))
     CHECK = False  # Kokoro reads what it is given (no sampling), so there is nothing to retake
@@ -84,32 +95,43 @@ def heard(wav):
     global asr
     if asr is None:
         from faster_whisper import WhisperModel
-        asr = WhisperModel('small', device='cpu', compute_type='int8')
+        asr = WhisperModel(CFG.get('check_model', 'medium.en'), device='cpu', compute_type='int8')
     import librosa
     y = librosa.resample(wav.astype(np.float32), orig_sr=SR, target_sr=16000) if SR != 16000 else wav.astype(np.float32)
-    segs, _ = asr.transcribe(y, language=lang, beam_size=1)
+    segs, _ = asr.transcribe(y, language=lang, beam_size=2, condition_on_previous_text=False)
     return ' '.join(s.text for s in segs)
 
 def trim(a):
     import librosa
     _, (s, e) = librosa.effects.trim(a, top_db=38)
-    pad = int(SR * 0.03)
+    pad = int(SR * 0.04)
     return a[max(0, s - pad):min(len(a), e + pad)]
+
+# v34: every take at the same loudness (the RMS of its voiced 20 ms frames), with 10 ms fades so joins never click
+def level(a, target=0.08):
+    n = int(SR * 0.02); fr = a[:len(a) // n * n].reshape(-1, n) if len(a) >= n else a.reshape(1, -1)
+    e = np.sqrt((fr ** 2).mean(axis=1) + 1e-12); v = e[e > e.max() * 0.1]
+    g = target / (float(np.sqrt((v ** 2).mean())) or 1.0) if len(v) else 1.0
+    g = min(g, 0.95 / (float(np.max(np.abs(a))) or 1.0))
+    a = a * g; f = min(len(a) // 2, int(SR * 0.01))
+    if f: a[:f] *= np.linspace(0, 1, f); a[-f:] *= np.linspace(1, 0, f)
+    return a
 
 # a natural read lands near 14 characters a second (English); outside 9-22 a take dropped or repeated words
 CPS = {'en': (9.0, 22.0), 'hi': (6.0, 22.0)}
+GOOD = float(CFG.get('retake_over', 0.05)); TRIES = int(CFG.get('tries', 5))
 def take(text, seed0):
-    best = None
-    for k in range(3 if CHECK else 1):
+    best = None; want = norm(names(text)) if CHECK else ''
+    for k in range(TRIES if CHECK else 1):
         torch.manual_seed(seed0 + k * 7919); np.random.seed((seed0 + k) % 2**32)
         a = trim(np.asarray(say(text), dtype=np.float32).reshape(-1))
         cps = len(text) / max(0.1, len(a) / SR); lo, hi = CPS[lang]
-        c = cer(norm(text), norm(heard(a))) if CHECK else 0.0
+        c = cer(want, norm(names(heard(a)))) if CHECK else 0.0
         score = c + (0 if lo <= cps <= hi else 0.5)
         if best is None or score < best[0]: best = (score, a, c)
-        if lo <= cps <= hi and c <= 0.10: break
+        if lo <= cps <= hi and c <= GOOD: break
         print('  retake', k + 1, '(%.1f chars/s, %.0f%% heard wrong)' % (cps, c * 100), text[:70], flush=True)
-    return best[1], best[2]
+    return level(best[1]), best[2]
 
 # v33: a runner never starts a note it may not finish inside the job's limit (BOOK_VOICE_BUDGET_MIN, default 320 of the
 # 350 minutes; ~100 characters a minute is the slow end): what it leaves out is read in the next run
@@ -118,24 +140,31 @@ for n in todo:
     if time.time() - T_START + len(n['text']) / 100 * 60 > BUDGET:
         print('LEFT FOR THE NEXT RUN', n['id'], '(time budget)', flush=True); continue
     t0 = time.time(); parts = []; worst = 0.0
-    paras = [p.strip() for p in re.split(r'\n\s*\n', n['text']) if p.strip()]
+    paras = [p.strip() for p in re.split(r'\n\s*\n', n.get('say') or n['text']) if p.strip()]
     seed = int(hashlib.sha1(n['id'].encode()).hexdigest()[:8], 16)
     for pi, p in enumerate(paras):
-        cs = chunks(re.sub(r'\s+', ' ', p))
+        p = re.sub(r'\s+', ' ', p)
+        # "Chapter two. Staying power beats raw talent." is read on its own, then a breath before the chapter
+        h = re.match(r'^(Chapter [a-z]+\. [^.!?]{2,90}[.!?])\s+(.+)$', p)
+        cs = ([h.group(1)] + chunks(h.group(2))) if h else chunks(p)
         for ci, c in enumerate(cs):
             a, ce = take(c, seed + pi * 101 + ci)
             worst = max(worst, ce)
-            parts.append(a); parts.append(np.zeros(int(SR * (0.9 if ci == len(cs) - 1 else 0.32)), dtype=np.float32))
-    if worst > 0.25:
+            gap = 1.1 if ci == len(cs) - 1 else 0.6 if (h and ci == 0) else 0.35
+            parts.append(a); parts.append(np.zeros(int(SR * gap), dtype=np.float32))
+    if worst > float(CFG.get('skip_over', 0.2)):
         # a sentence group still read wrong after every retake: this note keeps Bro's voice until the next run
         print('SKIPPED', n['id'], '(a sentence group was %.0f%% wrong after every retake)' % (worst * 100), flush=True); continue
     a = np.concatenate(parts[:-1]) if parts else np.zeros(1, dtype=np.float32)
     a = a / (float(np.max(np.abs(a))) or 1.0) * 0.9
     wav = os.path.join(out, n['id'] + '.wav'); sf.write(wav, a, SR)
     name = '%s-%s.mp3' % (n['id'], n['hash']); mp3 = os.path.join(out, name)
-    subprocess.run(['ffmpeg', '-loglevel', 'error', '-y', '-i', wav, '-af', 'loudnorm=I=-18:TP=-1.5:LRA=11', '-ar', '24000', '-ac', '1', '-c:a', 'libmp3lame', '-b:a', '64k', '-id3v2_version', '0', mp3], check=True)
+    # v34: an audiobook pace (the voice reads ~175 words a minute; tempo 0.92 brings it to ~160, pitch kept)
+    tempo = float(CFG.get('tempo', 1.0))
+    af = ('rubberband=tempo=%g:pitchq=quality,' % tempo if tempo != 1.0 else '') + 'loudnorm=I=-18:TP=-1.5:LRA=11'
+    subprocess.run(['ffmpeg', '-loglevel', 'error', '-y', '-i', wav, '-af', af, '-ar', '24000', '-ac', '1', '-c:a', 'libmp3lame', '-b:a', '64k', '-id3v2_version', '0', mp3], check=True)
     os.remove(wav)
     b = open(mp3, 'rb').read()
-    it = {'id': n['id'], 'file': name, 'sha256': hashlib.sha256(b).hexdigest(), 'bytes': len(b), 'secs': round(len(a) / SR, 1), 'text': n['hash'], 'worst_cer': round(worst, 3)}
+    it = {'id': n['id'], 'file': name, 'sha256': hashlib.sha256(b).hexdigest(), 'bytes': len(b), 'secs': round(len(a) / SR / float(CFG.get('tempo', 1.0)), 1), 'text': n['hash'], 'say': n.get('sayHash', ''), 'worst_cer': round(worst, 3)}
     with open(os.path.join(out, 'items.jsonl'), 'a') as f: f.write(json.dumps(it) + '\n')
     print('NOTE', n['id'], '%.0f s of audio in %.0f s' % (it['secs'], time.time() - t0), '· worst sentence group %.0f%% heard wrong' % (worst * 100), flush=True)

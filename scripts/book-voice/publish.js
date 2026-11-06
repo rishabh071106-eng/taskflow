@@ -2,6 +2,9 @@
 // never sees an entry whose file is not up yet), then removes takes no entry uses any more.
 //   node scripts/book-voice/publish.js <notes.json> <old manifest.json | -> <takes dir> <voice dir>
 // Needs GH_TOKEN (contents: write). A note keeps its old take while its text is unchanged and the voice is the same.
+// v34: a take records the spoken words it read (`say`, notes.js) and the voice that read it (`v`); a note whose text is
+// unchanged keeps its published take until this or a later run reads it again, so the app never loses a recording while
+// a new reading of everything goes through, run by run.
 'use strict';
 const fs = require('fs'), path = require('path');
 const { execFileSync } = require('child_process');
@@ -22,13 +25,13 @@ for (const d of fs.existsSync(takesDir) ? fs.readdirSync(takesDir) : []) {
     if (fs.existsSync(mp3) && fs.statSync(mp3).size === it.bytes) takes.set(it.id, Object.assign(it, { path: mp3 }));
   }
 }
-const sameVoice = old && old.voice_id === vid;
 const items = {}; const upload = [];
 for (const n of notes) {
   const t = takes.get(n.id);
-  if (t && t.text === n.hash) { items[n.id] = { file: t.file, sha256: t.sha256, bytes: t.bytes, secs: t.secs, text: t.text }; upload.push(t.path); continue; }
-  const o = sameVoice && old.items && old.items[n.id];
-  if (o && o.text === n.hash) items[n.id] = o; // unchanged: the published take stays
+  if (t && t.text === n.hash) { items[n.id] = { file: t.file, sha256: t.sha256, bytes: t.bytes, secs: t.secs, text: t.text, say: t.say || '', v: vid }; upload.push(t.path); continue; }
+  const o = old && old.items && old.items[n.id];
+  // unchanged text: the published take stays (one from another voice keeps that voice's id, so plan.js reads it again)
+  if (o && o.text === n.hash) items[n.id] = Object.assign({}, o, { v: o.v || (old.voice_id || '') });
 }
 const manifest = { voice: voice.name, license: voice.license, voice_id: vid, made: new Date().toISOString(), items };
 console.log('takes this run:', takes.size, '· in the manifest:', Object.keys(items).length, 'of', notes.length, 'notes');

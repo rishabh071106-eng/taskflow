@@ -3,7 +3,6 @@
   "version": "1.1.0",
   "main": "server.js",
   "scripts": {
-    "postinstall": "bash scripts/fetch-audio.sh",
     "start": "node server.js"
   },
   "dependencies": {

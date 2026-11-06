@@ -1,12 +1,15 @@
 // The book notes the studio narration reads, with the hash the server checks (modules/bookvoice.js textHash):
-//   node scripts/book-voice/notes.js <out.json> [site]   → [{ id, lang, text, hash }]
+//   node scripts/book-voice/notes.js <out.json> [site]   → [{ id, lang, text, hash, say, sayHash }]
 // English notes come from BOOK_SUMMARIES in server.js (the same text the app shows), the public-domain books'
 // chapter-by-chapter briefs from app/briefs/ ("brief-<id>"), the books in 7 chapters ("book-<id>", v33: app/bookfull.js
 // from the notes and app/ideas/<id>.json), Hindi notes from the live site's /api/book-hi (written there by
-// modules/booknotes-hi.js). The text is taken exactly as the server reads it.
+// modules/booknotes-hi.js). The text is taken exactly as the server reads it. v34: each English note also carries `say`,
+// the words the voice is given (spoken.js: times, numbers and short forms written out), and `sayHash`: a recording made
+// from other spoken words is read again (plan.js). The books in 7 chapters come first: they are what the app plays.
 'use strict';
 const fs = require('fs'), path = require('path'), vm = require('vm');
 const { textHash } = require('../../modules/bookvoice.js');
+const { spoken } = require('./spoken.js');
 
 function englishNotes(serverJs) {
   const m = /const BOOK_SUMMARIES=(\[[\s\S]*?\n\]);/.exec(serverJs);
@@ -49,7 +52,8 @@ async function hindiNotes(site) {
     const j = JSON.parse(fs.readFileSync(path.join(bdir, f), 'utf8')); if (j && j.text) briefs.push({ id: 'brief-' + f.slice(0, -5), lang: 'en', text: String(j.text) });
   }
   const full = fullBooks(books);
-  const all = [...en, ...briefs, ...full, ...hi].map(n => Object.assign(n, { hash: textHash(n.text) }));
+  const all = [...full, ...en, ...briefs, ...hi].map(n => Object.assign(n, { hash: textHash(n.text) }, n.lang === 'en' ? { say: spoken(n.text) } : {}))
+    .map(n => n.say ? Object.assign(n, { sayHash: textHash(n.say) }) : n);
   fs.writeFileSync(outFile, JSON.stringify(all, null, 1));
   console.log('notes:', en.length, 'English,', briefs.length, 'chapter-by-chapter briefs,', full.length, 'books in 7 chapters,', hi.length, 'Hindi,', all.reduce((s, n) => s + n.text.length, 0), 'characters');
 })().catch(e => { console.error(e); process.exit(1); });
