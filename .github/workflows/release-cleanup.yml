@@ -1,0 +1,22 @@
+# Throwaway-branch only, once: delete the release audio-v1. It holds ElevenLabs narrations of the pre-v32
+# chapter-by-chapter summaries of copyrighted books (audio-static.tar.gz), still publicly downloadable. Nothing uses it
+# since v34 (no postinstall download; audio-static/ is in git).
+name: Remove the old summary audio
+on:
+  push:
+    branches: [claude/deploy-diagnose]
+    paths: ['.github/workflows/release-cleanup.yml']
+permissions:
+  contents: write
+jobs:
+  remove:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete audio-v1 and its tag
+        env: { GH_TOKEN: '${{ github.token }}' }
+        run: |
+          gh release view audio-v1 -R "$GITHUB_REPOSITORY" --json name,assets --jq '.name + ": " + ([.assets[].name] | join(", "))'
+          gh release delete audio-v1 -R "$GITHUB_REPOSITORY" --yes --cleanup-tag
+          if gh release view audio-v1 -R "$GITHUB_REPOSITORY" > /dev/null 2>&1; then echo "still there"; exit 1; fi
+          echo "audio-v1 is gone"
+          echo "releases left: $(gh release list -R "$GITHUB_REPOSITORY" --limit 50 --json tagName --jq '[.[].tagName] | join(" ")')"

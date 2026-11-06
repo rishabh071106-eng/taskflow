@@ -53,7 +53,7 @@ jobs:
           echo "chat + speed served (home.css?v=25 / voice.js?v=30 in the page / V.earlyStart in voice.js): $(curl -fsS --max-time 20 https://brodoit.com/ | grep -c 'home.css?v=25') / $(curl -fsS --max-time 20 https://brodoit.com/ | grep -c 'voice.js?v=30') / $(curl -fsS --max-time 20 'https://brodoit.com/app/voice.js?v=30' | grep -c 'V.earlyStart')"
           echo "voice detector sent compressed (content-encoding, bytes): $(curl -sS --max-time 30 -H 'Accept-Encoding: gzip' -D - -o /tmp/w -w ' %{size_download}' https://brodoit.com/app/vendor/vad/ort-wasm-simd-threaded.wasm | grep -iE 'content-encoding|^ [0-9]' | tr -d '\r' | tr '\n' ' ')"
           echo "site commit (main is d7644d3f6773): $(j /api/health | jq -r .commit)"
-          for i in $(seq 1 60); do c=$(j /api/health | jq -r .commit); [ "$c" = "f7357ac06bc4" ] && break; sleep 20; done; sleep 30; echo "deployed f7357ac (v33 books only, in Bro's voice): now $(j /api/health | jq -r .commit) at $(date -u +%H:%M:%S)"
+          for i in $(seq 1 60); do c=$(j /api/health | jq -r .commit); [ "$c" = "87aaaeb408ce" ] && break; sleep 20; done; sleep 30; echo "deployed 87aaaeb (v34 read right, own covers): now $(j /api/health | jq -r .commit) at $(date -u +%H:%M:%S)"
           for t in 1; do sleep 5; echo "+$((t*2)) min: $(j '/api/news/desk?limit=60' | jq -c '{stories: (.stories | length), photo: ([.stories[] | select(.image != null)] | length), own: ([.stories[] | select(.image != null and (.image_credit.pool | not))] | length), pool: ([.stories[] | select(.image_credit.pool == true)] | length)}')"; done
           echo "== photo per story: section · pool? · photo title · source"; j '/api/news/desk?limit=60' | jq -r '.stories[] | [.category, (if .image_credit.pool then "pool" else "own" end), (.image_credit.title // "-")[0:40], (.image_credit.source // "-"), .headline[0:44]] | @tsv' | sort | head -70
           echo "sample credits: $(j '/api/news/desk?limit=60' | jq -c '[.stories[] | select(.image_credit != null) | {h: .headline[0:50], by: .image_credit.by, lic: .image_credit.license}] | .[0:4]')"
@@ -70,6 +70,13 @@ jobs:
           echo "Hindi book notes so far: $(j /api/book-hi | jq -c '.ids | length')"
           echo "news photos: $(j '/api/news/desk?limit=60' | jq -c '{stories: (.stories | length), with_photo: ([.stories[] | select(.image != null)] | length), credited: ([.stories[] | select(.image_credit != null)] | length), official: ([.stories[] | select(any(.sources[]?; .official == true))] | length), sample_credit: ([.stories[] | select(.image_credit != null) | .image_credit] | .[0])}')"
           echo "Bro's library (breathing + 104 notes + 9 pieces = 117): $(j /api/learn/voice-status | jq -c '.library')"
+          echo "== v34 books: own covers, no copyright risks"
+          P34=$(curl -fsS --max-time 20 https://brodoit.com/)
+          echo "page: ideas.js?v=34 $(grep -c 'ideas.js?v=34' <<<"$P34") · own covers (/app/covers/) $(grep -c '/app/covers/' <<<"$P34") · publisher cover hosts left $(grep -c 'covers.openlibrary\|openlibrary.org/b/' <<<"$P34") · India filter $(grep -c 'NOT_PD_INDIA' <<<"$P34")"
+          echo "covers served: $(for id in atomic deep medi psymoney tao; do curl -s -o /dev/null -w "$id %{http_code} %{content_type} %{size_download}B · " "https://brodoit.com/app/covers/$id.webp?v=1"; done)"
+          echo "terms notice: $(curl -fsS --max-time 20 https://brodoit.com/terms | grep -c 'not affiliated with, sponsored or endorsed') · credits Books: $(curl -fsS --max-time 20 https://brodoit.com/credits | grep -c "Book covers are Brodoit's own designs") · old 'Open Library' credit: $(curl -fsS --max-time 20 https://brodoit.com/credits | grep -c 'Book covers come from Open Library')"
+          echo "ideas.js v34 labels: $(curl -fsS --max-time 20 'https://brodoit.com/app/ideas.js?v=34' | grep -o "Every chapter, in Bro\\\\'s words\|Listen to every chapter\|Bro on this book, in 7 chapters" | sort | uniq -c | tr '\n' ' ')"
+          echo "the old summary audio release: $(curl -s -o /dev/null -w '%{http_code}' -L https://github.com/rishabh071106-eng/taskflow/releases/download/audio-v1/audio-static.tar.gz) (404 = gone)"
           echo "== v33 books: books only, in 7 chapters, read in Bro's voice"
           echo "page loads bookfull.js?v=33 / ideas.js?v=33 / ideas.css?v=33: $(grep -c 'bookfull.js?v=33' <<<"$P") / $(grep -c 'ideas.js?v=33' <<<"$P") / $(grep -c 'ideas.css?v=33' <<<"$P")"
           curl -fsS --max-time 20 'https://brodoit.com/app/ideas.js?v=33' > /tmp/i33.js
