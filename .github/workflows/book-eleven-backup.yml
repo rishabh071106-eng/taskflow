@@ -1,0 +1,28 @@
+# v35.3: the books ElevenLabs read on the Brodoit server, copied to the release "book-eleven-v1" so each is paid for once
+# (scripts/book-eleven/backup.js; modules/bookeleven.js takes them back from there before recording anything).
+name: Book voice backup (ElevenLabs)
+on:
+  schedule:
+    - cron: '41 */3 * * *'
+  push:
+    branches: [main]
+    paths: ['scripts/book-eleven/backup.js', '.github/workflows/book-eleven-backup.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: book-eleven-backup
+  cancel-in-progress: false
+jobs:
+  backup:
+    if: github.repository == 'rishabh071106-eng/taskflow'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Copy new recordings to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/book-eleven/backup.js https://brodoit.com

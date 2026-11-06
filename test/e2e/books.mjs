@@ -81,6 +81,10 @@ try {
   r = await fetch(BASE + '/app/covers/atomic.webp?v=1'); const cvBytes = r.ok ? (await r.arrayBuffer()).byteLength : 0;
   const page0 = await (await fetch(BASE + '/')).text();
   check('every book has its own cover (app/covers/<id>.webp, served as image/webp) and the page names no cover site', noCover.length === 0 && r.ok && /image\/webp/.test(r.headers.get('content-type') || '') && cvBytes > 3000 && !/openlibrary\.org\/b\/|covers\.openlibrary|books\.google|amazon\.com\/images/.test(page0), { noCover, type: r.headers.get('content-type'), cvBytes });
+  // v35.3: what the cloud backup reads (the ElevenLabs recordings: none on a test server) and nothing else by name
+  r = await fetch(BASE + '/api/book-eleven/index.json'); const bix = r.ok ? await r.json() : null;
+  const bf404 = (await fetch(BASE + '/api/book-eleven/file/..%2Fserver.js')).status, bf404b = (await fetch(BASE + '/api/book-eleven/file/book-atomic-x.mp3')).status;
+  check('/api/book-eleven/index.json lists the ElevenLabs recordings for the cloud backup; /api/book-eleven/file/ serves only those', bix && typeof bix.items === 'object' && bf404 === 404 && bf404b === 404, { bix, bf404, bf404b });
 
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
   const page = await ctx.newPage(); const errs = [];
