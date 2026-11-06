@@ -97,11 +97,19 @@
       if (c.meet) h += '<p class="bi-meet">' + esc(c.meet) + '</p>';
       if (c.h) h += '<h5>' + esc(c.h) + '</h5>';
       if (c.story) h += '<p class="bi-story">' + esc(c.story) + '</p>';
+      // v35: the story's decision, as Bro asks it; the best move opens on a tap (or is heard in the next breath)
+      if (c.think) {
+        const k = c.think;
+        h += '<div class="bi-think"><b>' + T('Pause and think', 'रुकें और सोचें') + '</b><p>' + esc(k.q) + '</p><ol>' + k.o.map(o => '<li>' + esc(o) + '</li>').join('') + '</ol>'
+          + '<details><summary>' + T('See the best move', 'सबसे अच्छा कदम देखें') + '</summary><p><b>' + esc(k.o[k.a]) + '</b> ' + esc(k.why) + '</p></details></div>';
+      }
       if (c.take) h += '<p class="bi-take">' + esc(c.take) + '</p>';
       if (c.tryIt) {
         const k = i - 1, tried = (() => { try { return !!(S.bkTried && S.bkTried[base + ':' + k]); } catch (e) { return false; } })();
         h += '<div class="bkp-try"><b>' + T('Try it today', 'आज आज़माएँ') + '</b><span>' + esc(c.tryIt) + '</span>' + (tried ? '<button class="on" disabled>' + T('Added to today', 'आज में जुड़ गया') + '</button>' : '<button onclick="bkTry(\'' + base + '\',' + k + ',this)">' + T('Add to my tasks', 'मेरे कामों में जोड़ें') + '</button>') + '</div>';
       }
+      if (c.recap && c.recap.length) h += '<div class="bi-recap"><b>' + T('The whole book in one breath', 'पूरी किताब, एक साँस में') + '</b><ol>' + c.recap.map(x => '<li>' + esc(x) + '</li>').join('') + '</ol></div>';
+      if (c.week && c.week.length) h += '<div class="bi-week"><b>' + T('Your week', 'आपका हफ़्ता') + '</b>' + c.week.map(d => '<p><span>' + esc(d.day) + '</span>' + esc(d.tryIt) + '</p>').join('') + '<p><span>' + T('Weekend', 'वीकेंड') + '</span>' + T('Look back at what changed, and keep the one step that helped you most.', 'देखें क्या बदला, और वह एक कदम रखें जिसने सबसे ज़्यादा मदद की।') + '</p></div>';
       if (c.bro) h += '<p class="bi-bro"><b>' + T("Bro's take", 'Bro की राय') + '</b> ' + esc(c.bro) + '</p>';
       h += '</article>';
     });

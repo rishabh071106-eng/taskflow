@@ -1240,6 +1240,7 @@ When you are ready, open your eyes gently. Carry this peace with you through the
 // Bro's one voice; created once Bro Core is up (below). The routes serve its file first.
 let _broLib = null;
 let _bookVoice = null; // v31 studio narration of the book notes (modules/bookvoice.js)
+let _bookEleven = null; // v35 the books read by ElevenLabs in Bro's voice, recorded on this server (modules/bookeleven.js)
 const BREATHE_CUES = { 'breathe-in': 'Breathe in.', 'breathe-out': 'Breathe out.', 'breathe-hold': 'Hold.', 'breathe-done': 'Session complete. Well done.' };
 // v23: book summaries in Bro's voice. A summary is recorded the first time someone plays it (all 106 at once would be
 // hours of CPU and ~700 MB); until then the page reads it live in Bro's voice. The texts are the page's own
@@ -1372,6 +1373,8 @@ app.get('/api/audio-script/:id', (req, res) => {
 // v33: which books the server has in Bro's studio voice right now ({ items: { id: seconds } }); no account needed, ids only
 app.get('/api/book-voice/ready', (req, res) => {
   let items = {}; try { items = _bookVoice ? _bookVoice.ready() : {}; } catch (e) { items = {}; }
+  // v35: a book ElevenLabs has read is played from that recording (and its length is that recording's)
+  try { if (_bookEleven) Object.assign(items, _bookEleven.ready()); } catch (e) { /* the studio list stands */ }
   res.set('Cache-Control', 'public, max-age=120').json({ items });
 });
 app.get('/api/book-audio/:id', (req, res) => {
@@ -1387,6 +1390,9 @@ app.get('/api/book-audio/:id', (req, res) => {
   // v23: one voice. Bro's recording of the summary when it exists; otherwise 404 (the page reads it live in Bro's voice)
   // and the recording is queued. The old narrators (edge-tts English, ElevenLabs Hindi) are no longer played; BOOKS_OLD_AUDIO=1 brings them back.
   // v31: the studio narration (modules/bookvoice.js: an openly licensed voice model, recorded in CI) comes first
+  // v35: ElevenLabs (Bro's voice, recorded on this server) first, then the studio narration
+  const ev = _bookEleven && _bookEleven.file(id);
+  if (ev && require('./modules/brolibrary.js').sendAudio(req, res, ev, 'no-cache')) return;
   const pv = _bookVoice && _bookVoice.file(id);
   if (pv && require('./modules/brolibrary.js').sendAudio(req, res, pv, 'no-cache')) return;
   const bro = _broLib && _broLib.file('note-' + id);
@@ -2806,8 +2812,8 @@ const HTML=`<!DOCTYPE html><html lang="en"><head>
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png?v=6">
 <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png?v=6">
 <link rel="apple-touch-icon" href="/icon-192.png?v=6">
-<link rel="stylesheet" href="/app/theme.css?v=21"><link rel="stylesheet" href="/app/app.css?v=21"><link rel="stylesheet" href="/app/news.css?v=30"><link rel="stylesheet" href="/app/ideas.css?v=33"><link rel="stylesheet" href="/app/steps.css?v=21"><link rel="stylesheet" href="/app/admin.css?v=23"><link rel="stylesheet" href="/app/onboarding.css?v=21"><link rel="stylesheet" href="/app/cards.css?v=22"><link rel="stylesheet" href="/app/home.css?v=25"><link rel="stylesheet" href="/app/tasks.css?v=22"><link rel="stylesheet" href="/app/books.css?v=21"><link rel="stylesheet" href="/app/learn.css?v=23">
-<script src="/app/icons.js?v=21" defer></script><script src="/app/bookfull.js?v=33" defer></script><script src="/app/ideas.js?v=34" defer></script><script src="/app/cards.js?v=21" defer></script><script src="/app/learn.js?v=24" defer></script><script src="/app/you.js?v=23" defer></script><script src="/app/haptics.js?v=21" defer></script><script src="/app/mascot.js?v=21" defer></script><script src="/app/say.js?v=2" defer></script><script src="/app/voice.js?v=31" defer></script><script src="/app/micgain.js?v=1" defer></script><script src="/app/voicenote.js?v=2" defer></script><script src="/app/news.js?v=30" defer></script><script src="/app/notify.js?v=2" defer></script><script src="/app/steps.js?v=22" defer></script><script src="/app/admin.js?v=25" defer></script><script src="/app/onboarding.js?v=22" defer></script><script src="/app/motion.js?v=21" defer></script>
+<link rel="stylesheet" href="/app/theme.css?v=21"><link rel="stylesheet" href="/app/app.css?v=21"><link rel="stylesheet" href="/app/news.css?v=30"><link rel="stylesheet" href="/app/ideas.css?v=35"><link rel="stylesheet" href="/app/steps.css?v=21"><link rel="stylesheet" href="/app/admin.css?v=23"><link rel="stylesheet" href="/app/onboarding.css?v=21"><link rel="stylesheet" href="/app/cards.css?v=22"><link rel="stylesheet" href="/app/home.css?v=25"><link rel="stylesheet" href="/app/tasks.css?v=22"><link rel="stylesheet" href="/app/books.css?v=21"><link rel="stylesheet" href="/app/learn.css?v=23">
+<script src="/app/icons.js?v=21" defer></script><script src="/app/bookfull.js?v=35" defer></script><script src="/app/ideas.js?v=35" defer></script><script src="/app/cards.js?v=21" defer></script><script src="/app/learn.js?v=24" defer></script><script src="/app/you.js?v=23" defer></script><script src="/app/haptics.js?v=21" defer></script><script src="/app/mascot.js?v=21" defer></script><script src="/app/say.js?v=2" defer></script><script src="/app/voice.js?v=31" defer></script><script src="/app/micgain.js?v=1" defer></script><script src="/app/voicenote.js?v=2" defer></script><script src="/app/news.js?v=30" defer></script><script src="/app/notify.js?v=2" defer></script><script src="/app/steps.js?v=22" defer></script><script src="/app/admin.js?v=25" defer></script><script src="/app/onboarding.js?v=22" defer></script><script src="/app/motion.js?v=21" defer></script>
 <!-- Open Graph -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Brodoit">
@@ -18038,6 +18044,8 @@ try{require('./modules/credits.js').install(app,{appRoot:__dirname})}catch(e){co
 // Learning schools (Python + Languages): progress, Bro the mission AI, narration recorded once (modules/learn.js).
 try{_broLib=require('./modules/brolibrary.js').create({mediaDir:MEDIA_DIR,items:broLibraryItems});global._broLibrary=_broLib}catch(e){console.log('[bro-library] off:',e.message)}
 try{_bookVoice=require('./modules/bookvoice.js').create({mediaDir:MEDIA_DIR,text:id=>{const b=_bookText(id);return b?b.text:''}});global._bookVoice=_bookVoice;_bookVoice.start()}catch(e){console.log('[book-voice] off:',e.message)}
+// v35: every book in 7 chapters, then the public-domain walk-throughs, read by ElevenLabs on this server (credits allowing)
+try{_bookEleven=require('./modules/bookeleven.js').create({mediaDir:MEDIA_DIR,getSetting:typeof getSetting==='function'?getSetting:(k=>process.env[k]||''),text:id=>{const b=_bookText(id);return b?b.text:''},ids:()=>{const out=_allBookIds().map(id=>'book-'+id).filter(id=>_bookText(id));try{for(const f of _fs.readdirSync(_path.join(__dirname,'app','briefs')).filter(f=>/^[a-z0-9_-]+\.json$/i.test(f)).sort())out.push('brief-'+f.slice(0,-5))}catch(e){}return out}});global._bookEleven=_bookEleven;_bookEleven.start()}catch(e){console.log('[book-eleven] off:',e.message)}
 // v27: recordings of the pre-v27 book briefs ("book-<id>.mp3", every voice) are deleted once: Bro reads his own notes now
 try{const root=path.join(MEDIA_DIR,'bro-voice');let n=0;for(const v of _fs.readdirSync(root)){const d=path.join(root,v);try{if(!_fs.statSync(d).isDirectory())continue;for(const f of _fs.readdirSync(d))if(/^book-.*\.mp3$/.test(f)){_fs.unlinkSync(path.join(d,f));n++}}catch(e){}}if(n)console.log('[books] removed',n,'recordings of the old briefs')}catch(e){/* no recordings yet */}
 let _learn=null;try{const _st=require('./modules/studio.js');_st.configure({mediaDir:MEDIA_DIR});_learn=require('./modules/learn.js').install(app,{db,auth,getSetting,appRoot:__dirname,mediaDir:MEDIA_DIR,STUDIO:_st,_callGemini,_callGroq,hasGroq:()=>!!groqKey(),hasGemini:()=>!!geminiKey()})}catch(e){console.log('[learn] off:',e.message)}
