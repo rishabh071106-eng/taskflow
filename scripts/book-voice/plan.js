@@ -30,7 +30,10 @@ const en = todo.filter(n => n.lang === 'en').length, hi = todo.filter(n => n.lan
 const RUNNER_CHARS = Number(process.env.BOOK_VOICE_RUNNER_CHARS) || 27000;
 const enAll = todo.filter(n => n.lang === 'en');
 const enChars = enAll.reduce((s, n) => s + n.text.length, 0);
-const shards = en ? Math.min(20, en, Math.max(1, Math.ceil(enChars / 15000))) : 0;
+// v35.1: at most 16 runners (BOOK_VOICE_MAX_RUNNERS), so the account's 20 job slots always leave room for a deploy, the
+// live check and the probes (a 20-runner run once held a deploy back for hours)
+const MAX_RUNNERS = Math.max(1, Math.min(20, Number(process.env.BOOK_VOICE_MAX_RUNNERS) || 16));
+const shards = en ? Math.min(MAX_RUNNERS, en, Math.max(1, Math.ceil(enChars / 15000))) : 0;
 const load = Array(shards).fill(0); const later = new Set();
 for (const n of enAll) {
   const k = load.indexOf(Math.min(...load));
