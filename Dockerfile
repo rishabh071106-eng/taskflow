@@ -15,7 +15,7 @@ ENV ONNXRUNTIME_NODE_INSTALL_CUDA=skip
 # Bro's own brain runs llama.cpp's prebuilt CPU build: never download or compile one at install time
 ENV NODE_LLAMA_CPP_SKIP_DOWNLOAD=true
 
-# Install deps (postinstall runs fetch-audio.sh)
+# Install deps (v34: no postinstall download: the old summary audio release is gone; audio-static/ is in git)
 RUN npm install --production \
     && rm -rf node_modules/@node-llama-cpp/linux-x64-cuda node_modules/@node-llama-cpp/linux-x64-cuda-ext \
               node_modules/@node-llama-cpp/linux-x64-vulkan node_modules/@node-llama-cpp/linux-arm64 node_modules/@node-llama-cpp/linux-armv7l

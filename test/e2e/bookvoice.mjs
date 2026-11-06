@@ -86,6 +86,47 @@ const notes = JSON.parse(fs.readFileSync(notesFile, 'utf8'));
 const plain = notes.filter(n => !/^(brief|book)-/.test(n.id)), briefN = notes.filter(n => n.id.startsWith('brief-')), bookN = notes.filter(n => n.id.startsWith('book-'));
 check('scripts/book-voice/notes.js lists all 104 English notes (v32: the 5 public-domain briefs; v33: the 104 books in 7 chapters) with their hash', plain.length === 104 && briefN.length === 5 && bookN.length === 104 && notes.every(n => n.lang === 'en' && /^[0-9a-f]{12}$/.test(n.hash) && n.text.length > 2000), [plain.length, briefN.length, bookN.length]);
 
+// ── v34: the voice is given the spoken words (times, numbers and short forms written out) ──
+const { spoken } = require(ROOT + '/scripts/book-voice/spoken.js');
+const SAY = [
+  ['Wake at 5:30, run three kilometres.', 'Wake at five thirty, run three kilometres.'],
+  ['Then 7:10, 7:20, 7:30. At 7:45 he jumps up.', 'Then seven ten, seven twenty, seven thirty. At seven forty-five he jumps up.'],
+  ['His alarm rings at 7:00. He hits snooze.', "His alarm rings at seven o'clock. He hits snooze."],
+  ['He reaches the office at 9:30 and calls at 9.15.', 'He reaches the office at nine thirty and calls at nine fifteen.'],
+  ['It is 2 a.m. and she is awake. He wakes at 6 a.m. Then he runs.', 'It is two A. M. and she is awake. He wakes at six A. M. Then he runs.'],
+  ['This is The 5 AM Club, by Robin Sharma.', 'This is The five A. M. Club, by Robin Sharma.'],
+  ['Meet Dinesh, a 36-year-old AC repair contractor.', 'Meet Dinesh, a thirty-six-year-old A. C. repair contractor.'],
+  ['She starts a SIP and pays by UPI.', 'She starts an S. I. P. and pays by U. P. I.'],
+  ['in 1987, the 1920s, 40% off, ₹1,200, 5-10 minutes, 24/7, the 21st time', 'in nineteen eighty-seven, the nineteen twenties, forty percent off, one thousand two hundred rupees, five to ten minutes, twenty-four seven, the twenty-first time'],
+  ['Dr. Minz says no. Then a BATNA — a backup.', 'Doctor Minz says no. Then a Batna, a backup.'],
+];
+const sayBad = SAY.filter(([a, b]) => spoken(a) !== b).map(([a]) => [a, spoken(a)]);
+check('spoken.js writes out times (5:30 → five thirty, never "five thousand thirty"), numbers, a.m., percentages, rupees and short forms (SIP → S. I. P.)', sayBad.length === 0, sayBad);
+check('…and the check side spells letters as words, so a take that said "sip" for SIP fails', spoken('SIP at 5:30 a.m.', { letters: 'names' }) === 'ess eye pee at five thirty ay em.' && spoken('S. I. P. at five thirty A. M.', { letters: 'names' }) === 'ess eye pee at five thirty ay em.', spoken('SIP at 5:30 a.m.', { letters: 'names' }));
+const said = notes.filter(n => n.lang === 'en');
+check('every English note carries the spoken words (no digits, ₹ or % left; same chapters) and their hash; the books in 7 chapters come first', said.every(n => n.say && !/[0-9₹%$]/.test(n.say) && n.say.split('\n\n').length === n.text.split('\n\n').length && /^[0-9a-f]{12}$/.test(n.sayHash)) && notes[0].id.startsWith('book-') && notes.findIndex(n => !n.id.startsWith('book-')) === bookN.length, said.filter(n => !n.say || /[0-9₹%$]/.test(n.say)).map(n => n.id).slice(0, 5));
+const lines = execFileSync(process.execPath, [ROOT + '/scripts/book-voice/spoken.js', '--lines', 'names'], { input: JSON.stringify('nine thousand thirty') + '\n' + JSON.stringify('9:30') + '\n' }).toString().trim().split('\n').map(l => JSON.parse(l));
+check('spoken.js --lines (the recorder checks each take through it): "9:30" and "nine thousand thirty" differ', lines[0] === 'nine thousand thirty' && lines[1] === 'nine thirty', lines);
+const { check: chk } = require(ROOT + '/scripts/book-voice/spoken.js'); const flat = t => chk(t).toLowerCase().replace(/[^a-z0-9]/g, '');
+check('…the check form (record.py, --lines check) reads numbers however Whisper writes them, and still catches a misreading', flat('Then seven ten, seven thirty. At seven forty-five he wakes in nineteen eighty-seven.') === flat('Then 710, 7:30. At 7.45 he wakes in 1987.') && flat('three kilometres; she realises') === flat('3 kilometers; she realizes') && flat('Wake at five thirty') !== flat('Wake at 5,030') && flat('an S. I. P.') !== flat('a sip'), [chk('Then 710, 7:30.'), chk('Wake at 5,030')]);
+
+// ── v34: a new reading goes through run by run without losing a published recording ──
+{
+  const dir = fs.mkdtempSync('/tmp/p34plan-'), voiceDir = ROOT + '/scripts/book-voice/voice';
+  const { voiceId } = require(ROOT + '/scripts/book-voice/voiceid.js'); const vid = voiceId(voiceDir);
+  const few = [bookN[0], bookN[1], plain[0]];
+  fs.writeFileSync(dir + '/notes.json', JSON.stringify(few));
+  const oldMan = { voice_id: vid, items: {
+    [few[0].id]: { file: 'a.mp3', text: few[0].hash },                              // before v34: no spoken words
+    [few[1].id]: { file: 'b.mp3', text: few[1].hash, say: few[1].sayHash, v: vid },  // read from today's words
+    [few[2].id]: { file: 'c.mp3', text: few[2].hash, say: few[2].sayHash, v: 'another-voice' } } };
+  fs.writeFileSync(dir + '/old.json', JSON.stringify(oldMan));
+  const env = Object.assign({}, process.env); delete env.GITHUB_OUTPUT;
+  const out = execFileSync(process.execPath, [ROOT + '/scripts/book-voice/plan.js', dir + '/notes.json', dir + '/old.json', voiceDir, dir + '/todo.json'], { env }).toString();
+  const todo = JSON.parse(fs.readFileSync(dir + '/todo.json', 'utf8')).map(n => n.id);
+  check('plan.js reads again a recording made before v34 and one from another voice, and keeps one made from today\'s spoken words', todo.includes(few[0].id) && todo.includes(few[2].id) && !todo.includes(few[1].id) && /en=2\b/.test(out), { todo, out });
+}
+
 // ── the real server ──
 const DB = TMP + '/bv.db'; fs.copyFileSync(TEMPLATE_DB, DB); for (const x of ['-wal', '-shm']) try { fs.rmSync(DB + x); } catch (e) {}
 const { token } = (() => { const db = new Database(DB, { readonly: true }); const u = db.prepare('SELECT token FROM users ORDER BY created_at ASC, rowid ASC LIMIT 1').get(); db.close(); return u; })();

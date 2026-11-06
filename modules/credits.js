@@ -1,6 +1,8 @@
 // /credits — attribution for the card photos (Wikimedia Commons, free licenses; list in app/img/cards/credits.json written by
-// scripts/fetch-images.js) and the book cover source. Linked from the You tab.
+// scripts/fetch-images.js), the voices, and what the books are (v34: no publisher cover art). Linked from the You tab.
 'use strict';
+// v34: what the books are, and whose words are quoted
+const BOOKS = `<h2 style="font:600 18px/1.3 var(--b-sans);margin:28px 0 6px">Books</h2><p>Bro's notes and the stories in every book are written for Brodoit, in Bro's own words: they are not the books, and Brodoit is not linked to, sponsored or endorsed by any author or publisher. Titles and authors' names are used only to say which book is discussed. Book covers are Brodoit's own designs.</p><p>The five public-domain books quote only public-domain translations: Meditations by Marcus Aurelius and the Discourses of Epictetus (George Long, 1862 and 1877), the Tao Te Ching (James Legge, 1891), The Richest Man in Babylon (George S. Clason, 1926) and Letters from a Stoic (Seneca; told in Bro's words). Audiobooks are free public-domain recordings by LibriVox volunteers, played from the Internet Archive.</p>`;
 const fs = require('fs'), path = require('path');
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
@@ -10,7 +12,7 @@ function install(app, deps) {
   const voices = () => {
     let bv = null; try { bv = global._bookVoice ? global._bookVoice.stats() : null; } catch (e) { bv = null; }
     const book = bv && bv.voice ? `Book notes are read by ${esc(bv.voice)}${bv.license ? ' (' + esc(bv.license) + ' licence)' : ''}, recorded by Brodoit. ` : '';
-    return `<h2 style="font:600 18px/1.3 var(--b-sans);margin:28px 0 6px">Voices</h2><p>${book}Bro's voice is Kokoro-82M (Apache-2.0), running on our own server.</p>`;
+    return `<h2 style="font:600 18px/1.3 var(--b-sans);margin:28px 0 6px">Voices</h2><p>${book}Bro's voice is Kokoro-82M (Apache-2.0), running on our own server.</p>` + BOOKS;
   };
   app.get('/credits', (req, res) => {
     let c = {}; try { c = JSON.parse(fs.readFileSync(file, 'utf8')); } catch (e) {}
@@ -22,7 +24,7 @@ a.back{display:inline-flex;align-items:center;min-height:44px;color:var(--b-prim
 ul{list-style:none;padding:0;margin:0;display:grid;gap:10px}li{display:flex;gap:12px;align-items:center;background:var(--b-card);border-radius:16px;padding:10px;min-width:0}li>div{min-width:0;overflow-wrap:anywhere}li img{width:72px;height:48px;object-fit:cover;border-radius:10px;flex:0 0 auto}
 li b{display:block;font-weight:600;font-size:14px}li span{display:block;font-size:13px;color:var(--b-mute)}li a{color:var(--b-ink-2);display:inline-block;padding:6px 0}</style>
 <script>try{var t=localStorage.getItem('theme')||localStorage.getItem('bd_theme');if(t==='aurora'||t==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script></head>
-<body><main><a class="back" href="/?tab=profile">← Brodoit</a><h1>Photo credits</h1><p>Card photos come from Wikimedia Commons under free licenses. Thank you to every photographer below. Book covers come from Open Library.</p>
+<body><main><a class="back" href="/?tab=profile">← Brodoit</a><h1>Photo credits</h1><p>Card photos come from Wikimedia Commons under free licenses. Thank you to every photographer below.</p>
 <ul>${rows || '<li><div><b>No photos yet</b><span>They are added automatically.</span></div></li>'}</ul>${voices()}</main></body></html>`);
   });
 }

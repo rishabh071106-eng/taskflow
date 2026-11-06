@@ -5,7 +5,8 @@
 // Bro's take. Never the book's own stories or words.
 // The whole book is recorded in Bro's studio voice ("book-<id>", .github/workflows/book-voice.yml); until a book's
 // recording is on the server, Listen plays Bro's notes on it (recorded already, the same 7 parts), never a live voice.
-// The public-domain books also have the original, chapter by chapter (app/briefs/<id>.json), played as "brief-<id>".
+// The public-domain books also have every chapter in Bro's words, with lines from a public-domain translation
+// (app/briefs/<id>.json), played as "brief-<id>".
 //   window.BookIdeas: has(id), full(id), mins(id), play(id, chapter?), chaptersHtml(book), readHtml(book),
 //   briefHtml(book), playBrief(id), isPD(id)
 (function () {
@@ -73,7 +74,7 @@
   BI.chaptersHtml = function (b) {
     if (!b || !BI.has(b.id)) return '';
     const t = titles(b), f = BI.full(b.id), live = liveChapter(b.id);
-    let h = '<section class="bkp-sec bi-ch" id="bi-ch"><div class="bkp-eyebrow">' + T('The book in 7 chapters', 'किताब, 7 अध्यायों में') + '</div><h2>' + T('Chapters', 'अध्याय') + '</h2>';
+    let h = '<section class="bkp-sec bi-ch" id="bi-ch"><div class="bkp-eyebrow">' + T('Bro on this book, in 7 chapters', 'इस किताब पर Bro, 7 अध्यायों में') + '</div><h2>' + T('Chapters', 'अध्याय') + '</h2>';
     h += '<p class="bkp-sub">' + (f ? T('Read by Bro. Follow ' + esc(f.hero.name) + ', ' + esc(f.hero.who) + '. Tap a chapter to listen from there.', 'Bro की आवाज़ में। ' + esc(f.hero.name) + ' की कहानी के साथ चलें। किसी अध्याय पर टैप करें, वहीं से सुनें।') : T('Read by Bro. Tap a chapter to listen from there.', 'Bro की आवाज़ में। किसी अध्याय पर टैप करें, वहीं से सुनें।')) + '</p>';
     if (BI.ready && !isReady(b.id)) h += '<p class="bi-rec">' + T('Bro is recording this book in his voice. Until it is ready, Listen plays his notes on it (' + b.mins + ' min).', 'Bro यह किताब अपनी आवाज़ में रिकॉर्ड कर रहा है। तब तक सुनें दबाने पर उसके नोट्स चलेंगे (' + b.mins + ' मिनट)।') + '</p>';
     h += '<div class="bi-chs">';
@@ -107,16 +108,16 @@
     return h + '</section>';
   };
 
-  // ── the public-domain books: the original, chapter by chapter, read whole ──
+  // ── the public-domain books: every chapter in Bro's words (public-domain translations quoted), read whole ──
   BI.briefHtml = function (b) {
     if (!b || !BI.isPD(b.id)) return '';
     const br = BI.briefs[b.id];
     if (!br) { getBrief(b.id).then(rerender).catch(() => {}); return ''; }
     const paras = br.text.split(/\n\s*\n/); paras[0] = paras[0].replace(/^[^\n]*?The whole book, chapter by chapter\.\s*/, '');
     const mins = Math.max(1, Math.round(br.text.length / 15 / 60));
-    let h = '<section class="bkp-sec bi-brief" id="bi-brief"><div class="bkp-eyebrow">' + T('Public domain · the original', 'पब्लिक डोमेन · मूल किताब') + '</div><h2>' + T('The original, chapter by chapter', 'मूल किताब, अध्याय दर अध्याय') + '</h2>';
-    h += '<p class="bkp-sub">' + T('This book is old enough to belong to everyone, so here is the original from start to end: ' + mins + ' minutes, read in Bro\'s voice.', 'यह किताब इतनी पुरानी है कि सबकी है, इसलिए यहाँ मूल किताब शुरू से अंत तक: ' + mins + ' मिनट, Bro की आवाज़ में।') + '</p>';
-    h += '<button class="bi-start" onclick="BookIdeas.playBrief(\'' + b.id + '\')">' + T('Listen to the original', 'मूल किताब सुनें') + ' · ' + mins + ' ' + T('min', 'मिनट') + '</button><div class="bi-brief-txt">';
+    let h = '<section class="bkp-sec bi-brief" id="bi-brief"><div class="bkp-eyebrow">' + T('Public domain · every chapter', 'पब्लिक डोमेन · हर अध्याय') + '</div><h2>' + T('Every chapter, in Bro\'s words', 'हर अध्याय, Bro के शब्दों में') + '</h2>';
+    h += '<p class="bkp-sub">' + T('This book is old enough to belong to everyone, so Bro walks you through every chapter, start to end, with lines from its old public-domain translation: ' + mins + ' minutes, in Bro\'s voice.', 'यह किताब इतनी पुरानी है कि सबकी है, इसलिए Bro आपको शुरू से अंत तक हर अध्याय से गुज़ारता है, इसके पुराने पब्लिक डोमेन अनुवाद की पंक्तियों के साथ: ' + mins + ' मिनट, Bro की आवाज़ में।') + '</p>';
+    h += '<button class="bi-start" onclick="BookIdeas.playBrief(\'' + b.id + '\')">' + T('Listen to every chapter', 'हर अध्याय सुनें') + ' · ' + mins + ' ' + T('min', 'मिनट') + '</button><div class="bi-brief-txt">';
     paras.forEach(p => { const m = /^((?:Book|Chapter) [a-z]+\.\s*[^.]{3,80}\.|The bottom line[.:])\s*/i.exec(p); h += m ? '<p><b>' + esc(m[1].replace(/[.:]$/, '')) + '.</b> ' + esc(p.slice(m[0].length)) + '</p>' : '<p>' + esc(p) + '</p>'; });
     h += '</div><p class="bi-pd">' + esc(br.title) + ' · ' + esc(br.author) + ' · ' + esc(br.pd) + '</p></section>';
     return h;

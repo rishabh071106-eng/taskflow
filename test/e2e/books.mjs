@@ -76,6 +76,11 @@ try {
   check('…and neither a book nor a brief is queued for Bro\'s live engine (the studio narration records them)', !wanted.some(x => /brief|book-/.test(x)), wanted);
   r = await fetch(BASE + '/app/bookfull.js?v=33');
   check('/app/bookfull.js is served (the same builder the server and the recorder use)', r.ok && /BookFull/.test(await r.text()));
+  // v34: Brodoit's own covers, one per book, drawn by scripts/covers; nothing from a publisher or a cover site
+  const noCover = books.map(b => b.id.slice(5)).filter(id => !fs.existsSync(path.join(ROOT, 'app', 'covers', id + '.webp')));
+  r = await fetch(BASE + '/app/covers/atomic.webp?v=1'); const cvBytes = r.ok ? (await r.arrayBuffer()).byteLength : 0;
+  const page0 = await (await fetch(BASE + '/')).text();
+  check('every book has its own cover (app/covers/<id>.webp, served as image/webp) and the page names no cover site', noCover.length === 0 && r.ok && /image\/webp/.test(r.headers.get('content-type') || '') && cvBytes > 3000 && !/openlibrary\.org\/b\/|covers\.openlibrary|books\.google|amazon\.com\/images/.test(page0), { noCover, type: r.headers.get('content-type'), cvBytes });
 
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
   const page = await ctx.newPage(); const errs = [];
@@ -110,8 +115,8 @@ try {
   const l2 = await page.evaluate(() => ({ id: BKP.book.id, sec: _bkSecAt(BKP.pendingChar != null ? BKP.pendingChar : _bkPos().ch), n: document.querySelectorAll('.bkp-np').length }));
   check('…tap chapter 4 → the book from chapter 4', l2.id === 'book-atomic' && l2.sec === 3 && l2.n === 1, l2);
   await page.evaluate(() => { S.bkNP = false; render(); }); await sleep(300);
-  const mini = await page.evaluate(() => ({ t: (document.querySelector('.bk-mini-info b') || {}).textContent, cover: bookCover(BKP.book.id) === bookCover('atomic') && !!bookCover('atomic') }));
-  check('…the mini player shows the book (its title, and the book\'s cover for "book-atomic")', mini.t === 'Atomic Habits' && mini.cover, mini);
+  const mini = await page.evaluate(() => ({ t: (document.querySelector('.bk-mini-info b') || {}).textContent, cover: bookCover(BKP.book.id), img: document.querySelectorAll('img[src*="openlibrary"], img[src*="covers."]').length, grad: !!(document.querySelector('.bk-mini-cover') || {}).style }));
+  check('…the mini player shows the book (its title, on Brodoit\'s own cover, drawn by scripts/covers: v34, no publisher cover art anywhere)', mini.t === 'Atomic Habits' && mini.cover === '/app/covers/atomic.webp?v=1' && mini.img === 0 && mini.grad, mini);
   await page.evaluate(() => { try { bkpStop(true); } catch (e) {} closeBookReader(); }); await sleep(200);
 
   // Deep Work: not recorded yet → Bro's notes, the same 7 parts
@@ -133,7 +138,7 @@ try {
   // the public-domain original
   await page.evaluate(() => openBookSummary('medi')); await page.waitForSelector('#bi-brief', { timeout: 10000 }); await sleep(300);
   const m1 = await page.evaluate(() => ({ h: document.querySelector('#bi-brief h2').textContent, btn: document.querySelector('#bi-brief .bi-start').textContent, paras: document.querySelectorAll('#bi-brief .bi-brief-txt p').length, first: (document.querySelector('#bi-brief .bi-brief-txt p b') || {}).textContent, chapters: document.querySelectorAll('#bi-ch .bi-row').length }));
-  check('Meditations: its 7 chapters, and the original chapter by chapter with "Listen to the original"', m1.h === 'The original, chapter by chapter' && /^Listen to the original · \d+ min$/.test(m1.btn) && m1.paras === 11 && m1.first === 'Book one. Debts and lessons.' && m1.chapters === 7, m1);
+  check('Meditations: its 7 chapters, and every chapter of the public-domain book in Bro\'s words with "Listen to every chapter"', m1.h === "Every chapter, in Bro's words" && /^Listen to every chapter · \d+ min$/.test(m1.btn) && m1.paras === 11 && m1.first === 'Book one. Debts and lessons.' && m1.chapters === 7, m1);
   await page.click('#bi-brief .bi-start'); await sleep(1500);
   const m2 = await page.evaluate(() => ({ id: BKP && BKP.book.id, secs: BKP && BKP.secs.map(s => s.label) }));
   check('…which plays through the book player, a section per book ("Debts and lessons" … "The bottom line")', m2.id === 'brief-medi' && m2.secs && m2.secs.length === 11 && m2.secs[1] === 'Debts and lessons' && m2.secs[10] === 'The bottom line', m2);
