@@ -7,7 +7,7 @@
 // voice carries on as one reading), joined with natural pauses, loudness-normalised and kept as one mp3 in
 // MEDIA_DIR/book-eleven/. A recording is played only while the book's text is the one it reads (textHash, as
 // modules/bookvoice.js); an edited book is read again. Credits: each book asks elevenvoice.budget(…, 'bulk') first, so the
-// books never use the half of the month's credits that Bro's live voice and the news keep; a free plan (no commercial
+// books may use three quarters of the month's credits (purpose 'books'; a quarter stays for Bro's live voice and the news); a free plan (no commercial
 // rights to the audio) records nothing. The first books on the shelf go first; it runs after boot and every 30 minutes.
 //   create({ mediaDir, getSetting, text: id → text | '', ids: () → [id…], fetch?, log?, minFreeBytes? })
 //     → { file(id), ready() → { id: secs }, stats(), run() → Promise<number recorded>, start() }
@@ -46,7 +46,7 @@ function create(o) {
   const minFree = o.minFreeBytes == null ? 1024 * 1024 * 1024 : o.minFreeBytes;
   const base = () => String(process.env.ELEVEN_API_BASE || 'https://api.elevenlabs.io').replace(/\/$/, '');
   let idx = {}; try { idx = JSON.parse(fs.readFileSync(idxFile, 'utf8')) || {}; } catch (e) { idx = {}; }
-  const st = { state: 'idle', reason: '', running: null, last: null, recorded: 0, error: '', tier: '', left: null, at: null };
+  const st = { state: 'idle', reason: '', running: null, last: null, recorded: 0, error: '', tier: '', left: null, at: null, reset: null, limit: null };
 
   const textOf = id => { try { return String(o.text(id) || ''); } catch (e) { return ''; } };
   function file(id) {
@@ -124,7 +124,7 @@ function create(o) {
         const model = gs('BOOK_ELEVEN_MODEL') || 'eleven_multilingual_v2';
         const voice = gs('BOOK_ELEVEN_VOICE') || EV.broVoice(gs);
         const sub = await EV.subscription(key, true).catch(() => null);
-        st.tier = (sub && sub.tier) || ''; st.left = sub && sub.limit ? Math.max(0, sub.limit - sub.used) : null; st.at = new Date().toISOString();
+        st.tier = (sub && sub.tier) || ''; st.left = sub && sub.limit ? Math.max(0, sub.limit - sub.used) : null; st.limit = (sub && sub.limit) || null; st.reset = (sub && sub.reset) || null; st.at = new Date().toISOString();
         if (/^free$/i.test(st.tier)) { st.state = 'waiting'; st.reason = 'the ElevenLabs free plan gives no commercial rights to its audio: a paid plan is needed'; return 0; }
         fs.mkdirSync(dir, { recursive: true });
         const todo = (o.ids() || []).filter(id => ID_RE.test(id) && textOf(id) && !file(id));
@@ -138,7 +138,7 @@ function create(o) {
           const chars = spoken(textOf(id)).length;
           if (!known && doneToday + thisPass >= daily) { st.state = 'waiting'; st.reason = 'the ElevenLabs plan could not be read, so at most ' + daily + ' books a day'; break; }
           if (freeBytes() < minFree + 30 * 1024 * 1024) { st.state = 'waiting'; st.reason = 'the volume is nearly full'; break; }
-          const per = CREDITS[model] || 1, b = await EV.budget(key, Math.ceil(chars * per / EV.PER_CHAR()), 'bulk');
+          const per = CREDITS[model] || 1, b = await EV.budget(key, Math.ceil(chars * per / EV.PER_CHAR()), 'books');
           if (!b.ok) { st.state = 'waiting'; st.reason = b.reason || 'waiting for ElevenLabs credits'; break; }
           try {
             const it = await record(id, key, voice, model); got++; thisPass++; st.recorded++; st.last = { id, secs: it.secs, at: it.at };
@@ -160,7 +160,7 @@ function create(o) {
   function stats() {
     const ids = (() => { try { return (o.ids() || []).filter(id => ID_RE.test(id)); } catch (e) { return []; } })();
     const r = ready(); const done = ids.filter(id => r[id]).length;
-    return { state: st.running ? 'recording' : st.state, reason: st.reason, ready: done, total: ids.length, minutes: Math.round(Object.values(r).reduce((s, x) => s + x, 0) / 60), last: st.last, error: st.error, plan: st.tier || null, credits_left: st.left, checked_at: st.at, model: gs('BOOK_ELEVEN_MODEL') || 'eleven_multilingual_v2' };
+    return { state: st.running ? 'recording' : st.state, reason: st.reason, ready: done, total: ids.length, minutes: Math.round(Object.values(r).reduce((s, x) => s + x, 0) / 60), last: st.last, error: st.error, plan: st.tier || null, credits_left: st.left, credits_month: st.limit, credits_reset: st.reset, checked_at: st.at, model: gs('BOOK_ELEVEN_MODEL') || 'eleven_multilingual_v2' };
   }
   function start(delayMs) {
     const env = Number(process.env.BOOK_ELEVEN_DELAY_MS);
