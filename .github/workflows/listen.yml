@@ -24,7 +24,7 @@ jobs:
         with: { node-version: 20 }
       - uses: actions/setup-python@v5
         with: { python-version: '3.11' }
-      - run: pip install -q faster-whisper==1.1.1 && sudo apt-get -qq update && sudo apt-get -qq install -y ffmpeg > /dev/null
+      - run: pip install -q faster-whisper requests && sudo apt-get -qq update && sudo apt-get -qq install -y ffmpeg > /dev/null
       - name: Listen to ${{ matrix.id }}
         run: |
           node app/scripts/book-voice/notes.js notes.json https://brodoit.com > /dev/null
