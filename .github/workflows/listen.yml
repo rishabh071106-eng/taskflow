@@ -1,0 +1,34 @@
+# Throwaway-branch only: how do the published book recordings actually sound? (Whisper against the text, silences, pace,
+# loudness) — read-only: downloads the release, writes nothing anywhere.
+name: Listen to the books
+on:
+  push:
+    branches: [claude/deploy-diagnose]
+    paths: ['.github/workflows/listen.yml', '.github/scripts/listen.py']
+permissions:
+  contents: read
+jobs:
+  listen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        id: [book-miracle, book-atomic, book-moneylife, book-flow, book-boglehead, atomic]
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: main, path: app }
+      - uses: actions/checkout@v4
+        with: { path: probe }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install -q faster-whisper==1.1.1 && sudo apt-get -qq update && sudo apt-get -qq install -y ffmpeg > /dev/null
+      - name: Listen to ${{ matrix.id }}
+        run: |
+          node app/scripts/book-voice/notes.js notes.json https://brodoit.com > /dev/null
+          curl -fsSL https://github.com/rishabh071106-eng/taskflow/releases/download/book-voice-v1/manifest.json -o man.json
+          f=$(jq -r --arg id "${{ matrix.id }}" '.items[$id].file' man.json)
+          curl -fsSL "https://github.com/rishabh071106-eng/taskflow/releases/download/book-voice-v1/$f" -o rec.mp3
+          python probe/.github/scripts/listen.py rec.mp3 notes.json "${{ matrix.id }}"
