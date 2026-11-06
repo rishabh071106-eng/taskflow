@@ -12,7 +12,9 @@ function install(app, deps) {
   const voices = () => {
     let bv = null; try { bv = global._bookVoice ? global._bookVoice.stats() : null; } catch (e) { bv = null; }
     const book = bv && bv.voice ? `Book notes are read by ${esc(bv.voice)}${bv.license ? ' (' + esc(bv.license) + ' licence)' : ''}, recorded by Brodoit. ` : '';
-    return `<h2 style="font:600 18px/1.3 var(--b-sans);margin:28px 0 6px">Voices</h2><p>${book}Bro's voice is Kokoro-82M (Apache-2.0), running on our own server.</p>` + BOOKS;
+    // v35: the books recorded with ElevenLabs on a paid plan (which grants commercial use of the audio)
+    let el = ''; try { const e = global._bookEleven && global._bookEleven.stats(); if (e && e.ready) el = `${e.ready} of the ${e.total} books are narrated with ElevenLabs (${esc(e.model)}), in Bro's voice, on a paid ElevenLabs plan that licenses the audio for commercial use. `; } catch (x) {}
+    return `<h2 style="font:600 18px/1.3 var(--b-sans);margin:28px 0 6px">Voices</h2><p>${el}${book}Bro's voice is Kokoro-82M (Apache-2.0), running on our own server.</p>` + BOOKS;
   };
   app.get('/credits', (req, res) => {
     let c = {}; try { c = JSON.parse(fs.readFileSync(file, 'utf8')); } catch (e) {}

@@ -20,3 +20,11 @@
 /* the public-domain originals */
 .bi-brief-txt{margin-top:16px}.bi-brief-txt p{margin:0 0 14px;color:var(--b-ink-2);font-size:15.5px;line-height:1.65}.bi-brief-txt b{color:var(--b-ink)}
 .bi-pd{font-size:12.5px;color:var(--b-mute);margin-top:6px}
+/* v35: Pause and think, the recap and the week */
+.bi-rd .bi-think,.bi-rd .bi-recap,.bi-rd .bi-week{margin:14px 0;padding:14px 16px;border-radius:14px;background:var(--b-card,rgba(127,127,127,.08));border:1px solid var(--line,rgba(127,127,127,.18))}
+.bi-rd .bi-think>b,.bi-rd .bi-recap>b,.bi-rd .bi-week>b{display:block;font:700 11px/1.3 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--accent,#B5402A);margin-bottom:6px}
+.bi-rd .bi-think p{margin:0 0 8px;color:var(--ink)}
+.bi-rd .bi-think ol,.bi-rd .bi-recap ol{margin:0;padding-left:20px;color:var(--b-ink-2,var(--ink))}.bi-rd .bi-think li,.bi-rd .bi-recap li{margin:4px 0;line-height:1.45}
+.bi-rd .bi-think details{margin-top:10px}.bi-rd .bi-think summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:600;color:var(--accent,#B5402A)}
+.bi-rd .bi-think details p{margin:4px 0 0}.bi-rd .bi-think details p b{color:var(--ink)}
+.bi-rd .bi-week p{display:grid;grid-template-columns:104px 1fr;gap:10px;margin:8px 0;line-height:1.45}.bi-rd .bi-week span{font-weight:700;color:var(--ink)}

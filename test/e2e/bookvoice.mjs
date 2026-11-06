@@ -127,6 +127,39 @@ check('…the check form (record.py, --lines check) reads numbers however Whispe
   check('plan.js reads again a recording made before v34 and one from another voice, and keeps one made from today\'s spoken words', todo.includes(few[0].id) && todo.includes(few[2].id) && !todo.includes(few[1].id) && /en=2\b/.test(out), { todo, out });
 }
 
+// ── v35: the books are at least 10 minutes, and ElevenLabs reads them on the server (a stand-in ElevenLabs here) ──
+{
+  const lens = bookN.map(n => n.text.length);
+  check('every book in 7 chapters is at least ~12,000 characters (13+ minutes read): each story asks "Pause and think" and the book ends with the five ideas and a week', Math.min(...lens) >= 12000 && bookN.every(n => (n.text.match(/Pause and think\./g) || []).length === 6 && /Before you go, here is the whole book in one breath\. One: /.test(n.text) && /Monday: .+Friday: .+And on the weekend/.test(n.text)), { min: Math.min(...lens) });
+  const tone = path.join(TMP, 'tone.mp3'); execFileSync('ffmpeg', ['-v', 'error', '-y', '-f', 'lavfi', '-i', 'sine=f=220:d=1', '-ac', '1', '-ar', '44100', '-b:a', '64k', tone]); const TONE = fs.readFileSync(tone);
+  const calls = []; let plan = { tier: 'creator', character_count: 0, character_limit: 2000000 }; let reqN = 0;
+  const el = http.createServer((req, res) => {
+    let b = ''; req.on('data', d => { b += d; }).on('end', () => {
+      if (req.url.startsWith('/v1/user/subscription')) return res.writeHead(200, { 'Content-Type': 'application/json' }).end(JSON.stringify(plan));
+      const m = /^\/v1\/text-to-speech\/([^/?]+)/.exec(req.url);
+      if (m && req.method === 'POST') { calls.push({ voice: m[1], key: req.headers['xi-api-key'], url: req.url, body: JSON.parse(b) }); return res.writeHead(200, { 'Content-Type': 'audio/mpeg', 'request-id': 'r' + (++reqN) }).end(TONE); }
+      res.writeHead(404).end('{}');
+    });
+  });
+  await new Promise(r => el.listen(0, '127.0.0.1', r)); process.env.ELEVEN_API_BASE = 'http://127.0.0.1:' + el.address().port;
+  const BE = require(ROOT + '/modules/bookeleven.js');
+  const bk = bookN.find(n => n.id === 'book-miracle') || bookN[0]; let bookText = bk.text;
+  const mk = (key, extra) => BE.create(Object.assign({ mediaDir: fs.mkdtempSync('/tmp/p35el-'), getSetting: k => ({ ELEVENLABS_API_KEY: key })[k] || '', text: id => id === bk.id ? bookText : '', ids: () => [bk.id], minFreeBytes: 0, log: () => {} }, extra || {}));
+  const be = mk('paid-key'); const got = await be.run(); const st = be.stats(); const rd = be.ready();
+  const sent = calls.map(c => c.body.text).join(' ');
+  check('bookeleven.js records a book with ElevenLabs: eleven_multilingual_v2, Bro\'s voice (Brian), the spoken words ("seven thirty", never "7:30"), part by part stitched with previous_request_ids', got === 1 && !!be.file(bk.id) && rd[bk.id] > 10 && st.ready === 1 && st.state === 'done' && calls.length > 10 && calls.every(c => c.body.model_id === 'eleven_multilingual_v2' && c.voice === 'nPczCjzI2devNBz1zQrb' && c.key === 'paid-key' && c.body.text.length <= 1000) && !/\d:\d\d/.test(sent) && /seven thirty|seven ten/.test(sent) && !calls[0].body.previous_request_ids && calls[2].body.previous_request_ids && calls[2].body.previous_request_ids.length >= 1 && /^Chapter one\. /.test(calls[0].body.text), { got, st, n: calls.length, first: calls[0] && calls[0].body.text.slice(0, 60) });
+  check('…its mp3 is one file in MEDIA_DIR/book-eleven, kept while the book\'s text is the one it read', fs.statSync(be.file(bk.id)).size > 10000 && path.basename(path.dirname(be.file(bk.id))) === 'book-eleven');
+  bookText = bk.text + ' An edit.'; const stale = be.file(bk.id); bookText = bk.text;
+  check('…an edited book is not played from the old recording (it is read again on the next pass)', stale === '' && !!be.file(bk.id));
+  calls.length = 0; plan = { tier: 'free', character_count: 0, character_limit: 10000 };
+  const bf = mk('free-key'); const gf = await bf.run();
+  check('…a free ElevenLabs plan records nothing (no commercial rights to the audio) and says why', gf === 0 && calls.length === 0 && /free plan/.test(bf.stats().reason), bf.stats());
+  plan = { tier: 'creator', character_count: 90000, character_limit: 100000 };
+  const bl = mk('low-key'); const gl = await bl.run();
+  check('…and it never spends the half of the month\'s credits that Bro\'s live voice keeps', gl === 0 && calls.length === 0 && bl.stats().state === 'waiting', bl.stats());
+  el.close(); delete process.env.ELEVEN_API_BASE;
+}
+
 // ── the real server ──
 const DB = TMP + '/bv.db'; fs.copyFileSync(TEMPLATE_DB, DB); for (const x of ['-wal', '-shm']) try { fs.rmSync(DB + x); } catch (e) {}
 const { token } = (() => { const db = new Database(DB, { readonly: true }); const u = db.prepare('SELECT token FROM users ORDER BY created_at ASC, rowid ASC LIMIT 1').get(); db.close(); return u; })();

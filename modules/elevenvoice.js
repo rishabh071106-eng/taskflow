@@ -107,7 +107,7 @@ async function fetchSubscription(key, s) {
   const started = Date.now();
   const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), 10000);
   try {
-    const r = await fetch('https://api.elevenlabs.io/v1/user/subscription', { headers: { 'xi-api-key': key }, signal: ctrl.signal });
+    const r = await fetch(String(process.env.ELEVEN_API_BASE || 'https://api.elevenlabs.io').replace(/\/$/, '') + '/v1/user/subscription', { headers: { 'xi-api-key': key }, signal: ctrl.signal });
     const j = await r.json().catch(() => ({}));
     if (!r.ok) { const n = Object.assign(s || {}, { at: Date.now() - 8 * 60e3, ok: false, error: 'subscription ' + r.status }); subs.set(key, n); return n; } // keep last known numbers; retry in 2 min
     const n = { at: Date.now(), ok: true, tier: String(j.tier || ''), used: +j.character_count || 0, limit: +j.character_limit || 0, reset: j.next_character_count_reset_unix ? new Date(j.next_character_count_reset_unix * 1000).toISOString() : null, overage: !!(j.can_extend_character_limit && j.allowed_to_extend_character_limit), out: s && s.out };

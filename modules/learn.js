@@ -398,7 +398,7 @@ The learner's name is ${name || 'unknown'}.`;
   function stats() {
     const have = recordedIds(); const by = {};
     for (const it of CAT.values()) { const k = it.voice; by[k] = by[k] || [0, 0]; by[k][1]++; if (have.has(it.id)) by[k][0]++; }
-    return { total: CAT.size, recorded: [...CAT.keys()].filter(id => have.has(id)).length, by, voice: folder(), crawler: Object.assign({}, crawlState), library: (() => { try { return global._broLibrary ? global._broLibrary.stats() : null; } catch (e) { return null; } })(), book_voice: (() => { try { return global._bookVoice ? global._bookVoice.stats() : null; } catch (e) { return null; } })() };
+    return { total: CAT.size, recorded: [...CAT.keys()].filter(id => have.has(id)).length, by, voice: folder(), crawler: Object.assign({}, crawlState), library: (() => { try { return global._broLibrary ? global._broLibrary.stats() : null; } catch (e) { return null; } })(), book_voice: (() => { try { return global._bookVoice ? global._bookVoice.stats() : null; } catch (e) { return null; } })(), book_eleven: (() => { try { return global._bookEleven ? global._bookEleven.stats() : null; } catch (e) { return null; } })() };
   }
   app.get('/api/learn/voice-status', (req, res) => res.json(stats()));
   global._learnVoice = { stats, profile };

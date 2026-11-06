@@ -33,7 +33,7 @@ const notes = JSON.parse(fs.readFileSync(notesOut, 'utf8'));
 check('the narration recorder lists the 5 briefs as "brief-<id>" (so they get the studio voice)', PD.every(id => notes.some(n => n.id === 'brief-' + id && n.text.length > 6000)), notes.length);
 const books = notes.filter(n => n.id.startsWith('book-'));
 const NUM = ['one', 'two', 'three', 'four', 'five', 'six', 'seven'];
-check('…and every book in 7 chapters as "book-<id>": 104, each 7 paragraphs "Chapter one." … "Chapter seven.", 7,500-9,500 characters', books.length === 104 && books.every(n => { const p = n.text.split('\n\n'); return p.length === 7 && p.every((x, i) => x.startsWith('Chapter ' + NUM[i] + '. ')) && n.text.length > 7500 && n.text.length < 9500; }), books.length);
+check('…and every book in 7 chapters as "book-<id>": 104, each 7 paragraphs "Chapter one." … "Chapter seven.", 12,000-15,000 characters (v35: 13-15 minutes, with Pause and think and the closing week)', books.length === 104 && books.every(n => { const p = n.text.split('\n\n'); return p.length === 7 && p.every((x, i) => x.startsWith('Chapter ' + NUM[i] + '. ')) && n.text.length > 12000 && n.text.length < 15000; }), books.length);
 const bAtomic = books.find(n => n.id === 'book-atomic'); const jAtomic = JSON.parse(fs.readFileSync(ROOT + '/app/ideas/atomic.json', 'utf8'));
 check('…a chapter is Bro\'s explanation, then the story, the takeaway and "Try this today" (never a quiz)', bAtomic && jAtomic.chapters.every(c => bAtomic.text.includes(c.story.b) && bAtomic.text.includes('In short: ' + c.take)) && (bAtomic.text.match(/Try this today: /g) || []).length === 5 && !/What would you do|\?\s*Keep the two pages/.test(bAtomic.text) && bAtomic.text.startsWith('Chapter one. Why this book. This is Atomic Habits, by James Clear.') && /Meet Riya, a second-year/.test(bAtomic.text), bAtomic && bAtomic.text.slice(0, 160));
 // the books already recorded keep their text (nothing is recorded again)
@@ -74,7 +74,7 @@ try {
   await sleep(300);
   let wanted = []; try { wanted = JSON.parse(fs.readFileSync(path.join(MEDIA, 'bro-voice', 'books-wanted.json'), 'utf8')); } catch (e) {}
   check('…and neither a book nor a brief is queued for Bro\'s live engine (the studio narration records them)', !wanted.some(x => /brief|book-/.test(x)), wanted);
-  r = await fetch(BASE + '/app/bookfull.js?v=33');
+  r = await fetch(BASE + '/app/bookfull.js?v=35');
   check('/app/bookfull.js is served (the same builder the server and the recorder use)', r.ok && /BookFull/.test(await r.text()));
   // v34: Brodoit's own covers, one per book, drawn by scripts/covers; nothing from a publisher or a cover site
   const noCover = books.map(b => b.id.slice(5)).filter(id => !fs.existsSync(path.join(ROOT, 'app', 'covers', id + '.webp')));
