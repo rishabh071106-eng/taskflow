@@ -156,7 +156,7 @@ check('…the check form (record.py, --lines check) reads numbers however Whispe
   check('…a free ElevenLabs plan records nothing (no commercial rights to the audio) and says why', gf === 0 && calls.length === 0 && /free plan/.test(bf.stats().reason), bf.stats());
   plan = { tier: 'creator', character_count: 90000, character_limit: 100000 };
   const bl = mk('low-key'); const gl = await bl.run();
-  check('…and it never spends the half of the month\'s credits that Bro\'s live voice keeps', gl === 0 && calls.length === 0 && bl.stats().state === 'waiting', bl.stats());
+  check('…and it never spends the quarter of the month\'s credits that Bro\'s live voice and the news keep', gl === 0 && calls.length === 0 && bl.stats().state === 'waiting', bl.stats());
   el.close(); delete process.env.ELEVEN_API_BASE;
 }
 

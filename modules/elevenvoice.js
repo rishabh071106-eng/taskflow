@@ -117,7 +117,7 @@ async function fetchSubscription(key, s) {
   } catch (e) { const n = Object.assign(s || {}, { at: Date.now() - 8 * 60e3, ok: false, error: e.name === 'AbortError' ? 'timeout' : e.message }); subs.set(key, n); return n; }
   finally { clearTimeout(t); }
 }
-const RESERVE = { live: 0, daily: 0.08, bulk: 0.5 }; // v15: recordings stop at half the plan, so Bro's live voice always has the other half
+const RESERVE = { live: 0, daily: 0.08, bulk: 0.5, books: 0.25 }; // v15: recordings stop at half the plan, so Bro's live voice always has the other half; v35: the books (owner's priority) may use three quarters, a quarter stays for Bro and the news
 const LIVE_MIN = 2000; // a live Bro session needs at least ~2 minutes of credit, or it would cut out mid-sentence
 // Can this purpose spend `chars` characters now? { ok, reason, left }. Approval reserves the credits immediately, so parallel
 // requests can't all squeeze through the same gap; the next plan refresh (≤10 min) replaces the estimate with real numbers.
@@ -128,8 +128,8 @@ async function budget(key, chars, purpose) {
   if (s && s.out && Date.now() - s.out < 6 * 3600e3) return { ok: false, reason: 'ElevenLabs credits are used up for this month', left: 0 };
   if (!s || !s.limit) return { ok: true, reason: 'plan unknown', left: null };
   const left = s.limit - s.used - held(key), need = Math.ceil((chars || 0) * PER_CHAR());
-  const keep = Math.max(purpose === 'bulk' ? 4000 : purpose === 'daily' ? 1500 : (s.overage ? LIVE_MIN * 3 : LIVE_MIN), s.limit * (RESERVE[purpose] || 0));
-  if (left - need < keep) return { ok: false, reason: purpose === 'bulk' ? 'keeping the rest of this month\'s ElevenLabs credits for Bro and the daily news' : 'ElevenLabs credits are nearly used up', left };
+  const keep = Math.max(purpose === 'bulk' || purpose === 'books' ? 4000 : purpose === 'daily' ? 1500 : (s.overage ? LIVE_MIN * 3 : LIVE_MIN), s.limit * (RESERVE[purpose] || 0));
+  if (left - need < keep) return { ok: false, reason: purpose === 'bulk' || purpose === 'books' ? 'keeping the rest of this month\'s ElevenLabs credits for Bro and the daily news' : 'ElevenLabs credits are nearly used up', left };
   const id = ++holdSeq; if (need) holds.set(key, (holds.get(key) || []).concat({ id, credits: need, at: Date.now() }));
   return { ok: true, left: left - need, hold: need ? id : 0 };
 }
