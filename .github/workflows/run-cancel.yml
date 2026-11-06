@@ -1,0 +1,18 @@
+# Throwaway-branch only: stop the book recording run 42285462320 (v34 text). v35 changes every book's text (longer, with
+# "Pause and think" and a recap), so its takes would never be played; the v35 merge starts the next run.
+name: Stop an outdated recording run
+on:
+  push:
+    branches: [claude/deploy-diagnose]
+    paths: ['.github/workflows/run-cancel.yml']
+permissions:
+  actions: write
+jobs:
+  cancel:
+    runs-on: ubuntu-latest
+    steps:
+      - env: { GH_TOKEN: '${{ github.token }}' }
+        run: |
+          gh run view 42285462320 -R "$GITHUB_REPOSITORY" --json status,displayTitle,workflowName --jq '.workflowName + " · " + .displayTitle + " · " + .status'
+          gh run cancel 42285462320 -R "$GITHUB_REPOSITORY" || true
+          sleep 20; gh run view 42285462320 -R "$GITHUB_REPOSITORY" --json status,conclusion --jq '.status + " " + (.conclusion // "")'
