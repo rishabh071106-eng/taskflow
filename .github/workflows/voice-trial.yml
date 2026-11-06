@@ -1,0 +1,43 @@
+# Throwaway-branch only: try ways of writing times and short forms, and voice settings, with the studio voice; Whisper
+# says what it heard. Read-only: downloads models, writes nothing anywhere.
+name: Voice trial
+on:
+  push:
+    branches: [claude/deploy-diagnose]
+    paths: ['.github/workflows/voice-trial.yml', '.github/scripts/trial.py', '.github/scripts/trial-*.json']
+permissions:
+  contents: read
+jobs:
+  trial:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: forms-1, args: 'forms probe/.github/scripts/trial-forms.json ref.wav', start: 0, end: 10 }
+          - { name: forms-2, args: 'forms probe/.github/scripts/trial-forms.json ref.wav', start: 10, end: 20 }
+          - { name: forms-3, args: 'forms probe/.github/scripts/trial-forms.json ref.wav', start: 20, end: 30 }
+          - { name: now-0.4-0.3-0.8, args: 'groups probe/.github/scripts/trial-groups.json ref.wav 0.4 0.3 0.8', start: 0, end: 12 }
+          - { name: b-0.4-0.4-0.6, args: 'groups probe/.github/scripts/trial-groups.json ref.wav 0.4 0.4 0.6', start: 0, end: 12 }
+          - { name: c-0.35-0.5-0.5, args: 'groups probe/.github/scripts/trial-groups.json ref.wav 0.35 0.5 0.5', start: 0, end: 12 }
+          - { name: d-0.5-0.5-0.8, args: 'groups probe/.github/scripts/trial-groups.json ref.wav 0.5 0.5 0.8', start: 0, end: 12 }
+    name: ${{ matrix.name }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: main, path: app }
+      - uses: actions/checkout@v4
+        with: { path: probe }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Install the voices (as the recording run does)
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg espeak-ng > /dev/null
+          python -m venv /tmp/k && /tmp/k/bin/pip install -q torch==2.6.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+          /tmp/k/bin/pip install -q -r app/scripts/book-voice/requirements-kokoro.txt
+          /tmp/k/bin/python app/scripts/book-voice/record.py ref app/scripts/book-voice/voice ref.wav
+          pip install -q torch==2.6.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+          pip install -q -r app/scripts/book-voice/requirements.txt requests
+      - name: Trial ${{ matrix.name }}
+        env: { START: '${{ matrix.start }}', END: '${{ matrix.end }}' }
+        run: python probe/.github/scripts/trial.py ${{ matrix.args }}
