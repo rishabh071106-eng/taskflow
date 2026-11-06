@@ -83,21 +83,22 @@ function create(o) {
     const chapters = spoken(text).split(/\n\s*\n/).map(c => c.trim()).filter(Boolean);
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'book-eleven-'));
     try {
-      const all = chapters.map(parts); const flat = all.flat(); const prev = []; const pieces = []; let n = 0;
+      // the reading goes straight to disk as raw PCM (a 14-minute book is ~75 MB of it; never all in memory)
+      const all = chapters.map(parts); const flat = all.flat(); const prev = []; let n = 0, bytes = 0;
+      const rawFile = path.join(tmp, 'all.pcm'); const add = b => { fs.appendFileSync(rawFile, b); bytes += b.length; };
       for (let c = 0; c < all.length; c++) {
         for (let k = 0; k < all[c].length; k++) {
           const p = all[c][k]; const next = flat[n + 1] ? flat[n + 1].text : '';
           const { buf, rid } = await tts(key, voice, model, p.text, prev, next);
           if (rid) prev.push(rid);
           const f = path.join(tmp, String(n).padStart(3, '0') + '.mp3'); fs.writeFileSync(f, buf);
-          pieces.push(await pcm(f));
+          add(await pcm(f)); try { fs.unlinkSync(f); } catch (e) { /* tmp */ }
           // after a heading, a breath; between parts, a short pause; between chapters, a longer one
-          pieces.push(silence(p.head ? 0.7 : k === all[c].length - 1 ? 1.4 : 0.25));
+          add(silence(p.head ? 0.7 : k === all[c].length - 1 ? 1.4 : 0.25));
           n++;
         }
       }
-      const raw = Buffer.concat(pieces); const secs = raw.length / 2 / SR;
-      const rawFile = path.join(tmp, 'all.pcm'); fs.writeFileSync(rawFile, raw);
+      const secs = bytes / 2 / SR;
       const name = id + '-' + hash + '.mp3'; const out = path.join(tmp, name);
       await run('ffmpeg', ['-v', 'error', '-f', 's16le', '-ar', String(SR), '-ac', '1', '-i', rawFile, '-af', 'loudnorm=I=-18:TP=-1.5:LRA=11', '-ar', String(SR), '-ac', '1', '-c:a', 'libmp3lame', '-b:a', '96k', '-id3v2_version', '0', out]);
       fs.mkdirSync(dir, { recursive: true });
@@ -127,15 +128,20 @@ function create(o) {
         if (/^free$/i.test(st.tier)) { st.state = 'waiting'; st.reason = 'the ElevenLabs free plan gives no commercial rights to its audio: a paid plan is needed'; return 0; }
         fs.mkdirSync(dir, { recursive: true });
         const todo = (o.ids() || []).filter(id => ID_RE.test(id) && textOf(id) && !file(id));
+        // a key that cannot read its plan: no credit guard to lean on, so a few books a day only (BOOK_ELEVEN_DAILY, 5)
+        const known = !!(sub && sub.ok && sub.limit); const today = new Date().toISOString().slice(0, 10);
+        const daily = Number(gs('BOOK_ELEVEN_DAILY')) || 5; const doneToday = Object.values(idx).filter(x => String(x.at || '').startsWith(today)).length;
         if (!todo.length) { st.state = 'done'; st.reason = ''; return 0; }
         st.state = 'recording'; st.reason = '';
+        let thisPass = 0;
         for (const id of todo) {
           const chars = spoken(textOf(id)).length;
+          if (!known && doneToday + thisPass >= daily) { st.state = 'waiting'; st.reason = 'the ElevenLabs plan could not be read, so at most ' + daily + ' books a day'; break; }
           if (freeBytes() < minFree + 30 * 1024 * 1024) { st.state = 'waiting'; st.reason = 'the volume is nearly full'; break; }
           const per = CREDITS[model] || 1, b = await EV.budget(key, Math.ceil(chars * per / EV.PER_CHAR()), 'bulk');
           if (!b.ok) { st.state = 'waiting'; st.reason = b.reason || 'waiting for ElevenLabs credits'; break; }
           try {
-            const it = await record(id, key, voice, model); got++; st.recorded++; st.last = { id, secs: it.secs, at: it.at };
+            const it = await record(id, key, voice, model); got++; thisPass++; st.recorded++; st.last = { id, secs: it.secs, at: it.at };
             log('recorded', id, Math.round(it.secs / 6) / 10, 'min ·', model);
           } catch (e) {
             if (b.hold) EV.release(key, b.hold);
