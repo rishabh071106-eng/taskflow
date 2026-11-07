@@ -3,8 +3,6 @@
     <string name="app_name">Brodoit</string>
     <string name="shortcut_steps">Steps</string>
     <string name="shortcut_bro">Talk to Bro</string>
-    <!-- Digital Asset Links statement (app side). The site side is served at /.well-known/assetlinks.json. -->
-    <string name="asset_statements">[{\"relation\": [\"delegate_permission/common.handle_all_urls\"], \"target\": {\"namespace\": \"web\", \"site\": \"https://brodoit.com\"}}]</string>
     <string name="enable_title">Count steps automatically</string>
     <string name="enable_body">Tap Allow once. Brodoit then counts your steps all day, even when the app is closed.</string>
     <string name="enable_allow">Allow</string>

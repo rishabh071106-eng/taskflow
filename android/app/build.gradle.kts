@@ -27,8 +27,8 @@ android {
     flavorDimensions += "store"
     productFlavors {
         // direct: a Trusted Web Activity. play: brodoit.com in the app's own WebView (WebAppActivity, src/play manifest)
-        create("direct") { dimension = "store"; applicationId = "com.brodoit.app"; resValue("bool", "use_webview", "false") }
-        create("play") { dimension = "store"; applicationId = "com.brodoit.twa"; resValue("bool", "use_webview", "true") }
+        create("direct") { dimension = "store"; applicationId = "com.brodoit.app"; resValue("string", "app_activity", "com.brodoit.app.LauncherActivity") }
+        create("play") { dimension = "store"; applicationId = "com.brodoit.twa"; resValue("string", "app_activity", "com.brodoit.app.WebAppActivity") }
     }
 
     buildTypes {
@@ -47,7 +47,8 @@ android {
 }
 
 dependencies {
-    implementation("com.google.androidbrowserhelper:androidbrowserhelper:2.5.0")
+    // the Trusted Web Activity library: the direct APK only (the Play build is a plain WebView app)
+    "directImplementation"("com.google.androidbrowserhelper:androidbrowserhelper:2.5.0")
     // the Play build's WebView: Chrome tabs, the page bridge (web message listener, document-start script), back
     implementation("androidx.browser:browser:1.8.0")
     implementation("androidx.webkit:webkit:1.12.1")

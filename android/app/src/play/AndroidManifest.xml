@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The Google Play build (com.brodoit.twa) runs brodoit.com in its own WebView (WebAppActivity) instead of a
-     Trusted Web Activity: the TWA launcher and its Chrome services are removed, the WebView activity takes their place. -->
+<!-- The Google Play build (com.brodoit.twa: only the package name is from its TWA days, Play never lets it change)
+     runs brodoit.com in its own WebView (WebAppActivity). It has no Trusted Web Activity at all: the TWA launcher, its
+     Chrome services and the androidbrowserhelper library are in the direct flavor only (src/direct). -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
@@ -15,12 +16,6 @@
     </queries>
 
     <application>
-        <meta-data android:name="web_manifest_url" tools:node="remove" />
-
-        <activity android:name="com.brodoit.app.LauncherActivity" tools:node="remove" />
-        <service android:name="com.google.androidbrowserhelper.trusted.DelegationService" tools:node="remove" />
-        <activity android:name="com.google.androidbrowserhelper.trusted.NotificationPermissionRequestActivity" tools:node="remove" />
-
         <activity
             android:name="com.brodoit.app.WebAppActivity"
             android:exported="true"

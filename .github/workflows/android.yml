@@ -75,7 +75,10 @@ jobs:
           P=$("$BT/aapt2" dump permissions play/brodoit-play-unsigned.apk)
           for perm in RECORD_AUDIO POST_NOTIFICATIONS ACTIVITY_RECOGNITION; do echo "$P" | grep -q "android.permission.$perm" || { echo "::error::the Play build must ask for $perm"; exit 1; }; done
           "$BT/aapt2" dump badging play/brodoit-play-unsigned.apk | head -1 | grep -q "package: name='com.brodoit.twa' versionCode='$VC'" || { echo "::error::the Play APK must be com.brodoit.twa $VC"; exit 1; }
-          echo "Play build: WebAppActivity, no TWA, permissions ok"
+          # no Trusted Web Activity anywhere in the Play build: no TWA manifest entries, no androidbrowserhelper code
+          if echo "$M" | grep -qE 'customtabs\.trusted|asset_statements|web_manifest_url'; then echo "::error::the Play build's manifest still has Trusted Web Activity entries"; exit 1; fi
+          if unzip -p play/brodoit-play-unsigned.apk 'classes*.dex' | grep -aqE 'androidbrowserhelper|Lcom/brodoit/app/LauncherActivity;'; then echo "::error::the Play build still contains Trusted Web Activity code (androidbrowserhelper)"; exit 1; fi
+          echo "Play build: WebAppActivity, no TWA (manifest and code), permissions ok"
       - name: A copy signed with a throwaway key, for the emulator test only
         run: |
           set -e
