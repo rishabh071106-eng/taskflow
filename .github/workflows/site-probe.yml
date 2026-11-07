@@ -1,4 +1,4 @@
-# Throwaway-branch only: is brodoit.com up, down or flapping, and does its login screen let a new visitor type? (checked 7 Nov 03:07)
+# Throwaway-branch only: is v36 (Lessons + the sideways News) live on brodoit.com, and are the lessons being recorded?
 name: Site probe
 on:
   push:
@@ -6,110 +6,40 @@ on:
 permissions:
   contents: read
 jobs:
-  health:
+  v36:
     runs-on: ubuntu-latest
-    steps:
-      - name: /api/health 12 times over 3 minutes
-        run: |
-          for i in $(seq 1 12); do
-            code=$(curl -s -o /tmp/b -D /tmp/h -w '%{http_code}' --max-time 20 https://brodoit.com/api/health)
-            echo "$(date -u +%H:%M:%S) $code $(grep -i '^x-railway-fallback' /tmp/h | tr -d '\r') $(head -c 160 /tmp/b | tr '\n' ' ')"
-            sleep 15
-          done
-  login:
-    runs-on: ubuntu-latest
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
-      - name: A new visitor types on the login screen (Chromium, phone size)
-        run: |
-          mkdir -p /tmp/pw && cd /tmp/pw && npm init -y > /dev/null && npm i playwright@1.48.2 > /dev/null 2>&1 && npx playwright install --with-deps chromium > /dev/null 2>&1
-          cd "$GITHUB_WORKSPACE" && PW_PATH=/tmp/pw/node_modules/playwright BASE=https://brodoit.com SHOT=login.png node .github/scripts/login-probe.mjs || true
-      - name: A returning visitor whose saved login the server no longer knows types on the login screen
-        run: cd "$GITHUB_WORKSPACE" && STALE=1 PW_PATH=/tmp/pw/node_modules/playwright BASE=https://brodoit.com SHOT=login-stale.png node .github/scripts/login-probe.mjs || true
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with: { name: login-shot, path: 'login*.png', if-no-files-found: ignore }
-  data:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Is the server on its old data volume? (fingerprints from before the deploy)
+      - name: Wait for the v36 deploy (2d256c45539e)
         run: |
           j() { curl -fsS --max-time 20 "https://brodoit.com$1" 2>/dev/null || echo '{}'; }
-          echo "health (users > 0 means the old data is back, after the reattach): $(j /api/health)"
-          echo "play uploader cert (was 6C:E0:AF:7C:5F:BB:A7:21...): $(j /api/android/status | jq -c '{version, ready, cert: (.cert_sha256 // "" | .[0:23]), play_api_cert: (.play.apiCertSha256 // "" | .[0:23]), play_state: .play.state}')"
-          echo "push key (was not BPfvXAUnm; any change means a new key): $(j /api/push/vapid-key | jq -r '.key // "" | .[0:12]')"
-          echo "bro clouds (sealed keys decrypt?): $(j /api/bro/ok | jq -c '{ok, clouds, voice}')"
-          echo "news stories: $(j '/api/news/desk?limit=60' | jq '.stories | length') · edition: $(j /api/news/edition | jq -c '{id, count}')"
-          echo "voice clips recorded (was 792): $(j /api/learn/voice-status | jq -c '{voice, recorded, total}')"
-          echo "assetlinks (package: first 8 bytes of each fingerprint): $(j /.well-known/assetlinks.json | jq -c '[.[].target | {p: .package_name, fp: [.sha256_cert_fingerprints[] | .[0:23]]}]')"
-          echo "APK on /android signed with (full): $(j /api/android/status | jq -r '.cert_sha256 // .cert // ""')"
-          echo "login fix served (_startPolls in the page): $(curl -fsS --max-time 20 https://brodoit.com/ | grep -c '_startPolls')"
-          echo "news fix served (fitCover in news.js?v=26, overflow:hidden in news.css?v=26): $(curl -fsS --max-time 20 'https://brodoit.com/app/news.js?v=26' | grep -c 'function fitCover') / $(curl -fsS --max-time 20 'https://brodoit.com/app/news.css?v=26' | grep -c 'nz-cover .nz-cv{overflow:hidden}')"
-          echo "new icon served (icon-*.png?v=6 links on / and /beta; was v=5): $(curl -fsS --max-time 20 https://brodoit.com/ | grep -o 'icon-[a-z0-9-]*\.png?v=[0-9]*' | sort | uniq -c | tr '\n' ' ') / $(curl -fsS --max-time 20 https://brodoit.com/beta | grep -o 'icon-[a-z0-9-]*\.png?v=[0-9]*' | sort -u | tr '\n' ' ')"
-          echo "icon files (bytes; new: 41845 176877 125892): $(for f in icon-192.png icon-512.png icon-maskable-512.png; do curl -fsS --max-time 20 -o /dev/null -w '%{size_download} ' "https://brodoit.com/$f?v=6"; done)"
-          echo "beta page links (Google Group + Play testing page; old internaltest links: $(curl -fsS --max-time 20 https://brodoit.com/beta | grep -c internaltest)): $(curl -fsS --max-time 20 https://brodoit.com/beta | grep -o 'https://[a-z.]*google.com/[^"<]*' | sort -u | tr '\n' ' ')"
-          echo "every link on /beta (public page): $(curl -fsS --max-time 20 https://brodoit.com/beta | grep -oE 'href="[^"]*"' | sort -u | tr '\n' ' ')"
-          echo "notifications card for the app served (notify.js?v=2): $(curl -fsS --max-time 20 https://brodoit.com/ | grep -c "notify.js?v=2") / $(curl -fsS --max-time 20 "https://brodoit.com/app/notify.js?v=2" | grep -c "Notifications in the Brodoit app come with an update")"
-          echo "chat + speed served (home.css?v=25 / voice.js?v=30 in the page / V.earlyStart in voice.js): $(curl -fsS --max-time 20 https://brodoit.com/ | grep -c 'home.css?v=25') / $(curl -fsS --max-time 20 https://brodoit.com/ | grep -c 'voice.js?v=30') / $(curl -fsS --max-time 20 'https://brodoit.com/app/voice.js?v=30' | grep -c 'V.earlyStart')"
-          echo "voice detector sent compressed (content-encoding, bytes): $(curl -sS --max-time 30 -H 'Accept-Encoding: gzip' -D - -o /tmp/w -w ' %{size_download}' https://brodoit.com/app/vendor/vad/ort-wasm-simd-threaded.wasm | grep -iE 'content-encoding|^ [0-9]' | tr -d '\r' | tr '\n' ' ')"
-          echo "site commit (main is d7644d3f6773): $(j /api/health | jq -r .commit)"
-          for i in $(seq 1 40); do c=$(j /api/health | jq -r .commit); [ "$c" = "48034aa16496" ] && break; sleep 20; done; echo "deployed 48034aa (ElevenLabs held): now $(j /api/health | jq -r .commit) at $(date -u +%H:%M:%S)"; for i in $(seq 1 12); do st=$(j /api/learn/voice-status | jq -r '.book_eleven.reason // ""'); echo "$st" | grep -q held && break; sleep 30; done
-          for t in 1; do sleep 5; echo "+$((t*2)) min: $(j '/api/news/desk?limit=60' | jq -c '{stories: (.stories | length), photo: ([.stories[] | select(.image != null)] | length), own: ([.stories[] | select(.image != null and (.image_credit.pool | not))] | length), pool: ([.stories[] | select(.image_credit.pool == true)] | length)}')"; done
-          echo "== photo per story: section · pool? · photo title · source"; j '/api/news/desk?limit=60' | jq -r '.stories[] | [.category, (if .image_credit.pool then "pool" else "own" end), (.image_credit.title // "-")[0:40], (.image_credit.source // "-"), .headline[0:44]] | @tsv' | sort | head -70
-          echo "sample credits: $(j '/api/news/desk?limit=60' | jq -c '[.stories[] | select(.image_credit != null) | {h: .headline[0:50], by: .image_credit.by, lic: .image_credit.license}] | .[0:4]')"
+          for i in $(seq 1 45); do c=$(j /api/health | jq -r .commit); [ "$c" = "2d256c45539e" ] && break; sleep 20; done
+          echo "site commit now: $(j /api/health | jq -r .commit) at $(date -u +%H:%M:%S)"
+      - name: v36 served
+        run: |
+          j() { curl -fsS --max-time 20 "https://brodoit.com$1" 2>/dev/null || echo '{}'; }
           P=$(curl -fsS --max-time 20 https://brodoit.com/)
-          echo "assets: voice.js?v=31 $(grep -c 'voice.js?v=31' <<<"$P") · news.js?v=27 $(grep -c 'news.js?v=27' <<<"$P") · news.css?v=27 $(grep -c 'news.css?v=27' <<<"$P")"
-          echo "v29 reader in the page (news.js?v=29 / news.css?v=29): $(grep -c 'news.js?v=29' <<<"$P") / $(grep -c 'news.css?v=29' <<<"$P")"
-          echo "v30 clean news in the page (news.js?v=30 / news.css?v=30): $(grep -c 'news.js?v=30' <<<"$P") / $(grep -c 'news.css?v=30' <<<"$P")"
-          curl -fsS --max-time 20 'https://brodoit.com/app/news.js?v=30' > /tmp/n30.js
-          echo "v30 news.js: mixes the feed (function mix): $(grep -c 'function mix' /tmp/n30.js) · plain source line (nz-srcl): $(grep -c 'nz-srcl' /tmp/n30.js) · section bar (nzBar): $(grep -c 'nzBar' /tmp/n30.js) · Save/Share calls: $(grep -c 'NewsChannel.save\|NewsChannel.share' /tmp/n30.js) · 'Written by Brodoit' / 'Brodoit ने लिखा' / 'Brodoit wrote': $(grep -c 'Written by Brodoit\|Brodoit ने लिखा\|Brodoit wrote' /tmp/n30.js) · 'Read the full story': $(grep -c 'Read the full story' /tmp/n30.js)"
-          echo "v29 reader code served (inner layer · Saved · swipe-left reports · instant open · scroll-driven stack): $(curl -fsS --max-time 20 'https://brodoit.com/app/news.js?v=29' | grep -o 'nz-in\|news.saved.v1\|N.sources(+o.c.dataset.i)\|news.deck.v1' | sort | uniq -c | tr '\n' ' ') · css: $(curl -fsS --max-time 20 'https://brodoit.com/app/news.css?v=29' | grep -o 'animation-timeline:view()\|scroll-snap-type:y mandatory' | sort | uniq -c | tr '\n' ' ')"
-          echo "book notes in the page (notes:1 entries, 104 expected): $(grep -o 'notes:1,' <<<"$P" | wc -l) · 'Book notes' label: $(grep -c "Book notes" <<<"$P") · old 'Free public-domain audio': $(grep -c 'Free public-domain audio' <<<"$P") · 'Chapter one' in briefs: $(grep -c 'Chapter one' <<<"$P")"
-          echo "untraced media off: /api/mv-video/clip_01 $(curl -s -o /dev/null -w '%{http_code}' https://brodoit.com/api/mv-video/clip_01) · /api/mv-thumb/clip_01.jpg $(curl -s -o /dev/null -w '%{http_code}' https://brodoit.com/api/mv-thumb/clip_01.jpg) · article reader $(curl -s -o /dev/null -w '%{http_code}' 'https://brodoit.com/api/news/read?url=https://www.thehindu.com/x')"
-          echo "terms mention LibriVox volunteers: $(curl -fsS --max-time 20 https://brodoit.com/terms | grep -c 'LibriVox volunteers')"
-          echo "Hindi book notes so far: $(j /api/book-hi | jq -c '.ids | length')"
-          echo "news photos: $(j '/api/news/desk?limit=60' | jq -c '{stories: (.stories | length), with_photo: ([.stories[] | select(.image != null)] | length), credited: ([.stories[] | select(.image_credit != null)] | length), official: ([.stories[] | select(any(.sources[]?; .official == true))] | length), sample_credit: ([.stories[] | select(.image_credit != null) | .image_credit] | .[0])}')"
-          echo "Bro's library (breathing + 104 notes + 9 pieces = 117): $(j /api/learn/voice-status | jq -c '.library')"
-          echo "== v35 books: 13-15 minutes, read by ElevenLabs"
-          echo "page loads v35: $(curl -fsS --max-time 20 https://brodoit.com/ | grep -o 'bookfull.js?v=35\|ideas.js?v=35\|ideas.css?v=35' | sort -u | tr '\n' ' ') · bookfull has Pause and think: $(curl -fsS --max-time 20 'https://brodoit.com/app/bookfull.js?v=35' | grep -c 'Pause and think')"
-          echo "book_eleven: $(j /api/learn/voice-status | jq -c '.book_eleven')"
-          echo "eleven index on the site: $(j /api/book-eleven/index.json | jq -c '{items: (.items | length)}') · cloud copy: $(curl -fsSL --max-time 30 https://github.com/rishabh071106-eng/taskflow/releases/download/book-eleven-v1/manifest.json | jq -c '{items: (.items | length), made}')"
-          echo "ready list now: $(j /api/book-voice/ready | jq -c '{all: (.items | length), books: ([.items | keys[] | select(startswith("book-"))] | length)}')"
-          echo "== v34 books: own covers, no copyright risks"
-          P34=$(curl -fsS --max-time 20 https://brodoit.com/)
-          echo "page: ideas.js?v=34 $(grep -c 'ideas.js?v=34' <<<"$P34") · own covers (/app/covers/) $(grep -c '/app/covers/' <<<"$P34") · publisher cover hosts left $(grep -c 'covers.openlibrary\|openlibrary.org/b/' <<<"$P34") · India filter $(grep -c 'NOT_PD_INDIA' <<<"$P34")"
-          echo "covers served: $(for id in atomic deep medi psymoney tao; do curl -s -o /dev/null -w "$id %{http_code} %{content_type} %{size_download}B · " "https://brodoit.com/app/covers/$id.webp?v=1"; done)"
-          echo "terms notice: $(curl -fsS --max-time 20 https://brodoit.com/terms | grep -c 'not affiliated with, sponsored or endorsed') · credits Books: $(curl -fsS --max-time 20 https://brodoit.com/credits | grep -c "Book covers are Brodoit's own designs") · old 'Open Library' credit: $(curl -fsS --max-time 20 https://brodoit.com/credits | grep -c 'Book covers come from Open Library')"
-          echo "ideas.js v34 labels: $(curl -fsS --max-time 20 'https://brodoit.com/app/ideas.js?v=34' | grep -o "Every chapter, in Bro\\\\'s words\|Listen to every chapter\|Bro on this book, in 7 chapters" | sort | uniq -c | tr '\n' ' ')"
-          echo "the old summary audio release: $(curl -s -o /dev/null -w '%{http_code}' -L https://github.com/rishabh071106-eng/taskflow/releases/download/audio-v1/audio-static.tar.gz) (404 = gone)"
-          echo "== v33 books: books only, in 7 chapters, read in Bro's voice"
-          echo "page loads bookfull.js?v=33 / ideas.js?v=33 / ideas.css?v=33: $(grep -c 'bookfull.js?v=33' <<<"$P") / $(grep -c 'ideas.js?v=33' <<<"$P") / $(grep -c 'ideas.css?v=33' <<<"$P")"
-          curl -fsS --max-time 20 'https://brodoit.com/app/ideas.js?v=33' > /tmp/i33.js
-          echo "ideas.js v33: BI.play $(grep -c 'BI.play = function' /tmp/i33.js) · readHtml $(grep -c 'BI.readHtml' /tmp/i33.js) · old feed/quiz left (feedHtml|bi-opt|ideas.saved): $(grep -c 'feedHtml\|bi-opt\|ideas.saved' /tmp/i33.js)"
-          echo "the page's Books tab has no Ideas segment: $(grep -c "S.booksMode=\\\\'ideas\\\\'" <<<"$P") (0 expected) · default Books: $(grep -c "if(S.booksMode!=='audiobooks')S.booksMode='summaries'" <<<"$P")"
-          echo "bookfull.js builds the book: $(curl -fsS --max-time 20 'https://brodoit.com/app/bookfull.js?v=33' | grep -c 'function compose')"
-          echo "/api/book-voice/ready: $(j /api/book-voice/ready | jq -c '{all: (.items | length), books: ([.items | keys[] | select(startswith("book-"))] | length), notes: ([.items | keys[] | select(test("^(book|brief|hi)-") | not)] | length)}')"
-          for i in $(seq 1 50); do n=$(curl -fsS --max-time 20 -H 'Cache-Control: no-cache' "https://brodoit.com/api/book-voice/ready?t=$i" | jq '[.items | keys[] | select(startswith("book-"))] | length' 2>/dev/null || echo 0); break; done
-          echo "all books on the server (104 expected) at $(date -u +%H:%M:%S): $(curl -fsS --max-time 20 "https://brodoit.com/api/book-voice/ready?t=end" | jq -c '{books: ([.items | keys[] | select(startswith("book-"))] | length), mins: ([.items | to_entries[] | select(.key | startswith("book-")) | .value] | add / 60 | floor), atomic_secs: .items["book-atomic"]}') · server: $(j /api/learn/voice-status | jq -c '.book_voice | {published, ready, error, free_mb, synced_at}')"
-          echo "/api/book-audio/book-atomic without a token: $(curl -s -o /dev/null -w '%{http_code}' https://brodoit.com/api/book-audio/book-atomic)"
-          echo "== v32 books: 7 story chapters per book, public-domain books whole"
-          echo "books with story chapters: $(curl -fsS --max-time 20 https://brodoit.com/app/ideas/index.json | jq '.ids | length')"
-          echo "atomic: hero $(curl -fsS --max-time 20 https://brodoit.com/app/ideas/atomic.json | jq -c '{hero: .hero.name, chapters: (.chapters | length)}')"
-          for b in medi discourses lettersstoic tao babylon; do echo "brief $b: $(curl -s -o /dev/null -w '%{http_code}' https://brodoit.com/app/briefs/$b.json) · $(curl -fsS --max-time 20 https://brodoit.com/app/briefs/$b.json | jq -r '.text | length') chars"; done
-          echo "a book still under copyright has no brief: $(curl -s -o /dev/null -w '%{http_code}' https://brodoit.com/app/briefs/atomic.json)"
-          echo "== v31 book voice"
-          echo "narration ready on the server (109 before the v33 books): $(j /api/learn/voice-status | jq -r '.book_voice.ready // 0')"
-          echo "release has the 5 public-domain books read whole: $(curl -fsSL --max-time 30 https://github.com/rishabh071106-eng/taskflow/releases/download/book-voice-v1/manifest.json | jq -c '[.items | to_entries[] | select(.key | startswith("brief-")) | {k: .key, secs: (.value.secs | floor)}]')"
-          echo "/api/book-audio/brief-medi without a token: $(curl -s -o /dev/null -w '%{http_code}' https://brodoit.com/api/book-audio/brief-medi)"
-          echo "server: $(j /api/learn/voice-status | jq -c '.book_voice')"
-          echo "Bro's library now (notes with narration leave its queue): $(j /api/learn/voice-status | jq -c '.library | {total, recorded, state}')"
-          echo "release manifest: $(curl -fsSL --max-time 30 https://github.com/rishabh071106-eng/taskflow/releases/download/book-voice-v1/manifest.json 2>/dev/null | jq -c '{voice, license, voice_id, made, items: (.items | length), hindi: ([.items | keys[] | select(startswith("hi-"))] | length)}' 2>/dev/null || echo 'not published yet')"
-          echo "/credits names the voices: $(curl -fsS --max-time 20 https://brodoit.com/credits | grep -o 'Book notes are read by[^<]*\|Bro.s voice is Kokoro[^<]*' | head -2 | tr '\n' ' ')"
-          echo "/api/book-audio/atomic without a token: $(curl -s -o /dev/null -w '%{http_code}' https://brodoit.com/api/book-audio/atomic)"
-          echo "android build served: $(j /api/android/status | jq -c '{version, build, ready, play_state: .play.state}')"
-          echo "play status (fixed words only): $(j /api/android/status | jq -c '.play | del(.account)')"
-          echo "== the 13:00 India edition (2026-11-01-1300)"
-          echo "edition now: $(j /api/news/edition | jq -c '{id, ready, count: (.count // .stories // null), next_at}')"
-          j '/api/news/desk?limit=100' > /tmp/desk.json
-          echo "its stories: $(jq -c '[.stories[] | select(.edition == "2026-11-01-1300")] | {count: length, writers: (group_by(.writer) | map({key: (.[0].writer // "?"), value: length}) | from_entries), sections: (group_by(.category) | map({key: .[0].category, value: length}) | from_entries), with_photo: (map(select(.image != null)) | length), credited: (map(select(.image_credit.license != null)) | length), pool: (map(select(.image_credit.pool == true)) | length), official: (map(select(any(.sources[]?; .official == true))) | length)}' /tmp/desk.json)"
-          echo "all stories by edition: $(jq -c '.stories | group_by(.edition) | map({key: (.[0].edition // "none"), value: length}) | from_entries' /tmp/desk.json)"
+          echo "page loads: $(grep -o 'lessons.js?v=36\|lessons.css?v=36\|bookfull.js?v=36\|news.js?v=36\|news.css?v=36' <<<"$P" | sort -u | tr '\n' ' ')"
+          echo "tab label Lessons: $(grep -c "l:_tH?'सबक':'Lessons'" <<<"$P") · Audiobooks segment left: $(grep -c 'bk-seg' <<<"$P")"
+          echo "lessons.js: $(curl -fsS --max-time 20 'https://brodoit.com/app/lessons.js?v=36' | grep -c 'window.Lessons') · font: $(curl -s -o /dev/null -w '%{http_code} %{size_download}B' https://brodoit.com/app/fonts/DMSerifDisplay-latin.woff2)"
+          echo "pictures: index $(j /app/lessons/img/index.json | jq -c '{lessons: length, atomic: .atomic.hero}') · atomic/3.svg $(curl -s -o /dev/null -w '%{http_code} %{content_type} %{size_download}B' https://brodoit.com/app/lessons/img/atomic/3.svg)"
+          echo "share page /l/atomic?c=4: $(curl -fsS --max-time 20 'https://brodoit.com/l/atomic?c=4' | grep -o 'og:title" content="[^"]*"\|og:image" content="[^"]*"\|url=[^"]*' | tr '\n' ' ')"
+          echo "news v36: $(curl -fsS --max-time 20 'https://brodoit.com/app/news.js?v=36' | grep -c 'Why it matters') 'Why it matters' left in news.js"
+          echo "terms LibriVox left: $(curl -fsS --max-time 20 https://brodoit.com/terms | grep -c 'LibriVox') · credits Notionists: $(curl -fsS --max-time 20 https://brodoit.com/credits | grep -c 'Notionists')"
+      - name: A shared lesson on a phone (Chromium)
+        run: |
+          mkdir -p /tmp/pw && cd /tmp/pw && npm init -y > /dev/null && npm i playwright@1.48.2 > /dev/null 2>&1 && npx playwright install --with-deps chromium > /dev/null 2>&1
+          cd "$GITHUB_WORKSPACE" && PW_PATH=/tmp/pw/node_modules/playwright node .github/scripts/lesson-probe.mjs || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: lesson-shots, path: 'lesson-*.png', if-no-files-found: ignore }
+      - name: ElevenLabs recording the lessons (every 2 minutes for 24 minutes)
+        run: |
+          j() { curl -fsS --max-time 20 "https://brodoit.com$1" 2>/dev/null || echo '{}'; }
+          for i in $(seq 1 13); do
+            echo "$(date -u +%H:%M:%S) $(j /api/learn/voice-status | jq -c '.book_eleven | {state, reason, ready, total, minutes, plan, credits_left, credits_month, error, last}') · cues: $(j "/api/book-voice/ready?t=$i" | jq -c '[.cues // {} | to_entries[] | {(.key): (.value | length)}] | add')"
+            sleep 120
+          done
+          echo "lesson audio (public): atomic $(curl -s -o /dev/null -w '%{http_code} %{content_type} %{size_download}B' --max-time 60 https://brodoit.com/api/lesson-audio/atomic)"
+          echo "eleven index: $(j /api/book-eleven/index.json | jq -c '{items: (.items | length), first: (.items | to_entries | .[0] | {k: .key, secs: .value.secs, cues: (.value.cues | length), voice: .value.voice})}')"
