@@ -1415,8 +1415,9 @@ app.get('/l/:id', (req, res) => {
   const hero = (_lessonIdx[id] && _lessonIdx[id].hero) || '';
   const c = Math.max(0, Math.min(40, parseInt(req.query.c, 10) || 0));
   const e = x => String(x || '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
-  const host = (req.headers['x-forwarded-host'] || req.headers.host || 'brodoit.com').split(',')[0].trim();
-  const origin = (String(req.headers['x-forwarded-proto'] || req.protocol || 'https').split(',')[0].trim() === 'http' && /^(localhost|127\.)/.test(host) ? 'http://' : 'https://') + host;
+  // the preview's links name brodoit.com (never a Host header someone sent), or this machine when testing locally
+  const host = String(req.headers.host || '').trim();
+  const origin = /^(localhost|127\.0\.0\.1)(:\d+)?$/.test(host) ? 'http://' + host : 'https://brodoit.com';
   const to = '/?bk=' + encodeURIComponent(id) + (c ? '&c=' + c : '');
   const title = nb.title + ' · a Brodoit lesson';
   const desc = 'An 8-minute lesson on the ideas in ' + nb.title + (hero ? ', told through ' + hero + '\'s story' : '') + '. Narrated, illustrated, free on Brodoit.';
