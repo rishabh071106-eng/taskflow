@@ -1,4 +1,4 @@
-# Throwaway-branch only: how many Hindi lessons are recorded, the credits left, and what the cloud copy holds.
+# Throwaway-branch only: where the Google Play release stands (the closed test for Testers Community).
 name: Site probe
 on:
   push:
@@ -6,14 +6,16 @@ on:
 permissions:
   contents: read
 jobs:
-  lessons:
+  play:
     runs-on: ubuntu-latest
     steps:
-      - name: Lessons recorded, credits, cloud copy (after the first 20-minute copy has had time)
+      - name: Play status, the beta page, the testing link
         run: |
-          sleep 300
           j() { curl -fsS --max-time 20 "https://brodoit.com$1" 2>/dev/null || echo '{}'; }
-          echo "site commit: $(j /api/health | jq -r .commit) at $(date -u +%H:%M:%S)"
-          echo "book_eleven: $(j /api/learn/voice-status | jq -c '.book_eleven | {state, reason, ready, total, minutes, plan, credits_left, credits_month, credits_reset, error, last}')"
-          echo "on the site: $(j /api/book-eleven/index.json | jq -c '{items: (.items | length), english: ([.items | keys[] | select(startswith("lesson-") and (startswith("lesson-hi-") | not))] | length), hindi: ([.items | keys[] | select(startswith("lesson-hi-"))] | length), briefs: ([.items | keys[] | select(startswith("brief-"))] | length)}')"
-          echo "cloud copy: $(curl -fsSL --max-time 60 https://github.com/rishabh071106-eng/taskflow/releases/download/book-eleven-v1/manifest.json | jq -c '{items: (.items | length), hindi: ([.items | keys[] | select(startswith("lesson-hi-"))] | length), with_cues: ([.items[] | select(.cues != null)] | length), made}')"
+          echo "android: $(j /api/android/status | jq -c '{version, build, ready, play: (.play | del(.account))}')"
+          echo "beta page links: $(curl -fsS --max-time 20 https://brodoit.com/beta | grep -oE 'href="https?://[^"]*"' | sort -u | tr '\n' ' ')"
+          echo "beta signups (count only): $(j /api/beta-signup/count | jq -c . 2>/dev/null)"
+          echo "Play testing page: $(curl -s -o /dev/null -w '%{http_code}' -L https://play.google.com/apps/testing/com.brodoit.twa)"
+          echo "Play store listing: $(curl -s -o /dev/null -w '%{http_code}' 'https://play.google.com/store/apps/details?id=com.brodoit.twa')"
+          echo "the group: $(curl -s -o /dev/null -w '%{http_code}' https://groups.google.com/g/brodoit-testing)"
+          echo "android release (GitHub): $(curl -fsS https://api.github.com/repos/rishabh071106-eng/taskflow/releases?per_page=5 | jq -c '[.[] | {tag: .tag_name, at: .published_at, assets: [.assets[].name]}] | .[0:3]')"
