@@ -128,6 +128,7 @@ check('…the check form (record.py, --lines check) reads numbers however Whispe
 }
 
 // ── v35: the books are at least 10 minutes, and ElevenLabs reads them on the server (a stand-in ElevenLabs here) ──
+process.env.BOOK_ELEVEN_HOLD = '0';
 {
   const lens = bookN.map(n => n.text.length);
   check('every book in 7 chapters is at least ~12,000 characters (13+ minutes read): each story asks "Pause and think" and the book ends with the five ideas and a week', Math.min(...lens) >= 12000 && bookN.every(n => (n.text.match(/Pause and think\./g) || []).length === 6 && /Before you go, here is the whole book in one breath\. One: /.test(n.text) && /Monday: .+Friday: .+And on the weekend/.test(n.text)), { min: Math.min(...lens) });
