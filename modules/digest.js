@@ -6,6 +6,9 @@
 //   (so a restart does not lose it), only for users with a subscription. While the evening summary is on, the steps
 //   module's own evening nudge stays quiet (ownsEvening).
 //   Task reminders fire at the task's local date and time, up to 10 minutes late, once (tasks.reminded).
+// v38 (modules/nudges.js): every summary also lands in the user's inbox (the bell), pushes or not, for everyone who
+// opened the app in the last three weeks; the morning names today's lesson; the evening becomes the streak call when
+// today's lesson is not done (and says so when it is); Hindi users get it in Hindi.
 // Routes: GET/POST /api/notify/prefs {morning, evening, m_time, e_time}, POST /api/notify/test (sends the morning
 // summary now; answers how many devices took it), GET /api/notify/status (counts only, for the live check).
 //   install(app, { db, auth, push, tzOf(phone), steps() → steps module | null, log, now?, timer? })
@@ -49,41 +52,59 @@ function install(app, deps) {
   const topStory = () => { try { return q("SELECT id, headline FROM news_stories WHERE created_at > datetime('now','-1 day') ORDER BY source_count DESC, published_at DESC LIMIT 1").get() || null; } catch (e) { return null; } };
   const stepsOf = phone => { try { const S = deps.steps && deps.steps(); return S && S.summaryFor ? S.summaryFor(phone) : null; } catch (e) { return null; } };
   const listTasks = (ts, n) => ts.slice(0, n).map(t => clip(t.title, 40) + (fmtTime(t.reminder_time) ? ' (' + fmtTime(t.reminder_time) + ')' : '')).join(', ') + (ts.length > n ? ' +' + (ts.length - n) + ' more' : '');
+  // v38: the user's language, today's lesson and the learning streak (from the server; all optional)
+  const langOf = phone => { try { return deps.langOf && deps.langOf(phone) === 'hi' ? 'hi' : 'en'; } catch (e) { return 'en'; } };
+  const lessonOf = (phone, lang) => { try { return deps.lessonOfDay ? deps.lessonOfDay(phone, lang) : null; } catch (e) { return null; } };
+  const streakOf = phone => { try { return deps.streakOf ? deps.streakOf(phone) : null; } catch (e) { return null; } };
+  const streakOn = phone => { try { return !global._nudges || global._nudges.prefsOf(phone).streak; } catch (e) { return true; } };
+  const NU = (() => { try { return require('./nudges.js'); } catch (e) { return null; } })();
 
   // ── the two summaries, from the data as it is now ──
   function morning(phone, now) {
     now = now || nowOf();
-    const t = parts(now, tzOf(phone)), name = firstName(phone), lines = [];
+    const t = parts(now, tzOf(phone)), name = firstName(phone), lines = [], hi = langOf(phone) === 'hi';
     const ts = openTasks(phone, t.key), bl = blocks(phone, t.key);
-    lines.push(ts.length ? `${ts.length} task${ts.length > 1 ? 's' : ''} today: ${listTasks(ts, 3)}` : 'No tasks for today yet.');
+    const ls = lessonOf(phone, hi ? 'hi' : 'en');
+    if (ls) lines.push(hi ? `आज का सबक: ${ls.title}, ${ls.hero} की कहानी (8 मिनट)` : `Today's lesson: ${ls.title}, told through ${ls.hero}'s story (8 min)`);
+    lines.push(ts.length ? (hi ? `आज ${ts.length} काम: ${listTasks(ts, 3)}` : `${ts.length} task${ts.length > 1 ? 's' : ''} today: ${listTasks(ts, 3)}`) : (hi ? 'आज के लिए अभी कोई काम नहीं।' : 'No tasks for today yet.'));
     if (bl.length) lines.push('Plan: ' + bl.slice(0, 3).map(b => (fmtTime(b.start_time) ? fmtTime(b.start_time) + ' ' : '') + clip(b.label, 30)).join(', '));
     const st = stepsOf(phone);
     if (st && st.goal) {
       const y = (st.week || []).find(d => d.date === addDays(t.key, -1));
       lines.push(`Steps: goal ${fmtN(st.goal)}` + (y ? ` · yesterday ${fmtN(y.counted)}` : '') + (st.streak ? ` · ${st.streak}-day streak` : ''));
     }
-    const top = topStory(); if (top) lines.push('Top story: ' + clip(top.headline, 90));
-    return { type: 'digest', kind: 'morning', title: name ? `Good morning, ${name}` : 'Good morning', body: lines.join('\n'), tag: 'digest-morning', renotify: true, url: '/?tab=tasks' };
+    const top = topStory(); if (top && !hi) lines.push('Top story: ' + clip(top.headline, 90));
+    return { type: 'digest', kind: 'morning', title: (hi ? '☀️ सुप्रभात' : '☀️ Good morning') + (name ? ', ' + name : ''), body: lines.join('\n'), tag: 'digest-morning', renotify: true, url: ls ? '/?bk=' + encodeURIComponent(ls.id) : '/?tab=tasks' };
   }
   function evening(phone, now) {
     now = now || nowOf();
-    const t = parts(now, tzOf(phone)), lines = [];
+    const t = parts(now, tzOf(phone)), lines = [], hi = langOf(phone) === 'hi';
     const st = stepsOf(phone), ts = openTasks(phone, t.key);
-    let title = 'Your day';
+    let title = hi ? 'आपका दिन' : 'Your day', url = '/?tab=steps';
     if (st && st.goal) {
       const n = (st.today && st.today.counted) || 0, pct = Math.round(n / st.goal * 100);
       title = `${fmtN(n)} steps today`;
       lines.push(n >= st.goal ? `Goal reached (${pct}% of ${fmtN(st.goal)})` + (st.streak ? ` · ${st.streak}-day streak` : '') : `${pct}% of your ${fmtN(st.goal)} goal · ${fmtN(st.goal - n)} to go` + (st.streak ? ` · keep your ${st.streak}-day streak` : ''));
     }
-    lines.push(ts.length ? `${ts.length} task${ts.length > 1 ? 's' : ''} still open: ${listTasks(ts, 3)}` : 'Every task for today is done.');
-    const tomorrow = openTasks(phone, addDays(t.key, 1)); if (tomorrow.length) lines.push(`Tomorrow: ${listTasks(tomorrow, 2)}`);
-    return { type: 'digest', kind: 'evening', title, body: lines.join('\n'), tag: 'digest-evening', renotify: true, url: '/?tab=steps' };
+    lines.push(ts.length ? (hi ? `${ts.length} काम अभी बाक़ी: ${listTasks(ts, 3)}` : `${ts.length} task${ts.length > 1 ? 's' : ''} still open: ${listTasks(ts, 3)}`) : (hi ? 'आज के सारे काम पूरे।' : 'Every task for today is done.'));
+    const tomorrow = openTasks(phone, addDays(t.key, 1)); if (tomorrow.length) lines.push((hi ? 'कल: ' : 'Tomorrow: ') + listTasks(tomorrow, 2));
+    // v38: the learning streak leads the evening when today's lesson is still to do
+    const sk = streakOn(phone) ? streakOf(phone) : null;
+    // someone who has never done a lesson hears "start a streak" every third evening only (no nagging)
+    const dn = Math.floor(Date.parse(t.key + 'T00:00:00Z') / 864e5);
+    if (sk && NU && (sk.total > 0 || sk.streak > 0 || dn % 3 === 0)) {
+      const ls = lessonOf(phone, hi ? 'hi' : 'en');
+      const line = NU.streakLine({ n: sk.streak, done: sk.today, hi, title: ls && ls.title, hero: ls && ls.hero, k: Math.floor(Date.parse(t.key + 'T00:00:00Z') / 864e5) });
+      if (!sk.today) { title = line.title; if (line.body) lines.unshift(line.body); url = ls ? '/?bk=' + encodeURIComponent(ls.id) : '/?tab=books'; }
+      else if (sk.streak > 0) lines.unshift(line.title);
+    }
+    return { type: 'digest', kind: sk && !sk.today ? 'streak' : 'evening', title, body: lines.join('\n'), tag: 'digest-evening', renotify: true, url };
   }
 
   // ── the minute tick ──
   function claim(phone, day, kind) { try { return q('INSERT OR IGNORE INTO push_sent(user_phone, day, kind) VALUES(?,?,?)').run(phone, day, kind).changes > 0; } catch (e) { return false; } }
   function summaries(now) {
-    let users = []; try { users = q('SELECT DISTINCT user_phone FROM push_subs').all().map(r => r.user_phone); } catch (e) { return 0; }
+    let users = []; try { users = deps.users ? deps.users() : q('SELECT DISTINCT user_phone FROM push_subs').all().map(r => r.user_phone); } catch (e) { return 0; }
     let sent = 0;
     for (const phone of users) {
       try {
@@ -92,7 +113,10 @@ function install(app, deps) {
           const d = t.min - toMin(at);
           if (!on || d < 0 || d >= 15) continue;
           if (!claim(phone, t.key, kind)) continue;
-          if (push.send(phone, make(phone, now))) sent++;
+          const m = make(phone, now);
+          // v38: through the inbox (and a push where the phone takes them)
+          if (deps.deliver) { const r = deps.deliver(phone, { kind: m.kind === 'streak' ? 'streak' : 'digest', title: m.title, body: m.body, url: m.url, tag: m.tag }); if (r && r.pushed) sent++; }
+          else if (push.send(phone, m)) sent++;
         }
       } catch (e) { log('summary', e.message); }
     }
@@ -107,7 +131,8 @@ function install(app, deps) {
       const t = parts(now, tzOf(r.user_phone)), at = toMin(r.reminder_time);
       if (at < 0 || t.key !== r.due_date || t.min < at || t.min - at > 10) continue;
       if (!q('UPDATE tasks SET reminded=1 WHERE id=? AND reminded=0').run(r.id).changes) continue;
-      push.send(r.user_phone, { type: 'reminder', title: '⏰ ' + r.title, body: r.notes || 'Time for: ' + r.title, tag: 'reminder-' + r.id, renotify: true, requireInteraction: true, url: '/?tab=tasks' });
+      const rm = { type: 'reminder', kind: 'reminder', title: '⏰ ' + r.title, body: r.notes || 'Time for: ' + r.title, tag: 'reminder-' + r.id, renotify: true, requireInteraction: true, url: '/?tab=tasks' };
+      if (deps.deliver) deps.deliver(r.user_phone, rm); else push.send(r.user_phone, rm); // v38: in the inbox too
       n++;
     }
     return n;

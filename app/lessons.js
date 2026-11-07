@@ -71,6 +71,7 @@
   L.listHtml = function (list) {
     let h = '';
     if (!IMG) return '<div class="lz-load">' + T('Loading lessons…', 'सबक लोड हो रहे हैं…') + '</div>';
+    if (!(S.bkSearch || '').trim() && (!S.bkCat || S.bkCat === 'all')) h += L.streakHtml();
     const avail = (list || books()).filter(b => L.has(b.id));
     // carry on where you stopped
     const going = Object.keys(prog).filter(id => L.has(id) && !prog[id].done && prog[id].max > 0).sort((a, b) => (prog[b].at || 0) - (prog[a].at || 0)).slice(0, 6);
@@ -272,7 +273,8 @@
       if (sl >= 0) { const t = me.rec.cues[sl]; if (Math.abs(me.audio.currentTime - t) > 0.6 && (first ? t > 0 || me.audio.currentTime > 1 : true)) { try { me.audio.currentTime = t; } catch (e) { /* not loaded yet */ me.wantAt = t; } } }
       else if (me.playing) me.audio.pause();
     }
-    if (me.l.cards[i].kind === 'end') { mark(me.id, i, true); finished(me); } else mark(me.id, i, false);
+    if (me.l.cards[i].kind === 'end') { mark(me.id, i, true); finished(me); L.earn('finish'); } else mark(me.id, i, false);
+    if (!first) readCard(me.id, i);
     paint(); setMeta(me);
     if (!first && was !== i) { try { if (window.haptic) haptic('select'); } catch (e) { /* none */ } }
   }
@@ -420,17 +422,69 @@
   // two minutes of listening counts for the listening streak (as the books did)
   function listened() {
     const me = P; if (!me || me.tick) return; let secs = 0;
-    me.tick = setInterval(async () => {
+    me.tick = setInterval(() => {
       if (P !== me) return clearInterval(me.tick);
       if (!me.playing) return; secs += 5;
-      try {
-        if (secs === 120 && S.user && S.bookStreak && !S.bookStreak.today) {
-          const r = await api('/book-streak', { method: 'POST', body: JSON.stringify({ date: new Date().toISOString().slice(0, 10), seconds: 120 }) });
-          if (r && r.ok) { S.bookStreak = { streak: r.streak, total: r.total, today: true, days: S.bookStreak.days }; toast('\u{1F525} ' + r.streak + T('-day learning streak!', ' दिन की लगातार सीख!')); }
-        }
-      } catch (e) { /* offline */ }
+      if (secs === 120) L.earn('listen');
     }, 5000);
   }
+
+  // ── v38: the daily streak. A day is won by 2 minutes of listening, a finished lesson, or 6 lesson cards read; the
+  // first win of the day is celebrated (and, then and there, notifications are offered: never on their own) ──
+  const localDay = () => { const d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset() * 60e3).toISOString().slice(0, 10); };
+  const DK = 'bd_streak_day';
+  L.earn = async function (why) {
+    let signed = false; try { signed = !!S.user; } catch (e) { signed = false; }
+    if (!signed) return null;
+    const day = localDay();
+    try { if (localStorage.getItem(DK) === day && S.bookStreak && S.bookStreak.today) return null; } catch (e) { /* private */ }
+    let r = null;
+    try { r = await api('/book-streak', { method: 'POST', body: JSON.stringify({ date: day, seconds: why === 'listen' ? 120 : 60, kind: why }) }); } catch (e) { r = null; }
+    if (!r || !r.ok) return null;
+    try { localStorage.setItem(DK, day); } catch (e) { /* private */ }
+    S.bookStreak = Object.assign({}, S.bookStreak || {}, r);
+    if (r.fresh) L.celebrate(r); else rerender();
+    return r;
+  };
+  const RK = 'bd_cards_read';
+  function readCard(id, i) {
+    const day = localDay(); let o = {}; try { o = JSON.parse(localStorage.getItem(RK) || '{}') || {}; } catch (e) { o = {}; }
+    if (o.day !== day) o = { day, seen: [] };
+    const k = id + ':' + i; if (o.seen.indexOf(k) < 0) o.seen.push(k);
+    try { localStorage.setItem(RK, JSON.stringify(o)); } catch (e) { /* private */ }
+    if (o.seen.length === 6) L.earn('read');
+  }
+  L.celebrate = function (r) {
+    document.getElementById('skCele')?.remove();
+    const n = r.streak || 1, I = window.Inbox;
+    const el = document.createElement('div'); el.className = 'sk-cele'; el.id = 'skCele'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', T(n + '-day streak', n + ' दिन की स्ट्रीक'));
+    const line = r.milestone ? T('A milestone. This is turning into a real habit.', 'एक पड़ाव। यह अब सच्ची आदत बन रही है।') : n === 1 ? T('Day one. Come back tomorrow to make it two.', 'पहला दिन। कल लौटिए, इसे दो बनाइए।') : T('You learned something new ' + n + ' days in a row. See you tomorrow.', 'लगातार ' + n + ' दिन आपने कुछ नया सीखा। कल मिलते हैं।');
+    el.innerHTML = '<div class="sk-sparks" aria-hidden="true">' + Array.from({ length: 15 }, (_, k) => '<i style="--k:' + k + '"></i>').join('') + '</div>'
+      + (I ? I.flame(96, false) : '') + '<div class="sk-big" id="skBig">' + Math.max(0, n - 1) + '</div><div class="sk-lbl">' + (r.milestone ? esc(r.milestone) : T('day streak!', 'दिन की स्ट्रीक!')) + '</div><p>' + line + '</p>'
+      + (I ? I.weekHtml() : '') + (I && I.canAsk() ? I.askHtml('streak') : '')
+      + '<button class="sk-cont" onclick="Lessons.uncelebrate()">' + T('Keep going', 'आगे बढ़ें') + '</button>';
+    document.body.appendChild(el);
+    // the number counts up to today's
+    setTimeout(() => { const b = document.getElementById('skBig'); if (b) b.textContent = n; }, reduced() ? 0 : 650);
+    try { if (window.haptic) haptic('success'); } catch (e) { /* none */ }
+  };
+  L.uncelebrate = function () { document.getElementById('skCele')?.remove(); rerender(); };
+  // the streak card at the top of Lessons
+  L.streakHtml = function () {
+    const I = window.Inbox; let st; try { st = S.bookStreak; } catch (e) { st = null; } if (!I || !st) return '';
+    const cold = !st.today, n = st.streak || 0;
+    const t = cold ? (n ? T('One lesson today keeps your ' + n + '-day streak burning.', 'आज एक सबक, और आपकी ' + n + ' दिन की लौ जलती रहेगी।') : T('Learn for 8 minutes today to light your flame.', 'आज 8 मिनट सीखिए, और अपनी लौ जलाइए।'))
+      : T('Done for today. Your flame is burning. See you tomorrow.', 'आज का पूरा। आपकी लौ जल रही है। कल मिलते हैं।');
+    return '<div class="sk-card' + (cold ? ' cold' : '') + '">' + I.flame(46, cold) + '<div class="sk-n">' + n + '<small>' + T('day streak', 'दिन की स्ट्रीक') + '</small></div><div class="sk-best">' + (st.best ? T('Best ', 'सबसे लंबी ') + st.best : '') + '</div>'
+      + '<div class="sk-t">' + t + '</div>' + I.weekHtml()
+      + (cold ? '<button class="sk-go" onclick="Lessons.today()">' + PLAYI + T('Play today\'s lesson', 'आज का सबक चलाएँ') + '</button>' : '')
+      + (I.canAsk() && n > 0 ? '<div style="grid-column:1 / span 3">' + I.askHtml('card') + '</div>' : '') + '</div>';
+  };
+  L.today = function () {
+    const avail = books().filter(b => L.has(b.id)); if (!avail.length) return;
+    const day = Math.floor((Date.now() - new Date().getTimezoneOffset() * 60e3) / 864e5);
+    L.open(avail[day % avail.length].id, 0, true);
+  };
   function finished(me) {
     if (me.doneOnce) return; me.doneOnce = true;
     const card = me.cards[me.i]; card.classList.add('party');

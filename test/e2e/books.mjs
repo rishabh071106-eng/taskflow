@@ -182,6 +182,11 @@ try {
   await page.evaluate(() => Lessons.open('atomic', 18)); await page.waitForSelector('.lz .lzk-end.on', { timeout: 8000 }); await sleep(700);
   const e1 = await page.evaluate(() => { const c = document.querySelector('.lz-card.on'); return { recap: [...c.querySelectorAll('.lz-recap li')].map(l => l.textContent), week: c.querySelectorAll('.lz-week p').length, btns: [...c.querySelectorAll('.lz-endbtns button')].map(b => b.textContent.trim()), next: document.querySelector('.lz-next').textContent.trim(), done: JSON.parse(localStorage.getItem('bd_lessons_v1') || '{}').atomic }; });
   check('the end card: the five ideas, a week to live them, Share this lesson, the next lesson; the lesson is marked done here', e1.recap.length === 5 && e1.week === 5 && e1.btns[0] === 'Share this lesson' && /^Next lesson: /.test(e1.btns[1]) && e1.next === 'Done' && e1.done && e1.done.done === true, e1);
+  // v38: finishing a lesson wins the day's streak: the celebration comes up over it (the first win of the day)
+  await page.waitForSelector('#skCele', { timeout: 6000 }).catch(() => null);
+  const cele = await page.evaluate(() => ({ on: !!document.getElementById('skCele'), st: S.bookStreak && S.bookStreak.today }));
+  check('…and finishing it wins today\'s streak, celebrated', cele.on && cele.st === true, cele);
+  await page.evaluate(() => Lessons.uncelebrate()); await sleep(300);
   await page.click('.lz-next'); await sleep(600);
   const cl = await page.evaluate(() => ({ open: !!document.querySelector('.lz'), lock: document.documentElement.classList.contains('lz-open'), st: Lessons.state(), done: !!document.querySelector('.lz-tile[onclick*="\'atomic\'"] .lz-tile-done') }));
   check('Done closes it (back on the Lessons tab, the lesson ticked)', !cl.open && !cl.lock && cl.st === null && cl.done, cl);
