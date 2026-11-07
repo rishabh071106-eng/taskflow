@@ -52,8 +52,11 @@ function install(app, deps) {
     return playApiKey();
   }
   // the uploader account's email is not a secret: config/play.json (written when the Google Cloud side was set up)
-  const configEmail = () => { try { return String(JSON.parse(fs.readFileSync(deps.playConfig || path.join(__dirname, '..', 'config', 'play.json'), 'utf8')).serviceAccountEmail || ''); } catch (e) { return ''; } };
-  const play = createPlay(Object.assign({ getSetting: deps.getSetting || (k => process.env[k] || ''), dir, log: (...a) => console.log('[play]', ...a), ownKey: () => { const k = playApiKey(); return k && k.key; }, configEmail }, deps.playOptions || {}));
+  const playConfig = () => { try { return JSON.parse(fs.readFileSync(deps.playConfig || path.join(__dirname, '..', 'config', 'play.json'), 'utf8')) || {}; } catch (e) { return {}; } };
+  const configEmail = () => String(playConfig().serviceAccountEmail || '');
+  // v39: the closed test's tester groups (ours and the tester exchange's) are not secrets either: config/play.json
+  const configGroups = () => (Array.isArray(playConfig().testerGroups) ? playConfig().testerGroups : []).map(String);
+  const play = createPlay(Object.assign({ getSetting: deps.getSetting || (k => process.env[k] || ''), dir, log: (...a) => console.log('[play]', ...a), ownKey: () => { const k = playApiKey(); return k && k.key; }, configEmail, configGroups }, deps.playOptions || {}));
   // the signed bundle goes to Play only when it is the Play flavor (builds before v19 were com.brodoit.app)
   const playBuild = () => state.ready && state.aab && state.aabPackage === play.status().package ? { aab: state.aab, versionCode: state.versionCode, version: state.version } : null;
   const syncPlay = () => play.sync(playBuild()).catch(e => log('play', e.message));

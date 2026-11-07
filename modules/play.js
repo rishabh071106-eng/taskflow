@@ -63,6 +63,13 @@ function createPlay(o) {
     return { email, key, tokenUrl: TOKEN_URL, own: true };
   }
   const tracks = () => String(getSetting('PLAY_TRACKS') || 'internal,alpha').split(',').map(s => s.trim()).filter(s => /^[a-z0-9:_-]{2,40}$/i.test(s));
+  // v39 launch: the Google Groups whose members may join the closed test — our own testers' group and a tester
+  // exchange's (Testers Community gives each developer one), from config/play.json `testerGroups` and the
+  // PLAY_TESTER_GROUPS setting. They go on every closed track (not internal: it takes email lists only); a group is only
+  // ever added, never taken off, so one the owner added in Play Console stays.
+  const groups = () => [...new Set([...(o.configGroups ? o.configGroups() : []), ...String(getSetting('PLAY_TESTER_GROUPS') || '').split(/[\s,]+/)]
+    .map(s => String(s || '').trim().toLowerCase()).filter(s => /^[a-z0-9][a-z0-9._-]{0,62}@googlegroups\.com$/.test(s)))].sort();
+  const closedTracks = () => tracks().filter(t => t !== 'internal');
   let tok = null, running = null;
 
   async function call(method, url, body, type) {
@@ -107,9 +114,38 @@ function createPlay(o) {
         await call('PUT', `${api}/androidpublisher/v3/applications/${pkg}/edits/${encodeURIComponent(edit.id)}/tracks/${encodeURIComponent(t)}`, rel);
       }
     }
+    await addGroups(edit.id);
     await call('POST', `${api}/androidpublisher/v3/applications/${pkg}/edits/${encodeURIComponent(edit.id)}:commit`);
+    markGroups();
     return Number(vc);
   }
+  // the tester groups onto each closed track, in an open edit (merged with what is there). A refusal here does not stop
+  // the build going up: it is noted and tried again on the next sync.
+  async function addGroups(editId) {
+    const want = groups(); if (!want.length) return false;
+    let changed = false; st.groups_error = '';
+    for (const t of closedTracks()) {
+      const url = `${api}/androidpublisher/v3/applications/${pkg}/edits/${encodeURIComponent(editId)}/testers/${encodeURIComponent(t)}`;
+      try {
+        const have = ((await call('GET', url)).googleGroups || []).map(g => String(g).toLowerCase());
+        const all = [...new Set([...have, ...want])];
+        if (all.length !== have.length) { await call('PUT', url, { googleGroups: all }); changed = true; }
+      } catch (e) { st.groups_error = String(e && e.message || e).slice(0, 200); log('tester groups on', t, '→', st.groups_error); return changed; }
+    }
+    return changed;
+  }
+  // after a commit: these groups are on these tracks
+  const markGroups = () => { if (!st.groups_error) { st.groups = groups(); st.groups_tracks = closedTracks(); } };
+  // a group added after the build went up (a new tester exchange): its own small edit
+  async function attachGroups() {
+    const edit = await call('POST', `${api}/androidpublisher/v3/applications/${pkg}/edits`, {});
+    const changed = await addGroups(edit.id);
+    if (st.groups_error) { await call('DELETE', `${api}/androidpublisher/v3/applications/${pkg}/edits/${encodeURIComponent(edit.id)}`).catch(() => {}); return; }
+    if (changed) { await call('POST', `${api}/androidpublisher/v3/applications/${pkg}/edits/${encodeURIComponent(edit.id)}:commit`); log('tester groups on', closedTracks().join(' + ') + ':', groups().join(', ')); }
+    else await call('DELETE', `${api}/androidpublisher/v3/applications/${pkg}/edits/${encodeURIComponent(edit.id)}`).catch(() => {});
+    markGroups();
+  }
+  const groupsDone = () => String(st.groups || []) === String(groups()) && String(st.groups_tracks || []) === String(closedTracks()) && !st.groups_error;
 
   // the newest signed build goes up once; until it is up, every call (hourly, after a new build, after the key is
   // pasted) tries again
@@ -121,7 +157,14 @@ function createPlay(o) {
       if (acc.error) { Object.assign(st, { state: acc.error === 'missing' ? 'no-account' : 'error', reason: acc.error === 'missing' ? '' : 'the service account is ' + acc.error, pending: b.versionCode }); save(); return status(); }
       // a new account (or key) gets a fresh token
       const who = acc.email + (acc.own ? ' (server key)' : ''); if (st.account !== who) { tok = null; st.account = who; }
-      if (st.uploaded >= b.versionCode) return status();
+      if (st.uploaded >= b.versionCode) {
+        // the build is up; a tester group that is not on the closed track yet goes on now
+        if (groups().length && closedTracks().length && !groupsDone()) {
+          try { await attachGroups(); } catch (e) { st.groups_error = String(e && e.message || e).slice(0, 200); log('tester groups →', st.groups_error); if (e && e.step === 'token') tok = null; }
+          save();
+        }
+        return status();
+      }
       Object.assign(st, { state: 'uploading', pending: b.versionCode, tried_at: new Date(now()).toISOString() }); save();
       try {
         const vc = await upload(b);
@@ -138,7 +181,9 @@ function createPlay(o) {
     })().finally(() => { running = null; });
     return running;
   }
-  const status = () => ({ state: st.state || (account().error === 'missing' ? 'no-account' : 'waiting'), versionCode: st.uploaded || null, pending: st.pending || null, tracks: st.tracks || tracks(), reason: st.reason || '', at: st.uploaded_at || st.tried_at || null, package: pkg });
+  // testers: the groups wanted on the closed tracks and whether Play has them (Google's message stays in the log)
+  const status = () => ({ state: st.state || (account().error === 'missing' ? 'no-account' : 'waiting'), versionCode: st.uploaded || null, pending: st.pending || null, tracks: st.tracks || tracks(), reason: st.reason || '', at: st.uploaded_at || st.tried_at || null, package: pkg,
+    testers: { groups: groups(), on: closedTracks(), done: groups().length ? groupsDone() : true } });
   // Admin: does this pasted key work? (a token is enough; access to the app shows on the first upload)
   async function verify(raw) {
     const acc = parseAccount(raw);
