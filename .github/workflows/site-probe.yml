@@ -1,4 +1,4 @@
-# Throwaway-branch only: is v38 live (streak, bell inbox, notifications), and how far are the Hindi lessons recorded?
+# Throwaway-branch only: how many Hindi lessons are recorded, the credits left, and what the cloud copy holds.
 name: Site probe
 on:
   push:
@@ -6,21 +6,14 @@ on:
 permissions:
   contents: read
 jobs:
-  v38:
+  lessons:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
     steps:
-      - name: Wait for the v38 deploy (5d96b9245a2f)
+      - name: Lessons recorded, credits, cloud copy (after the first 20-minute copy has had time)
         run: |
+          sleep 300
           j() { curl -fsS --max-time 20 "https://brodoit.com$1" 2>/dev/null || echo '{}'; }
-          for i in $(seq 1 45); do c=$(j /api/health | jq -r .commit); [ "$c" = "5d96b9245a2f" ] && break; sleep 20; done
-          echo "site commit now: $(j /api/health | jq -r .commit) at $(date -u +%H:%M:%S)"
-      - name: v38 served
-        run: |
-          j() { curl -fsS --max-time 20 "https://brodoit.com$1" 2>/dev/null || echo '{}'; }
-          P=$(curl -fsS --max-time 20 https://brodoit.com/)
-          echo "page loads: $(grep -o 'inbox.js?v=38\|inbox.css?v=38\|lessons.js?v=38\|notify.js?v=3\|frame.js?v=4' <<<"$P" | sort -u | tr '\n' ' ') · header hook: $(grep -c 'Inbox.headerHtml()' <<<"$P")"
-          echo "inbox needs sign-in: $(curl -s -o /dev/null -w '%{http_code}' https://brodoit.com/api/inbox) · count: $(curl -s -o /dev/null -w '%{http_code}' https://brodoit.com/api/inbox/count) · more: $(curl -s -o /dev/null -w '%{http_code}' https://brodoit.com/api/notify/more)"
-          echo "service worker: image $(curl -fsS --max-time 20 https://brodoit.com/sw.js | grep -c 'opts.image') · inbox read $(curl -fsS --max-time 20 https://brodoit.com/sw.js | grep -c '/api/inbox/read')"
-          echo "notify status: $(j /api/notify/status | jq -c .)"
-          echo "book_eleven (Hindi lessons): $(j /api/learn/voice-status | jq -c '.book_eleven | {state, reason, ready, total, credits_left, credits_month, last}') · hindi with cues: $(j /api/book-voice/ready | jq '[.cues // {} | keys[] | select(startswith("lesson-hi-"))] | length')"
+          echo "site commit: $(j /api/health | jq -r .commit) at $(date -u +%H:%M:%S)"
+          echo "book_eleven: $(j /api/learn/voice-status | jq -c '.book_eleven | {state, reason, ready, total, minutes, plan, credits_left, credits_month, credits_reset, error, last}')"
+          echo "on the site: $(j /api/book-eleven/index.json | jq -c '{items: (.items | length), english: ([.items | keys[] | select(startswith("lesson-") and (startswith("lesson-hi-") | not))] | length), hindi: ([.items | keys[] | select(startswith("lesson-hi-"))] | length), briefs: ([.items | keys[] | select(startswith("brief-"))] | length)}')"
+          echo "cloud copy: $(curl -fsSL --max-time 60 https://github.com/rishabh071106-eng/taskflow/releases/download/book-eleven-v1/manifest.json | jq -c '{items: (.items | length), hindi: ([.items | keys[] | select(startswith("lesson-hi-"))] | length), with_cues: ([.items[] | select(.cues != null)] | length), made}')"
