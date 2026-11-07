@@ -17580,7 +17580,8 @@ app.post('/api/beta-signup',async(req,res)=>{
       <li><b>On your Android phone, open this link</b> and tap <b>Become a tester</b>:<br><a href="${BETA_OPT_IN_URL}" style="display:inline-block;margin-top:8px;color:#0F1115;font-weight:600;word-break:break-all">${BETA_OPT_IN_URL}</a></li>
       <li>Tap <b>Download it on Google Play</b> and install Brodoit.</li>
     </ol>
-    <p style="margin-top:24px;font-size:14px;color:#52555C">Please open the app every day or two for the next 14 days: Google only lets an app go public after testers have used it for 14 days. You'll get the public Play Store link as a thank-you.</p>
+    <p style="margin-top:22px;font-size:14px;color:#1F2228"><b>What to try:</b> one Lesson a day (it keeps your streak alive), the News tab, and adding a task. Anything odd? Just reply to this email.</p>
+    <p style="margin-top:14px;font-size:14px;color:#52555C">Please open the app every day or two for the next 14 days: Google only lets an app go public after testers have used it for 14 days. You'll get the public Play Store link as a thank-you.</p>
     <a href="${BETA_GROUP_URL}" style="display:inline-block;margin-top:22px;padding:14px 28px;background:#0F1115;color:#FFD27A;text-decoration:none;border-radius:0;font-weight:600;font-size:15px">Start: join the group →</a>
     <p style="margin-top:30px;padding-top:22px;border-top:1px solid #D7D5CF;font-size:13px;color:#7E8189">Questions? Reply to this email or text Rishabh directly.</p>
   </div>`;
@@ -17607,7 +17608,7 @@ app.post('/api/beta-mark-added',adminAuth,(req,res)=>{
 // Public landing page — the "/beta" URL you share with friends
 app.get('/beta',(req,res)=>{
   const src=String(req.query.src||'').replace(/[^a-zA-Z0-9_-]/g,'').slice(0,20);
-  res.type('html').send(`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#1E1C22"><title>Become a Brodoit beta tester</title><meta name="description" content="Help test Brodoit before public launch. 30 seconds to install."><meta property="og:title" content="Test Brodoit before launch"><meta property="og:description" content="30 seconds to join the closed beta"><meta property="og:image" content="https://brodoit.com/icon-512.png?v=6"><link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png?v=6"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet"><style>
+  res.type('html').send(`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#1E1C22"><title>Become a Brodoit beta tester</title><meta name="description" content="Help test Brodoit before public launch: story lessons from great books in English and Hindi, the news in photos, a daily streak. 30 seconds to install."><meta property="og:title" content="Test Brodoit before launch"><meta property="og:description" content="30 seconds to join the closed beta"><meta property="og:image" content="https://brodoit.com/icon-512.png?v=6"><link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png?v=6"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet"><style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Inter','SF Pro Text',-apple-system,BlinkMacSystemFont,sans-serif;background:#EDECE8;color:#0F1115;min-height:100vh;-webkit-font-smoothing:antialiased;letter-spacing:-.011em;font-weight:450;background-image:radial-gradient(circle at 1px 1px,rgba(15,17,21,.05) 1px,transparent 0);background-size:24px 24px}
 .wrap{max-width:520px;margin:0 auto;padding:48px 24px 64px}
@@ -17645,7 +17646,7 @@ button:disabled{opacity:.6;cursor:not-allowed}
 </style></head><body><div class="wrap">
 <div class="kicker">Brodoit · Closed beta</div>
 <h1>Test Brodoit before <em>everyone else</em>.</h1>
-<p class="lede">Help me launch this productivity app to Google Play. Drop your Play email below — you'll get the install link in 30 seconds.</p>
+<p class="lede">Help me launch Brodoit on Google Play: 8-minute story lessons from great books, narrated in English and Hindi, the day's news in photos, a daily streak and your tasks in one app. Drop your Play email below — you'll get the install link in 30 seconds.</p>
 
 <div class="steps">
   <div class="step"><div class="step-n">1</div><div class="step-t">Enter the <b>email you use on Google Play</b> below.</div></div>
