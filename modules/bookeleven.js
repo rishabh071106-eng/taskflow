@@ -169,6 +169,9 @@ function create(o) {
       let got = 0;
       try {
         if (gs('BOOK_ELEVEN') === 'off') { st.state = 'off'; st.reason = 'turned off in Admin (BOOK_ELEVEN=off)'; return 0; }
+        // 7 Nov: hold every ElevenLabs spend until the 8-minute lessons (v36) replace today's texts, so no credit goes on a
+        // text that is about to change (BOOK_ELEVEN_HOLD=0 lifts it; v36 removes the hold)
+        if (process.env.BOOK_ELEVEN_HOLD !== '0') { st.state = 'waiting'; st.reason = 'held until the 8-minute lessons are in (no credits spent)'; return 0; }
         fs.mkdirSync(dir, { recursive: true });
         // 1. a book already paid for comes back from the cloud copy (no credits)
         for (const id of (o.ids() || []).filter(id => ID_RE.test(id) && textOf(id) && !file(id))) {
