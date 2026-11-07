@@ -1,4 +1,4 @@
-# Throwaway-branch only: how far ElevenLabs has recorded the v36 lessons, and how many are safe in the cloud copy.
+# Throwaway-branch only: is v37 live (Hindi lessons, full-page News), and is ElevenLabs recording the Hindi lessons?
 name: Site probe
 on:
   push:
@@ -6,15 +6,44 @@ on:
 permissions:
   contents: read
 jobs:
-  lessons:
+  v37:
     runs-on: ubuntu-latest
+    timeout-minutes: 40
     steps:
-      - name: Lessons recorded, credits, cloud copy
+      - uses: actions/checkout@v4
+      - name: Wait for the v37 deploy (66455bd6aedc)
         run: |
           j() { curl -fsS --max-time 20 "https://brodoit.com$1" 2>/dev/null || echo '{}'; }
-          echo "site commit: $(j /api/health | jq -r .commit) at $(date -u +%H:%M:%S)"
-          echo "book_eleven: $(j /api/learn/voice-status | jq -c '.book_eleven | {state, reason, ready, total, minutes, plan, credits_left, credits_month, credits_reset, error, last}')"
-          echo "lessons with cues: $(j /api/book-voice/ready | jq '[.cues // {} | keys[] | select(startswith("lesson-"))] | length')"
-          echo "eleven index: $(j /api/book-eleven/index.json | jq -c '{items: (.items | length), lessons: ([.items | keys[] | select(startswith("lesson-"))] | length), voices: ([.items[] | .voice] | unique), mins: ([.items[] | .secs] | add / 60 | floor), shortest: ([.items[] | .secs] | min), longest: ([.items[] | .secs] | max)}')"
-          echo "cloud copy: $(curl -fsSL --max-time 60 https://github.com/rishabh071106-eng/taskflow/releases/download/book-eleven-v1/manifest.json | jq -c '{items: (.items | length), lessons: ([.items | keys[] | select(startswith("lesson-"))] | length), with_cues: ([.items[] | select(.cues != null)] | length)}')"
-          echo "a late lesson plays: $(curl -s -o /dev/null -w '%{http_code} %{size_download}B' --max-time 60 https://brodoit.com/api/lesson-audio/gtd)"
+          for i in $(seq 1 45); do c=$(j /api/health | jq -r .commit); [ "$c" = "66455bd6aedc" ] && break; sleep 20; done
+          echo "site commit now: $(j /api/health | jq -r .commit) at $(date -u +%H:%M:%S)"
+      - name: v37 served
+        run: |
+          j() { curl -fsS --max-time 20 "https://brodoit.com$1" 2>/dev/null || echo '{}'; }
+          P=$(curl -fsS --max-time 20 https://brodoit.com/)
+          echo "page loads: $(grep -o 'lessons.js?v=37\|lessons.css?v=37\|bookfull.js?v=37\|news.js?v=37\|news.css?v=37' <<<"$P" | sort -u | tr '\n' ' ')"
+          echo "Hindi index: $(j /app/lessons-hi/index.json | jq -c '{ids: (.ids | length), atomic: .heroes.atomic}') · atomic: $(j /app/lessons-hi/atomic.json | jq -c '{src, cards: (.cards | length), meet: .hero.meet[0:40]}')"
+          echo "news icons: $(curl -fsS --max-time 20 'https://brodoit.com/app/news.js?v=37' | grep -c 'nz-fab') · old bar left: $(curl -fsS --max-time 20 'https://brodoit.com/app/news.css?v=37' | grep -c 'nz-bar')"
+          echo "share page hl=hi: $(curl -fsS --max-time 20 'https://brodoit.com/l/atomic?c=2&hl=hi' | grep -o 'url=[^"]*')"
+      - name: A shared Hindi lesson on a phone (Chromium)
+        run: |
+          mkdir -p /tmp/pw && cd /tmp/pw && npm init -y > /dev/null && npm i playwright@1.48.2 > /dev/null 2>&1 && npx playwright install --with-deps chromium > /dev/null 2>&1
+          cd "$GITHUB_WORKSPACE" && cat > /tmp/hi-probe.mjs <<'JS'
+          import { createRequire } from 'module'; const require = createRequire(import.meta.url); const pw = require('/tmp/pw/node_modules/playwright');
+          const b = await pw.chromium.launch(); const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }); const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
+          await p.goto('https://brodoit.com/l/atomic?c=1&hl=hi', { waitUntil: 'domcontentloaded', timeout: 60000 });
+          let st = null; for (let i = 0; i < 40; i++) { await new Promise(r => setTimeout(r, 500)); st = await p.evaluate(() => window.Lessons && Lessons.state && Lessons.state()).catch(() => null); if (st) break; }
+          await new Promise(r => setTimeout(r, 1500));
+          const info = await p.evaluate(() => ({ h2: (document.querySelector('.lz-card.on h2') || {}).textContent, lang: (document.querySelector('.lz-lang') || {}).textContent, say: ((document.querySelector('.lz-card.on .lz-say') || {}).textContent || '').slice(0, 60) })).catch(e => ({ e: e.message }));
+          console.log('shared Hindi lesson:', JSON.stringify({ st: st && { id: st.id, lang: st.lang, i: st.i, voice: st.voice }, info, errs }));
+          await b.close();
+          JS
+          node /tmp/hi-probe.mjs || true
+      - name: ElevenLabs recording the Hindi lessons (every 2 minutes for 16 minutes)
+        run: |
+          j() { curl -fsS --max-time 20 "https://brodoit.com$1" 2>/dev/null || echo '{}'; }
+          for i in $(seq 1 9); do
+            echo "$(date -u +%H:%M:%S) $(j /api/learn/voice-status | jq -c '.book_eleven | {state, reason, ready, total, plan, credits_left, credits_month, error, last}') · hindi with cues: $(j "/api/book-voice/ready?t=$i" | jq '[.cues // {} | keys[] | select(startswith("lesson-hi-"))] | length')"
+            sleep 120
+          done
+          echo "hindi audio (public): $(curl -s -o /dev/null -w '%{http_code} %{content_type} %{size_download}B' --max-time 60 https://brodoit.com/api/lesson-audio/hi-atomic)"
+          echo "eleven index: $(j /api/book-eleven/index.json | jq -c '{items: (.items | length), hindi: ([.items | keys[] | select(startswith("lesson-hi-"))] | length), hindi_voice: ([.items | to_entries[] | select(.key | startswith("lesson-hi-")) | .value.voice] | unique), hindi_secs: ([.items | to_entries[] | select(.key | startswith("lesson-hi-")) | .value.secs])}')"
