@@ -1,4 +1,4 @@
-# Throwaway-branch only: is v37 live (Hindi lessons, full-page News), and is ElevenLabs recording the Hindi lessons?
+# Throwaway-branch only: is v38 live (streak, bell inbox, notifications), and how far are the Hindi lessons recorded?
 name: Site probe
 on:
   push:
@@ -6,44 +6,21 @@ on:
 permissions:
   contents: read
 jobs:
-  v37:
+  v38:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-      - name: Wait for the v37 deploy (66455bd6aedc)
+      - name: Wait for the v38 deploy (5d96b9245a2f)
         run: |
           j() { curl -fsS --max-time 20 "https://brodoit.com$1" 2>/dev/null || echo '{}'; }
-          for i in $(seq 1 45); do c=$(j /api/health | jq -r .commit); [ "$c" = "66455bd6aedc" ] && break; sleep 20; done
+          for i in $(seq 1 45); do c=$(j /api/health | jq -r .commit); [ "$c" = "5d96b9245a2f" ] && break; sleep 20; done
           echo "site commit now: $(j /api/health | jq -r .commit) at $(date -u +%H:%M:%S)"
-      - name: v37 served
+      - name: v38 served
         run: |
           j() { curl -fsS --max-time 20 "https://brodoit.com$1" 2>/dev/null || echo '{}'; }
           P=$(curl -fsS --max-time 20 https://brodoit.com/)
-          echo "page loads: $(grep -o 'lessons.js?v=37\|lessons.css?v=37\|bookfull.js?v=37\|news.js?v=37\|news.css?v=37' <<<"$P" | sort -u | tr '\n' ' ')"
-          echo "Hindi index: $(j /app/lessons-hi/index.json | jq -c '{ids: (.ids | length), atomic: .heroes.atomic}') · atomic: $(j /app/lessons-hi/atomic.json | jq -c '{src, cards: (.cards | length), meet: .hero.meet[0:40]}')"
-          echo "news icons: $(curl -fsS --max-time 20 'https://brodoit.com/app/news.js?v=37' | grep -c 'nz-fab') · old bar left: $(curl -fsS --max-time 20 'https://brodoit.com/app/news.css?v=37' | grep -c 'nz-bar')"
-          echo "share page hl=hi: $(curl -fsS --max-time 20 'https://brodoit.com/l/atomic?c=2&hl=hi' | grep -o 'url=[^"]*')"
-      - name: A shared Hindi lesson on a phone (Chromium)
-        run: |
-          mkdir -p /tmp/pw && cd /tmp/pw && npm init -y > /dev/null && npm i playwright@1.48.2 > /dev/null 2>&1 && npx playwright install --with-deps chromium > /dev/null 2>&1
-          cd "$GITHUB_WORKSPACE" && cat > /tmp/hi-probe.mjs <<'JS'
-          import { createRequire } from 'module'; const require = createRequire(import.meta.url); const pw = require('/tmp/pw/node_modules/playwright');
-          const b = await pw.chromium.launch(); const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }); const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
-          await p.goto('https://brodoit.com/l/atomic?c=1&hl=hi', { waitUntil: 'domcontentloaded', timeout: 60000 });
-          let st = null; for (let i = 0; i < 40; i++) { await new Promise(r => setTimeout(r, 500)); st = await p.evaluate(() => window.Lessons && Lessons.state && Lessons.state()).catch(() => null); if (st) break; }
-          await new Promise(r => setTimeout(r, 1500));
-          const info = await p.evaluate(() => ({ h2: (document.querySelector('.lz-card.on h2') || {}).textContent, lang: (document.querySelector('.lz-lang') || {}).textContent, say: ((document.querySelector('.lz-card.on .lz-say') || {}).textContent || '').slice(0, 60) })).catch(e => ({ e: e.message }));
-          console.log('shared Hindi lesson:', JSON.stringify({ st: st && { id: st.id, lang: st.lang, i: st.i, voice: st.voice }, info, errs }));
-          await b.close();
-          JS
-          node /tmp/hi-probe.mjs || true
-      - name: ElevenLabs recording the Hindi lessons (every 2 minutes for 16 minutes)
-        run: |
-          j() { curl -fsS --max-time 20 "https://brodoit.com$1" 2>/dev/null || echo '{}'; }
-          for i in $(seq 1 9); do
-            echo "$(date -u +%H:%M:%S) $(j /api/learn/voice-status | jq -c '.book_eleven | {state, reason, ready, total, plan, credits_left, credits_month, error, last}') · hindi with cues: $(j "/api/book-voice/ready?t=$i" | jq '[.cues // {} | keys[] | select(startswith("lesson-hi-"))] | length')"
-            sleep 120
-          done
-          echo "hindi audio (public): $(curl -s -o /dev/null -w '%{http_code} %{content_type} %{size_download}B' --max-time 60 https://brodoit.com/api/lesson-audio/hi-atomic)"
-          echo "eleven index: $(j /api/book-eleven/index.json | jq -c '{items: (.items | length), hindi: ([.items | keys[] | select(startswith("lesson-hi-"))] | length), hindi_voice: ([.items | to_entries[] | select(.key | startswith("lesson-hi-")) | .value.voice] | unique), hindi_secs: ([.items | to_entries[] | select(.key | startswith("lesson-hi-")) | .value.secs])}')"
+          echo "page loads: $(grep -o 'inbox.js?v=38\|inbox.css?v=38\|lessons.js?v=38\|notify.js?v=3\|frame.js?v=4' <<<"$P" | sort -u | tr '\n' ' ') · header hook: $(grep -c 'Inbox.headerHtml()' <<<"$P")"
+          echo "inbox needs sign-in: $(curl -s -o /dev/null -w '%{http_code}' https://brodoit.com/api/inbox) · count: $(curl -s -o /dev/null -w '%{http_code}' https://brodoit.com/api/inbox/count) · more: $(curl -s -o /dev/null -w '%{http_code}' https://brodoit.com/api/notify/more)"
+          echo "service worker: image $(curl -fsS --max-time 20 https://brodoit.com/sw.js | grep -c 'opts.image') · inbox read $(curl -fsS --max-time 20 https://brodoit.com/sw.js | grep -c '/api/inbox/read')"
+          echo "notify status: $(j /api/notify/status | jq -c .)"
+          echo "book_eleven (Hindi lessons): $(j /api/learn/voice-status | jq -c '.book_eleven | {state, reason, ready, total, credits_left, credits_month, last}') · hindi with cues: $(j /api/book-voice/ready | jq '[.cues // {} | keys[] | select(startswith("lesson-hi-"))] | length')"
