@@ -3,7 +3,9 @@
 name: Book voice backup (ElevenLabs)
 on:
   schedule:
-    - cron: '41 */3 * * *'
+    # v36: hourly while the lessons record (GitHub skipped the 03:41 and 06:41 runs on 7 Nov; a copy an hour keeps
+    # at most an hour of paid recordings outside the cloud)
+    - cron: '23 * * * *'
   push:
     branches: [main]
     paths: ['scripts/book-eleven/backup.js', '.github/workflows/book-eleven-backup.yml']
