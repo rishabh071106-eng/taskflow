@@ -1,4 +1,4 @@
-# Throwaway-branch only: is brodoit.com up, down or flapping, and does its login screen let a new visitor type?
+# Throwaway-branch only: is brodoit.com up, down or flapping, and does its login screen let a new visitor type? (checked 7 Nov 03:07)
 name: Site probe
 on:
   push:
