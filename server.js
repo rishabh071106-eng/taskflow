@@ -1268,6 +1268,22 @@ function _bookText(id) {
       for (const b of arr) if (b && b.id && b.summary) _booksCache.set(String(b.id), { title: String(b.title || ''), text: String(b.summary).replace(/\\/g, ''), lang: 'en', book: b });
     } catch (e) { console.log('[books] could not read the summaries:', e.message); }
   }
+  // v37: the lesson in Hindi (app/lessons-hi/<id>.json, written from the English lesson it names by hash; a stale one,
+  // written from an older English lesson, is neither shown nor recorded)
+  if (id.startsWith('lesson-hi-')) {
+    const base = id.slice(10).replace(/[^a-zA-Z0-9_-]/g, '');
+    if (_lessonCache.has('hi:' + base)) return _lessonCache.get('hi:' + base);
+    const nb = _booksCache.get(base); let out = null;
+    if (nb) { try {
+      const BF = require('./app/bookfull.js'), LH = require('./scripts/lessons/hi.js');
+      const en = BF.lesson(nb.book, JSON.parse(_fs.readFileSync(_path.join(__dirname, 'app', 'ideas', base + '.json'), 'utf8')));
+      const hi = JSON.parse(_fs.readFileSync(_path.join(__dirname, 'app', 'lessons-hi', base + '.json'), 'utf8'));
+      const l = en && hi && hi.src === LH.srcHash(LH.extract(en)) ? BF.lessonHi(en, hi) : null;
+      if (l) out = { title: nb.title, text: l.text, lang: 'hi' };
+    } catch (e) { /* no Hindi lesson for this book yet */ } }
+    _lessonCache.set('hi:' + base, out);
+    return out;
+  }
   // v36: the lesson (19 cards, ~8 minutes) as ElevenLabs' storyteller reads it (app/bookfull.js lesson())
   if (id.startsWith('lesson-')) {
     const base = id.slice(7).replace(/[^a-zA-Z0-9_-]/g, '');
@@ -1418,7 +1434,8 @@ app.get('/l/:id', (req, res) => {
   // the preview's links name brodoit.com (never a Host header someone sent), or this machine when testing locally
   const host = String(req.headers.host || '').trim();
   const origin = /^(localhost|127\.0\.0\.1)(:\d+)?$/.test(host) ? 'http://' + host : 'https://brodoit.com';
-  const to = '/?bk=' + encodeURIComponent(id) + (c ? '&c=' + c : '');
+  const hl = req.query.hl === 'hi' ? 'hi' : '';
+  const to = '/?bk=' + encodeURIComponent(id) + (c ? '&c=' + c : '') + (hl ? '&hl=hi' : '');
   const title = nb.title + ' · a Brodoit lesson';
   const desc = 'An 8-minute lesson on the ideas in ' + nb.title + (hero ? ', told through ' + hero + '\'s story' : '') + '. Narrated, illustrated, free on Brodoit.';
   const img = origin + '/app/covers/' + id + '.webp?v=1';
@@ -2859,8 +2876,8 @@ const HTML=`<!DOCTYPE html><html lang="en"><head>
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png?v=6">
 <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png?v=6">
 <link rel="apple-touch-icon" href="/icon-192.png?v=6">
-<link rel="stylesheet" href="/app/theme.css?v=21"><link rel="stylesheet" href="/app/app.css?v=21"><link rel="stylesheet" href="/app/news.css?v=36"><link rel="stylesheet" href="/app/ideas.css?v=35"><link rel="stylesheet" href="/app/lessons.css?v=36"><link rel="stylesheet" href="/app/steps.css?v=21"><link rel="stylesheet" href="/app/admin.css?v=23"><link rel="stylesheet" href="/app/onboarding.css?v=21"><link rel="stylesheet" href="/app/cards.css?v=22"><link rel="stylesheet" href="/app/home.css?v=25"><link rel="stylesheet" href="/app/tasks.css?v=22"><link rel="stylesheet" href="/app/books.css?v=21"><link rel="stylesheet" href="/app/learn.css?v=23">
-<script src="/app/icons.js?v=21" defer></script><script src="/app/bookfull.js?v=36" defer></script><script src="/app/ideas.js?v=35" defer></script><script src="/app/lessons.js?v=36" defer></script><script src="/app/cards.js?v=21" defer></script><script src="/app/learn.js?v=24" defer></script><script src="/app/you.js?v=23" defer></script><script src="/app/haptics.js?v=21" defer></script><script src="/app/mascot.js?v=21" defer></script><script src="/app/say.js?v=2" defer></script><script src="/app/voice.js?v=31" defer></script><script src="/app/micgain.js?v=1" defer></script><script src="/app/voicenote.js?v=2" defer></script><script src="/app/news.js?v=36" defer></script><script src="/app/notify.js?v=2" defer></script><script src="/app/steps.js?v=22" defer></script><script src="/app/admin.js?v=25" defer></script><script src="/app/onboarding.js?v=22" defer></script><script src="/app/motion.js?v=21" defer></script>
+<link rel="stylesheet" href="/app/theme.css?v=21"><link rel="stylesheet" href="/app/app.css?v=21"><link rel="stylesheet" href="/app/news.css?v=36"><link rel="stylesheet" href="/app/ideas.css?v=35"><link rel="stylesheet" href="/app/lessons.css?v=37"><link rel="stylesheet" href="/app/steps.css?v=21"><link rel="stylesheet" href="/app/admin.css?v=23"><link rel="stylesheet" href="/app/onboarding.css?v=21"><link rel="stylesheet" href="/app/cards.css?v=22"><link rel="stylesheet" href="/app/home.css?v=25"><link rel="stylesheet" href="/app/tasks.css?v=22"><link rel="stylesheet" href="/app/books.css?v=21"><link rel="stylesheet" href="/app/learn.css?v=23">
+<script src="/app/icons.js?v=21" defer></script><script src="/app/bookfull.js?v=37" defer></script><script src="/app/ideas.js?v=35" defer></script><script src="/app/lessons.js?v=37" defer></script><script src="/app/cards.js?v=21" defer></script><script src="/app/learn.js?v=24" defer></script><script src="/app/you.js?v=23" defer></script><script src="/app/haptics.js?v=21" defer></script><script src="/app/mascot.js?v=21" defer></script><script src="/app/say.js?v=2" defer></script><script src="/app/voice.js?v=31" defer></script><script src="/app/micgain.js?v=1" defer></script><script src="/app/voicenote.js?v=2" defer></script><script src="/app/news.js?v=36" defer></script><script src="/app/notify.js?v=2" defer></script><script src="/app/steps.js?v=22" defer></script><script src="/app/admin.js?v=25" defer></script><script src="/app/onboarding.js?v=22" defer></script><script src="/app/motion.js?v=21" defer></script>
 <!-- Open Graph -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Brodoit">
@@ -13244,8 +13261,8 @@ function bkHiSwitch(base,hi){var b=hi?bkHiBook(base):BOOK_SUMMARIES.find(functio
 function _bkWantHi(base){return S.lang==='hi'&&!(S.bkHiPick&&S.bkHiPick[base]==='en')}
 // v27: an idea's "Try it today" becomes a task for today
 async function bkTry(id,i,btn){var b=BOOK_SUMMARIES.find(function(x){return x.id===id});if(S.bookReader&&S.bookReader.book&&S.bookReader.book._base===id)b=S.bookReader.book;var it=b&&b.insights[i];if(!it||!it[2])return;if(btn)btn.disabled=true;var d=new Date();var r=await api('/tasks',{method:'POST',body:JSON.stringify({title:it[2],notes:_T('From Bro\\'s notes on ','Bro के नोट्स से: ')+b.title,priority:'medium',status:'pending',due_date:d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'),board:'home'})});if(r&&r.id){if(S.tasks)S.tasks.unshift(r);S.bkTried=S.bkTried||{};S.bkTried[id+':'+i]=1;if(btn){btn.textContent=_T('Added to today','आज में जुड़ गया');btn.classList.add('on')}toast(_T('Added to today\\'s tasks','आज के कामों में जुड़ गया'))}else if(btn)btn.disabled=false}
-function openBookSummary(id,autoplay){var b=BOOK_SUMMARIES.find(function(x){return x.id===id});if(!b)return;if(window.Lessons&&Lessons.has(id)&&S.lang!=='hi'){Lessons.open(id,null,autoplay===true);return}if(_bkWantHi(id)&&S.bkHi&&S.bkHi[id]){var hb=bkHiBook(id);if(hb)b=hb}S.bookReader={open:true,book:b};S.bkNP=false;render();var el=document.querySelector('.bkp-page');if(el)el.scrollTop=0;if(autoplay===true)playBookBrief(id)}
-function playBookBrief(id){if(window.Lessons&&Lessons.has(id)&&S.lang!=='hi'){Lessons.open(id,null,true);return}if(window.BookIdeas&&BookIdeas.has(id))BookIdeas.play(id);else bkpPlay(id)}
+function openBookSummary(id,autoplay){var b=BOOK_SUMMARIES.find(function(x){return x.id===id});if(!b)return;if(window.Lessons&&Lessons.has(id)&&(S.lang!=='hi'||Lessons.hasHi(id))){Lessons.open(id,null,autoplay===true);return}if(_bkWantHi(id)&&S.bkHi&&S.bkHi[id]){var hb=bkHiBook(id);if(hb)b=hb}S.bookReader={open:true,book:b};S.bkNP=false;render();var el=document.querySelector('.bkp-page');if(el)el.scrollTop=0;if(autoplay===true)playBookBrief(id)}
+function playBookBrief(id){if(window.Lessons&&Lessons.has(id)&&(S.lang!=='hi'||Lessons.hasHi(id))){Lessons.open(id,null,true);return}if(window.BookIdeas&&BookIdeas.has(id))BookIdeas.play(id);else bkpPlay(id)}
 function closeBookReader(){S.bookReader={open:false};render()}
 function bkMiniToggle(){bkpToggle()}
 function bkMiniClose(){bkpStop()}
@@ -18081,7 +18098,7 @@ try{require('./modules/credits.js').install(app,{appRoot:__dirname})}catch(e){co
 try{_broLib=require('./modules/brolibrary.js').create({mediaDir:MEDIA_DIR,items:broLibraryItems});global._broLibrary=_broLib}catch(e){console.log('[bro-library] off:',e.message)}
 try{_bookVoice=require('./modules/bookvoice.js').create({mediaDir:MEDIA_DIR,text:id=>{const b=_bookText(id);return b?b.text:''}});global._bookVoice=_bookVoice;_bookVoice.start()}catch(e){console.log('[book-voice] off:',e.message)}
 // v35: every book in 7 chapters, then the public-domain walk-throughs, read by ElevenLabs on this server (credits allowing)
-try{_bookEleven=require('./modules/bookeleven.js').create({mediaDir:MEDIA_DIR,getSetting:typeof getSetting==='function'?getSetting:(k=>process.env[k]||''),text:id=>{const b=_bookText(id);return b?b.text:''},ids:()=>{const out=_allBookIds().map(id=>'lesson-'+id).filter(id=>_bookText(id));try{for(const f of _fs.readdirSync(_path.join(__dirname,'app','briefs')).filter(f=>/^[a-z0-9_-]+\.json$/i.test(f)).sort())out.push('brief-'+f.slice(0,-5))}catch(e){}return out}});global._bookEleven=_bookEleven;_bookEleven.start()}catch(e){console.log('[book-eleven] off:',e.message)}
+try{_bookEleven=require('./modules/bookeleven.js').create({mediaDir:MEDIA_DIR,getSetting:typeof getSetting==='function'?getSetting:(k=>process.env[k]||''),text:id=>{const b=_bookText(id);return b?b.text:''},ids:()=>{const out=_allBookIds().map(id=>'lesson-'+id).filter(id=>_bookText(id));try{for(const f of _fs.readdirSync(_path.join(__dirname,'app','briefs')).filter(f=>/^[a-z0-9_-]+\.json$/i.test(f)).sort())out.push('brief-'+f.slice(0,-5))}catch(e){}for(const id of _allBookIds())if(_bookText('lesson-hi-'+id))out.push('lesson-hi-'+id);return out}});global._bookEleven=_bookEleven;_bookEleven.start()}catch(e){console.log('[book-eleven] off:',e.message)}
 // v27: recordings of the pre-v27 book briefs ("book-<id>.mp3", every voice) are deleted once: Bro reads his own notes now
 try{const root=path.join(MEDIA_DIR,'bro-voice');let n=0;for(const v of _fs.readdirSync(root)){const d=path.join(root,v);try{if(!_fs.statSync(d).isDirectory())continue;for(const f of _fs.readdirSync(d))if(/^book-.*\.mp3$/.test(f)){_fs.unlinkSync(path.join(d,f));n++}}catch(e){}}if(n)console.log('[books] removed',n,'recordings of the old briefs')}catch(e){/* no recordings yet */}
 let _learn=null;try{const _st=require('./modules/studio.js');_st.configure({mediaDir:MEDIA_DIR});_learn=require('./modules/learn.js').install(app,{db,auth,getSetting,appRoot:__dirname,mediaDir:MEDIA_DIR,STUDIO:_st,_callGemini,_callGroq,hasGroq:()=>!!groqKey(),hasGemini:()=>!!geminiKey()})}catch(e){console.log('[learn] off:',e.message)}

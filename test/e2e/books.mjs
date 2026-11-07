@@ -70,6 +70,14 @@ const PIX = JSON.parse(fs.readFileSync(ROOT + '/app/lessons/img/index.json', 'ut
 const pixBad = idx.filter(id => { const j = JSON.parse(fs.readFileSync(ROOT + '/app/ideas/' + id + '.json', 'utf8')); if (!PIX[id] || PIX[id].hero !== j.hero.name || !Array.isArray(PIX[id].pal) || PIX[id].pal.length !== 5) return true; for (let k = 0; k < 7; k++) { const f = ROOT + '/app/lessons/img/' + id + '/' + k + '.svg'; if (!fs.existsSync(f)) return true; const t = fs.readFileSync(f, 'utf8'); if (!/^<svg [^>]*viewBox="0 0 600 450"/.test(t) || /<script|https?:\/\/(?!www\.w3\.org)|xlink:href="http|<image/.test(t)) return true; } return false; });
 check('every lesson has its 7 pictures (meet, the five stories, the ending: the story\'s own hero, drawn here; no scripts, nothing loaded from elsewhere) and its colours', pixBad.length === 0 && Object.keys(PIX).length === 104, pixBad.slice(0, 5));
 check('…and the people in them are Notionists (CC0), credited in the script that draws them', /Notionists by Zoish \(CC0 1\.0/.test(fs.readFileSync(ROOT + '/scripts/lessons/illustrate.js', 'utf8')));
+// v37: every lesson written in Hindi too (app/lessons-hi, scripts/lessons/hi.js), and Atomic Habits' Hindi lesson "recorded"
+const HIX = JSON.parse(fs.readFileSync(ROOT + '/app/lessons-hi/index.json', 'utf8'));
+let hv = ''; try { hv = execFileSync(process.execPath, [ROOT + '/scripts/lessons/hi.js', 'check'], { encoding: 'utf8' }); } catch (e) { hv = String(e.stdout || e.message); }
+check('every lesson is written in Hindi too (104: the same cards, Devanagari, no digits, the hero named in the stories, written from today\'s English)', /^104 of 104 Hindi lessons are good/m.test(hv) && HIX.ids.length === 104 && Object.keys(HIX.heroes).length === 104, hv.split('\n').slice(-4).join(' | '));
+const LHA = require(ROOT + '/app/bookfull.js').lessonHi(LA, JSON.parse(fs.readFileSync(ROOT + '/app/lessons-hi/atomic.json', 'utf8')));
+check('…a Hindi lesson has the same 19 cards (18 read aloud) in natural Hindi joins ("पहला विचार।", "रुकिए और सोचिए।", "ब्रो की राय।")', LHA && LHA.cards.length === 19 && LHA.text.split(/\n\n/).length === 18 && /पहला विचार।/.test(LHA.text) && /रुकिए और सोचिए।/.test(LHA.text) && /ब्रो की राय।/.test(LHA.text) && LHA.hero.name === 'रिया', LHA && LHA.text.slice(0, 200));
+{ const ix = JSON.parse(fs.readFileSync(path.join(EL, 'index.json'), 'utf8')); const f = 'lesson-hi-atomic-' + textHash(LHA.text) + '.mp3'; fs.copyFileSync(path.join(EL, LMP3), path.join(EL, f));
+  ix['lesson-hi-atomic'] = Object.assign({}, ix['lesson-atomic'], { file: f, text: textHash(LHA.text), chars: LHA.text.length, voice: 'test-hi' }); fs.writeFileSync(path.join(EL, 'index.json'), JSON.stringify(ix)); }
 const PORT = 3295, BASE = 'http://127.0.0.1:' + PORT;
 const env = Object.assign({}, process.env, { DB_PATH: DB, MEDIA_DIR: MEDIA, PORT: String(PORT), NEWS_DESK: '0', BROCORE_VOICE: '0', BROCORE_NIGHTLY: '0', BRO_OWN_BRAIN: 'off', ADMIN_AUTO_RECORD: '0', LEARN_WARM: '0', BRO_LIBRARY: '0', BOOK_VOICE_DELAY_MS: '999999999', STUB_PORT: '3296' });
 const child = spawn(process.execPath, ['-r', HERE + '/stub-fetch.cjs', 'server.js'], { cwd: ROOT, env, stdio: ['ignore', 'pipe', 'pipe'] });
@@ -199,13 +207,29 @@ try {
   const dl = await page.evaluate(() => ({ st: Lessons.state(), url: location.search }));
   check('a shared link (/?bk=atomic&c=6) opens the lesson at card 7, and tidies the address bar', dl.st && dl.st.id === 'atomic' && dl.st.i === 6 && dl.url === '', dl);
   await page.evaluate(() => Lessons.close()); await sleep(400);
-  // Hindi: the tab is सबक; a book opens the Hindi book page (Bro's notes in Hindi), as before
+  // v37: Hindi: the tab is सबक; a book opens its lesson in Hindi (Adam's recording, its cues); EN / हिं switches in place
+  r = await fetch(BASE + '/api/book-voice/ready'); const rd3 = await r.json();
+  const ha = await fetch(BASE + '/api/lesson-audio/hi-atomic');
+  check('the server plays the Hindi lesson\'s recording (/api/lesson-audio/hi-atomic) with its cues, only while it reads today\'s Hindi', rd3.cues['lesson-hi-atomic'] && rd3.cues['lesson-hi-atomic'].length === 18 && ha.status === 200, { cues: !!rd3.cues['lesson-hi-atomic'], s: ha.status });
   await page.evaluate(() => { S.lang = 'hi'; S.tab = 'books'; render(); }); await sleep(500);
-  const hiH = await page.evaluate(() => (document.querySelector('.bk-head h1') || {}).textContent);
-  await page.evaluate(() => openBookSummary('atomic')); await sleep(800);
-  const hiRows = await page.$$eval('#bi-ch .bi-row .bi-t', rs => rs.map(r => r.textContent));
-  check('in Hindi: the tab is सबक, and a book opens its Hindi book page (chapter list "यह किताब क्यों" …)', hiH === 'सबक' && hiRows[0] === 'यह किताब क्यों' && !(await page.$('.lz')), { hiH, hiRows: hiRows.slice(0, 2) });
-  await page.evaluate(() => { try { closeBookReader(); } catch (e) {} S.lang = 'en'; render(); });
+  const hiH = await page.evaluate(() => ({ h1: (document.querySelector('.bk-head h1') || {}).textContent, tile: (() => { const t = [...document.querySelectorAll('.lz-tile')].find(x => /'atomic'/.test(x.getAttribute('onclick') || '')); return t && t.querySelector('.lz-tile-t small').textContent; })() }));
+  await page.evaluate(() => openBookSummary('atomic')); await page.waitForSelector('.lz.lz-hi .lz-card.on', { timeout: 10000 }); await sleep(600);
+  await page.keyboard.press('ArrowRight'); await sleep(700);
+  const h1 = await page.evaluate(() => { const c = document.querySelector('.lz-card.on'); return { st: Lessons.state(), h2: c.querySelector('h2').textContent, who: c.querySelector('.lz-who').textContent, kick: c.querySelector('.lz-kick').textContent, say: c.querySelector('.lz-say').textContent.slice(0, 40), lang: document.querySelector('.lz-lang').textContent, next: document.querySelector('.lz-next').textContent.trim() }; });
+  check('in Hindi: the tab is सबक, a tile names the hero in Hindi, and a book opens its Hindi lesson ("मिलिए", रिया, her story in Hindi, Adam\'s recording)', hiH.h1 === 'सबक' && hiH.tile === 'रिया के साथ' && h1.st.lang === 'hi' && h1.st.i === 1 && h1.st.voice && /\/api\/lesson-audio\/hi-atomic\?/.test(h1.st.src) && h1.h2 === 'रिया' && /^पुणे/.test(h1.who) && h1.kick === 'मिलिए' && /रिया/.test(h1.say) && h1.lang === 'EN' && h1.next === 'आगे', { hiH, h1 });
+  await page.click('.lz-lang'); await page.waitForSelector('.lz:not(.lz-hi) .lz-card.on', { timeout: 8000 }); await sleep(600);
+  const h2 = await page.evaluate(() => ({ st: Lessons.state(), h2: document.querySelector('.lz-card.on h2').textContent, lang: document.querySelector('.lz-lang').textContent, n: document.querySelectorAll('.lz').length }));
+  check('…EN switches the same card to English (Riya, George\'s recording), and हिं back', h2.st.lang === 'en' && h2.st.i === 1 && h2.h2 === 'Riya' && h2.lang === 'हिं' && /\/api\/lesson-audio\/atomic\?/.test(h2.st.src) && h2.n === 1, h2);
+  await page.click('.lz-lang'); await page.waitForSelector('.lz.lz-hi .lz-card.on', { timeout: 8000 }); await sleep(500);
+  await page.click('.lz-top [aria-label="साझा करें"], .lz-top [aria-label="शेयर"]'); await sleep(400);
+  const shHi = await page.evaluate(() => window.__shared.slice(-1)[0]);
+  check('…sharing a Hindi card links to it in Hindi (/l/atomic?c=1&hl=hi)', shHi && /\/l\/atomic\?c=1&hl=hi$/.test(shHi.url), shHi);
+  await page.goBack(); await sleep(500);
+  const hb = await page.evaluate(() => !!document.querySelector('.lz'));
+  check('…and one back press closes it, after switching language twice', !hb, hb);
+  r = await fetch(BASE + '/l/atomic?c=2&hl=hi', { redirect: 'manual' }); const shp = await r.text();
+  check('/l/atomic?c=2&hl=hi opens the Hindi lesson at that card', /url=\/\?bk=atomic&amp;c=2&amp;hl=hi/.test(shp), shp.slice(0, 200));
+  await page.evaluate(() => { S.lang = 'en'; render(); });
   check('no page errors', errs.length === 0, errs.slice(0, 3));
   await ctx.close();
 } finally { await browser.close(); child.kill(); }
