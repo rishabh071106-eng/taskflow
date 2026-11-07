@@ -1904,36 +1904,45 @@ setInterval(()=>{
   }
 },3600000);
 // ═══ BOOK LISTENING STREAK ═══
-function calcStreak(rows){
+// v38: days are the user's own (their time zone), so "today" and "yesterday" mean what they mean on their phone; a
+// day counts with 2 minutes of listening, a finished lesson, or 6 lesson cards read (app/lessons.js)
+function _userDay(phone,offset){const tz=_getUserTz(phone);return dayKey(new Date(Date.now()+(offset||0)*864e5),tz&&tz!=='UTC'?tz:'Asia/Kolkata')}
+function calcStreak(rows,today,yest){
   // rows: [{date}] sorted DESC
   if(!rows.length)return 0;
-  const today=new Date().toISOString().slice(0,10);
-  const yest=new Date(Date.now()-864e5).toISOString().slice(0,10);
+  today=today||new Date().toISOString().slice(0,10);
+  yest=yest||new Date(Date.now()-864e5).toISOString().slice(0,10);
   // Streak only continues if last listen was today or yesterday
   if(rows[0].date!==today&&rows[0].date!==yest)return 0;
   let streak=0;
-  let cur=new Date(rows[0].date);
+  let cur=new Date(rows[0].date+'T00:00:00Z');
   for(const r of rows){
     const expected=cur.toISOString().slice(0,10);
-    if(r.date===expected){streak++;cur.setDate(cur.getDate()-1)}
+    if(r.date===expected){streak++;cur.setUTCDate(cur.getUTCDate()-1)}
     else if(r.date<expected)break;
   }
   return streak;
 }
-app.get('/api/book-streak',auth,(req,res)=>{
-  const rows=db.prepare('SELECT date FROM book_listens WHERE user_phone=? ORDER BY date DESC LIMIT 365').all(req.user.phone);
-  const today=new Date().toISOString().slice(0,10);
-  res.json({streak:calcStreak(rows),total:rows.length,today:rows.some(r=>r.date===today),days:rows.slice(0,30).map(r=>r.date)});
-});
+function bestStreak(rows){let best=0,run=0,prev=null;for(const r of rows.slice().reverse()){if(prev&&Date.parse(r.date)-Date.parse(prev)===864e5)run++;else run=1;if(run>best)best=run;prev=r.date}return best}
+function _streakOf(phone){
+  const rows=db.prepare('SELECT date FROM book_listens WHERE user_phone=? ORDER BY date DESC LIMIT 400').all(phone);
+  const today=_userDay(phone),yest=_userDay(phone,-1);
+  return{streak:calcStreak(rows,today,yest),total:rows.length,today:rows.some(r=>r.date===today),days:rows.slice(0,30).map(r=>r.date),best:bestStreak(rows),day:today};
+}
+app.get('/api/book-streak',auth,(req,res)=>{res.set('Cache-Control','no-store').json(_streakOf(req.user.phone))});
 app.post('/api/book-streak',auth,(req,res)=>{
-  const d=String(req.body?.date||new Date().toISOString().slice(0,10)).slice(0,10);
+  const phone=req.user.phone,today=_userDay(phone),yest=_userDay(phone,-1);
+  // the phone's own date, but only today or yesterday (a lesson finished just after midnight on a slow phone)
+  let d=String(req.body?.date||today).slice(0,10);if(d!==today&&d!==yest)d=today;
   const sec=Math.min(Math.max(parseInt(req.body?.seconds)||120,60),24*3600);
-  // Insert if missing; otherwise sum the seconds (cap at 24h)
-  const ex=db.prepare('SELECT seconds FROM book_listens WHERE user_phone=? AND date=?').get(req.user.phone,d);
-  if(ex){db.prepare('UPDATE book_listens SET seconds=MIN(seconds+?,86400) WHERE user_phone=? AND date=?').run(sec,req.user.phone,d)}
-  else{db.prepare('INSERT INTO book_listens(user_phone,date,seconds)VALUES(?,?,?)').run(req.user.phone,d,sec)}
-  const rows=db.prepare('SELECT date FROM book_listens WHERE user_phone=? ORDER BY date DESC LIMIT 365').all(req.user.phone);
-  res.json({ok:true,streak:calcStreak(rows),total:rows.length});
+  const before=_streakOf(phone);
+  const ex=db.prepare('SELECT seconds FROM book_listens WHERE user_phone=? AND date=?').get(phone,d);
+  if(ex){db.prepare('UPDATE book_listens SET seconds=MIN(seconds+?,86400) WHERE user_phone=? AND date=?').run(sec,phone,d)}
+  else{db.prepare('INSERT INTO book_listens(user_phone,date,seconds)VALUES(?,?,?)').run(phone,d,sec)}
+  const now=_streakOf(phone),fresh=!before.today&&now.today;
+  // a milestone (3, 7, 14, 30 … days) goes to the inbox (the user is in the app: no push)
+  let ms=null;try{const NU=require('./modules/nudges.js');if(fresh&&global._nudges){const lang=global._nudges.prefsOf(phone).lang==='hi';ms=NU.milestone(now.streak,lang);if(ms)global._nudges.deliver(phone,{kind:'streak',title:ms.title,body:ms.body,url:'/?tab=books'},{push:false})}}catch(e){}
+  res.json(Object.assign({ok:true,fresh,milestone:ms?ms.title:null},now));
 });
 
 // ═══ GOOGLE CALENDAR INTEGRATION (OAuth 2.0) ═══
@@ -2854,7 +2863,7 @@ app.put('/api/me',auth,(req,res)=>{
 
 // ═══ FRONTEND ═══
 const HTML=`<!DOCTYPE html><html lang="en"><head>
-<script src="/app/frame.js?v=3"></script>
+<script src="/app/frame.js?v=4"></script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZYGVF2BNV9"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-ZYGVF2BNV9');</script>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -2876,8 +2885,8 @@ const HTML=`<!DOCTYPE html><html lang="en"><head>
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png?v=6">
 <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png?v=6">
 <link rel="apple-touch-icon" href="/icon-192.png?v=6">
-<link rel="stylesheet" href="/app/theme.css?v=21"><link rel="stylesheet" href="/app/app.css?v=21"><link rel="stylesheet" href="/app/news.css?v=37"><link rel="stylesheet" href="/app/ideas.css?v=35"><link rel="stylesheet" href="/app/lessons.css?v=37"><link rel="stylesheet" href="/app/steps.css?v=21"><link rel="stylesheet" href="/app/admin.css?v=23"><link rel="stylesheet" href="/app/onboarding.css?v=21"><link rel="stylesheet" href="/app/cards.css?v=22"><link rel="stylesheet" href="/app/home.css?v=25"><link rel="stylesheet" href="/app/tasks.css?v=22"><link rel="stylesheet" href="/app/books.css?v=21"><link rel="stylesheet" href="/app/learn.css?v=23">
-<script src="/app/icons.js?v=21" defer></script><script src="/app/bookfull.js?v=37" defer></script><script src="/app/ideas.js?v=35" defer></script><script src="/app/lessons.js?v=37" defer></script><script src="/app/cards.js?v=21" defer></script><script src="/app/learn.js?v=24" defer></script><script src="/app/you.js?v=23" defer></script><script src="/app/haptics.js?v=21" defer></script><script src="/app/mascot.js?v=21" defer></script><script src="/app/say.js?v=2" defer></script><script src="/app/voice.js?v=31" defer></script><script src="/app/micgain.js?v=1" defer></script><script src="/app/voicenote.js?v=2" defer></script><script src="/app/news.js?v=37" defer></script><script src="/app/notify.js?v=2" defer></script><script src="/app/steps.js?v=22" defer></script><script src="/app/admin.js?v=25" defer></script><script src="/app/onboarding.js?v=22" defer></script><script src="/app/motion.js?v=21" defer></script>
+<link rel="stylesheet" href="/app/theme.css?v=21"><link rel="stylesheet" href="/app/app.css?v=21"><link rel="stylesheet" href="/app/news.css?v=37"><link rel="stylesheet" href="/app/ideas.css?v=35"><link rel="stylesheet" href="/app/lessons.css?v=37"><link rel="stylesheet" href="/app/inbox.css?v=38"><link rel="stylesheet" href="/app/steps.css?v=21"><link rel="stylesheet" href="/app/admin.css?v=23"><link rel="stylesheet" href="/app/onboarding.css?v=21"><link rel="stylesheet" href="/app/cards.css?v=22"><link rel="stylesheet" href="/app/home.css?v=25"><link rel="stylesheet" href="/app/tasks.css?v=22"><link rel="stylesheet" href="/app/books.css?v=21"><link rel="stylesheet" href="/app/learn.css?v=23">
+<script src="/app/icons.js?v=21" defer></script><script src="/app/bookfull.js?v=37" defer></script><script src="/app/ideas.js?v=35" defer></script><script src="/app/inbox.js?v=38" defer></script><script src="/app/lessons.js?v=38" defer></script><script src="/app/cards.js?v=21" defer></script><script src="/app/learn.js?v=24" defer></script><script src="/app/you.js?v=23" defer></script><script src="/app/haptics.js?v=21" defer></script><script src="/app/mascot.js?v=21" defer></script><script src="/app/say.js?v=2" defer></script><script src="/app/voice.js?v=31" defer></script><script src="/app/micgain.js?v=1" defer></script><script src="/app/voicenote.js?v=2" defer></script><script src="/app/news.js?v=37" defer></script><script src="/app/notify.js?v=3" defer></script><script src="/app/steps.js?v=22" defer></script><script src="/app/admin.js?v=25" defer></script><script src="/app/onboarding.js?v=22" defer></script><script src="/app/motion.js?v=21" defer></script>
 <!-- Open Graph -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Brodoit">
@@ -13673,7 +13682,7 @@ function closeMeditation(){const a=document.getElementById('audioEl');if(a){try{
 let _bkTimer=null;
 function startBookListenTimer(){if(_bkTimer)return;S._bkSec=0;_bkTimer=setInterval(async()=>{const a=document.getElementById('audioEl');if(!a||a.paused||a.ended)return;S._bkSec+=5;if(S._bkSec===120&&S.user&&!S.bookStreak.today){const r=await api('/book-streak',{method:'POST',body:JSON.stringify({date:new Date().toISOString().slice(0,10),seconds:120})});if(r?.ok){S.bookStreak={streak:r.streak,total:r.total,today:true,days:S.bookStreak.days};toast('\\u{1F389} '+r.streak+'-day listening streak!');render()}}},5000)}
 function stopBookListenTimer(){if(_bkTimer){clearInterval(_bkTimer);_bkTimer=null}}
-async function loadBookStreak(){if(!S.user)return;const r=await api('/book-streak');if(r)S.bookStreak={streak:r.streak||0,total:r.total||0,today:!!r.today,days:r.days||[]}}
+async function loadBookStreak(){if(!S.user)return;const r=await api('/book-streak');if(r){const was=JSON.stringify(S.bookStreak||{});S.bookStreak={streak:r.streak||0,total:r.total||0,today:!!r.today,days:r.days||[],best:r.best||0,day:r.day||''};if(was!==JSON.stringify(S.bookStreak)&&typeof render==='function')render()}}
 
 // Coalesce multiple render() calls in the same frame into one. Previously, opening
 // a modal could trigger 2-3 render passes in <500ms (open + data fetch + auto-select),
@@ -14987,7 +14996,8 @@ const HELP_BTN='<button class="hdr-help" onclick="openHelp()" aria-label="Help" 
 const LOGO_MARK='<div class="logo" aria-label="Brodoit"><span class="b1">Bro</span><span class="b2">do</span><span class="b3">it</span></div>';
 let _hdrStreak=0;for(let _si=0;_si<60;_si++){const _sd=new Date(Date.now()-_si*864e5).toISOString().slice(0,10);const _sok=ts.some(x=>x.status==='done'&&(x.updated_at||'').slice(0,10)===_sd);if(_sok)_hdrStreak++;else if(_si>0)break}
 let h='<div class="hdr"><div class="hdr-l">'+LOGO_MARK+'</div><div class="hdr-actions">'
-  +(_hdrStreak>0?'<div class="rd-pill rd-pill-accent">'+_hdrStreak+'-day streak</div>':'')
+  // v38: the learning streak's flame and the bell (app/inbox.js); the tasks streak stays on the Tasks tab
+  +(window.Inbox?Inbox.headerHtml():(_hdrStreak>0?'<div class="rd-pill rd-pill-accent">'+_hdrStreak+'-day streak</div>':''))
   +'<button onclick="switchTab(\\'profile\\')" aria-label="Profile" title="Profile" style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#37352F);color:#fff;border:none;font:700 13px var(--sans);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+((S.user&&S.user.name||'U').charAt(0).toUpperCase())+'</button>'
   +'</div></div>';
 
@@ -16287,7 +16297,7 @@ else if(S.tab==='books'){
   // v36: Lessons (every book as a full-screen lesson, app/lessons.js); the LibriVox audiobooks shelf is gone (owner, 7 Nov)
   S.booksMode='summaries';
   {
-    h+='<div class="bk-head"><h1>'+(S.lang==='hi'?'\\u0938\\u092C\\u0915':'Lessons')+'</h1>'+(bs.streak>0?'<span class="bk-streak'+(bs.today?' on':'')+'">'+ic('flame',16)+bs.streak+'</span>':'')+'</div>';
+    h+='<div class="bk-head"><h1>'+(S.lang==='hi'?'\\u0938\\u092C\\u0915':'Lessons')+'</h1>'+(window.Inbox?'':(bs.streak>0?'<span class="bk-streak'+(bs.today?' on':'')+'">'+ic('flame',16)+bs.streak+'</span>':''))+'</div>';
   }
   if(S.booksMode==='summaries'){
     // Search bar (briefs)
@@ -17424,7 +17434,7 @@ function _recoverLoginIfNeeded(){
 }
 window.addEventListener('pageshow',function(e){_recoverLoginIfNeeded()});
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')_recoverLoginIfNeeded()});
-if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js?v=138').then(function(reg){reg.update()}).catch(()=>{});}
+if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js?v=139').then(function(reg){reg.update()}).catch(()=>{});}
 // ─── Mobile keyboard: keep Bro input visible ───
 (function(){
   if(!window.visualViewport)return;
@@ -17983,12 +17993,14 @@ self.addEventListener("fetch",function(e){
 self.addEventListener("push",function(e){
   var d={};try{d=e.data?e.data.json():{}}catch(x){d={body:e.data?e.data.text():""}}
   var url=typeof d.url==="string"&&d.url.charAt(0)==="/"&&d.url.charAt(1)!=="/"?d.url:"/";
-  var opts={body:d.body||"",icon:"/icon-192.png?v=6",badge:"/app/badge-96.png?v=1",tag:d.tag||"brodoit",renotify:!!(d.renotify&&d.tag),requireInteraction:!!d.requireInteraction,silent:!!d.silent,timestamp:Date.now(),data:{type:d.type||"",url:url}};
+  var opts={body:d.body||"",icon:"/icon-192.png?v=6",badge:"/app/badge-96.png?v=1",tag:d.tag||"brodoit",renotify:!!(d.renotify&&d.tag),requireInteraction:!!d.requireInteraction,silent:!!d.silent,timestamp:Date.now(),data:{type:d.type||"",url:url,nid:+d.nid||0}};
+  if(typeof d.image==="string"&&/^https:[/][/]/.test(d.image))opts.image=d.image;
   e.waitUntil(self.registration.showNotification(d.title||"Brodoit",opts));
 });
 self.addEventListener("notificationclick",function(e){
   e.notification.close();
-  var url=(e.notification.data&&e.notification.data.url)||"/";
+  var url=(e.notification.data&&e.notification.data.url)||"/",nid=e.notification.data&&e.notification.data.nid;
+  if(nid)fetch("/api/inbox/read",{method:"POST",credentials:"include",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:nid})}).catch(function(){});
   e.waitUntil(clients.matchAll({type:"window",includeUncontrolled:true}).then(function(cl){
     for(var i=0;i<cl.length;i++){var c=cl[i];if(new URL(c.url).origin===location.origin&&"focus" in c){c.postMessage({type:"bd-route",url:url});return c.focus()}}
     return clients.openWindow(url);
@@ -18074,7 +18086,23 @@ let _android=null;try{_android=require('./modules/android.js').install(app,{MEDI
 if(_android){global._androidCert=function(){try{return _android.cert()}catch(e){return null}};global._playSync=function(){return _android.syncPlay()};global._playVerify=function(v){return _android.play.verify(v)}}
 let _steps=null;try{_steps=require('./modules/steps.js').install(app,{db,auth,dayKey,webpush,pushTo,MEDIA_DIR,android:_android,PUBLIC_URL:process.env.PUBLIC_URL||'https://brodoit.com',genId,sha256,getUserByPhone:phone=>db.prepare('SELECT phone,name,email,tz,created_at FROM users WHERE phone=?').get(phone),fitSync,_getUserTz,appRoot:__dirname});if(_steps&&_steps.ingest)global._stepsIngest=_steps.ingest}catch(e){console.log('[steps] not loaded:',e.message)}
 // v21: morning and evening summaries + task reminders on the user's own clock (modules/digest.js)
-try{global._digest=require('./modules/digest.js').install(app,{db,auth,push:_push,tzOf:p=>{const t=_getUserTz(p);return t&&t!=='UTC'?t:'Asia/Kolkata'},steps:()=>_steps})}catch(e){console.log('[digest] off:',e.message)}
+// v38: the inbox and the daily nudges (modules/nudges.js); the summaries go through it (modules/digest.js)
+const _tzOfUser=p=>{const t=_getUserTz(p);return t&&t!=='UTC'?t:'Asia/Kolkata'};
+let _lessonIds=null;function _lessonDay(phone,lang){
+  if(!_lessonIds){try{const ix=JSON.parse(_fs.readFileSync(_path.join(__dirname,'app','lessons','img','index.json'),'utf8'));_lessonIds=_allBookIds().filter(id=>ix[id]).map(id=>({id,hero:ix[id].hero}))}catch(e){_lessonIds=[]}
+    try{const hx=JSON.parse(_fs.readFileSync(_path.join(__dirname,'app','lessons-hi','index.json'),'utf8'));for(const x of _lessonIds)x.heroHi=(hx.heroes||{})[x.id]||''}catch(e){}}
+  if(!_lessonIds.length)return null;
+  const day=Math.floor(Date.parse(_userDay(phone)+'T00:00:00Z')/864e5),x=_lessonIds[((day%_lessonIds.length)+_lessonIds.length)%_lessonIds.length];
+  const b=_booksCache&&_booksCache.get(x.id);return b?{id:x.id,title:b.title,hero:lang==='hi'&&x.heroHi?x.heroHi:x.hero}:null;
+}
+function _topStory(lang){
+  try{const r=db.prepare("SELECT id,headline,summary,headline_hi,summary_hi,image FROM news_stories WHERE image IS NOT NULL AND image!='' AND created_at > datetime('now','-18 hours') AND (? = 'en' OR (headline_hi IS NOT NULL AND headline_hi!='')) ORDER BY source_count DESC, published_at DESC LIMIT 1").get(lang==='hi'?'hi':'en');
+    if(!r)return null;return{id:r.id,headline:lang==='hi'?r.headline_hi:r.headline,summary:lang==='hi'?r.summary_hi:r.summary,image:r.image}}catch(e){return null}
+}
+try{require('./modules/nudges.js').install(app,{db,auth,push:_push,tzOf:_tzOfUser,topStory:_topStory,openTasks:(phone,day)=>{try{return db.prepare("SELECT title FROM tasks WHERE user_phone=? AND status!='done' AND due_date=? ORDER BY priority DESC, created_at LIMIT 5").all(phone,day)}catch(e){return[]}}})}catch(e){console.log('[nudges] off:',e.message)}
+try{global._digest=require('./modules/digest.js').install(app,{db,auth,push:_push,tzOf:_tzOfUser,steps:()=>_steps,
+  deliver:global._nudges?(phone,it)=>global._nudges.deliver(phone,it):null,users:global._nudges?()=>global._nudges.activeUsers():null,
+  langOf:p=>global._nudges?global._nudges.prefsOf(p).lang:'en',lessonOfDay:_lessonDay,streakOf:_streakOf})}catch(e){console.log('[digest] off:',e.message)}
 app.use('/lang',express.static(path.join(__dirname,'lang'),{etag:true,setHeaders:res=>res.set('Cache-Control','no-cache')}));
 app.use('/speaker',express.static(path.join(__dirname,'speaker'),{etag:true,setHeaders:res=>res.set('Cache-Control','no-cache')}));
 // Python: Zero to Hero — real CPython in the browser (modules/pyhost.js) + the course pages in /code.

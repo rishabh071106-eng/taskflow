@@ -3,8 +3,9 @@
 //                            current key (a subscription made with an older key is replaced) → 'on' | 'denied' |
 //                            'default' | 'unsupported' | 'error'
 //   Notify.subscribe({ hydration })  the same without asking (the water reminder toggle uses it)
-//   Notify.open()            the Notifications sheet (You → Notifications): on/off, the morning and evening summaries
-//                            and their times, and "Send a test"
+//   Notify.open()            the Notifications sheet (You → Notifications, or the gear in the inbox): on/off, the morning
+//                            and evening summaries and their times, v38: the streak call, the midday story, task nudges,
+//                            "Pause for a week", what we promise (at most 3 a day, nothing 22:00-07:00), "Send a test"
 // When permission was already granted, the app re-subscribes quietly a few seconds after it starts.
 (function () {
   'use strict';
@@ -63,7 +64,7 @@
   };
 
   // ── the sheet ──
-  let prefs = null;
+  let prefs = null, more = null;
   const css = `
 .nt-bg{position:fixed;inset:0;z-index:9000;background:rgba(15,13,20,.5);display:flex;align-items:flex-end;justify-content:center;animation:ntIn .18s ease both}
 .nt-sheet{width:100%;max-width:520px;max-height:92dvh;overflow:auto;background:var(--b-card,#fff);color:var(--b-ink,#17141F);border-radius:24px 24px 0 0;padding:10px 20px calc(20px + env(safe-area-inset-bottom));box-shadow:0 -12px 40px -12px rgba(0,0,0,.35);animation:ntUp .24s cubic-bezier(.2,.8,.2,1) both}
@@ -80,6 +81,8 @@
 .nt-sw::after{content:"";position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .18s}
 .nt-sw[aria-checked=true]{background:var(--b-primary,#B5402A)}.nt-sw[aria-checked=true]::after{transform:translateX(20px)}
 .nt-act{display:grid;gap:10px;margin-top:14px}
+.nt-promise{display:flex;gap:8px;align-items:flex-start;margin:12px 0 0;padding:12px 14px;border-radius:14px;background:var(--b-bg-2,#f3efe8);font:500 13px/1.45 var(--b-sans,system-ui);color:var(--b-ink-2,#3a3640)}
+.nt-promise svg{flex:none;margin-top:1px;color:#2F7D4F}
 @keyframes ntIn{from{opacity:0}}@keyframes ntUp{from{transform:translateY(40px);opacity:.6}}
 @media (prefers-reduced-motion:reduce){.nt-bg,.nt-sheet{animation:none}.nt-sw,.nt-sw::after{transition:none}}
 `;
@@ -102,7 +105,11 @@
       <div id="ntState">${stateHTML()}</div>
       <div class="nt-row"><div class="tx"><b>${L('Morning summary', 'सुबह की झलक')}</b><small>${L('Today’s tasks and plan, step goal, top story', 'आज के काम, कदमों का लक्ष्य, बड़ी ख़बर')}</small></div><input type="time" id="ntM" value="${esc(p.m_time)}" aria-label="${esc(L('Morning summary time', 'सुबह का समय'))}">${sw('ntMon', p.morning, L('Morning summary', 'सुबह की झलक'))}</div>
       <div class="nt-row"><div class="tx"><b>${L('Evening summary', 'शाम का हिसाब')}</b><small>${L('Steps against your goal, streak, what’s left', 'लक्ष्य के मुक़ाबले कदम, स्ट्रीक, बचे काम')}</small></div><input type="time" id="ntE" value="${esc(p.e_time)}" aria-label="${esc(L('Evening summary time', 'शाम का समय'))}">${sw('ntEon', p.evening, L('Evening summary', 'शाम का हिसाब'))}</div>
-      <div class="nt-act"><button type="button" class="b-btn wide" id="ntTest">${icon('send', 18)}${L('Send a test', 'टेस्ट भेजें')}</button><button type="button" class="b-btn ghost wide" id="ntDone">${L('Done', 'हो गया')}</button></div>
+      <div class="nt-row"><div class="tx"><b>${L('Streak call', 'स्ट्रीक की याद')}</b><small>${L('In the evening summary, only if today’s lesson is still to do', 'शाम की झलक में, सिर्फ़ तब जब आज का सबक बाक़ी हो')}</small></div>${sw('ntS', !more || more.streak, L('Streak call', 'स्ट्रीक की याद'))}</div>
+      <div class="nt-row"><div class="tx"><b>${L('Midday story', 'दोपहर की ख़बर')}</b><small>${L('The top story with its photo, at 12:30', 'बड़ी ख़बर, फ़ोटो के साथ, साढ़े बारह बजे')}</small></div>${sw('ntN', !more || more.news, L('Midday story', 'दोपहर की ख़बर'))}</div>
+      <div class="nt-row"><div class="tx"><b>${L('Task nudges', 'कामों की याद')}</b><small>${L('Now and then at midday, when tasks are still open', 'कभी-कभी दोपहर में, जब काम बाक़ी हों')}</small></div>${sw('ntK', !more || more.tasks, L('Task nudges', 'कामों की याद'))}</div>
+      <p class="nt-promise">${icon('shield-check', 16)}${L('Our promise: at most 3 a day besides reminders you set, nothing from 10 pm to 7 am, and everything also waits in the bell. Turn any of it off here.', 'हमारा वादा: आपके ख़ुद के रिमाइंडर के अलावा दिन में ज़्यादा से ज़्यादा 3, रात 10 से सुबह 7 तक कुछ नहीं, और सब कुछ घंटी में भी। यहाँ कभी भी बंद करें।')}</p>
+      <div class="nt-act"><button type="button" class="b-btn ghost wide" id="ntPause">${more && more.paused_until && Date.parse(more.paused_until) > Date.now() ? L('Resume notifications', 'सूचनाएँ फिर शुरू करें') : L('Pause for a week', 'एक हफ़्ते के लिए रोकें')}</button><button type="button" class="b-btn wide" id="ntTest">${icon('send', 18)}${L('Send a test', 'टेस्ट भेजें')}</button><button type="button" class="b-btn ghost wide" id="ntDone">${L('Done', 'हो गया')}</button></div>
     </div></div>`;
   }
   async function save() {
@@ -128,6 +135,15 @@
     redrawState();
     for (const id of ['ntMon', 'ntEon']) g(id).onclick = e => { const b = e.currentTarget; b.setAttribute('aria-checked', String(b.getAttribute('aria-checked') !== 'true')); save(); };
     for (const id of ['ntM', 'ntE']) g(id).onchange = save;
+    // v38: the streak call, the midday story, task nudges, pause
+    const saveMore = async body => { try { more = await call('/notify/more', body); } catch (e) { say(L('Could not save. Check your connection.', 'सेव नहीं हुआ। इंटरनेट देखें।')); } };
+    for (const [id, k] of [['ntS', 'streak'], ['ntN', 'news'], ['ntK', 'tasks']]) g(id).onclick = e => { const b = e.currentTarget, on = b.getAttribute('aria-checked') !== 'true'; b.setAttribute('aria-checked', String(on)); saveMore({ [k]: on }); };
+    g('ntPause').onclick = async e => {
+      const btn = e.currentTarget, pausedNow = more && more.paused_until && Date.parse(more.paused_until) > Date.now();
+      await saveMore({ pause_days: pausedNow ? 0 : 7 });
+      btn.textContent = pausedNow ? L('Pause for a week', 'एक हफ़्ते के लिए रोकें') : L('Resume notifications', 'सूचनाएँ फिर शुरू करें');
+      say(pausedNow ? L('Notifications are back on.', 'सूचनाएँ फिर चालू।') : L('Paused for a week. Everything still waits in the bell.', 'एक हफ़्ते के लिए रुकीं। सब कुछ घंटी में मिलेगा।'));
+    };
     g('ntTest').onclick = async () => {
       if (!N.on) { const r = await N.enable({ ask: true }); redrawState(); if (r !== 'on') { say(L('Turn notifications on first.', 'पहले सूचनाएँ चालू करें।')); return; } }
       try {
@@ -141,6 +157,7 @@
     document.getElementById('ntBg')?.remove();
     const holder = document.createElement('div'); holder.innerHTML = sheetHTML();
     const bg = holder.firstElementChild; document.body.appendChild(bg); wire(bg);
+    try { more = await call('/notify/more'); for (const [id, k] of [['ntS', 'streak'], ['ntN', 'news'], ['ntK', 'tasks']]) bg.querySelector('#' + id)?.setAttribute('aria-checked', String(!!more[k])); const pz = bg.querySelector('#ntPause'); if (pz && more.paused_until && Date.parse(more.paused_until) > Date.now()) pz.textContent = L('Resume notifications', 'सूचनाएँ फिर शुरू करें'); } catch (e) { /* defaults */ }
     try { prefs = await call('/notify/prefs'); const m = bg.querySelector('#ntM'), e = bg.querySelector('#ntE'); if (m) m.value = prefs.m_time; if (e) e.value = prefs.e_time; bg.querySelector('#ntMon')?.setAttribute('aria-checked', String(!!prefs.morning)); bg.querySelector('#ntEon')?.setAttribute('aria-checked', String(!!prefs.evening)); } catch (e) { /* defaults stay */ }
     if (N.permission() === 'granted' && !N.on) { try { await N.subscribe(); } catch (e) { /* ignore */ } const s = bg.querySelector('#ntState'); if (s && document.body.contains(bg)) { s.innerHTML = stateHTML(); } }
   };

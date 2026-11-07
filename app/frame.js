@@ -85,6 +85,8 @@
     if (MINI.test(u.pathname)) { F.open(u.href); return; }
     if (u.pathname !== '/') { location.href = u.href; return; }
     var p = u.searchParams, tab = p.get('tab'), S = window.S;
+    // v38: a lesson (a notification, a shared link): /?bk=<id>&c=<card>&hl=hi opens it over the Lessons tab
+    if (p.get('bk') && window.Lessons && S) { try { if (S.tab !== 'books' && typeof window.switchTab === 'function') window.switchTab('books'); } catch (e) { /* ignore */ } window.Lessons.open(p.get('bk'), p.get('c') != null ? +p.get('c') || 0 : null, false, p.get('hl') || undefined); return; }
     if (!tab || !S || typeof window.render !== 'function') return;
     var t = tab === 'learn' ? 'courses' : tab === 'you' ? 'profile' : tab, hub = p.get('hub');
     var same = S.tab === t && (t !== 'courses' || (S.learnHub || null) === (hub || null));
