@@ -1,17 +1,19 @@
 # v35.3: the books ElevenLabs read on the Brodoit server, copied to the release "book-eleven-v1" so each is paid for once
 # (scripts/book-eleven/backup.js; modules/bookeleven.js takes them back from there before recording anything).
+# v38: GitHub dropped every hourly scheduled run from 07:44 to 12:51 UTC on 7 Nov while the Hindi lessons recorded, so the
+# copy no longer depends on the schedule: a run copies every 20 minutes for about 5.5 hours, then starts the next run
+# itself (workflow_dispatch). The schedule stays only to restart the chain if it ever breaks; one run at a time.
 name: Book voice backup (ElevenLabs)
 on:
   schedule:
-    # v36: hourly while the lessons record (GitHub skipped the 03:41 and 06:41 runs on 7 Nov; a copy an hour keeps
-    # at most an hour of paid recordings outside the cloud)
-    - cron: '23 * * * *'
+    - cron: '23 */2 * * *'
   push:
     branches: [main]
     paths: ['scripts/book-eleven/backup.js', '.github/workflows/book-eleven-backup.yml']
   workflow_dispatch:
 permissions:
   contents: write
+  actions: write
 concurrency:
   group: book-eleven-backup
   cancel-in-progress: false
@@ -19,12 +21,25 @@ jobs:
   backup:
     if: github.repository == 'rishabh071106-eng/taskflow'
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 355
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
-      - name: Copy new recordings to the release
+      - name: Copy new recordings to the release, every 20 minutes for about 5.5 hours
         env:
           GH_TOKEN: ${{ github.token }}
-        run: node scripts/book-eleven/backup.js https://brodoit.com
+        run: |
+          end=$(( $(date +%s) + 5 * 3600 + 1800 ))
+          while :; do
+            node scripts/book-eleven/backup.js https://brodoit.com || echo "this copy missed something: the next one (in 20 minutes) tries again"
+            [ "$(date +%s)" -ge "$end" ] && break
+            sleep 1200
+          done
+      - name: Start the next run (so the copy never waits on GitHub's schedule)
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          waiting=$(gh run list --workflow book-eleven-backup.yml --json status --jq '[.[] | select(.status == "queued" or .status == "pending" or .status == "waiting")] | length' 2>/dev/null || echo 0)
+          if [ "${waiting:-0}" = "0" ]; then gh workflow run book-eleven-backup.yml --ref main && echo "next run started"; else echo "a run is already waiting"; fi
