@@ -117,7 +117,7 @@ async function fetchSubscription(key, s) {
   } catch (e) { const n = Object.assign(s || {}, { at: Date.now() - 8 * 60e3, ok: false, error: e.name === 'AbortError' ? 'timeout' : e.message }); subs.set(key, n); return n; }
   finally { clearTimeout(t); }
 }
-const RESERVE = { live: 0, daily: 0.08, bulk: 0.5, books: 0.25 }; // v15: recordings stop at half the plan, so Bro's live voice always has the other half; v35: the books (owner's priority) may use three quarters, a quarter stays for Bro and the news
+const RESERVE = { live: 0, daily: 0.08, bulk: 0.5, books: 0.012 }; // v15: recordings stop at half the plan, so Bro's live voice always has the other half; v36: the lessons (owner, 7 Nov: "use fully") may use all but ~1% (at least 4,000 credits), kept for Bro's live voice
 const LIVE_MIN = 2000; // a live Bro session needs at least ~2 minutes of credit, or it would cut out mid-sentence
 // Can this purpose spend `chars` characters now? { ok, reason, left }. Approval reserves the credits immediately, so parallel
 // requests can't all squeeze through the same gap; the next plan refresh (≤10 min) replaces the estimate with real numbers.

@@ -1,3 +1,5 @@
+// v36 Lessons: every book is a full-screen lesson of 19 cards (app/lessons.js, app/bookfull.js lesson()), with the story's
+// hero drawn on its cards (app/lessons/img), read by ElevenLabs' storyteller with a cue per card. Before v36 (kept below):
 // v33 Books: books only, read in Bro's voice. Each book is the book in 7 chapters (app/bookfull.js: Bro's notes + the
 // chapter stories of app/ideas/<id>.json), recorded whole in Bro's studio voice ("book-<id>"); until a book's recording
 // is on the server, Listen plays Bro's notes on it (the same 7 parts). The public-domain books also have the original,
@@ -54,16 +56,30 @@ fs.writeFileSync(path.join(BV, afile), mbuf);
 const nDeep = notes.find(n => n.id === 'deep'); const dh = textHash(nDeep.text); const dfile = 'deep-' + dh + '.mp3'; fs.writeFileSync(path.join(BV, dfile), mbuf);
 const sha = require('crypto').createHash('sha256').update(mbuf).digest('hex');
 fs.writeFileSync(path.join(BV, 'manifest.json'), JSON.stringify({ voice: 'test', license: 'test', made: new Date().toISOString(), items: { 'book-atomic': { file: afile, sha256: sha, bytes: mbuf.length, secs: 560, text: ah }, deep: { file: dfile, sha256: sha, bytes: mbuf.length, secs: 190, text: dh } } }));
+// v36: Atomic Habits' lesson is "recorded" by ElevenLabs: an index entry in MEDIA/book-eleven read from the lesson's own
+// text (the server only plays it while it builds the same text) and a silent 7-minute mp3 with a cue per card
+const SPA = fs.readFileSync(ROOT + '/server.js', 'utf8'); const BS = require('vm').runInNewContext('(' + /const BOOK_SUMMARIES=(\[[\s\S]*?\n\]);/.exec(SPA)[1].replace(/\\\\/g, '\\') + ')');
+const { lesson } = require(ROOT + '/app/bookfull.js');
+const LA = lesson(BS.find(b => b.id === 'atomic'), jAtomic); const LP = LA.text.split(/\n\n/);
+const LSECS = 420; const LCUES = []; { let t = 0.35; const tot = LP.reduce((n, p) => n + p.length, 0); for (const p of LP) { LCUES.push(Math.round(t * 100) / 100); t += p.length / tot * (LSECS - 20); } }
+const EL = path.join(MEDIA, 'book-eleven'); fs.mkdirSync(EL, { recursive: true });
+const LMP3 = 'lesson-atomic-' + textHash(LA.text) + '.mp3'; execFileSync('ffmpeg', ['-loglevel', 'error', '-y', '-f', 'lavfi', '-i', 'anullsrc=r=22050:cl=mono', '-t', String(LSECS), '-b:a', '16k', path.join(EL, LMP3)]);
+fs.writeFileSync(path.join(EL, 'index.json'), JSON.stringify({ 'lesson-atomic': { file: LMP3, text: textHash(LA.text), bytes: fs.statSync(path.join(EL, LMP3)).size, sha256: 'x', secs: LSECS, voice: 'test', model: 'test', chars: LA.text.length, at: new Date().toISOString(), cues: LCUES } }));
+// the pictures: 7 per lesson, the hero of each lesson's own story, nothing loaded from elsewhere
+const PIX = JSON.parse(fs.readFileSync(ROOT + '/app/lessons/img/index.json', 'utf8'));
+const pixBad = idx.filter(id => { const j = JSON.parse(fs.readFileSync(ROOT + '/app/ideas/' + id + '.json', 'utf8')); if (!PIX[id] || PIX[id].hero !== j.hero.name || !Array.isArray(PIX[id].pal) || PIX[id].pal.length !== 5) return true; for (let k = 0; k < 7; k++) { const f = ROOT + '/app/lessons/img/' + id + '/' + k + '.svg'; if (!fs.existsSync(f)) return true; const t = fs.readFileSync(f, 'utf8'); if (!/^<svg [^>]*viewBox="0 0 600 450"/.test(t) || /<script|https?:\/\/(?!www\.w3\.org)|xlink:href="http|<image/.test(t)) return true; } return false; });
+check('every lesson has its 7 pictures (meet, the five stories, the ending: the story\'s own hero, drawn here; no scripts, nothing loaded from elsewhere) and its colours', pixBad.length === 0 && Object.keys(PIX).length === 104, pixBad.slice(0, 5));
+check('…and the people in them are Notionists (CC0), credited in the script that draws them', /Notionists by Zoish \(CC0 1\.0/.test(fs.readFileSync(ROOT + '/scripts/lessons/illustrate.js', 'utf8')));
 const PORT = 3295, BASE = 'http://127.0.0.1:' + PORT;
 const env = Object.assign({}, process.env, { DB_PATH: DB, MEDIA_DIR: MEDIA, PORT: String(PORT), NEWS_DESK: '0', BROCORE_VOICE: '0', BROCORE_NIGHTLY: '0', BRO_OWN_BRAIN: 'off', ADMIN_AUTO_RECORD: '0', LEARN_WARM: '0', BRO_LIBRARY: '0', BOOK_VOICE_DELAY_MS: '999999999', STUB_PORT: '3296' });
 const child = spawn(process.execPath, ['-r', HERE + '/stub-fetch.cjs', 'server.js'], { cwd: ROOT, env, stdio: ['ignore', 'pipe', 'pipe'] });
 const out = []; child.stdout.on('data', d => out.push(String(d))); child.stderr.on('data', d => out.push(String(d)));
 let up = false; for (let i = 0; i < 120 && !up; i++) { await sleep(500); try { up = (await fetch(BASE + '/api/health')).ok; } catch (e) { up = false; } }
 check('the real server boots', up, out.slice(-5));
-const browser = await chromium.launch();
+const browser = await chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required'] });
 try {
   let r = await fetch(BASE + '/api/book-voice/ready'); const rd = await r.json();
-  check('/api/book-voice/ready lists the recordings here in Bro\'s studio voice ({ "book-atomic": 560, "deep": 190 })', r.ok && rd.items && rd.items['book-atomic'] === 560 && rd.items.deep === 190 && Object.keys(rd.items).length === 2, rd);
+  check('/api/book-voice/ready lists the recordings here in Bro\'s studio voice ({ "book-atomic": 560, "deep": 190 })', r.ok && rd.items && rd.items['book-atomic'] === 560 && rd.items.deep === 190 && Object.keys(rd.items).filter(k => !k.startsWith('lesson-')).length === 2, rd);
   r = await fetch(BASE + '/api/book-audio/book-atomic?token=' + token);
   const ab = Buffer.from(await r.arrayBuffer());
   check('/api/book-audio/book-atomic plays the recording: the server builds the same book text as the recorder', r.status === 200 && ab.length === mbuf.length, r.status);
@@ -86,81 +102,110 @@ try {
   const bf404 = (await fetch(BASE + '/api/book-eleven/file/..%2Fserver.js')).status, bf404b = (await fetch(BASE + '/api/book-eleven/file/book-atomic-x.mp3')).status;
   check('/api/book-eleven/index.json lists the ElevenLabs recordings for the cloud backup; /api/book-eleven/file/ serves only those', bix && typeof bix.items === 'object' && bf404 === 404 && bf404b === 404, { bix, bf404, bf404b });
 
-  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
+  // v36: the lesson's recording, its cues, its public audio and its share page
+  r = await fetch(BASE + '/api/book-voice/ready'); const rd2 = await r.json();
+  check('/api/book-voice/ready also lists the recorded lesson with where each card starts ({ cues: { "lesson-atomic": [18 times] } })', rd2.items['lesson-atomic'] === LSECS && JSON.stringify(rd2.cues['lesson-atomic']) === JSON.stringify(LCUES), rd2.cues);
+  r = await fetch(BASE + '/api/lesson-audio/atomic'); const la = Buffer.from(await r.arrayBuffer());
+  const la404 = (await fetch(BASE + '/api/lesson-audio/deep')).status, la404b = (await fetch(BASE + '/api/lesson-audio/..%2Fserver.js')).status;
+  check('/api/lesson-audio/atomic plays the lesson to anyone (a shared lesson plays before sign-up); a lesson not recorded yet → 404', r.status === 200 && la.length === fs.statSync(path.join(EL, LMP3)).size && /public/.test(r.headers.get('cache-control') || '') && la404 === 404 && la404b === 404, { s: r.status, la404, la404b });
+  r = await fetch(BASE + '/l/atomic?c=4', { redirect: 'manual' }); const sh = await r.text();
+  check('/l/atomic?c=4 (a shared card): a page with the lesson\'s title, words and own cover for the chat preview, that opens it at card 4', r.status === 200 && /<meta property="og:title" content="Atomic Habits · a Brodoit lesson">/.test(sh) && /og:image" content="[^"]+\/app\/covers\/atomic\.webp\?v=1"/.test(sh) && /told through Riya&#39;s story/.test(sh) && /url=\/\?bk=atomic&amp;c=4/.test(sh), sh.slice(0, 300));
+  check('…an unknown lesson goes to the Lessons tab', (await fetch(BASE + '/l/nope', { redirect: 'manual' })).status === 302);
+
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1, hasTouch: false });
   const page = await ctx.newPage(); const errs = [];
   page.on('pageerror', e => errs.push(String(e)));
-  await page.addInitScript(t => { localStorage.setItem('tf_token', t); localStorage.setItem('bd_onboarded', '1'); }, token);
+  await page.addInitScript(t => { localStorage.setItem('tf_token', t); localStorage.setItem('bd_onboarded', '1'); window.__shared = []; Object.defineProperty(navigator, 'share', { configurable: true, value: d => { window.__shared.push(d); return Promise.resolve(); } }); }, token);
   await page.goto(BASE + '/?tab=books', { waitUntil: 'domcontentloaded' });
-  await page.waitForSelector('.bk-sum-card', { timeout: 45000 });
-  await page.waitForFunction(() => window.BookIdeas && BookIdeas.index && BookIdeas.ready, null, { timeout: 15000 }); await sleep(500);
-  const seg = await page.$$eval('.bk-seg button', bs => bs.map(b => [b.textContent.trim(), b.classList.contains('on')]));
-  check('Books opens on the books: Books · Audiobooks (no Ideas feed)', JSON.stringify(seg) === JSON.stringify([['Books', true], ['Audiobooks', false]]) && !(await page.$('.bi-deck')) && !(await page.$('.bi-svbtn')), seg);
-  const cards = await page.evaluate(() => { const m = {}; document.querySelectorAll('.bk-sum-card').forEach(c => { const k = (c.getAttribute('onclick') || '').match(/openBookSummary\('([^']+)'/); if (k) m[k[1]] = c.querySelector('.bk-sum-mins').textContent; }); return { n: Object.keys(m).length, atomic: m.atomic, deep: m.deep }; });
-  const deepMins = await page.evaluate(() => BOOK_SUMMARIES.find(b => b.id === 'deep').mins);
-  check('every book is on the shelf; a recorded book shows its length (9 min), the others their notes\' length', cards.n === 104 && cards.atomic === '9 min' && cards.deep === deepMins + ' min', Object.assign(cards, { deepMins }));
-  // an old phone that last had Ideas open still lands on the books
-  await page.evaluate(() => { S.booksMode = 'ideas'; render(); }); await sleep(300);
-  check('a phone that last had Ideas open lands on Books', await page.evaluate(() => S.booksMode === 'summaries' && !!document.querySelector('.bk-sum-card')));
+  await page.waitForSelector('.lz-tile', { timeout: 45000 }); await sleep(500);
+  const tab = await page.evaluate(() => ({ h1: (document.querySelector('.bk-head h1') || {}).textContent, seg: !!document.querySelector('.bk-seg'), tiles: document.querySelectorAll('.lz-tile').length, today: !!document.querySelector('.lz-today'), nav: [...document.querySelectorAll('nav button, .tabs button, [class*="tab"] button')].map(b => b.textContent.trim()).filter(t => /Lessons|Books/.test(t)), atomic: (() => { const t = [...document.querySelectorAll('.lz-tile')].find(x => /'atomic'/.test(x.getAttribute('onclick') || '')); return t && t.querySelector('.lz-tile-min').textContent + ' · ' + t.querySelector('.lz-tile-t small').textContent; })(), audiobooks: /Audiobooks/.test(document.body.innerText) }));
+  check('the tab is Lessons: 104 lessons on their own covers, today\'s lesson on top, no Audiobooks shelf', tab.h1 === 'Lessons' && !tab.seg && tab.tiles === 104 && tab.today && !tab.audiobooks && tab.nav.includes('Lessons') && !tab.nav.includes('Books'), tab);
+  check('…a recorded lesson shows its length (7 min) and its hero ("with Riya")', tab.atomic === '7 min · with Riya', tab.atomic);
 
-  // the book page: Atomic Habits (recorded)
-  await page.evaluate(() => openBookSummary('atomic')); await page.waitForSelector('#bi-read .bi-rd', { timeout: 10000 }); await sleep(300);
-  const ins = await page.evaluate(() => BOOK_SUMMARIES.find(b => b.id === 'atomic').insights.map(i => i[0]));
-  const b1 = await page.evaluate(() => ({ lbl: document.querySelector('.bkp-lbl').textContent, stats: document.querySelector('.bkp-stats').textContent, listen: document.querySelector('.bkp-listen').textContent, ghost: document.querySelector('.bkp-ghost').textContent, rows: [...document.querySelectorAll('#bi-ch .bi-row .bi-t')].map(r => r.textContent), sub: document.querySelector('#bi-ch .bkp-sub').textContent, rec: !!document.querySelector('#bi-ch .bi-rec'), quiz: !!document.querySelector('.bi-opt,#bi-player,.bi-why'), keyIdeas: !!document.getElementById('bkp-ideas'), dock: (document.querySelector('.bkp-dock b') || {}).textContent }));
-  check('the book page: "Book · 9 min", 7 chapters, Listen, the chapter list (Why this book, the five ideas, How it turned out)', /^Book · 9 min · /.test(b1.lbl) && /7\s*chapters/.test(b1.stats) && /Listen/.test(b1.listen) && b1.ghost === 'Chapters' && JSON.stringify(b1.rows) === JSON.stringify(['Why this book', ...ins, 'How it turned out']) && /^Read by Bro\. Follow Riya, /.test(b1.sub) && b1.dock === 'Listen to the book', b1);
-  check('…no quiz, no Ideas cards, no separate key-ideas list, and no "being recorded" note for a recorded book', !b1.quiz && !b1.keyIdeas && !b1.rec, b1);
-  const rd1 = await page.evaluate(() => [...document.querySelectorAll('#bi-read .bi-rd')].map(a => ({ h: a.querySelector('h4').textContent, story: (a.querySelector('.bi-story') || {}).textContent || '', take: (a.querySelector('.bi-take') || {}).textContent || '', tryIt: !!a.querySelector('.bkp-try'), bro: !!a.querySelector('.bi-bro'), meet: (a.querySelector('.bi-meet') || {}).textContent || '' })));
-  check('read along: the 7 chapters with the story, the takeaway, "Try it today" in chapters 2-6 and Bro\'s take at the end', rd1.length === 7 && rd1.every((c, i) => c.story === jAtomic.chapters[i].story.b && c.take === jAtomic.chapters[i].take && c.tryIt === (i >= 1 && i <= 5)) && rd1[6].bro && /^Meet Riya, /.test(rd1[0].meet), rd1.map(c => [c.h, c.story.length, c.tryIt, c.bro]));
-  // Listen → the whole book in Bro's voice
-  await page.click('.bkp-listen'); await sleep(1200);
-  const l1 = await page.evaluate(() => ({ id: BKP && BKP.book.id, full: BKP && BKP.book._full, mode: BKP && BKP.mode, secs: BKP && BKP.secs.map(s => s.label), src: (document.getElementById('bk-narr-audio') || {}).src || '', np: (document.querySelector('.bkp-np-src b') || {}).textContent }));
-  check('Listen plays the whole book from Bro\'s studio recording ("book-atomic"), one section per chapter', l1.id === 'book-atomic' && l1.full === 'atomic' && l1.mode === 'static' && /\/api\/book-audio\/book-atomic\?/.test(l1.src) && JSON.stringify(l1.secs) === JSON.stringify(['Why this book', ...ins, 'How it turned out']) && l1.np === '9-min book', l1);
-  await page.evaluate(() => { S.bkNP = false; render(); }); await sleep(300);
-  await page.click('#bi-ch .bi-row >> nth=3'); await sleep(500);
-  const l2 = await page.evaluate(() => ({ id: BKP.book.id, sec: _bkSecAt(BKP.pendingChar != null ? BKP.pendingChar : _bkPos().ch), n: document.querySelectorAll('.bkp-np').length }));
-  check('…tap chapter 4 → the book from chapter 4', l2.id === 'book-atomic' && l2.sec === 3 && l2.n === 1, l2);
-  await page.evaluate(() => { S.bkNP = false; render(); }); await sleep(300);
-  const mini = await page.evaluate(() => ({ t: (document.querySelector('.bk-mini-info b') || {}).textContent, cover: bookCover(BKP.book.id), img: document.querySelectorAll('img[src*="openlibrary"], img[src*="covers."]').length, grad: !!(document.querySelector('.bk-mini-cover') || {}).style }));
-  check('…the mini player shows the book (its title, on Brodoit\'s own cover, drawn by scripts/covers: v34, no publisher cover art anywhere)', mini.t === 'Atomic Habits' && mini.cover === '/app/covers/atomic.webp?v=1' && mini.img === 0 && mini.grad, mini);
-  await page.evaluate(() => { try { bkpStop(true); } catch (e) {} closeBookReader(); }); await sleep(200);
-
-  // Deep Work: not recorded yet → Bro's notes, the same 7 parts
-  await page.evaluate(() => openBookSummary('deep')); await page.waitForSelector('#bi-read .bi-rd', { timeout: 10000 }); await sleep(300);
-  const d1 = await page.evaluate(() => ({ rec: (document.querySelector('#bi-ch .bi-rec') || {}).textContent || '', lbl: document.querySelector('.bkp-lbl').textContent }));
-  check('a book not recorded yet says Bro is recording it, and Listen will play his notes for now', /^Bro is recording this book in his voice\./.test(d1.rec) && new RegExp('^Book · ' + deepMins + ' min').test(d1.lbl), d1);
-  await page.click('#bi-ch .bi-row >> nth=2'); await sleep(800);
-  const d2 = await page.evaluate(() => ({ id: BKP && BKP.book.id, secs: BKP && BKP.secs.length, mode: BKP && BKP.mode, sec: BKP && _bkSecAt(BKP.pendingChar != null ? BKP.pendingChar : _bkPos().ch), src: (document.getElementById('bk-narr-audio') || {}).src || '' }));
-  check('…tap chapter 3 → Bro\'s recorded notes from his third part (never a live voice)', d2.id === 'deep' && d2.secs === 7 && d2.mode === 'static' && d2.sec === 2 && /\/api\/book-audio\/deep\?/.test(d2.src), d2);
-  await page.evaluate(() => { try { bkpStop(true); } catch (e) {} closeBookReader(); }); await sleep(200);
-
-  // Try it today from the read-along
-  await page.evaluate(() => openBookSummary('atomic')); await page.waitForSelector('#bi-read .bkp-try button', { timeout: 10000 });
-  await page.click('#bi-read .bkp-try button >> nth=0'); await sleep(1500);
-  const tried = await page.evaluate(() => !!(S.bkTried && S.bkTried['atomic:0']));
-  check('"Add to my tasks" in chapter 2 adds its "Try it today" as a task', tried, tried);
-  await page.evaluate(() => closeBookReader()); await sleep(200);
-
-  // the public-domain original
-  await page.evaluate(() => openBookSummary('medi')); await page.waitForSelector('#bi-brief', { timeout: 10000 }); await sleep(300);
-  const m1 = await page.evaluate(() => ({ h: document.querySelector('#bi-brief h2').textContent, btn: document.querySelector('#bi-brief .bi-start').textContent, paras: document.querySelectorAll('#bi-brief .bi-brief-txt p').length, first: (document.querySelector('#bi-brief .bi-brief-txt p b') || {}).textContent, chapters: document.querySelectorAll('#bi-ch .bi-row').length }));
-  check('Meditations: its 7 chapters, and every chapter of the public-domain book in Bro\'s words with "Listen to every chapter"', m1.h === "Every chapter, in Bro's words" && /^Listen to every chapter · \d+ min$/.test(m1.btn) && m1.paras === 11 && m1.first === 'Book one. Debts and lessons.' && m1.chapters === 7, m1);
-  await page.click('#bi-brief .bi-start'); await sleep(1500);
-  const m2 = await page.evaluate(() => ({ id: BKP && BKP.book.id, secs: BKP && BKP.secs.map(s => s.label) }));
-  check('…which plays through the book player, a section per book ("Debts and lessons" … "The bottom line")', m2.id === 'brief-medi' && m2.secs && m2.secs.length === 11 && m2.secs[1] === 'Debts and lessons' && m2.secs[10] === 'The bottom line', m2);
-  await page.evaluate(() => { try { bkpStop(true); } catch (e) {} closeBookReader(); });
-  await page.evaluate(() => openBookSummary('atomic')); await sleep(600);
-  const nc = await page.evaluate(() => !!document.getElementById('bi-brief'));
-  check('…a book still under copyright has no original section', nc === false, nc);
-  await page.evaluate(() => closeBookReader()); await sleep(200);
-
-  // Hindi labels
-  await page.evaluate(() => { S.lang = 'hi'; render(); }); await sleep(500);
-  const hiSeg = await page.$$eval('.bk-seg button', bs => bs.map(b => b.textContent.trim()));
-  await page.evaluate(() => openBookSummary('atomic')); await sleep(500);
+  // open a lesson: full screen, 19 cards, the cover first
+  await page.click('.lz-tile[onclick*="\'atomic\'"]'); await page.waitForSelector('.lz .lz-card.on', { timeout: 10000 }); await sleep(700);
+  const o1 = await page.evaluate(() => { const r = document.querySelector('.lz').getBoundingClientRect(); return { st: Lessons.state(), cards: document.querySelectorAll('.lz-card').length, bars: document.querySelectorAll('.lz-bars i').length, full: r.width === innerWidth && r.height === innerHeight, h1: document.querySelector('.lz-card.on h1').textContent, next: document.querySelector('.lz-next').textContent.trim(), share: !!document.querySelector('.lz-top [aria-label="Share"]'), lock: document.documentElement.classList.contains('lz-open'), cover: document.querySelector('.lz-card.on .lz-cv img').getAttribute('src') }; });
+  check('a lesson opens full screen: 19 cards, a progress bar per card, Share, the cover (Brodoit\'s own) first with "Start"', o1.st && o1.st.id === 'atomic' && o1.st.i === 0 && o1.st.voice && o1.cards === 19 && o1.bars === 19 && o1.full && o1.h1 === 'Atomic Habits' && o1.next === 'Start' && o1.share && o1.lock && o1.cover === '/app/covers/atomic.webp?v=1', o1);
+  // Next → card 2: meet the hero, with her picture and words under it
+  // Start plays the lesson from its cover (the voice reads why the book matters), then Next moves on
+  await page.click('.lz-next'); let s0 = null; for (let k = 0; k < 30; k++) { await sleep(200); s0 = await page.evaluate(() => ({ st: Lessons.state(), next: document.querySelector('.lz-next').textContent.trim(), lit: document.querySelectorAll('.lz-card.on .w.lit').length })); if (s0.st.playing) break; }
+  check('Start plays the lesson from the cover in the narrator\'s voice (the button becomes Next)', s0.st.playing && s0.st.i === 0 && s0.next === 'Next', s0);
+  await page.click('.lz-next'); await sleep(900);
+  const o2 = await page.evaluate(() => { const c = document.querySelector('.lz-card.on'); const img = c.querySelector('.lz-pic img'); return { st: Lessons.state(), img: img && img.getAttribute('src'), nat: img && img.naturalWidth, h2: c.querySelector('h2').textContent, who: c.querySelector('.lz-who').textContent, words: c.querySelectorAll('.lz-say .w').length, label: document.querySelector('.lz-ttl small').textContent, x: getComputedStyle(document.querySelector('.lz-track')).transform }; });
+  check('Next → "Meet Riya": her picture (whole, 4:3), her name and who she is, the words under it', o2.st.i === 1 && o2.st.kind === 'meet' && /\/app\/lessons\/img\/atomic\/0\.svg/.test(o2.img) && o2.nat > 0 && o2.h2 === 'Riya' && /^A second-year engineering student/.test(o2.who) && o2.words > 20 && /^Meet Riya · 2 \/ 19$/.test(o2.label), o2);
+  await page.click('.lz-play'); await sleep(300); // paused while we look around
+  // a sideways drag (mouse or finger) turns the card; a short one springs back
+  const box = await page.locator('.lz-stage').boundingBox();
+  const drag = async (dx) => { const x0 = box.x + box.width * (dx < 0 ? 0.8 : 0.2); await page.mouse.move(x0, box.y + box.height * 0.5); await page.mouse.down(); for (let k = 1; k <= 8; k++) await page.mouse.move(x0 + dx * k / 8, box.y + box.height * 0.5 + k); await page.mouse.up(); await sleep(700); };
+  await drag(-220); const sw1 = await page.evaluate(() => Lessons.state().i);
+  await drag(-40); const sw2 = await page.evaluate(() => Lessons.state().i);
+  await drag(220); const sw3 = await page.evaluate(() => Lessons.state().i);
+  check('swipe left → the next card (it comes in from the right); a short drag springs back; swipe right → back', sw1 === 2 && sw2 === 2 && sw3 === 1, { sw1, sw2, sw3 });
+  await page.keyboard.press('ArrowRight'); await sleep(600);
+  check('…and the arrow keys turn the cards too', (await page.evaluate(() => Lessons.state().i)) === 2);
+  // the voice leads: Play starts the recording at this card's cue; when the voice reaches the next card's cue the card
+  // turns by itself, and the words light up as they are read
+  const src = await page.evaluate(() => Lessons.state().src);
+  check('the lesson plays its ElevenLabs recording (/api/lesson-audio/atomic), with the 18 cues', /\/api\/lesson-audio\/atomic\?v=\d+$/.test(src), src);
+  await page.click('.lz-play'); let pl = null; for (let k = 0; k < 30; k++) { await sleep(200); pl = await page.evaluate(() => Lessons.state()); if (pl.playing) break; }
+  check('…Play starts the voice at the card you are on (card 3 → its cue)', pl.playing && Math.abs(pl.t - LCUES[2]) < 2, pl);
+  await page.evaluate(t => { Lessons.audio().currentTime = t; }, LCUES[3] + 2); await sleep(900);
+  const fol = await page.evaluate(() => ({ st: Lessons.state(), lit: document.querySelectorAll('.lz-card.on .w.lit').length, dim: document.querySelectorAll('.lz-card.on .lz-say .w:not(.lit)').length, bar: document.querySelectorAll('.lz-bars i')[3].querySelector('b').style.transform }));
+  check('…the voice reaching card 4 turns the card by itself; its words light up as they are read; its bar fills', fol.st.i === 3 && fol.st.playing && fol.lit > 0 && fol.dim > 0 && /scaleX\(0\.0\d/.test(fol.bar), fol);
+  await page.click('.lz-next'); await sleep(700);
+  const nx = await page.evaluate(() => Lessons.state());
+  check('…Next while it plays moves the voice to the next card\'s cue', nx.i === 4 && nx.playing && Math.abs(nx.t - LCUES[4]) < 1.5, nx);
+  await page.click('.lz-play'); await sleep(300);
+  check('…and Pause pauses it', (await page.evaluate(() => Lessons.state().playing)) === false);
+  // pause and think: tap a choice → the best move and why
+  await page.evaluate(() => Lessons.open('atomic', 4)); await page.waitForSelector('.lz .lzk-lesson.on', { timeout: 8000 }); await sleep(600);
+  const t0 = await page.evaluate(() => { const c = document.querySelector('.lz-card.on'); return { q: c.querySelector('.lz-q').textContent, opts: c.querySelectorAll('.lz-opt').length, why: getComputedStyle(c.querySelector('.lz-whyb')).opacity, shown: c.classList.contains('shown') }; });
+  await page.click('.lz-card.on .lz-opt >> nth=1'); await sleep(700);
+  const t1 = await page.evaluate(() => { const c = document.querySelector('.lz-card.on'); return { shown: c.classList.contains('shown'), best: c.querySelector('.lz-opt.best').textContent, mine: c.querySelector('.lz-opt.mine').textContent, why: getComputedStyle(c.querySelector('.lz-whyb')).opacity }; });
+  check('"Pause and think": the question and 3 choices; tap one → the best move lights up and the why opens', t0.opts === 3 && /Riya/.test(t0.q) && !t0.shown && t0.why === '0' && t1.shown && t1.best.includes(jAtomic.chapters[1].think ? '' : '') && /Keep the two pages going/.test(t1.best) && /Switch to a longer weekend/.test(t1.mine) && t1.why === '1', { t0, t1 });
+  await page.click('.lz-card.on .lz-try button'); await sleep(1500);
+  const tr = await page.evaluate(() => ({ added: !!(S.bkTried && S.bkTried['atomic:L1']), btn: document.querySelector('.lz-card.on .lz-try button').textContent }));
+  check('…"Try it today" → Add to my tasks adds it as today\'s task', tr.added && tr.btn === 'Added to today', tr);
+  // share the card you are on
+  await page.click('.lz-top [aria-label="Share"]'); await sleep(500);
+  const shared = await page.evaluate(() => window.__shared.slice(-1)[0]);
+  check('Share (on every card) opens the phone\'s share sheet with a link to this card (/l/atomic?c=4) and its words', shared && /\/l\/atomic\?c=4$/.test(shared.url) && /Atomic Habits/.test(shared.title) && /Riya/.test(shared.text), shared);
+  // the end: the five ideas, a week, share, the next lesson; marked done on this phone
+  await page.evaluate(() => Lessons.open('atomic', 18)); await page.waitForSelector('.lz .lzk-end.on', { timeout: 8000 }); await sleep(700);
+  const e1 = await page.evaluate(() => { const c = document.querySelector('.lz-card.on'); return { recap: [...c.querySelectorAll('.lz-recap li')].map(l => l.textContent), week: c.querySelectorAll('.lz-week p').length, btns: [...c.querySelectorAll('.lz-endbtns button')].map(b => b.textContent.trim()), next: document.querySelector('.lz-next').textContent.trim(), done: JSON.parse(localStorage.getItem('bd_lessons_v1') || '{}').atomic }; });
+  check('the end card: the five ideas, a week to live them, Share this lesson, the next lesson; the lesson is marked done here', e1.recap.length === 5 && e1.week === 5 && e1.btns[0] === 'Share this lesson' && /^Next lesson: /.test(e1.btns[1]) && e1.next === 'Done' && e1.done && e1.done.done === true, e1);
+  await page.click('.lz-next'); await sleep(600);
+  const cl = await page.evaluate(() => ({ open: !!document.querySelector('.lz'), lock: document.documentElement.classList.contains('lz-open'), st: Lessons.state(), done: !!document.querySelector('.lz-tile[onclick*="\'atomic\'"] .lz-tile-done') }));
+  check('Done closes it (back on the Lessons tab, the lesson ticked)', !cl.open && !cl.lock && cl.st === null && cl.done, cl);
+  // a public-domain book ends with its whole original, chapter by chapter
+  await page.evaluate(() => Lessons.open('medi', 18)); await page.waitForSelector('.lz .lzk-end.on', { timeout: 8000 }); await sleep(500);
+  const pd = await page.evaluate(() => [...document.querySelectorAll('.lz-card.on .lz-endbtns button')].map(b => b.textContent.trim()));
+  await page.click('.lz-card.on .lz-endbtns button >> text=The whole original, every chapter'); await sleep(1500);
+  const pd2 = await page.evaluate(() => ({ open: !!document.querySelector('.lz'), id: typeof BKP !== 'undefined' && BKP && BKP.book.id }));
+  check('Meditations (public domain) ends with "The whole original, every chapter", played in the book player', pd.includes('The whole original, every chapter') && !pd2.open && pd2.id === 'brief-medi', { pd, pd2 });
+  await page.evaluate(() => { try { bkpStop(true); } catch (e) {} });
+  // a lesson not recorded yet: read along (every word shown), and Play says the narrator is recording it
+  await page.evaluate(() => Lessons.open('deep', 3)); await page.waitForSelector('.lz .lz-card.on', { timeout: 8000 }); await sleep(600);
+  const d1 = await page.evaluate(() => { Lessons.toggle(); return { st: Lessons.state(), mute: document.querySelector('.lz-play').classList.contains('mute'), dim: getComputedStyle(document.querySelector('.lz-card.on .lz-say .w')).opacity }; }); await sleep(300);
+  const toastTxt = await page.evaluate(() => (document.querySelector('.toast') || {}).textContent || '');
+  check('a lesson not recorded yet opens to read along (every word shown), and Play says the narrator is still recording it', d1.st.id === 'deep' && d1.st.i === 3 && !d1.st.voice && d1.mute && d1.dim === '1' && /still recording this lesson/.test(toastTxt), { d1, toastTxt });
+  // no sideways scroll, back button closes it
+  const ox = await page.evaluate(() => document.querySelector('.lz-card.on .lz-body').scrollWidth > document.querySelector('.lz-card.on .lz-body').clientWidth + 1);
+  await page.goBack(); await sleep(600);
+  const bk = await page.evaluate(() => ({ open: !!document.querySelector('.lz'), tab: S.tab }));
+  check('no sideways scroll in a card, and the phone\'s back button closes the lesson (staying on Lessons)', !ox && !bk.open && bk.tab === 'books', { ox, bk });
+  // a shared link opens the lesson at its card
+  await page.goto(BASE + '/?bk=atomic&c=6', { waitUntil: 'domcontentloaded' }); await page.waitForSelector('.lz .lz-card.on', { timeout: 20000 }); await sleep(800);
+  const dl = await page.evaluate(() => ({ st: Lessons.state(), url: location.search }));
+  check('a shared link (/?bk=atomic&c=6) opens the lesson at card 7, and tidies the address bar', dl.st && dl.st.id === 'atomic' && dl.st.i === 6 && dl.url === '', dl);
+  await page.evaluate(() => Lessons.close()); await sleep(400);
+  // Hindi: the tab is सबक; a book opens the Hindi book page (Bro's notes in Hindi), as before
+  await page.evaluate(() => { S.lang = 'hi'; S.tab = 'books'; render(); }); await sleep(500);
+  const hiH = await page.evaluate(() => (document.querySelector('.bk-head h1') || {}).textContent);
+  await page.evaluate(() => openBookSummary('atomic')); await sleep(800);
   const hiRows = await page.$$eval('#bi-ch .bi-row .bi-t', rs => rs.map(r => r.textContent));
-  check('in Hindi: किताबें · ऑडियोबुक, and the chapter list opens with "यह किताब क्यों"', JSON.stringify(hiSeg) === JSON.stringify(['किताबें', 'ऑडियोबुक']) && hiRows[0] === 'यह किताब क्यों' && hiRows[6] === 'आख़िर में क्या हुआ', { hiSeg, hiRows });
-  // a phone screen: no sideways scroll on the book page
-  const ox = await page.evaluate(() => { const p = document.querySelector('.bkp-page'); return p ? p.scrollWidth > p.clientWidth + 1 : true; });
-  check('the book page has no sideways scroll at 390 px', !ox, ox);
+  check('in Hindi: the tab is सबक, and a book opens its Hindi book page (chapter list "यह किताब क्यों" …)', hiH === 'सबक' && hiRows[0] === 'यह किताब क्यों' && !(await page.$('.lz')), { hiH, hiRows: hiRows.slice(0, 2) });
+  await page.evaluate(() => { try { closeBookReader(); } catch (e) {} S.lang = 'en'; render(); });
   check('no page errors', errs.length === 0, errs.slice(0, 3));
   await ctx.close();
 } finally { await browser.close(); child.kill(); }

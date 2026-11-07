@@ -162,9 +162,9 @@ process.env.BOOK_ELEVEN_HOLD = '0';
   calls.length = 0; plan = { tier: 'free', character_count: 0, character_limit: 10000 };
   const bf = mk('free-key'); const gf = await bf.run();
   check('…a free ElevenLabs plan records nothing (no commercial rights to the audio) and says why', gf === 0 && calls.length === 0 && /free plan/.test(bf.stats().reason), bf.stats());
-  plan = { tier: 'creator', character_count: 90000, character_limit: 100000 };
+  plan = { tier: 'creator', character_count: 92000, character_limit: 100000 };
   const bl = mk('low-key'); const gl = await bl.run();
-  check('…and it never spends the quarter of the month\'s credits that Bro\'s live voice and the news keep', gl === 0 && calls.length === 0 && bl.stats().state === 'waiting', bl.stats());
+  check('…and it never spends the last credits of the month (a book that would leave less than the reserve for Bro\'s live voice waits)', gl === 0 && calls.length === 0 && bl.stats().state === 'waiting', bl.stats());
   // v35.3: each book is paid for once: the backup copies it to the cloud (a stand-in release driven through a fake gh), and
   // a new server with no ElevenLabs key takes it back from there without a single ElevenLabs call
   const ix = be.index(); const one = ix.items[bk.id];
@@ -192,6 +192,41 @@ process.exit(3);
   check('…a new server with no ElevenLabs key takes the book back from the cloud copy: same file, no ElevenLabs call, no credits', !!br.file(bk.id) && fs.readFileSync(br.file(bk.id)).equals(fs.readFileSync(be.file(bk.id))) && calls.length === 0 && br.stats().restored === 1, br.stats());
   const bout2 = await backup();
   check('…and a second backup uploads nothing new', /0 new/.test(bout2), bout2);
+  // ── v36: the lessons, read by George (ElevenLabs' deep British storyteller), one cue per card, credits used fully ──
+  {
+    const SPA = fs.readFileSync(ROOT + '/server.js', 'utf8'); const mm = /const BOOK_SUMMARIES=(\[[\s\S]*?\n\]);/.exec(SPA);
+    const BS = require('vm').runInNewContext('(' + mm[1].replace(/\\\\/g, '\\') + ')');
+    const { lesson } = require(ROOT + '/app/bookfull.js');
+    const ls = BS.map(b => { try { return lesson(b, JSON.parse(fs.readFileSync(ROOT + '/app/ideas/' + b.id + '.json', 'utf8'))); } catch (e) { return null; } }).filter(Boolean);
+    const lens = ls.map(l => l.text.length);
+    check('every book is a lesson of 19 cards (18 read aloud, one paragraph each) of 6,500-8,200 characters: about 8 minutes', ls.length === 104 && ls.every(l => l.cards.length === 19 && l.text.split(/\n\n/).length === 18 && l.id === 'lesson-' + l.base) && Math.min(...lens) >= 6500 && Math.max(...lens) <= 8200, { n: ls.length, min: Math.min(...lens), max: Math.max(...lens) });
+    const L0 = ls.find(l => l.base === 'atomic'); const lid = L0.id; let ltext = L0.text;
+    const mkL = (key, extra) => BE.create(Object.assign({ mediaDir: fs.mkdtempSync('/tmp/p36el-'), getSetting: k => ({ ELEVENLABS_API_KEY: key })[k] || '', text: id => id === lid ? ltext : '', ids: () => [lid], minFreeBytes: 0, log: () => {} }, extra || {}));
+    // 80% of the month already used: v35 kept a quarter back, v36 spends it on the lessons
+    calls.length = 0; plan = { tier: 'creator', character_count: 80000, character_limit: 100000 };
+    const le = mkL('lesson-key'); const lg = await le.run(); const cues = le.cues(lid);
+    check('a lesson is recorded by George (JBFqnCBsd6RMkjVDRZzb) as a storyteller (stability 0.45, style 0.3), even with 80% of the month used (the books may use all but ~1%)', lg === 1 && calls.length >= 18 && calls.every(c => c.voice === BE.GEORGE && c.body.model_id === 'eleven_multilingual_v2' && c.body.voice_settings.style === 0.3 && c.body.voice_settings.stability === 0.45), { lg, n: calls.length, v: calls[0] && calls[0].voice, s: calls[0] && calls[0].body.voice_settings, st: le.stats() });
+    check('…and keeps where each of its 18 cards starts (cues, in order, the first after a short breath)', Array.isArray(cues) && cues.length === 18 && cues[0] > 0.2 && cues[0] < 0.5 && cues.every((t, i) => i === 0 || t > cues[i - 1]) && le.ready()[lid] > cues[17], cues);
+    const paras = L0.text.split(/\n\n/).map(p => spoken(p));
+    check('…a card ends on its own words: the next card is never sent as next_text', calls.every(c => !c.body.next_text || !paras.some((p, i) => i > 0 && c.body.next_text.startsWith(p.slice(0, 40)) && !c.body.text.includes(p.slice(0, 40)))), calls.filter(c => c.body.next_text).map(c => c.body.next_text.slice(0, 40)));
+    const lix = le.index().items[lid];
+    check('…the cloud backup index carries the cues', lix && JSON.stringify(lix.cues) === JSON.stringify(cues), lix);
+    // the cloud copy brings the cues back with the recording
+    {
+      const man = { items: { [lid]: lix } }; fs.writeFileSync(path.join(cloudDir, 'manifest.json'), JSON.stringify(man)); fs.copyFileSync(le.file(lid), path.join(cloudDir, lix.file));
+      calls.length = 0; const lr = BE.create({ mediaDir: fs.mkdtempSync('/tmp/p36re-'), getSetting: () => '', text: id => id === lid ? ltext : '', ids: () => [lid], minFreeBytes: 0, log: () => {} }); await lr.run();
+      check('…and a new server takes the lesson back from the cloud with its cues (no ElevenLabs call)', !!lr.file(lid) && JSON.stringify(lr.cues(lid)) === JSON.stringify(cues) && calls.length === 0, lr.stats());
+    }
+    fs.rmSync(path.join(cloudDir, 'manifest.json'), { force: true }); // nothing to take back: it would have to be read again
+    plan = { tier: 'creator', character_count: 99000, character_limit: 100000 }; calls.length = 0;
+    const lw = mkL('lesson-key-2'); await lw.run();
+    check('…a lesson that would eat into the last ~1% (kept for Bro\'s live voice) waits', calls.length === 0 && lw.stats().state === 'waiting' && !lw.file(lid), lw.stats());
+    process.env.BOOK_ELEVEN_HOLD = '1'; plan = { tier: 'creator', character_count: 0, character_limit: 100000 }; calls.length = 0;
+    const lh = mkL('lesson-key-3'); await lh.run(); process.env.BOOK_ELEVEN_HOLD = '0';
+    check('BOOK_ELEVEN_HOLD=1 pauses every ElevenLabs spend (nothing recorded, and it says so)', calls.length === 0 && /held/.test(lh.stats().reason), lh.stats());
+    ltext = L0.text + ' An edit.';
+    check('…an edited lesson is not played from the old recording, and has no cues', le.file(lid) === '' && le.cues(lid) === null);
+  }
   el.close(); delete process.env.ELEVEN_API_BASE; delete process.env.BOOK_ELEVEN_BACKUP;
 }
 

@@ -14,8 +14,15 @@
 // .github/workflows/book-eleven-backup.yml, from /api/book-eleven/index.json + /api/book-eleven/file/<name>), and before
 // a book is recorded the server first takes it back from that copy when it reads the same text (BOOK_ELEVEN_BACKUP), so a
 // lost volume or a new server never pays ElevenLabs twice.
+// v36 (owner, 7 Nov: "every book to 8 minutes … properly do from 11 labs … a deep narrator like David Attenborough … I have
+// 790,898 credits, use fully … make sure you keep the recording"): the books are now lessons ("lesson-<id>", 19 cards,
+// app/bookfull.js lesson()), read by ElevenLabs' George (a warm, deep British storyteller from their premade voices; no
+// real person's voice is copied) with a storyteller's settings. Every card is one paragraph of the text; the recording is
+// one mp3 per lesson and keeps where each card starts (cues), so the lesson player turns the cards with the voice. The
+// books' share of the credits is all of them but a small reserve for Bro's live voice (elevenvoice.js RESERVE.books).
 //   create({ mediaDir, getSetting, text: id → text | '', ids: () → [id…], fetch?, log?, minFreeBytes? })
-//     → { file(id), ready() → { id: secs }, stats(), run() → Promise<number recorded>, start(), index(), fileByName(name) }
+//     → { file(id), ready() → { id: secs }, cues(id) → [secs…] | null, stats(), run() → Promise<number recorded>, start(),
+//         index(), fileByName(name) }
 'use strict';
 const fs = require('fs'), path = require('path'), os = require('os'), crypto = require('crypto');
 const { execFile } = require('child_process');
@@ -23,7 +30,11 @@ const EV = require('./elevenvoice.js');
 const { textHash } = require('./bookvoice.js');
 const { spoken } = require('../scripts/book-voice/spoken.js');
 
-const ID_RE = /^(book|brief)-[a-z0-9_-]{1,60}$/i;
+const ID_RE = /^(book|brief|lesson)-[a-z0-9_-]{1,60}$/i;
+// the lessons' storyteller: George (premade), unless Admin sets LESSON_VOICE (a voice id, or brian/adam/daniel/george)
+const GEORGE = 'JBFqnCBsd6RMkjVDRZzb';
+const NARRATOR = { stability: 0.45, similarity_boost: 0.8, style: 0.3, use_speaker_boost: true, speed: 0.95 };
+const READER = { stability: 0.55, similarity_boost: 0.8, style: 0.1, use_speaker_boost: true, speed: 0.96 };
 const CREDITS = { eleven_multilingual_v2: 1, eleven_v3: 1, eleven_turbo_v2_5: 0.5, eleven_flash_v2_5: 0.5 };
 const SR = 44100;
 const FILE_RE = /^[a-z0-9_-]{1,80}\.mp3$/i;
@@ -67,11 +78,12 @@ function create(o) {
     try { return fs.statSync(f).size === it.bytes ? f : ''; } catch (e) { return ''; }
   }
   function ready() { const out = {}; for (const id of Object.keys(idx)) if (file(id)) out[id] = Number(idx[id].secs) || 0; return out; }
+  const cues = id => (file(id) && Array.isArray(idx[id].cues) ? idx[id].cues : null);
   const freeBytes = () => { try { const s = fs.statfsSync(dir); return Number(s.bavail) * Number(s.bsize); } catch (e) { return Infinity; } };
   const save = () => { const tmp = idxFile + '.' + process.pid + '.tmp'; fs.writeFileSync(tmp, JSON.stringify(idx)); fs.renameSync(tmp, idxFile); };
 
-  async function tts(key, voice, model, text, prev, next) {
-    const body = { text, model_id: model, voice_settings: { stability: 0.55, similarity_boost: 0.8, style: 0.1, use_speaker_boost: true, speed: 0.96 } };
+  async function tts(key, voice, model, text, prev, next, settings) {
+    const body = { text, model_id: model, voice_settings: settings || READER };
     if (prev.length) body.previous_request_ids = prev.slice(-3);
     if (next) body.next_text = next.slice(0, 600);
     const r = await fetchFn(base() + '/v1/text-to-speech/' + encodeURIComponent(voice) + '?output_format=mp3_44100_128', {
@@ -89,22 +101,26 @@ function create(o) {
   const silence = s => Buffer.alloc(Math.round(SR * s) * 2);
 
   async function record(id, key, voice, model) {
-    const text = textOf(id); const hash = textHash(text);
+    const text = textOf(id); const hash = textHash(text); const isLesson = id.startsWith('lesson-');
     const chapters = spoken(text).split(/\n\s*\n/).map(c => c.trim()).filter(Boolean);
+    const settings = isLesson ? NARRATOR : READER; const cues = [];
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'book-eleven-'));
     try {
       // the reading goes straight to disk as raw PCM (a 14-minute book is ~75 MB of it; never all in memory)
       const all = chapters.map(parts); const flat = all.flat(); const prev = []; let n = 0, bytes = 0;
       const rawFile = path.join(tmp, 'all.pcm'); const add = b => { fs.appendFileSync(rawFile, b); bytes += b.length; };
+      if (isLesson) add(silence(0.35));
       for (let c = 0; c < all.length; c++) {
+        cues.push(Math.round(bytes / 2 / SR * 100) / 100); // where this card's reading starts
         for (let k = 0; k < all[c].length; k++) {
-          const p = all[c][k]; const next = flat[n + 1] ? flat[n + 1].text : '';
-          const { buf, rid } = await tts(key, voice, model, p.text, prev, next);
+          // a lesson card ends on its own cadence: the next card's words are only a hint inside a card
+          const p = all[c][k]; const next = isLesson ? (all[c][k + 1] ? all[c][k + 1].text : '') : flat[n + 1] ? flat[n + 1].text : '';
+          const { buf, rid } = await tts(key, voice, model, p.text, prev, next, settings);
           if (rid) prev.push(rid);
           const f = path.join(tmp, String(n).padStart(3, '0') + '.mp3'); fs.writeFileSync(f, buf);
           add(await pcm(f)); try { fs.unlinkSync(f); } catch (e) { /* tmp */ }
           // after a heading, a breath; between parts, a short pause; between chapters, a longer one
-          add(silence(p.head ? 0.7 : k === all[c].length - 1 ? 1.4 : 0.25));
+          add(silence(p.head ? 0.7 : k === all[c].length - 1 ? (isLesson ? 1.1 : 1.4) : 0.25));
           n++;
         }
       }
@@ -115,6 +131,7 @@ function create(o) {
       const dest = path.join(dir, name); fs.copyFileSync(out, dest);
       const old = idx[id] && idx[id].file;
       idx[id] = { file: name, text: hash, bytes: fs.statSync(dest).size, sha256: sha256(dest), secs: Math.round(secs * 10) / 10, voice, model, chars: text.length, at: new Date().toISOString() };
+      if (isLesson) idx[id].cues = cues;
       save();
       if (old && old !== name) { try { fs.unlinkSync(path.join(dir, old)); } catch (e) { /* gone */ } }
       try { require('./studio.js').track('eleven', text.length, 'books'); } catch (e) { /* usage page only */ }
@@ -143,6 +160,7 @@ function create(o) {
     const f = path.join(dir, it.file), tmp = f + '.' + process.pid + '.tmp'; fs.writeFileSync(tmp, buf); fs.renameSync(tmp, f);
     const old = idx[id] && idx[id].file;
     idx[id] = { file: it.file, text: it.text, bytes: it.bytes, sha256: it.sha256, secs: it.secs, voice: it.voice, model: it.model, chars: it.chars, at: it.at, restored: new Date().toISOString() };
+    if (Array.isArray(it.cues) && it.cues.every(x => typeof x === 'number' && x >= 0)) idx[id].cues = it.cues.slice(0, 64);
     save(); if (old && old !== it.file) { try { fs.unlinkSync(path.join(dir, old)); } catch (e) { /* gone */ } }
     return true;
   }
@@ -153,6 +171,7 @@ function create(o) {
       const f = file(id); if (!f) continue;
       const it = idx[id]; if (!it.sha256) { try { it.sha256 = sha256(f); save(); } catch (e) { continue; } }
       items[id] = { file: it.file, sha256: it.sha256, bytes: it.bytes, secs: it.secs, text: it.text, voice: it.voice, model: it.model, chars: it.chars, at: it.at };
+      if (it.cues) items[id].cues = it.cues;
     }
     return { voice: 'ElevenLabs, in Bro\'s voice', made: new Date().toISOString(), items };
   }
@@ -169,9 +188,8 @@ function create(o) {
       let got = 0;
       try {
         if (gs('BOOK_ELEVEN') === 'off') { st.state = 'off'; st.reason = 'turned off in Admin (BOOK_ELEVEN=off)'; return 0; }
-        // 7 Nov: hold every ElevenLabs spend until the 8-minute lessons (v36) replace today's texts, so no credit goes on a
-        // text that is about to change (BOOK_ELEVEN_HOLD=0 lifts it; v36 removes the hold)
-        if (process.env.BOOK_ELEVEN_HOLD !== '0') { st.state = 'waiting'; st.reason = 'held until the 8-minute lessons are in (no credits spent)'; return 0; }
+        // a pause without spending anything (BOOK_ELEVEN_HOLD=1); v36's lessons lifted the 7 Nov hold
+        if (process.env.BOOK_ELEVEN_HOLD === '1') { st.state = 'waiting'; st.reason = 'held (BOOK_ELEVEN_HOLD=1): no credits spent'; return 0; }
         fs.mkdirSync(dir, { recursive: true });
         // 1. a book already paid for comes back from the cloud copy (no credits)
         for (const id of (o.ids() || []).filter(id => ID_RE.test(id) && textOf(id) && !file(id))) {
@@ -181,7 +199,8 @@ function create(o) {
         const key = gs('ELEVENLABS_API_KEY');
         if (!key) { st.state = 'off'; st.reason = 'no ElevenLabs key in Admin'; return 0; }
         const model = gs('BOOK_ELEVEN_MODEL') || 'eleven_multilingual_v2';
-        const voice = gs('BOOK_ELEVEN_VOICE') || EV.broVoice(gs);
+        const bookVoice = gs('BOOK_ELEVEN_VOICE') || EV.broVoice(gs);
+        const lv = String(gs('LESSON_VOICE') || '').trim(); const lessonVoice = EV.BRO_VOICES[lv.toLowerCase()] || (/^[A-Za-z0-9]{16,40}$/.test(lv) ? lv : GEORGE);
         const sub = await EV.subscription(key, true).catch(() => null);
         st.tier = (sub && sub.tier) || ''; st.left = sub && sub.limit ? Math.max(0, sub.limit - sub.used) : null; st.limit = (sub && sub.limit) || null; st.reset = (sub && sub.reset) || null; st.at = new Date().toISOString();
         if (/^free$/i.test(st.tier)) { st.state = 'waiting'; st.reason = 'the ElevenLabs free plan gives no commercial rights to its audio: a paid plan is needed'; return 0; }
@@ -200,7 +219,7 @@ function create(o) {
           const per = CREDITS[model] || 1, b = await EV.budget(key, Math.ceil(chars * per / EV.PER_CHAR()), 'books');
           if (!b.ok) { st.state = 'waiting'; st.reason = b.reason || 'waiting for ElevenLabs credits'; break; }
           try {
-            const it = await record(id, key, voice, model); got++; thisPass++; st.recorded++; st.last = { id, secs: it.secs, at: it.at };
+            const it = await record(id, key, id.startsWith('lesson-') ? lessonVoice : bookVoice, model); got++; thisPass++; st.recorded++; st.last = { id, secs: it.secs, at: it.at };
             log('recorded', id, Math.round(it.secs / 6) / 10, 'min ·', model);
           } catch (e) {
             if (b.hold) EV.release(key, b.hold);
@@ -227,7 +246,7 @@ function create(o) {
     const t = setTimeout(() => { runOnce().catch(() => {}); const iv = setInterval(() => runOnce().catch(() => {}), 30 * 60e3); if (iv.unref) iv.unref(); }, d);
     if (t.unref) t.unref();
   }
-  return { file, ready, stats, run: runOnce, start, index, fileByName, dir: () => dir };
+  return { file, ready, cues, stats, run: runOnce, start, index, fileByName, dir: () => dir };
 }
 
-module.exports = { create, parts };
+module.exports = { create, parts, GEORGE, NARRATOR };
