@@ -1,4 +1,4 @@
-# Throwaway-branch only: is v36 (Lessons + the sideways News) live on brodoit.com, and are the lessons being recorded?
+# Throwaway-branch only: how far ElevenLabs has recorded the v36 lessons, and how many are safe in the cloud copy.
 name: Site probe
 on:
   push:
@@ -6,40 +6,15 @@ on:
 permissions:
   contents: read
 jobs:
-  v36:
+  lessons:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
     steps:
-      - uses: actions/checkout@v4
-      - name: Wait for the v36 deploy (2d256c45539e)
+      - name: Lessons recorded, credits, cloud copy
         run: |
           j() { curl -fsS --max-time 20 "https://brodoit.com$1" 2>/dev/null || echo '{}'; }
-          for i in $(seq 1 45); do c=$(j /api/health | jq -r .commit); [ "$c" = "2d256c45539e" ] && break; sleep 20; done
-          echo "site commit now: $(j /api/health | jq -r .commit) at $(date -u +%H:%M:%S)"
-      - name: v36 served
-        run: |
-          j() { curl -fsS --max-time 20 "https://brodoit.com$1" 2>/dev/null || echo '{}'; }
-          P=$(curl -fsS --max-time 20 https://brodoit.com/)
-          echo "page loads: $(grep -o 'lessons.js?v=36\|lessons.css?v=36\|bookfull.js?v=36\|news.js?v=36\|news.css?v=36' <<<"$P" | sort -u | tr '\n' ' ')"
-          echo "tab label Lessons: $(grep -c "l:_tH?'सबक':'Lessons'" <<<"$P") · Audiobooks segment left: $(grep -c 'bk-seg' <<<"$P")"
-          echo "lessons.js: $(curl -fsS --max-time 20 'https://brodoit.com/app/lessons.js?v=36' | grep -c 'window.Lessons') · font: $(curl -s -o /dev/null -w '%{http_code} %{size_download}B' https://brodoit.com/app/fonts/DMSerifDisplay-latin.woff2)"
-          echo "pictures: index $(j /app/lessons/img/index.json | jq -c '{lessons: length, atomic: .atomic.hero}') · atomic/3.svg $(curl -s -o /dev/null -w '%{http_code} %{content_type} %{size_download}B' https://brodoit.com/app/lessons/img/atomic/3.svg)"
-          echo "share page /l/atomic?c=4: $(curl -fsS --max-time 20 'https://brodoit.com/l/atomic?c=4' | grep -o 'og:title" content="[^"]*"\|og:image" content="[^"]*"\|url=[^"]*' | tr '\n' ' ')"
-          echo "news v36: $(curl -fsS --max-time 20 'https://brodoit.com/app/news.js?v=36' | grep -c 'Why it matters') 'Why it matters' left in news.js"
-          echo "terms LibriVox left: $(curl -fsS --max-time 20 https://brodoit.com/terms | grep -c 'LibriVox') · credits Notionists: $(curl -fsS --max-time 20 https://brodoit.com/credits | grep -c 'Notionists')"
-      - name: A shared lesson on a phone (Chromium)
-        run: |
-          mkdir -p /tmp/pw && cd /tmp/pw && npm init -y > /dev/null && npm i playwright@1.48.2 > /dev/null 2>&1 && npx playwright install --with-deps chromium > /dev/null 2>&1
-          cd "$GITHUB_WORKSPACE" && PW_PATH=/tmp/pw/node_modules/playwright node .github/scripts/lesson-probe.mjs || true
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with: { name: lesson-shots, path: 'lesson-*.png', if-no-files-found: ignore }
-      - name: ElevenLabs recording the lessons (every 2 minutes for 24 minutes)
-        run: |
-          j() { curl -fsS --max-time 20 "https://brodoit.com$1" 2>/dev/null || echo '{}'; }
-          for i in $(seq 1 13); do
-            echo "$(date -u +%H:%M:%S) $(j /api/learn/voice-status | jq -c '.book_eleven | {state, reason, ready, total, minutes, plan, credits_left, credits_month, error, last}') · cues: $(j "/api/book-voice/ready?t=$i" | jq -c '[.cues // {} | to_entries[] | {(.key): (.value | length)}] | add')"
-            sleep 120
-          done
-          echo "lesson audio (public): atomic $(curl -s -o /dev/null -w '%{http_code} %{content_type} %{size_download}B' --max-time 60 https://brodoit.com/api/lesson-audio/atomic)"
-          echo "eleven index: $(j /api/book-eleven/index.json | jq -c '{items: (.items | length), first: (.items | to_entries | .[0] | {k: .key, secs: .value.secs, cues: (.value.cues | length), voice: .value.voice})}')"
+          echo "site commit: $(j /api/health | jq -r .commit) at $(date -u +%H:%M:%S)"
+          echo "book_eleven: $(j /api/learn/voice-status | jq -c '.book_eleven | {state, reason, ready, total, minutes, plan, credits_left, credits_month, credits_reset, error, last}')"
+          echo "lessons with cues: $(j /api/book-voice/ready | jq '[.cues // {} | keys[] | select(startswith("lesson-"))] | length')"
+          echo "eleven index: $(j /api/book-eleven/index.json | jq -c '{items: (.items | length), lessons: ([.items | keys[] | select(startswith("lesson-"))] | length), voices: ([.items[] | .voice] | unique), mins: ([.items[] | .secs] | add / 60 | floor), shortest: ([.items[] | .secs] | min), longest: ([.items[] | .secs] | max)}')"
+          echo "cloud copy: $(curl -fsSL --max-time 60 https://github.com/rishabh071106-eng/taskflow/releases/download/book-eleven-v1/manifest.json | jq -c '{items: (.items | length), lessons: ([.items | keys[] | select(startswith("lesson-"))] | length), with_cues: ([.items[] | select(.cues != null)] | length)}')"
+          echo "a late lesson plays: $(curl -s -o /dev/null -w '%{http_code} %{size_download}B' --max-time 60 https://brodoit.com/api/lesson-audio/gtd)"
