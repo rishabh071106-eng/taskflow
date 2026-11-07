@@ -134,7 +134,7 @@ process.env.BOOK_ELEVEN_HOLD = '0';
   check('every book in 7 chapters is at least ~12,000 characters (13+ minutes read): each story asks "Pause and think" and the book ends with the five ideas and a week', Math.min(...lens) >= 12000 && bookN.every(n => (n.text.match(/Pause and think\./g) || []).length === 6 && /Before you go, here is the whole book in one breath\. One: /.test(n.text) && /Monday: .+Friday: .+And on the weekend/.test(n.text)), { min: Math.min(...lens) });
   const tone = path.join(TMP, 'tone.mp3'); execFileSync('ffmpeg', ['-v', 'error', '-y', '-f', 'lavfi', '-i', 'sine=f=220:d=1', '-ac', '1', '-ar', '44100', '-b:a', '64k', tone]); const TONE = fs.readFileSync(tone);
   const calls = []; let plan = { tier: 'creator', character_count: 0, character_limit: 2000000 }; let reqN = 0;
-  const cloudDir = fs.mkdtempSync('/tmp/p35cloud-'); let site = null; // v35.3: a stand-in release, and the site the backup reads
+  const cloudDir = fs.mkdtempSync('/tmp/p35cloud-'); let site = null, failFiles = 0; // v35.3: a stand-in release, and the site the backup reads
   const el = http.createServer((req, res) => {
     let b = ''; req.on('data', d => { b += d; }).on('end', () => {
       if (req.url.startsWith('/v1/user/subscription')) return res.writeHead(200, { 'Content-Type': 'application/json' }).end(JSON.stringify(plan));
@@ -142,6 +142,7 @@ process.env.BOOK_ELEVEN_HOLD = '0';
       if (c) { const f = path.join(cloudDir, c[1]); return fs.existsSync(f) ? res.writeHead(200).end(fs.readFileSync(f)) : res.writeHead(404).end('Not Found'); }
       if (req.url === '/site/api/book-eleven/index.json') return res.writeHead(200, { 'Content-Type': 'application/json' }).end(JSON.stringify(site.index()));
       const sf = /^\/site\/api\/book-eleven\/file\/([^/?]+)$/.exec(req.url);
+      if (sf && failFiles > 0) { failFiles--; return res.writeHead(502).end('Bad Gateway'); } // v36: a busy site, now and then
       if (sf) { const f = site.fileByName(decodeURIComponent(sf[1])); return f ? res.writeHead(200, { 'Content-Type': 'audio/mpeg' }).end(fs.readFileSync(f)) : res.writeHead(404).end('{}'); }
       const m = /^\/v1\/text-to-speech\/([^/?]+)/.exec(req.url);
       if (m && req.method === 'POST') { calls.push({ voice: m[1], key: req.headers['xi-api-key'], url: req.url, body: JSON.parse(b) }); return res.writeHead(200, { 'Content-Type': 'audio/mpeg', 'request-id': 'r' + (++reqN) }).end(TONE); }
@@ -182,7 +183,7 @@ process.exit(3);
 `, { mode: 0o755 });
   site = be; const work = fs.mkdtempSync('/tmp/p35bk-');
   // the backup script fetches from this process's stand-in server, so it runs alongside (never execFileSync here)
-  const backup = () => new Promise((resolve, reject) => { const ch = spawn(process.execPath, [ROOT + '/scripts/book-eleven/backup.js', process.env.ELEVEN_API_BASE + '/site'], { cwd: work, env: Object.assign({}, process.env, { PATH: bin + ':' + process.env.PATH, GITHUB_REPOSITORY: 'test/test' }) }); let out = ''; ch.stdout.on('data', d => { out += d; }); ch.stderr.on('data', d => { out += d; }); ch.on('close', c => c === 0 ? resolve(out) : reject(new Error('backup exited ' + c + ': ' + out))); });
+  const backup = () => new Promise((resolve, reject) => { const ch = spawn(process.execPath, [ROOT + '/scripts/book-eleven/backup.js', process.env.ELEVEN_API_BASE + '/site'], { cwd: work, env: Object.assign({}, process.env, { PATH: bin + ':' + process.env.PATH, GITHUB_REPOSITORY: 'test/test', BACKUP_RETRY_MS: '20' }) }); let out = ''; ch.stdout.on('data', d => { out += d; }); ch.stderr.on('data', d => { out += d; }); ch.on('close', c => c === 0 ? resolve(out) : reject(new Error('backup exited ' + c + ': ' + out))); });
   const bout = await backup();
   const cman = JSON.parse(fs.readFileSync(path.join(cloudDir, 'manifest.json'), 'utf8'));
   check('scripts/book-eleven/backup.js copies the recording and its manifest to the release (the cloud copy)', cman.items[bk.id] && cman.items[bk.id].sha256 === one.sha256 && fs.statSync(path.join(cloudDir, one.file)).size === one.bytes && /1 new/.test(bout), bout);
@@ -213,7 +214,9 @@ process.exit(3);
     check('…the cloud backup index carries the cues', lix && JSON.stringify(lix.cues) === JSON.stringify(cues), lix);
     // the cloud copy brings the cues back with the recording
     {
-      const man = { items: { [lid]: lix } }; fs.writeFileSync(path.join(cloudDir, 'manifest.json'), JSON.stringify(man)); fs.copyFileSync(le.file(lid), path.join(cloudDir, lix.file));
+      // the hourly backup copies it, cues and all, even when the busy site answers 502 twice first
+      site = le; failFiles = 2; const bo3 = await backup(); const cm3 = JSON.parse(fs.readFileSync(path.join(cloudDir, 'manifest.json'), 'utf8'));
+      check('…the backup copies the lesson with its cues, trying again when the site answers 502', /backed up lesson-atomic/.test(bo3) && cm3.items[lid] && JSON.stringify(cm3.items[lid].cues) === JSON.stringify(cues) && fs.existsSync(path.join(cloudDir, lix.file)) && failFiles === 0, bo3);
       calls.length = 0; const lr = BE.create({ mediaDir: fs.mkdtempSync('/tmp/p36re-'), getSetting: () => '', text: id => id === lid ? ltext : '', ids: () => [lid], minFreeBytes: 0, log: () => {} }); await lr.run();
       check('…and a new server takes the lesson back from the cloud with its cues (no ElevenLabs call)', !!lr.file(lid) && JSON.stringify(lr.cues(lid)) === JSON.stringify(cues) && calls.length === 0, lr.stats());
     }
