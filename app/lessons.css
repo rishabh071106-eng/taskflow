@@ -36,7 +36,7 @@
 /* ── the player ── */
 html.lz-open,html.lz-open body{overflow:hidden!important}
 html.lz-open .toast{z-index:10001}
-.lz{position:fixed;inset:0;z-index:9990;display:flex;flex-direction:column;overflow:hidden;color:#fff;background:linear-gradient(165deg,var(--bg) 0%,color-mix(in srgb,var(--bg) 55%,var(--dp)) 100%);--lzf:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-family:var(--lzf);animation:lzIn .34s cubic-bezier(.2,.8,.2,1) both;-webkit-tap-highlight-color:transparent}
+.lz{position:fixed;inset:0;z-index:9990;display:flex;flex-direction:column;overflow:hidden;color:#fff;background:linear-gradient(165deg,var(--bg) 0%,color-mix(in srgb,var(--bg) 55%,var(--dp)) 100%);--lzf:'Plus Jakarta Sans','Noto Sans Devanagari',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-family:var(--lzf);animation:lzIn .34s cubic-bezier(.2,.8,.2,1) both;-webkit-tap-highlight-color:transparent}
 .lz.out{animation:lzOut .26s ease both}
 @keyframes lzIn{from{opacity:0;transform:scale(1.04)}to{opacity:1;transform:none}}
 @keyframes lzOut{to{opacity:0;transform:scale(.98)}}
@@ -159,3 +159,8 @@ html.lz-open .toast{z-index:10001}
 @keyframes lzNudge{50%{transform:translateX(5px)}}
 @media (min-width:900px){.lz-pic{width:min(100%,calc(44vh * 4 / 3))}.lz-story,.lz-why{font-size:19px}}
 @media (prefers-reduced-motion:reduce){.lz,.lz *{animation:none!important;transition:none!important}}
+/* v37: the Hindi lessons: Devanagari headings in Noto Sans Devanagari (the serif has no Devanagari), a little more line height */
+.lz-lang{font:800 14px/1 var(--lzf);letter-spacing:.02em}
+.lz-hi .lz-h2,.lz-hi .lz-q,.lz-hi .lz-num + .lz-kick + .lz-say{font-family:'Noto Sans Devanagari',var(--lzf);font-weight:750;letter-spacing:0;line-height:1.28}
+.lz-hi .lz-story,.lz-hi .lz-idea,.lz-hi .lz-why,.lz-hi .lz-opt,.lz-hi .lz-take .lz-say,.lz-hi .lz-bro .lz-say{line-height:1.72}
+.lz-hi .lz-kick{letter-spacing:.04em}

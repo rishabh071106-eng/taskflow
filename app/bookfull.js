@@ -98,6 +98,40 @@
     const text = cards.filter(c => c.say).map(c => c.say.replace(/\s+/g, ' ').trim()).join('\n\n');
     return { id: 'lesson-' + f.base, base: f.base, title: f.title, author: f.author, hero: f.hero, cards, text };
   }
-  const api = { compose, lesson, paras, NUM };
+  // ── v37: the lesson in Hindi. hi = app/lessons-hi/<id>.json (scripts/lessons/hi.js): the English lesson's words
+  // written in natural spoken Hindi, card by card. The narration joins them the Hindi way ("पहला विचार।", "रुकिए और
+  // सोचिए।", "सबसे अच्छा कदम:", "सार यह है:", "आख़िर में क्या हुआ।", "ब्रो की राय।"); the pictures and the cues are the same.
+  //   lessonHi(enLesson, hi) -> { id: 'lesson-hi-<id>', lang: 'hi', base, title, author, hero, cards, text } | null
+  const ORD_HI = ['पहला', 'दूसरा', 'तीसरा', 'चौथा', 'पाँचवाँ'];
+  const hstop = s => { s = clean(s); return /[।?!.…"”’)]$/.test(s) ? s : s + '।'; };
+  function lessonHi(en, hi) {
+    if (!en || !hi || !hi.hero || !Array.isArray(hi.cards) || hi.cards.length !== en.cards.length) return null;
+    const cards = [];
+    for (let i = 0; i < en.cards.length; i++) {
+      const e = en.cards[i], c = hi.cards[i] || {};
+      if (c.k !== e.kind) return null;
+      const x = Object.assign({}, e);
+      switch (e.kind) {
+        case 'cover': x.why = clean(c.why); x.say = x.why; break;
+        case 'meet': x.text = clean(c.text); x.h = ''; x.say = hstop(hi.hero.meet) + ' ' + x.text; break;
+        case 'idea': x.title = clean(c.title).replace(/[।.]+$/, ''); x.body = clean(c.body); x.say = ORD_HI[e.n - 1] + ' विचार। ' + hstop(x.title) + ' ' + x.body; break;
+        case 'story': x.h = clean(c.h).replace(/[।.]+$/, ''); x.story = clean(c.story); x.say = hstop(x.h) + ' ' + x.story; break;
+        case 'lesson': {
+          const t = c.think && e.think ? { q: clean(c.think.q), o: (c.think.o || []).map(clean), a: e.think.a, why: clean(c.think.why) } : null;
+          x.think = t; x.take = clean(c.take); x.tryIt = clean(c.tryIt);
+          x.say = ((t ? 'रुकिए और सोचिए। ' + hstop(t.q) + ' सबसे अच्छा कदम: ' + hstop(t.o[t.a]) + ' ' : '') + (x.take ? 'सार यह है: ' + hstop(x.take) : '')).trim();
+          break;
+        }
+        case 'ending': x.h = clean(c.h).replace(/[।.]+$/, ''); x.story = clean(c.story); x.take = clean(c.take); x.bro = clean(c.bro);
+          x.say = 'आख़िर में क्या हुआ। ' + hstop(x.h) + ' ' + x.story + (x.take ? ' सार यह है: ' + hstop(x.take) : '') + (x.bro ? ' ब्रो की राय। ' + x.bro : ''); break;
+        case 'end': x.recap = (c.recap || []).map(clean); x.week = (c.week || []).map(w => ({ day: clean(w.day), tryIt: clean(w.tryIt) })); x.say = ''; break;
+        default: break;
+      }
+      cards.push(x);
+    }
+    const text = cards.filter(c => c.say).map(c => c.say.replace(/\s+/g, ' ').trim()).join('\n\n');
+    return { id: 'lesson-hi-' + en.base, lang: 'hi', base: en.base, title: en.title, author: en.author, hero: { name: clean(hi.hero.name), who: clean(hi.hero.who) }, cards, text };
+  }
+  const api = { compose, lesson, lessonHi, paras, NUM };
   if (typeof module === 'object' && module.exports) module.exports = api; else root.BookFull = api;
 })(typeof window !== 'undefined' ? window : globalThis);

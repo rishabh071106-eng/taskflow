@@ -14,7 +14,8 @@
   const L = window.Lessons = {};
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const hiUI = () => { try { return S.lang === 'hi'; } catch (e) { return false; } };
-  const T = (en, hi) => hiUI() ? hi : en;
+  // v37: an open lesson speaks its own language (EN / हिं on the lesson); elsewhere the app's
+  const T = (en, hi) => (P && P.lang ? P.lang === 'hi' : hiUI()) ? hi : en;
   const books = () => { try { return BOOK_SUMMARIES; } catch (e) { return []; } };
   const book = id => books().find(b => b.id === id) || null;
   const rerender = () => { try { if (S.tab === 'books') render(); } catch (e) { /* the shell */ } };
@@ -23,9 +24,17 @@
   const reduced = () => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } };
 
   // ── what the lessons need: the pictures' index (hero, colours), each lesson's stories, which are recorded ──
-  let IMG = null; const ideas = {}, inflight = {}, lessons = {};
-  let REC = { items: {}, cues: {} };
+  let IMG = null; const ideas = {}, inflight = {}, lessons = {}, his = {};
+  let REC = { items: {}, cues: {} }, HI = { ids: [], heroes: {} };
   fetch('/app/lessons/img/index.json?v=36').then(r => r.json()).then(j => { IMG = j || {}; rerender(); }).catch(() => { IMG = {}; });
+  // v37: the lessons written in Hindi (app/lessons-hi/index.json, scripts/lessons/hi.js)
+  fetch('/app/lessons-hi/index.json?v=37').then(r => r.json()).then(j => { HI = { ids: j.ids || [], heroes: j.heroes || {}, loaded: true }; rerender(); }).catch(() => { HI.loaded = true; });
+  L.hasHi = id => HI.ids.indexOf(id) >= 0;
+  function getHi(id) {
+    if (his[id]) return Promise.resolve(his[id]);
+    if (!inflight['hi:' + id]) inflight['hi:' + id] = fetch('/app/lessons-hi/' + encodeURIComponent(id) + '.json?v=37').then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }).then(j => (his[id] = j)).finally(() => { delete inflight['hi:' + id]; });
+    return inflight['hi:' + id];
+  }
   function loadRec() { return fetch('/api/book-voice/ready').then(r => r.json()).then(j => { REC = { items: j.items || {}, cues: j.cues || {} }; rerender(); }).catch(() => {}); }
   loadRec(); setInterval(loadRec, 10 * 60e3);
   function getIdeas(id) {
@@ -33,15 +42,18 @@
     if (!inflight[id]) inflight[id] = fetch('/app/ideas/' + encodeURIComponent(id) + '.json').then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }).then(j => (ideas[id] = j)).finally(() => { delete inflight[id]; });
     return inflight[id];
   }
-  function lessonOf(id) {
-    if (lessons[id]) return lessons[id];
+  function lessonOf(id, lang) {
+    const key = (lang === 'hi' ? 'hi:' : '') + id;
+    if (lessons[key]) return lessons[key];
     const b = book(id), j = ideas[id]; if (!b || !j || !window.BookFull || !BookFull.lesson) return null;
-    return (lessons[id] = BookFull.lesson(b, j));
+    const en = lessons[id] || (lessons[id] = BookFull.lesson(b, j));
+    if (lang !== 'hi') return en;
+    return his[id] && BookFull.lessonHi ? (lessons[key] = BookFull.lessonHi(en, his[id])) : null;
   }
   L.has = id => !!(IMG && IMG[id] && book(id));
   const pal = id => (IMG && IMG[id] && IMG[id].pal) || PAL0;
-  const heroName = id => (IMG && IMG[id] && IMG[id].hero) || '';
-  const rec = id => { const k = 'lesson-' + id; return REC.items[k] && REC.cues[k] ? { secs: REC.items[k], cues: REC.cues[k] } : null; };
+  const heroName = id => (hiUI() && HI.heroes[id]) || (IMG && IMG[id] && IMG[id].hero) || '';
+  const rec = (id, lang) => { const k = 'lesson-' + (lang === 'hi' ? 'hi-' : '') + id; return REC.items[k] && REC.cues[k] ? { secs: REC.items[k], cues: REC.cues[k] } : null; };
   L.mins = id => { const r = rec(id); return r ? Math.max(1, Math.round(r.secs / 60)) : 8; };
   const cover = id => { try { return bookCover(id); } catch (e) { return '/app/covers/' + id + '.webp?v=1'; } };
   const pic = (id, k) => '/app/lessons/img/' + encodeURIComponent(id) + '/' + k + '.svg?v=36';
@@ -113,7 +125,7 @@
     const w = text.split(/\s+/).map(x => '<span class="w">' + esc(x) + '</span>').join(' ');
     return '<' + (tag || 'p') + ' class="lz-say ' + (cls || '') + '" data-o="' + o.toFixed(4) + '" data-s="' + s.toFixed(4) + '">' + w + '</' + (tag || 'p') + '>';
   }
-  const stop = t => { t = String(t || '').trim(); return /[.!?…"”’)]$/.test(t) ? t : t + '.'; };
+  const stop = t => { t = String(t || '').trim(); return /[.!?…"”’)।]$/.test(t) ? t : t + (/[ऀ-ॿ]/.test(t) ? '।' : '.'); };
   function cardHtml(c, i, id, l) {
     const say = c.say || ''; const d = (n) => ' style="--d:' + n + '"';
     let h = '<section class="lz-card lzk-' + c.kind + '" data-i="' + i + '" aria-roledescription="slide"><div class="lz-body">';
@@ -137,7 +149,7 @@
         + '<div class="a"' + d(2) + '>' + words(stop(c.h), say, 'lz-h3', 'h3') + '</div><div class="a"' + d(3) + '>' + words(c.story, say, 'lz-story') + '</div>';
     } else if (c.kind === 'lesson') {
       const t = c.think;
-      h += '<div class="lz-kick a"' + d(0) + '>' + T('Pause and think', 'रुकें और सोचें') + '</div>';
+      h += '<div class="lz-kick a"' + d(0) + '>' + T('Pause and think', 'रुकिए और सोचिए') + '</div>';
       if (t) {
         h += '<div class="a"' + d(1) + '>' + words(t.q, say, 'lz-q', 'h2') + '</div><div class="lz-opts a"' + d(2) + '>';
         t.o.forEach((o, k) => { h += '<button class="lz-opt' + (k === t.a ? ' best' : '') + '" onclick="Lessons.pick(' + k + ')"><span>' + 'ABC'[k] + '</span>' + esc(o) + '</button>'; });
@@ -160,7 +172,7 @@
         + '<div class="lz-kick a"' + d(0) + '>' + T('Lesson complete', 'सबक पूरा') + '</div><h2 class="lz-h2 a"' + d(1) + '>' + T('The five ideas', 'पाँच विचार') + '</h2><ol class="lz-recap a"' + d(2) + '>' + (c.recap || []).map(x => '<li>' + esc(x) + '</li>').join('') + '</ol>';
       h += '<div class="lz-endbtns a"' + d(3) + '><button class="lz-btn" onclick="Lessons.share(true)">' + SHAREI + T('Share this lesson', 'यह सबक शेयर करें') + '</button>'
         + (window.BookIdeas && BookIdeas.isPD && BookIdeas.isPD(id) ? '<button class="lz-btn" onclick="Lessons.close();BookIdeas.playBrief(\'' + id + '\')">' + PLAYI + T('The whole original, every chapter', 'पूरी मूल किताब, हर अध्याय') + '</button>' : '')
-        + (nb ? '<button class="lz-btn lz-btn-p" onclick="Lessons.open(\'' + nx + '\',0,true)">' + T('Next lesson: ', 'अगला सबक: ') + esc(nb.title) + NEXTI + '</button>' : '') + '</div>'
+        + (nb ? '<button class="lz-btn lz-btn-p" onclick="Lessons.open(\'' + nx + '\',0,true,\'' + (l.lang || 'en') + '\')">' + T('Next lesson: ', 'अगला सबक: ') + esc(nb.title) + NEXTI + '</button>' : '') + '</div>'
       if (c.week && c.week.length) h += '<div class="lz-week a"' + d(4) + '><b>' + T('Your week', 'आपका हफ़्ता') + '</b>' + c.week.map(w => '<p><span>' + esc(w.day) + '</span>' + esc(w.tryIt) + '</p>').join('') + '</div>';
         + '<p class="lz-note">' + T('Brodoit\'s own lesson on the ideas in ' + esc(book(id).title) + ', with an invented story. Not affiliated with the author or publisher.', esc(book(id).title) + ' के विचारों पर Brodoit का अपना सबक, एक गढ़ी हुई कहानी के साथ। लेखक या प्रकाशक से कोई संबंध नहीं।') + '</p>';
     }
@@ -172,29 +184,34 @@
     return all[(i + 1) % all.length] ? all[(i + 1) % all.length].id : null;
   }
 
-  L.open = async function (id, card, autoplay) {
+  L.open = async function (id, card, autoplay, lang) {
     const b = book(id); if (!b) return;
+    // in Hindi the lesson opens in Hindi when it is written (else in English, with Hindi buttons); EN / हिं switches
+    lang = lang === 'hi' || lang === 'en' ? lang : hiUI() && L.hasHi(id) ? 'hi' : 'en';
+    if (lang === 'hi' && !L.hasHi(id)) lang = 'en';
     if (!L.has(id)) { try { openBookSummary(id); } catch (e) { /* none */ } return; }
-    if (P) L.close(true);
+    const reuse = !!(P && P.pushed); // switching language: the same place in the phone's history
+    if (P) { P.pushed = false; L.close(true); }
     // pause any other sound (the books' mini player, an audiobook, Bro)
     try { if (typeof BKP !== 'undefined' && BKP && !BKP.paused) bkpToggle(); } catch (e) { /* none */ }
     try { const a = document.getElementById('audioEl'); if (a && !a.paused) a.pause(); } catch (e) { /* none */ }
     const p = pal(id);
-    const el = document.createElement('div'); el.className = 'lz'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', b.title);
+    const el = document.createElement('div'); el.className = 'lz' + (lang === 'hi' ? ' lz-hi' : ''); el.setAttribute('lang', lang); el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', b.title);
     el.style.cssText = '--bg:' + p[0] + ';--ac:' + p[1] + ';--lt:' + p[2] + ';--md:' + p[3] + ';--dp:' + p[4];
     el.innerHTML = '<div class="lz-fx" aria-hidden="true"><i></i><i></i><i></i></div><div class="lz-wait">' + T('Opening the lesson…', 'सबक खुल रहा है…') + '</div>';
     document.body.appendChild(el); document.documentElement.classList.add('lz-open');
-    P = { id, b, l: null, i: 0, el, audio: null, playing: false, raf: 0, gen: 0 };
+    P = { id, b, l: null, i: 0, el, audio: null, playing: false, raf: 0, gen: 0, lang };
     const me = P;
-    try { history.pushState(Object.assign({}, history.state || {}, { lz: id }), ''); me.pushed = true; } catch (e) { /* no history */ }
-    try { await getIdeas(id); } catch (e) { if (P === me) { el.querySelector('.lz-wait').textContent = T('Could not open this lesson. Check your connection.', 'सबक नहीं खुला। इंटरनेट देखें।'); } return; }
+    if (reuse) me.pushed = true; else { try { history.pushState(Object.assign({}, history.state || {}, { lz: id }), ''); me.pushed = true; } catch (e) { /* no history */ } }
+    try { await getIdeas(id); if (lang === 'hi') await getHi(id); } catch (e) { if (P === me) { el.querySelector('.lz-wait').textContent = T('Could not open this lesson. Check your connection.', 'सबक नहीं खुला। इंटरनेट देखें।'); } return; }
     if (P !== me) return;
-    const l = lessonOf(id); if (!l) { L.close(); return; }
-    me.l = l; me.rec = rec(id);
+    const l = lessonOf(id, lang); if (!l) { L.close(); return; }
+    me.l = l; me.rec = rec(id, lang);
     const n = l.cards.length;
     el.innerHTML = '<div class="lz-fx" aria-hidden="true"><i></i><i></i><i></i></div>'
       + '<header class="lz-top"><div class="lz-bars">' + l.cards.map((c, k) => '<i data-k="' + k + '"><b></b></i>').join('') + '</div>'
       + '<div class="lz-row"><button class="lz-ic" onclick="Lessons.close()" aria-label="' + T('Close', 'बंद करें') + '">' + XI + '</button><div class="lz-ttl"><b>' + esc(b.title) + '</b><small></small></div>'
+      + (L.hasHi(id) ? '<button class="lz-ic lz-lang" onclick="Lessons.lang()" aria-label="' + T('हिंदी में सुनें', 'Listen in English') + '">' + (lang === 'hi' ? 'EN' : 'हिं') + '</button>' : '')
       + '<button class="lz-ic" onclick="Lessons.share()" aria-label="' + T('Share', 'शेयर') + '">' + SHAREI + '</button></div></header>'
       + '<main class="lz-stage"><div class="lz-track">' + l.cards.map((c, k) => cardHtml(c, k, id, l)).join('') + '</div></main>'
       + '<footer class="lz-bot"><button class="lz-ic lz-prev" onclick="Lessons.prev()" aria-label="' + T('Previous', 'पिछला') + '">' + PREVI + '</button>'
@@ -206,7 +223,7 @@
     if (me.rec && me.rec.cues.length !== s) me.rec = null; // a recording of another text: read along only
     if (me.rec) {
       const a = me.audio = new Audio(); a.preload = 'metadata';
-      a.src = '/api/lesson-audio/' + encodeURIComponent(id) + '?v=' + Math.round(me.rec.secs * 10);
+      a.src = '/api/lesson-audio/' + (lang === 'hi' ? 'hi-' : '') + encodeURIComponent(id) + '?v=' + Math.round(me.rec.secs * 10);
       a.addEventListener('play', () => { me.playing = true; me.started = true; paint(); loop(); listened(); });
       a.addEventListener('pause', () => { me.playing = false; paint(); });
       a.addEventListener('ended', () => { me.playing = false; paint(); if (P === me) go(n - 1); });
@@ -216,6 +233,11 @@
     const start = Math.max(0, Math.min(n - 1, card != null ? card : (prog[id] && !prog[id].done ? prog[id].c : 0)));
     go(start, true);
     if (autoplay && me.audio) L.toggle(true);
+  };
+  L.lang = function () {
+    const me = P; if (!me || !me.l || !L.hasHi(me.id)) return;
+    const to = me.lang === 'hi' ? 'en' : 'hi', at = me.i, play = me.playing;
+    L.open(me.id, at, play, to);
   };
   L.close = function (quiet) {
     const me = P; if (!me) return; P = null;
@@ -230,7 +252,7 @@
   addEventListener('popstate', () => { if (P) { P.pushed = false; L.close(true); } });
   addEventListener('keydown', e => {
     if (!P || !P.l || e.target && /INPUT|TEXTAREA/.test(e.target.tagName)) return;
-    if (e.key === 'ArrowRight') { e.preventDefault(); L.next(); } else if (e.key === 'ArrowLeft') { e.preventDefault(); L.prev(); }
+    if (e.key === 'ArrowRight') { e.preventDefault(); if (P.i < P.l.cards.length - 1) L.next(true); } else if (e.key === 'ArrowLeft') { e.preventDefault(); L.prev(); }
     else if (e.key === 'Escape') L.close(); else if (e.key === ' ') { e.preventDefault(); L.toggle(); }
   });
 
@@ -254,7 +276,8 @@
     paint(); setMeta(me);
     if (!first && was !== i) { try { if (window.haptic) haptic('select'); } catch (e) { /* none */ } }
   }
-  L.next = () => { if (P && P.l) { if (P.i >= P.l.cards.length - 1) return L.close(); if (P.i === 0 && P.audio && !P.playing && !P.started) { P.started = true; return L.toggle(true); } go(P.i + 1); } };
+  // Next on the cover starts the voice ("Start"); the arrow key always turns the card
+  L.next = (turn) => { if (P && P.l) { if (P.i >= P.l.cards.length - 1) return L.close(); if (turn !== true && P.i === 0 && P.audio && !P.playing && !P.started) { P.started = true; return L.toggle(true); } go(P.i + 1); } };
   L.prev = () => { if (P && P.l) go(P.i - 1); };
   L.toggle = function (force) {
     const me = P; if (!me) return;
@@ -341,7 +364,8 @@
   L.share = async function (whole) {
     const me = P; if (!me || !me.l) return;
     const c = me.l.cards[me.i], at = whole || me.i === 0 || c.kind === 'end' ? 0 : me.i;
-    const url = location.origin + '/l/' + encodeURIComponent(me.id) + (at ? '?c=' + at : '');
+    const qs = [at ? 'c=' + at : '', me.lang === 'hi' ? 'hl=hi' : ''].filter(Boolean).join('&');
+    const url = location.origin + '/l/' + encodeURIComponent(me.id) + (qs ? '?' + qs : '');
     const line = c.kind === 'idea' ? stop(c.title) : c.kind === 'lesson' && c.take ? c.take : c.kind === 'story' || c.kind === 'ending' ? stop(c.h) : '';
     const text = (line && at ? '“' + line + '”\n\n' : '') + T(me.b.title + ': an ' + L.mins(me.id) + '-minute lesson on Brodoit, told through ' + me.l.hero.name + '\'s story.', me.b.title + ': Brodoit पर ' + L.mins(me.id) + ' मिनट का सबक, ' + me.l.hero.name + ' की कहानी से।');
     try { if (navigator.share) { await navigator.share({ title: me.b.title + ' · Brodoit', text, url }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
@@ -351,7 +375,7 @@
 
   // what the player is doing (tests, and anything that needs to know whether a lesson is open)
   L.audio = () => (P ? P.audio : null);
-  L.state = () => (P && P.l ? { id: P.id, i: P.i, n: P.l.cards.length, kind: P.l.cards[P.i].kind, playing: !!P.playing, voice: !!P.rec, src: P.audio ? P.audio.src : '', t: P.audio ? P.audio.currentTime : 0, cues: P.rec ? P.rec.cues : null } : null);
+  L.state = () => (P && P.l ? { id: P.id, lang: P.lang, i: P.i, n: P.l.cards.length, kind: P.l.cards[P.i].kind, playing: !!P.playing, voice: !!P.rec, src: P.audio ? P.audio.src : '', t: P.audio ? P.audio.currentTime : 0, cues: P.rec ? P.rec.cues : null } : null);
   // horizontal swipe: the card follows the finger; let go past a third (or flick) to turn it
   function swipe(me) {
     const st = me.el.querySelector('.lz-stage'); let x0 = 0, y0 = 0, t0 = 0, dx = 0, on = false, dir = '';
@@ -420,7 +444,8 @@
       const c = Math.max(0, parseInt(q.get('c'), 10) || 0);
       try { history.replaceState(history.state, '', location.pathname); } catch (e) { /* none */ }
       const t0 = Date.now();
-      const wait = () => { if (L.has(id) && window.BookFull) { try { S.tab = 'books'; render(); } catch (e) { /* none */ } L.open(id, c); } else if (Date.now() - t0 < 15000) setTimeout(wait, 250); };
+      const hl = q.get('hl') === 'hi' ? 'hi' : q.get('hl') === 'en' ? 'en' : undefined;
+      const wait = () => { if (L.has(id) && window.BookFull && HI.loaded) { try { S.tab = 'books'; render(); } catch (e) { /* none */ } L.open(id, c, false, hl); } else if (Date.now() - t0 < 15000) setTimeout(wait, 250); };
       setTimeout(wait, 300);
     }
   } catch (e) { /* no deep link */ }

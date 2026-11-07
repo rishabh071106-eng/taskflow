@@ -20,6 +20,9 @@
 // real person's voice is copied) with a storyteller's settings. Every card is one paragraph of the text; the recording is
 // one mp3 per lesson and keeps where each card starts (cues), so the lesson player turns the cards with the voice. The
 // books' share of the credits is all of them but a small reserve for Bro's live voice (elevenvoice.js RESERVE.books).
+// v37: the Hindi lessons ("lesson-hi-<id>", app/bookfull.js lessonHi() from app/lessons-hi/<id>.json), read as written
+// (already spoken Hindi: numbers in words; spoken.js is for English), split at "।" too, by ElevenLabs' Adam (a deep
+// voice much used for Hindi narration; LESSON_VOICE_HI overrides), after the English lessons.
 //   create({ mediaDir, getSetting, text: id → text | '', ids: () → [id…], fetch?, log?, minFreeBytes? })
 //     → { file(id), ready() → { id: secs }, cues(id) → [secs…] | null, stats(), run() → Promise<number recorded>, start(),
 //         index(), fileByName(name) }
@@ -32,7 +35,9 @@ const { spoken } = require('../scripts/book-voice/spoken.js');
 
 const ID_RE = /^(book|brief|lesson)-[a-z0-9_-]{1,60}$/i;
 // the lessons' storyteller: George (premade), unless Admin sets LESSON_VOICE (a voice id, or brian/adam/daniel/george)
-const GEORGE = 'JBFqnCBsd6RMkjVDRZzb';
+const GEORGE = 'JBFqnCBsd6RMkjVDRZzb', ADAM = 'pNInz6obpgDQGcFmaJgB';
+const isHi = id => /^lesson-hi-/.test(id);
+const words = (id, t) => (isHi(id) ? String(t) : spoken(t)); // what the voice is given
 const NARRATOR = { stability: 0.45, similarity_boost: 0.8, style: 0.3, use_speaker_boost: true, speed: 0.95 };
 const READER = { stability: 0.55, similarity_boost: 0.8, style: 0.1, use_speaker_boost: true, speed: 0.96 };
 const CREDITS = { eleven_multilingual_v2: 1, eleven_v3: 1, eleven_turbo_v2_5: 0.5, eleven_flash_v2_5: 0.5 };
@@ -49,7 +54,7 @@ function parts(chapter) {
   const h = /^(Chapter [a-z]+\. [^.!?]{2,90}[.!?])\s+(.+)$/.exec(p);
   const body = h ? h[2] : p; const out = h ? [{ text: h[1], head: true }] : [];
   let cur = '';
-  for (const s of body.split(/(?<=[.!?])(?<!\b[A-Z]\.)(?<!\bDr\.)\s+/)) {
+  for (const s of body.split(/(?<=[.!?।])(?<!\b[A-Z]\.)(?<!\bDr\.)\s+/)) {
     if (cur && (cur + ' ' + s).length > 900) { out.push({ text: cur }); cur = s; } else cur = (cur + ' ' + s).trim();
   }
   if (cur) out.push({ text: cur });
@@ -102,7 +107,7 @@ function create(o) {
 
   async function record(id, key, voice, model) {
     const text = textOf(id); const hash = textHash(text); const isLesson = id.startsWith('lesson-');
-    const chapters = spoken(text).split(/\n\s*\n/).map(c => c.trim()).filter(Boolean);
+    const chapters = words(id, text).split(/\n\s*\n/).map(c => c.trim()).filter(Boolean);
     const settings = isLesson ? NARRATOR : READER; const cues = [];
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'book-eleven-'));
     try {
@@ -200,7 +205,8 @@ function create(o) {
         if (!key) { st.state = 'off'; st.reason = 'no ElevenLabs key in Admin'; return 0; }
         const model = gs('BOOK_ELEVEN_MODEL') || 'eleven_multilingual_v2';
         const bookVoice = gs('BOOK_ELEVEN_VOICE') || EV.broVoice(gs);
-        const lv = String(gs('LESSON_VOICE') || '').trim(); const lessonVoice = EV.BRO_VOICES[lv.toLowerCase()] || (/^[A-Za-z0-9]{16,40}$/.test(lv) ? lv : GEORGE);
+        const pickV = (k, dflt) => { const v = String(gs(k) || '').trim(); return EV.BRO_VOICES[v.toLowerCase()] || (/^[A-Za-z0-9]{16,40}$/.test(v) ? v : dflt); };
+        const lessonVoice = pickV('LESSON_VOICE', GEORGE), hindiVoice = pickV('LESSON_VOICE_HI', ADAM);
         const sub = await EV.subscription(key, true).catch(() => null);
         st.tier = (sub && sub.tier) || ''; st.left = sub && sub.limit ? Math.max(0, sub.limit - sub.used) : null; st.limit = (sub && sub.limit) || null; st.reset = (sub && sub.reset) || null; st.at = new Date().toISOString();
         if (/^free$/i.test(st.tier)) { st.state = 'waiting'; st.reason = 'the ElevenLabs free plan gives no commercial rights to its audio: a paid plan is needed'; return 0; }
@@ -213,13 +219,13 @@ function create(o) {
         st.state = 'recording'; st.reason = '';
         let thisPass = 0;
         for (const id of todo) {
-          const chars = spoken(textOf(id)).length;
+          const chars = words(id, textOf(id)).length;
           if (!known && doneToday + thisPass >= daily) { st.state = 'waiting'; st.reason = 'the ElevenLabs plan could not be read, so at most ' + daily + ' books a day'; break; }
           if (freeBytes() < minFree + 30 * 1024 * 1024) { st.state = 'waiting'; st.reason = 'the volume is nearly full'; break; }
           const per = CREDITS[model] || 1, b = await EV.budget(key, Math.ceil(chars * per / EV.PER_CHAR()), 'books');
           if (!b.ok) { st.state = 'waiting'; st.reason = b.reason || 'waiting for ElevenLabs credits'; break; }
           try {
-            const it = await record(id, key, id.startsWith('lesson-') ? lessonVoice : bookVoice, model); got++; thisPass++; st.recorded++; st.last = { id, secs: it.secs, at: it.at };
+            const it = await record(id, key, isHi(id) ? hindiVoice : id.startsWith('lesson-') ? lessonVoice : bookVoice, model); got++; thisPass++; st.recorded++; st.last = { id, secs: it.secs, at: it.at };
             log('recorded', id, Math.round(it.secs / 6) / 10, 'min ·', model);
           } catch (e) {
             if (b.hold) EV.release(key, b.hold);
@@ -249,4 +255,4 @@ function create(o) {
   return { file, ready, cues, stats, run: runOnce, start, index, fileByName, dir: () => dir };
 }
 
-module.exports = { create, parts, GEORGE, NARRATOR };
+module.exports = { create, parts, GEORGE, ADAM, NARRATOR };

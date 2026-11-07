@@ -1,5 +1,5 @@
 // v36 News: one story per screen, moved SIDEWAYS (drag the card left for the next story, right for the one before; a
-// Next button with an arrow, Previous, and the arrow keys), Share on every story (the Web Share sheet with the headline,
+// small Next icon inside the story (v37: the story is the whole page; Share and Next are small icons in it), the arrow keys), Share on every story (the Web Share sheet with the headline,
 // one line and https://brodoit.com/n/<id>; else the link is copied), no "Why it matters", only stories with a photo
 // (a photo that fails to load takes its story out, unseen), the whole photo over a blurred copy of itself, credits on
 // every photo, the story fitting its card, seen after 1.5 s, the end card, deep links and Hindi.
@@ -25,7 +25,7 @@ const code = (js + '\n' + css).replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\
 const WHY = /Why it matters|क्यों मायने|nz-why|nowhy|'why'|why_hi/;
 check('"Why it matters" is gone from the News code (the box, its Hindi and the fit step that set it aside)', !WHY.test(code), code.match(WHY));
 check('the deck is no longer the v29 swipe-up deck (no vertical scroll-snap)', !/scroll-snap-type\s*:\s*y/.test(css) && !/scrollTo\(\{\s*top/.test(js));
-check('the app loads News v36 (/app/news.js?v=36, /app/news.css?v=36)', srv.includes('/app/news.js?v=36') && srv.includes('/app/news.css?v=36') && !/\/app\/news\.(js|css)\?v=30/.test(srv));
+check('the app loads News v37 (/app/news.js?v=37, /app/news.css?v=37)', srv.includes('/app/news.js?v=37') && srv.includes('/app/news.css?v=37') && !/\/app\/news\.(js|css)\?v=(30|36)/.test(srv));
 
 // ── the real server, with News Desk stories ──
 const DB = TMP + '/news.db'; fs.copyFileSync(TEMPLATE_DB, DB); for (const x of ['-wal', '-shm']) try { fs.rmSync(DB + x); } catch (e) {}
@@ -102,11 +102,15 @@ try {
     return { fit: getComputedStyle(fg).objectFit, loaded: fg.complete && fg.naturalWidth > 0, same: bg && bg.src === fg.src, blur: bg && /blur/.test(getComputedStyle(bg).filter), credit: cr && cr.textContent, cs: cr && getComputedStyle(cr).color, h: c.querySelector('.nz-img').getBoundingClientRect().height }; });
   check('the photo is shown whole (object-fit: contain) over a blurred copy of itself', ph.fit === 'contain' && ph.loaded && ph.same && ph.blur && ph.h > 150, ph);
   check('…with its credit on it ("Photo: Asha Menon · CC BY-SA 4.0")', ph.credit === 'Photo: Asha Menon · CC BY-SA 4.0', ph.credit);
-  // the bar: Share, Previous, Next; 44 px or more, labelled
-  const bar = await page.evaluate(() => ['nzShare', 'nzPrev', 'nzNext'].map(id => { const b = document.getElementById(id), r = b.getBoundingClientRect(); return { id, w: r.width, h: r.height, label: b.getAttribute('aria-label'), text: b.innerText.trim(), dis: b.disabled, bottom: r.bottom }; }));
-  check('the bar has Share, Previous and Next, each at least 44 px and labelled', bar.every(b => b.w >= 44 && b.h >= 44 && b.label) && bar[0].text === 'Share' && bar[2].text === 'Next' && bar[2].label === 'Next story' && bar[1].label === 'Previous story', bar);
-  check('…Next has an arrow pointing right; Previous is off on the first story', await page.evaluate(() => !!document.querySelector('#nzNext svg.ico-arrow-right')) && bar[1].dis && !bar[2].dis, bar);
-  check('…and sits above the app\'s tab bar, inside the screen', await page.evaluate(b => { const t = document.querySelector('.tabs.page-t'); return b < (t ? t.getBoundingClientRect().top + 1 : innerHeight); }, bar[2].bottom), bar[2].bottom);
+  // v37: the story is the whole page; Share and Next are two small icons inside it (no bar, no Previous button)
+  const bar = await page.evaluate(() => ['nzShare', 'nzNext'].map(id => { const b = document.getElementById(id), r = b.getBoundingClientRect(); return { id, w: r.width, h: r.height, label: b.getAttribute('aria-label'), text: b.innerText.trim(), dis: b.disabled, bottom: r.bottom, right: r.right }; }));
+  const page1 = await page.evaluate(() => { const i = document.querySelector('#nzDeck .nz-card.cur .nz-in'), r = i.getBoundingClientRect(), d = document.getElementById('nzDeck').getBoundingClientRect(); return { w: r.width, vw: innerWidth, radius: getComputedStyle(i).borderTopLeftRadius, prev: !!document.getElementById('nzPrev'), oldBar: !!document.querySelector('.nz-bar'), deckBottom: d.bottom }; });
+  check('the story is the whole page on a phone (edge to edge, no card frame, no button bar)', page1.w === page1.vw && page1.radius === '0px' && !page1.oldBar && !page1.prev, page1);
+  check('…Share and Next are two small round icons (44 px, labelled, no words)', bar.every(b => b.w >= 44 && b.w <= 48 && b.h >= 44 && b.h <= 48 && b.label && b.text === '') && bar[0].label === 'Share this story' && bar[1].label === 'Next story', bar);
+  check('…Next is an arrow pointing right', await page.evaluate(() => !!document.querySelector('#nzNext svg.ico-arrow-right')) && !bar[1].dis, bar);
+  check('…inside the story, at its bottom right, above the app\'s tab bar', await page.evaluate(([b, r]) => { const t = document.querySelector('.tabs.page-t'); return b < (t ? t.getBoundingClientRect().top + 1 : innerHeight) && r > innerWidth - 40; }, [bar[1].bottom, bar[1].right]) && bar[1].bottom <= page1.deckBottom + 1, { bar, page1 });
+  const clear = await page.evaluate(() => { const c = document.querySelector('#nzDeck .nz-card.cur'), b = c.querySelector('.nz-body'), last = [...b.querySelectorAll('.nz-text')].pop(), ic = document.getElementById('nzNext').getBoundingClientRect(); const lr = last.getBoundingClientRect(); return { textBottom: Math.min(lr.bottom, b.getBoundingClientRect().bottom), iconTop: ic.top, scroll: c.classList.contains('scroll') }; });
+  check('…and the story\'s text keeps clear of them', clear.scroll || clear.textBottom <= clear.iconTop + 2, clear);
 
   // Next → the next story comes in from the right
   await page.click('#nzNext'); await sleep(650);
@@ -114,9 +118,9 @@ try {
   const r1 = s.rects;
   check('Next: the next story becomes current, in view, and the first moved off to the LEFT', s.i === 1 && s.cur === s.ids[1] && Math.abs(r1[1].x - s.deck.l) < 2 && r1[0].right <= s.deck.l + 1, { i: s.i, rects: r1.slice(0, 3), deck: s.deck });
   check('…the card after it waits to the RIGHT', r1[2] && r1[2].x >= s.deck.r - 2, r1[2]);
-  await page.click('#nzPrev'); await sleep(650);
+  await page.keyboard.press('ArrowLeft'); await sleep(650);
   s = await state(page);
-  check('Previous brings the first story back', s.i === 0 && s.cur === 'n36land', s.cur);
+  check('Previous (a swipe right, or the left arrow key) brings the first story back', s.i === 0 && s.cur === 'n36land', s.cur);
 
   // a finger: drag left (it follows the finger), let go → next; a short drag springs back; drag right → back
   const cdp = await swipe(ctx, page, -150, 4, { hold: true }); await sleep(80);
@@ -218,7 +222,7 @@ try {
   ({ ctx, page, errs } = await ctxOf({ theme: 'dark', swiped: false }));
   const dk = await page.evaluate(() => ({ bg: getComputedStyle(document.querySelector('#nzDeck .nz-card.cur .nz-in')).backgroundColor, ink: getComputedStyle(document.querySelector('#nzDeck .nz-card.cur h2')).color, next: getComputedStyle(document.getElementById('nzNext')).backgroundColor, hint: document.getElementById('nzNext').classList.contains('hint') }));
   const lum = c => { const m = String(c).match(/\d+(\.\d+)?/g) || [0, 0, 0]; return (0.2126 * m[0] + 0.7152 * m[1] + 0.0722 * m[2]) / 255; };
-  check('dark theme: a dark card, light type and a light Next button', lum(dk.bg) < 0.2 && lum(dk.ink) > 0.8 && lum(dk.next) > 0.8, dk);
+  check('dark theme: a dark page, light type and a light Next icon', lum(dk.bg) < 0.2 && lum(dk.ink) > 0.8 && lum(dk.next) > 0.8, dk);
   check('the first visit hints at the way to go (Next\'s arrow nudges right)', dk.hint, dk);
   if (SHOTS) { await sleep(2600); await page.screenshot({ path: SHOTS + '/story-dark.png' }); await page.evaluate(() => NewsChannel.go(999, true)); await sleep(500); await page.screenshot({ path: SHOTS + '/end-dark.png' }); }
   check('no page errors (dark)', errs.length === 0, errs.slice(0, 3));
@@ -232,8 +236,8 @@ try {
   // ── Hindi ──
   ({ ctx, page, errs } = await ctxOf({ lang: 'hi' }));
   s = await state(page);
-  const hiv = await page.evaluate(() => ({ h: document.querySelector('#nzDeck .nz-card.cur h2').textContent, next: document.getElementById('nzNext').innerText.trim(), share: document.getElementById('nzShare').innerText.trim(), label: document.getElementById('nzNext').getAttribute('aria-label'), text: document.getElementById('app').innerText }));
-  check('Hindi: only the stories written in Hindi, with a photo; Hindi buttons ("अगली", "साझा करें")', s.ids.length === 3 && s.ids.every(id => ['n36land', 'n36port', 'n36sq'].includes(id)) && /[ऀ-ॿ]/.test(hiv.h) && hiv.next === 'अगली' && hiv.share === 'साझा करें' && hiv.label === 'अगली ख़बर', { ids: s.ids, hiv: Object.assign({}, hiv, { text: undefined }) });
+  const hiv = await page.evaluate(() => ({ h: document.querySelector('#nzDeck .nz-card.cur h2').textContent, next: document.getElementById('nzNext').getAttribute('aria-label'), share: document.getElementById('nzShare').getAttribute('aria-label'), label: document.getElementById('nzNext').getAttribute('aria-label'), text: document.getElementById('app').innerText }));
+  check('Hindi: only the stories written in Hindi, with a photo; the icons labelled in Hindi ("अगली ख़बर", "यह ख़बर साझा करें")', s.ids.length === 3 && s.ids.every(id => ['n36land', 'n36port', 'n36sq'].includes(id)) && /[ऀ-ॿ]/.test(hiv.h) && hiv.next === 'अगली ख़बर' && hiv.share === 'यह ख़बर साझा करें', { ids: s.ids, hiv: Object.assign({}, hiv, { text: undefined }) });
   check('…and no "why it matters" in Hindi either', !/क्यों मायने/.test(hiv.text));
   await page.evaluate(() => { window.__shared = []; }); await page.click('#nzShare'); await sleep(300);
   const hs = await page.evaluate(() => window.__shared[0]);

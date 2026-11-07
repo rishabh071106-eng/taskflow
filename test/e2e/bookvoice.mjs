@@ -224,6 +224,17 @@ process.exit(3);
     plan = { tier: 'creator', character_count: 99000, character_limit: 100000 }; calls.length = 0;
     const lw = mkL('lesson-key-2'); await lw.run();
     check('…a lesson that would eat into the last ~1% (kept for Bro\'s live voice) waits', calls.length === 0 && lw.stats().state === 'waiting' && !lw.file(lid), lw.stats());
+    // v37: the Hindi lesson: read as written (no English number words), split at "।", by Adam, with its 18 cues
+    {
+      const BF = require(ROOT + '/app/bookfull.js'); const HIJ = JSON.parse(fs.readFileSync(ROOT + '/app/lessons-hi/atomic.json', 'utf8'));
+      const LH = BF.lessonHi(L0, HIJ); const hid = 'lesson-hi-atomic';
+      fs.rmSync(path.join(cloudDir, 'manifest.json'), { force: true });
+      calls.length = 0; plan = { tier: 'creator', character_count: 0, character_limit: 2000000 };
+      const lhi = BE.create({ mediaDir: fs.mkdtempSync('/tmp/p37hi-'), getSetting: k => ({ ELEVENLABS_API_KEY: 'hindi-key' })[k] || '', text: id => id === hid ? LH.text : '', ids: () => [hid], minFreeBytes: 0, log: () => {} });
+      const gh = await lhi.run(); const hc = lhi.cues(hid); const sentHi = calls.map(c => c.body.text).join(' ');
+      check('a Hindi lesson (lesson-hi-<id>) is recorded by Adam (deep, much used for Hindi narration) as a storyteller, from its own Hindi words, with a cue per card', gh === 1 && calls.length >= 18 && calls.every(c => c.voice === BE.ADAM && c.body.voice_settings.style === 0.3) && Array.isArray(hc) && hc.length === 18 && /रुकिए और सोचिए/.test(sentHi) && /पहला विचार/.test(sentHi) && /साढ़े पाँच बजे/.test(sentHi) && !/[0-9]/.test(sentHi) && !/ five | thirty /i.test(sentHi), { gh, n: calls.length, v: calls[0] && calls[0].voice, hc: hc && hc.length, sample: sentHi.slice(0, 120) });
+      check('…its long cards are split at "।" (no part over ~900 characters)', calls.every(c => c.body.text.length <= 1000), calls.map(c => c.body.text.length));
+    }
     process.env.BOOK_ELEVEN_HOLD = '1'; plan = { tier: 'creator', character_count: 0, character_limit: 100000 }; calls.length = 0;
     const lh = mkL('lesson-key-3'); await lh.run(); process.env.BOOK_ELEVEN_HOLD = '0';
     check('BOOK_ELEVEN_HOLD=1 pauses every ElevenLabs spend (nothing recorded, and it says so)', calls.length === 0 && /held/.test(lh.stats().reason), lh.stats());
