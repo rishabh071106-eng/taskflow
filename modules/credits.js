@@ -2,7 +2,7 @@
 // scripts/fetch-images.js), the voices, and what the books are (v34: no publisher cover art). Linked from the You tab.
 'use strict';
 // v34: what the books are, and whose words are quoted
-const BOOKS = `<h2 style="font:600 18px/1.3 var(--b-sans);margin:28px 0 6px">Books</h2><p>Bro's notes and the stories in every book are written for Brodoit, in Bro's own words: they are not the books, and Brodoit is not linked to, sponsored or endorsed by any author or publisher. Titles and authors' names are used only to say which book is discussed. Book covers are Brodoit's own designs.</p><p>The five public-domain books quote only public-domain translations: Meditations by Marcus Aurelius and the Discourses of Epictetus (George Long, 1862 and 1877), the Tao Te Ching (James Legge, 1891), The Richest Man in Babylon (George S. Clason, 1926) and Letters from a Stoic (Seneca; told in Bro's words). Audiobooks are free public-domain recordings by LibriVox volunteers, played from the Internet Archive.</p>`;
+const BOOKS = `<h2 style="font:600 18px/1.3 var(--b-sans);margin:28px 0 6px">Lessons</h2><p>Every lesson, its notes and its story are written for Brodoit, in Bro's own words: they are not the books, and Brodoit is not linked to, sponsored or endorsed by any author or publisher. Titles and authors' names are used only to say which book is discussed. Covers and lesson pictures are Brodoit's own designs; the people in the pictures are Notionists by Zoish (CC0 1.0), drawn with DiceBear (MIT). Lesson titles are set in DM Serif Display (SIL Open Font License).</p><p>The five public-domain books quote only public-domain translations: Meditations by Marcus Aurelius and the Discourses of Epictetus (George Long, 1862 and 1877), the Tao Te Ching (James Legge, 1891), The Richest Man in Babylon (George S. Clason, 1926) and Letters from a Stoic (Seneca; told in Bro's words).</p>`;
 const fs = require('fs'), path = require('path');
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
@@ -13,7 +13,7 @@ function install(app, deps) {
     let bv = null; try { bv = global._bookVoice ? global._bookVoice.stats() : null; } catch (e) { bv = null; }
     const book = bv && bv.voice ? `Book notes are read by ${esc(bv.voice)}${bv.license ? ' (' + esc(bv.license) + ' licence)' : ''}, recorded by Brodoit. ` : '';
     // v35: the books recorded with ElevenLabs on a paid plan (which grants commercial use of the audio)
-    let el = ''; try { const e = global._bookEleven && global._bookEleven.stats(); if (e && e.ready) el = `${e.ready} of the ${e.total} books are narrated with ElevenLabs (${esc(e.model)}), in Bro's voice, on a paid ElevenLabs plan that licenses the audio for commercial use. `; } catch (x) {}
+    let el = ''; try { const e = global._bookEleven && global._bookEleven.stats(); if (e && e.ready) el = `${e.ready} of the ${e.total} lessons are narrated with ElevenLabs (${esc(e.model)}, the premade storyteller voice George), on a paid ElevenLabs plan that licenses the audio for commercial use. `; } catch (x) {}
     return `<h2 style="font:600 18px/1.3 var(--b-sans);margin:28px 0 6px">Voices</h2><p>${el}${book}Bro's voice is Kokoro-82M (Apache-2.0), running on our own server.</p>` + BOOKS;
   };
   app.get('/credits', (req, res) => {

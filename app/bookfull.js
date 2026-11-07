@@ -68,6 +68,36 @@
     }).join('\n\n');
     return { id: 'book-' + book.id, base: book.id, title: String(book.title || ''), author: String(book.author || ''), hero: { name: clean(hero.name), who }, chapters, text };
   }
-  const api = { compose, paras, NUM };
+  // ── v36: the lesson (owner, 7 Nov: "rename it to lessons … every lesson you click goes inside a different UI … give
+  // image of that person and then put some words under it … keep it for 8 minutes"). The same book, told as 19 cards:
+  // the cover, meet the hero, then for each of the five ideas: the idea (Bro's explanation, its first sentences), the
+  // story (whole: it is the teaching) and the lesson ("Pause and think": the question and the best move read out, the
+  // three choices and the why on the card; "In short"; "Try this today" on the card), how it turned out with Bro's
+  // take, and the end card (the five ideas, a week to live them; nothing read). Each card's narration is one paragraph
+  // of `text`, so a recording knows where every card starts (its cues). ~7,000-7,800 characters: about 8 minutes.
+  //   lesson(book, ideas) -> { id: 'lesson-<id>', base, title, author, hero, cards: [{ kind, say, … }], text } | null
+  function sentences(t) { return (String(t || '').match(/[^.!?]+[.!?]+["'”’)]*\s*/g) || [String(t || '')]).map(x => x.trim()).filter(Boolean); }
+  function upTo(t, max, min) { const ss = sentences(t); let out = ''; let n = 0; for (const x of ss) { if (n >= (min || 1) && (out + ' ' + x).length > max) break; out = (out + ' ' + x).trim(); n++; } return out; }
+  const cap = w => w.charAt(0).toUpperCase() + w.slice(1);
+  function lesson(book, ideas) {
+    const f = compose(book, ideas); if (!f) return null;
+    const ch = f.chapters, cards = [];
+    cards.push({ kind: 'cover', say: ch[0].idea, why: ch[0].idea });
+    cards.push({ kind: 'meet', say: ch[0].meet + ' ' + upTo(ch[0].story, 300, 2), h: ch[0].h, text: upTo(ch[0].story, 300, 2), scene: 0 });
+    for (let k = 1; k <= 5; k++) {
+      const c = ch[k];
+      cards.push({ kind: 'idea', n: k, say: 'Idea ' + NUM[k - 1] + '. ' + stop(c.title) + ' ' + upTo(c.idea, 260, 2), title: c.title, body: upTo(c.idea, 260, 2) });
+      cards.push({ kind: 'story', n: k, say: stop(c.h) + ' ' + c.story, h: c.h, story: c.story, scene: k });
+      const t = c.think;
+      const say = (t ? 'Pause and think. ' + stop(t.q) + ' The best move: ' + stop(t.o[t.a]) + ' ' : '') + (c.take ? 'In short: ' + stop(c.take) : '');
+      cards.push({ kind: 'lesson', n: k, say: say.trim(), think: t || null, take: c.take, tryIt: c.tryIt });
+    }
+    const e = ch[6];
+    cards.push({ kind: 'ending', say: 'How it turned out. ' + stop(e.h) + ' ' + upTo(e.story, 420, 3) + (e.take ? ' In short: ' + stop(e.take) : '') + " Bro's take. " + upTo(e.bro, 230, 2), h: e.h, story: upTo(e.story, 420, 3), take: e.take, bro: upTo(e.bro, 230, 2), scene: 6 });
+    cards.push({ kind: 'end', say: '', recap: e.recap || [], week: e.week || [] });
+    const text = cards.filter(c => c.say).map(c => c.say.replace(/\s+/g, ' ').trim()).join('\n\n');
+    return { id: 'lesson-' + f.base, base: f.base, title: f.title, author: f.author, hero: f.hero, cards, text };
+  }
+  const api = { compose, lesson, paras, NUM };
   if (typeof module === 'object' && module.exports) module.exports = api; else root.BookFull = api;
 })(typeof window !== 'undefined' ? window : globalThis);
