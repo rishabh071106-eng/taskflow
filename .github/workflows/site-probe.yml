@@ -1,4 +1,4 @@
-# Throwaway-branch only: where the Google Play release stands (the closed test for Testers Community).
+# Throwaway-branch only: the launch change is live (tester groups in the Play status, the refreshed beta page).
 name: Site probe
 on:
   push:
@@ -9,13 +9,16 @@ jobs:
   play:
     runs-on: ubuntu-latest
     steps:
-      - name: Play status, the beta page, the testing link
+      - name: Wait for the deploy, then Play status and the beta page
         run: |
           j() { curl -fsS --max-time 20 "https://brodoit.com$1" 2>/dev/null || echo '{}'; }
-          echo "android: $(j /api/android/status | jq -c '{version, build, ready, play: (.play | del(.account))}')"
-          echo "beta page links: $(curl -fsS --max-time 20 https://brodoit.com/beta | grep -oE 'href="https?://[^"]*"' | sort -u | tr '\n' ' ')"
-          echo "beta signups (count only): $(j /api/beta-signup/count | jq -c . 2>/dev/null)"
+          for i in $(seq 1 40); do
+            t=$(j /api/android/status | jq -c '.play.testers // empty' 2>/dev/null)
+            [ -n "$t" ] && break; sleep 30
+          done
+          echo "deployed after ~$((i*30))s"
+          echo "android: $(j /api/android/status | jq -c '{version, ready, play: (.play | del(.account))}')"
+          echo "beta lede: $(curl -fsS --max-time 20 https://brodoit.com/beta | grep -oE '<p class="lede">[^<]*' | head -1)"
+          echo "beta description: $(curl -fsS --max-time 20 https://brodoit.com/beta | grep -oE '<meta name="description" content="[^"]*"' | head -1)"
           echo "Play testing page: $(curl -s -o /dev/null -w '%{http_code}' -L https://play.google.com/apps/testing/com.brodoit.twa)"
           echo "Play store listing: $(curl -s -o /dev/null -w '%{http_code}' 'https://play.google.com/store/apps/details?id=com.brodoit.twa')"
-          echo "the group: $(curl -s -o /dev/null -w '%{http_code}' https://groups.google.com/g/brodoit-testing)"
-          echo "android release (GitHub): $(curl -fsS https://api.github.com/repos/rishabh071106-eng/taskflow/releases?per_page=5 | jq -c '[.[] | {tag: .tag_name, at: .published_at, assets: [.assets[].name]}] | .[0:3]')"
