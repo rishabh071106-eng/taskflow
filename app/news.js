@@ -32,8 +32,11 @@
 //     next story comes in from the right; drag right for the one before. A flick or a third of the width moves on,
 //     less springs back. Arrow keys / PageUp/PageDown / j,k and a sideways trackpad swipe work on a computer. The cards
 //     are placed with transforms (never scroll-snap), so the drag, the buttons and the keys all move the same deck.
-//   - A bar under the card that never moves: Share (the Web Share sheet with the headline, one line and the story's
-//     link https://brodoit.com/n/<id>; without it, the link is copied), Previous, and Next (a labelled arrow).
+//   - v37 (owner, 7 Nov: "keep whole page as news and next option and share should be small icon inside only so that
+//     the experience is seamless"): the story is the whole page (edge to edge on a phone, no card frame, no bar), and
+//     Share and Next are two small round icons inside it, bottom right (the text keeps clear of them); Previous is a
+//     swipe right or the left arrow key. Share = the Web Share sheet with the headline, one line and the story's link
+//     https://brodoit.com/n/<id>; without it, the link is copied.
 //   - Photos: only stories with a photo are shown; a photo that fails to load takes its story out of the deck before
 //     it counts as seen (the next ones are loaded ahead, so a broken one is gone before you reach it). The WHOLE photo
 //     is shown (contained) over a blurred, darkened copy of itself, so portrait and landscape both look right; its
@@ -512,10 +515,10 @@
   N.html = function () {
     const H = hi(), list = N.stories, n = list.length, dv = H ? ' class="dev"' : '';
     const empty = (icon, title, sub) => '<div class="nz"><div class="nz-empty" id="nzEmpty"><span class="nz-emic" aria-hidden="true">' + I(icon, 40, 1.8) + '</span><b' + dv + '>' + title + '</b>' + (sub ? '<span' + dv + '>' + sub + '</span>' : '') + '</div></div>';
-    const bar = on => '<div class="nz-bar" id="nzBar">' +
-      '<button type="button" class="nz-btn nz-share' + (H ? ' dev' : '') + '" id="nzShare" onclick="NewsChannel.share()"' + (on ? '' : ' disabled') + ' aria-label="' + (H ? 'यह ख़बर साझा करें' : 'Share this story') + '">' + I('share-2', 19, 2) + '<span>' + (H ? 'साझा करें' : 'Share') + '</span></button>' +
-      '<button type="button" class="nz-btn nz-prev" id="nzPrev" onclick="NewsChannel.prev()" disabled aria-label="' + (H ? 'पिछली ख़बर' : 'Previous story') + '">' + I('arrow-left', 20, 2.2) + '</button>' +
-      '<button type="button" class="nz-btn nz-next' + (H ? ' dev' : '') + (Date.now() < (N._hintTill || 0) ? ' hint' : '') + '" id="nzNext" onclick="NewsChannel.next()"' + (on ? '' : ' disabled') + ' aria-label="' + (H ? 'अगली ख़बर' : 'Next story') + '"><span>' + (H ? 'अगली' : 'Next') + '</span>' + I('arrow-right', 20, 2.2) + '</button></div>';
+    // v37: two small icons inside the story (bottom right): Share and Next
+    const bar = on => '<div class="nz-fab" id="nzBar">' +
+      '<button type="button" class="nz-ic nz-share" id="nzShare" onclick="NewsChannel.share()"' + (on ? '' : ' disabled') + ' aria-label="' + (H ? 'यह ख़बर साझा करें' : 'Share this story') + '">' + I('share-2', 18, 2.1) + '</button>' +
+      '<button type="button" class="nz-ic nz-next' + (Date.now() < (N._hintTill || 0) ? ' hint' : '') + '" id="nzNext" onclick="NewsChannel.next()"' + (on ? '' : ' disabled') + ' aria-label="' + (H ? 'अगली ख़बर' : 'Next story') + '">' + I('arrow-right', 20, 2.3) + '</button></div>';
     if (!N.loaded) return '<div class="nz"><div class="nz-stage" id="nzStage"><div class="nz-deck" id="nzDeck"><article class="nz-card skel"><div class="nz-in"><div class="nz-img"></div><div class="nz-body"><i></i><i></i><i></i><i></i><i></i></div></div></article></div>' + bar(false) + '</div></div>';
     if (!n && N.err) return empty('wifi-off', H ? 'ख़बरें लोड नहीं हुईं' : 'Couldn’t load the news', H ? 'थोड़ी देर में अपने आप फिर कोशिश होगी' : 'Trying again by itself in a moment');
     if (!n && N.caughtUp) return empty('check-circle', H ? 'आपने सारी ख़बरें देख लीं' : 'You’re all caught up', esc(nextText()));
