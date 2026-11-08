@@ -1,6 +1,7 @@
 {
   "serviceAccountEmail": "play-uploader@brodoit-play-261028.iam.gserviceaccount.com",
   "testerGroups": [
-    "brodoit-testing@googlegroups.com"
+    "brodoit-testing@googlegroups.com",
+    "testers-community@googlegroups.com"
   ]
 }
