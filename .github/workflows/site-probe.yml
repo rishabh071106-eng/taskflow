@@ -1,4 +1,4 @@
-# Throwaway-branch only: the launch change is live (tester groups in the Play status, the refreshed beta page).
+# Throwaway-branch only: Play status check-in (Health apps answered? build up?); the beta page.
 name: Site probe
 on:
   push:
