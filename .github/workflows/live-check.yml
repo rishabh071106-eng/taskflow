@@ -1,5 +1,8 @@
 # Checks brodoit.com every 30 minutes and after each deploy. A failed scheduled run emails the repo owner
 # (GitHub's default), so an outage is noticed within half an hour. Public pages only: no keys, no logins.
+# v40: when brodoit.com is behind main (Railway's GitHub link deployed an older commit late: on 9 Nov 2026 it built
+# a commit 1.5 hours after its push and put it over the newer build), this asks deploy.yml to upload main's head
+# from CI right away (its "force" input), so the site heals itself within half an hour.
 name: Live check
 on:
   schedule:
@@ -10,6 +13,7 @@ on:
 permissions:
   contents: read
   deployments: read
+  actions: write
 jobs:
   live:
     # the mirror repo (brodoit) is not what Railway deploys, so only its scheduled and manual runs check the site
@@ -47,10 +51,17 @@ jobs:
             sleep 30
           done
           [ "$ok" = 1 ] || { echo "::error::brodoit.com/api/health is down"; exit 1; }
+          # v40: heal = ask deploy.yml (force) to upload main's head from CI now; only the deploy repo has Railway
+          heal() {
+            [ "$GITHUB_REPOSITORY" = rishabh071106-eng/taskflow ] || return 0
+            if curl -fsS --max-time 20 -X POST -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/workflows/deploy.yml/dispatches" -d '{"ref":"main","inputs":{"force":"true"}}' > /dev/null
+            then echo "::notice::asked deploy.yml to upload main's head to Railway now ($1)"
+            else echo "::warning::could not start the healing deploy ($1)"; fi
+          }
           # v24: how far brodoit.com is behind main (a deploy that silently stopped shows up the same day)
           if [ -n "$live" ]; then
             behind=$(curl -fsS --max-time 20 -H "Authorization: Bearer $GH_TOKEN" "https://api.github.com/repos/$GITHUB_REPOSITORY/compare/$live...main" | jq -r '.ahead_by // empty' 2>/dev/null || true)
-            if [ -n "$behind" ] && [ "$behind" != 0 ]; then echo "::warning::brodoit.com runs $live, $behind commit(s) behind main"; else echo "brodoit.com runs $live (main)"; fi
+            if [ -n "$behind" ] && [ "$behind" != 0 ]; then echo "::warning::brodoit.com runs $live, $behind commit(s) behind main"; heal "brodoit.com is $behind commit(s) behind main"; else echo "brodoit.com runs $live (main)"; fi
           else echo "::warning::brodoit.com reports no commit in /api/health"; fi
           if [ -n "$want" ] && [ "$live" != "$want" ]; then
             if [ -z "$live" ]; then echo "::warning::/api/health reports no commit; testing whatever is live"
