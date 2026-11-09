@@ -11,7 +11,9 @@
 //   | 'waiting-key-reset' (Play does not accept our upload key yet: the owner's one-time key reset is pending)
 //   | 'needs-declaration' (Play Console wants an App content answer first, e.g. Health apps; only the owner can give it)
 //   | 'uploading' | 'uploaded' | 'error'. The key, tokens and Google's raw replies never leave this module (logs get
-//   Google's message, the status only fixed words).
+//   Google's message, the status only fixed words; v40: an unexplained error also carries Google's sentence as `detail`,
+//   with emails and anything key-shaped blanked). A brand-new app's first release comes back 'uploaded' with a `reason`
+//   naming the one button Play wants pressed in Play Console (Start rollout for a draft release; Send changes for review).
 'use strict';
 const crypto = require('crypto');
 const fs = require('fs');
@@ -99,10 +101,14 @@ function createPlay(o) {
     // Google answers the same 403 for an app that does not exist yet and for one the account is not on
     if (e && (e.status === 401 || e.status === 403) || /permission|caller does not have|not authorized|forbidden/i.test(m)) return { state: 'no-access', reason: 'Play Console has no app ' + pkg + ' for this account yet, or the service account is not on it (Users and permissions)' };
     if (e && e.status === 404 || /not found|no application/i.test(m)) return { state: 'error', reason: 'Play has no app ' + pkg + ' for this account' };
-    return { state: 'error', reason: 'the upload failed; it is tried again within the hour' };
+    // v40: Google's words (no secrets in them: emails and anything key-shaped are blanked) so the owner can see why
+    return { state: 'error', reason: 'the upload failed; it is tried again within the hour', detail: m.replace(/[\w.+-]+@[\w.-]+/g, '…').replace(/[A-Za-z0-9_-]{24,}/g, '…').slice(0, 160) };
   }
 
+  // one edit: insert → upload the bundle → each track → tester groups → commit. Returns the versionCode and the notes a
+  // brand-new app earns on its first release (Play wants a person to press one button in Play Console for each).
   async function upload(b) {
+    const notes = [];
     const edit = await call('POST', `${api}/androidpublisher/v3/applications/${pkg}/edits`, {});
     const up = await call('POST', `${api}/upload/androidpublisher/v3/applications/${pkg}/edits/${encodeURIComponent(edit.id)}/bundles?uploadType=media`, fs.readFileSync(b.aab), 'application/octet-stream');
     const vc = String(up.versionCode || b.versionCode);
@@ -114,12 +120,20 @@ function createPlay(o) {
         if (!/draft/i.test(String(e.message))) throw e;
         rel.releases[0].status = 'draft';
         await call('PUT', `${api}/androidpublisher/v3/applications/${pkg}/edits/${encodeURIComponent(edit.id)}/tracks/${encodeURIComponent(t)}`, rel);
+        if (!notes.length || !/Start rollout/.test(notes[notes.length - 1])) notes.push('a draft release (first release of a new app): Play Console → Testing → Closed testing → ' + t + ' → Review release → Start rollout');
       }
     }
     await addGroups(edit.id);
-    await call('POST', `${api}/androidpublisher/v3/applications/${pkg}/edits/${encodeURIComponent(edit.id)}:commit`);
+    try { await call('POST', `${api}/androidpublisher/v3/applications/${pkg}/edits/${encodeURIComponent(edit.id)}:commit`); }
+    catch (e) {
+      // v40: a new app's changes cannot be sent for review by the API ("set the query parameter changesNotSentForReview to
+      // true"): commit them unsent, and the owner presses "Send changes for review" once in Play Console
+      if (!/changesNotSentForReview/i.test(String(e.message))) throw e;
+      await call('POST', `${api}/androidpublisher/v3/applications/${pkg}/edits/${encodeURIComponent(edit.id)}:commit?changesNotSentForReview=true`);
+      notes.push('the changes are up but not sent for review: Play Console → Publishing overview → Send changes for review');
+    }
     markGroups();
-    return Number(vc);
+    return { vc: Number(vc), note: notes.join('; ') };
   }
   // the tester groups onto each closed track, in an open edit (merged with what is there). A refusal here does not stop
   // the build going up: it is noted and tried again on the next sync.
@@ -169,13 +183,13 @@ function createPlay(o) {
       }
       Object.assign(st, { state: 'uploading', pending: b.versionCode, tried_at: new Date(now()).toISOString() }); save();
       try {
-        const vc = await upload(b);
-        Object.assign(st, { state: 'uploaded', reason: '', uploaded: Math.max(vc, b.versionCode), tracks: tracks(), uploaded_at: new Date(now()).toISOString(), pending: null });
-        log('uploaded', pkg, 'versionCode', b.versionCode, 'to', tracks().join(' + '));
+        const r = await upload(b);
+        Object.assign(st, { state: 'uploaded', reason: r.note || '', detail: '', uploaded: Math.max(r.vc, b.versionCode), tracks: tracks(), uploaded_at: new Date(now()).toISOString(), pending: null });
+        log('uploaded', pkg, 'versionCode', b.versionCode, 'to', tracks().join(' + '), r.note ? '(' + r.note + ')' : '');
       } catch (e) {
         const c = classify(e);
-        if (c.state === 'uploaded') Object.assign(st, { state: 'uploaded', reason: '', uploaded: b.versionCode, pending: null });
-        else Object.assign(st, c, { pending: b.versionCode });
+        if (c.state === 'uploaded') Object.assign(st, { state: 'uploaded', reason: '', detail: '', uploaded: b.versionCode, pending: null });
+        else Object.assign(st, { detail: '' }, c, { pending: b.versionCode });
         log('upload of versionCode', b.versionCode, '→', st.state + ':', String(e && e.message || e).slice(0, 300));
         if (e && e.step === 'token') tok = null;
       }
@@ -184,7 +198,7 @@ function createPlay(o) {
     return running;
   }
   // testers: the groups wanted on the closed tracks and whether Play has them (Google's message stays in the log)
-  const status = () => ({ state: st.state || (account().error === 'missing' ? 'no-account' : 'waiting'), versionCode: st.uploaded || null, pending: st.pending || null, tracks: st.tracks || tracks(), reason: st.reason || '', at: st.uploaded_at || st.tried_at || null, package: pkg,
+  const status = () => ({ state: st.state || (account().error === 'missing' ? 'no-account' : 'waiting'), versionCode: st.uploaded || null, pending: st.pending || null, tracks: st.tracks || tracks(), reason: st.reason || '', detail: st.detail || '', at: st.uploaded_at || st.tried_at || null, package: pkg,
     testers: { groups: groups(), on: closedTracks(), done: groups().length ? groupsDone() : true } });
   // Admin: does this pasted key work? (a token is enough; access to the app shows on the first upload)
   async function verify(raw) {
