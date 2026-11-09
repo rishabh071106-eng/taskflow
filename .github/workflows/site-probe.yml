@@ -13,12 +13,15 @@ jobs:
         run: |
           j() { curl -fsS --max-time 20 "https://brodoit.com$1" 2>/dev/null || echo '{}'; }
           for i in $(seq 1 40); do
-            t=$(j /api/android/status | jq -c '.play.testers // empty' 2>/dev/null)
-            [ -n "$t" ] && break; sleep 30
+            t=$(j /api/android/status | jq -r '.play.package // empty' 2>/dev/null)
+            [ "$t" = com.brodoit.android ] && break; sleep 30
           done
           echo "deployed after ~$((i*30))s"
           echo "android: $(j /api/android/status | jq -c '{version, ready, play: (.play | del(.account))}')"
           echo "beta lede: $(curl -fsS --max-time 20 https://brodoit.com/beta | grep -oE '<p class="lede">[^<]*' | head -1)"
           echo "beta description: $(curl -fsS --max-time 20 https://brodoit.com/beta | grep -oE '<meta name="description" content="[^"]*"' | head -1)"
-          echo "Play testing page: $(curl -s -o /dev/null -w '%{http_code}' -L https://play.google.com/apps/testing/com.brodoit.twa)"
-          echo "Play store listing: $(curl -s -o /dev/null -w '%{http_code}' 'https://play.google.com/store/apps/details?id=com.brodoit.twa')"
+          echo "delete-account page: $(curl -s -o /dev/null -w '%{http_code}' https://brodoit.com/delete-account)"
+          echo "privacy links deletion: $(curl -fsS --max-time 20 https://brodoit.com/privacy | grep -c 'delete-account')"
+          echo "beta opt-in link: $(curl -fsS --max-time 20 https://brodoit.com/beta | grep -oE 'play.google.com/apps/testing/[a-z.]+' | head -1)"
+          echo "Play testing page (new): $(curl -s -o /dev/null -w '%{http_code}' -L https://play.google.com/apps/testing/com.brodoit.android)"
+          echo "Play testing page (old): $(curl -s -o /dev/null -w '%{http_code}' -L https://play.google.com/apps/testing/com.brodoit.twa)"
