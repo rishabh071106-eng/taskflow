@@ -11,12 +11,25 @@ fails=0
 ok() { echo "ok   $1"; }
 bad() { echo "FAIL $1"; fails=$((fails + 1)); }
 shot() { adb exec-out screencap -p > "$OUT/$1.png" 2>/dev/null || true; }
-# the screen as text (uiautomator); a dump sometimes fails mid-animation, so a few tries
+front() { adb shell dumpsys activity activities | grep -E 'ResumedActivity' | head -1; }
+# the screen as text (uiautomator); a dump sometimes fails mid-animation, so a few tries. When it keeps failing, say
+# once what uiautomator said and what is in front (some emulator images leave a window out of the tree).
 dump() {
   for _ in 1 2 3 4 5; do
-    adb shell uiautomator dump /sdcard/ui.xml > /dev/null 2>&1 && adb exec-out cat /sdcard/ui.xml > "$OUT/ui.xml" 2>/dev/null && grep -q '<node' "$OUT/ui.xml" && return 0
+    adb shell uiautomator dump /sdcard/ui.xml > "$OUT/dump.txt" 2>&1 && adb exec-out cat /sdcard/ui.xml > "$OUT/ui.xml" 2>/dev/null && grep -q '<node' "$OUT/ui.xml" && return 0
     sleep 2
   done
+  [ -n "${dump_said:-}" ] || { dump_said=1; echo "     (uiautomator dump: $(tr -d '\r' < "$OUT/dump.txt" | tail -1 | cut -c1-160); front: $(front | cut -c1-120))"; }
+  return 1
+}
+# the Physical activity dialog: Allow in the UI tree. On images where the dialog is in front but missing from the tree
+# (API 35, Nov 2026), grant it the adb way and close the dialog; the app opens the page after a decline as well.
+allow_activity() {
+  { tap 'permission_allow_button' || tap 'Allow'; } && return 0
+  if front | grep -q 'GrantPermissionsActivity'; then
+    adb shell pm grant "$PKG" android.permission.ACTIVITY_RECOGNITION > /dev/null 2>&1; adb shell input keyevent KEYCODE_BACK; sleep 2
+    echo "     (Allow given the adb way: the dialog is in front but not in the UI tree)"; return 0
+  fi
   return 1
 }
 # wait until the screen shows text matching $1 (case-insensitive), up to $2 seconds
@@ -44,17 +57,18 @@ adb shell am start -W -n "$PKG/$PKG.LauncherActivity" > "$OUT/start.txt" 2>&1
 # a slow emulator can show Chrome's first-run screen first: wait longer, and step back past it once
 asked=0
 wait_for 'physical activity' 120 && asked=1
-if [ "$asked" = 0 ] && adb shell dumpsys activity activities | grep -E 'ResumedActivity' | head -1 | grep -qi 'firstrun'; then
+if [ "$asked" = 0 ] && front | grep -qi 'firstrun'; then
   adb shell input keyevent KEYCODE_BACK; sleep 3; wait_for 'physical activity' 60 && asked=1
 fi
-[ "$asked" = 1 ] && ok "first open asks for Physical activity" || bad "no Physical activity request on first open"
+# the dialog in front counts too: on some images it never appears in the UI tree
+[ "$asked" = 0 ] && front | grep -q 'GrantPermissionsActivity' && asked=2
+case $asked in 1) ok "first open asks for Physical activity";; 2) ok "first open asks for Physical activity (the dialog is in front; this image keeps it out of the UI tree)";; *) bad "no Physical activity request on first open (front: $(front | cut -c1-120))";; esac
 shot 1-permission
-tap 'permission_allow_button' || tap 'Allow' || bad "could not tap Allow"
+allow_activity || bad "could not tap Allow"
 sleep 3
 adb shell dumpsys package "$PKG" | grep -q 'android.permission.ACTIVITY_RECOGNITION: granted=true' && ok "Physical activity allowed" || bad "Physical activity not granted"
 
 # then brodoit.com opens inside the app (a Trusted Web Activity; with this test key the browser shows the address)
-front() { adb shell dumpsys activity activities | grep -E 'ResumedActivity' | head -1; }
 opened=0
 for _ in $(seq 1 30); do
   if dump && grep -qi 'brodoit' "$OUT/ui.xml"; then opened=1; break; fi
