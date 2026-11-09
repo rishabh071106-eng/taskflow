@@ -24,5 +24,5 @@ jobs:
           echo "review sign-in: $(curl -fsS --max-time 20 -X POST -H 'Content-Type: application/json' -d '{"email":"reviewer@brodoit.com"}' https://brodoit.com/api/send-otp-email)"
           echo "privacy links deletion: $(curl -fsS --max-time 20 https://brodoit.com/privacy | grep -c 'delete-account')"
           echo "beta opt-in link: $(curl -fsS --max-time 20 https://brodoit.com/beta | grep -oE 'play.google.com/apps/testing/[a-z.]+' | head -1)"
-          echo "Play testing page (new): $(curl -s -o /dev/null -w '%{http_code}' -L https://play.google.com/apps/testing/com.brodoit.android)"
+          echo "Play testing page (new): $(curl -s -o /dev/null -w '%{http_code}' -L https://play.google.com/apps/testing/com.brodoit.android) :: $(curl -sL --max-time 20 https://play.google.com/apps/testing/com.brodoit.android | grep -oiE '<title>[^<]*|become a tester|not available|isn.t available|no longer available|download it on google play' | head -3 | tr '\n' ' ')"
           echo "Play testing page (old): $(curl -s -o /dev/null -w '%{http_code}' -L https://play.google.com/apps/testing/com.brodoit.twa)"
