@@ -293,3 +293,16 @@ can take 2 weeks and reset goodwill.
 
 That's everything operational. The remaining work is people-work,
 not code-work.
+
+## v40 · Store listing assets (November 2026, the fresh `com.brodoit.android` listing)
+
+In `store/play/`, made from the running app (signed in as the review account) and the v39 icon:
+
+| File | Use in Play Console |
+|---|---|
+| `Brodoit-icon-512.png` | App icon, 512×512, square corners, no transparency |
+| `Brodoit-feature-graphic-1024x500.png` | Feature graphic |
+| `Brodoit-screenshot-1-lessons-1080x1920.png` … `4-learn` | Phone screenshots (Lessons, Bro, Steps, Learn), 9:16 |
+
+Short description: *8-minute story lessons from great books, in English and Hindi. News in photos, streak, tasks, steps.*
+Category Education · contact hello@brodoit.com · privacy https://brodoit.com/privacy · deletion https://brodoit.com/delete-account.
