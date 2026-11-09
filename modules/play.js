@@ -96,7 +96,8 @@ function createPlay(o) {
       const what = /health/i.test(m) ? 'Health apps' : /data safety/i.test(m) ? 'Data safety' : /rating/i.test(m) ? 'Content rating' : /target audience|children|famil/i.test(m) ? 'Target audience and content' : /\bads\b/i.test(m) ? 'Ads' : 'App content';
       return { state: 'needs-declaration', reason: 'Play Console is waiting for the "' + what + '" answer (Policy and programs → App content); the build goes up by itself within 10 minutes of it' };
     }
-    if (e && (e.status === 401 || e.status === 403) || /permission|caller does not have|not authorized|forbidden/i.test(m)) return { state: 'no-access', reason: 'the service account has no access to this app in Play Console' };
+    // Google answers the same 403 for an app that does not exist yet and for one the account is not on
+    if (e && (e.status === 401 || e.status === 403) || /permission|caller does not have|not authorized|forbidden/i.test(m)) return { state: 'no-access', reason: 'Play Console has no app ' + pkg + ' for this account yet, or the service account is not on it (Users and permissions)' };
     if (e && e.status === 404 || /not found|no application/i.test(m)) return { state: 'error', reason: 'Play has no app ' + pkg + ' for this account' };
     return { state: 'error', reason: 'the upload failed; it is tried again within the hour' };
   }
