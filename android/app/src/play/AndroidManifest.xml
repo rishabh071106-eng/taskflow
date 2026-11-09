@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The Google Play build (com.brodoit.twa: only the package name is from its TWA days, Play never lets it change)
-     runs brodoit.com in its own WebView (WebAppActivity). It has no Trusted Web Activity at all: the TWA launcher, its
+<!-- The Google Play build (com.brodoit.android; the first listing, com.brodoit.twa, kept a name from its TWA days
+     that Play never lets change and tester communities refuse) runs brodoit.com in its own WebView (WebAppActivity). It has no Trusted Web Activity at all: the TWA launcher, its
      Chrome services and the androidbrowserhelper library are in the direct flavor only (src/direct). -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">

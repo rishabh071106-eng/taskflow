@@ -28,8 +28,8 @@
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
   const reduced = () => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } };
   const isHi = () => { try { return document.documentElement.lang === 'hi' || localStorage.getItem('bd_lang') === 'hi'; } catch (e) { return document.documentElement.lang === 'hi'; } };
-  // which Brodoit app opened us: com.brodoit.twa (Google Play) or com.brodoit.app (brodoit.com/android), from the TWA's referrer
-  const twaPkg = () => { const m = /^android-app:\/\/(com\.brodoit\.(?:twa|app))\b/.exec(document.referrer || ''); try { if (m) localStorage.setItem('bd_twa_pkg', m[1]); return m ? m[1] : (localStorage.getItem('bd_twa_pkg') || 'com.brodoit.app'); } catch (e) { return m ? m[1] : 'com.brodoit.app'; } };
+  // which Brodoit app opened us: com.brodoit.android (Google Play; com.brodoit.twa before v40) or com.brodoit.app (brodoit.com/android), from the TWA's referrer
+  const twaPkg = () => { const m = /^android-app:\/\/(com\.brodoit\.(?:android|twa|app))\b/.exec(document.referrer || ''); try { if (m) localStorage.setItem('bd_twa_pkg', m[1]); return m ? m[1] : (localStorage.getItem('bd_twa_pkg') || 'com.brodoit.app'); } catch (e) { return m ? m[1] : 'com.brodoit.app'; } };
   const isTWA = () => { try { if (localStorage.getItem('bd_twa') === '1') return true; } catch (e) {} twaPkg(); const r = /^android-app:\/\/com\.brodoit\./.test(document.referrer || ''); const q = /[?&](bd=|twa=1|device_id=)/.test(location.search || ''); if (r || q) { try { localStorage.setItem('bd_twa', '1'); } catch (e) {} } return r || q; };
   const UA = () => navigator.userAgent || '';
   const isIOS = () => /iPhone|iPad|iPod/i.test(UA()) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);

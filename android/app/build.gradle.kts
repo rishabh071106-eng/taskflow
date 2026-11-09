@@ -23,12 +23,14 @@ android {
         manifestPlaceholders["siteHost"] = siteUrl.removePrefix("https://").removePrefix("http://").trimEnd('/')
     }
 
-    // direct: the APK served at brodoit.com/android (sideload). play: the bundle for the existing Play listing.
+    // direct: the APK served at brodoit.com/android (sideload). play: the bundle for the Google Play listing
+    // (com.brodoit.android: the first listing, com.brodoit.twa, keeps a name Play never lets change and tester
+    // communities refuse on sight, so it stays empty and Play gets a fresh app under this name).
     flavorDimensions += "store"
     productFlavors {
         // direct: a Trusted Web Activity. play: brodoit.com in the app's own WebView (WebAppActivity, src/play manifest)
         create("direct") { dimension = "store"; applicationId = "com.brodoit.app"; resValue("string", "app_activity", "com.brodoit.app.LauncherActivity") }
-        create("play") { dimension = "store"; applicationId = "com.brodoit.twa"; resValue("string", "app_activity", "com.brodoit.app.WebAppActivity") }
+        create("play") { dimension = "store"; applicationId = "com.brodoit.android"; resValue("string", "app_activity", "com.brodoit.app.WebAppActivity") }
     }
 
     buildTypes {

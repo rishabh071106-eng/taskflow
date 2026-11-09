@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# The Google Play build (com.brodoit.twa) on an emulator, the way a tester meets it (run by .github/workflows/android.yml):
+# The Google Play build (com.brodoit.android) on an emulator, the way a tester meets it (run by .github/workflows/android.yml):
 #   install → first open asks for Physical activity → Allow → brodoit.com opens inside the app's own WebView
 #   (WebAppActivity, not Chrome) → a periodic sync job is scheduled → https://brodoit.com links and the
 #   brodoit://enable deep link open in the app → without internet the app shows its own "You're offline" screen,
 #   and "Try again" brings the page back → nothing crashed.
 #   bash android-smoke-play.sh <apk> <out dir>
 set -u
-APK="$1"; OUT="$2"; PKG=com.brodoit.twa; ACT=com.brodoit.app.WebAppActivity
+APK="$1"; OUT="$2"; PKG=com.brodoit.android; ACT=com.brodoit.app.WebAppActivity
 mkdir -p "$OUT"
 fails=0
 ok() { echo "ok   $1"; }

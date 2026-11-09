@@ -10,7 +10,8 @@
 //   GET /download/play-api-cert.pem       the certificate of the key Play uploads are signed in with (public; given to the
 //                                         Google Cloud service account; its private key stays in MEDIA_DIR/android/play-api)
 // v19: the release holds two flavors of one build: the APK is com.brodoit.app (sideload, above) and the bundle is
-// com.brodoit.twa, the existing Google Play listing, which modules/play.js uploads to Play's testing tracks.
+// com.brodoit.android (v40; com.brodoit.twa until then), the Google Play listing, which modules/play.js uploads to
+// Play's testing tracks.
 //   POST /api/admin/android/check  (admin) look for a new build now
 //   GET  /api/admin/android/keystore (admin) backup of the upload key (needed once for Play Console)
 'use strict';

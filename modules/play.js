@@ -1,4 +1,5 @@
-// Brodoit on Google Play: uploads the bundle the server signed (com.brodoit.twa, the existing Play listing) to Play's
+// Brodoit on Google Play: uploads the bundle the server signed (com.brodoit.android; the first listing, com.brodoit.twa,
+// kept a name Play never lets change and tester communities refuse, so it stays empty) to Play's
 // testing tracks through the Google Play Developer API, as the service account the owner gave in Admin
 // (PLAY_SERVICE_ACCOUNT_JSON), or as the uploader account whose key the server made itself: its email
 // (PLAY_SERVICE_ACCOUNT_EMAIL or config/play.json) plus the server's own private key (ownKey; only the public certificate
@@ -16,7 +17,7 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 
-const PKG = 'com.brodoit.twa';
+const PKG = 'com.brodoit.android';
 const SCOPE = 'https://www.googleapis.com/auth/androidpublisher';
 const TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const API = 'https://androidpublisher.googleapis.com';
