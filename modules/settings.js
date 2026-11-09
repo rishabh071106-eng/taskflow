@@ -30,6 +30,9 @@ const KEYS = [
   'PLAY_TESTER_GROUPS',
   // v20 Bro's voice style on our CPU (modules/brocore/voice.js STYLES): energetic (default) | bright | deep
   'BRO_VOICE_STYLE',
+  // v40 the review account for Google Play / Testers Community: this email signs in with this fixed 6-digit code
+  // (made once at boot, shown in Admin), no email delivery needed
+  'REVIEW_LOGIN_EMAIL', 'REVIEW_LOGIN_CODE',
 ];
 
 // "sk-…k9Qz" — enough to recognise a key, never enough to use it.

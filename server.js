@@ -207,10 +207,16 @@ app.post('/api/logout',(req,res)=>{
 });
 
 // ═══ OTP AUTH ═══
+// v40 the review account for Google Play / Testers Community (their reviewers cannot read our emails): REVIEW_LOGIN_EMAIL
+// (default reviewer@brodoit.com) signs in with the fixed 6-digit REVIEW_LOGIN_CODE (Admin → settings; made once at boot and
+// shown in Admin). Its code is stored like any other and lasts 24 h; nothing is emailed. Off until a code exists.
+function _reviewLogin(){try{const g=global._getSetting;if(!g)return null;const email=String(g('REVIEW_LOGIN_EMAIL')||'reviewer@brodoit.com').trim().toLowerCase();const code=String(g('REVIEW_LOGIN_CODE')||'').trim();return/^\d{6}$/.test(code)&&isEmail(email)?{email,code}:null}catch(e){return null}}
 // Email OTP
 app.post('/api/send-otp-email',async(req,res)=>{
   const email=(req.body.email||'').trim().toLowerCase();
   if(!isEmail(email))return res.status(400).json({error:'Invalid email address'});
+  const rv=_reviewLogin();
+  if(rv&&email===rv.email){db.prepare('INSERT OR REPLACE INTO otps(phone,code,expires_at)VALUES(?,?,?)').run('em:'+email,rv.code,new Date(Date.now()+24*3600*1000).toISOString());return res.json({ok:true,message:'Enter the review code'})}
   if(rateLimited('em:'+email))return res.status(429).json({error:'Too many requests. Try again in 10 minutes.'});
   const code=genOTP();
   const expires=new Date(Date.now()+5*60*1000).toISOString();
@@ -268,6 +274,59 @@ app.post('/api/verify-otp',(req,res)=>{
   else{token=user.token||genToken();db.prepare('UPDATE users SET token=?,name=COALESCE(NULLIF(?,\'\'),name)WHERE phone=?').run(token,name,phone);user.token=token;if(name)user.name=name}
   setTokenCookie(res,token);
   res.json({phone:user.phone,name:user.name||name,token});
+});
+
+// ═══ v40 ACCOUNT DELETION (self-serve; Google Play's Data safety form needs a web page for it) ═══
+// Every row that belongs to the user in any table, found by the owner columns our tables use, then the user row itself
+// (users.phone is the key: 'em:<email>' for email sign-ins, the number for phone sign-ins). One transaction.
+function _deleteUserEverywhere(key){
+  const cols=['user_phone','phone','author_phone','friend_phone','reporter','target','inviter','invitee'];
+  const tables=db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'").all().map(r=>r.name);
+  const out={};
+  const tx=db.transaction(()=>{
+    try{const r=db.prepare('DELETE FROM meeting_voices WHERE meeting_id IN (SELECT id FROM meetings WHERE user_phone=?)').run(key);if(r.changes)out.meeting_voices=r.changes}catch(e){}
+    for(const t of tables){
+      let info;try{info=db.prepare('PRAGMA table_info("'+t.replace(/"/g,'')+'")').all()}catch(e){continue}
+      for(const c of info.map(c=>c.name).filter(c=>cols.includes(c))){
+        try{const r=db.prepare('DELETE FROM "'+t.replace(/"/g,'')+'" WHERE "'+c+'"=?').run(key);if(r.changes)out[t]=(out[t]||0)+r.changes}catch(e){}
+      }
+    }
+    const em=key.startsWith('em:')?key.slice(3):'';
+    if(em){for(const t of['beta_signups','google_tokens']){try{const r=db.prepare('DELETE FROM '+t+' WHERE email=?').run(em);if(r.changes)out[t]=(out[t]||0)+r.changes}catch(e){}}}
+    db.prepare('DELETE FROM users WHERE phone=?').run(key);
+  });
+  tx();return out;
+}
+app.get('/delete-account',(_,res)=>{
+  res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Delete your account — Brodoit</title><meta name="description" content="Delete your Brodoit account and everything it holds, in one minute, from here."><style>input,button{font:inherit}input{width:100%;padding:14px 16px;border:1px solid #d7d3d3;background:#fff;margin-top:14px;font-size:16px;letter-spacing:.02em}button{margin-top:14px;padding:14px 22px;border:0;background:#201e1d;color:#fff;font-weight:600;cursor:pointer}button[disabled]{opacity:.5;cursor:default}.msg{margin-top:16px;font-size:15px}.err{color:#a33}.ok{color:#1F4D3F}</style></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Account</div><h1>Delete your account.</h1><p class="lede">This removes your account and everything it holds: tasks, notes, lesson and news progress, streaks, steps, messages, reminders and sign-in tokens. It takes effect immediately and cannot be undone.</p><hr class="hr"><h2 data-n="01">Confirm it is you</h2><p>Enter the email you sign in with. We send a 6-digit code there; enter it below and your account is gone.</p><form id="f1"><input id="em" type="email" autocomplete="email" placeholder="you@example.com" required><button id="b1" type="submit">Send me the code</button></form><form id="f2" style="display:none"><input id="code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="6-digit code" required><button id="b2" type="submit">Delete my account now</button></form><div id="msg" class="msg"></div><h2 data-n="02">Signed in on this device?</h2><p>You can also delete without a code: <button id="b3" type="button">Delete the account I am signed in as</button></p><div id="msg3" class="msg"></div><div class="note">Phone-number sign-ins and anything else: email <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> and we delete it by hand within seven days. See the <a href="/privacy">privacy policy</a>.</div>${LEGAL_FOOT}</div><script>
+const $=id=>document.getElementById(id);const say=(el,t,ok)=>{el.textContent=t;el.className='msg '+(ok?'ok':'err')};
+const post=(u,b)=>fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)}).then(r=>r.json()).catch(()=>({error:'Network error'}));
+$('f1').onsubmit=async e=>{e.preventDefault();$('b1').disabled=true;const r=await post('/api/send-otp-email',{email:$('em').value.trim()});$('b1').disabled=false;if(r.ok){$('f2').style.display='block';say($('msg'),'Code sent. Check your inbox (and spam).',true);$('code').focus()}else say($('msg'),r.error||'Could not send the code')};
+$('f2').onsubmit=async e=>{e.preventDefault();if(!confirm('Delete this account and all its data for good?'))return;$('b2').disabled=true;const r=await post('/api/account/delete',{email:$('em').value.trim(),code:$('code').value.trim()});$('b2').disabled=false;if(r.ok){$('f2').style.display='none';say($('msg'),'Done. Your account and its data are deleted.',true);try{localStorage.clear()}catch(e){}}else say($('msg'),r.error||'Could not delete')};
+$('b3').onclick=async()=>{if(!confirm('Delete the account you are signed in as, with all its data, for good?'))return;$('b3').disabled=true;const h={'Content-Type':'application/json'};try{const t=localStorage.getItem('tf_token');if(t)h['x-token']=t}catch(e){}const r=await fetch('/api/account/delete',{method:'POST',headers:h,body:'{}'}).then(r=>r.json()).catch(()=>({error:'Network error'}));$('b3').disabled=false;if(r.ok){say($('msg3'),'Done. Your account and its data are deleted.',true);try{localStorage.clear()}catch(e){}}else say($('msg3'),r.error||'Could not delete')};
+</script></body></html>`);
+});
+app.post('/api/account/delete',(req,res)=>{
+  const email=String(req.body&&req.body.email||'').trim().toLowerCase(),code=String(req.body&&req.body.code||'').trim();
+  let key='';
+  if(email||code){
+    if(!isEmail(email))return res.status(400).json({error:'Invalid email'});
+    const k='em:'+email,otp=db.prepare('SELECT * FROM otps WHERE phone=?').get(k);
+    if(!otp||otp.code!==code)return res.status(400).json({error:'Wrong or missing code. Request a new one.'});
+    if(new Date(otp.expires_at)<new Date())return res.status(400).json({error:'Code expired. Request a new one.'});
+    key=k;
+  }else{
+    let t=req.headers['x-token']||'';if(!t){try{const m=(req.headers.cookie||'').match(/tf_token=([^;]+)/);if(m)t=decodeURIComponent(m[1])}catch(e){}}
+    const u=t?db.prepare('SELECT phone FROM users WHERE token=?').get(t):null;
+    if(!u)return res.status(401).json({error:'Sign in first, or enter your email and the code we sent'});
+    key=u.phone;
+  }
+  const rv=_reviewLogin();if(rv&&key==='em:'+rv.email)return res.status(400).json({error:'The review account stays'});
+  let removed;
+  try{removed=_deleteUserEverywhere(key)}catch(e){console.log('[account] delete failed:',e.message);return res.status(500).json({error:'Could not delete right now. Email hello@brodoit.com and we will do it by hand.'})}
+  res.append('Set-Cookie','tf_token=; Path=/; Max-Age=0; SameSite=Lax; HttpOnly'+_secureCookie);
+  console.log('[account] deleted a',key.startsWith('em:')?'email':'phone','user:',Object.keys(removed).length,'tables touched');
+  res.json({ok:true,removed});
 });
 
 // ═══ AI CHAT — Multi-provider (Gemini Flash free → Groq free → failover) ═══
@@ -17704,7 +17763,7 @@ function copyShare(){
 });
 
 app.get('/privacy',(_,res)=>{
-  res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Privacy Policy — Brodoit</title><meta name="description" content="What Brodoit collects, why, and your rights. Plain-English privacy policy."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Privacy</div><h1>Privacy, plainly.</h1><p class="lede">We built Brodoit to be a calm, private place. This page explains exactly what we collect, why, and what we will never do. No dark patterns, no fine print.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">What we collect</h2><ul><li><strong>Email address</strong> or <strong>phone number</strong> — used only to authenticate you via a one-time verification code.</li><li><strong>Your name</strong> — displayed in your profile screen.</li><li><strong>Your tasks, notes, due dates, reminders</strong> — stored so we can show them back to you and send reminders on the times you set.</li><li><strong>Session token</strong> — a random string stored in your browser so you stay logged in.</li></ul><div class="note">We do <strong>not</strong> collect: your location, your contacts, advertising IDs, device IDs, photos, payment info, or any data we don't explicitly list above.</div><h2 data-n="02">How we use it</h2><ul><li>Deliver one-time verification codes by email.</li><li>Show your tasks, books, and other content you've created.</li><li>Send reminders at the times you set.</li></ul><h2 data-n="03">Who we share with</h2><p>We share data only with the following service providers, strictly to operate the service:</p><ul><li><strong>Resend</strong> — to deliver verification emails (<a href="https://resend.com/privacy">privacy policy</a>).</li><li><strong>Railway</strong> — our hosting provider (<a href="https://railway.app/legal/privacy">privacy policy</a>).</li><li><strong>Internet Archive (LibriVox)</strong> — we fetch public-domain audiobook metadata. No personal data is sent.</li></ul><div class="note">We never sell your data. We never show ads. We never track you across other apps or sites.</div><h2 data-n="04">Data retention</h2><p>Your tasks and account persist until you delete them or ask us to delete your account. Verification codes expire after 5 minutes and are wiped after use.</p><h2 data-n="05">Your rights</h2><p>Email <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> any time to export your data, correct it, or permanently delete your account. We respond within seven days.</p><h2 data-n="06">Children</h2><p>Brodoit is not directed at children under 13. We do not knowingly collect data from children under 13. If you believe we have, please contact us and we will delete it immediately.</p><h2 data-n="07">Changes</h2><p>If we make material changes, we'll update the date at the top of this page and notify you by email if we have your address.</p><h2 data-n="08">Contact</h2><p>Questions about anything on this page? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
+  res.type('html').send(`<!DOCTYPE html><html lang="en"><head>${LEGAL_CHROME}<title>Privacy Policy — Brodoit</title><meta name="description" content="What Brodoit collects, why, and your rights. Plain-English privacy policy."></head><body><div class="wrap"><a class="crumb" href="/">← Back to Brodoit</a><div class="kicker">Legal · Privacy</div><h1>Privacy, plainly.</h1><p class="lede">We built Brodoit to be a calm, private place. This page explains exactly what we collect, why, and what we will never do. No dark patterns, no fine print.</p><span class="updated">Last updated · April 2026</span><hr class="hr"><h2 data-n="01">What we collect</h2><ul><li><strong>Email address</strong> or <strong>phone number</strong> — used only to authenticate you via a one-time verification code.</li><li><strong>Your name</strong> — displayed in your profile screen.</li><li><strong>Your tasks, notes, due dates, reminders</strong> — stored so we can show them back to you and send reminders on the times you set.</li><li><strong>Session token</strong> — a random string stored in your browser so you stay logged in.</li><li><strong>Step counts</strong> — only in the Android app, and only after you allow <em>Physical activity</em>: your phone's daily step total (never raw sensor data, never location), so the app can show your steps, your streak and the boards you join. The app keeps a random pairing id so your phone can send that total; it is not your hardware or advertising id. Turn the permission off at any time in Android settings and the counting stops.</li></ul><div class="note">We do <strong>not</strong> collect: your location, your contacts, advertising IDs, photos, payment info, or any data we don't explicitly list above. Step counts are the only health or fitness data we hold, and we never share or sell them.</div><h2 data-n="02">How we use it</h2><ul><li>Deliver one-time verification codes by email.</li><li>Show your tasks, books, and other content you've created.</li><li>Send reminders at the times you set.</li><li>Show your daily steps, streak and the boards you opted into (Android app).</li></ul><h2 data-n="03">Who we share with</h2><p>We share data only with the following service providers, strictly to operate the service:</p><ul><li><strong>Resend</strong> — to deliver verification emails (<a href="https://resend.com/privacy">privacy policy</a>).</li><li><strong>Railway</strong> — our hosting provider (<a href="https://railway.app/legal/privacy">privacy policy</a>).</li><li><strong>Internet Archive (LibriVox)</strong> — we fetch public-domain audiobook metadata. No personal data is sent.</li></ul><div class="note">We never sell your data. We never show ads. We never track you across other apps or sites.</div><h2 data-n="04">Data retention</h2><p>Your tasks and account persist until you delete them or ask us to delete your account. Verification codes expire after 5 minutes and are wiped after use.</p><h2 data-n="05">Your rights</h2><p>Delete your account and everything it holds yourself, immediately, at <a href="/delete-account">brodoit.com/delete-account</a>. Or email <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> any time to export your data, correct it, or have us delete it by hand. We respond within seven days.</p><h2 data-n="06">Children</h2><p>Brodoit is not directed at children under 13. We do not knowingly collect data from children under 13. If you believe we have, please contact us and we will delete it immediately.</p><h2 data-n="07">Changes</h2><p>If we make material changes, we'll update the date at the top of this page and notify you by email if we have your address.</p><h2 data-n="08">Contact</h2><p>Questions about anything on this page? <a href="mailto:hello@brodoit.com">hello@brodoit.com</a> — a real human reads every message.</p>${LEGAL_FOOT}</div></body></html>`);
 });
 
 // Terms of Service
@@ -18069,6 +18128,9 @@ app.use(_compress);
 app.use('/app',express.static(path.join(__dirname,'app'),{etag:true,setHeaders:res=>res.set('Cache-Control','no-cache')}));
 let _settings=null;try{_settings=require('./modules/settings.js').install(db)}catch(e){console.log('[settings] module missing, env only:',e.message);_settings={getSetting:k=>process.env[k]||'',setSetting:()=>{throw new Error('settings module missing')},settingSource:k=>process.env[k]?'env':null}}
 const {getSetting,setSetting,settingSource}=_settings;global._getSetting=getSetting;
+// v40 the review account's fixed sign-in code (Google Play / Testers Community reviewers): made once, kept in app_settings,
+// shown to the owner in Admin (/api/admin/status → review). REVIEW_LOGIN_EMAIL defaults to reviewer@brodoit.com.
+try{if(!/^\d{6}$/.test(String(getSetting('REVIEW_LOGIN_CODE')||'')))setSetting('REVIEW_LOGIN_CODE',String(Math.floor(100000+Math.random()*900000)))}catch(e){console.log('[review] code not set:',e.message)}
 try{require('./modules/elevenbrain.js').install({getSetting,setSetting})}catch(e){console.log('[eleven-brain] off:',e.message)}
 // keys handed over in chat arrive encrypted in config/sealed-settings.json (public repo) — applied before anything reads them
 try{require('./modules/sealed.js').install(app,{dataDir:path.dirname(DB_PATH),appRoot:__dirname,setSetting,settingUpdatedAt:_settings.settingUpdatedAt,allowed:['OPENAI_API_KEY','ELEVENLABS_API_KEY','GEMINI_API_KEY','GROQ_API_KEY']})}catch(e){console.log('[sealed] off:',e.message)}
