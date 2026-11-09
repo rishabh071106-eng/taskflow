@@ -4,8 +4,9 @@ Last updated: October 20, 2026 (v19). The May 10 playbook follows below.
 
 ## v19: the new app on the existing Play listing
 
-The app in this repo (TWA + background steps) now builds as **`com.brodoit.twa`** for Google Play: an update of the
-existing listing, keeping its content rating, declarations and testers. The same build is also **`com.brodoit.app`**
+The app in this repo (TWA + background steps) now builds as **`com.brodoit.android`** for Google Play (v40, November
+2026: a fresh listing; the first one, `com.brodoit.twa`, kept a package name Play never lets change and tester
+communities refuse on sight, so it stays empty). The same build is also **`com.brodoit.app`**
 at **https://brodoit.com/android**, a one-tap install for testers that needs no Play account.
 
 **The server does the rest:**

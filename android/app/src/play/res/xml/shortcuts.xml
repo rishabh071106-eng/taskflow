@@ -2,12 +2,12 @@
 <shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
     <shortcut android:shortcutId="steps" android:enabled="true" android:icon="@drawable/ic_shortcut_steps"
         android:shortcutShortLabel="@string/shortcut_steps" android:shortcutLongLabel="@string/shortcut_steps">
-        <intent android:action="android.intent.action.VIEW" android:targetPackage="com.brodoit.twa"
+        <intent android:action="android.intent.action.VIEW" android:targetPackage="com.brodoit.android"
             android:targetClass="com.brodoit.app.WebAppActivity" android:data="https://brodoit.com/?tab=steps" />
     </shortcut>
     <shortcut android:shortcutId="bro" android:enabled="true" android:icon="@drawable/ic_shortcut_bro"
         android:shortcutShortLabel="@string/shortcut_bro" android:shortcutLongLabel="@string/shortcut_bro">
-        <intent android:action="android.intent.action.VIEW" android:targetPackage="com.brodoit.twa"
+        <intent android:action="android.intent.action.VIEW" android:targetPackage="com.brodoit.android"
             android:targetClass="com.brodoit.app.WebAppActivity" android:data="https://brodoit.com/?tab=bro" />
     </shortcut>
 </shortcuts>

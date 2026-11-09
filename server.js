@@ -17545,13 +17545,13 @@ const MARKETING_CHROME=LEGAL_CHROME+`<style>.hero-tag{display:inline-flex;align-
 try{db.exec("CREATE TABLE IF NOT EXISTS beta_signups(id TEXT PRIMARY KEY,name TEXT,email TEXT NOT NULL,source TEXT DEFAULT'',referrer TEXT DEFAULT'',created_at TEXT DEFAULT(datetime('now')),added_to_console INTEGER DEFAULT 0,added_at TEXT)")}catch(e){}
 try{db.exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_beta_signups_email ON beta_signups(email)")}catch(e){}
 
-// The closed test (Play's "alpha" track for com.brodoit.twa) lets in the members of one Google Group: a tester joins
+// The closed test (Play's "alpha" track for com.brodoit.android; com.brodoit.twa before v40) lets in the members of one Google Group: a tester joins
 // the group with their Play account, then opts in at the Play testing link and installs from Play. Both are
 // overridable by env var if the group or the track ever changes.
 const BETA_GROUP=process.env.BETA_GROUP||'brodoit-testing';
 const BETA_GROUP_URL='https://groups.google.com/g/'+BETA_GROUP;
 // the Play page where a tester opts in. A setting that is not a full https:// link (an old internal-test id) is ignored.
-const BETA_OPT_IN_URL=/^https:\/\//.test(process.env.BETA_OPT_IN_URL||'')?process.env.BETA_OPT_IN_URL:'https://play.google.com/apps/testing/com.brodoit.twa';
+const BETA_OPT_IN_URL=/^https:\/\//.test(process.env.BETA_OPT_IN_URL||'')?process.env.BETA_OPT_IN_URL:'https://play.google.com/apps/testing/com.brodoit.android';
 
 app.post('/api/beta-signup',async(req,res)=>{
   const name=String(req.body.name||'').trim().slice(0,80);

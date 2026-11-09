@@ -1,7 +1,8 @@
 # Builds the Brodoit Android app (brodoit.com + background step counter) in two flavors and publishes them unsigned,
 # plus apksigner, as a GitHub release (main only):
 #   direct → com.brodoit.app, the APK served at brodoit.com/android (sideload), a Trusted Web Activity
-#   play   → com.brodoit.twa, the bundle for the existing Google Play listing: brodoit.com in the app's own WebView
+#   play   → com.brodoit.android, the bundle for the Google Play listing: brodoit.com in the app's own WebView
+#            (v40; com.brodoit.twa before: Play never lets a package name change and tester communities refuse ".twa")
 # The Brodoit server (modules/android.js) downloads the newest release, signs both with its own upload key kept on
 # the data volume, serves /download/brodoit.apk, and uploads the bundle to Play's test tracks (modules/play.js).
 # Every build is checked (packages, versions above the old Play build, target SDK) and installed on Android
@@ -45,7 +46,7 @@ jobs:
           BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
           cp "$BT/lib/apksigner.jar" out/apksigner.jar
           VC=$((1000 + ${{ github.run_number }}))
-          echo "{\"build\":${{ github.run_number }},\"version\":\"1.0.${{ github.run_number }}\",\"versionCode\":$VC,\"apkPackage\":\"com.brodoit.app\",\"aabPackage\":\"com.brodoit.twa\",\"sha\":\"${{ github.sha }}\",\"ref\":\"${{ github.ref_name }}\"}" > out/build.json
+          echo "{\"build\":${{ github.run_number }},\"version\":\"1.0.${{ github.run_number }}\",\"versionCode\":$VC,\"apkPackage\":\"com.brodoit.app\",\"aabPackage\":\"com.brodoit.android\",\"sha\":\"${{ github.sha }}\",\"ref\":\"${{ github.ref_name }}\"}" > out/build.json
           ls -la out
       - name: Check the builds (packages, versions above the old Play build, target SDK 36)
         run: |
@@ -58,7 +59,7 @@ jobs:
           VC=$(bt out/brodoit-unsigned.aab /manifest/@android:versionCode)
           TS=$(bt out/brodoit-unsigned.aab /manifest/uses-sdk/@android:targetSdkVersion)
           echo "Play bundle: $PKG versionCode $VC targetSdk $TS (the last Play build made outside this repo: versionCode $OLD)"
-          [ "$PKG" = com.brodoit.twa ] || { echo "::error::the Play bundle must be com.brodoit.twa (got $PKG)"; exit 1; }
+          [ "$PKG" = com.brodoit.android ] || { echo "::error::the Play bundle must be com.brodoit.android (got $PKG)"; exit 1; }
           [ "$VC" -gt "$OLD" ] || { echo "::error::versionCode $VC is not above the Play listing's $OLD"; exit 1; }
           [ "$TS" -ge 36 ] || { echo "::error::Play needs targetSdk 36 (got $TS)"; exit 1; }
           B=$("$BT/aapt2" dump badging out/brodoit-unsigned.apk | head -4)
@@ -74,7 +75,7 @@ jobs:
           if echo "$M" | grep -qE 'com.brodoit.app.LauncherActivity|androidbrowserhelper.trusted.DelegationService'; then echo "::error::the Play build must not be a Trusted Web Activity"; exit 1; fi
           P=$("$BT/aapt2" dump permissions play/brodoit-play-unsigned.apk)
           for perm in RECORD_AUDIO POST_NOTIFICATIONS ACTIVITY_RECOGNITION; do echo "$P" | grep -q "android.permission.$perm" || { echo "::error::the Play build must ask for $perm"; exit 1; }; done
-          "$BT/aapt2" dump badging play/brodoit-play-unsigned.apk | head -1 | grep -q "package: name='com.brodoit.twa' versionCode='$VC'" || { echo "::error::the Play APK must be com.brodoit.twa $VC"; exit 1; }
+          "$BT/aapt2" dump badging play/brodoit-play-unsigned.apk | head -1 | grep -q "package: name='com.brodoit.android' versionCode='$VC'" || { echo "::error::the Play APK must be com.brodoit.android $VC"; exit 1; }
           # no Trusted Web Activity anywhere in the Play build: no TWA manifest entries, no androidbrowserhelper code
           if echo "$M" | grep -qE 'customtabs\.trusted|asset_statements|web_manifest_url'; then echo "::error::the Play build's manifest still has Trusted Web Activity entries"; exit 1; fi
           if unzip -p play/brodoit-play-unsigned.apk 'classes*.dex' | grep -aqE 'androidbrowserhelper|Lcom/brodoit/app/LauncherActivity;'; then echo "::error::the Play build still contains Trusted Web Activity code (androidbrowserhelper)"; exit 1; fi
@@ -137,7 +138,7 @@ jobs:
         with:
           tag_name: android-v1.0.${{ github.run_number }}
           name: Brodoit Android 1.0.${{ github.run_number }}
-          body: "Unsigned build from ${{ github.ref_name }} @ ${{ github.sha }}: com.brodoit.app (APK, brodoit.com/android) and com.brodoit.twa (bundle, Google Play). The Brodoit server signs both."
+          body: "Unsigned build from ${{ github.ref_name }} @ ${{ github.sha }}: com.brodoit.app (APK, brodoit.com/android) and com.brodoit.android (bundle, Google Play). The Brodoit server signs both."
           files: |
             out/brodoit-unsigned.apk
             out/brodoit-unsigned.aab
